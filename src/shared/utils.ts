@@ -38,17 +38,28 @@ export function useId(deterministicId?: () => string | null | undefined, prefix?
 
 export { combineStyle } from '@solid-primitives/props'
 export { cls as cn } from 'cls-variant'
-export function callHandler<T, E extends Event>(
+
+export interface HandlerCallResult<R = unknown> {
+  defaultPrevented: boolean
+  result: R | undefined
+}
+
+export function callHandler<T, E extends Event, R = unknown>(
   event: E,
   handler: JSX.EventHandlerUnion<T, E> | undefined,
-) {
+): HandlerCallResult<R> {
+  let result: R | undefined
+
   if (handler) {
     if (typeof handler === 'function') {
-      handler(event as any)
+      result = (handler as (event: E) => R)(event)
     } else {
-      handler[0](handler[1], event as any)
+      result = (handler[0] as (data: T, event: E) => R)(handler[1] as T, event)
     }
   }
 
-  return event?.defaultPrevented
+  return {
+    defaultPrevented: event?.defaultPrevented ?? false,
+    result,
+  }
 }

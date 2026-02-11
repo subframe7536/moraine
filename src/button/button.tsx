@@ -1,67 +1,208 @@
-import type { ComponentProps, JSX } from 'solid-js'
-import { splitProps, createMemo } from 'solid-js'
+import * as KobalteButton from '@kobalte/core/button'
+import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
+import type { JSX, ValidComponent } from 'solid-js'
+import { Show, createMemo, createSignal, splitProps } from 'solid-js'
+
+import { useComponentIcons } from '../shared/use-component-icons'
+import { callHandler, cn } from '../shared/utils'
 
 import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
 
-export interface ButtonProps extends ComponentProps<'button'>, ButtonVariantProps {
-  block?: boolean
-  square?: boolean
-  loading?: boolean
-  icon?: JSX.Element
-  trailing?: boolean
+/**
+ * Class overrides for Button slots.
+ */
+export interface ButtonClasses {
+  /**
+   * Leading slot classes.
+   */
+  leading?: string
+
+  /**
+   * Label slot classes.
+   */
+  label?: string
+
+  /**
+   * Trailing slot classes.
+   */
+  trailing?: string
+
+  /**
+   * Loading icon wrapper classes.
+   */
+  loading?: string
 }
 
-export const Button = (props: ButtonProps) => {
-  const [local, rest] = splitProps(props, [
+/**
+ * Additional Rock UI button options on top of Kobalte's polymorphic button props.
+ */
+export interface ButtonBaseProps extends ButtonVariantProps {
+  /**
+   * Controlled loading state.
+   */
+  loading?: boolean
+
+  /**
+   * Auto toggles loading while async click handlers are pending.
+   */
+  loadingAuto?: boolean
+
+  /**
+   * Leading visual content, usually an icon.
+   */
+  leading?: JSX.Element
+
+  /**
+   * Trailing visual content, usually an icon.
+   */
+  trailing?: JSX.Element
+
+  /**
+   * Label content rendered before `children`.
+   */
+  label?: JSX.Element
+
+  /**
+   * Optional icon shown when `loading` is active.
+   */
+  loadingIcon?: JSX.Element
+
+  /**
+   * Slot-based class overrides, similar to Nuxt UI `ui` customization.
+   */
+  classes?: ButtonClasses
+}
+
+/**
+ * Polymorphic button props composed from Kobalte button root props and Rock UI button options.
+ */
+export type ButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
+  T,
+  ButtonBaseProps & KobalteButton.ButtonRootProps<ElementOf<T>>
+>
+
+type PromiseLikeWithFinally = PromiseLike<unknown> & {
+  then: PromiseLike<unknown>['then']
+}
+
+function isPromiseLike(value: unknown): value is PromiseLikeWithFinally {
+  return (
+    (typeof value === 'object' || typeof value === 'function') &&
+    value !== null &&
+    typeof (value as PromiseLike<unknown>).then === 'function'
+  )
+}
+
+/**
+ * Rock UI Button built on top of Kobalte `Button.Root` with polymorphic `as` support.
+ */
+export const Button = <T extends ValidComponent = 'button'>(props: ButtonProps<T>) => {
+  const [local, rest] = splitProps(props as ButtonProps, [
     'class',
     'variant',
     'size',
-    'block',
-    'square',
+    'disabled',
     'loading',
-    'icon',
-    'children',
+    'loadingAuto',
+    'leading',
     'trailing',
+    'label',
+    'loadingIcon',
+    'classes',
+    'onClick',
+    'onclick',
+    'children',
   ])
+
+  const [loadingAutoState, setLoadingAutoState] = createSignal(false)
+
+  const isLoading = createMemo(() =>
+    Boolean(local.loading || (local.loadingAuto && loadingAutoState())),
+  )
+
   const buttonClass = createMemo(() => {
     return buttonVariants(
-      {},
-      local.block && 'w-full',
-      local.loading && 'cursor-wait opacity-80',
+      {
+        variant: local.variant,
+        size: local.size,
+      },
+      isLoading() && 'cursor-wait opacity-80',
       local.class,
     )
   })
 
-  const renderIcon = () => {
-    if (local.loading) {
-      return <div class="i-lucide:spinner" />
-    }
-    if (!local.icon) {
-      return null
+  const { isLeading, leadingIcon, trailingIcon } = useComponentIcons(() => ({
+    loading: isLoading(),
+    loadingIcon: local.loadingIcon,
+    leading: local.leading,
+    trailing: local.trailing,
+  }))
+
+  const content = createMemo(() => {
+    if (local.label !== undefined && local.label !== null) {
+      return local.label
     }
 
-    if (local.children && !local.trailing) {
-      return <span class="flex items-center">{local.icon}</span>
-    }
-    return local.icon
-  }
+    return local.children
+  })
 
-  const renderTrailingIcon = () => {
-    if (local.loading) {
-      return null
+  const onClick: JSX.EventHandlerUnion<any, MouseEvent> = (event) => {
+    if (isLoading() || local.disabled) {
+      event.preventDefault()
+      return
     }
-    if (local.icon && local.trailing && local.children) {
-      return <span class="ml-auto flex items-center">{local.icon}</span> // ml-auto push to right if needed, or just normal flow
+
+    const handler = local.onClick ?? local.onclick
+    const { result: handlerResult, defaultPrevented } = callHandler(event, handler)
+
+    if (!local.loadingAuto || defaultPrevented || isLoading() || !isPromiseLike(handlerResult)) {
+      return
     }
-    return null
+
+    setLoadingAutoState(true)
+    Promise.resolve(handlerResult).finally(() => {
+      setLoadingAutoState(false)
+    })
   }
 
   return (
-    <button class={buttonClass()} disabled={local.loading || rest.disabled} {...rest}>
-      {renderIcon()}
-      {local.loading ? ' Loading...' : local.children}
-      {renderTrailingIcon()}
-    </button>
+    <KobalteButton.Root
+      data-slot="button"
+      class={buttonClass()}
+      aria-busy={isLoading() ? true : undefined}
+      data-loading={isLoading() ? '' : undefined}
+      disabled={isLoading() || local.disabled}
+      onClick={onClick}
+      {...rest}
+    >
+      <Show when={isLeading()}>
+        <span
+          data-slot="leading"
+          class={cn(
+            'flex items-center',
+            local.classes?.leading,
+            isLoading() && local.classes?.loading,
+          )}
+          aria-hidden={isLoading() ? 'true' : undefined}
+        >
+          {leadingIcon()}
+        </span>
+      </Show>
+
+      <Show when={content() !== undefined && content() !== null}>
+        <span data-slot="label" class={cn('truncate', local.classes?.label)}>
+          {content()}
+        </span>
+      </Show>
+
+      <Show when={trailingIcon()}>
+        {(trailingResolved) => (
+          <span data-slot="trailing" class={cn('flex items-center', local.classes?.trailing)}>
+            {trailingResolved()}
+          </span>
+        )}
+      </Show>
+    </KobalteButton.Root>
   )
 }

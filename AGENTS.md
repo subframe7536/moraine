@@ -1,163 +1,124 @@
 # AGENTS.md
 
-This file contains guidelines for agentic coding agents working on Rock UI (@subf/base-ui), a SolidJS component library based on Kobalte.
+This file contains definitive guidelines for agentic coding agents working on Rock UI, a SolidJS component library based on Kobalte.
+Agents must follow these instructions to ensure consistency, quality, and maintainability.
 
 ## Essential Commands
 
+Use `bun` for all package management and script execution.
+
 ### Build & Development
 
-- `bun run build` - Build the library using tsdown (outputs to dist/)
-- `bun run dev` - Build in watch mode for development
-- `bun run play` - Start the Vite playground server on port 3000
-- `bun run typecheck` - Run TypeScript type checking
+- `bun run build` - Build the library using tsdown (outputs to dist/).
+- `bun run dev` - Build in watch mode for development.
+- `bun run play` - Start the Vite playground server on port 3000.
+- `bun run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
 
-- `bun run lint` - Run oxlint (fast linter based on oxc)
-- `bun run format` - Format code using oxfmt
-- `bun run qa` - Run format, lint (with --fix), and typecheck together
+- `bun run lint` - Run oxlint (fast linter based on oxc).
+- `bun run format` - Format code using oxfmt.
+- `bun run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
 
 ### Testing
 
-- `bun run test` - Run all tests using Vitest
-- `bun run test --run` - Run tests once (no watch mode)
-- `bun run test <test-file>` - Run a single test file (e.g., `bun run test button.test.tsx`)
-
-## Code Style Guidelines
-
-### Import Order & Style
-
-Imports must be sorted alphabetically and grouped by type. Use consistent type specifiers style (inline type imports).
-
-```tsx
-import { render } from 'solid-js/web'
-import type { Component } from 'solid-js'
-import { something } from 'external-package'
-import { localHelper } from './utils'
-import type { LocalType } from './types'
-```
-
-### Formatting Rules (oxfmt)
-
-- **No semicolons** - Use ASI (Automatic Semicolon Insertion)
-- **Single quotes only** - Never use double quotes unless required for escaping
-- **Imports sorted alphabetically** - Handled automatically by oxfmt
-
-### TypeScript Rules
-
-- **Strict mode enabled** - All type safety features active
-- **Consistent type definitions** - Use `type` for object types, not `interface`
-- **Consistent type imports** - Use inline type imports: `import type { X } from '...')` not `import { type X } from '...'`
-- **No var allowed** - Use `const` or `let` exclusively
-- **Prefer const assertions** - Use `as const` where appropriate
-- **@ts-expect-error** must include a description explaining why it's needed
-- **Never use** `@ts-ignore`, `@ts-nocheck`, or `@ts-check`
-
-### Naming Conventions
-
-- Components: PascalCase (`Button`, `CollapsibleContent`)
-- Functions: camelCase (`createCollapsible`, `mergeProps`)
-- Constants: UPPER_SNAKE_CASE (`DEFAULT_TIMEOUT`)
-- Types: PascalCase (`CollapsibleProps`, `CollapsibleRoot`)
-- Private/internal: Prefix with `_` (`_internalState`, `_handleClick`)
-
-### SolidJS-Specific Guidelines
-
-- **No destructuring of reactive values** - This breaks reactivity (rule: solid/no-destructure)
-- **Prefer Show over If** - For conditional rendering (rule: solid/prefer-show)
-- **Prefer For over map** - For lists (rule: solid/prefer-for)
-- **Self-closing components** - Use `<Component />` instead of `<Component></Component>`
-- **Event handlers** - Use lowercase event names (`onclick` not `onClick`)
-- **No innerHTML** - Use textContent or createTextNode (static strings allowed)
-- **No React patterns** - Avoid React-specific props and dependency arrays
-- **Imports organization** - Use proper SolidJS imports (rule: solid/imports)
-
-### JSX/CSS Style
-
-- **UnoCSS classes** - Use Tailwind/Wind4 utility classes from UnoCSS
-- **Class prop** - Use `class` attribute (not `className`)
-- **Style prop** - Use `style` prop for inline styles, consider using `css` prop if configured
-- **Class ordering** - UnoCSS classes should be ordered logically (warned by @unocss/order)
-
-### Error Handling
-
-- **Use try-catch blocks** for async operations that might fail
-- **Empty catch blocks allowed** - Only when explicitly needed
-- **Always handle errors** - Don't let errors propagate to top level without handling
-- **Type error boundaries** - Use proper TypeScript types instead of `any`
-
-### Function Guidelines
-
-- **Prefer function declarations** over arrow functions for named functions
-- **Arrow functions allowed** for callbacks and inline definitions
-- **Curly braces required** - Always use curly braces for control flow (rule: curly)
-- **Default case last** - In switch statements
-- **Default params last** - In function signatures
-- **No unused variables** - Remove or prefix with `_`
-
-### Reactivity & State
-
-- **Reactivity warnings** - Heed `solid/reactivity` warnings (set to "warn")
-- **Props destructuring** - Use spread or individual prop access, never destructure props object directly
-- **Refs** - Use `@solid-primitives/refs` for ref utilities
-- **Props merging** - Use `@solid-primitives/props` for prop merging utilities
-
-### Performance
-
-- **No await in loops** - Generally allowed (rule set to "allow")
-- **Promise handling** - Use proper async/await or Promise chains
-- **Avoid unnecessary promises** - Don't wrap synchronous code in promises
+- `bun run test` - Run all tests using Vitest (watch mode by default).
+- `bun run test --run` - Run tests once (CI mode).
+- `bun run test <test-file>` - Run a single test file (e.g., `bun run test button.test.tsx`).
+- **Note:** Tests use `jsdom` environment.
 
 ## Project Structure
+
+Follow this directory structure strictly:
 
 ```
 src/
   index.ts           # Main entry point, exports all components
-  button/            # Component directories
+  button/            # Component directory (kebab-case if multi-word)
     index.ts         # Component exports
-    button.tsx       # Component implementation
-    button.test.tsx  # Component tests
-playground/         # Dev playground with examples
+    button.tsx       # Component logic & markup (SolidJS)
+    button.class.ts  # Component styles (cva/UnoCSS)
+    button.test.tsx  # Component tests (Vitest)
+playground/          # Dev playground with examples
 ```
 
-## Testing Guidelines
+## Porting Guidelines
 
-- Use **Vitest** as test runner with **jsdom** environment
-- Use **@solidjs/testing-library** for component testing
-- Test files should be named `*.test.tsx` or `*.spec.tsx`
-- Use `#test-utils` alias for test utilities
-- Test environment globals are enabled (no need to import describe, it, etc.)
+This project ports logic from **Nuxt UI** and styles from **Coss**. Base component lib is **@kobalte/core**, but not stick to it.
 
-## Build Notes
+### 1. Logic: Porting from Nuxt UI
 
-- **tsdown** is used for bundling with both `.js` and `.jsx` outputs
-- External dependencies: `@solid-primitives/props`, `@solid-primitives/utils`
-- Type definitions generated using oxc (`dts: { oxc: true }`)
-- UnoCSS is processed as a plugin during build
-- Platform targets: browser (for .js) and neutral (for .jsx)
+- **Source:** Refer to `nuxt-ui/src/runtime/components/*.vue` for component logic.
+- **Goal:** Adapt Vue 3 Composition API logic to SolidJS 1.0+ signals/effects.
+- **Mapping:**
+  - `ref(x)` -> `createSignal(x)`
+  - `computed(() => ...)` -> `createMemo(() => ...)`
+  - `watch(() => ...)` -> `createEffect(() => ...)`
+  - `provide`/`inject` -> `createContext` / `useContext`
+  - `onMounted` -> `onMount`
+  - `defineProps` -> TypeScript interface + `mergeProps`
+- **Async Handlers:**
+  - Nuxt UI often uses async click handlers with auto-loading state.
+  - Port this pattern using `createSignal` for loading states inside the event handler.
+  - **Do not** use `async` components (SolidJS components are synchronous setup functions).
+- **Accessibility:**
+  - Use **Kobalte** primitives where possible to handle complex accessibility logic (e.g., Tabs, Dialogs).
+  - If Nuxt UI has custom a11y logic not covered by Kobalte, port it manually.
 
-## Important Reminders
+### 2. Style: Porting from Coss
 
-1. Always run `bun run qa` before committing - it runs format, lint --fix, and typecheck
-2. The project uses Bun as package manager and runtime
-3. All tests must pass before releasing (`bun run release` requires tests)
-4. The library exports as `@subf/base-ui` (check package.json)
-5. Use `~` alias in playground to reference src directory
-6. Type checking must pass (`tsc --noEmit`)
+- **Source:** Refer to `coss/packages/ui/src/components/*.tsx` for visual design.
+- **Goal:** Replicate the visual style using **UnoCSS** and **cva**.
+- **Implementation:**
+  - Create a `{component}.class.ts` file.
+  - Use `cva` from `cls-variant/cva` to define variants.
+  - Copy class names from Coss, but adapt them to UnoCSS.
+  - Use UnoCSS variant groups for cleaner code: `hover:(bg-red-500 text-white)` instead of `hover:bg-red-500 hover:text-white`.
+  - Ensure `size` and `variant` props match the Coss design system structure.
+  - **Do not** import styles directly from the `coss` folder; copy the logic/classes.
 
-## Known Patterns
+## Code Style & Conventions
 
-This library is based on Kobalte patterns. When creating components:
+### Naming
 
-- Study Kobalte's component structure for consistency
-- Use primitive patterns where appropriate
-- Maintain accessibility (a11y) standards
-- Follow the established prop conventions (root, trigger, content, etc.)
+- **Components:** PascalCase (`Button`, `CollapsibleContent`).
+- **Files:** kebab-case (`button.tsx`, `collapsible-content.tsx`).
+- **Functions:** camelCase (`createCollapsible`, `mergeProps`).
+- **Constants:** UPPER_SNAKE_CASE (`DEFAULT_TIMEOUT`).
+- **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
+- **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
+
+### SolidJS Best Practices
+
+- **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
+- **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
+- **Events:** Use lowercase event names (`onclick`, `oninput`) on HTML elements.
+- **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
+- **Imports:** Organize imports: external lib -> internal shared -> component files.
+
+### Styling (UnoCSS)
+
+- **Utility First:** Use utility classes for 99% of styling.
+- **Class Prop:** Always use `class` (not `className`).
+- **Consistency:** Use the `cn` (classnames) utility or `cva` to merge classes.
+
+### Error Handling
+
+- **Async:** Use `try/catch` block within async event handlers.
+- **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
+- **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
+
+### Testing
+
+- **File Name:** `*.test.tsx`.
+- **Library:** `@solidjs/testing-library` for rendering and interaction.
+- **Coverage:** Aim to test standard usage, edge cases, and accessibility (aria attributes).
+- **Snapshot:** Use inline snapshots for small DOM structures, but prefer explicit assertions.
 
 ## Before Making Changes
 
-1. Read existing code to understand patterns (even if src is empty, check configs)
-2. Run relevant tests first
-3. Make changes in small increments
-4. Test each increment
-5. Run `bun run qa` before finishing
+1. **Analyze:** Read the corresponding `nuxt-ui` logic and `coss` style files.
+2. **Plan:** Identify which Kobalte primitive fits best.
+3. **Implement:** Create the `.tsx` and `.class.ts` files.
+4. **Test:** Write a `*.test.tsx` file and run `bun run test <file>`.
+5. **QA:** Run `bun run qa` to ensure formatting and linting pass.
