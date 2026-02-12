@@ -20,16 +20,7 @@
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "solid": "./dist/index.jsx",
-      "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*/index.d.ts",
-      "solid": "./dist/*/index.jsx",
-      "default": "./dist/*/index.js"
-    },
+    ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -48,19 +39,19 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
+    "@kobalte/core": "^0.13.11",
     "@solid-primitives/props": "^3.2.2",
-    "@solid-primitives/refs": "^1.1.2"
+    "@solid-primitives/refs": "^1.1.2",
+    "cls-variant": "^1.0.2"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.90",
-    "@kobalte/core": "^0.13.11",
     "@solidjs/router": "^0.15.4",
     "@solidjs/testing-library": "^0.8.10",
     "@types/bun": "^1.3.9",
     "@unocss/eslint-plugin": "^66.6.0",
     "@unocss/reset": "^66.6.0",
     "bumpp": "^10.4.1",
-    "cls-variant": "^1.0.2",
     "eslint-plugin-solid": "^0.14.5",
     "jsdom": "^28.0.0",
     "oxfmt": "^0.31.0",

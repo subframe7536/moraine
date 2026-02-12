@@ -3,26 +3,32 @@ import type { InlineConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-const entry = ['./src/index.ts']
 const base: InlineConfig = {
-  entry,
-  unbundle: true,
+  entry: ['./src/index.ts'],
   exports: true,
-  external: ['@solid-primitives/props', '@solid-primitives/utils', '@kobalte/core'],
 }
 // export both js and jsx
 export default defineConfig([
   {
     ...base,
-    platform: 'browser',
     // use the solid plugin to handle jsx
-    plugins: [unocss(), solid()],
-    dts: { oxc: true },
+    plugins: [
+      unocss({
+        filter: { id: ['src/**/*.tsx', 'src/**/*.class.ts'] },
+      }),
+      solid(),
+    ],
+    dts: { parallel: true },
   },
   {
     ...base,
     platform: 'neutral',
-    plugins: [unocss({ generateCSS: false })],
+    plugins: [
+      unocss({
+        generateCSS: false,
+        filter: { id: ['src/**/*.tsx', 'src/**/*.class.ts'] },
+      }),
+    ],
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,
   },
