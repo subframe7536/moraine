@@ -140,11 +140,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const disabled = createMemo(() => Boolean(local.disabled) || !hasTooltipContent())
 
   const tooltipContent = (): JSX.Element => (
-    <KobalteTooltip.Content
-      data-slot="content"
-      class={contentClass()}
-      {...contentProps()}
-    >
+    <KobalteTooltip.Content data-slot="content" class={contentClass()} {...contentProps()}>
       <Show when={local.text}>
         <span data-slot="text" class={cn(tooltipTextVariants(), local.classes?.text)}>
           {local.text}
@@ -164,21 +160,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       </Show>
 
       <Show when={arrowEnabled()}>
-        <KobalteTooltip.Arrow
-          data-slot="arrow"
-          class={arrowClass()}
-          {...arrowProps()}
-        />
+        <KobalteTooltip.Arrow data-slot="arrow" class={arrowClass()} {...arrowProps()} />
       </Show>
     </KobalteTooltip.Content>
   )
 
   return (
-    <KobalteTooltip.Root
-      placement={local.placement}
-      disabled={disabled()}
-      {...rest}
-    >
+    <KobalteTooltip.Root placement={local.placement} disabled={disabled()} {...rest}>
       <Show when={hasTrigger()}>
         <KobalteTooltip.Trigger as="span" data-slot="trigger" class={local.classes?.trigger}>
           {triggerChildren()}

@@ -22,7 +22,7 @@
 - [ ] (Skip for now) pin-input | nuxt:PinInput.vue | coss:input.tsx | rock:src/pin-input/ | tests+exports
 - [x] radio-group | nuxt:RadioGroup.vue | coss:radio-group.tsx | rock:src/radio-group/ | tests+exports
 - [ ] select | nuxt:Select.vue | coss:select.tsx | rock:src/select/ | tests+exports
-- [ ] select-menu | nuxt:SelectMenu.vue | coss:combobox.tsx | rock:src/select-menu/ | tests+exports
+- [ ] (Skip for now) select-menu | nuxt:SelectMenu.vue | coss:combobox.tsx | rock:src/select-menu/ | tests+exports
 - [ ] slider | nuxt:Slider.vue | coss:slider.tsx | rock:src/slider/ | tests+exports
 - [x] switch | nuxt:Switch.vue | coss:switch.tsx | rock:src/switch/ | tests+exports
 - [x] textarea | nuxt:Textarea.vue | coss:textarea.tsx | rock:src/textarea/ | tests+exports
@@ -36,18 +36,24 @@
 - Dependency reason: `slider` tooltip behavior depends on a stable tooltip component API.
 - Exit criteria: `tooltip` tests pass and `src/index.ts` export is available.
 
-### P1 - Core selector baseline
+### P1 - Select baseline (unblocked)
 
-- Components: `select`, `select-menu`
+- Components: `select` only (`select-menu` moved to `Skip for now`).
 - Scope: single and multiple selection, groups, item slots, form event flow, icon hooks.
-- Dependency: only existing completed components (`input`, `icon`, `avatar`, `chip`, `button`).
-- Deliverables:
-  - `src/select/` and `src/select-menu/` complete folder sets
-  - exports in local `index.ts` files and root `src/index.ts`
+- Value contract basis: align with `nuxt-ui/src/runtime/components/Select.vue` (`valueKey='value'`, `labelKey='label'`, `descriptionKey='description'` defaults).
+- Hard dependency: `avatar` and `chip` must both be completed first (logic + styles + tests + exports).
+- Dependency status: satisfied (`avatar` + `chip` complete).
+- Deliverables after unblock:
+  - `src/select/` complete folder set
+  - exports in local `index.ts` and root `src/index.ts`
   - dedicated tests for controlled and uncontrolled usage
-- Exit criteria:
+- Exit criteria after unblock:
   - keyboard navigation and ARIA assertions pass
   - `change/input/blur/focus` integration with form field context verified
+- Unblock execution order:
+  - complete `avatar`
+  - complete `chip`
+  - complete `select` in one pass (logic + styles + tests + exports)
 
 ### P2 - Advanced input interactions
 
@@ -80,7 +86,6 @@
 ## Public API Additions (Non-skip Pending Set)
 
 - `Select` and related `SelectProps` (and variant props when cva is used).
-- `SelectMenu` and related `SelectMenuProps` (and variant props when cva is used).
 - `InputMenu` and related `InputMenuProps` (and variant props when cva is used).
 - `FileUpload` and related `FileUploadProps` (and variant props when cva is used).
 - `Slider` and related `SliderProps` (and variant props when cva is used).
@@ -102,7 +107,7 @@
 - Form integration events (`change`, `input`, `blur`, `focus`).
 - Slot rendering for leading/trailing/item customization.
 - Component-specific edge cases:
-  - `select`/`select-menu`: grouped data and multiple selection.
+  - `select`: grouped data and multiple selection.
   - `input-menu`: create-item, clear, remove-tag, filtering.
   - `file-upload`: reset, remove, preview, single vs multiple.
   - `slider`: single vs range and tooltip-enabled mode.
@@ -110,6 +115,8 @@
 ## Tracking
 
 - [x] P0 complete (`tooltip` prerequisite)
-- [ ] P1 complete (`select`, `select-menu`)
+- [x] P1 scope updated (`select-menu` moved to `Skip for now`)
+- [x] P1 dependency resolved (`avatar` + `chip` complete, `select` unblocked)
+- [ ] P1 complete (`select`)
 - [ ] P2 complete (`input-menu`, `file-upload`)
 - [ ] P3 complete (`slider`)

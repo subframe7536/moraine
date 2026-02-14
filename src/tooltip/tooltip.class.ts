@@ -29,4 +29,3 @@ export const tooltipKbdVariants = cva(
 export const tooltipArrowVariants = cva('fill-popover stroke-border')
 
 export type TooltipVariantProps = VariantProps<typeof tooltipContentVariants>
-
