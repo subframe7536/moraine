@@ -173,7 +173,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return local.incrementIcon
     }
 
-    return local.orientation === 'vertical' ? 'i-lucide-chevron-up' : 'i-lucide-plus'
+    return local.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
   })
 
   const decrementIcon = createMemo<IconName>(() => {
@@ -181,7 +181,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return local.decrementIcon
     }
 
-    return local.orientation === 'vertical' ? 'i-lucide-chevron-down' : 'i-lucide-minus'
+    return local.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
   })
 
   const incrementProps = createMemo<InputNumberControlButtonProps | undefined>(() => {

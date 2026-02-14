@@ -16,7 +16,7 @@ export const textareaBaseVariants = cva(
       color: {
         primary: 'focus-visible:(ring-2 ring-inset ring-primary)',
         secondary: 'focus-visible:(ring-2 ring-inset ring-secondary)',
-        neutral: 'focus-visible:(ring-2 ring-inset ring-foreground)',
+        neutral: 'focus-visible:(ring-2 ring-inset ring-neutral)',
         error: 'focus-visible:(ring-2 ring-inset ring-destructive)',
       },
       size: {

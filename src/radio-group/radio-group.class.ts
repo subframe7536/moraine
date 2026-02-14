@@ -36,7 +36,7 @@ export const radioGroupLegendVariants = cva('mb-1 block font-medium text-foregro
       xl: 'text-base',
     },
     required: {
-      true: "after:(ms-0.5 text-destructive) after:content-['*']",
+      true: "after:(ms-0.5 text-destructive content-['*'])",
     },
   },
 })
@@ -59,8 +59,8 @@ export const radioGroupItemVariants = cva('flex items-start', {
     },
     variant: {
       list: '',
-      card: 'rounded-lg border border-border',
-      table: 'border border-border',
+      card: 'rounded-lg border',
+      table: 'border',
     },
     indicator: {
       start: 'flex-row',
@@ -170,7 +170,7 @@ export const radioGroupIndicatorVariants = cva(
       color: {
         primary: 'bg-primary',
         secondary: 'bg-secondary',
-        neutral: 'bg-foreground',
+        neutral: 'bg-neutral',
         error: 'bg-destructive',
       },
     },

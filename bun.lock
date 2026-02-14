@@ -5,6 +5,7 @@
     "": {
       "name": "rock-ui",
       "dependencies": {
+        "@corvu/utils": "^0.4.2",
         "@kobalte/core": "^0.13.11",
         "@solid-primitives/props": "^3.2.2",
         "@solid-primitives/refs": "^1.1.2",

@@ -111,7 +111,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
       color: 'primary' as const,
       variant: 'outline' as const,
       loading: false,
-      loadingIcon: 'i-lucide-loader-circle' as IconName,
+      loadingIcon: 'icon-loading' as IconName,
       autoresize: false,
     },
     props,

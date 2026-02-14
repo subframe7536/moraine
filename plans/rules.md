@@ -12,5 +12,8 @@ These rules apply to all future component ports:
 7. Use `createContextProvider` (from `src/shared/create-context-provider.ts`) to define `Provider + hook` pairs instead of ad-hoc `createContext` boilerplate.
 8. Use getter-based context values for reactive context fields (for example: `get name() { return local.name }`) instead of accessor.
 9. Set default value to `null` if the context is optional, and check if it is null before using it or use `ctx?.key`
+10. Use `icon-*` aliases (for example `icon-loading`, `icon-check`) for all component default icons.
+11. Do not hardcode provider-specific classes like `i-lucide-*` as component defaults.
+12. Keep raw `i-*` classes only in theme preset icon mapping and in tests/examples that explicitly verify direct icon-class support.
 
 **Every component should pass `bun run qa` and `bun run test`**

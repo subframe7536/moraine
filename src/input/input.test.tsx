@@ -101,9 +101,9 @@ describe('Input', () => {
     const leadingIcon = screen.container.querySelector('[data-slot="leadingIcon"]')
     const trailingIcons = screen.container.querySelectorAll('[data-slot="trailingIcon"]')
 
-    expect(leadingIcon?.className).toContain('i-lucide-loader-circle')
+    expect(leadingIcon?.className).toContain('icon-loading')
     expect(leadingIcon?.className).toContain('animate-spin')
-    expect(trailingIcons[0]?.className).toContain('i-lucide-loader-circle')
+    expect(trailingIcons[0]?.className).toContain('icon-loading')
     expect(trailingIcons[0]?.className).toContain('animate-spin')
   })
 

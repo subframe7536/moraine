@@ -106,7 +106,7 @@ export function Input(props: InputProps): JSX.Element {
       color: 'primary' as const,
       variant: 'outline' as const,
       loading: false,
-      loadingIcon: 'i-lucide-loader-circle' as IconName,
+      loadingIcon: 'icon-loading' as IconName,
     },
     props,
   )

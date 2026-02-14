@@ -55,7 +55,7 @@ describe('InputNumber', () => {
     const icon = screen
       .getByRole('button', { name: 'Increment' })
       .querySelector('[data-slot="icon"]') as HTMLElement | null
-    expect(icon?.className).toContain('i-lucide-chevron-up')
+    expect(icon?.className).toContain('icon-chevron-up')
   })
 
   test('hides both increment and decrement controls when disabled by props', () => {

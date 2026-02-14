@@ -96,7 +96,7 @@ describe('Textarea', () => {
     ))
 
     const loadingIcon = screen.container.querySelector('[data-slot="leadingIcon"]')
-    expect(loadingIcon?.className).toContain('i-lucide-loader-circle')
+    expect(loadingIcon?.className).toContain('icon-loading')
     expect(loadingIcon?.className).toContain('animate-spin')
     expect(screen.getByTestId('avatar').textContent).toBe('A')
   })

@@ -10,7 +10,8 @@ export type IconName = string | JSX.Element | (() => JSX.Element)
 
 export interface IconBaseProps extends IconVariantProps {
   /**
-   * Icon source. Strings should be Uno icon classes such as `i-lucide-search`.
+   * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
+   * or app-config aliases such as `icon-search`.
    * Non-string values can be JSX nodes or render functions.
    */
   name: IconName

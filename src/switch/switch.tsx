@@ -71,7 +71,7 @@ export function Switch(props: SwitchProps): JSX.Element {
       size: 'md' as const,
       color: 'primary' as const,
       loading: false,
-      loadingIcon: 'i-lucide-loader-circle' as IconName,
+      loadingIcon: 'icon-loading' as IconName,
     },
     props,
   )

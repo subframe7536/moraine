@@ -36,7 +36,7 @@ export const switchBaseVariants = cva(
       color: {
         primary: 'data-[checked]:bg-primary',
         secondary: 'data-[checked]:bg-secondary',
-        neutral: 'data-[checked]:bg-foreground',
+        neutral: 'data-[checked]:bg-neutral',
         error: 'data-[checked]:bg-destructive',
       },
       size: {
