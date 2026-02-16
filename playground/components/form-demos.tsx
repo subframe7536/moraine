@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
 
-import { Button, Checkbox, CheckboxGroup, InputNumber, RadioGroup, Switch } from '../../src'
+import { Button, Checkbox, CheckboxGroup, RadioGroup, Switch } from '../../src'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 
@@ -55,8 +55,6 @@ export const FormDemos = () => {
   const [switchValue, setSwitchValue] = createSignal(false)
   const [switchLoading, setSwitchLoading] = createSignal(false)
 
-  const [controlledNumber, setControlledNumber] = createSignal(10)
-
   const runSwitchLoading = async () => {
     setSwitchLoading(true)
     await wait(900)
@@ -66,8 +64,8 @@ export const FormDemos = () => {
   return (
     <DemoPage
       eyebrow="Rock UI Playground"
-      title="Form Components"
-      description="Interactive previews for checkbox, checkbox-group, radio-group, switch, and input-number."
+      title="Form Controls"
+      description="Interactive previews for checkbox, checkbox-group, radio-group, and switch."
     >
       <DemoSection
         title="Checkbox"
@@ -174,37 +172,6 @@ export const FormDemos = () => {
             <Button size="sm" variant="outline" onclick={runSwitchLoading}>
               Simulate loading
             </Button>
-          </div>
-        </div>
-      </DemoSection>
-
-      <DemoSection
-        title="Input Number"
-        description="Horizontal/vertical controls with controlled and uncontrolled values."
-      >
-        <div class="gap-4 grid sm:grid-cols-2">
-          <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
-            <label class="text-xs text-zinc-600 block">Uncontrolled quantity</label>
-            <InputNumber defaultValue={2} minValue={0} maxValue={9} />
-            <label class="text-xs text-zinc-600 block">Vertical style</label>
-            <InputNumber orientation="vertical" defaultValue={3} variant="soft" />
-          </div>
-
-          <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
-            <label class="text-xs text-zinc-600 block">Controlled quantity</label>
-            <InputNumber
-              value={controlledNumber()}
-              onRawValueChange={(nextValue) => {
-                if (Number.isFinite(nextValue)) {
-                  setControlledNumber(nextValue)
-                }
-              }}
-              minValue={0}
-              maxValue={99}
-              variant="subtle"
-              highlight
-            />
-            <p class="text-xs text-zinc-600">Current value: {controlledNumber()}</p>
           </div>
         </div>
       </DemoSection>

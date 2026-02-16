@@ -34,7 +34,9 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
-    "qa": "oxfmt && oxlint --fix && tsc --noEmit",
+    "fix-oxlint": "bun -e \"const p=process.argv[1],f=Bun.file(p),t=await f.text();await Bun.write(p,t.replace(/jsPlugins/g,'//jsPlugins'));await Bun.write(p,t)\" .oxlintrc.json",
+    "oxc": "bun run fix-oxlint && oxlint --fix && oxfmt",
+    "qa": "bun run --parallel oxc typecheck",
     "release": "bun run test --run && bumpp",
     "prepublishOnly": "bun run build"
   },

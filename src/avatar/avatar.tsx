@@ -176,36 +176,29 @@ export function Avatar(props: AvatarProps): JSX.Element {
     }
   })
 
-  function content(): JSX.Element {
+  function visualContent(): JSX.Element {
     return (
       <Show
         when={Boolean(local.src) && !hasError()}
         fallback={
           <Show
-            when={local.children !== undefined && local.children !== null}
+            when={local.icon}
             fallback={
-              <Show
-                when={local.icon}
-                fallback={
-                  <span
-                    data-slot="fallback"
-                    class={cn(avatarFallbackVariants(), local.classes?.fallback)}
-                  >
-                    {fallbackText() || ' '}
-                  </span>
-                }
+              <span
+                data-slot="fallback"
+                class={cn(avatarFallbackVariants(), local.classes?.fallback)}
               >
-                {(iconName) => (
-                  <Icon
-                    name={iconName()}
-                    data-slot="icon"
-                    class={cn(avatarIconVariants(), local.classes?.icon)}
-                  />
-                )}
-              </Show>
+                {fallbackText() || ' '}
+              </span>
             }
           >
-            {local.children}
+            {(iconName) => (
+              <Icon
+                name={iconName()}
+                data-slot="icon"
+                class={cn(avatarIconVariants(), local.classes?.icon)}
+              />
+            )}
           </Show>
         }
       >
@@ -220,6 +213,15 @@ export function Avatar(props: AvatarProps): JSX.Element {
           onError={() => setHasError(true)}
         />
       </Show>
+    )
+  }
+
+  function content(): JSX.Element {
+    return (
+      <>
+        {visualContent()}
+        {local.children}
+      </>
     )
   }
 
@@ -249,7 +251,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
         }
       >
         <Chip
-          {...(mergedChipProps() as ChipProps)}
+          {...mergedChipProps()}
           as={resolvedAs().root}
           data-slot="root"
           style={local.style}

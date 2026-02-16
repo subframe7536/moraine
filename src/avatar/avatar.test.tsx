@@ -1,6 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
+import { Chip } from '../chip'
+
 import { Avatar } from './avatar'
 
 describe('Avatar', () => {
@@ -10,6 +12,7 @@ describe('Avatar', () => {
 
     expect(root).not.toBeNull()
     expect(root?.className).toContain('size-8')
+    expect(root?.className).not.toContain('overflow-hidden')
   })
 
   test('renders image when src is provided', () => {
@@ -19,6 +22,30 @@ describe('Avatar', () => {
     expect(image).not.toBeNull()
     expect(image?.getAttribute('src')).toContain('https://example.com/a.png')
     expect(image?.getAttribute('alt')).toBe('John Doe')
+  })
+
+  test('renders children when src is provided', () => {
+    const screen = render(() => (
+      <Avatar src="https://example.com/a.png" alt="John Doe">
+        <span data-testid="custom-child">Custom</span>
+      </Avatar>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="image"]')).not.toBeNull()
+    expect(screen.getByTestId('custom-child').textContent).toBe('Custom')
+  })
+
+  test('renders chip children when src is provided', () => {
+    const screen = render(() => (
+      <Avatar src="https://example.com/a.png" alt="John Doe">
+        <Chip color="error" text={3} />
+      </Avatar>
+    ))
+    const chipBase = screen.container.querySelector('[data-slot="base"]')
+
+    expect(screen.container.querySelector('[data-slot="image"]')).not.toBeNull()
+    expect(chipBase).not.toBeNull()
+    expect(chipBase?.textContent).toBe('3')
   })
 
   test('renders fallback text prop', () => {
@@ -51,13 +78,30 @@ describe('Avatar', () => {
     expect(screen.container.querySelector('[data-slot="fallback"]')?.textContent).toBe('JD')
   })
 
-  test('renders children before icon and fallback', () => {
+  test('renders children with icon fallback', () => {
     const screen = render(() => (
       <Avatar icon="i-lucide-user" alt="John Doe">
         <span data-testid="custom-child">Custom</span>
       </Avatar>
     ))
 
+    expect(screen.container.querySelector('[data-slot="icon"]')).not.toBeNull()
+    expect(screen.getByTestId('custom-child').textContent).toBe('Custom')
+  })
+
+  test('keeps children when image emits error', async () => {
+    const screen = render(() => (
+      <Avatar src="https://example.com/a.png" alt="John Doe">
+        <span data-testid="custom-child">Custom</span>
+      </Avatar>
+    ))
+    const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
+
+    expect(image).not.toBeNull()
+    await fireEvent.error(image!)
+
+    expect(screen.container.querySelector('[data-slot="image"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="fallback"]')?.textContent).toBe('JD')
     expect(screen.getByTestId('custom-child').textContent).toBe('Custom')
   })
 
@@ -102,6 +146,19 @@ describe('Avatar', () => {
     const base = screen.container.querySelector('[data-slot="base"]')
 
     expect(base?.className).toContain('h-[10px]')
+  })
+
+  test('renders chip and children together', () => {
+    const screen = render(() => (
+      <Avatar chip src="https://example.com/a.png" alt="John Doe">
+        <span data-testid="custom-child">Custom</span>
+      </Avatar>
+    ))
+    const base = screen.container.querySelector('[data-slot="base"]')
+
+    expect(base).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="image"]')).not.toBeNull()
+    expect(screen.getByTestId('custom-child').textContent).toBe('Custom')
   })
 
   test('applies classes slot overrides', () => {

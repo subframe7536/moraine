@@ -147,7 +147,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         </span>
       </Show>
 
-      <Show when={(local.kbds?.length ?? 0) > 0}>
+      <Show when={(local.kbds?.length || 0) > 0}>
         <span data-slot="kbds" class={cn(tooltipKbdsVariants(), local.classes?.kbds)}>
           <For each={local.kbds}>
             {(kbd) => (

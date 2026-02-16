@@ -1,5 +1,4 @@
 {
-  "ignorePatterns": ["base-ui"],
   "plugins": ["eslint", "import", "jsdoc", "jsx-a11y", "unicorn", "oxc", "typescript", "promise"],
   "categories": {
     "correctness": "error",
