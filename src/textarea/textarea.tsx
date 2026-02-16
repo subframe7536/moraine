@@ -1,25 +1,15 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, on, onMount, splitProps } from 'solid-js'
+import { createEffect, createMemo, mergeProps, on, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useFieldGroupContext } from '../form-field/field-group-context'
 import { useFormField } from '../form-field/form-field-context'
-import type { IconName } from '../icon'
-import { Icon } from '../icon'
 import type { ModelModifiers } from '../shared/input-modifiers'
 import { applyInputModifiers } from '../shared/input-modifiers'
 import { callHandler, cn, useId } from '../shared/utils'
 
 import type { TextareaVariantProps } from './textarea.class'
-import {
-  textareaBaseVariants,
-  textareaLeadingAvatarVariants,
-  textareaLeadingIconVariants,
-  textareaLeadingVariants,
-  textareaRootVariants,
-  textareaTrailingIconVariants,
-  textareaTrailingVariants,
-} from './textarea.class'
+import { textareaBaseVariants, textareaRootVariants, textareaSizePadding } from './textarea.class'
 
 type TextareaStyleVariantProps = Pick<
   TextareaVariantProps,
@@ -34,11 +24,6 @@ export type TextareaValue = string | number | null | undefined
 export interface TextareaClasses {
   root?: string
   base?: string
-  leading?: string
-  leadingIcon?: string
-  leadingAvatar?: string
-  trailing?: string
-  trailingIcon?: string
 }
 
 export interface TextareaBaseProps extends TextareaStyleVariantProps {
@@ -53,23 +38,17 @@ export interface TextareaBaseProps extends TextareaStyleVariantProps {
   disabled?: boolean
   rows?: number
   maxrows?: number
-  icon?: IconName
-  avatar?: JSX.Element
-  leading?: boolean | JSX.Element
-  leadingIcon?: IconName
-  trailing?: boolean | JSX.Element
-  trailingIcon?: IconName
-  loading?: boolean
-  loadingIcon?: IconName
   modelModifiers?: ModelModifiers<TextareaValue>
   onValueChange?: (value: TextareaValue) => void
-  class?: string
   classes?: TextareaClasses
   children?: JSX.Element
 }
 
 export type TextareaProps = TextareaBaseProps &
-  Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, keyof TextareaBaseProps | 'id' | 'children'>
+  Omit<
+    JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    keyof TextareaBaseProps | 'id' | 'children' | 'class'
+  >
 
 function normalizeTextareaColor(value?: string): TextareaColor {
   if (value === 'secondary' || value === 'neutral' || value === 'error') {
@@ -95,10 +74,6 @@ function normalizeTextareaVariant(value?: string): TextareaVariant {
   return 'outline'
 }
 
-function isRenderableContent(value: unknown): value is JSX.Element {
-  return value !== undefined && value !== null && typeof value !== 'boolean'
-}
-
 export function Textarea(props: TextareaProps): JSX.Element {
   const merged = mergeProps(
     {
@@ -110,8 +85,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
       size: 'md' as const,
       color: 'primary' as const,
       variant: 'outline' as const,
-      loading: false,
-      loadingIcon: 'icon-loading' as IconName,
       autoresize: false,
     },
     props,
@@ -134,21 +107,12 @@ export function Textarea(props: TextareaProps): JSX.Element {
     'rows',
     'maxrows',
     'highlight',
-    'icon',
-    'avatar',
-    'leading',
-    'leadingIcon',
-    'trailing',
-    'trailingIcon',
-    'loading',
-    'loadingIcon',
     'modelModifiers',
     'onValueChange',
     'onInput',
     'onChange',
     'onBlur',
     'onFocus',
-    'class',
     'classes',
     'children',
     'value',
@@ -181,50 +145,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const fieldGroupOrientation = createMemo(() => fieldGroup?.orientation)
   const ariaAttrs = createMemo(() => field.ariaAttrs() ?? {})
   const isLazy = createMemo(() => Boolean(local.modelModifiers?.lazy))
-
-  const customLeading = createMemo(() =>
-    isRenderableContent(local.leading) ? (local.leading as JSX.Element) : undefined,
-  )
-  const customTrailing = createMemo(() =>
-    isRenderableContent(local.trailing) ? (local.trailing as JSX.Element) : undefined,
-  )
-
-  const isLeadingIcon = createMemo(() => {
-    const hasIcon = Boolean(local.icon)
-    const leading = local.leading === true
-    const trailing = local.trailing === true
-
-    return Boolean(
-      (hasIcon && leading) ||
-      (hasIcon && !trailing) ||
-      (local.loading && !trailing) ||
-      local.leadingIcon,
-    )
-  })
-  const isTrailingIcon = createMemo(() => {
-    const hasIcon = Boolean(local.icon)
-    const trailing = local.trailing === true
-
-    return Boolean((hasIcon && trailing) || (local.loading && trailing) || local.trailingIcon)
-  })
-
-  const leadingIconName = createMemo<IconName | undefined>(() => {
-    if (local.loading) {
-      return local.loadingIcon
-    }
-
-    return local.leadingIcon ?? local.icon
-  })
-  const trailingIconName = createMemo<IconName | undefined>(() => {
-    if (local.loading && !isLeadingIcon()) {
-      return local.loadingIcon
-    }
-
-    return local.trailingIcon ?? local.icon
-  })
-
-  const hasLeading = createMemo(() => Boolean(customLeading() || isLeadingIcon() || local.avatar))
-  const hasTrailing = createMemo(() => Boolean(customTrailing() || isTrailingIcon()))
 
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<TextareaValue>(value, local.modelModifiers)
@@ -324,7 +244,18 @@ export function Textarea(props: TextareaProps): JSX.Element {
     <Dynamic
       component={local.as}
       data-slot="root"
-      class={cn(textareaRootVariants(), local.classes?.root, local.class)}
+      class={cn(
+        textareaRootVariants({
+          color: resolvedColor(),
+          size: resolvedSize(),
+          variant: resolvedVariant(),
+          highlight: resolvedHighlight(),
+          disabled: disabled(),
+          fieldGroup: fieldGroupOrientation(),
+        }),
+        local.classes?.root,
+      )}
+      onclick={() => textareaEl?.focus()}
     >
       <textarea
         id={textareaId()}
@@ -338,16 +269,11 @@ export function Textarea(props: TextareaProps): JSX.Element {
         data-slot="base"
         class={cn(
           textareaBaseVariants({
-            color: resolvedColor(),
             size: resolvedSize(),
-            variant: resolvedVariant(),
-            highlight: resolvedHighlight(),
-            leading: hasLeading(),
-            trailing: hasTrailing(),
-            loading: local.loading,
-            fieldGroup: fieldGroupOrientation(),
             autoresize: local.autoresize,
           }),
+          textareaSizePadding[resolvedSize()].start,
+          textareaSizePadding[resolvedSize()].end,
           local.classes?.base,
         )}
         onInput={onInput}
@@ -359,93 +285,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
       />
 
       {local.children}
-
-      <Show when={hasLeading()}>
-        <span
-          data-slot="leading"
-          class={cn(
-            textareaLeadingVariants({
-              size: resolvedSize(),
-            }),
-            local.classes?.leading,
-          )}
-        >
-          <Show
-            when={customLeading()}
-            fallback={
-              <Show
-                when={isLeadingIcon() && leadingIconName()}
-                fallback={
-                  <Show when={local.avatar}>
-                    <span
-                      data-slot="leadingAvatar"
-                      class={cn(
-                        textareaLeadingAvatarVariants({
-                          size: resolvedSize(),
-                        }),
-                        local.classes?.leadingAvatar,
-                      )}
-                    >
-                      {local.avatar}
-                    </span>
-                  </Show>
-                }
-              >
-                {(iconName) => (
-                  <Icon
-                    name={iconName()}
-                    data-slot="leadingIcon"
-                    class={cn(
-                      textareaLeadingIconVariants({
-                        size: resolvedSize(),
-                        loading: local.loading,
-                      }),
-                      local.classes?.leadingIcon,
-                    )}
-                  />
-                )}
-              </Show>
-            }
-          >
-            {(content) => content()}
-          </Show>
-        </span>
-      </Show>
-
-      <Show when={hasTrailing()}>
-        <span
-          data-slot="trailing"
-          class={cn(
-            textareaTrailingVariants({
-              size: resolvedSize(),
-            }),
-            local.classes?.trailing,
-          )}
-        >
-          <Show
-            when={customTrailing()}
-            fallback={
-              <Show when={isTrailingIcon() && trailingIconName()}>
-                {(iconName) => (
-                  <Icon
-                    name={iconName()}
-                    data-slot="trailingIcon"
-                    class={cn(
-                      textareaTrailingIconVariants({
-                        size: resolvedSize(),
-                        loading: local.loading,
-                      }),
-                      local.classes?.trailingIcon,
-                    )}
-                  />
-                )}
-              </Show>
-            }
-          >
-            {(content) => content()}
-          </Show>
-        </span>
-      </Show>
     </Dynamic>
   )
 }

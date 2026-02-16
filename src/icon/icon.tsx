@@ -8,6 +8,10 @@ import { iconVariants } from './icon.class'
 
 export type IconName = string | JSX.Element | (() => JSX.Element)
 
+export interface IconClasses {
+  root?: string
+}
+
 export interface IconBaseProps extends IconVariantProps {
   /**
    * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
@@ -25,10 +29,15 @@ export interface IconBaseProps extends IconVariantProps {
    * Optional icon name customizer for string-based icons.
    */
   customize?: (content: string, name?: string, prefix?: string, provider?: string) => string
+
+  /**
+   * Slot-based class overrides.
+   */
+  classes?: IconClasses
 }
 
 export type IconProps = IconBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'children'>
+  Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'children' | 'class'>
 
 function parseIconName(value: string): { name: string; prefix?: string } {
   const cleaned = value.startsWith('i-') ? value.slice(2) : value
@@ -42,12 +51,12 @@ function parseIconName(value: string): { name: string; prefix?: string } {
 
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props as IconProps, [
-    'class',
     'style',
     'name',
     'mode',
     'size',
     'customize',
+    'classes',
     'aria-label',
   ])
 
@@ -98,7 +107,7 @@ export function Icon(props: IconProps): JSX.Element {
           mode: local.mode,
         }),
         iconClass(),
-        local.class,
+        local.classes?.root,
       )}
       style={combineStyle(local.style, sizeStyle())}
       aria-hidden={local['aria-label'] ? undefined : 'true'}

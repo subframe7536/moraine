@@ -13,10 +13,11 @@ import { callHandler, cn, useId } from '../shared/utils'
 import type { InputVariantProps } from './input.class'
 import {
   inputBaseVariants,
-  inputLeadingAvatarVariants,
   inputLeadingIconVariants,
   inputLeadingVariants,
   inputRootVariants,
+  inputSizePadding,
+  inputSizeSlotPadding,
   inputTrailingIconVariants,
   inputTrailingVariants,
 } from './input.class'
@@ -30,10 +31,9 @@ export type InputValue = string | number | boolean | null | undefined
 
 export interface InputClasses {
   root?: string
-  base?: string
+  input?: string
   leading?: string
   leadingIcon?: string
-  leadingAvatar?: string
   trailing?: string
   trailingIcon?: string
 }
@@ -50,7 +50,6 @@ export interface InputBaseProps extends InputStyleVariantProps {
   autofocusDelay?: number
   disabled?: boolean
   icon?: IconName
-  avatar?: JSX.Element
   leading?: boolean | JSX.Element
   leadingIcon?: IconName
   trailing?: boolean | JSX.Element
@@ -59,13 +58,15 @@ export interface InputBaseProps extends InputStyleVariantProps {
   loadingIcon?: IconName
   modelModifiers?: ModelModifiers<InputValue>
   onValueChange?: (value: InputValue) => void
-  class?: string
   classes?: InputClasses
   children?: JSX.Element
 }
 
 export type InputProps = InputBaseProps &
-  Omit<JSX.InputHTMLAttributes<HTMLInputElement>, keyof InputBaseProps | 'id' | 'children' | 'size'>
+  Omit<
+    JSX.InputHTMLAttributes<HTMLInputElement>,
+    keyof InputBaseProps | 'id' | 'children' | 'size' | 'class'
+  >
 
 function normalizeInputColor(value?: string): InputColor {
   if (value === 'secondary' || value === 'neutral' || value === 'error') {
@@ -116,18 +117,14 @@ export function Input(props: InputProps): JSX.Element {
     'id',
     'name',
     'type',
-    'placeholder',
     'color',
     'variant',
     'size',
-    'required',
-    'autocomplete',
     'autofocus',
     'autofocusDelay',
     'disabled',
     'highlight',
     'icon',
-    'avatar',
     'leading',
     'leadingIcon',
     'trailing',
@@ -140,7 +137,6 @@ export function Input(props: InputProps): JSX.Element {
     'onChange',
     'onBlur',
     'onFocus',
-    'class',
     'classes',
     'children',
   ])
@@ -214,7 +210,7 @@ export function Input(props: InputProps): JSX.Element {
     return local.trailingIcon ?? local.icon
   })
 
-  const hasLeading = createMemo(() => Boolean(customLeading() || isLeadingIcon() || local.avatar))
+  const hasLeading = createMemo(() => Boolean(customLeading() || isLeadingIcon()))
   const hasTrailing = createMemo(() => Boolean(customTrailing() || isTrailingIcon()))
 
   function updateInputValue(value: string | null | undefined): void {
@@ -273,42 +269,19 @@ export function Input(props: InputProps): JSX.Element {
     <Dynamic
       component={local.as}
       data-slot="root"
-      class={cn(inputRootVariants(), local.classes?.root, local.class)}
+      class={inputRootVariants(
+        {
+          color: resolvedColor(),
+          size: resolvedSize(),
+          variant: resolvedVariant(),
+          highlight: resolvedHighlight(),
+          disabled: disabled(),
+          fieldGroup: fieldGroupOrientation(),
+        },
+        local.classes?.root,
+      )}
+      onclick={() => inputEl?.focus()}
     >
-      <input
-        id={inputId()}
-        ref={(element) => (inputEl = element)}
-        type={local.type}
-        name={field.name()}
-        placeholder={local.placeholder}
-        autocomplete={local.autocomplete}
-        required={local.required}
-        disabled={disabled()}
-        data-slot="base"
-        class={cn(
-          inputBaseVariants({
-            color: resolvedColor(),
-            size: resolvedSize(),
-            variant: resolvedVariant(),
-            highlight: resolvedHighlight(),
-            leading: hasLeading(),
-            trailing: hasTrailing(),
-            loading: local.loading,
-            fieldGroup: fieldGroupOrientation(),
-            type: local.type === 'file' ? 'file' : undefined,
-          }),
-          local.classes?.base,
-        )}
-        onInput={onInput}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        {...rest}
-        {...ariaAttrs()}
-      />
-
-      {local.children}
-
       <Show when={hasLeading()}>
         <span
           data-slot="leading"
@@ -322,35 +295,20 @@ export function Input(props: InputProps): JSX.Element {
           <Show
             when={customLeading()}
             fallback={
-              <Show
-                when={isLeadingIcon() && leadingIconName()}
-                fallback={
-                  <Show when={local.avatar}>
-                    <span
-                      data-slot="leadingAvatar"
-                      class={cn(
-                        inputLeadingAvatarVariants({
-                          size: resolvedSize(),
-                        }),
-                        local.classes?.leadingAvatar,
-                      )}
-                    >
-                      {local.avatar}
-                    </span>
-                  </Show>
-                }
-              >
+              <Show when={isLeadingIcon() && leadingIconName()}>
                 {(iconName) => (
                   <Icon
                     name={iconName()}
                     data-slot="leadingIcon"
-                    class={cn(
-                      inputLeadingIconVariants({
-                        size: resolvedSize(),
-                        loading: local.loading,
-                      }),
-                      local.classes?.leadingIcon,
-                    )}
+                    classes={{
+                      root: cn(
+                        inputLeadingIconVariants({
+                          size: resolvedSize(),
+                          loading: local.loading,
+                        }),
+                        local.classes?.leadingIcon,
+                      ),
+                    }}
                   />
                 )}
               </Show>
@@ -360,6 +318,35 @@ export function Input(props: InputProps): JSX.Element {
           </Show>
         </span>
       </Show>
+
+      <input
+        id={inputId()}
+        ref={(element) => (inputEl = element)}
+        type={local.type}
+        name={field.name()}
+        disabled={disabled()}
+        data-slot="base"
+        class={cn(
+          inputBaseVariants({
+            type: local.type === 'file' ? 'file' : undefined,
+          }),
+          hasLeading()
+            ? inputSizeSlotPadding[resolvedSize()].start
+            : inputSizePadding[resolvedSize()].start,
+          hasTrailing()
+            ? inputSizeSlotPadding[resolvedSize()].end
+            : inputSizePadding[resolvedSize()].end,
+          local.classes?.input,
+        )}
+        onInput={onInput}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        {...rest}
+        {...ariaAttrs()}
+      />
+
+      {local.children}
 
       <Show when={hasTrailing()}>
         <span
@@ -379,13 +366,15 @@ export function Input(props: InputProps): JSX.Element {
                   <Icon
                     name={iconName()}
                     data-slot="trailingIcon"
-                    class={cn(
-                      inputTrailingIconVariants({
-                        size: resolvedSize(),
-                        loading: local.loading,
-                      }),
-                      local.classes?.trailingIcon,
-                    )}
+                    classes={{
+                      root: cn(
+                        inputTrailingIconVariants({
+                          size: resolvedSize(),
+                          loading: local.loading,
+                        }),
+                        local.classes?.trailingIcon,
+                      ),
+                    }}
                   />
                 )}
               </Show>

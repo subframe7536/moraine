@@ -39,13 +39,23 @@ export interface RadioGroupClasses {
   description?: string
 }
 
+export interface RadioGroupItemClasses {
+  root?: string
+  container?: string
+  base?: string
+  indicator?: string
+  dot?: string
+  wrapper?: string
+  label?: string
+  description?: string
+}
+
 export interface RadioGroupItemObject {
   value?: unknown
   label?: JSX.Element
   description?: JSX.Element
   disabled?: boolean
-  class?: string
-  classes?: RadioGroupClasses
+  classes?: RadioGroupItemClasses
   [key: string]: unknown
 }
 
@@ -58,8 +68,7 @@ interface NormalizedRadioGroupItem {
   label?: JSX.Element
   description?: JSX.Element
   disabled: boolean
-  class?: string
-  classes?: RadioGroupClasses
+  classes?: RadioGroupItemClasses
 }
 
 export interface RadioGroupBaseProps extends RadioGroupVariantProps {
@@ -76,12 +85,11 @@ export interface RadioGroupBaseProps extends RadioGroupVariantProps {
   disabled?: boolean
   readOnly?: boolean
   onChange?: (value: RadioGroupValue) => void
-  class?: string
   classes?: RadioGroupClasses
 }
 
 export type RadioGroupProps = RadioGroupBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLDivElement>, keyof RadioGroupBaseProps | 'id' | 'children'>
+  Omit<JSX.HTMLAttributes<HTMLDivElement>, keyof RadioGroupBaseProps | 'id' | 'children' | 'class'>
 
 function getAtPath(data: Record<string, unknown>, path: string): unknown {
   return path
@@ -147,7 +155,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'orientation',
     'size',
     'color',
-    'class',
     'classes',
   ])
 
@@ -223,7 +230,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         label,
         description,
         disabled: Boolean(objectItem.disabled),
-        class: objectItem.class,
         classes: objectItem.classes,
       }
     })
@@ -247,7 +253,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       orientation={local.orientation}
       onChange={onChange}
       data-slot="root"
-      class={cn(radioGroupRootVariants(), local.classes?.root, local.class)}
+      class={cn(radioGroupRootVariants(), local.classes?.root)}
       {...(ariaAttrs() as Record<string, string | boolean | undefined>)}
       {...rest}
     >
@@ -295,8 +301,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   disabled: item.disabled || disabled(),
                 }),
                 local.classes?.item,
-                item.classes?.item,
-                item.class,
+                item.classes?.root,
               )}
             >
               <div

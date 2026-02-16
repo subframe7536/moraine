@@ -117,6 +117,13 @@ describe('InputNumber', () => {
     expect(base?.className).toContain('ring-1')
   })
 
+  test('applies classes.root override', () => {
+    const screen = render(() => <InputNumber classes={{ root: 'root-override' }} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('root-override')
+  })
+
   test('validates on blur when validateOn is blur', async () => {
     const state = { count: 0 }
 

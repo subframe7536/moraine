@@ -141,4 +141,15 @@ describe('FormField', () => {
     const label = screen.getByText('Radio group')
     expect(label.getAttribute('for')).toBeNull()
   })
+
+  test('applies classes.root override', () => {
+    const screen = render(() => (
+      <FormField classes={{ root: 'root-override' }}>
+        <FieldControl />
+      </FormField>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toContain('root-override')
+  })
 })

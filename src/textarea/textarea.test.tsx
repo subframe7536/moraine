@@ -5,6 +5,7 @@ import { Form } from '../form'
 import { FormField } from '../form-field'
 
 import { Textarea } from './textarea'
+import type { TextareaProps } from './textarea'
 
 function createForm(
   validateOn?: Array<'blur' | 'change' | 'input'>,
@@ -69,36 +70,36 @@ describe('Textarea', () => {
     expect(textarea.disabled).toBe(true)
   })
 
-  test('renders icon in leading and trailing positions', () => {
-    const screen = render(() => (
-      <>
-        <Textarea icon="i-lucide-search" />
-        <Textarea trailing icon="i-lucide-at-sign" />
-        <Textarea leadingIcon="i-lucide-user" trailingIcon="i-lucide-mail" />
-      </>
-    ))
+  test('does not render leading or trailing slots', () => {
+    const screen = render(() => <Textarea />)
 
-    const leadingIcons = screen.container.querySelectorAll('[data-slot="leadingIcon"]')
-    const trailingIcons = screen.container.querySelectorAll('[data-slot="trailingIcon"]')
-
-    expect(leadingIcons[0]?.className).toContain('i-lucide-search')
-    expect(trailingIcons[0]?.className).toContain('i-lucide-at-sign')
-    expect(leadingIcons[1]?.className).toContain('i-lucide-user')
-    expect(trailingIcons[1]?.className).toContain('i-lucide-mail')
+    expect(screen.container.querySelector('[data-slot="leading"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="trailing"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
   })
 
-  test('renders loading icon and avatar fallback', () => {
-    const screen = render(() => (
-      <>
-        <Textarea loading />
-        <Textarea avatar={<span data-testid="avatar">A</span>} />
-      </>
-    ))
+  test('swallows legacy icon-related props without forwarding invalid attrs', () => {
+    const legacyProps = {
+      icon: 'i-lucide-search',
+      leading: true,
+      leadingIcon: 'i-lucide-user',
+      trailing: true,
+      trailingIcon: 'i-lucide-mail',
+      loading: true,
+      loadingIcon: 'icon-loading',
+    } as unknown as TextareaProps
 
-    const loadingIcon = screen.container.querySelector('[data-slot="leadingIcon"]')
-    expect(loadingIcon?.className).toContain('icon-loading')
-    expect(loadingIcon?.className).toContain('animate-spin')
-    expect(screen.getByTestId('avatar').textContent).toBe('A')
+    const screen = render(() => <Textarea {...legacyProps} />)
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+
+    expect(textarea.hasAttribute('icon')).toBe(false)
+    expect(textarea.hasAttribute('leading')).toBe(false)
+    expect(textarea.hasAttribute('leadingicon')).toBe(false)
+    expect(textarea.hasAttribute('trailing')).toBe(false)
+    expect(textarea.hasAttribute('trailingicon')).toBe(false)
+    expect(textarea.hasAttribute('loading')).toBe(false)
+    expect(textarea.hasAttribute('loadingicon')).toBe(false)
   })
 
   test('applies trim, number, lazy, nullable and optional modifiers', async () => {
@@ -300,5 +301,12 @@ describe('Textarea', () => {
     await waitFor(() => {
       expect(nonEagerForm.screen.getByText('Error message')).not.toBeNull()
     })
+  })
+
+  test('applies classes.root override', () => {
+    const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('root-override')
   })
 })

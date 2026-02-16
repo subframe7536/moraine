@@ -16,6 +16,9 @@ Hard constraints:
 
 - icon handling must not be tied to `<svg />`
 - Coss complex variable-heavy class patterns must be simplified
+- Decompose embeded icon if possible, like `Avatar` / `Chip`
+- Port coss class first.
+- Remove `props.class`, use `props.classes.root`
 
 ## Scope
 

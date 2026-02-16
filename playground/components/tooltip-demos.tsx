@@ -24,18 +24,6 @@ export const TooltipDemos = () => (
       </div>
     </DemoSection>
 
-    <DemoSection title="With Arrow" description="Arrow indicator pointing to the trigger.">
-      <div class="flex flex-wrap gap-4 items-center">
-        <For each={PLACEMENTS}>
-          {(placement) => (
-            <Tooltip text={`Arrow ${placement}`} arrow placement={placement}>
-              <Button variant="secondary">{placement}</Button>
-            </Tooltip>
-          )}
-        </For>
-      </div>
-    </DemoSection>
-
     <DemoSection
       title="Keyboard Shortcuts"
       description="Display keyboard shortcut hints alongside tooltip text."

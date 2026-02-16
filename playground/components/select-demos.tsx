@@ -89,7 +89,7 @@ export const SelectDemos = () => {
 
       <DemoSection
         title="Token Separators"
-        description="Create tags with Enter or space separator."
+        description="Create and select tags when a separator is typed."
       >
         <div class="max-w-sm space-y-2">
           <Select
@@ -99,7 +99,7 @@ export const SelectDemos = () => {
             value={tagValues()}
             onChange={(v) => setTagValues(v as string[])}
             tokenSeparators={[' ']}
-            placeholder="Type and press Enter..."
+            placeholder="Type text and press Space..."
           />
           <p class="text-xs text-zinc-500">Tags: {tagValues().join(', ') || 'none'}</p>
         </div>

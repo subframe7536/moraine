@@ -170,7 +170,7 @@ export interface SelectBaseProps {
   /** Called when clear is triggered. */
   onClear?: () => void
 
-  /** Characters that split input into tags (requires `multiple`). */
+  /** Characters that split input into tokens and immediately select them (requires `multiple`). */
   tokenSeparators?: string[]
   /** Allow creating new tags on Enter when no match is found (requires `multiple`). */
   allowCreate?: boolean
@@ -234,12 +234,11 @@ export interface SelectBaseProps {
   /** Distance (px) from the bottom at which onScrollEnd fires. Default: 20. */
   scrollEndThreshold?: number
 
-  class?: string
   classes?: SelectClasses
 }
 
 export type SelectProps = SelectBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLDivElement>, keyof SelectBaseProps | 'id' | 'children'>
+  Omit<JSX.HTMLAttributes<HTMLDivElement>, keyof SelectBaseProps | 'id' | 'children' | 'class'>
 
 // ---------------------------------------------------------------------------
 // Normalized option types (internal)
@@ -386,7 +385,6 @@ export function Select(props: SelectProps): JSX.Element {
     'virtualized',
     'onScrollEnd',
     'scrollEndThreshold',
-    'class',
     'classes',
   ])
 
@@ -422,7 +420,7 @@ export function Select(props: SelectProps): JSX.Element {
   const normalizedOptions = createMemo(() => {
     const base = normalizeOptions(local.options, local.fieldNames)
 
-    if (isMultiple() && local.allowCreate) {
+    if (isMultiple() && (local.allowCreate || Boolean(local.tokenSeparators?.length))) {
       const existingValues = new Set(flattenOptions(base).map((o) => o.value))
       const newTags = createdTags().filter((t) => !existingValues.has(t.value))
 
@@ -628,23 +626,62 @@ export function Select(props: SelectProps): JSX.Element {
 
   // ---- Input change handler ----
   function handleInputChange(inputValue: string): void {
-    if (!isDismissing) {
-      setCurrentInputText(inputValue)
-    }
-
     // Token separator check for tags mode
     if (isMultiple() && local.tokenSeparators?.length) {
       const sepRegex = new RegExp(`[${escapeRegex(local.tokenSeparators.join(''))}]`)
 
       if (sepRegex.test(inputValue)) {
-        const tokens = inputValue.split(sepRegex).filter((t) => t.trim())
+        const trailingInput = inputValue.split(sepRegex).at(-1) ?? ''
+        const isTrailingTokenCompleted = sepRegex.test(inputValue.at(-1) ?? '')
+        const remainder = isTrailingTokenCompleted ? '' : trailingInput
+        const tokens = (isTrailingTokenCompleted
+          ? inputValue.split(sepRegex)
+          : inputValue.split(sepRegex).slice(0, -1)
+        ).filter((t) => t.trim())
+
+        const current = allFlatOptions().filter((option) => selectedValueSet().has(option.value))
+        const nextSelected = [...current]
+        const maxCount = local.maxCount
 
         for (const token of tokens) {
-          addTag(token.trim())
+          const option = addTag(token.trim())
+          if (!option) {
+            continue
+          }
+
+          const isAlreadySelected = nextSelected.some((selected) => selected.value === option.value)
+          if (isAlreadySelected) {
+            continue
+          }
+
+          if (maxCount !== undefined && nextSelected.length >= maxCount) {
+            break
+          }
+
+          nextSelected.push(option)
         }
 
+        if (nextSelected.length !== current.length) {
+          handleMultipleChange(nextSelected)
+        }
+
+        queueMicrotask(() => {
+          if (inputRef) {
+            inputRef.value = remainder
+          }
+        })
+
+        if (!isDismissing) {
+          setCurrentInputText(remainder)
+        }
+
+        local.onSearch?.(remainder)
         return
       }
+    }
+
+    if (!isDismissing) {
+      setCurrentInputText(inputValue)
     }
 
     local.onSearch?.(inputValue)
@@ -655,17 +692,25 @@ export function Select(props: SelectProps): JSX.Element {
       return undefined
     }
 
-    const exists = allFlatOptions().find((o) => o.value === text || o.label === text)
+    const normalized = text.trim()
+    if (!normalized) {
+      return undefined
+    }
+
+    const lower = normalized.toLowerCase()
+    const exists = allFlatOptions().find(
+      (o) => o.value.toLowerCase() === lower || o.label.toLowerCase() === lower,
+    )
 
     if (exists) {
       return exists
     }
 
     const newOpt: NormalizedOption = {
-      value: text,
-      label: text,
+      value: normalized,
+      label: normalized,
       disabled: false,
-      raw: { label: text, value: text },
+      raw: { label: normalized, value: normalized },
     }
 
     setCreatedTags((prev) => [...prev, newOpt])
@@ -822,7 +867,7 @@ export function Select(props: SelectProps): JSX.Element {
             >
               {(icon) => (
                 <span class="flex gap-2 col-start-1 items-center">
-                  <Icon name={icon()} class="text-base shrink-0" />
+                  <Icon name={icon()} classes={{ root: 'text-base shrink-0' }} />
                   {renderItemLabel(params.option, params.fallbackLabel)}
                 </span>
               )}
@@ -996,10 +1041,12 @@ export function Select(props: SelectProps): JSX.Element {
             <Icon
               name={icon()}
               data-slot="leading-icon"
-              class={selectLeadingIconVariants(
-                { size: resolvedSize() },
-                local.classes?.leadingIcon,
-              )}
+              classes={{
+                root: selectLeadingIconVariants(
+                  { size: resolvedSize() },
+                  local.classes?.leadingIcon,
+                ),
+              }}
             />
           )}
         </Show>
@@ -1089,7 +1136,12 @@ export function Select(props: SelectProps): JSX.Element {
           >
             <Show
               when={!local.loading}
-              fallback={<Icon name={local.loadingIcon ?? 'icon-loading'} class="animate-spin" />}
+              fallback={
+                <Icon
+                  name={local.loadingIcon ?? 'icon-loading'}
+                  classes={{ root: 'animate-spin' }}
+                />
+              }
             >
               <Icon name={local.triggerIcon ?? 'icon-chevron-down'} />
             </Show>
@@ -1223,7 +1275,7 @@ export function Select(props: SelectProps): JSX.Element {
       closeOnSelection={!isMultiple()}
       removeOnBackspace={isMultiple()}
       data-slot="root"
-      class={cn(selectRootClasses, local.classes?.root, local.class)}
+      class={cn(selectRootClasses, local.classes?.root)}
       {...field.ariaAttrs()}
       {...rest}
       overflowPadding={-6}

@@ -4,7 +4,6 @@ import 'uno.css'
 import { Match, Switch, createSignal, onMount } from 'solid-js'
 import { render } from 'solid-js/web'
 
-import { AvatarDemos } from './components/avatar-demos'
 import { ButtonDemos } from './components/button-demos'
 import { Sidebar } from './components/common/sidebar'
 import { FormDemos } from './components/form-demos'
@@ -18,7 +17,6 @@ import { TooltipDemos } from './components/tooltip-demos'
 const PAGES = [
   { key: 'button', label: 'Button', group: 'General' },
   { key: 'icon', label: 'Icon', group: 'General' },
-  { key: 'avatar', label: 'Avatar & Chip', group: 'Data Display' },
   { key: 'tooltip', label: 'Tooltip', group: 'Feedback' },
   { key: 'input', label: 'Input & Textarea', group: 'Data Entry' },
   { key: 'input-number', label: 'Input Number', group: 'Data Entry' },
@@ -51,9 +49,6 @@ function App() {
           </Match>
           <Match when={page() === 'icon'}>
             <IconDemos />
-          </Match>
-          <Match when={page() === 'avatar'}>
-            <AvatarDemos />
           </Match>
           <Match when={page() === 'tooltip'}>
             <TooltipDemos />

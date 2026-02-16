@@ -132,6 +132,13 @@ describe('Switch', () => {
     expect(wrapper?.className).toContain('text-base')
   })
 
+  test('applies classes.root override', () => {
+    const screen = render(() => <Switch label="Classes" classes={{ root: 'root-override' }} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('root-override')
+  })
+
   test('validates on change when validateOn is change', async () => {
     const state = { enabled: false }
 

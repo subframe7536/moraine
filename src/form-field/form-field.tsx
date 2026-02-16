@@ -58,13 +58,12 @@ export interface FormFieldBaseProps extends FormFieldVariantProps {
   required?: boolean
   eagerValidation?: boolean
   validateOnInputDelay?: number
-  class?: string
   classes?: FormFieldClasses
   children?: JSX.Element | ((props: FormFieldRenderProps) => JSX.Element)
 }
 
 export type FormFieldProps = FormFieldBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLElement>, keyof FormFieldBaseProps | 'id' | 'children'>
+  Omit<JSX.HTMLAttributes<HTMLElement>, keyof FormFieldBaseProps | 'id' | 'children' | 'class'>
 
 export function FormField(props: FormFieldProps): JSX.Element {
   const merged = mergeProps(
@@ -92,7 +91,6 @@ export function FormField(props: FormFieldProps): JSX.Element {
     'required',
     'eagerValidation',
     'validateOnInputDelay',
-    'class',
     'classes',
     'orientation',
     'children',
@@ -239,7 +237,6 @@ export function FormField(props: FormFieldProps): JSX.Element {
               orientation: local.orientation,
             }),
             local.classes?.root,
-            local.class,
           )}
           {...rest}
         >

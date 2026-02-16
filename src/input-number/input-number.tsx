@@ -49,12 +49,11 @@ export interface InputNumberBaseProps extends Pick<
   autofocusDelay?: number
   onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-  class?: string
   classes?: InputNumberClasses
 }
 
 export type InputNumberProps = InputNumberBaseProps &
-  Omit<KobalteNumberField.NumberFieldRootProps, keyof InputNumberBaseProps | 'children'>
+  Omit<KobalteNumberField.NumberFieldRootProps, keyof InputNumberBaseProps | 'children' | 'class'>
 
 function normalizeInputNumberColor(value?: string): InputNumberColor {
   if (value === 'secondary' || value === 'neutral' || value === 'error') {
@@ -126,7 +125,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'onRawValueChange',
     'onBlur',
     'onFocus',
-    'class',
     'classes',
     'disabled',
   ])
@@ -225,7 +223,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       disabled={disabled()}
       onRawValueChange={onRawValueChange}
       data-slot="root"
-      class={cn(inputNumberRootVariants(), local.classes?.root, local.class)}
+      class={cn(inputNumberRootVariants(), local.classes?.root)}
       {...rest}
     >
       <KobalteNumberField.Input

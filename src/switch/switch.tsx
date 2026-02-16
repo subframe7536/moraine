@@ -42,12 +42,11 @@ export interface SwitchBaseProps extends SwitchVariantProps {
   uncheckedIcon?: IconName
   label?: JSX.Element
   description?: JSX.Element
-  class?: string
   classes?: SwitchClasses
 }
 
 export type SwitchProps = SwitchBaseProps &
-  Omit<KobalteSwitch.SwitchRootProps, keyof SwitchBaseProps | 'children'>
+  Omit<KobalteSwitch.SwitchRootProps, keyof SwitchBaseProps | 'children' | 'class'>
 
 function normalizeSwitchColor(value?: string): SwitchColor {
   if (value === 'secondary' || value === 'neutral' || value === 'error') {
@@ -94,7 +93,6 @@ export function Switch(props: SwitchProps): JSX.Element {
     'color',
     'label',
     'description',
-    'class',
     'classes',
   ])
 
@@ -137,7 +135,6 @@ export function Switch(props: SwitchProps): JSX.Element {
           disabled: disabled(),
         }),
         local.classes?.root,
-        local.class,
       )}
       {...rest}
     >
@@ -192,15 +189,17 @@ export function Switch(props: SwitchProps): JSX.Element {
                     {(resolvedIconName) => (
                       <Icon
                         name={resolvedIconName()}
-                        class={cn(
-                          switchIconVariants({
-                            color: resolvedColor(),
-                            checked: !local.loading && checked(),
-                            unchecked: !local.loading && !checked(),
-                            loading: local.loading,
-                          }),
-                          local.classes?.icon,
-                        )}
+                        classes={{
+                          root: cn(
+                            switchIconVariants({
+                              color: resolvedColor(),
+                              checked: !local.loading && checked(),
+                              unchecked: !local.loading && !checked(),
+                              loading: local.loading,
+                            }),
+                            local.classes?.icon,
+                          ),
+                        }}
                       />
                     )}
                   </Show>

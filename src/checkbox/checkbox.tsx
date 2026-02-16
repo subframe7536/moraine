@@ -23,6 +23,7 @@ type CheckboxColor = NonNullable<CheckboxVariantProps['color']>
 type CheckboxSize = NonNullable<CheckboxVariantProps['size']>
 
 export interface CheckboxClasses {
+  root?: string
   container?: string
   base?: string
   indicator?: string
@@ -40,12 +41,11 @@ export interface CheckboxBaseProps extends CheckboxVariantProps {
   formFieldBind?: boolean
   checkedIcon?: IconName
   indeterminateIcon?: IconName
-  class?: string
   classes?: CheckboxClasses
 }
 
 export type CheckboxProps = CheckboxBaseProps &
-  Omit<KobalteCheckbox.CheckboxRootProps, keyof CheckboxBaseProps | 'children'>
+  Omit<KobalteCheckbox.CheckboxRootProps, keyof CheckboxBaseProps | 'children' | 'class'>
 
 function normalizeCheckboxColor(value?: string): CheckboxColor {
   if (value === 'secondary' || value === 'neutral' || value === 'error') {
@@ -97,7 +97,6 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     'indicator',
     'checkedIcon',
     'indeterminateIcon',
-    'class',
     'classes',
   ])
 
@@ -148,7 +147,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
           size: resolvedSize(),
           disabled: disabled(),
         }),
-        local.class,
+        local.classes?.root,
       )}
       {...rest}
     >
@@ -194,23 +193,27 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
                   fallback={
                     <Icon
                       name={local.checkedIcon}
-                      class={cn(
-                        checkboxIconVariants({
-                          size: resolvedSize(),
-                        }),
-                        local.classes?.icon,
-                      )}
+                      classes={{
+                        root: cn(
+                          checkboxIconVariants({
+                            size: resolvedSize(),
+                          }),
+                          local.classes?.icon,
+                        ),
+                      }}
                     />
                   }
                 >
                   <Icon
                     name={local.indeterminateIcon}
-                    class={cn(
-                      checkboxIconVariants({
-                        size: resolvedSize(),
-                      }),
-                      local.classes?.icon,
-                    )}
+                    classes={{
+                      root: cn(
+                        checkboxIconVariants({
+                          size: resolvedSize(),
+                        }),
+                        local.classes?.icon,
+                      ),
+                    }}
                   />
                 </Show>
               </KobalteCheckbox.Indicator>

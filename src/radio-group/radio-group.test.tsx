@@ -121,6 +121,32 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('p-4.5')
   })
 
+  test('applies classes.root on group and per-item classes.root', () => {
+    const screen = render(() => (
+      <RadioGroup
+        classes={{ root: 'group-root-override' }}
+        items={[
+          {
+            value: 'A',
+            label: 'A',
+            classes: {
+              root: 'item-root-override',
+              container: 'item-container-override',
+            },
+          },
+        ]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const item = screen.container.querySelector('[data-slot="item"]')
+    const container = screen.container.querySelector('[data-slot="container"]')
+
+    expect(root?.className).toContain('group-root-override')
+    expect(item?.className).toContain('item-root-override')
+    expect(container?.className).toContain('item-container-override')
+  })
+
   test('validates on change when validateOn is change', async () => {
     const state = { plan: '' }
 

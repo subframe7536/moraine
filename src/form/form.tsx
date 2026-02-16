@@ -29,6 +29,10 @@ export interface FormRenderProps {
   loading: boolean
 }
 
+export interface FormClasses {
+  root?: string
+}
+
 export interface FormBaseProps<TState extends FormState = FormState> extends FormVariantProps {
   id?: string
   state?: TState
@@ -39,11 +43,15 @@ export interface FormBaseProps<TState extends FormState = FormState> extends For
   loadingAuto?: boolean
   onSubmit?: (event: FormSubmitEvent<TState>) => void | Promise<void>
   onError?: (event: FormErrorEvent) => void
+  classes?: FormClasses
   children?: JSX.Element | ((props: FormRenderProps) => JSX.Element)
 }
 
 export type FormProps<TState extends FormState = FormState> = FormBaseProps<TState> &
-  Omit<JSX.FormHTMLAttributes<HTMLFormElement>, keyof FormBaseProps<TState> | 'id' | 'children'>
+  Omit<
+    JSX.FormHTMLAttributes<HTMLFormElement>,
+    keyof FormBaseProps<TState> | 'id' | 'children' | 'class'
+  >
 
 function matchesValidationTarget(
   error: FormValidationError,
@@ -67,7 +75,6 @@ function matchesValidationTarget(
 const DEFAULT_VALUDATE_ON: FormInputEventType[] = ['input', 'blur', 'change']
 export function Form<TState extends FormState = FormState>(props: FormProps<TState>): JSX.Element {
   const [local, rest] = splitProps(props as FormProps<TState>, [
-    'class',
     'id',
     'state',
     'validate',
@@ -77,6 +84,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
     'loadingAuto',
     'onSubmit',
     'onError',
+    'classes',
     'children',
   ])
 
@@ -275,7 +283,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
           {
             loading: loading(),
           },
-          local.class,
+          local.classes?.root,
         )}
         data-loading={loading() ? 'true' : undefined}
         onSubmit={onSubmit}

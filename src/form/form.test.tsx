@@ -223,4 +223,22 @@ describe('Form', () => {
       expect(screen.queryByText('Error message')).toBeNull()
     })
   })
+
+  test('applies classes.root override', () => {
+    const state: TestState = { value: '' }
+    const screen = render(() => (
+      <Form
+        data-testid="form"
+        state={state}
+        validate={() => []}
+        classes={{ root: 'root-override' }}
+      >
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    expect(screen.getByTestId('form').className).toContain('root-override')
+  })
 })

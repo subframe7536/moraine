@@ -139,6 +139,7 @@ describe('Button', () => {
         leading={<span>L</span>}
         trailing={<span>T</span>}
         classes={{
+          root: 'root-override',
           leading: 'leading-override',
           label: 'label-override',
           trailing: 'trailing-override',
@@ -156,6 +157,7 @@ describe('Button', () => {
     expect(leading?.className).toContain('leading-override')
     expect(label?.className).toContain('label-override')
     expect(trailing?.className).toContain('trailing-override')
+    expect(button.className).toContain('root-override')
   })
 
   test('applies loading slot class override while loading', () => {

@@ -128,6 +128,34 @@ describe('CheckboxGroup', () => {
     expect(item?.className).toContain('p-4.5')
   })
 
+  test('applies classes.root on group and items', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        classes={{ root: 'group-root-override' }}
+        items={[
+          {
+            value: 'A',
+            label: 'A',
+            classes: {
+              root: 'item-root-override',
+              checkbox: {
+                root: 'checkbox-root-override',
+              },
+            },
+          },
+        ]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const item = screen.container.querySelector('[data-slot="item"]')
+    const checkboxRoot = item?.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('group-root-override')
+    expect(item?.className).toContain('item-root-override')
+    expect(checkboxRoot?.className).toContain('checkbox-root-override')
+  })
+
   test('validates on change when validateOn is change', async () => {
     const state = { choices: [] as string[] }
 

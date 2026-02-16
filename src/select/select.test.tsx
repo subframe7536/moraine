@@ -40,6 +40,15 @@ function queryAllBody(selector: string): NodeListOf<Element> {
 }
 
 describe('Select - single mode', () => {
+  test('applies classes.root override', () => {
+    const screen = render(() => (
+      <Select options={FRUITS} placeholder="Pick a fruit" classes={{ root: 'root-override' }} />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toContain('root-override')
+  })
+
   test('renders with placeholder', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
 
@@ -82,6 +91,13 @@ describe('Select - single mode', () => {
     const items = queryAllBody('[data-slot="item"]')
     const cherryItem = items[2]
     expect(cherryItem.getAttribute('aria-disabled')).toBe('true')
+  })
+
+  test('keeps loading trigger icon animation class', () => {
+    const screen = render(() => <Select options={FRUITS} loading placeholder="Pick" />)
+    const icon = screen.container.querySelector('[data-slot="trigger-icon"] [data-slot="icon"]')
+
+    expect(icon?.className).toContain('animate-spin')
   })
 })
 
@@ -170,16 +186,72 @@ describe('Select - multiple mode', () => {
 })
 
 describe('Select - tag creation', () => {
-  test('creates new tag from token separators', async () => {
+  test('creates and selects tag from token separators without allowCreate', async () => {
+    const onChange = vi.fn()
     const screen = render(() => (
-      <Select multiple showSearch options={FRUITS} tokenSeparators={[',']} placeholder="Type..." />
+      <Select
+        multiple
+        showSearch
+        options={FRUITS}
+        tokenSeparators={[',']}
+        onChange={onChange}
+        placeholder="Type..."
+      />
     ))
 
     const input = screen.getByRole('combobox') as HTMLInputElement
     await fireEvent.input(input, { target: { value: 'custom,' } })
 
-    // Token separator should have created a tag option internally
-    // The input should have been processed
+    expect(onChange).toHaveBeenCalledWith(['custom'])
+    await waitFor(() => {
+      expect(input.value).toBe('')
+    })
+  })
+
+  test('keeps trailing partial token and emits onSearch with remainder', async () => {
+    const onChange = vi.fn()
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <Select
+        multiple
+        showSearch
+        options={FRUITS}
+        tokenSeparators={[',']}
+        onChange={onChange}
+        onSearch={onSearch}
+        placeholder="Type..."
+      />
+    ))
+
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'Apple,ba' } })
+
+    expect(onChange).toHaveBeenCalledWith(['apple'])
+    expect(onSearch).toHaveBeenLastCalledWith('ba')
+    await waitFor(() => {
+      expect(input.value).toBe('ba')
+    })
+  })
+
+  test('respects maxCount when processing token separators', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select
+        multiple
+        showSearch
+        options={FRUITS}
+        tokenSeparators={[',']}
+        defaultValue={['apple']}
+        maxCount={1}
+        onChange={onChange}
+        placeholder="Type..."
+      />
+    ))
+
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'banana,' } })
+
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   test('input is not searchable by default in multiple mode', () => {

@@ -15,7 +15,7 @@ export const InputDemos = () => {
     <DemoPage
       eyebrow="Rock UI Playground"
       title="Input & Textarea"
-      description="Text input and textarea with variants, sizes, colors, icon slots, and autoresize."
+      description="Text input with icon slots, plus textarea variants, sizes, colors, and autoresize."
     >
       <DemoSection title="Input Variants" description="Visual style variants.">
         <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">
@@ -46,12 +46,15 @@ export const InputDemos = () => {
           <Input trailing={<span class="text-xs text-zinc-400">.com</span>} placeholder="Domain" />
           <Input
             leading={
-              <div class="text-xs text-zinc-500 ps-2 flex gap-1 items-center">
+              <div class="text-xs text-zinc-500 flex gap-1 items-center">
                 <div class="i-lucide-globe size-3.5" />
                 https://
               </div>
             }
             placeholder="website.com"
+            classes={{
+              input: '!ps-0',
+            }}
           />
         </div>
       </DemoSection>
@@ -90,17 +93,6 @@ export const InputDemos = () => {
             placeholder="Start typing..."
           />
           <p class="text-xs text-zinc-500">Characters: {textareaValue().length}</p>
-        </div>
-      </DemoSection>
-
-      <DemoSection title="Textarea with Icons" description="Leading and trailing icon slots.">
-        <div class="gap-3 grid sm:grid-cols-2">
-          <Textarea
-            leadingIcon="i-lucide-message-square"
-            placeholder="Write a comment..."
-            rows={2}
-          />
-          <Textarea trailingIcon="i-lucide-send" placeholder="Send a message..." rows={2} />
         </div>
       </DemoSection>
     </DemoPage>

@@ -52,4 +52,11 @@ describe('Icon', () => {
     const icon2 = screen2.container.querySelector('[data-slot="icon"]')
     expect(icon2?.hasAttribute('aria-hidden')).toBe(false)
   })
+
+  test('applies classes.root override', () => {
+    const screen = render(() => <Icon name="i-lucide-search" classes={{ root: 'root-override' }} />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.className).toContain('root-override')
+  })
 })

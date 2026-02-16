@@ -27,6 +27,17 @@ describe('Tooltip', () => {
     expect(kbds.item(1)?.textContent).toBe('S')
   })
 
+  test('maps classes.root to content slot', () => {
+    const screen = render(() => (
+      <Tooltip open portal={false} text="Tooltip content" classes={{ root: 'root-override' }}>
+        <button type="button">Trigger</button>
+      </Tooltip>
+    ))
+
+    const content = screen.container.querySelector('[data-slot="content"]')
+    expect(content?.className).toContain('root-override')
+  })
+
   test('renders arrow when enabled', () => {
     const screen = render(() => (
       <Tooltip open portal={false} text="With arrow" arrow>

@@ -3,7 +3,6 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
-import { useComponentIcons } from '../shared/use-component-icons'
 import { callHandler, cn } from '../shared/utils'
 
 import type { ButtonVariantProps } from './button.class'
@@ -13,6 +12,11 @@ import { buttonIconSizeVariants, buttonVariants } from './button.class'
  * Class overrides for Button slots.
  */
 export interface ButtonClasses {
+  /**
+   * Root slot classes.
+   */
+  root?: string
+
   /**
    * Leading slot classes.
    */
@@ -79,7 +83,7 @@ export interface ButtonBaseProps extends ButtonVariantProps {
  */
 export type ButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
   T,
-  ButtonBaseProps & KobalteButton.ButtonRootProps<ElementOf<T>>
+  ButtonBaseProps & Omit<KobalteButton.ButtonRootProps<ElementOf<T>>, 'class'>
 >
 
 type PromiseLikeWithFinally = PromiseLike<unknown> & {
@@ -126,12 +130,25 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     })
   })
 
-  const { isLeading, leadingIcon, trailingIcon } = useComponentIcons(() => ({
-    loading: isLoading(),
-    loadingIcon: local.loadingIcon,
-    leading: local.leading,
-    trailing: local.trailing,
-  }))
+  const resolvedLeading = createMemo(() => {
+    if (isLoading()) {
+      return local.loadingIcon ?? local.leading
+    }
+
+    return local.leading
+  })
+
+  const resolvedTrailing = createMemo(() => {
+    if (isLoading()) {
+      return undefined
+    }
+
+    return local.trailing
+  })
+
+  const hasLeading = createMemo(() => {
+    return resolvedLeading() !== undefined && resolvedLeading() !== null
+  })
 
   const content = createMemo(() => {
     if (local.label !== undefined && local.label !== null) {
@@ -142,11 +159,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const onClick: JSX.EventHandlerUnion<any, MouseEvent> = (event) => {
-    if (isLoading() || local.disabled) {
-      event.preventDefault()
-      return
-    }
-
     const { result: handlerResult, defaultPrevented } = callHandler(event, local.onClick)
 
     if (!local.loadingAuto || defaultPrevented || !isPromiseLike(handlerResult)) {
@@ -168,7 +180,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           size: local.size,
         },
         isLoading() && 'cursor-wait opacity-80',
-        local.class,
+        local.classes?.root,
       )}
       aria-busy={isLoading() ? true : undefined}
       data-loading={isLoading() ? '' : undefined}
@@ -176,7 +188,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       onClick={onClick}
       {...rest}
     >
-      <Show when={isLeading()}>
+      <Show when={hasLeading()}>
         <span
           data-slot="leading"
           class={cn(
@@ -187,7 +199,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           )}
           aria-hidden={isLoading() ? 'true' : undefined}
         >
-          {leadingIcon()}
+          {resolvedLeading()}
         </span>
       </Show>
 
@@ -197,7 +209,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         </span>
       </Show>
 
-      <Show when={trailingIcon()}>
+      <Show when={resolvedTrailing()}>
         {(trailingResolved) => (
           <span
             data-slot="trailing"

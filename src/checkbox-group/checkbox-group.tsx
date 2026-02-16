@@ -20,8 +20,10 @@ export interface CheckboxGroupItemObject {
   label?: JSX.Element
   description?: JSX.Element
   disabled?: boolean
-  class?: string
-  classes?: CheckboxProps['classes']
+  classes?: {
+    root?: string
+    checkbox?: CheckboxProps['classes']
+  }
   checkedIcon?: CheckboxProps['checkedIcon']
   indeterminateIcon?: CheckboxProps['indeterminateIcon']
   [key: string]: unknown
@@ -30,6 +32,7 @@ export interface CheckboxGroupItemObject {
 export type CheckboxGroupItem = string | number | boolean | null | CheckboxGroupItemObject
 
 export interface CheckboxGroupClasses {
+  root?: string
   fieldset?: string
   legend?: string
   item?: string
@@ -57,12 +60,14 @@ export interface CheckboxGroupBaseProps extends CheckboxGroupVariantProps {
   required?: boolean
   disabled?: boolean
   onChange?: (value: CheckboxGroupValue[]) => void
-  class?: string
   classes?: CheckboxGroupClasses
 }
 
 export type CheckboxGroupProps = CheckboxGroupBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLDivElement>, keyof CheckboxGroupBaseProps | 'id' | 'children'>
+  Omit<
+    JSX.HTMLAttributes<HTMLDivElement>,
+    keyof CheckboxGroupBaseProps | 'id' | 'children' | 'class'
+  >
 
 interface NormalizedCheckboxGroupItem {
   id: string
@@ -70,8 +75,10 @@ interface NormalizedCheckboxGroupItem {
   label?: JSX.Element
   description?: JSX.Element
   disabled: boolean
-  class?: string
-  classes?: CheckboxProps['classes']
+  classes?: {
+    root?: string
+    checkbox?: CheckboxProps['classes']
+  }
   checkedIcon?: CheckboxProps['checkedIcon']
   indeterminateIcon?: CheckboxProps['indeterminateIcon']
 }
@@ -144,7 +151,6 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     'required',
     'disabled',
     'onChange',
-    'class',
     'classes',
   ])
 
@@ -221,7 +227,6 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
         label,
         description,
         disabled: Boolean(objectItem.disabled),
-        class: objectItem.class,
         classes: objectItem.classes,
         checkedIcon: objectItem.checkedIcon,
         indeterminateIcon: objectItem.indeterminateIcon,
@@ -250,7 +255,12 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
   }
 
   return (
-    <div id={`${groupId()}-root`} data-slot="root" class={cn('relative', local.class)} {...rest}>
+    <div
+      id={`${groupId()}-root`}
+      data-slot="root"
+      class={cn('relative', local.classes?.root)}
+      {...rest}
+    >
       <fieldset
         id={groupId()}
         data-slot="fieldset"
@@ -292,7 +302,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
                   disabled: item.disabled || disabled(),
                 }),
                 local.classes?.item,
-                item.class,
+                item.classes?.root,
               )}
             >
               <Checkbox
@@ -313,7 +323,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
                 indicator={local.indicator}
                 checkedIcon={item.checkedIcon ?? local.checkedIcon}
                 indeterminateIcon={item.indeterminateIcon ?? local.indeterminateIcon}
-                classes={{ ...local.classes?.checkbox, ...item.classes }}
+                classes={{ ...local.classes?.checkbox, ...item.classes?.checkbox }}
                 onChange={(checked) => onItemCheckedChange(item.value, checked)}
               />
             </div>

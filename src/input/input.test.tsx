@@ -72,6 +72,40 @@ describe('Input', () => {
     expect(input.required).toBe(true)
   })
 
+  test('uses default base padding when leading and trailing are absent', () => {
+    const screen = render(() => <Input />)
+    const input = screen.getByRole('textbox')
+
+    expect(input.className).toContain('ps-3.5')
+    expect(input.className).toContain('pe-3.5')
+  })
+
+  test('uses slot start padding when leading icon is present', () => {
+    const screen = render(() => <Input icon="i-lucide-search" />)
+    const input = screen.getByRole('textbox')
+
+    expect(input.className).toContain('ps-2')
+    expect(input.className).toContain('pe-3.5')
+  })
+
+  test('uses slot end padding when trailing icon is present', () => {
+    const screen = render(() => <Input trailing icon="i-lucide-search" />)
+    const input = screen.getByRole('textbox')
+
+    expect(input.className).toContain('ps-3.5')
+    expect(input.className).toContain('pe-2')
+  })
+
+  test('uses slot padding for custom inline leading and trailing content', () => {
+    const screen = render(() => (
+      <Input leading={<span>https://</span>} trailing={<span>.com</span>} />
+    ))
+    const input = screen.getByRole('textbox')
+
+    expect(input.className).toContain('ps-2')
+    expect(input.className).toContain('pe-2')
+  })
+
   test('renders icon in leading and trailing positions', () => {
     const screen = render(() => (
       <>
@@ -105,15 +139,6 @@ describe('Input', () => {
     expect(leadingIcon?.className).toContain('animate-spin')
     expect(trailingIcons[0]?.className).toContain('icon-loading')
     expect(trailingIcons[0]?.className).toContain('animate-spin')
-  })
-
-  test('renders avatar as leading fallback', () => {
-    const screen = render(() => (
-      <Input avatar={<span data-testid="avatar">A</span>} placeholder="Avatar input" />
-    ))
-
-    expect(screen.getByTestId('avatar').textContent).toBe('A')
-    expect(screen.container.querySelector('[data-slot="leadingAvatar"]')).not.toBeNull()
   })
 
   test('applies trim modifier', async () => {
@@ -312,5 +337,12 @@ describe('Input', () => {
     await waitFor(() => {
       expect(nonEagerForm.screen.getByText('Error message')).not.toBeNull()
     })
+  })
+
+  test('applies classes.root override', () => {
+    const screen = render(() => <Input classes={{ root: 'root-override' }} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('root-override')
   })
 })

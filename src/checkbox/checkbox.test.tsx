@@ -113,7 +113,13 @@ describe('Checkbox', () => {
 
   test('applies card variant, end indicator and size classes', () => {
     const screen = render(() => (
-      <Checkbox variant="card" indicator="end" size="xl" label="Classes" />
+      <Checkbox
+        variant="card"
+        indicator="end"
+        size="xl"
+        label="Classes"
+        classes={{ root: 'root-override' }}
+      />
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -121,6 +127,7 @@ describe('Checkbox', () => {
 
     expect(root?.className).toContain('rounded-lg')
     expect(root?.className).toContain('flex-row-reverse')
+    expect(root?.className).toContain('root-override')
     expect(base?.className).toContain('size-5')
   })
 
