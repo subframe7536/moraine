@@ -6,10 +6,10 @@ export const tooltipContentVariants = cva(
   {
     variants: {
       side: {
-        left: 'slide-in-from-right-2 mr-(--kb-popper-content-overflow-padding)',
-        right: 'slide-in-from-left-2 ml-(--kb-popper-content-overflow-padding)',
-        top: 'slide-in-from-bottom-2 mb-(--kb-popper-content-overflow-padding)',
-        bottom: 'slide-in-from-top-2 mt-(--kb-popper-content-overflow-padding)',
+        left: 'slide-in-from-right-2 mr-$kb-popper-content-overflow-padding',
+        right: 'slide-in-from-left-2 ml-$kb-popper-content-overflow-padding',
+        top: 'slide-in-from-bottom-2 mb-$kb-popper-content-overflow-padding',
+        bottom: 'slide-in-from-top-2 mt-$kb-popper-content-overflow-padding',
       },
     },
     defaultVariants: {

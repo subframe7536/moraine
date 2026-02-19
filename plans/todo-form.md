@@ -3,14 +3,14 @@
 ## Execution Policy
 
 - Complete non-skip pending items in phased order instead of parallel ad-hoc work.
-- Treat `slider` as blocked by `tooltip` from overlay scope.
+- Treat `slider` delivery as two stages: core first, tooltip follow-up.
 - Do not mark a component as done until it has logic, styles, tests, and exports.
 - This file is the single source of truth for unified select architecture.
 
 - [x] checkbox | nuxt:Checkbox.vue | coss:checkbox.tsx | rock:src/checkbox/ | tests+exports
 - [x] checkbox-group | nuxt:CheckboxGroup.vue | coss:checkbox-group.tsx | rock:src/checkbox-group/ | tests+exports
 - [ ] (Skip for now) color-picker | nuxt:ColorPicker.vue | coss:select.tsx + popover.tsx | rock:src/color-picker/ | tests+exports
-- [ ] file-upload | nuxt:FileUpload.vue | coss:input.tsx | rock:src/file-upload/ | tests+exports
+- [x] file-upload | nuxt:FileUpload.vue | coss:input.tsx | rock:src/file-upload/ | tests+exports
 - [x] form | nuxt:Form.vue | coss:form.tsx | rock:src/form/ | tests+exports
 - [x] form-field | nuxt:FormField.vue | coss:field.tsx | rock:src/form-field/ | tests+exports
 - [x] input | nuxt:Input.vue | coss:input.tsx | rock:src/input/ | tests+exports
@@ -20,7 +20,7 @@
 - [ ] (Skip for now) pin-input | nuxt:PinInput.vue | coss:input.tsx | rock:src/pin-input/ | tests+exports
 - [x] radio-group | nuxt:RadioGroup.vue | coss:radio-group.tsx | rock:src/radio-group/ | tests+exports
 - [x] select | nuxt:Select.vue + SelectMenu.vue + InputTags.vue | coss:combobox.tsx + select.tsx | rock:src/select/ | tests+exports | covers former input-menu/select-menu/input-tags
-- [ ] slider | nuxt:Slider.vue | coss:slider.tsx | rock:src/slider/ | tests+exports
+- [x] slider (core, no tooltip) | nuxt:Slider.vue | coss:slider.tsx | rock:src/slider/ | tests+exports
 - [x] switch | nuxt:Switch.vue | coss:switch.tsx | rock:src/switch/ | tests+exports
 - [x] textarea | nuxt:Textarea.vue | coss:textarea.tsx | rock:src/textarea/ | tests+exports
 
@@ -86,17 +86,25 @@
   - file reset and input clearing behavior verified
   - single vs multiple mode behavior verified
 
-### P3 - Slider completion
+### P3 - Slider core completion (no tooltip)
 
 - Component: `slider`
-- Hard dependency: P0 `tooltip` completed.
-- Scope: single-thumb and range values, horizontal and vertical orientation, optional tooltip value display.
+- Hard dependency: none for core delivery.
+- Scope: single-thumb and range values, horizontal and vertical orientation, no tooltip rendering in this stage.
 - Deliverables:
   - `src/slider/` complete folder set
   - export in local `index.ts` and root `src/index.ts`
   - tests for value commit and accessibility labels
 - Exit criteria:
   - change and input event behavior integrates with form context
+  - tooltip mode is explicitly not part of this phase
+
+### P3.1 - Slider tooltip follow-up
+
+- Component: `slider` + `tooltip`
+- Hard dependency: P0 `tooltip` API stability.
+- Scope: optional tooltip value display for slider thumbs.
+- Exit criteria:
   - tooltip mode assertions pass when enabled
 
 ## Public API / Type Contract (P1 Unified Select)
@@ -151,7 +159,7 @@
 
 ## Assumptions And Defaults
 
-- This iteration only updates planning file and does not implement runtime code.
+- This iteration includes runtime implementation for `slider` core; `slider` tooltip remains pending.
 - Breaking change is accepted; no backward compatibility layer is provided for old select-like APIs.
 - Coss combobox/select examples are the style reference baseline, then adapted to Uno + cva in implementation phase.
 
@@ -161,5 +169,5 @@
 - [x] P1 dependency resolved (`avatar` + `chip` complete, unified `select` unblocked)
 - [x] Architecture merged (`input-menu` + `input-tags` + `select-menu` -> `select`)
 - [x] P1 complete (unified `select`)
-- [ ] P2 complete (`file-upload`)
-- [ ] P3 complete (`slider`)
+- [x] P2 complete (`file-upload`)
+- [x] P3-core complete (`slider` without tooltip)

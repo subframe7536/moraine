@@ -6,22 +6,6 @@
   },
   "overrides": [
     {
-      "files": ["src/**/*.{ts,tsx}"],
-      "rules": {
-        "typescript/explicit-function-return-type": "error"
-      }
-    },
-    {
-      "files": [
-        "src/**/*.test.{ts,tsx}",
-        "src/**/*.spec.{ts,tsx}",
-        "src/**/__tests__/**/*.{ts,tsx}"
-      ],
-      "rules": {
-        "typescript/explicit-function-return-type": "off"
-      }
-    },
-    {
       "files": ["src/**/*.tsx", "playground/**/*.tsx"],
       "jsPlugins": ["eslint-plugin-solid", "@unocss/eslint-plugin"],
       "rules": {

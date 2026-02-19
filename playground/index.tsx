@@ -6,12 +6,14 @@ import { render } from 'solid-js/web'
 
 import { ButtonDemos } from './components/button-demos'
 import { Sidebar } from './components/common/sidebar'
+import { FileUploadDemos } from './components/file-upload-demos'
 import { FormDemos } from './components/form-demos'
 import { FormFieldDemos } from './components/form-field-demos'
 import { IconDemos } from './components/icon-demos'
 import { InputDemos } from './components/input-demos'
 import { InputNumberDemos } from './components/input-number-demos'
 import { SelectDemos } from './components/select-demos'
+import { SliderDemos } from './components/slider-demos'
 import { TooltipDemos } from './components/tooltip-demos'
 
 const PAGES = [
@@ -20,6 +22,8 @@ const PAGES = [
   { key: 'tooltip', label: 'Tooltip', group: 'Feedback' },
   { key: 'input', label: 'Input & Textarea', group: 'Data Entry' },
   { key: 'input-number', label: 'Input Number', group: 'Data Entry' },
+  { key: 'slider', label: 'Slider', group: 'Data Entry' },
+  { key: 'file-upload', label: 'File Upload', group: 'Data Entry' },
   { key: 'select', label: 'Select', group: 'Data Entry' },
   { key: 'form-controls', label: 'Form Controls', group: 'Data Entry' },
   { key: 'form-field', label: 'Form & Validation', group: 'Data Entry' },
@@ -58,6 +62,12 @@ function App() {
           </Match>
           <Match when={page() === 'input-number'}>
             <InputNumberDemos />
+          </Match>
+          <Match when={page() === 'slider'}>
+            <SliderDemos />
+          </Match>
+          <Match when={page() === 'file-upload'}>
+            <FileUploadDemos />
           </Match>
           <Match when={page() === 'select'}>
             <SelectDemos />

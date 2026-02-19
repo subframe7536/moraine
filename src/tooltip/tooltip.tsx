@@ -29,7 +29,7 @@ export interface TooltipBaseProps {
   kbds?: TooltipKbd[]
   content?: Omit<KobalteTooltipContentProps, 'children'>
   arrow?: boolean | Omit<KobalteTooltipArrowProps, 'children'>
-  portal?: boolean | Omit<KobalteTooltipPortalProps, 'children'>
+  portal?: Omit<KobalteTooltipPortalProps, 'children'>
   classes?: TooltipClasses
   children?: JSX.Element
 }
@@ -85,7 +85,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     return resolved as Omit<KobalteTooltipContentProps, 'children'>
   })
 
-  const portalEnabled = createMemo(() => local.portal !== false)
   const portalProps = createMemo(() => {
     if (typeof local.portal !== 'object') {
       return {} as Omit<KobalteTooltipPortalProps, 'children'>
@@ -122,50 +121,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   })
   const disabled = createMemo(() => local.disabled || !hasTooltipContent())
 
-  const tooltipContent = (): JSX.Element => (
-    <KobalteTooltip.Content
-      data-slot="content"
-      class={tooltipContentVariants(
-        {
-          side: resolveTooltipSide(local.placement),
-        },
-        local.classes?.root,
-      )}
-      {...contentProps()}
-    >
-      <Show when={local.text}>
-        <span data-slot="text" class={cn('text-pretty leading-4', local.classes?.text)}>
-          {local.text}
-        </span>
-      </Show>
-
-      <Show when={(local.kbds?.length || 0) > 0}>
-        <span
-          data-slot="kbds"
-          class={cn('ms-1 inline-flex items-center gap-1', local.classes?.kbds)}
-        >
-          <For each={local.kbds}>
-            {(kbd) => (
-              <kbd
-                data-slot="kbd"
-                class={cn(
-                  'inline-flex items-center rounded border bg-muted px-1 py-0.5 font-mono text-[10px] leading-none text-muted-foreground uppercase',
-                  local.classes?.kbd,
-                )}
-              >
-                {kbd}
-              </kbd>
-            )}
-          </For>
-        </span>
-      </Show>
-
-      <Show when={local.arrow}>
-        <KobalteTooltip.Arrow data-slot="arrow" class={arrowClass()} {...arrowProps()} />
-      </Show>
-    </KobalteTooltip.Content>
-  )
-
   return (
     <KobalteTooltip.Root
       placement={local.placement}
@@ -180,9 +135,49 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       </Show>
 
       <Show when={hasTooltipContent()}>
-        <Show when={portalEnabled()} fallback={tooltipContent()}>
-          <KobalteTooltip.Portal {...portalProps()}>{tooltipContent()}</KobalteTooltip.Portal>
-        </Show>
+        <KobalteTooltip.Portal {...portalProps()}>
+          <KobalteTooltip.Content
+            data-slot="content"
+            class={tooltipContentVariants(
+              {
+                side: resolveTooltipSide(local.placement),
+              },
+              local.classes?.root,
+            )}
+            {...contentProps()}
+          >
+            <Show when={local.text}>
+              <span data-slot="text" class={cn('text-pretty leading-4', local.classes?.text)}>
+                {local.text}
+              </span>
+            </Show>
+
+            <Show when={(local.kbds?.length || 0) > 0}>
+              <span
+                data-slot="kbds"
+                class={cn('ms-1 inline-flex items-center gap-1', local.classes?.kbds)}
+              >
+                <For each={local.kbds}>
+                  {(kbd) => (
+                    <kbd
+                      data-slot="kbd"
+                      class={cn(
+                        'inline-flex items-center rounded border bg-muted px-1 py-0.5 font-mono text-10px leading-none text-muted-foreground uppercase',
+                        local.classes?.kbd,
+                      )}
+                    >
+                      {kbd}
+                    </kbd>
+                  )}
+                </For>
+              </span>
+            </Show>
+
+            <Show when={local.arrow}>
+              <KobalteTooltip.Arrow data-slot="arrow" class={arrowClass()} {...arrowProps()} />
+            </Show>
+          </KobalteTooltip.Content>
+        </KobalteTooltip.Portal>
       </Show>
     </KobalteTooltip.Root>
   )

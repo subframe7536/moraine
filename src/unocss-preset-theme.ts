@@ -92,7 +92,7 @@ const LIGHT_BASE_COLORS = {
   muted: { DEFAULT: 'rgb(232, 230, 225)', foreground: 'rgb(107, 114, 128)' },
   accent: { DEFAULT: 'rgb(215, 219, 223)', foreground: 'rgb(26, 31, 46)' },
   border: 'rgb(232, 230, 225)',
-  input: { DEFAULT: 'rgb(252, 252, 252)', foreground: 'rgb(26, 31, 46)' },
+  input: { DEFAULT: 'rgb(212, 217, 223)', foreground: 'rgb(26, 31, 46)' },
 } satisfies Theme['colors']
 
 const DARK_BASE_COLORS = {

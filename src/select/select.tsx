@@ -1168,7 +1168,7 @@ export function Select(props: SelectProps): JSX.Element {
         <Combobox.Content
           data-slot="content"
           class={cn(
-            'z-50 rounded-lg border bg-popover text-popover-foreground shadow-lg overflow-hidden max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-y-auto overflow-x-hidden data-[expanded]:(animate-in fade-in-0 zoom-in-95) data-[closed]:(animate-out fade-out-0 zoom-out-95) data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 mt-(--kb-popper-content-overflow-padding)',
+            'z-50 rounded-lg border bg-popover text-popover-foreground shadow-lg overflow-hidden max-h-$kb-popper-available-height min-w-32 origin-$kb-combobox-content-transform-origin overflow-y-auto overflow-x-hidden data-[expanded]:(animate-in fade-in-0 zoom-in-95) data-[closed]:(animate-out fade-out-0 zoom-out-95) data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 mt-$kb-popper-content-overflow-padding',
             local.classes?.content,
           )}
           onInteractOutside={() => {
@@ -1233,7 +1233,7 @@ export function Select(props: SelectProps): JSX.Element {
                   // ref={bindListboxScroll}
                   data-slot="listbox"
                   class={cn(
-                    'max-h-(--kb-popper-content-available-height) overflow-y-auto p-1 outline-none',
+                    'max-h-$kb-popper-content-available-height overflow-y-auto p-1 outline-none',
                     local.classes?.listbox,
                   )}
                   onScrollEnd={handleListboxScroll}
@@ -1243,7 +1243,7 @@ export function Select(props: SelectProps): JSX.Element {
               <Combobox.Listbox
                 data-slot="listbox"
                 class={cn(
-                  'max-h-(--kb-popper-content-available-height) overflow-y-auto p-1 outline-none',
+                  'max-h-$kb-popper-content-available-height overflow-y-auto p-1 outline-none',
                   local.classes?.listbox,
                 )}
                 onScrollEnd={handleListboxScroll}
