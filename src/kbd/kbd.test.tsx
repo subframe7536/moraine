@@ -34,16 +34,14 @@ describe('Kbd', () => {
     const asInvert = render(() => <Kbd variant="invert">K</Kbd>)
 
     expect(outlineByDefault.container.querySelector('[data-slot="root"]')?.className).toContain(
-      'border-border',
+      'border',
     )
     expect(asDefault.container.querySelector('[data-slot="root"]')?.className).toContain(
       'bg-muted/70',
     )
-    expect(asOutline.container.querySelector('[data-slot="root"]')?.className).toContain(
-      'border-border',
-    )
+    expect(asOutline.container.querySelector('[data-slot="root"]')?.className).toContain('border')
     expect(asInvert.container.querySelector('[data-slot="root"]')?.className).toContain(
-      'bg-foreground',
+      'bg-muted-foreground',
     )
   })
 

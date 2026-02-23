@@ -31,5 +31,6 @@ These rules apply to all future component ports:
 18. Do not call variant generators with an explicit `undefined` first argument.
     - Forbidden: `fooVariants(undefined, local.classes?.root)`
     - Preferred: for no-variant slots use JSX `class`; for real variants pass an object.
+19. For major component refactors, follow `plans/generic-component-refactor-rule.md` as the mandatory planning and implementation guide.
 
 **Every component should pass `bun run qa` and `bun run test`**
