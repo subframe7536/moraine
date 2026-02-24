@@ -150,7 +150,7 @@ describe('ContextMenu', () => {
 
     expect(rootContent?.className).toContain('mt-$kb-popper-content-overflow-padding')
     expect(rootContent?.className).toContain('ring-foreground/10')
-    expect(rootContent?.className).toContain('slide-in-from-top-2')
+    expect(rootContent?.className).toContain('data-exxpanded:slide-in-from-top-2')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

@@ -19,7 +19,6 @@ import { InputDemos } from './components/input-demos'
 import { InputNumberDemos } from './components/input-number-demos'
 import { KbdDemos } from './components/kbd-demos'
 import { ModalDemos } from './components/modal-demos'
-import { NavigationMenuDemos } from './components/navigation-menu-demos'
 import { PaginationDemos } from './components/pagination-demos'
 import { PopoverDemos } from './components/popover-demos'
 import { ProgressDemos } from './components/progress-demos'
@@ -38,7 +37,6 @@ const PAGES = [
   { key: 'card', label: 'Card', group: 'Layout' },
   { key: 'field-group', label: 'Field Group', group: 'Layout' },
   { key: 'breadcrumb', label: 'Breadcrumb', group: 'Navigation' },
-  { key: 'navigation-menu', label: 'Navigation Menu', group: 'Navigation' },
   { key: 'pagination', label: 'Pagination', group: 'Navigation' },
   { key: 'tabs', label: 'Tabs', group: 'Navigation' },
   { key: 'collapsible', label: 'Collapsible', group: 'Disclosure' },
@@ -112,9 +110,6 @@ function App() {
           </Match>
           <Match when={page() === 'modal'}>
             <ModalDemos />
-          </Match>
-          <Match when={page() === 'navigation-menu'}>
-            <NavigationMenuDemos />
           </Match>
           <Match when={page() === 'pagination'}>
             <PaginationDemos />

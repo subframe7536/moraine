@@ -33,10 +33,10 @@ export const overlayMenuContentVariants = cva(
     },
     variants: {
       side: {
-        top: 'mb-$kb-popper-content-overflow-padding slide-in-from-bottom-2',
-        right: 'ml-$kb-popper-content-overflow-padding slide-in-from-left-2',
-        bottom: 'mt-$kb-popper-content-overflow-padding slide-in-from-top-2',
-        left: 'mr-$kb-popper-content-overflow-padding slide-in-from-right-2',
+        top: 'mb-$kb-popper-content-overflow-padding data-expanded:slide-in-from-b-2',
+        right: 'ml-$kb-popper-content-overflow-padding data-expanded:slide-in-from-l-2',
+        bottom: 'mt-$kb-popper-content-overflow-padding data-expanded:slide-in-from-t-2',
+        left: 'mr-$kb-popper-content-overflow-padding data-expanded:slide-in-from-r-2',
       },
       sub: {
         true: 'min-w-32 rounded-lg border p-1 shadow-lg',

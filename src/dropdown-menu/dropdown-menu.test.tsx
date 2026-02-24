@@ -64,8 +64,8 @@ describe('DropdownMenu', () => {
     const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
     expect(rootContent.className).toContain('mt-$kb-popper-content-overflow-padding')
-    expect(rootContent.className).toContain('slide-in-from-top-2')
-    expect(rootContent.className).not.toContain('slide-in-from-bottom-2')
+    expect(rootContent.className).toContain('data-expanded:slide-in-from-top-2')
+    expect(rootContent.className).not.toContain('data-expanded:slide-in-from-bottom-2')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {

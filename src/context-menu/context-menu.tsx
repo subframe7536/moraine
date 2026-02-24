@@ -70,7 +70,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   )
 
   return (
-    <KobalteContextMenu.Root preventScroll modal={false} overflowPadding={4} {...rootProps}>
+    <KobalteContextMenu.Root overflowPadding={4} {...rootProps}>
       <KobalteContextMenu.Trigger
         data-slot="trigger"
         class={local.classes?.trigger}
