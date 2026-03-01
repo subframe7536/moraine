@@ -11,11 +11,11 @@ export const PaginationDemos = () => {
     <DemoPage
       eyebrow="Rock UI Playground"
       title="Pagination"
-      description="Page navigation with controlled/uncontrolled modes, links, and style variants."
+      description="Nova-inspired pagination spacing with controlled/uncontrolled modes and variant customization."
     >
       <DemoSection
         title="Controlled"
-        description="External page state management with onPageChange callback."
+        description="Default ghost + outline controls with external page state management."
       >
         <div class="space-y-3">
           <Pagination
@@ -30,15 +30,16 @@ export const PaginationDemos = () => {
       </DemoSection>
 
       <DemoSection
-        title="Link Mode"
-        description="Render pagination controls as anchors using the to callback."
+        title="Custom Variants"
+        description="Render controls as links and override variant pairing when needed."
       >
         <Pagination
           total={60}
           itemsPerPage={10}
           to={(nextPage) => `#pagination&page=${nextPage}`}
-          variant="ghost"
-          activeVariant="secondary"
+          variant="outline"
+          activeVariant="default"
+          controlVariant="secondary"
         />
       </DemoSection>
 

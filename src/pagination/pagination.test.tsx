@@ -11,6 +11,10 @@ type PaginationProps = Parameters<typeof Pagination>[0]
 ;({ firstIcon: 'icon-chevrons-left' }) satisfies PaginationProps
 // @ts-expect-error edge icons are removed
 ;({ lastIcon: 'icon-chevrons-right' }) satisfies PaginationProps
+// @ts-expect-error color API is removed
+;({ color: 'primary' }) satisfies PaginationProps
+// @ts-expect-error color API is removed
+;({ activeColor: 'secondary' }) satisfies PaginationProps
 
 describe('Pagination', () => {
   test('derives page count from total and itemsPerPage', () => {
@@ -104,6 +108,29 @@ describe('Pagination', () => {
 
     expect(prevAtEnd?.getAttribute('disabled')).toBeNull()
     expect(nextAtEnd?.getAttribute('disabled')).not.toBeNull()
+  })
+
+  test('uses nova defaults for spacing, sizing, and control variants', () => {
+    const screen = render(() => (
+      <Pagination page={5} total={100} itemsPerPage={10} siblingCount={1} showControls />
+    ))
+
+    const list = screen.container.querySelector('[data-slot="list"]')
+    const prev = screen.container.querySelector('[data-slot="prev"] [data-slot="control"]')
+    const next = screen.container.querySelector('[data-slot="next"] [data-slot="control"]')
+    const ellipsis = screen.container.querySelector('[data-slot="ellipsis"] span')
+    const currentPage = screen.getByText('5').closest('[data-slot="control"]')
+    const anotherPage = screen.getByText('4').closest('[data-slot="control"]')
+
+    expect(list?.className).toContain('gap-1')
+    expect(prev?.className).toContain('pl-2')
+    expect(next?.className).toContain('pr-2')
+    expect(ellipsis?.className).toContain('size-9')
+    expect(currentPage?.className).toContain('bg-background')
+    expect(currentPage?.className).toContain('shadow-xs')
+    expect(anotherPage?.className).toContain(
+      'hover:(bg-accent text-accent-foreground hover:bg-accent/50)',
+    )
   })
 
   test('applies classes overrides to root, list, controls, and ellipsis', () => {

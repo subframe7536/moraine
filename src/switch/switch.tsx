@@ -109,11 +109,7 @@ export function Switch(props: SwitchProps): JSX.Element {
             return displayProps.loadingIcon
           }
 
-          if (checked()) {
-            return displayProps.checkedIcon
-          }
-
-          return displayProps.uncheckedIcon
+          return checked() ? displayProps.checkedIcon : displayProps.uncheckedIcon
         })
 
         return (

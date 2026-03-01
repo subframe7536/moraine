@@ -69,23 +69,29 @@ export const FormDemos = () => {
     >
       <DemoSection
         title="Checkbox"
-        description="Single checkbox states with list/card variants and controlled value."
+        description="Single checkbox states with full-surface card interactions and controlled value."
       >
         <div class="gap-4 grid sm:grid-cols-2">
           <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
             <Checkbox
               label="Accept terms"
               description="Required before creating workspace"
+              variant="card"
               defaultChecked
             />
-            <Checkbox label="Disabled option" description="Read only preview" disabled />
+            <Checkbox
+              label="Disabled option"
+              description="Read only preview"
+              variant="card"
+              disabled
+            />
           </div>
 
           <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
             <Checkbox
               label="Controlled consent"
               description={`Current: ${agreeChecked() ? 'checked' : 'unchecked'}`}
-              variant="card"
+              variant="list"
               indicator="end"
               checked={agreeChecked()}
               onChange={setAgreeChecked}
@@ -96,13 +102,14 @@ export const FormDemos = () => {
 
       <DemoSection
         title="Checkbox Group"
-        description="Supports object items, table/list variants, and controlled arrays."
+        description="Supports object items with card/table variants and controlled arrays."
       >
         <div class="gap-4 grid sm:grid-cols-2">
           <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
             <CheckboxGroup
               legend="Uncontrolled channels"
               items={CHECKBOX_GROUP_ITEMS}
+              variant="card"
               defaultValue={['alpha']}
             />
           </div>
@@ -123,11 +130,16 @@ export const FormDemos = () => {
 
       <DemoSection
         title="Radio Group"
-        description="Single-selection options with horizontal table layout and controlled value."
+        description="Single-selection options with card/table layouts and controlled value."
       >
         <div class="gap-4 grid sm:grid-cols-2">
           <div class="p-4 border border-zinc-200 rounded-lg space-y-3">
-            <RadioGroup legend="Uncontrolled plan" items={RADIO_ITEMS} defaultValue="starter" />
+            <RadioGroup
+              legend="Uncontrolled plan"
+              items={RADIO_ITEMS}
+              variant="card"
+              defaultValue="starter"
+            />
           </div>
 
           <div class="p-4 border border-zinc-200 rounded-lg space-y-3">

@@ -2,21 +2,18 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../button'
+import type { ButtonProps } from '../button'
+import type { FieldGroupSize } from '../field-group'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
 import type { SlotClasses } from '../shared/slot-class'
 import { cn } from '../shared/utils'
 
-import { paginationControlVariants } from './pagination.class'
-import type { PaginationVariantProps } from './pagination.class'
-
-type PaginationColor = NonNullable<PaginationVariantProps['color']>
-type PaginationSize = NonNullable<PaginationVariantProps['size']>
-type PaginationVariant = NonNullable<PaginationVariantProps['variant']>
-
 type PaginationSlots = 'root' | 'list' | 'item' | 'control' | 'prev' | 'next' | 'ellipsis'
 
 export type PaginationClasses = SlotClasses<PaginationSlots>
+
+type PaginationVariant = ButtonProps['variant']
 
 export interface PaginationBaseProps {
   page?: number
@@ -27,13 +24,14 @@ export interface PaginationBaseProps {
   siblingCount?: number
   showControls?: boolean
   disabled?: boolean
-  size?: PaginationSize
+  size?: FieldGroupSize
   variant?: PaginationVariant
   activeVariant?: PaginationVariant
-  color?: PaginationColor
-  activeColor?: PaginationColor
+  controlVariant?: PaginationVariant
   prevIcon?: IconName
+  prevText?: string
   nextIcon?: IconName
+  nextText?: string
   ellipsisIcon?: IconName
   to?: (page: number) => string | undefined
   classes?: PaginationClasses
@@ -60,11 +58,10 @@ export function Pagination(props: PaginationProps): JSX.Element {
       total: 0,
       siblingCount: 2,
       showControls: true,
-      size: 'icon-sm' as PaginationSize,
-      variant: 'outline' as PaginationVariant,
-      activeVariant: 'default' as PaginationVariant,
-      color: 'neutral' as PaginationColor,
-      activeColor: 'primary' as PaginationColor,
+      size: 'md' as PaginationBaseProps['size'],
+      variant: 'ghost' as PaginationVariant,
+      activeVariant: 'outline' as PaginationVariant,
+      controlVariant: 'ghost' as PaginationVariant,
       prevIcon: 'icon-chevron-left' as IconName,
       nextIcon: 'icon-chevron-right' as IconName,
       ellipsisIcon: 'icon-ellipsis' as IconName,
@@ -75,8 +72,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const [styleProps, uiProps, pagingProps, rootProps] = splitProps(
     merged,
-    ['size', 'variant', 'activeVariant', 'color', 'activeColor'],
-    ['classes', 'prevIcon', 'nextIcon', 'ellipsisIcon'],
+    ['size', 'variant', 'activeVariant', 'controlVariant'],
+    ['classes', 'prevIcon', 'prevText', 'nextIcon', 'nextText', 'ellipsisIcon'],
     [
       'page',
       'defaultPage',
@@ -92,6 +89,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const [internalPage, setInternalPage] = createSignal(pagingProps.defaultPage || 1)
 
+  const size = createMemo(() => `icon-${styleProps.size!}` as const)
   const pageCount = createMemo(() => {
     const safeItemsPerPage = Math.max(1, pagingProps.itemsPerPage || 1)
     const safeTotal = Math.max(0, pagingProps.total || 0)
@@ -148,27 +146,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
     <nav data-slot="root" class={cn('w-full', uiProps.classes?.root)} {...rootProps}>
       <ul
         data-slot="list"
-        class={cn('flex items-center justify-center gap-0.5', uiProps.classes?.list)}
+        class={cn('flex items-center justify-center gap-1', uiProps.classes?.list)}
       >
         <Show when={pagingProps.showControls}>
-          <li data-slot="prev">
+          <li data-slot="prev" class="me-2">
             <Button
               data-slot="control"
-              variant={styleProps.variant}
-              size={styleProps.size}
-              aria-label="Go to previous page"
-              classes={{
-                root: paginationControlVariants(
-                  styleProps,
-                  'pl-1.5',
-                  uiProps.classes?.control,
-                  uiProps.classes?.prev,
-                ),
-              }}
+              variant={styleProps.controlVariant}
+              size={size()}
+              aria-label={uiProps.prevText || 'Previous'}
               onClick={() => selectPage(resolvedPage() - 1)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1)}
+              leading={<Icon name={uiProps.prevIcon} />}
             >
-              <Icon name={uiProps.prevIcon} />
+              {uiProps.prevText}
             </Button>
           </li>
         </Show>
@@ -177,17 +168,12 @@ export function Pagination(props: PaginationProps): JSX.Element {
           {(item) => {
             if (typeof item === 'string') {
               return (
-                <li data-slot="ellipsis">
-                  <span
-                    class={cn(
-                      'inline-flex size-8 items-center justify-center text-muted-foreground',
-                      uiProps.classes?.ellipsis,
-                    )}
-                    aria-hidden
-                  >
-                    <Icon name={uiProps.ellipsisIcon} class="size-4" />
-                    <span class="sr-only">More pages</span>
-                  </span>
+                <li
+                  data-slot="ellipsis"
+                  class={cn('flex items-center size-6', uiProps.classes?.ellipsis)}
+                >
+                  <Icon name={uiProps.ellipsisIcon} class="size-full" />
+                  <span class="sr-only">More pages</span>
                 </li>
               )
             }
@@ -199,16 +185,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 <Button
                   data-slot="control"
                   variant={isActive() ? styleProps.activeVariant : styleProps.variant}
-                  size={styleProps.size}
+                  size={size()}
                   aria-current={isActive() ? 'page' : undefined}
                   data-current={isActive() ? '' : undefined}
-                  classes={{
-                    root: paginationControlVariants(
-                      styleProps,
-                      uiProps.classes?.control,
-                      uiProps.classes?.item,
-                    ),
-                  }}
                   onClick={() => selectPage(item)}
                   {...getControlProps(item)}
                 >
@@ -220,24 +199,17 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={pagingProps.showControls}>
-          <li data-slot="next">
+          <li data-slot="next" class="ms-2">
             <Button
               data-slot="control"
-              variant={styleProps.variant}
-              size={styleProps.size}
-              aria-label="Go to next page"
-              classes={{
-                root: paginationControlVariants(
-                  styleProps,
-                  'pr-1.5',
-                  uiProps.classes?.control,
-                  uiProps.classes?.next,
-                ),
-              }}
+              variant={styleProps.controlVariant}
+              size={size()}
+              aria-label={uiProps.nextText ?? 'Next'}
               onClick={() => selectPage(resolvedPage() + 1)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount())}
+              trailing={<Icon name={uiProps.nextIcon} />}
             >
-              <Icon name={uiProps.nextIcon} />
+              {uiProps.nextText}
             </Button>
           </li>
         </Show>

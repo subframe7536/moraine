@@ -22,8 +22,6 @@ import {
   inputNumberIncrementVariants,
 } from './input-number.class'
 
-type InputNumberSize = NonNullable<InputNumberVariantProps['size']>
-type InputNumberButtonSize = NonNullable<ButtonProps<'button'>['size']>
 type InputNumberControlTrigger =
   | typeof KobalteNumberField.IncrementTrigger
   | typeof KobalteNumberField.DecrementTrigger
@@ -57,26 +55,6 @@ export interface InputNumberBaseProps
 
 export type InputNumberProps = InputNumberBaseProps &
   Omit<KobalteNumberField.NumberFieldRootProps, keyof InputNumberBaseProps | 'children' | 'class'>
-
-function toButtonIconSize(size: InputNumberSize): InputNumberButtonSize {
-  if (size === 'xs') {
-    return 'icon-xs'
-  }
-
-  if (size === 'sm') {
-    return 'icon-sm'
-  }
-
-  if (size === 'lg') {
-    return 'icon-lg'
-  }
-
-  if (size === 'xl') {
-    return 'icon-xl'
-  }
-
-  return 'icon'
-}
 
 export function InputNumber(props: InputNumberProps): JSX.Element {
   const merged = mergeProps(
@@ -125,9 +103,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   )
 
   let inputEl: HTMLInputElement | undefined
-
-  const resolvedHighlight = field.highlight
-  const buttonSize = createMemo(() => toButtonIconSize(field.size()))
 
   const resolvedIncrement = createMemo(() => {
     if (controlProps.orientation === 'vertical') {
@@ -186,7 +161,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           as={Button}
           disabled={config.disabled}
           variant="ghost"
-          size={buttonSize()}
+          size={`icon-${field.size()}`}
           aria-label={config.ariaLabel}
           leading={<Icon name={config.icon} />}
           {...config.buttonProps}
@@ -240,7 +215,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           {
             size: field.size(),
             variant: styleProps.variant,
-            highlight: resolvedHighlight(),
+            highlight: field.highlight(),
             orientation: controlProps.orientation,
           },
           resolvedIncrement() && inputNumberIncrementPaddingVariants({ size: field.size() }),

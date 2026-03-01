@@ -33,7 +33,6 @@ import {
 } from './input.class'
 
 type InputStyleVariantProps = Pick<InputVariantProps, 'size' | 'variant' | 'highlight'>
-type InputVariant = NonNullable<InputBaseProps['variant']>
 
 export type InputValue = string | number | boolean | null | undefined
 
@@ -125,8 +124,6 @@ export function Input(props: InputProps): JSX.Element {
 
   let inputEl: HTMLInputElement | undefined
 
-  const resolvedVariant = createMemo(() => adornmentStyleProps.variant as InputVariant)
-  const resolvedHighlight = field.highlight
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
 
   const customLeading = createMemo(() =>
@@ -247,8 +244,8 @@ export function Input(props: InputProps): JSX.Element {
       class={inputRootVariants(
         {
           size: field.size(),
-          variant: resolvedVariant(),
-          highlight: resolvedHighlight(),
+          variant: adornmentStyleProps.variant,
+          highlight: field.highlight(),
           disabled: field.disabled(),
         },
         adornmentStyleProps.classes?.root,

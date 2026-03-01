@@ -45,7 +45,7 @@ export interface CheckboxBaseProps
 }
 
 export type CheckboxProps = CheckboxBaseProps &
-  Omit<KobalteCheckbox.CheckboxRootProps, keyof CheckboxBaseProps | 'children' | 'class'>
+  Omit<KobalteCheckbox.CheckboxRootProps, keyof CheckboxBaseProps | 'children' | 'class' | 'ref'>
 
 export function Checkbox(props: CheckboxProps): JSX.Element {
   const merged = mergeProps(
@@ -60,7 +60,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     props,
   )
 
-  const [formProps, visualProps, rootProps] = splitProps(
+  const [formProps, styleProps, rootProps] = splitProps(
     merged as CheckboxProps,
     [...FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS, 'formFieldBind'],
     [
@@ -80,7 +80,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: visualProps.size,
+      size: styleProps.size,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -98,6 +98,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
 
   return (
     <KobalteCheckbox.Root
+      as={styleProps.variant === 'card' ? 'label' : 'div'}
       id={`${field.id()}-root`}
       name={field.name()}
       disabled={field.disabled()}
@@ -105,15 +106,15 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
       data-slot="root"
       class={checkboxRootVariants(
         {
-          variant: visualProps.variant === 'card' ? 'card' : undefined,
-          indicator: visualProps.indicator === 'hidden' ? undefined : visualProps.indicator,
+          variant: styleProps.variant === 'card' ? 'card' : undefined,
+          indicator: styleProps.indicator === 'hidden' ? undefined : styleProps.indicator,
           disabled: field.disabled(),
         },
-        visualProps.variant === 'card' &&
+        styleProps.variant === 'card' &&
           checkboxCardPaddingVariants({
             size: field.size(),
           }),
-        visualProps.classes?.root,
+        styleProps.classes?.root,
       )}
       {...rootProps}
     >
@@ -125,7 +126,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
               {
                 size: field.size(),
               },
-              visualProps.classes?.container,
+              styleProps.classes?.container,
             )}
           >
             <KobalteCheckbox.Input id={field.id()} data-slot="input" {...field.ariaAttrs()} />
@@ -138,38 +139,38 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
                   disabled: field.disabled(),
                   invalid: field.invalid(),
                 },
-                visualProps.indicator === 'hidden' && 'sr-only',
-                visualProps.classes?.base,
+                styleProps.indicator === 'hidden' && 'sr-only',
+                styleProps.classes?.base,
               )}
             >
               <KobalteCheckbox.Indicator
                 data-slot="indicator"
                 class={cn(
                   'flex size-full items-center justify-center bg-primary text-primary-foreground',
-                  visualProps.classes?.indicator,
+                  styleProps.classes?.indicator,
                 )}
               >
                 <Show
                   when={state.indeterminate()}
                   fallback={
                     <Icon
-                      name={visualProps.checkedIcon}
+                      name={styleProps.checkedIcon}
                       class={checkboxIconVariants(
                         {
                           size: field.size(),
                         },
-                        visualProps.classes?.icon,
+                        styleProps.classes?.icon,
                       )}
                     />
                   }
                 >
                   <Icon
-                    name={visualProps.indeterminateIcon}
+                    name={styleProps.indeterminateIcon}
                     class={checkboxIconVariants(
                       {
                         size: field.size(),
                       },
-                      visualProps.classes?.icon,
+                      styleProps.classes?.icon,
                     )}
                   />
                 </Show>
@@ -177,44 +178,62 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
             </KobalteCheckbox.Control>
           </div>
 
-          <Show when={visualProps.label || visualProps.description}>
+          <Show when={styleProps.label || styleProps.description}>
             <div
               data-slot="wrapper"
               class={checkboxWrapperVariants(
                 {
-                  indicator: visualProps.indicator,
+                  indicator: styleProps.indicator,
                   size: field.size(),
                 },
-                visualProps.classes?.wrapper,
+                styleProps.classes?.wrapper,
               )}
             >
-              <Show when={visualProps.label}>
-                <label
-                  for={field.id()}
-                  data-slot="label"
-                  class={checkboxLabelVariants(
-                    {
-                      required: rootProps.required,
-                      disabled: field.disabled(),
-                    },
-                    visualProps.classes?.label,
-                  )}
+              <Show when={styleProps.label}>
+                <Show
+                  when={styleProps.variant === 'card'}
+                  fallback={
+                    <label
+                      for={field.id()}
+                      data-slot="label"
+                      class={checkboxLabelVariants(
+                        {
+                          required: rootProps.required,
+                          disabled: field.disabled(),
+                        },
+                        styleProps.classes?.label,
+                      )}
+                    >
+                      {styleProps.label}
+                    </label>
+                  }
                 >
-                  {visualProps.label}
-                </label>
+                  <p
+                    data-slot="label"
+                    class={checkboxLabelVariants(
+                      {
+                        required: rootProps.required,
+                        disabled: field.disabled(),
+                      },
+                      styleProps.classes?.label,
+                    )}
+                  >
+                    {styleProps.label}
+                  </p>
+                </Show>
               </Show>
 
-              <Show when={visualProps.description}>
+              <Show when={styleProps.description}>
                 <p
                   data-slot="description"
                   class={checkboxDescriptionVariants(
                     {
                       disabled: field.disabled(),
                     },
-                    visualProps.classes?.description,
+                    styleProps.classes?.description,
                   )}
                 >
-                  {visualProps.description}
+                  {styleProps.description}
                 </p>
               </Show>
             </div>

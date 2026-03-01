@@ -416,8 +416,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                   name={merged.childIcon}
                   size={merged.size}
                   data-slot="item-trailing-icon"
-                  class={cn(
-                    commandPaletteItemIconVariants({ size: merged.size }),
+                  class={commandPaletteItemIconVariants(
+                    { size: merged.size },
                     merged.classes?.itemTrailingIcon,
                   )}
                 />

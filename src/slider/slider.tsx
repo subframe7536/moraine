@@ -109,7 +109,7 @@ export function Slider(props: SliderProps): JSX.Element {
       defaultSize: 'md',
     },
   )
-  const resolvedHighlight = field.highlight
+
   const kobalteValue = createMemo(() => normalizeSliderValues(formProps.value, rangeProps.min!))
   const kobalteDefaultValue = createMemo(() =>
     normalizeSliderValues(formProps.defaultValue, rangeProps.min!),
@@ -220,7 +220,7 @@ export function Slider(props: SliderProps): JSX.Element {
         {
           size: field.size(),
           orientation: rangeProps.orientation,
-          highlight: resolvedHighlight(),
+          highlight: field.highlight(),
           disabled: field.disabled(),
         },
         styleProps.classes?.root,
@@ -233,7 +233,7 @@ export function Slider(props: SliderProps): JSX.Element {
           {
             size: field.size(),
             orientation: rangeProps.orientation,
-            highlight: resolvedHighlight(),
+            highlight: field.highlight(),
             disabled: field.disabled(),
           },
           styleProps.classes?.track,
@@ -245,7 +245,7 @@ export function Slider(props: SliderProps): JSX.Element {
             {
               size: field.size(),
               orientation: rangeProps.orientation,
-              highlight: resolvedHighlight(),
+              highlight: field.highlight(),
               disabled: field.disabled(),
             },
             styleProps.classes?.range,
@@ -263,7 +263,7 @@ export function Slider(props: SliderProps): JSX.Element {
               {
                 size: field.size(),
                 orientation: rangeProps.orientation,
-                highlight: resolvedHighlight(),
+                highlight: field.highlight(),
                 disabled: field.disabled(),
               },
               styleProps.classes?.thumb,
@@ -278,7 +278,7 @@ export function Slider(props: SliderProps): JSX.Element {
                 {
                   size: field.size(),
                   orientation: rangeProps.orientation,
-                  highlight: resolvedHighlight(),
+                  highlight: field.highlight(),
                   disabled: field.disabled(),
                 },
                 styleProps.classes?.input,

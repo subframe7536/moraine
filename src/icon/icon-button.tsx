@@ -1,8 +1,9 @@
 import * as KobalteButton from '@kobalte/core/button'
 import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
-import { cva } from 'cls-variant/cva'
 import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
+
+import { cn } from '../shared/utils'
 
 import { Icon } from './icon'
 import type { IconName } from './icon'
@@ -25,18 +26,18 @@ export interface IconButtonBaseProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
-const sizeVariant = cva('', {
-  defaultVariants: { size: 'md' },
-  variants: {
-    size: {
-      xs: 'size-4',
-      sm: 'size-4',
-      md: 'size-5',
-      lg: 'size-5',
-      xl: 'size-6',
-    },
-  },
-})
+function getSizeClass(size: IconButtonBaseProps['size']) {
+  switch (size ?? 'md') {
+    case 'xs':
+    case 'sm':
+      return 'size-4'
+    case 'md':
+    case 'lg':
+      return 'size-5'
+    case 'xl':
+      return 'size-6'
+  }
+}
 
 export type IconButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
   T,
@@ -58,8 +59,8 @@ export function IconButton<T extends ValidComponent = 'button'>(
   return (
     <KobalteButton.Root
       data-slot="icon-button"
-      class={sizeVariant(
-        { size: local.size },
+      class={cn(
+        getSizeClass(local.size),
         local.loading
           ? 'cursor-wait opacity-80 animate-spin pointer-events-none'
           : 'cursor-pointer',

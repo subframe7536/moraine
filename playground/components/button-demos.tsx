@@ -18,7 +18,7 @@ const VARIANTS: ButtonVariantName[] = [
 ]
 
 const SIZES: ButtonSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
-const ICON_SIZES: ButtonSizeName[] = ['icon-xs', 'icon-sm', 'icon', 'icon-lg', 'icon-xl']
+const ICON_SIZES: ButtonSizeName[] = ['icon-xs', 'icon-sm', 'icon-md', 'icon-lg', 'icon-xl']
 
 const wait = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -36,8 +36,8 @@ export const ButtonDemos = () => {
   }
 
   const onClickWait = async () => {
+    await wait(2000)
     setAutoRuns((value) => value + 1)
-    await wait(900)
   }
 
   return (
@@ -105,8 +105,9 @@ export const ButtonDemos = () => {
           <Button
             loadingAuto
             variant="outline"
-            trailing={<div class="i-lucide:timer" />}
-            onclick={onClickWait}
+            leading="i-lucide:a-arrow-up"
+            trailing="i-lucide:timer"
+            onClick={onClickWait}
           >
             Async auto-loading ({autoRuns()})
           </Button>

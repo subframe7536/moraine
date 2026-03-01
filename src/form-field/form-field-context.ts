@@ -66,16 +66,6 @@ const EMPTY_RUNTIME_STATE: FormFieldRuntimeState = {
   validating: false,
 }
 
-function resolveOptions(
-  opts: UseFormFieldOptions | Accessor<UseFormFieldOptions>,
-): UseFormFieldOptions {
-  if (typeof opts === 'function') {
-    return opts()
-  }
-
-  return opts
-}
-
 export function useFormField(
   props: Accessor<UseFormFieldProps> | undefined,
   opts: UseFormFieldOptions | Accessor<UseFormFieldOptions>,
@@ -84,7 +74,7 @@ export function useFormField(
   const formField = useFormFieldContext()
 
   const options = createMemo(() => {
-    const value = resolveOptions(opts)
+    const value = typeof opts === 'function' ? opts() : opts
 
     return {
       bind: value.bind ?? true,

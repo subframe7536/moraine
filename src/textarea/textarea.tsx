@@ -27,7 +27,6 @@ type TextareaStyleVariantProps = Pick<
   TextareaVariantProps,
   'size' | 'variant' | 'highlight' | 'autoresize'
 >
-type TextareaVariant = NonNullable<TextareaBaseProps['variant']>
 
 export type TextareaValue = string | number | null | undefined
 
@@ -118,8 +117,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
 
   let textareaEl: HTMLTextAreaElement | undefined
 
-  const resolvedVariant = createMemo(() => styleProps.variant as TextareaVariant)
-  const resolvedHighlight = field.highlight
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
 
   function updateInputValue(value: string | null | undefined): void {
@@ -230,8 +227,8 @@ export function Textarea(props: TextareaProps): JSX.Element {
       class={textareaRootVariants(
         {
           size: field.size(),
-          variant: resolvedVariant(),
-          highlight: resolvedHighlight(),
+          variant: styleProps.variant,
+          highlight: field.highlight(),
           disabled: field.disabled(),
         },
         styleProps.classes?.root,

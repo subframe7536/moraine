@@ -4,11 +4,13 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
 import { useFieldGroupContext } from '../field-group/field-group-context'
+import { Icon } from '../icon'
+import type { IconName } from '../icon'
 import type { SlotClasses } from '../shared/slot-class'
 import { callHandler, cn } from '../shared/utils'
 
 import type { ButtonVariantProps } from './button.class'
-import { buttonIconSizeVariants, buttonVariants } from './button.class'
+import { buttonVariants } from './button.class'
 
 /**
  * Class overrides for Button slots.
@@ -32,24 +34,19 @@ export interface ButtonBaseProps extends ButtonVariantProps {
   loadingAuto?: boolean
 
   /**
+   * Optional icon shown when `loading` is active.
+   */
+  loadingIcon?: IconName
+
+  /**
    * Leading visual content, usually an icon.
    */
-  leading?: JSX.Element
+  leading?: IconName
 
   /**
    * Trailing visual content, usually an icon.
    */
-  trailing?: JSX.Element
-
-  /**
-   * Label content rendered before `children`.
-   */
-  label?: JSX.Element
-
-  /**
-   * Optional icon shown when `loading` is active.
-   */
-  loadingIcon?: JSX.Element
+  trailing?: IconName
 
   /**
    * Slot-based class overrides, similar to Nuxt UI `ui` customization.
@@ -85,7 +82,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     props as ButtonProps,
     ['class', 'variant', 'size', 'classes'],
     ['disabled', 'loading', 'loadingAuto', 'loadingIcon', 'onClick'],
-    ['leading', 'trailing', 'label', 'children'],
+    ['leading', 'trailing', 'children'],
   )
 
   const fieldGroup = useFieldGroupContext()
@@ -100,18 +97,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const resolvedLeading = createMemo(() => {
     if (isLoading()) {
-      return stateProps.loadingIcon ?? contentProps.leading
+      return stateProps.loadingAuto
+        ? (stateProps.loadingIcon ?? 'icon-loading')
+        : contentProps.leading
     }
 
     return contentProps.leading
-  })
-
-  const resolvedTrailing = createMemo(() => {
-    if (isLoading()) {
-      return undefined
-    }
-
-    return contentProps.trailing
   })
 
   const onClick: JSX.EventHandlerUnion<any, MouseEvent> = (event) => {
@@ -146,43 +137,33 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
-          <span
+          <Icon
+            name={leading()}
             data-slot="leading"
-            class={buttonIconSizeVariants(
-              {
-                size: resolvedSize(),
-              },
-              'flex items-center',
+            loading={isLoading()}
+            class={cn(
               styleProps.classes?.leading,
-              isLoading() && styleProps.classes?.loading,
+              isLoading() && ['animate-spin', styleProps.classes?.loading],
             )}
-            aria-hidden={isLoading() ? 'true' : undefined}
-          >
-            {leading()}
-          </span>
+            aria-hidden={isLoading() ? true : undefined}
+          />
         )}
       </Show>
 
-      <Show when={!contentProps.label} fallback={contentProps.label}>
+      <Show when={contentProps.children}>
         <span data-slot="label" class={cn('truncate', styleProps.classes?.label)}>
           {contentProps.children}
         </span>
       </Show>
 
-      <Show when={resolvedTrailing()}>
+      <Show when={contentProps.trailing}>
         {(trailing) => (
-          <span
+          <Icon
+            name={trailing()}
             data-slot="trailing"
-            class={buttonIconSizeVariants(
-              {
-                size: resolvedSize(),
-              },
-              'flex items-center',
-              styleProps.classes?.trailing,
-            )}
-          >
-            {trailing()}
-          </span>
+            loading={isLoading()}
+            class={cn(styleProps.classes?.trailing)}
+          />
         )}
       </Show>
     </KobalteButton.Root>

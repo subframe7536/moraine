@@ -1,9 +1,10 @@
-import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
+import { createMemo, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { cn } from '../shared/utils'
 
-export type IconName = string | JSX.Element | ((size?: string | number) => JSX.Element)
+export type IconName = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
 export interface IconBaseProps {
   /**
@@ -17,32 +18,45 @@ export interface IconBaseProps {
    * Icon size. Numbers are interpreted as px.
    */
   size?: string | number
+  /**
+   * Slot name
+   * @default 'icon'
+   */
+  'data-slot'?: string
+  loading?: boolean
   style?: JSX.CSSProperties
 }
 
 export type IconProps = IconBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'children'>
+  Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'aria-hidden' | 'children'>
 
 export function Icon(props: IconProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size'])
+  const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])
+  const style = createMemo(() => {
+    if (!local.size) {
+      return local.style
+    }
+    return {
+      'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
+      ...local.style,
+    }
+  })
 
   return (
-    <span
-      data-slot="icon"
-      {...rest}
+    <Dynamic
+      component={
+        typeof local.name === 'string'
+          ? 'span'
+          : typeof local.name === 'function'
+            ? local.name
+            : () => local.name as JSX.Element
+      }
+      data-slot={local['data-slot'] ?? 'icon'}
       class={cn('inline-flex shrink-0', typeof local.name === 'string' && local.name, local.class)}
-      style={{
-        'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-        // height: typeof local.size === 'number' ? `${local.size}px` : local.size,
-        ...local.style,
-      }}
+      style={style()}
+      size={local.size}
+      {...rest}
       aria-hidden={rest['aria-label'] ? undefined : true}
-    >
-      {typeof local.name === 'function'
-        ? (local.name as any)(local.size)
-        : typeof local.name !== 'string'
-          ? local.name
-          : undefined}
-    </span>
+    />
   )
 }

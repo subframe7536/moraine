@@ -139,13 +139,6 @@ describe('Button', () => {
     expect(button.textContent).toBe('LLabelT')
   })
 
-  test('uses label instead of children when both are provided', () => {
-    const screen = render(() => <Button label="Label">Children</Button>)
-    const button = screen.getByRole('button', { name: 'Label' })
-
-    expect(button.textContent).toBe('Label')
-  })
-
   test('merges classes overrides into slots', () => {
     const screen = render(() => (
       <Button

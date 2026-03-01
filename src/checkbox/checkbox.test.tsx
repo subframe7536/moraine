@@ -130,6 +130,36 @@ describe('Checkbox', () => {
     expect(base?.className).toContain('size-5')
   })
 
+  test('toggles when clicking card root container', async () => {
+    const screen = render(() => <Checkbox variant="card" label="Card root click" />)
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Card root click' }) as HTMLInputElement
+
+    expect(checkbox.checked).toBe(false)
+
+    await fireEvent.click(root)
+
+    await waitFor(() => {
+      expect(checkbox.checked).toBe(true)
+    })
+  })
+
+  test('does not toggle when clicking list root container', async () => {
+    const screen = render(() => <Checkbox label="List root click" />)
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const checkbox = screen.getByRole('checkbox', { name: 'List root click' }) as HTMLInputElement
+
+    expect(checkbox.checked).toBe(false)
+
+    await fireEvent.click(root)
+
+    await waitFor(() => {
+      expect(checkbox.checked).toBe(false)
+    })
+  })
+
   test('validates on change when validateOn is change', async () => {
     const state = { agree: false }
 

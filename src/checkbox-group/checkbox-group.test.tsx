@@ -127,6 +127,22 @@ describe('CheckboxGroup', () => {
     expect(item?.className).toContain('p-4.5')
   })
 
+  test('toggles item when clicking checkbox root in table variant', async () => {
+    const screen = render(() => <CheckboxGroup items={['A']} variant="table" />)
+
+    const checkbox = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
+    const item = screen.container.querySelector('[data-slot="item"]')
+    const checkboxRoot = item?.querySelector('[data-slot="root"]') as HTMLElement
+
+    expect(checkbox.checked).toBe(false)
+
+    await fireEvent.click(checkboxRoot)
+
+    await waitFor(() => {
+      expect(checkbox.checked).toBe(true)
+    })
+  })
+
   test('applies classes.root on group and items', () => {
     const screen = render(() => (
       <CheckboxGroup

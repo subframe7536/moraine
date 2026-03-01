@@ -262,6 +262,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         <For each={normalizedItems()}>
           {(item) => (
             <KobalteRadioGroup.Item
+              as={styleProps.variant === 'list' ? 'div' : 'label'}
               id={item.id}
               value={item.value}
               disabled={item.disabled || field.disabled()}
@@ -349,19 +350,37 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   )}
                 >
                   <Show when={item.label}>
-                    <label
-                      for={item.inputId}
-                      data-slot="label"
-                      class={radioGroupLabelVariants(
-                        {
-                          disabled: item.disabled || field.disabled(),
-                        },
-                        styleProps.classes?.label,
-                        item.classes?.label,
-                      )}
+                    <Show
+                      when={styleProps.variant === 'list'}
+                      fallback={
+                        <p
+                          data-slot="label"
+                          class={radioGroupLabelVariants(
+                            {
+                              disabled: item.disabled || field.disabled(),
+                            },
+                            styleProps.classes?.label,
+                            item.classes?.label,
+                          )}
+                        >
+                          {item.label}
+                        </p>
+                      }
                     >
-                      {item.label}
-                    </label>
+                      <label
+                        for={item.inputId}
+                        data-slot="label"
+                        class={radioGroupLabelVariants(
+                          {
+                            disabled: item.disabled || field.disabled(),
+                          },
+                          styleProps.classes?.label,
+                          item.classes?.label,
+                        )}
+                      >
+                        {item.label}
+                      </label>
+                    </Show>
                   </Show>
 
                   <Show when={item.description}>

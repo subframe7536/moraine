@@ -120,6 +120,42 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('p-4.5')
   })
 
+  test('selects option when clicking table item container', async () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
+
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const items = screen.container.querySelectorAll('[data-slot="item"]')
+
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+
+    await fireEvent.click(items[1] as HTMLElement)
+
+    await waitFor(() => {
+      expect(radioA.checked).toBe(false)
+      expect(radioB.checked).toBe(true)
+    })
+  })
+
+  test('does not select option when clicking list item container', async () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} defaultValue="A" />)
+
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const items = screen.container.querySelectorAll('[data-slot="item"]')
+
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+
+    await fireEvent.click(items[1] as HTMLElement)
+
+    await waitFor(() => {
+      expect(radioA.checked).toBe(true)
+      expect(radioB.checked).toBe(false)
+    })
+  })
+
   test('applies classes.root on group and per-item classes.root', () => {
     const screen = render(() => (
       <RadioGroup
