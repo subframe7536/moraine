@@ -15,19 +15,17 @@ import { Icon } from '../icon'
 import type { ModelModifiers } from '../shared/input-modifiers'
 import { applyInputModifiers } from '../shared/input-modifiers'
 import type { SlotClasses } from '../shared/slot-class'
-import { callHandler, useId } from '../shared/utils'
+import { callHandler, cn, useId } from '../shared/utils'
 
 import type { InputVariantProps } from './input.class'
 import {
   inputBaseVariants,
   inputEndPaddingNoSlotVariants,
   inputEndPaddingWithSlotVariants,
-  inputLeadingIconVariants,
   inputLeadingVariants,
   inputRootVariants,
   inputStartPaddingNoSlotVariants,
   inputStartPaddingWithSlotVariants,
-  inputTrailingIconVariants,
   inputTrailingVariants,
 } from './input.class'
 
@@ -35,7 +33,7 @@ type InputStyleVariantProps = Pick<InputVariantProps, 'size' | 'variant' | 'high
 
 export type InputValue = string | number | boolean | null | undefined
 
-type InputSlots = 'root' | 'input' | 'leading' | 'leadingIcon' | 'trailing' | 'trailingIcon'
+type InputSlots = 'root' | 'input' | 'leading' | 'trailing'
 
 export type InputClasses = SlotClasses<InputSlots>
 
@@ -52,11 +50,14 @@ export interface InputBaseProps
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   autofocus?: boolean
   autofocusDelay?: number
-  icon?: IconName
-  leading?: boolean | JSX.Element
-  leadingIcon?: IconName
-  trailing?: boolean | JSX.Element
-  trailingIcon?: IconName
+  /**
+   * String will regard as icon class, for UnoCSS's presetIcons to render
+   */
+  leading?: IconName
+  /**
+   * String will regard as icon class, for UnoCSS's presetIcons to render
+   */
+  trailing?: IconName
   loading?: boolean
   loadingIcon?: IconName
   modelModifiers?: ModelModifiers<InputValue>
@@ -70,10 +71,6 @@ export interface InputBaseProps
 }
 
 export type InputProps = InputBaseProps
-
-function isRenderableContent(value: unknown): value is JSX.Element {
-  return value !== undefined && value !== null && typeof value !== 'boolean'
-}
 
 export function Input(props: InputProps): JSX.Element {
   const merged = mergeProps(
@@ -122,58 +119,54 @@ export function Input(props: InputProps): JSX.Element {
   let inputEl: HTMLInputElement | undefined
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
+  const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
+    if (adornmentStyleProps.leading) {
+      return 'leading'
+    }
 
-  const customLeading = createMemo(() =>
-    isRenderableContent(adornmentStyleProps.leading)
-      ? (adornmentStyleProps.leading as JSX.Element)
-      : undefined,
-  )
-  const customTrailing = createMemo(() =>
-    isRenderableContent(adornmentStyleProps.trailing)
-      ? (adornmentStyleProps.trailing as JSX.Element)
-      : undefined,
-  )
+    if (adornmentStyleProps.trailing) {
+      return 'trailing'
+    }
 
-  const isLeadingIcon = createMemo(() => {
-    const hasIcon = Boolean(adornmentStyleProps.icon)
-    const leading = adornmentStyleProps.leading === true
-    const trailing = adornmentStyleProps.trailing === true
-
-    return Boolean(
-      (hasIcon && leading) ||
-      (hasIcon && !trailing) ||
-      (adornmentStyleProps.loading && !trailing) ||
-      adornmentStyleProps.leadingIcon,
-    )
-  })
-  const isTrailingIcon = createMemo(() => {
-    const hasIcon = Boolean(adornmentStyleProps.icon)
-    const trailing = adornmentStyleProps.trailing === true
-
-    return Boolean(
-      (hasIcon && trailing) ||
-      (adornmentStyleProps.loading && trailing) ||
-      adornmentStyleProps.trailingIcon,
-    )
+    return 'leading'
   })
 
-  const leadingIconName = createMemo<IconName | undefined>(() => {
-    if (adornmentStyleProps.loading) {
+  const resolvedLeading = createMemo<IconName | undefined>(() => {
+    if (adornmentStyleProps.loading && loadingTarget() === 'leading') {
       return adornmentStyleProps.loadingIcon
     }
 
-    return adornmentStyleProps.leadingIcon ?? adornmentStyleProps.icon
+    return adornmentStyleProps.leading
   })
-  const trailingIconName = createMemo<IconName | undefined>(() => {
-    if (adornmentStyleProps.loading && !isLeadingIcon()) {
+  const resolvedTrailing = createMemo<IconName | undefined>(() => {
+    if (adornmentStyleProps.loading && loadingTarget() === 'trailing') {
       return adornmentStyleProps.loadingIcon
     }
 
-    return adornmentStyleProps.trailingIcon ?? adornmentStyleProps.icon
+    return adornmentStyleProps.trailing
   })
 
-  const hasLeading = createMemo(() => Boolean(customLeading() || isLeadingIcon()))
-  const hasTrailing = createMemo(() => Boolean(customTrailing() || isTrailingIcon()))
+  const isLeadingLoading = createMemo(() =>
+    Boolean(adornmentStyleProps.loading && loadingTarget() === 'leading'),
+  )
+  const isTrailingLoading = createMemo(() =>
+    Boolean(adornmentStyleProps.loading && loadingTarget() === 'trailing'),
+  )
+
+  const iconSizeClass = createMemo(() => {
+    if (field.size() === 'xl') {
+      return 'text-lg'
+    }
+
+    if (field.size() === 'md' || field.size() === 'lg') {
+      return 'text-base'
+    }
+
+    return 'text-sm'
+  })
+
+  const hasLeading = createMemo(() => Boolean(resolvedLeading()))
+  const hasTrailing = createMemo(() => Boolean(resolvedTrailing()))
 
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<InputValue>(value, formProps.modelModifiers, {
@@ -250,39 +243,23 @@ export function Input(props: InputProps): JSX.Element {
       )}
       onPointerDown={onRootPointerDown}
     >
-      <Show when={hasLeading()}>
-        <span
-          data-slot="leading"
-          class={inputLeadingVariants(
-            {
-              size: field.size(),
-            },
-            adornmentStyleProps.classes?.leading,
-          )}
-        >
-          <Show
-            when={customLeading()}
-            fallback={
-              <Show when={isLeadingIcon() && leadingIconName()}>
-                {(iconName) => (
-                  <Icon
-                    name={iconName()}
-                    data-slot="leadingIcon"
-                    class={inputLeadingIconVariants(
-                      {
-                        size: field.size(),
-                        loading: adornmentStyleProps.loading,
-                      },
-                      adornmentStyleProps.classes?.leadingIcon,
-                    )}
-                  />
-                )}
-              </Show>
-            }
+      <Show when={resolvedLeading()}>
+        {(iconName) => (
+          <span
+            data-slot="leading"
+            class={inputLeadingVariants(
+              {
+                size: field.size(),
+              },
+              adornmentStyleProps.classes?.leading,
+            )}
           >
-            {(content) => content()}
-          </Show>
-        </span>
+            <Icon
+              name={iconName()}
+              class={cn('shrink-0', iconSizeClass(), isLeadingLoading() && 'animate-spin')}
+            />
+          </span>
+        )}
       </Show>
 
       <input
@@ -326,39 +303,23 @@ export function Input(props: InputProps): JSX.Element {
 
       {baseProps.children}
 
-      <Show when={hasTrailing()}>
-        <span
-          data-slot="trailing"
-          class={inputTrailingVariants(
-            {
-              size: field.size(),
-            },
-            adornmentStyleProps.classes?.trailing,
-          )}
-        >
-          <Show
-            when={customTrailing()}
-            fallback={
-              <Show when={isTrailingIcon() && trailingIconName()}>
-                {(iconName) => (
-                  <Icon
-                    name={iconName()}
-                    data-slot="trailingIcon"
-                    class={inputTrailingIconVariants(
-                      {
-                        size: field.size(),
-                        loading: adornmentStyleProps.loading,
-                      },
-                      adornmentStyleProps.classes?.trailingIcon,
-                    )}
-                  />
-                )}
-              </Show>
-            }
+      <Show when={resolvedTrailing()}>
+        {(iconName) => (
+          <span
+            data-slot="trailing"
+            class={inputTrailingVariants(
+              {
+                size: field.size(),
+              },
+              adornmentStyleProps.classes?.trailing,
+            )}
           >
-            {(content) => content()}
-          </Show>
-        </span>
+            <Icon
+              name={iconName()}
+              class={cn('shrink-0', iconSizeClass(), isTrailingLoading() && 'animate-spin')}
+            />
+          </span>
+        )}
       </Show>
     </div>
   )

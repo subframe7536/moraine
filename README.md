@@ -4,6 +4,16 @@ Opinioned component library for solid.js, with style/base component sourcing fro
 
 ## Breaking Changes
 
+### 2026-03-02
+
+- `Input` has removed `icon`, `leadingIcon`, and `trailingIcon` props.
+- `Input` now uses `leading` and `trailing` as the only adornment slots, rendered via `Icon`.
+- `Input` no longer exposes icon child slots (`leadingIcon` / `trailingIcon`) for `classes` overrides or runtime `data-slot` output.
+- Migration:
+  - `<Input icon="i-lucide-search" />` -> `<Input leading="i-lucide-search" />`
+  - `<Input trailing icon="i-lucide-search" />` -> `<Input trailing="i-lucide-search" />`
+  - `<Input leadingIcon="a" trailingIcon="b" />` -> `<Input leading="a" trailing="b" />`
+
 ### 2026-02-23
 
 - `Input` and `Textarea` no longer support the polymorphic `as` prop and always render a `<div>` root wrapper.

@@ -134,42 +134,6 @@ export const inputTrailingVariants = cva('flex items-center shrink-0 text-muted-
   },
 })
 
-export const inputLeadingIconVariants = cva('shrink-0', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      xs: 'text-sm',
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-base',
-      xl: 'text-lg',
-    },
-    loading: {
-      true: 'animate-spin',
-    },
-  },
-})
-
-export const inputTrailingIconVariants = cva('shrink-0', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      xs: 'text-sm',
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-base',
-      xl: 'text-lg',
-    },
-    loading: {
-      true: 'animate-spin',
-    },
-  },
-})
-
 export type InputVariantProps = VariantProps<typeof inputRootVariants> &
   VariantProps<typeof inputBaseVariants> &
   VariantProps<typeof inputStartPaddingNoSlotVariants> &
@@ -177,6 +141,4 @@ export type InputVariantProps = VariantProps<typeof inputRootVariants> &
   VariantProps<typeof inputEndPaddingNoSlotVariants> &
   VariantProps<typeof inputEndPaddingWithSlotVariants> &
   VariantProps<typeof inputLeadingVariants> &
-  VariantProps<typeof inputTrailingVariants> &
-  VariantProps<typeof inputLeadingIconVariants> &
-  VariantProps<typeof inputTrailingIconVariants>
+  VariantProps<typeof inputTrailingVariants>

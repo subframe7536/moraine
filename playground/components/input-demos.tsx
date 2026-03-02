@@ -32,13 +32,13 @@ export const InputDemos = () => {
 
       <DemoSection title="Input with Icons" description="Leading and trailing icon slots.">
         <div class="gap-3 grid sm:grid-cols-2">
-          <Input icon="i-lucide-search" placeholder="Search..." />
-          <Input leadingIcon="i-lucide-mail" trailingIcon="i-lucide-check" placeholder="Email" />
+          <Input leading="i-lucide-search" placeholder="Search..." />
+          <Input leading="i-lucide-mail" trailing="i-lucide-check" placeholder="Email" />
           <Input trailing={<span class="text-xs text-zinc-400">.com</span>} placeholder="Domain" />
           <Input
             leading={
-              <div class="text-xs text-zinc-500 flex gap-1 items-center">
-                <div class="i-lucide-globe size-3.5" />
+              <div class="text-zinc-500 flex gap-1 items-center">
+                <div class="i-lucide-globe" />
                 https://
               </div>
             }

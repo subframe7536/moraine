@@ -80,16 +80,16 @@ describe('Input', () => {
     expect(input.className).toContain('pe-3.5')
   })
 
-  test('uses slot start padding when leading icon is present', () => {
-    const screen = render(() => <Input icon="i-lucide-search" />)
+  test('uses slot start padding when leading slot is present', () => {
+    const screen = render(() => <Input leading="i-lucide-search" />)
     const input = screen.getByRole('textbox')
 
     expect(input.className).toContain('ps-2')
     expect(input.className).toContain('pe-3.5')
   })
 
-  test('uses slot end padding when trailing icon is present', () => {
-    const screen = render(() => <Input trailing icon="i-lucide-search" />)
+  test('uses slot end padding when trailing slot is present', () => {
+    const screen = render(() => <Input trailing="i-lucide-search" />)
     const input = screen.getByRole('textbox')
 
     expect(input.className).toContain('ps-3.5')
@@ -106,39 +106,73 @@ describe('Input', () => {
     expect(input.className).toContain('pe-2')
   })
 
-  test('renders icon in leading and trailing positions', () => {
+  test('renders leading and trailing slots through Icon', () => {
     const screen = render(() => (
       <>
-        <Input icon="i-lucide-search" />
-        <Input trailing icon="i-lucide-at-sign" />
-        <Input leadingIcon="i-lucide-user" trailingIcon="i-lucide-mail" />
+        <Input leading="i-lucide-search" trailing="i-lucide-at-sign" />
+        <Input
+          leading={<span data-testid="leading-node">L</span>}
+          trailing={<span data-testid="trailing-node">T</span>}
+        />
       </>
     ))
 
-    const leadingIcons = screen.container.querySelectorAll('[data-slot="leadingIcon"]')
-    const trailingIcons = screen.container.querySelectorAll('[data-slot="trailingIcon"]')
+    const leadingIcon = screen.container.querySelector(
+      '[data-slot="leading"] [data-slot="icon"]',
+    ) as HTMLElement | null
+    const trailingIcon = screen.container.querySelector(
+      '[data-slot="trailing"] [data-slot="icon"]',
+    ) as HTMLElement | null
 
-    expect(leadingIcons[0]?.className).toContain('i-lucide-search')
-    expect(trailingIcons[0]?.className).toContain('i-lucide-at-sign')
-    expect(leadingIcons[1]?.className).toContain('i-lucide-user')
-    expect(trailingIcons[1]?.className).toContain('i-lucide-mail')
+    expect(leadingIcon?.className).toContain('i-lucide-search')
+    expect(trailingIcon?.className).toContain('i-lucide-at-sign')
+    expect(screen.getByTestId('leading-node').textContent).toBe('L')
+    expect(screen.getByTestId('trailing-node').textContent).toBe('T')
+    expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
   })
 
-  test('renders loading icon on leading and trailing paths', () => {
+  test('applies loading icon override rules for leading and trailing slots', () => {
     const screen = render(() => (
       <>
         <Input loading />
-        <Input loading trailing />
+        <Input loading trailing="i-lucide-at-sign" />
+        <Input loading leading="i-lucide-user" trailing="i-lucide-mail" />
       </>
     ))
 
-    const leadingIcon = screen.container.querySelector('[data-slot="leadingIcon"]')
-    const trailingIcons = screen.container.querySelectorAll('[data-slot="trailingIcon"]')
+    const roots = screen.container.querySelectorAll('[data-slot="root"]')
 
-    expect(leadingIcon?.className).toContain('icon-loading')
-    expect(leadingIcon?.className).toContain('animate-spin')
-    expect(trailingIcons[0]?.className).toContain('icon-loading')
-    expect(trailingIcons[0]?.className).toContain('animate-spin')
+    const firstLeading = roots[0]?.querySelector(
+      '[data-slot="leading"] [data-slot="icon"]',
+    ) as HTMLElement | null
+    const secondTrailing = roots[1]?.querySelector(
+      '[data-slot="trailing"] [data-slot="icon"]',
+    ) as HTMLElement | null
+    const thirdLeading = roots[2]?.querySelector(
+      '[data-slot="leading"] [data-slot="icon"]',
+    ) as HTMLElement | null
+    const thirdTrailing = roots[2]?.querySelector(
+      '[data-slot="trailing"] [data-slot="icon"]',
+    ) as HTMLElement | null
+
+    expect(firstLeading?.className).toContain('icon-loading')
+    expect(firstLeading?.className).toContain('animate-spin')
+    expect(roots[0]?.querySelector('[data-slot="trailing"]')).toBeNull()
+
+    expect(secondTrailing?.className).toContain('icon-loading')
+    expect(secondTrailing?.className).toContain('animate-spin')
+    expect(secondTrailing?.className).not.toContain('i-lucide-at-sign')
+    expect(roots[1]?.querySelector('[data-slot="leading"]')).toBeNull()
+
+    expect(thirdLeading?.className).toContain('icon-loading')
+    expect(thirdLeading?.className).toContain('animate-spin')
+    expect(thirdLeading?.className).not.toContain('i-lucide-user')
+    expect(thirdTrailing?.className).toContain('i-lucide-mail')
+    expect(thirdTrailing?.className).not.toContain('animate-spin')
+
+    expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
   })
 
   test('applies trim modifier', async () => {
@@ -351,6 +385,12 @@ describe('Input', () => {
   test('rejects as in type contract', () => {
     // @ts-expect-error as has been removed from Input props
     const props: InputProps = { as: 'section' }
+    expect(props).toBeDefined()
+  })
+
+  test('rejects removed icon class slot in type contract', () => {
+    // @ts-expect-error leadingIcon slot class has been removed from Input props
+    const props: InputProps = { classes: { leadingIcon: 'x' } }
     expect(props).toBeDefined()
   })
 })
