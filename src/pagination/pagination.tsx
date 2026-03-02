@@ -3,7 +3,7 @@ import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'sol
 
 import { Button } from '../button'
 import type { ButtonProps } from '../button'
-import type { FieldGroupSize } from '../field-group'
+import type { FormFieldSize } from '../form-field/form-field-context'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
 import type { SlotClasses } from '../shared/slot-class'
@@ -24,7 +24,7 @@ export interface PaginationBaseProps {
   siblingCount?: number
   showControls?: boolean
   disabled?: boolean
-  size?: FieldGroupSize
+  size?: FormFieldSize
   variant?: PaginationVariant
   activeVariant?: PaginationVariant
   controlVariant?: PaginationVariant

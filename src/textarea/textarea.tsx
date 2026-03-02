@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, mergeProps, on, onMount, splitProps } from 'solid-js'
 
-import { useFieldGroupContext } from '../field-group/field-group-context'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -98,13 +97,12 @@ export function Textarea(props: TextareaProps): JSX.Element {
     ],
   )
 
-  const fieldGroup = useFieldGroupContext()
   const generatedId = useId(() => formProps.id, 'textarea')
   const field = useFormField(
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: styleProps.size ?? fieldGroup?.size,
+      size: styleProps.size,
       highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),

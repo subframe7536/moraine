@@ -18,7 +18,6 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { useFieldGroupContext } from '../field-group/field-group-context'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -380,14 +379,13 @@ export function Select(props: SelectProps): JSX.Element {
     ['size', 'variant', 'highlight', 'classes'],
   )
 
-  const fieldGroup = useFieldGroupContext()
   const generatedId = useId(() => formProps.id, 'select')
   // ---- Form field integration ----
   const field = useFormField(
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: styleProps.size ?? fieldGroup?.size,
+      size: styleProps.size,
       highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),

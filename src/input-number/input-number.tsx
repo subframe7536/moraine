@@ -4,7 +4,6 @@ import { createMemo, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { Button } from '../button'
 import type { ButtonProps } from '../button/button'
-import { useFieldGroupContext } from '../field-group/field-group-context'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
 import { FORM_ID_NAME_DISABLED_KEYS, FORM_INPUT_INTERACTION_KEYS } from '../form-field/form-options'
@@ -86,13 +85,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     ['size', 'variant', 'highlight', 'classes'],
   )
 
-  const fieldGroup = useFieldGroupContext()
   const generatedId = useId(() => formProps.id, 'input-number')
   const field = useFormField(
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: styleProps.size ?? fieldGroup?.size,
+      size: styleProps.size,
       highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),

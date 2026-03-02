@@ -12,7 +12,6 @@ import { Sidebar } from './components/common/sidebar'
 import { ContextMenuDemos } from './components/context-menu-demos'
 import { DialogDemos } from './components/dialog-demos'
 import { DropdownMenuDemos } from './components/dropdown-menu-demos'
-import { FieldGroupDemos } from './components/field-group-demos'
 import { FileUploadDemos } from './components/file-upload-demos'
 import { FormDemos } from './components/form-demos'
 import { FormFieldDemos } from './components/form-field-demos'
@@ -36,7 +35,6 @@ const PAGES = [
   { key: 'kbd', label: 'Kbd', group: 'General' },
   { key: 'separator', label: 'Separator', group: 'General' },
   { key: 'card', label: 'Card', group: 'Layout' },
-  { key: 'field-group', label: 'Field Group', group: 'Layout' },
   { key: 'breadcrumb', label: 'Breadcrumb', group: 'Navigation' },
   { key: 'pagination', label: 'Pagination', group: 'Navigation' },
   { key: 'tabs', label: 'Tabs', group: 'Navigation' },
@@ -88,9 +86,6 @@ function App() {
           </Match>
           <Match when={page() === 'collapsible'}>
             <CollapsibleDemos />
-          </Match>
-          <Match when={page() === 'field-group'}>
-            <FieldGroupDemos />
           </Match>
           <Match when={page() === 'icon'}>
             <IconDemos />

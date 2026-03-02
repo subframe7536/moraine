@@ -3,7 +3,6 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
-import { useFieldGroupContext } from '../field-group/field-group-context'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
 import type { SlotClasses } from '../shared/slot-class'
@@ -85,7 +84,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     ['leading', 'trailing', 'children'],
   )
 
-  const fieldGroup = useFieldGroupContext()
   const [loadingAutoState, setLoadingAutoState] = createSignal(false)
 
   const isLoading = createMemo(() =>
@@ -123,7 +121,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       class={buttonVariants(
         {
           variant: styleProps.variant,
-          size: styleProps.size || fieldGroup?.size,
+          size: styleProps.size,
         },
         isLoading() && 'cursor-wait opacity-80',
         styleProps.classes?.root,

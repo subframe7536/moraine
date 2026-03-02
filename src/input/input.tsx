@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
-import { useFieldGroupContext } from '../field-group/field-group-context'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -83,7 +82,6 @@ export function Input(props: InputProps): JSX.Element {
       autocomplete: 'off' as const,
       autofocusDelay: 0,
       variant: 'outline' as const,
-      loading: false,
       loadingIcon: 'icon-loading' as IconName,
     },
     props,
@@ -105,13 +103,12 @@ export function Input(props: InputProps): JSX.Element {
     ['type', 'placeholder', 'autocomplete', 'autofocus', 'autofocusDelay', 'children'],
   )
 
-  const fieldGroup = useFieldGroupContext()
   const generatedId = useId(() => formProps.id, 'input')
   const field = useFormField(
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: adornmentStyleProps.size ?? fieldGroup?.size,
+      size: adornmentStyleProps.size,
       highlight: adornmentStyleProps.highlight,
       disabled: formProps.disabled,
     }),
