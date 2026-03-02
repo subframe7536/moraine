@@ -3,6 +3,7 @@ import 'uno.css'
 import { Match, Switch, createSignal, onMount } from 'solid-js'
 import { render } from 'solid-js/web'
 
+import { AvatarDemos } from './components/avatar-demos'
 import { BreadcrumbDemos } from './components/breadcrumb-demos'
 import { ButtonDemos } from './components/button-demos'
 import { CardDemos } from './components/card-demos'
@@ -30,6 +31,7 @@ import { TabsDemos } from './components/tabs-demos'
 import { TooltipDemos } from './components/tooltip-demos'
 
 const PAGES = [
+  { key: 'avatar', label: 'Avatar', group: 'General' },
   { key: 'button', label: 'Button', group: 'General' },
   { key: 'icon', label: 'Icon', group: 'General' },
   { key: 'kbd', label: 'Kbd', group: 'General' },
@@ -77,6 +79,9 @@ function App() {
         <Switch fallback={<ButtonDemos />}>
           <Match when={page() === 'button'}>
             <ButtonDemos />
+          </Match>
+          <Match when={page() === 'avatar'}>
+            <AvatarDemos />
           </Match>
           <Match when={page() === 'breadcrumb'}>
             <BreadcrumbDemos />

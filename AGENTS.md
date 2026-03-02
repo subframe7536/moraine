@@ -117,6 +117,7 @@ This project ports logic from **Nuxt UI** and ports style/base component structu
 - **Async:** Use `try/catch` block within async event handlers.
 - **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
 - **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
+- NEVER use `cva()` with static-only classes
 
 ### Testing
 

@@ -1,0 +1,88 @@
+import { createSignal } from 'solid-js'
+
+import { Avatar } from '../../src'
+
+import { DemoPage, DemoSection } from './common/demo-page'
+
+function createSvgDataUrl(label: string, backgroundColor: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="${backgroundColor}"/><text x="32" y="38" text-anchor="middle" fill="white" font-family="sans-serif" font-size="24">${label}</text></svg>`
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+const IMAGE_A = createSvgDataUrl('A', '#3f3f46')
+const IMAGE_B = createSvgDataUrl('B', '#18181b')
+
+export const AvatarDemos = () => {
+  const [source, setSource] = createSignal(IMAGE_A)
+
+  return (
+    <DemoPage
+      eyebrow="Rock UI Playground"
+      title="Avatar"
+      description="Sealed all-in-one avatar that includes single and group behavior."
+    >
+      <DemoSection
+        title="Single Avatar"
+        description="Fallback first, then image crossfades in after preload."
+      >
+        <div class="flex gap-4 items-center">
+          <Avatar
+            src={source()}
+            alt="Rock UI"
+            classes={{
+              root: 'ring-zinc-300',
+            }}
+          />
+
+          <button
+            type="button"
+            class="text-sm px-3 py-2 border border-zinc-300 rounded-md bg-white hover:bg-zinc-50"
+            onClick={() => {
+              setSource((current) => (current === IMAGE_A ? IMAGE_B : IMAGE_A))
+            }}
+          >
+            Swap Source
+          </button>
+        </div>
+      </DemoSection>
+
+      <DemoSection title="Fallback Modes" description="Text, initials-from-alt and fallback icon.">
+        <div class="flex flex-wrap gap-3 items-center">
+          <Avatar text="RK" />
+          <Avatar alt="Rock UI Team" />
+          <Avatar fallback="i-lucide-user" />
+        </div>
+      </DemoSection>
+
+      <DemoSection title="Badge Positions" description="Top/bottom + left/right corner badge.">
+        <div class="flex flex-wrap gap-3 items-center">
+          <Avatar text="A" badge="i-lucide-check" badgePosition="top-left" />
+          <Avatar text="B" badge="i-lucide-check" badgePosition="top-right" />
+          <Avatar text="C" badge="i-lucide-check" badgePosition="bottom-left" />
+          <Avatar text="D" badge="i-lucide-check" badgePosition="bottom-right" />
+        </div>
+      </DemoSection>
+
+      <DemoSection
+        title="Merged Group Mode"
+        description="Use the same Avatar component with items."
+      >
+        <div class="flex flex-col gap-3">
+          <Avatar
+            size="md"
+            max={3}
+            items={[
+              { src: IMAGE_A, alt: 'Alpha' },
+              { src: IMAGE_B, alt: 'Beta' },
+              { text: 'CD' },
+              { text: 'EF', badge: 'i-lucide-flask-conical', badgePosition: 'top-right' },
+              { alt: 'Echo Foxtrot' },
+            ]}
+          />
+
+          <Avatar size="sm" items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
+        </div>
+      </DemoSection>
+    </DemoPage>
+  )
+}
