@@ -3,6 +3,7 @@ import 'uno.css'
 import { Match, Switch, createSignal, onMount } from 'solid-js'
 import { render } from 'solid-js/web'
 
+import { AccordionDemos } from './components/accordion-demos'
 import { AvatarDemos } from './components/avatar-demos'
 import { BreadcrumbDemos } from './components/breadcrumb-demos'
 import { ButtonDemos } from './components/button-demos'
@@ -41,6 +42,7 @@ const PAGES = [
   { key: 'breadcrumb', label: 'Breadcrumb', group: 'Navigation' },
   { key: 'pagination', label: 'Pagination', group: 'Navigation' },
   { key: 'tabs', label: 'Tabs', group: 'Navigation' },
+  { key: 'accordion', label: 'Accordion', group: 'Disclosure' },
   { key: 'collapsible', label: 'Collapsible', group: 'Disclosure' },
   { key: 'progress', label: 'Progress', group: 'Feedback' },
   { key: 'command-palette', label: 'Command Palette', group: 'Overlay' },
@@ -93,6 +95,9 @@ function App() {
           </Match>
           <Match when={page() === 'collapsible'}>
             <CollapsibleDemos />
+          </Match>
+          <Match when={page() === 'accordion'}>
+            <AccordionDemos />
           </Match>
           <Match when={page() === 'icon'}>
             <IconDemos />

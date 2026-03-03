@@ -13,6 +13,7 @@
 - [x] prefer to use rest props to simplify splitProps groups
 - [x] reuse common cva, extract common classes into unocss shortcuts
 - [x] refactor form state with `createStore`
+- [x] add `Accordion`
 - [ ] cleanup form system and test standard schema with `valibot`
 - [ ] remove context bridge in select/file-upload, migrate custom render usage from function to jsx for fine grain update, reuse parent components's props first
 - [ ] bug: uncontrolled switch in demo does not work
@@ -20,13 +21,12 @@
 - [ ] bug: slider controlled demo does not trigger hover ring, all button hover should become pointer cursor
 - [ ] bug: after select menu selected, only `tab` twice can focus next trigger
 - [ ] bug: focus ring should be override when form item is invalid
-- [ ] add `Accordion`
-- [ ] adjust command palette text/padding size
-- [ ] adjust dropmenu transition
-- [ ] context menu trigger timing
 
 # Future
 
+- [ ] adjust command palette text/padding size
+- [ ] adjust dropmenu transition
+- [ ] context menu trigger timing
 - [ ] polish and cleanup select control
 - [ ] inline and drop kobalte
 - [ ] make cn / cva return undefined when no class

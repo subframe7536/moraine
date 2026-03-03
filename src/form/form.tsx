@@ -315,7 +315,9 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
 
   async function runValidation(target?: string | string[]): Promise<FormValidationError[]> {
     const targets = target
-      ? (Array.isArray(target) ? target : [target])
+      ? Array.isArray(target)
+        ? target
+        : [target]
       : Object.keys(formState.inputs)
     updateValidatingState(targets, 1)
 
@@ -329,7 +331,9 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
 
       const names = Array.isArray(target) ? target : [target]
       const nextErrors = [
-        ...formState.errors.filter((error) => !matchesValidationTarget(error, names, formState.inputs)),
+        ...formState.errors.filter(
+          (error) => !matchesValidationTarget(error, names, formState.inputs),
+        ),
         ...allErrors.filter((error) => matchesValidationTarget(error, names, formState.inputs)),
       ]
 

@@ -260,7 +260,7 @@ const ROCK_PREFIX_CLEAN_RE = new RegExp(`\\\\?${escapeRegExp(ROCK_PREFIX)}`, 'g'
 const SCRIPT_ID_RE = /\.(?:js|jsx|ts|tsx|mjs|cjs|mts|cts)(?:$|[?#])/i
 const DEFAULT_ID_FILTER = (id: string): boolean => SCRIPT_ID_RE.test(id)
 
-export function presetTheme(options?: number | PresetThemeOptions): Preset {
+export function presetTheme(options?: number | PresetThemeOptions): Preset<Theme> {
   const normalized = normalizeOptions(options)
   const appConfig: AppConfig = {
     colors: {
@@ -284,7 +284,25 @@ export function presetTheme(options?: number | PresetThemeOptions): Preset {
 
   return {
     name: 'preset-rock',
-    theme: lightTheme,
+    theme: {
+      ...lightTheme,
+      animation: {
+        keyframes: {
+          'accordion-down':
+            '{ from { height: 0 } to { height: var(--kb-accordion-content-height) } }',
+          'accordion-up':
+            '{ from { height: var(--kb-accordion-content-height) } to { height: 0 } }',
+        },
+        timingFns: {
+          'accordion-down': 'ease-in-out',
+          'accordion-up': 'ease-in-out',
+        },
+        durations: {
+          'accordion-down': '150ms',
+          'accordion-up': '150ms',
+        },
+      },
+    },
     layers: {
       [ROCK_PREFIX]: -1,
       default: 1,
