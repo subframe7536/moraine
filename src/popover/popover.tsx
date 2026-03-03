@@ -74,6 +74,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     >
       <KobaltePopover.Trigger
         as="span"
+        tabIndex={-1}
         data-slot="trigger"
         class={cn(contentProps.classes?.trigger)}
         onMouseEnter={

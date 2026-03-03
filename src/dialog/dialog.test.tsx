@@ -45,6 +45,18 @@ describe('Modal', () => {
     expect(card).not.toBeNull()
   })
 
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <Dialog open body="Body">
+        <button type="button">Trigger</button>
+      </Dialog>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
   test('renders custom header slot and overrides default title/description section', () => {
     render(() => (
       <Dialog
@@ -159,7 +171,7 @@ describe('Modal', () => {
 
     const content = document.body.querySelector('[data-slot="content"]')
 
-    expect(content?.className).toContain('fixed inset-0 flex max-w-none flex-col')
+    expect(content?.className).toContain('fixed inset-0 flex h-full max-w-none flex-col')
     expect(content?.className).toContain('transition-none')
     expect(content?.className).toContain('content-class')
   })

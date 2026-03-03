@@ -8,8 +8,8 @@
 - [x] checkout slot name semantically with nuxt-ui, unify classes.root
 - [x] add footer slot in command palette
 - [x] extract overlay part from dialog into new `Popup` component (no padding, pure container), and dialog should become popup + card
-- [ ] bug: scrollable is broken in popup
-- [ ] bug: in overlay components demo, only `tab` twice can focus next trigger
+- [x] bug: scrollable is broken in popup
+- [x] bug: in overlay components demo, only `tab` twice can focus next trigger
 - [ ] prefer to use rest props to simplify splitProps groups
 - [ ] reuse common cva, extract common classes into unocss shortcuts
 - [ ] remove context bridge in select/file-upload, migrate custom render usage from function to jsx for fine grain update, reuse parent components's props first

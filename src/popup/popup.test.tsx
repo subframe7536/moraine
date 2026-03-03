@@ -52,6 +52,29 @@ describe('Popup', () => {
 
     expect(overlay).not.toBeNull()
     expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(overlay?.className).toContain('overflow-y-auto')
+  })
+
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <Popup open content="Body">
+        <button type="button">Trigger</button>
+      </Popup>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
+  test('does not lock body scroll in scrollable mode by default', () => {
+    render(() => (
+      <Popup defaultOpen scrollable content="Scrollable body">
+        <button type="button">Trigger</button>
+      </Popup>
+    ))
+
+    expect(document.body.style.overflow).not.toBe('hidden')
   })
 
   test('applies fullscreen + transition=false classes', () => {
@@ -71,7 +94,7 @@ describe('Popup', () => {
 
     const content = document.body.querySelector('[data-slot="content"]')
 
-    expect(content?.className).toContain('fixed inset-0 flex max-w-none flex-col')
+    expect(content?.className).toContain('fixed inset-0 flex h-full max-w-none flex-col')
     expect(content?.className).toContain('transition-none')
     expect(content?.className).toContain('content-class')
   })

@@ -4,7 +4,7 @@ import { Button, Popup } from '../../src'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 
-const SCROLLABLE_LINES = Array.from({ length: 18 }, (_, index) => `Popup line ${index + 1}`)
+const SCROLLABLE_LINES = Array.from({ length: 48 }, (_, index) => `Popup line ${index + 1}`)
 
 export const PopupDemos = () => {
   const [preventedCloseCount, setPreventedCloseCount] = createSignal(0)
@@ -40,7 +40,7 @@ export const PopupDemos = () => {
         <Popup
           scrollable
           content={
-            <div class="p-4 border rounded-xl bg-background h-screen ring-1 ring-foreground/10 shadow-md">
+            <div class="p-4 border rounded-xl bg-background ring-1 ring-foreground/10 shadow-md">
               <h3 class="text-sm font-semibold">Scrollable Popup</h3>
               <div class="mt-2 space-y-1">
                 <For each={SCROLLABLE_LINES}>

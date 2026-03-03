@@ -70,6 +70,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     <KobalteDropdownMenu.Root overflowPadding={4} {...rootProps}>
       <KobalteDropdownMenu.Trigger
         as="span"
+        tabIndex={-1}
         data-slot="trigger"
         class={cn(local.classes?.trigger)}
         disabled={rootProps.disabled}

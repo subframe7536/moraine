@@ -207,6 +207,18 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <DropdownMenu items={[{ label: 'Open item' }]}>
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
   test('requires children in type contract', () => {
     // @ts-expect-error children is required
     const props: DropdownMenuProps = { defaultOpen: true, items: [{ label: 'Open item' }] }

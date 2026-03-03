@@ -71,6 +71,18 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="close"]')).not.toBeNull()
   })
 
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <Sheet open body="Body">
+        <button type="button">Trigger</button>
+      </Sheet>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
   test('supports custom close content', () => {
     render(() => (
       <Sheet open close={<span data-testid="custom-close">X</span>} body="Body">

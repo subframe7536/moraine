@@ -15,6 +15,18 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')!.textContent).toContain('Tooltip content')
   })
 
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <Tooltip text="Tooltip content">
+        <button type="button">Trigger</button>
+      </Tooltip>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
   test('renders keyboard hints', () => {
     render(() => (
       <Tooltip open text="Save" kbds={['Ctrl', 'S']}>

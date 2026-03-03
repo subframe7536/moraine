@@ -13,10 +13,6 @@ type PopupSlots = 'trigger' | 'overlay' | 'content'
 export type PopupClasses = SlotClasses<PopupSlots>
 
 export interface PopupBaseProps {
-  id?: string
-  open?: boolean
-  defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
   overlay?: boolean
   scrollable?: boolean
   transition?: boolean
@@ -28,7 +24,7 @@ export interface PopupBaseProps {
 }
 
 export type PopupProps = PopupBaseProps &
-  Omit<KobalteDialog.DialogRootProps, keyof PopupBaseProps | 'class'>
+  Omit<KobalteDialog.DialogRootProps, keyof PopupBaseProps | 'class' | 'preventScroll'>
 
 export function Popup(props: PopupProps): JSX.Element {
   const merged = mergeProps(
@@ -41,7 +37,7 @@ export function Popup(props: PopupProps): JSX.Element {
   ) as PopupProps
   const [rootStateProps, behaviorProps, contentProps, rootProps] = splitProps(
     merged,
-    ['id', 'open', 'defaultOpen', 'onOpenChange'],
+    ['open', 'defaultOpen', 'onOpenChange'],
     ['overlay', 'scrollable', 'transition', 'fullscreen', 'dismissible', 'onClosePrevent'],
     ['content', 'classes', 'children'],
   )
@@ -143,10 +139,15 @@ export function Popup(props: PopupProps): JSX.Element {
   )
 
   return (
-    <KobalteDialog.Root {...rootStateProps} {...rootProps}>
+    <KobalteDialog.Root
+      preventScroll={!behaviorProps.scrollable}
+      {...rootStateProps}
+      {...rootProps}
+    >
       <Show when={contentProps.children}>
         <KobalteDialog.Trigger
           as="span"
+          tabIndex={-1}
           data-slot="trigger"
           class={cn(contentProps.classes?.trigger)}
         >

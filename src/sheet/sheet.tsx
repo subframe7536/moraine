@@ -275,6 +275,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     <KobalteDialog.Root modal {...rootProps}>
       <KobalteDialog.Trigger
         as="span"
+        tabIndex={-1}
         data-slot="trigger"
         class={cn(contentProps.classes?.trigger)}
       >

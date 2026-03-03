@@ -18,6 +18,18 @@ describe('Popover', () => {
     expect(content?.getAttribute('role')).toBe('dialog')
   })
 
+  test('keeps trigger wrapper out of tab order', () => {
+    render(() => (
+      <Popover open content="Popover content">
+        <button type="button">Trigger</button>
+      </Popover>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
   test('supports hover mode and renders content', () => {
     render(() => (
       <Popover mode="hover" open content="Hover content">
