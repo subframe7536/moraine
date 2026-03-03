@@ -64,30 +64,28 @@ export function Separator(props: SeparatorProps): JSX.Element {
       />
 
       <Show when={merged.children}>
-        <>
-          <div
-            data-slot="container"
-            class={separatorContainerVariants(
-              {
-                orientation: merged.orientation,
-              },
-              merged.classes?.container,
-            )}
-          >
-            {merged.children}
-          </div>
-          <div
-            data-slot="border"
-            class={separatorBorderVariants(
-              {
-                orientation: merged.orientation,
-                size: merged.size,
-                type: merged.type,
-              },
-              merged.classes?.border,
-            )}
-          />
-        </>
+        <div
+          data-slot="container"
+          class={separatorContainerVariants(
+            {
+              orientation: merged.orientation,
+            },
+            merged.classes?.container,
+          )}
+        >
+          {merged.children}
+        </div>
+        <div
+          data-slot="border"
+          class={separatorBorderVariants(
+            {
+              orientation: merged.orientation,
+              size: merged.size,
+              type: merged.type,
+            },
+            merged.classes?.border,
+          )}
+        />
       </Show>
     </KobalteSeparator.Root>
   )

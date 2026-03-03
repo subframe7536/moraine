@@ -21,15 +21,15 @@ export const separatorBorderVariants = cva('flex-1 shrink-0 border-current', {
   },
   variants: {
     orientation: {
-      horizontal: 'w-full border-t-$sep-size',
-      vertical: 'h-full border-s-$sep-size',
+      horizontal: 'w-full b-t',
+      vertical: 'h-full b-s',
     },
     size: {
-      xs: '[--sep-size:1px]',
-      sm: '[--sep-size:2px]',
-      md: '[--sep-size:3px]',
-      lg: '[--sep-size:4px]',
-      xl: '[--sep-size:5px]',
+      xs: 'b-1',
+      sm: 'b-2',
+      md: 'b-3',
+      lg: 'b-4',
+      xl: 'b-5',
     },
     type: {
       solid: 'border-solid',

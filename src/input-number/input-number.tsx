@@ -67,7 +67,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     props,
   )
 
-  const [formProps, controlProps, styleProps, rootProps] = splitProps(
+  const [formProps, controlProps, styleProps, restProps] = splitProps(
     merged as InputNumberProps,
     [...FORM_ID_NAME_DISABLED_KEYS, 'onRawValueChange', ...FORM_INPUT_INTERACTION_KEYS],
     [
@@ -202,7 +202,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       onRawValueChange={onRawValueChange}
       data-slot="root"
       class={cn('relative inline-flex w-full items-center', styleProps.classes?.root)}
-      {...rootProps}
+      {...restProps}
     >
       <KobalteNumberField.Input
         id={field.id()}

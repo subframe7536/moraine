@@ -88,10 +88,11 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     props,
   )
 
-  const [formProps, collectionProps, styleBehaviorProps] = splitProps(
+  const [formProps, collectionProps, styleProps, restProps] = splitProps(
     merged as CheckboxGroupProps,
     [...FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS, 'onChange'],
     ['legend', 'items'],
+    ['orientation', 'variant', 'size', 'indicator', 'checkedIcon', 'indeterminateIcon', 'classes'],
   )
 
   const groupId = useId(() => formProps.id, 'checkbox-group')
@@ -99,7 +100,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: styleBehaviorProps.size,
+      size: styleProps.size,
       disabled: formProps.disabled,
     }),
     {
@@ -163,7 +164,8 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
     <div
       id={`${groupId()}-root`}
       data-slot="root"
-      class={cn('relative', styleBehaviorProps.classes?.root)}
+      class={cn('relative', styleProps.classes?.root)}
+      {...restProps}
     >
       <fieldset
         id={groupId()}
@@ -171,10 +173,10 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
         aria-labelledby={collectionProps.legend ? legendId() : undefined}
         class={checkboxGroupFieldsetVariants(
           {
-            orientation: styleBehaviorProps.orientation,
+            orientation: styleProps.orientation,
           },
-          styleBehaviorProps.variant !== 'table' && 'gap-2',
-          styleBehaviorProps.classes?.fieldset,
+          styleProps.variant !== 'table' && 'gap-2',
+          styleProps.classes?.fieldset,
         )}
         {...field.ariaAttrs()}
       >
@@ -187,7 +189,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
                 size: field.size(),
                 required: formProps.required,
               },
-              styleBehaviorProps.classes?.legend,
+              styleProps.classes?.legend,
             )}
           >
             {collectionProps.legend}
@@ -207,25 +209,23 @@ export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
               disabled={item.disabled || field.disabled()}
               required={formProps.required}
               size={field.size()}
-              variant={styleBehaviorProps.variant === 'list' ? 'list' : 'card'}
-              indicator={styleBehaviorProps.indicator}
-              checkedIcon={item.checkedIcon ?? styleBehaviorProps.checkedIcon}
-              indeterminateIcon={item.indeterminateIcon ?? styleBehaviorProps.indeterminateIcon}
+              variant={styleProps.variant === 'list' ? 'list' : 'card'}
+              indicator={styleProps.indicator}
+              checkedIcon={item.checkedIcon ?? styleProps.checkedIcon}
+              indeterminateIcon={item.indeterminateIcon ?? styleProps.indeterminateIcon}
               classes={{
                 root: checkboxGroupItemVariants(
                   {
-                    tableSize: styleBehaviorProps.variant === 'table' ? field.size() : undefined,
+                    tableSize: styleProps.variant === 'table' ? field.size() : undefined,
                     tableOrientation:
-                      styleBehaviorProps.variant === 'table'
-                        ? styleBehaviorProps.orientation
-                        : undefined,
+                      styleProps.variant === 'table' ? styleProps.orientation : undefined,
                     disabled: item.disabled || field.disabled(),
                   },
-                  styleBehaviorProps.variant === 'table' &&
+                  styleProps.variant === 'table' &&
                     'relative rounded-none border border-muted data-checked:(bg-primary/10 border-primary/50) data-checked:z-1',
-                  styleBehaviorProps.classes?.item,
+                  styleProps.classes?.item,
                 ),
-                ...styleBehaviorProps.classes,
+                ...styleProps.classes,
               }}
               onChange={(checked) => onItemCheckedChange(item.value, checked)}
             />

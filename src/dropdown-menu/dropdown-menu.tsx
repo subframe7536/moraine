@@ -60,29 +60,29 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     },
     props,
   ) as DropdownMenuProps
-  const [menuProps, local, rootProps] = splitProps(
+  const [menuProps, localProps, restProps] = splitProps(
     merged,
     ['size', 'items', 'checkedIcon', 'submenuIcon', 'itemRender', 'contentTop', 'contentBottom'],
     ['classes', 'children'],
   )
 
   return (
-    <KobalteDropdownMenu.Root overflowPadding={4} {...rootProps}>
+    <KobalteDropdownMenu.Root overflowPadding={4} {...restProps}>
       <KobalteDropdownMenu.Trigger
         as="span"
         tabIndex={-1}
         data-slot="trigger"
-        class={cn(local.classes?.trigger)}
-        disabled={rootProps.disabled}
+        class={cn(localProps.classes?.trigger)}
+        disabled={restProps.disabled}
       >
-        {local.children}
+        {localProps.children}
       </KobalteDropdownMenu.Trigger>
 
       <OverlayMenuBaseContent<DropdownMenuItem>
         content={KobalteDropdownMenu.Content}
-        classes={local.classes}
+        classes={localProps.classes}
         {...menuProps}
-        rootSide={resolveOverlayMenuSide(rootProps.placement ?? 'bottom')}
+        rootSide={resolveOverlayMenuSide(restProps.placement ?? 'bottom')}
       />
     </KobalteDropdownMenu.Root>
   )

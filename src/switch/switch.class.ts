@@ -1,6 +1,8 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import { SURFACE_INVALID_VARIANT, TEXT_SIZE_VARIANT } from '../shared/cva-common.class'
+
 export const switchContainerVariants = cva('flex items-center', {
   defaultVariants: {
     size: 'md',
@@ -31,9 +33,7 @@ export const switchBaseVariants = cva(
         lg: 'w-10',
         xl: 'w-11',
       },
-      invalid: {
-        true: 'border-destructive ring-3 ring-destructive/20 dark:border-destructive/50 dark:ring-destructive/40',
-      },
+      invalid: SURFACE_INVALID_VARIANT,
     },
   },
 )
@@ -75,13 +75,7 @@ export const switchWrapperVariants = cva('ms-2', {
     size: 'md',
   },
   variants: {
-    size: {
-      xs: 'text-xs',
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-sm',
-      xl: 'text-base',
-    },
+    size: TEXT_SIZE_VARIANT,
   },
 })
 

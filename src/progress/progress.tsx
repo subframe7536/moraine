@@ -82,7 +82,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     props,
   )
 
-  const [valueProps, behaviorProps, styleProps, rootProps] = splitProps(
+  const [valueProps, behaviorProps, styleProps, restProps] = splitProps(
     merged as ProgressProps,
     ['value', 'max'],
     ['status', 'orientation', 'animation', 'renderStatus', 'renderStep'],
@@ -276,7 +276,7 @@ export function Progress(props: ProgressProps): JSX.Element {
         },
         styleProps.classes?.root,
       )}
-      {...rootProps}
+      {...restProps}
     >
       <ProgressContent />
     </KobalteProgress.Root>

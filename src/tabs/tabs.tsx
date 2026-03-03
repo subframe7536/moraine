@@ -69,7 +69,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     props,
   ) as TabsProps
 
-  const [local, rootProps] = splitProps(merged, [
+  const [localProps, restProps] = splitProps(merged, [
     'orientation',
     'variant',
     'size',
@@ -81,32 +81,32 @@ export function Tabs(props: TabsProps): JSX.Element {
   return (
     <KobalteTabs.Root
       data-slot="root"
-      class={tabsRootVariants({ orientation: local.orientation }, local.classes?.root)}
-      orientation={local.orientation}
-      {...rootProps}
+      class={tabsRootVariants({ orientation: localProps.orientation }, localProps.classes?.root)}
+      orientation={localProps.orientation}
+      {...restProps}
     >
       <KobalteTabs.List
         data-slot="list"
         class={tabsListVariants(
           {
-            orientation: local.orientation,
-            variant: local.variant,
+            orientation: localProps.orientation,
+            variant: localProps.variant,
           },
-          local.classes?.list,
+          localProps.classes?.list,
         )}
       >
         <KobalteTabs.Indicator
           data-slot="indicator"
           class={tabsIndicatorVariants(
             {
-              orientation: local.orientation,
-              variant: local.variant,
+              orientation: localProps.orientation,
+              variant: localProps.variant,
             },
-            local.classes?.indicator,
+            localProps.classes?.indicator,
           )}
         />
 
-        <For each={local.items}>
+        <For each={localProps.items}>
           {(item, index) => (
             <KobalteTabs.Trigger
               data-slot="trigger"
@@ -114,25 +114,28 @@ export function Tabs(props: TabsProps): JSX.Element {
               disabled={item.disabled}
               class={tabsTriggerVariants(
                 {
-                  orientation: local.orientation,
-                  variant: local.variant,
-                  size: local.size,
-                  color: local.color,
+                  orientation: localProps.orientation,
+                  variant: localProps.variant,
+                  size: localProps.size,
+                  color: localProps.color,
                 },
-                local.classes?.trigger,
+                localProps.classes?.trigger,
               )}
             >
               <Show when={item.icon}>
                 <span
                   data-slot="leading"
-                  class={tabsLeadingVariants({ size: local.size }, local.classes?.leading)}
+                  class={tabsLeadingVariants(
+                    { size: localProps.size },
+                    localProps.classes?.leading,
+                  )}
                 >
                   <Icon name={item.icon} />
                 </span>
               </Show>
 
               <Show when={typeof item.label === 'string'} fallback={item.label}>
-                <span data-slot="label" class={cn('truncate', local.classes?.label)}>
+                <span data-slot="label" class={cn('truncate', localProps.classes?.label)}>
                   {item.label}
                 </span>
               </Show>
@@ -141,12 +144,12 @@ export function Tabs(props: TabsProps): JSX.Element {
         </For>
       </KobalteTabs.List>
 
-      <For each={local.items}>
+      <For each={localProps.items}>
         {(item, index) => (
           <KobalteTabs.Content
             data-slot="content"
             value={normalizeItemValue(item, index())}
-            class={cn('w-full outline-none', local.classes?.content, item.class)}
+            class={cn('w-full outline-none', localProps.classes?.content, item.class)}
           >
             {item.content}
           </KobalteTabs.Content>

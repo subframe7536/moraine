@@ -55,10 +55,9 @@ export function Switch(props: SwitchProps): JSX.Element {
     props,
   )
 
-  const [formProps, rootStateProps, displayProps, styleProps, rootProps] = splitProps(
+  const [formProps, displayProps, styleProps, restProps] = splitProps(
     merged as SwitchProps,
     [...FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS],
-    ['value', 'checked', 'defaultChecked', 'required', 'readOnly'],
     ['loading', 'loadingIcon', 'checkedIcon', 'uncheckedIcon', 'label', 'description'],
     ['size', 'classes'],
   )
@@ -85,7 +84,6 @@ export function Switch(props: SwitchProps): JSX.Element {
 
   return (
     <KobalteSwitch.Root
-      {...rootStateProps}
       id={`${field.id()}-root`}
       name={field.name()}
       disabled={field.disabled()}
@@ -96,7 +94,7 @@ export function Switch(props: SwitchProps): JSX.Element {
         field.disabled() && 'effect-dis',
         styleProps.classes?.root,
       )}
-      {...rootProps}
+      {...restProps}
     >
       {(state) => {
         const resolvedIconName = (): IconName | undefined => {
@@ -179,7 +177,7 @@ export function Switch(props: SwitchProps): JSX.Element {
                     data-slot="label"
                     class={cn(
                       'block font-medium text-foreground',
-                      rootStateProps.required && "after:(ms-0.5 text-destructive content-['*'])",
+                      restProps.required && "after:(ms-0.5 text-destructive content-['*'])",
                       styleProps.classes?.label,
                     )}
                   >

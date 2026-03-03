@@ -28,14 +28,14 @@ export type CollapsibleProps = CollapsibleBaseProps &
   Omit<KobalteCollapsible.CollapsibleRootProps, keyof CollapsibleBaseProps | 'children' | 'class'>
 
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [contentProps, rootProps] = splitProps(props as CollapsibleProps, [
+  const [contentProps, restProps] = splitProps(props as CollapsibleProps, [
     'classes',
     'children',
     'trigger',
   ])
 
   return (
-    <KobalteCollapsible.Root data-slot="root" class={cn(contentProps.classes?.root)} {...rootProps}>
+    <KobalteCollapsible.Root data-slot="root" class={cn(contentProps.classes?.root)} {...restProps}>
       <Show when={contentProps.trigger}>
         {(render) => {
           const context = KobalteCollapsible.useCollapsibleContext()

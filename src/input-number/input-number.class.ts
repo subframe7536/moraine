@@ -1,6 +1,8 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import { SURFACE_HIGHLIGHT_VARIANT, SURFACE_VARIANT_CLASSES } from '../shared/cva-common.class'
+
 export const inputNumberBaseVariants = cva(
   'w-full rounded-md border border-input bg-transparent text-foreground outline-none transition-[color,box-shadow] dark:bg-input/30 placeholder:text-muted-foreground focus-visible:effect-fv-border aria-invalid:effect-invalid disabled:effect-dis',
   {
@@ -17,20 +19,12 @@ export const inputNumberBaseVariants = cva(
         lg: 'h-10 px-3 text-sm',
         xl: 'h-11 px-3 text-base',
       },
-      variant: {
-        outline: 'bg-transparent',
-        soft: 'border-transparent bg-muted/50 hover:bg-muted',
-        subtle: 'border bg-muted',
-        ghost: 'border-transparent bg-transparent hover:bg-muted',
-        none: 'border-transparent bg-transparent',
-      },
+      variant: SURFACE_VARIANT_CLASSES,
       orientation: {
         horizontal: 'text-center',
         vertical: 'text-center pe-9',
       },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
     },
   },
 )

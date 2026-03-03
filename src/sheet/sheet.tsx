@@ -63,7 +63,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     },
     props,
   ) as SheetProps
-  const [behaviorProps, contentProps, rootProps] = splitProps(
+  const [behaviorProps, contentProps, restProps] = splitProps(
     merged,
     ['overlay', 'transition', 'side', 'inset', 'close', 'dismissible', 'onClosePrevent'],
     ['title', 'description', 'header', 'body', 'footer', 'actions', 'classes', 'children'],
@@ -272,7 +272,7 @@ export function Sheet(props: SheetProps): JSX.Element {
   )
 
   return (
-    <KobalteDialog.Root modal {...rootProps}>
+    <KobalteDialog.Root modal {...restProps}>
       <KobalteDialog.Trigger
         as="span"
         tabIndex={-1}

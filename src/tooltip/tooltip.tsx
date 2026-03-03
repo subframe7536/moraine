@@ -40,12 +40,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     props,
   ) as TooltipProps
-  const [contentProps, rootProps] = splitProps(merged, ['text', 'kbds', 'classes', 'children'])
+  const [contentProps, restProps] = splitProps(merged, ['text', 'kbds', 'classes', 'children'])
 
-  const isDisabled = () => Boolean(rootProps.disabled)
+  const isDisabled = () => Boolean(restProps.disabled)
 
   return (
-    <KobalteTooltip.Root disabled={isDisabled()} overflowPadding={4} {...rootProps}>
+    <KobalteTooltip.Root disabled={isDisabled()} overflowPadding={4} {...restProps}>
       <KobalteTooltip.Trigger
         as="span"
         tabIndex={-1}
@@ -59,7 +59,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         <KobalteTooltip.Content
           data-slot="content"
           class={tooltipContentVariants(
-            { side: rootProps.placement },
+            { side: restProps.placement },
             contentProps.classes?.content,
           )}
         >

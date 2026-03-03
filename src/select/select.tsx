@@ -342,7 +342,7 @@ export function Select(props: SelectProps): JSX.Element {
     props,
   )
 
-  const [formProps, searchInteractionProps, renderDisplayProps, styleProps, rootProps] = splitProps(
+  const [formProps, searchInteractionProps, renderDisplayProps, styleProps, restProps] = splitProps(
     merged as SelectProps,
     [...FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS, 'onChange'],
     [
@@ -1294,7 +1294,7 @@ export function Select(props: SelectProps): JSX.Element {
       removeOnBackspace={isMultiple()}
       class={cn('relative inline-flex w-full h-fit', styleProps.classes?.root)}
       {...field.ariaAttrs()}
-      {...rootProps}
+      {...restProps}
       overflowPadding={-2}
     >
       <ContextBridge />

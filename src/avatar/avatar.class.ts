@@ -26,10 +26,10 @@ export const avatarImageVariants = cva(
     },
     variants: {
       status: {
-        idle: 'opacity-0 pointer-events-none',
-        loading: 'opacity-0 pointer-events-none',
+        idle: 'opacity-0 hidden-hitless',
+        loading: 'opacity-0 hidden-hitless',
         loaded: 'opacity-100',
-        error: 'opacity-0 pointer-events-none',
+        error: 'opacity-0 hidden-hitless',
       },
       transition: {
         none: 'duration-0',
@@ -58,7 +58,7 @@ export const avatarFallbackVariants = cva(
       status: {
         idle: 'opacity-100',
         loading: 'opacity-100',
-        loaded: 'opacity-0 pointer-events-none',
+        loaded: 'opacity-0 hidden-hitless',
         error: 'opacity-100',
       },
       transition: {

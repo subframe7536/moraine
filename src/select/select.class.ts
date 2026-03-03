@@ -1,6 +1,13 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import {
+  SURFACE_HIGHLIGHT_VARIANT,
+  SURFACE_INVALID_VARIANT,
+  SURFACE_VARIANT_CLASSES,
+  TEXT_SIZE_VARIANT,
+} from '../shared/cva-common.class'
+
 export const selectControlVariants = cva(
   'flex w-full cursor-pointer items-center rounded-md border border-input bg-transparent text-foreground outline-none transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border',
   {
@@ -16,22 +23,12 @@ export const selectControlVariants = cva(
         lg: 'min-h-10 text-sm',
         xl: 'min-h-11 text-base',
       },
-      variant: {
-        outline: 'bg-transparent',
-        soft: 'border-transparent bg-muted/50 hover:bg-muted',
-        subtle: 'bg-muted',
-        ghost: 'border-transparent hover:bg-muted',
-        none: 'border-transparent bg-transparent',
-      },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      variant: SURFACE_VARIANT_CLASSES,
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
       disabled: {
         true: 'effect-dis',
       },
-      invalid: {
-        true: 'border-destructive ring-3 ring-destructive/20 dark:border-destructive/50 dark:ring-destructive/40',
-      },
+      invalid: SURFACE_INVALID_VARIANT,
     },
   },
 )
@@ -136,13 +133,7 @@ export const selectTagVariants = cva(
       size: 'md',
     },
     variants: {
-      size: {
-        xs: 'text-xs',
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-sm',
-        xl: 'text-base',
-      },
+      size: TEXT_SIZE_VARIANT,
     },
   },
 )

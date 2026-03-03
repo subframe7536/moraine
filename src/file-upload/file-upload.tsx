@@ -245,7 +245,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     props,
   )
 
-  const [formProps, displayProps, styleProps, rootProps] = splitProps(
+  const [formProps, displayProps, styleProps, restProps] = splitProps(
     merged as FileUploadProps,
     [
       'as',
@@ -508,7 +508,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         },
         styleProps.classes?.root,
       )}
-      {...rootProps}
+      {...restProps}
     >
       <FileFieldContextBridge />
 

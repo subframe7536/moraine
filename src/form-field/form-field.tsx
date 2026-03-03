@@ -78,7 +78,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
     props,
   )
 
-  const [identityValidationProps, contentProps, layoutStyleProps] = splitProps(
+  const [fieldProps, contentProps, styleProps, restProps] = splitProps(
     merged as FormFieldProps,
     [
       'as',
@@ -91,11 +91,12 @@ export function FormField(props: FormFieldProps): JSX.Element {
       'validateOnInputDelay',
     ],
     ['label', 'description', 'hint', 'help', 'children'],
+    ['orientation', 'size', 'classes'],
   )
 
   const formContext = useFormContext()
 
-  const ariaId = useId(() => identityValidationProps.id, 'form-field')
+  const ariaId = useId(() => fieldProps.id, 'form-field')
   const [registeredControls, setRegisteredControls] = createSignal<RegisteredControl[]>([])
 
   const registerControl: NonNullable<FormFieldInjectedOptions['registerControl']> = (entry) => {
@@ -132,38 +133,38 @@ export function FormField(props: FormFieldProps): JSX.Element {
     const controls = registeredControls()
 
     if (controls.length === 0) {
-      return identityValidationProps.id ?? ariaId()
+      return fieldProps.id ?? ariaId()
     }
 
     return selectedControlId()
   })
 
   const resolvedError = createMemo(() => {
-    if (identityValidationProps.error === false) {
+    if (fieldProps.error === false) {
       return false
     }
 
-    if (identityValidationProps.error !== undefined && identityValidationProps.error !== null) {
-      return identityValidationProps.error
+    if (fieldProps.error !== undefined && fieldProps.error !== null) {
+      return fieldProps.error
     }
 
-    if (!identityValidationProps.name || !formContext) {
+    if (!fieldProps.name || !formContext) {
       return undefined
     }
 
     const error = formContext.errors.find((fieldError) => {
-      if (fieldError.name === identityValidationProps.name) {
+      if (fieldError.name === fieldProps.name) {
         return true
       }
 
-      return Boolean(identityValidationProps.errorPattern?.test(fieldError.name ?? ''))
+      return Boolean(fieldProps.errorPattern?.test(fieldError.name ?? ''))
     })
 
     return error?.message
   })
 
   createEffect(() => {
-    const name = identityValidationProps.name
+    const name = fieldProps.name
 
     if (!formContext || !name) {
       return
@@ -171,7 +172,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
 
     formContext.registerInput(name, {
       id: resolvedLabelTargetId(),
-      pattern: identityValidationProps.errorPattern,
+      pattern: fieldProps.errorPattern,
     })
 
     onCleanup(() => {
@@ -184,19 +185,19 @@ export function FormField(props: FormFieldProps): JSX.Element {
       return resolvedError()
     },
     get name() {
-      return identityValidationProps.name
+      return fieldProps.name
     },
     get size() {
-      return layoutStyleProps.size
+      return styleProps.size
     },
     get eagerValidation() {
-      return identityValidationProps.eagerValidation
+      return fieldProps.eagerValidation
     },
     get validateOnInputDelay() {
-      return identityValidationProps.validateOnInputDelay
+      return fieldProps.validateOnInputDelay
     },
     get errorPattern() {
-      return identityValidationProps.errorPattern
+      return fieldProps.errorPattern
     },
     get hint() {
       return contentProps.hint
@@ -253,23 +254,23 @@ export function FormField(props: FormFieldProps): JSX.Element {
   return (
     <FormFieldProvider value={fieldContextValue}>
       <Dynamic
-        component={identityValidationProps.as}
+        component={fieldProps.as}
         data-slot="root"
-        data-orientation={layoutStyleProps.orientation}
+        data-orientation={styleProps.orientation}
         class={formFieldSizeVariants(
           {
-            size: layoutStyleProps.size,
+            size: styleProps.size,
           },
-          layoutStyleProps.orientation === 'horizontal' &&
-            'flex items-baseline justify-between gap-2',
-          layoutStyleProps.classes?.root,
+          styleProps.orientation === 'horizontal' && 'flex items-baseline justify-between gap-2',
+          styleProps.classes?.root,
         )}
+        {...restProps}
       >
         <div
           data-slot="wrapper"
           class={cn(
-            layoutStyleProps.orientation === 'horizontal' && 'flex-1',
-            layoutStyleProps.classes?.wrapper,
+            styleProps.orientation === 'horizontal' && 'flex-1',
+            styleProps.classes?.wrapper,
           )}
         >
           <Show when={contentProps.label}>
@@ -277,7 +278,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
               data-slot="labelWrapper"
               class={cn(
                 'flex items-center justify-between gap-1',
-                layoutStyleProps.classes?.labelWrapper,
+                styleProps.classes?.labelWrapper,
               )}
             >
               <label
@@ -285,9 +286,9 @@ export function FormField(props: FormFieldProps): JSX.Element {
                 data-slot="label"
                 class={formFieldLabelVariants(
                   {
-                    required: identityValidationProps.required,
+                    required: fieldProps.required,
                   },
-                  layoutStyleProps.classes?.label,
+                  styleProps.classes?.label,
                 )}
               >
                 {contentProps.label}
@@ -297,7 +298,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
-                  class={cn('text-muted-foreground', layoutStyleProps.classes?.hint)}
+                  class={cn('text-muted-foreground', styleProps.classes?.hint)}
                 >
                   {contentProps.hint}
                 </span>
@@ -309,7 +310,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              class={cn('text-muted-foreground', layoutStyleProps.classes?.description)}
+              class={cn('text-muted-foreground', styleProps.classes?.description)}
             >
               {contentProps.description}
             </p>
@@ -321,23 +322,23 @@ export function FormField(props: FormFieldProps): JSX.Element {
             contentProps.label || contentProps.description
               ? formFieldContainerVariants(
                   {
-                    orientation: layoutStyleProps.orientation,
+                    orientation: styleProps.orientation,
                   },
-                  layoutStyleProps.classes?.container,
+                  styleProps.classes?.container,
                 )
-              : cn(layoutStyleProps.classes?.container)
+              : cn(styleProps.classes?.container)
           }
         >
           <NormalizedChildren />
 
           <Show
-            when={identityValidationProps.error !== false && shouldShowError()}
+            when={fieldProps.error !== false && shouldShowError()}
             fallback={
               <Show when={contentProps.help}>
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
-                  class={cn('mt-2 text-muted-foreground', layoutStyleProps.classes?.help)}
+                  class={cn('mt-2 text-muted-foreground', styleProps.classes?.help)}
                 >
                   {contentProps.help}
                 </div>
@@ -347,7 +348,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
             <div
               id={`${ariaId()}-error`}
               data-slot="error"
-              class={cn('mt-2 text-destructive', layoutStyleProps.classes?.error)}
+              class={cn('mt-2 text-destructive', styleProps.classes?.error)}
             >
               {resolvedError() as JSX.Element}
             </div>

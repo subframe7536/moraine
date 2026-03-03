@@ -120,13 +120,14 @@ function matchesValidationTarget(
 
 const DEFAULT_VALIDATE_ON: FormInputEventType[] = ['input', 'blur', 'change']
 export function Form<TState extends FormState = FormState>(props: FormProps<TState>): JSX.Element {
-  const [stateValidationProps, eventProps, renderProps] = splitProps(
+  const [stateProps, eventProps, renderProps, restProps] = splitProps(
     props as FormProps<TState>,
     ['id', 'state', 'validate', 'validateOn', 'validateOnInputDelay', 'disabled'],
     ['loadingAuto', 'onSubmit', 'onError'],
+    ['classes', 'children'],
   )
 
-  const formId = useId(() => stateValidationProps.id, 'form')
+  const formId = useId(() => stateProps.id, 'form')
   const [loading, setLoading] = createSignal(false)
   const [errors, setErrors] = createSignal<FormValidationError[]>([])
   const [inputs, setInputs] = createSignal<Record<string, FormInputMeta>>({})
@@ -206,10 +207,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
   }
 
   async function handleInputEvent(event: FormInputEvent): Promise<void> {
-    if (
-      (stateValidationProps.validateOn ?? DEFAULT_VALIDATE_ON).includes(event.type) &&
-      !loading()
-    ) {
+    if ((stateProps.validateOn ?? DEFAULT_VALIDATE_ON).includes(event.type) && !loading()) {
       if (event.type !== 'input') {
         if (event.name) {
           await runValidation(event.name)
@@ -301,7 +299,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
   }
 
   async function getErrors(): Promise<FormValidationError[]> {
-    const validationErrors = await stateValidationProps.validate?.(stateValidationProps.state)
+    const validationErrors = await stateProps.validate?.(stateProps.state)
     if (!validationErrors) {
       return []
     }
@@ -334,13 +332,11 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
     }
   }
 
-  const stateAccessor = createMemo(
-    () => stateValidationProps.state as Record<string, unknown> | undefined,
-  )
+  const stateAccessor = createMemo(() => stateProps.state as Record<string, unknown> | undefined)
 
   const contextValue: FormContextValue = {
     get disabled() {
-      return stateValidationProps.disabled ?? false
+      return stateProps.disabled ?? false
     },
     get loading() {
       return loading()
@@ -352,10 +348,10 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
       return stateAccessor()
     },
     get validateOn() {
-      return stateValidationProps.validateOn ?? DEFAULT_VALIDATE_ON
+      return stateProps.validateOn ?? DEFAULT_VALIDATE_ON
     },
     get validateOnInputDelay() {
-      return stateValidationProps.validateOnInputDelay ?? 300
+      return stateProps.validateOnInputDelay ?? 300
     },
     registerInput,
     unregisterInput,
@@ -406,7 +402,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
         return
       }
 
-      submitEvent.data = stateValidationProps.state
+      submitEvent.data = stateProps.state
       await eventProps.onSubmit?.(submitEvent)
       setFieldStates((previous) => {
         let changed = false
@@ -438,6 +434,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
         class={cn('w-full data-loading:opacity-80', renderProps.classes?.root)}
         data-loading={loading() ? '' : undefined}
         onSubmit={onSubmit}
+        {...restProps}
       >
         {renderChildren()}
       </form>

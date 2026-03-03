@@ -1,6 +1,8 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import { SURFACE_INVALID_VARIANT } from '../shared/cva-common.class'
+
 export const checkboxRootVariants = cva('relative flex items-start', {
   defaultVariants: {
     indicator: 'start',
@@ -64,9 +66,7 @@ export const checkboxBaseVariants = cva(
         lg: 'size-4.5',
         xl: 'size-5',
       },
-      invalid: {
-        true: 'border-destructive ring-3 ring-destructive/20 dark:border-destructive/50 dark:ring-destructive/40',
-      },
+      invalid: SURFACE_INVALID_VARIANT,
     },
   },
 )

@@ -48,7 +48,7 @@ export type IconButtonProps<T extends ValidComponent = 'button'> = PolymorphicPr
 export function IconButton<T extends ValidComponent = 'button'>(
   props: IconButtonProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as IconButtonProps, [
+  const [localProps, restProps] = splitProps(props as IconButtonProps, [
     'class',
     'name',
     'loading',
@@ -61,19 +61,23 @@ export function IconButton<T extends ValidComponent = 'button'>(
     <KobalteButton.Root
       data-slot="icon-button"
       class={cn(
-        getIconSizeClass(local.size),
-        local.loading
+        getIconSizeClass(localProps.size),
+        localProps.loading
           ? 'cursor-wait opacity-80 animate-spin pointer-events-none'
           : 'cursor-pointer',
-        local.class,
+        localProps.class,
       )}
-      aria-busy={local.loading || undefined}
-      data-loading={local.loading ? '' : undefined}
-      disabled={local.loading || local.disabled}
-      {...rest}
+      aria-busy={localProps.loading || undefined}
+      data-loading={localProps.loading ? '' : undefined}
+      disabled={localProps.loading || localProps.disabled}
+      {...restProps}
     >
       <Icon
-        name={local.loading ? local.loadingIcon || 'icon-loading' + 'animate-spin' : local.name}
+        name={
+          localProps.loading
+            ? localProps.loadingIcon || 'icon-loading' + 'animate-spin'
+            : localProps.name
+        }
         class="size-full"
       />
     </KobalteButton.Root>

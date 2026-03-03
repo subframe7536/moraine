@@ -75,7 +75,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     props,
   ) as PaginationProps
 
-  const [styleProps, uiProps, pagingProps, rootProps] = splitProps(
+  const [styleProps, uiProps, pagingProps, restProps] = splitProps(
     merged,
     ['size', 'variant', 'activeVariant', 'controlVariant'],
     ['classes', 'prevIcon', 'prevText', 'nextIcon', 'nextText', 'ellipsisIcon'],
@@ -148,7 +148,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   }
 
   return (
-    <nav data-slot="root" class={cn('w-full', uiProps.classes?.root)} {...rootProps}>
+    <nav data-slot="root" class={cn('w-full', uiProps.classes?.root)} {...restProps}>
       <ul
         data-slot="list"
         class={cn('flex items-center justify-center gap-1', uiProps.classes?.list)}

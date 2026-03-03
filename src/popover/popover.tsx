@@ -40,13 +40,13 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
     props,
   ) as PopoverProps
-  const [behaviorProps, contentProps, rootProps] = splitProps(
+  const [behaviorProps, contentProps, restProps] = splitProps(
     merged,
     ['mode', 'placement', 'openDelay', 'closeDelay', 'dismissible', 'onClosePrevent'],
     ['content', 'classes', 'children'],
   )
 
-  const [hoverOpen, setHoverOpen] = createSignal<boolean>(rootProps.defaultOpen ?? false)
+  const [hoverOpen, setHoverOpen] = createSignal<boolean>(restProps.defaultOpen ?? false)
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
@@ -63,13 +63,13 @@ export function Popover(props: PopoverProps): JSX.Element {
     <KobaltePopover.Root
       placement={behaviorProps.placement}
       overflowPadding={4}
-      {...rootProps}
+      {...restProps}
       open={
         behaviorProps.mode === 'hover'
-          ? rootProps.open !== undefined
-            ? rootProps.open
+          ? restProps.open !== undefined
+            ? restProps.open
             : hoverOpen()
-          : rootProps.open
+          : restProps.open
       }
     >
       <KobaltePopover.Trigger
@@ -84,7 +84,7 @@ export function Popover(props: PopoverProps): JSX.Element {
                 closeTimer = undefined
                 openTimer = setTimeout(() => {
                   setHoverOpen(true)
-                  rootProps.onOpenChange?.(true)
+                  restProps.onOpenChange?.(true)
                   openTimer = undefined
                 }, behaviorProps.openDelay)
               }
@@ -97,7 +97,7 @@ export function Popover(props: PopoverProps): JSX.Element {
                 openTimer = undefined
                 closeTimer = setTimeout(() => {
                   setHoverOpen(false)
-                  rootProps.onOpenChange?.(false)
+                  restProps.onOpenChange?.(false)
                   closeTimer = undefined
                 }, behaviorProps.closeDelay)
               }

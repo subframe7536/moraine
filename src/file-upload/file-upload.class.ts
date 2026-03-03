@@ -1,6 +1,12 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import {
+  SURFACE_HIGHLIGHT_VARIANT,
+  SURFACE_INVALID_VARIANT,
+  TEXT_SIZE_VARIANT,
+} from '../shared/cva-common.class'
+
 export const fileUploadRootVariants = cva('relative flex flex-col', {
   defaultVariants: {
     size: 'md',
@@ -37,9 +43,7 @@ export const fileUploadBaseVariants = cva(
         lg: 'min-h-32 gap-2.5 px-4.5 py-3.5 text-sm',
         xl: 'min-h-36 gap-3 px-5 py-4 text-base',
       },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
       dragging: {
         true: 'border-primary bg-primary/8',
       },
@@ -47,9 +51,7 @@ export const fileUploadBaseVariants = cva(
         true: 'border-dashed',
         false: 'border-solid',
       },
-      invalid: {
-        true: 'border-destructive ring-3 ring-destructive/20 dark:border-destructive/50 dark:ring-destructive/40',
-      },
+      invalid: SURFACE_INVALID_VARIANT,
     },
   },
 )
@@ -92,13 +94,7 @@ export const fileUploadLabelVariants = cva('font-medium text-foreground', {
     size: 'md',
   },
   variants: {
-    size: {
-      xs: 'text-xs',
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-sm',
-      xl: 'text-base',
-    },
+    size: TEXT_SIZE_VARIANT,
   },
 })
 
@@ -107,13 +103,7 @@ export const fileUploadDescriptionVariants = cva('text-muted-foreground', {
     size: 'md',
   },
   variants: {
-    size: {
-      xs: 'text-xs',
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-sm',
-      xl: 'text-base',
-    },
+    size: TEXT_SIZE_VARIANT,
   },
 })
 
@@ -188,13 +178,7 @@ export const fileUploadNameVariants = cva('truncate font-medium text-foreground'
     size: 'md',
   },
   variants: {
-    size: {
-      xs: 'text-xs',
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-sm',
-      xl: 'text-base',
-    },
+    size: TEXT_SIZE_VARIANT,
   },
 })
 

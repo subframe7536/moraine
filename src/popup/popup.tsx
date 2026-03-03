@@ -35,9 +35,8 @@ export function Popup(props: PopupProps): JSX.Element {
     },
     props,
   ) as PopupProps
-  const [rootStateProps, behaviorProps, contentProps, rootProps] = splitProps(
+  const [behaviorProps, contentProps, restProps] = splitProps(
     merged,
-    ['open', 'defaultOpen', 'onOpenChange'],
     ['overlay', 'scrollable', 'transition', 'fullscreen', 'dismissible', 'onClosePrevent'],
     ['content', 'classes', 'children'],
   )
@@ -139,11 +138,7 @@ export function Popup(props: PopupProps): JSX.Element {
   )
 
   return (
-    <KobalteDialog.Root
-      preventScroll={!behaviorProps.scrollable}
-      {...rootStateProps}
-      {...rootProps}
-    >
+    <KobalteDialog.Root preventScroll={!behaviorProps.scrollable} {...restProps}>
       <Show when={contentProps.children}>
         <KobalteDialog.Trigger
           as="span"

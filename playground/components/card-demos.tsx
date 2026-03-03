@@ -47,12 +47,8 @@ export const CardDemos = () => (
       <div class="flex gap-2">
         <Card
           compact
-          header={
-            <>
-              <h3 class="font-semibold">Small Card</h3>
-              <p class="text-xs text-muted-foreground">Compact</p>
-            </>
-          }
+          title="Small Card"
+          description="Compact"
           footer={<Button size="sm">Action</Button>}
           classes={{ root: 'max-w-xs h-fit' }}
         >
@@ -97,7 +93,7 @@ export const CardDemos = () => (
           title="Meeting Notes"
           description="Transcript summary from the latest client sync."
           action={
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="secondary">
               Transcribe
             </Button>
           }

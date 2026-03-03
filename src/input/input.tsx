@@ -31,7 +31,7 @@ import {
 
 type InputStyleVariantProps = Pick<InputVariantProps, 'size' | 'variant' | 'highlight'>
 
-export type InputValue = string | number | boolean | null | undefined
+export type InputValue = string | number | undefined
 
 type InputSlots = 'root' | 'input' | 'leading' | 'trailing'
 
@@ -84,7 +84,7 @@ export function Input(props: InputProps): JSX.Element {
     props,
   )
 
-  const [formProps, baseProps, adornmentStyleProps] = splitProps(
+  const [formProps, baseProps, styleProps] = splitProps(
     merged as InputProps,
     [
       ...FORM_ID_NAME_DISABLED_KEYS,
@@ -105,8 +105,8 @@ export function Input(props: InputProps): JSX.Element {
     () => ({
       id: formProps.id,
       name: formProps.name,
-      size: adornmentStyleProps.size,
-      highlight: adornmentStyleProps.highlight,
+      size: styleProps.size,
+      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     {
@@ -120,11 +120,11 @@ export function Input(props: InputProps): JSX.Element {
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
   const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
-    if (adornmentStyleProps.leading) {
+    if (styleProps.leading) {
       return 'leading'
     }
 
-    if (adornmentStyleProps.trailing) {
+    if (styleProps.trailing) {
       return 'trailing'
     }
 
@@ -132,25 +132,25 @@ export function Input(props: InputProps): JSX.Element {
   })
 
   const resolvedLeading = createMemo<IconName | undefined>(() => {
-    if (adornmentStyleProps.loading && loadingTarget() === 'leading') {
-      return adornmentStyleProps.loadingIcon
+    if (styleProps.loading && loadingTarget() === 'leading') {
+      return styleProps.loadingIcon
     }
 
-    return adornmentStyleProps.leading
+    return styleProps.leading
   })
   const resolvedTrailing = createMemo<IconName | undefined>(() => {
-    if (adornmentStyleProps.loading && loadingTarget() === 'trailing') {
-      return adornmentStyleProps.loadingIcon
+    if (styleProps.loading && loadingTarget() === 'trailing') {
+      return styleProps.loadingIcon
     }
 
-    return adornmentStyleProps.trailing
+    return styleProps.trailing
   })
 
   const isLeadingLoading = createMemo(() =>
-    Boolean(adornmentStyleProps.loading && loadingTarget() === 'leading'),
+    Boolean(styleProps.loading && loadingTarget() === 'leading'),
   )
   const isTrailingLoading = createMemo(() =>
-    Boolean(adornmentStyleProps.loading && loadingTarget() === 'trailing'),
+    Boolean(styleProps.loading && loadingTarget() === 'trailing'),
   )
 
   const iconSizeClass = createMemo(() => {
@@ -235,11 +235,11 @@ export function Input(props: InputProps): JSX.Element {
       class={inputRootVariants(
         {
           size: field.size(),
-          variant: adornmentStyleProps.variant,
+          variant: styleProps.variant,
           highlight: field.highlight(),
           disabled: field.disabled(),
         },
-        adornmentStyleProps.classes?.root,
+        styleProps.classes?.root,
       )}
       onPointerDown={onRootPointerDown}
     >
@@ -251,7 +251,7 @@ export function Input(props: InputProps): JSX.Element {
               {
                 size: field.size(),
               },
-              adornmentStyleProps.classes?.leading,
+              styleProps.classes?.leading,
             )}
           >
             <Icon
@@ -266,7 +266,7 @@ export function Input(props: InputProps): JSX.Element {
         id={field.id()}
         ref={(element) => (inputEl = element)}
         type={baseProps.type}
-        value={formProps.value as string | number | string[] | undefined}
+        value={formProps.value || styleProps.defaultValue}
         name={field.name()}
         placeholder={baseProps.placeholder}
         required={formProps.required}
@@ -292,7 +292,7 @@ export function Input(props: InputProps): JSX.Element {
             : inputEndPaddingNoSlotVariants({
                 size: field.size(),
               }),
-          adornmentStyleProps.classes?.input,
+          styleProps.classes?.input,
         )}
         onInput={onInput}
         onChange={onChange}
@@ -311,7 +311,7 @@ export function Input(props: InputProps): JSX.Element {
               {
                 size: field.size(),
               },
-              adornmentStyleProps.classes?.trailing,
+              styleProps.classes?.trailing,
             )}
           >
             <Icon

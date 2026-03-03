@@ -87,7 +87,7 @@ export function Slider(props: SliderProps): JSX.Element {
     props,
   )
 
-  const [formProps, rangeProps, styleProps, rootProps] = splitProps(
+  const [formProps, rangeProps, styleProps, restProps] = splitProps(
     merged as SliderProps,
     [...FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS, 'readOnly', 'onValueChange', 'onChange'],
     ['min', 'max', 'step', 'minStepsBetweenThumbs', 'orientation', 'inverted'],
@@ -224,7 +224,7 @@ export function Slider(props: SliderProps): JSX.Element {
         },
         styleProps.classes?.root,
       )}
-      {...rootProps}
+      {...restProps}
     >
       <KobalteSlider.Track
         data-slot="track"

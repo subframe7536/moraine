@@ -101,10 +101,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     props,
   )
 
-  const [formProps, rootStateProps, collectionProps, styleProps, rootProps] = splitProps(
+  const [formProps, collectionProps, styleProps, restProps] = splitProps(
     merged as RadioGroupProps,
     [...FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS],
-    ['value', 'defaultValue', 'required', 'readOnly'],
     ['legend', 'items'],
     ['variant', 'indicator', 'orientation', 'size', 'classes'],
   )
@@ -163,7 +162,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
   return (
     <KobalteRadioGroup.Root
-      {...rootStateProps}
       id={groupId()}
       name={field.name()}
       disabled={field.disabled()}
@@ -172,7 +170,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       data-slot="root"
       class={cn('relative', styleProps.classes?.root)}
       {...field.ariaAttrs()}
-      {...rootProps}
+      {...restProps}
     >
       <fieldset
         data-slot="fieldset"
@@ -192,7 +190,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
             class={radioGroupLegendVariants(
               {
                 size: field.size(),
-                required: rootStateProps.required,
+                required: restProps.required,
               },
               styleProps.classes?.legend,
             )}

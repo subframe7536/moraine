@@ -1,6 +1,12 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import {
+  SURFACE_HIGHLIGHT_VARIANT,
+  SURFACE_VARIANT_CLASSES,
+  TEXT_SIZE_VARIANT,
+} from '../shared/cva-common.class'
+
 export const textareaRootVariants = cva(
   'inline-flex w-full flex-col overflow-hidden rounded-md border border-input bg-transparent transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border data-invalid:effect-invalid',
   {
@@ -9,23 +15,9 @@ export const textareaRootVariants = cva(
       variant: 'outline',
     },
     variants: {
-      size: {
-        xs: 'text-xs',
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-sm',
-        xl: 'text-base',
-      },
-      variant: {
-        outline: 'bg-transparent',
-        soft: 'border-transparent bg-muted/50 hover:bg-muted',
-        subtle: 'border bg-muted',
-        ghost: 'border-transparent bg-transparent hover:bg-muted',
-        none: 'border-transparent bg-transparent',
-      },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      size: TEXT_SIZE_VARIANT,
+      variant: SURFACE_VARIANT_CLASSES,
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
       disabled: {
         true: 'cursor-not-allowed opacity-75',
       },

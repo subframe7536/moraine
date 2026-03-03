@@ -60,9 +60,8 @@ export function Dialog(props: ModalProps): JSX.Element {
     },
     props,
   ) as ModalProps
-  const [rootStateProps, behaviorProps, contentProps, rootProps] = splitProps(
+  const [behaviorProps, contentProps, restProps] = splitProps(
     merged,
-    ['id', 'open', 'defaultOpen', 'onOpenChange'],
     [
       'overlay',
       'scrollable',
@@ -145,7 +144,6 @@ export function Dialog(props: ModalProps): JSX.Element {
 
   return (
     <Popup
-      {...rootStateProps}
       overlay={behaviorProps.overlay}
       scrollable={behaviorProps.scrollable}
       transition={behaviorProps.transition}
@@ -174,7 +172,7 @@ export function Dialog(props: ModalProps): JSX.Element {
           {contentProps.body}
         </Card>
       }
-      {...rootProps}
+      {...restProps}
     >
       {contentProps.children}
     </Popup>

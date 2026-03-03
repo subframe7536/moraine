@@ -55,7 +55,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     },
     props,
   ) as ContextMenuProps
-  const [menuProps, local, rootProps] = splitProps(
+  const [menuProps, localProps, restProps] = splitProps(
     merged,
     [
       'size',
@@ -71,20 +71,20 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   )
 
   return (
-    <KobalteContextMenu.Root overflowPadding={4} {...rootProps}>
+    <KobalteContextMenu.Root overflowPadding={4} {...restProps}>
       <KobalteContextMenu.Trigger
         data-slot="trigger"
-        class={cn(local.classes?.trigger)}
+        class={cn(localProps.classes?.trigger)}
         disabled={menuProps.disabled}
       >
-        {local.children}
+        {localProps.children}
       </KobalteContextMenu.Trigger>
 
       <OverlayMenuBaseContent<ContextMenuItem>
         content={KobalteContextMenu.Content}
-        classes={local.classes}
+        classes={localProps.classes}
         {...menuProps}
-        rootSide={resolveOverlayMenuSide(rootProps.placement ?? 'right')}
+        rootSide={resolveOverlayMenuSide(restProps.placement ?? 'right')}
       />
     </KobalteContextMenu.Root>
   )

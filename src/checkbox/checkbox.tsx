@@ -59,7 +59,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     props,
   )
 
-  const [formProps, styleProps, rootProps] = splitProps(
+  const [formProps, styleProps, restProps] = splitProps(
     merged as CheckboxProps,
     [...FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS, 'formFieldBind'],
     [
@@ -115,7 +115,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
           }),
         styleProps.classes?.root,
       )}
-      {...rootProps}
+      {...restProps}
     >
       {(state) => (
         <>
@@ -188,7 +188,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
                       data-slot="label"
                       class={checkboxLabelVariants(
                         {
-                          required: rootProps.required,
+                          required: restProps.required,
                         },
                         styleProps.classes?.label,
                       )}
@@ -201,7 +201,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
                     data-slot="label"
                     class={checkboxLabelVariants(
                       {
-                        required: rootProps.required,
+                        required: restProps.required,
                       },
                       styleProps.classes?.label,
                     )}

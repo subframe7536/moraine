@@ -1,6 +1,8 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
+import { SURFACE_HIGHLIGHT_VARIANT } from '../shared/cva-common.class'
+
 export const sliderRootVariants = cva('relative flex touch-none select-none', {
   defaultVariants: {
     size: 'md',
@@ -21,7 +23,7 @@ export const sliderRootVariants = cva('relative flex touch-none select-none', {
       vertical: 'h-full min-h-44 flex-col items-center',
     },
     highlight: {
-      true: 'rounded-md ring-1 ring-border/50',
+      true: 'rounded-md surface-highlight',
     },
     disabled: {
       true: 'effect-dis',
@@ -49,9 +51,7 @@ export const sliderTrackVariants = cva(
         horizontal: 'w-full h-$slider-track-size before:(inset-x-0.5 inset-y-0)',
         vertical: 'h-full w-$slider-track-size before:(inset-x-0 inset-y-0.5)',
       },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
     },
   },
 )
@@ -87,9 +87,7 @@ export const sliderThumbVariants = cva(
         lg: 'size-4.5',
         xl: 'size-5',
       },
-      highlight: {
-        true: 'ring-1 ring-border/50',
-      },
+      highlight: SURFACE_HIGHLIGHT_VARIANT,
     },
   },
 )

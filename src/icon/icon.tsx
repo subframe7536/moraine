@@ -31,32 +31,36 @@ export type IconProps = IconBaseProps &
   Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'aria-hidden' | 'children'>
 
 export function Icon(props: IconProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])
+  const [localProps, restProps] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])
   const style = createMemo(() => {
-    if (!local.size) {
-      return local.style
+    if (!localProps.size) {
+      return localProps.style
     }
     return {
-      'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-      ...local.style,
+      'font-size': typeof localProps.size === 'number' ? `${localProps.size}px` : localProps.size,
+      ...localProps.style,
     }
   })
 
   return (
     <Dynamic
       component={
-        typeof local.name === 'string'
+        typeof localProps.name === 'string'
           ? 'span'
-          : typeof local.name === 'function'
-            ? local.name
-            : () => local.name as JSX.Element
+          : typeof localProps.name === 'function'
+            ? localProps.name
+            : () => localProps.name as JSX.Element
       }
-      data-slot={local['data-slot'] ?? 'icon'}
-      class={cn('inline-flex shrink-0', typeof local.name === 'string' && local.name, local.class)}
+      data-slot={localProps['data-slot'] ?? 'icon'}
+      class={cn(
+        'inline-flex shrink-0',
+        typeof localProps.name === 'string' && localProps.name,
+        localProps.class,
+      )}
       style={style()}
-      size={local.size}
-      {...rest}
-      aria-hidden={rest['aria-label'] ? undefined : true}
+      size={localProps.size}
+      {...restProps}
+      aria-hidden={restProps['aria-label'] ? undefined : true}
     />
   )
 }

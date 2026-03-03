@@ -29,7 +29,7 @@ type TextareaStyleVariantProps = Pick<
   'size' | 'variant' | 'highlight' | 'autoresize'
 >
 
-export type TextareaValue = string | number | null | undefined
+export type TextareaValue = string | number | undefined
 
 type TextareaSlots = 'root' | 'header' | 'base' | 'footer'
 
@@ -262,7 +262,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
         id={field.id()}
         ref={(element) => (textareaEl = element)}
         name={field.name()}
-        value={formProps.value as string | number | string[] | undefined}
+        value={formProps.value || styleProps.defaultValue}
         rows={layoutProps.rows ?? 3}
         placeholder={layoutProps.placeholder}
         required={formProps.required}

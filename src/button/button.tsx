@@ -79,7 +79,7 @@ function isPromiseLike(value: unknown): value is PromiseLikeWithFinally {
  * Rock UI Button built on top of Kobalte `Button.Root` with polymorphic `as` support.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
-  const [styleProps, stateProps, contentProps, rootProps] = splitProps(
+  const [styleProps, stateProps, contentProps, restProps] = splitProps(
     props as ButtonProps,
     ['class', 'variant', 'size', 'classes'],
     ['disabled', 'loading', 'loadingAuto', 'loadingIcon', 'onClick'],
@@ -132,7 +132,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       data-loading={isLoading() ? '' : undefined}
       disabled={isLoading() || stateProps.disabled}
       onClick={onClick}
-      {...rootProps}
+      {...restProps}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (

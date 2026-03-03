@@ -72,6 +72,18 @@ describe('presetTheme', () => {
     expect(preset.transformers?.some((item) => item.name === 'transformer-rock')).toBe(true)
   })
 
+  test('registers semantic surface shortcuts', () => {
+    const preset = presetTheme()
+    const shortcuts = new Map((preset.shortcuts ?? []) as Array<[string, string]>)
+
+    expect(shortcuts.get('surface-highlight')).toBe('ring-1 ring-border/50')
+    expect(shortcuts.get('surface-soft')).toBe('border-transparent bg-muted/50 hover:bg-muted')
+    expect(shortcuts.get('surface-subtle')).toBe('border bg-muted')
+    expect(shortcuts.get('surface-ghost')).toBe('border-transparent bg-transparent hover:bg-muted')
+    expect(shortcuts.get('surface-none')).toBe('border-transparent bg-transparent')
+    expect(shortcuts.get('hidden-hitless')).toBe('opacity-0 pointer-events-none')
+  })
+
   test('removes prefix globally for tsx ids', async () => {
     const output = await runRockTransform(
       `const view = <div class="${ROCK_PREFIX}a ${ROCK_PREFIX}b" />\nconst semantic = '${ROCK_PREFIX}token'`,
