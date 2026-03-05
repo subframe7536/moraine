@@ -1,7 +1,7 @@
 import { For, createSignal } from 'solid-js'
 
 import { Button, Form, FormField, Slider } from '../../src'
-import type { SliderValue } from '../../src/slider/slider'
+import type { SliderValue } from '../../src/forms/slider/slider'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 

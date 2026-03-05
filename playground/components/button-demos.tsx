@@ -1,7 +1,7 @@
 import { For, createSignal } from 'solid-js'
 
-import { Button } from '../../src/button/button'
-import type { ButtonVariantProps } from '../../src/button/button.class'
+import { Button } from '../../src/elements/button/button'
+import type { ButtonVariantProps } from '../../src/elements/button/button.class'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 

@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 
 import { Button, FileUpload, Form, FormField } from '../../src'
-import type { FileUploadValue } from '../../src/file-upload/file-upload'
+import type { FileUploadValue } from '../../src/forms/file-upload/file-upload'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 

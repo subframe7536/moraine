@@ -1,7 +1,7 @@
 import { For, createSignal } from 'solid-js'
 
 import { Select } from '../../src'
-import type { SelectOption } from '../../src/select/select'
+import type { SelectOption } from '../../src/forms/select/select'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 

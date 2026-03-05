@@ -12,7 +12,7 @@ import {
   Select,
   Textarea,
 } from '../../src'
-import type { SelectOption } from '../../src/select/select'
+import type { SelectOption } from '../../src/forms/select/select'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 
