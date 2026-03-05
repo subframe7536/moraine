@@ -154,6 +154,8 @@ export interface SelectBaseProps
   filterOption?: boolean | ((inputValue: string, option: SelectOption) => boolean)
   /** Property on option to filter by (default: label). */
   optionFilterProp?: string
+  /** Controls which click target can open the menu. */
+  openOnClick?: 'control' | 'trigger'
 
   /** Show a clear button when a value is selected. */
   allowClear?: boolean
@@ -310,6 +312,9 @@ export function Select(props: SelectProps): JSX.Element {
       variant: 'outline' as const,
       placeholder: '',
       allowClear: false,
+      triggerIcon: 'icon-chevron-down',
+      loadingIcon: 'icon-loading',
+      openOnClick: 'control' as const,
     },
     props,
   )
@@ -325,6 +330,7 @@ export function Select(props: SelectProps): JSX.Element {
       'onSearch',
       'filterOption',
       'optionFilterProp',
+      'openOnClick',
       'allowClear',
       'onClear',
       'tokenSeparators',
@@ -583,9 +589,27 @@ export function Select(props: SelectProps): JSX.Element {
   // <Show when={hasMatches()}> gate to swap in the full listbox during the
   // close animation — a visible flash of unfiltered options.
   let isDismissing = false
+  let isSearchComposing = false
+  let skipNextCommittedSearchValue: string | null = null
 
   // ---- Input change handler ----
   function handleInputChange(inputValue: string): void {
+    if (isSearchComposing) {
+      return
+    }
+
+    // Some IMEs emit an input event with the same final value right after
+    // compositionend. We already process the final value on compositionend,
+    // so skip one duplicate call.
+    if (skipNextCommittedSearchValue !== null) {
+      if (inputValue === skipNextCommittedSearchValue) {
+        skipNextCommittedSearchValue = null
+        return
+      }
+
+      skipNextCommittedSearchValue = null
+    }
+
     // Token separator check for tags mode
     if (isMultiple() && searchInteractionProps.tokenSeparators?.length) {
       const sepRegex = new RegExp(
@@ -768,10 +792,9 @@ export function Select(props: SelectProps): JSX.Element {
   }
 
   // ---- Close-auto-focus flags ----
-  // When the dropdown closes via interact-outside or Tab, we prevent the
-  // FocusScope's onUnmountAutoFocus from pulling focus back to the input.
+  // When the dropdown closes via interact-outside, prevent FocusScope from
+  // pulling focus back to the input.
   let closedByInteractOutside = false
-  let closedByTab = false
 
   // ---- Trigger mode ----
   // Use 'manual' so the dropdown only opens on explicit user actions
@@ -894,11 +917,12 @@ export function Select(props: SelectProps): JSX.Element {
     return (
       <IconButton
         data-slot="trigger"
-        name={renderDisplayProps.triggerIcon ?? 'icon-chevron-down'}
+        name={renderDisplayProps.triggerIcon}
         class={selectTriggerIconVariants({ size: field.size() }, styleProps.classes?.trigger)}
         loading={renderDisplayProps.loading}
         loadingIcon={renderDisplayProps.loadingIcon}
         {...props}
+        tabIndex={-1}
       />
     )
   }
@@ -947,25 +971,50 @@ export function Select(props: SelectProps): JSX.Element {
             styleProps.classes?.input,
           )}
           readOnly={!isSearchable()}
+          onInput={(event: InputEvent) => {
+            if (!isSearchable() || isSearchComposing || event.isComposing) {
+              return
+            }
+
+            const nextValue = (event.currentTarget as HTMLInputElement).value
+            if (nextValue.trim() !== '') {
+              openMenu()
+            }
+          }}
           onClick={() => {
-            // With triggerMode="manual", clicks don't auto-open.
-            // Open explicitly so click-to-open works.
-            openMenu()
+            if (searchInteractionProps.openOnClick === 'control') {
+              // With triggerMode="manual", clicks don't auto-open.
+              // Open explicitly so click-to-open works.
+              openMenu()
+            }
           }}
           onKeyDown={(e: KeyboardEvent) => {
             // Flag dismiss keys so handleInputChange skips setCurrentInputText
             // during Kobalte's synchronous resetInputValue call that follows.
-            if (e.key === 'Escape' || e.key === 'Tab') {
+            if (e.key === 'Escape' || (e.key === 'Tab' && context.isOpen())) {
               isDismissing = true
               queueMicrotask(() => {
                 isDismissing = false
               })
             }
 
-            // Track Tab so onCloseAutoFocus can let focus move naturally
-            // to the next focusable element instead of pulling it back.
             if (e.key === 'Tab') {
-              closedByTab = true
+              if (context.isOpen()) {
+                const selectionManager = context.listState().selectionManager()
+                const focusedKey = selectionManager.focusedKey()
+
+                if (focusedKey && !selectionManager.isDisabled(focusedKey)) {
+                  if (isMultiple()) {
+                    selectionManager.toggleSelection(focusedKey)
+                  } else {
+                    selectionManager.select(focusedKey)
+                  }
+                }
+
+                // Keep focus on the select after the first Tab when menu is open.
+                e.preventDefault()
+              }
+              return
             }
 
             // Prevent page scroll when navigating with arrow keys.
@@ -1033,9 +1082,11 @@ export function Select(props: SelectProps): JSX.Element {
             onPointerDown={(e) => {
               e.preventDefault()
               inputRef?.focus()
-              // With triggerMode="manual", focus alone won't open.
-              // Open explicitly so clicking the tags area opens the dropdown.
-              openMenu()
+              if (searchInteractionProps.openOnClick === 'control') {
+                // With triggerMode="manual", focus alone won't open.
+                // Open explicitly so clicking the tags area opens the dropdown.
+                openMenu()
+              }
             }}
           >
             <Show when={!isSearchable() && props.selectedOptions().length === 0}>
@@ -1100,7 +1151,15 @@ export function Select(props: SelectProps): JSX.Element {
         </Show>
 
         {/* Trigger icon */}
-        <Combobox.Trigger as={SelectTriggerIcon} />
+        <Combobox.Trigger
+          as={SelectTriggerIcon}
+          onClick={(event: MouseEvent) => {
+            // fireEvent.click doesn't emit pointerdown; provide a click fallback.
+            if (!(event.currentTarget as HTMLElement).dataset.pointerType) {
+              openMenu()
+            }
+          }}
+        />
       </>
     )
   }
@@ -1160,10 +1219,9 @@ export function Select(props: SelectProps): JSX.Element {
             })
           }}
           onCloseAutoFocus={(e: Event) => {
-            if (closedByInteractOutside || closedByTab) {
+            if (closedByInteractOutside) {
               e.preventDefault()
               closedByInteractOutside = false
-              closedByTab = false
             }
           }}
         >

@@ -142,6 +142,7 @@ describe('Textarea', () => {
   test('applies trim, number, lazy and empty value strategy modifiers', async () => {
     const onTrim = vi.fn()
     const onLazy = vi.fn()
+    const onPreserve = vi.fn()
     const onNullable = vi.fn()
     const onOptional = vi.fn()
 
@@ -149,11 +150,13 @@ describe('Textarea', () => {
       <>
         <Textarea onValueChange={onTrim} modelModifiers={{ trim: true }} />
         <Textarea onValueChange={onLazy} modelModifiers={{ lazy: true }} />
+        <Textarea onValueChange={onPreserve} />
         <Textarea onValueChange={onNullable} modelModifiers={{ empty: 'null' }} />
         <Textarea onValueChange={onOptional} modelModifiers={{ empty: 'undefined' }} />
       </>
     ))
-    const [trimInput, lazyInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
+    const [trimInput, lazyInput, preserveInput, nullableInput, optionalInput] =
+      screen.getAllByRole('textbox')
 
     await fireEvent.input(trimInput!, {
       target: { value: ' value  ' },
@@ -172,6 +175,12 @@ describe('Textarea', () => {
     })
     expect(onLazy).toHaveBeenLastCalledWith('lazy')
 
+    await fireEvent.input(preserveInput!, {
+      target: { value: '' },
+      currentTarget: { value: '' },
+    })
+    expect(onPreserve).toHaveBeenLastCalledWith('')
+
     await fireEvent.input(nullableInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
@@ -183,6 +192,65 @@ describe('Textarea', () => {
       currentTarget: { value: '' },
     })
     expect(onOptional).toHaveBeenLastCalledWith(undefined)
+  })
+
+  test('does not commit composition text on compositionend and blur', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <Textarea defaultValue="keep" onValueChange={onValueChange} />)
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+
+    await fireEvent.compositionStart(textarea)
+    await fireEvent.input(textarea, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+
+    textarea.value = '你'
+    await fireEvent.compositionEnd(textarea)
+    await fireEvent.blur(textarea)
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+    expect(textarea.value).toBe('keep')
+
+    await fireEvent.input(textarea, {
+      target: { value: '你' },
+      currentTarget: { value: '你' },
+      isComposing: false,
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith('你')
+  })
+
+  test('keeps lazy modifier behavior with IME composition', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Textarea onValueChange={onValueChange} modelModifiers={{ lazy: true }} />
+    ))
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+
+    await fireEvent.compositionStart(textarea)
+    await fireEvent.input(textarea, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+    textarea.value = '你'
+    await fireEvent.compositionEnd(textarea)
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+
+    await fireEvent.change(textarea, {
+      target: { value: '你' },
+      currentTarget: { value: '你' },
+    })
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith('你')
   })
 
   test('syncs trimmed DOM value on change', async () => {

@@ -103,6 +103,51 @@ describe('Select - single mode', () => {
     })
   })
 
+  test('opens dropdown when trigger icon is clicked', async () => {
+    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+
+    expect(queryBody('[data-slot="content"]')).toBeNull()
+
+    await fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).not.toBeNull()
+    })
+  })
+
+  test('restricts control click opening when openOnClick is trigger', async () => {
+    const screen = render(() => (
+      <Select options={FRUITS} openOnClick="trigger" placeholder="Pick a fruit" />
+    ))
+    const input = screen.getByRole('combobox')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+
+    await fireEvent.click(input)
+    expect(queryBody('[data-slot="content"]')).toBeNull()
+
+    await fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).not.toBeNull()
+    })
+  })
+
+  test('restricts multiple tags container click opening when openOnClick is trigger', async () => {
+    const screen = render(() => (
+      <Select multiple options={FRUITS} openOnClick="trigger" placeholder="Pick fruits" />
+    ))
+    const tagsContainer = screen.container.querySelector('[data-slot="tagsContainer"]')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+
+    await fireEvent.pointerDown(tagsContainer as HTMLElement, { button: 0 })
+    expect(queryBody('[data-slot="content"]')).toBeNull()
+
+    await fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).not.toBeNull()
+    })
+  })
+
   test('shows options when opened', () => {
     render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
 
@@ -376,6 +421,144 @@ describe('Select - search', () => {
 
     expect(onSearch).toHaveBeenCalledWith('app')
   })
+
+  test('opens menu when searchable input becomes non-empty in trigger-only mode', async () => {
+    const screen = render(() => (
+      <Select options={FRUITS} showSearch openOnClick="trigger" placeholder="Search..." />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.click(input)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+
+    await fireEvent.input(input, {
+      target: { value: 'app' },
+      currentTarget: { value: 'app' },
+    })
+
+    await waitFor(() => {
+      expect(input.getAttribute('aria-expanded')).toBe('true')
+    })
+  })
+
+  test('does not emit intermediate onSearch value during IME composition', async () => {
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <Select
+        options={FRUITS}
+        showSearch
+        openOnClick="trigger"
+        onSearch={onSearch}
+        placeholder="Search..."
+      />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+
+    expect(onSearch).toHaveBeenCalledTimes(0)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+
+    input.value = '你'
+    await fireEvent.compositionEnd(input)
+
+    await waitFor(() => {
+      expect(onSearch).toHaveBeenCalledTimes(1)
+      expect(onSearch).toHaveBeenLastCalledWith('你')
+      expect(input.getAttribute('aria-expanded')).toBe('true')
+    })
+
+    await fireEvent.input(input, {
+      target: { value: '你' },
+      currentTarget: { value: '你' },
+      isComposing: false,
+    })
+
+    expect(onSearch).toHaveBeenCalledTimes(1)
+  })
+
+  test('does not commit IME search text when composition ends by outside blur', async () => {
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <>
+        <Select
+          options={FRUITS}
+          showSearch
+          openOnClick="trigger"
+          onSearch={onSearch}
+          placeholder="Search..."
+        />
+        <button type="button">Outside</button>
+      </>
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    const outside = screen.getByRole('button', { name: 'Outside' })
+
+    await fireEvent.input(input, {
+      target: { value: 'keep' },
+      currentTarget: { value: 'keep' },
+    })
+    expect(onSearch).toHaveBeenCalledTimes(1)
+    expect(onSearch).toHaveBeenLastCalledWith('keep')
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+
+    input.value = '你'
+    fireEvent.compositionEnd(input)
+    fireEvent.blur(input, { relatedTarget: outside })
+    await fireEvent.click(outside)
+
+    await waitFor(() => {
+      expect(onSearch).toHaveBeenCalledTimes(1)
+      expect(input.value).toBe('keep')
+    })
+  })
+
+  test('defers token separator processing until IME composition ends', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select
+        multiple
+        showSearch
+        options={FRUITS}
+        tokenSeparators={[',']}
+        onChange={onChange}
+        placeholder="Type..."
+      />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, {
+      target: { value: 'custom,' },
+      currentTarget: { value: 'custom,' },
+      data: 'm',
+      isComposing: true,
+    })
+
+    expect(onChange).toHaveBeenCalledTimes(0)
+
+    input.value = 'custom,'
+    await fireEvent.compositionEnd(input)
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenLastCalledWith(['custom'])
+      expect(input.value).toBe('')
+    })
+  })
 })
 
 describe('Select - clear', () => {
@@ -632,6 +815,97 @@ describe('Select - render hooks', () => {
 })
 
 describe('Select - keyboard and ARIA', () => {
+  test('removes trigger icon from tab order', () => {
+    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+  })
+
+  test('when menu is open, first Tab selects focused single item and keeps focus', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <Select options={FRUITS} onChange={onChange} placeholder="Pick" />
+        <button type="button">Next</button>
+      </>
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    input.focus()
+    await fireEvent.click(input)
+    await waitFor(() => {
+      expect(input.getAttribute('aria-expanded')).toBe('true')
+    })
+
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    const firstTabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    input.dispatchEvent(firstTabEvent)
+
+    expect(firstTabEvent.defaultPrevented).toBe(true)
+
+    await waitFor(() => {
+      expect(input.getAttribute('aria-expanded')).toBe('false')
+    })
+
+    expect(document.activeElement).toBe(input)
+    expect(onChange).toHaveBeenCalledWith('apple')
+
+    const secondTabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    input.dispatchEvent(secondTabEvent)
+
+    expect(secondTabEvent.defaultPrevented).toBe(false)
+  })
+
+  test('when menu is open in multiple mode, Tab toggles focused option', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select multiple options={FRUITS} showSearch onChange={onChange} placeholder="Pick" />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    input.focus()
+    await fireEvent.click(input)
+    await waitFor(() => {
+      expect(input.getAttribute('aria-expanded')).toBe('true')
+    })
+
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    input.dispatchEvent(tabEvent)
+
+    expect(tabEvent.defaultPrevented).toBe(true)
+    expect(onChange).toHaveBeenCalledWith(['apple'])
+  })
+
+  test('does not prevent Tab when menu is closed', () => {
+    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    input.dispatchEvent(tabEvent)
+
+    expect(tabEvent.defaultPrevented).toBe(false)
+  })
+
   test('has correct combobox role', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
 

@@ -117,17 +117,44 @@ export function Textarea(props: TextareaProps): JSX.Element {
       deferInputValidation: true,
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: styleProps.defaultValue || '',
+      initialValue: styleProps.defaultValue ?? '',
     }),
   )
 
   let textareaEl: HTMLTextAreaElement | undefined
+  let isComposing = false
+  let hasPendingCompositionValue = false
+  let lastCommittedDomValue = toDisplayValue(styleProps.defaultValue)
+
+  function toDisplayValue(value: TextareaValue | null | undefined): string {
+    if (value === null || value === undefined) {
+      return ''
+    }
+
+    return String(value)
+  }
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
+  const textareaValueProps = createMemo<{
+    value?: TextareaValue
+    defaultValue?: TextareaValue
+  }>(() => {
+    if (formProps.value !== undefined) {
+      return { value: formProps.value }
+    }
+
+    if (styleProps.defaultValue !== undefined) {
+      return { defaultValue: styleProps.defaultValue }
+    }
+
+    return {}
+  })
 
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<TextareaChangeValue>(value, formProps.modelModifiers)
 
+    lastCommittedDomValue = toDisplayValue(nextValue)
+    hasPendingCompositionValue = false
     field.setFormValue(nextValue)
     formProps.onValueChange?.(nextValue)
     field.emit('input')
@@ -166,7 +193,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
     autoResize()
     callHandler(event, formProps.onInput as JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>)
 
-    if (!isLazy()) {
+    if (!isLazy() && !isComposing && !event.isComposing) {
       updateInputValue(event.currentTarget.value)
     }
   }
@@ -174,7 +201,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const onChange: JSX.EventHandlerUnion<HTMLTextAreaElement, Event> = (event) => {
     const value = event.currentTarget.value
 
-    if (isLazy()) {
+    if (isLazy() && !isComposing) {
       updateInputValue(value)
     }
 
@@ -187,6 +214,12 @@ export function Textarea(props: TextareaProps): JSX.Element {
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
+    if (hasPendingCompositionValue) {
+      event.currentTarget.value =
+        formProps.value !== undefined ? toDisplayValue(formProps.value) : lastCommittedDomValue
+      hasPendingCompositionValue = false
+    }
+
     field.emit('blur')
     callHandler(event, formProps.onBlur as any)
   }
@@ -194,6 +227,15 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const onFocus: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
     field.emit('focus')
     callHandler(event, formProps.onFocus as any)
+  }
+
+  const onCompositionStart: JSX.EventHandlerUnion<HTMLTextAreaElement, CompositionEvent> = () => {
+    isComposing = true
+    hasPendingCompositionValue = true
+  }
+
+  const onCompositionEnd: JSX.EventHandlerUnion<HTMLTextAreaElement, CompositionEvent> = () => {
+    isComposing = false
   }
 
   const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
@@ -266,7 +308,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
         id={field.id()}
         ref={(element) => (textareaEl = element)}
         name={field.name()}
-        value={formProps.value ?? styleProps.defaultValue}
         rows={layoutProps.rows ?? 3}
         placeholder={layoutProps.placeholder}
         required={formProps.required}
@@ -287,7 +328,10 @@ export function Textarea(props: TextareaProps): JSX.Element {
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
+        onCompositionStart={onCompositionStart}
+        onCompositionEnd={onCompositionEnd}
         {...field.ariaAttrs()}
+        {...textareaValueProps()}
       />
 
       {layoutProps.children}

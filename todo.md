@@ -16,17 +16,19 @@
 - [x] add `Accordion`
 - [x] cleanup form system and test standard schema with `valibot`
 - [x] remove context bridge in select/file-upload, migrate custom render usage from function to jsx for fine grain update, reuse parent components's props first
-- [ ] bug: uncontrolled switch in demo does not work
-- [ ] bug: input number horizen does not work
-- [ ] bug: slider controlled demo does not trigger hover ring, all button hover should become pointer cursor
-- [ ] bug: after select menu selected, only `tab` twice can focus next trigger
-- [ ] bug: focus ring should be override when form item is invalid
-- [ ] bug: input should compatible to IME
-- [ ] bug: uncontrolled switch in demo not works
-- [ ] bug: form field standard schema demo, email input cannot cleanup when press backspace, text `a` - press backspace -> `undefined`
+- [x] bug: uncontrolled switch in demo does not work
+- [x] bug: input number horizen does not work
+- [x] bug: slider controlled demo does not trigger hover ring, all button hover should become pointer cursor
+- [x] bug: after select menu selected, only `tab` twice can focus next trigger
+- [x] bug: focus ring should be override when form item is invalid
+- [x] bug: input should compatible to IME
+- [x] bug: form field standard schema demo, email input cannot cleanup when press backspace, text `a` - press backspace -> `undefined`
 
 # Future
 
+- [ ] input composition event handle
+- [ ] input number style polish
+- [ ] invalid state should become `data-*` driven css instead of a variant in cva
 - [ ] refactor: overlay components should consider children as content, and provider optional trigger prop
 - [ ] custom true/false value in form elements
 - [ ] tooltip variant

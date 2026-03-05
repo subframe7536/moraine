@@ -140,8 +140,22 @@ export const SelectDemos = () => {
           <Select
             options={FRUIT_OPTIONS}
             showSearch
+            openOnClick="trigger"
             leadingIcon="i-lucide-search"
             placeholder="Search fruits..."
+          />
+        </div>
+      </DemoSection>
+
+      <DemoSection
+        title="Trigger-only Open"
+        description="Only the trigger icon can open the dropdown menu."
+      >
+        <div class="max-w-sm">
+          <Select
+            options={FRUIT_OPTIONS}
+            openOnClick="trigger"
+            placeholder="Click trigger icon to open..."
           />
         </div>
       </DemoSection>
@@ -202,6 +216,9 @@ export const SelectDemos = () => {
         <div class="max-w-sm space-y-2">
           <Select
             options={infiniteOptions()}
+            classes={{
+              listbox: 'max-h-100',
+            }}
             onScrollEnd={() => {
               if (loadingMore()) {
                 return

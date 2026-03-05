@@ -109,6 +109,8 @@ describe('Slider', () => {
     expect(root?.getAttribute('data-orientation')).toBe('vertical')
     expect(track?.className).toContain('bg-input')
     expect(thumb?.className).toContain('data-dragging:(scale-120 shadow-none)')
+    expect(thumb?.className).toContain('cursor-pointer')
+    expect(thumb?.className).toContain('hover:effect-fv')
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 

@@ -8,7 +8,7 @@ import {
 } from '../../shared/cva-common.class'
 
 export const selectControlVariants = cva(
-  'flex w-full cursor-pointer items-center rounded-md border border-input bg-transparent text-foreground outline-none transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border data-invalid:effect-invalid',
+  'flex w-full cursor-pointer items-center rounded-md border border-input bg-transparent text-foreground outline-none transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -110,7 +110,7 @@ export const selectClearVariants = cva(
 )
 
 export const selectItemVariants = cva(
-  'flex items-center justify-between gap-2 rounded-sm py-1 ps-3 pe-2 outline-none data-disabled:effect-dis data-highlighted:(bg-accent text-accent-foreground)',
+  'flex cursor-pointer items-center justify-between gap-2 rounded-sm py-1 ps-3 pe-2 outline-none data-disabled:effect-dis data-highlighted:(bg-accent text-accent-foreground)',
   {
     defaultVariants: {
       size: 'md',

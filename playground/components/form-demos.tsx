@@ -194,7 +194,6 @@ export const FormDemos = () => {
               description="Uncontrolled state"
               checkedIcon="i-lucide-bell"
               uncheckedIcon="i-lucide-bell-off"
-              disabled
             />
           </div>
 

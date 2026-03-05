@@ -118,8 +118,33 @@ export function Input(props: InputProps): JSX.Element {
   )
 
   let inputEl: HTMLInputElement | undefined
+  let isComposing = false
+  let hasPendingCompositionValue = false
+  let lastCommittedDomValue = toDisplayValue(styleProps.defaultValue)
+
+  function toDisplayValue(value: InputValue | null | undefined): string {
+    if (value === null || value === undefined) {
+      return ''
+    }
+
+    return String(value)
+  }
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
+  const inputValueProps = createMemo<{
+    value?: InputValue
+    defaultValue?: InputValue
+  }>(() => {
+    if (formProps.value !== undefined) {
+      return { value: formProps.value }
+    }
+
+    if (styleProps.defaultValue !== undefined) {
+      return { defaultValue: styleProps.defaultValue }
+    }
+
+    return {}
+  })
   const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
     if (styleProps.leading) {
       return 'leading'
@@ -172,6 +197,8 @@ export function Input(props: InputProps): JSX.Element {
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<InputValue>(value, formProps.modelModifiers)
 
+    lastCommittedDomValue = toDisplayValue(nextValue)
+    hasPendingCompositionValue = false
     field.setFormValue(nextValue)
     formProps.onValueChange?.(nextValue)
     field.emit('input')
@@ -180,7 +207,7 @@ export function Input(props: InputProps): JSX.Element {
   const onInput: JSX.EventHandlerUnion<HTMLInputElement, InputEvent> = (event) => {
     callHandler(event, formProps.onInput as JSX.EventHandlerUnion<HTMLInputElement, InputEvent>)
 
-    if (!isLazy()) {
+    if (!isLazy() && !isComposing && !event.isComposing) {
       updateInputValue(event.currentTarget.value)
     }
   }
@@ -188,7 +215,7 @@ export function Input(props: InputProps): JSX.Element {
   const onChange: JSX.EventHandlerUnion<HTMLInputElement, Event> = (event) => {
     const value = event.currentTarget.value
 
-    if (isLazy()) {
+    if (isLazy() && !isComposing) {
       updateInputValue(value)
     }
 
@@ -201,6 +228,12 @@ export function Input(props: InputProps): JSX.Element {
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
+    if (hasPendingCompositionValue) {
+      event.currentTarget.value =
+        formProps.value !== undefined ? toDisplayValue(formProps.value) : lastCommittedDomValue
+      hasPendingCompositionValue = false
+    }
+
     field.emit('blur')
     callHandler(event, formProps.onBlur as any)
   }
@@ -208,6 +241,15 @@ export function Input(props: InputProps): JSX.Element {
   const onFocus: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
     field.emit('focus')
     callHandler(event, formProps.onFocus as any)
+  }
+
+  const onCompositionStart: JSX.EventHandlerUnion<HTMLInputElement, CompositionEvent> = () => {
+    isComposing = true
+    hasPendingCompositionValue = true
+  }
+
+  const onCompositionEnd: JSX.EventHandlerUnion<HTMLInputElement, CompositionEvent> = () => {
+    isComposing = false
   }
 
   const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
@@ -266,7 +308,6 @@ export function Input(props: InputProps): JSX.Element {
         id={field.id()}
         ref={(element) => (inputEl = element)}
         type={baseProps.type}
-        value={formProps.value ?? styleProps.defaultValue}
         name={field.name()}
         placeholder={baseProps.placeholder}
         required={formProps.required}
@@ -298,7 +339,10 @@ export function Input(props: InputProps): JSX.Element {
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
+        onCompositionStart={onCompositionStart}
+        onCompositionEnd={onCompositionEnd}
         {...field.ariaAttrs()}
+        {...inputValueProps()}
       />
 
       {baseProps.children}

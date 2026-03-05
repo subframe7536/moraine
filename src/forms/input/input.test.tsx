@@ -192,17 +192,19 @@ describe('Input', () => {
 
   test('supports lazy and empty value strategy modifiers', async () => {
     const lazyChange = vi.fn()
+    const preserveChange = vi.fn()
     const nullableChange = vi.fn()
     const optionalChange = vi.fn()
 
     const screen = render(() => (
       <>
         <Input onValueChange={lazyChange} modelModifiers={{ lazy: true }} />
+        <Input onValueChange={preserveChange} />
         <Input onValueChange={nullableChange} modelModifiers={{ empty: 'null' }} />
         <Input onValueChange={optionalChange} modelModifiers={{ empty: 'undefined' }} />
       </>
     ))
-    const [lazyInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
+    const [lazyInput, preserveInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
 
     await fireEvent.input(lazyInput!, {
       target: { value: 'lazy' },
@@ -215,6 +217,12 @@ describe('Input', () => {
     })
     expect(lazyChange).toHaveBeenLastCalledWith('lazy')
 
+    await fireEvent.input(preserveInput!, {
+      target: { value: '' },
+      currentTarget: { value: '' },
+    })
+    expect(preserveChange).toHaveBeenLastCalledWith('')
+
     await fireEvent.input(nullableInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
@@ -226,6 +234,65 @@ describe('Input', () => {
       currentTarget: { value: '' },
     })
     expect(optionalChange).toHaveBeenLastCalledWith(undefined)
+  })
+
+  test('does not commit composition text on compositionend and blur', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <Input defaultValue="keep" onValueChange={onValueChange} />)
+    const input = screen.getByRole('textbox') as HTMLInputElement
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+
+    input.value = '你'
+    await fireEvent.compositionEnd(input)
+    await fireEvent.blur(input)
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+    expect(input.value).toBe('keep')
+
+    await fireEvent.input(input, {
+      target: { value: '你' },
+      currentTarget: { value: '你' },
+      isComposing: false,
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith('你')
+  })
+
+  test('keeps lazy modifier behavior with IME composition', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Input onValueChange={onValueChange} modelModifiers={{ lazy: true }} />
+    ))
+    const input = screen.getByRole('textbox') as HTMLInputElement
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, {
+      target: { value: 'n' },
+      currentTarget: { value: 'n' },
+      data: 'n',
+      isComposing: true,
+    })
+    input.value = '你'
+    await fireEvent.compositionEnd(input)
+
+    expect(onValueChange).toHaveBeenCalledTimes(0)
+
+    await fireEvent.change(input, {
+      target: { value: '你' },
+      currentTarget: { value: '你' },
+    })
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenLastCalledWith('你')
   })
 
   test('syncs trimmed DOM value on change', async () => {

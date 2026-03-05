@@ -46,16 +46,53 @@ describe('InputNumber', () => {
     })
   })
 
-  test('uses vertical orientation behavior and hides decrement control', () => {
+  test('uses vertical orientation behavior with both controls', async () => {
     const screen = render(() => <InputNumber orientation="vertical" defaultValue={1} />)
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const incrementButton = screen.getByRole('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const incrementSlot = screen.container.querySelector(
+      '[data-slot="increment"]',
+    ) as HTMLElement | null
+    const decrementSlot = screen.container.querySelector(
+      '[data-slot="decrement"]',
+    ) as HTMLElement | null
 
-    expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
-    expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
+    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
+      'icon-chevron-up',
+    )
+    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
+      'icon-chevron-down',
+    )
+    expect(incrementSlot?.className).toContain('h-1/2')
+    expect(decrementSlot?.className).toContain('h-1/2')
+    expect(incrementButton.className).toContain('h-full')
+    expect(decrementButton.className).toContain('h-full')
+    expect(base?.className).toContain('pe-9')
+    expect(base?.className).not.toContain('ps-9')
 
-    const icon = screen
-      .getByRole('button', { name: 'Increment' })
-      .querySelector('[data-slot="icon"]') as HTMLElement | null
-    expect(icon?.className).toContain('icon-chevron-up')
+    await fireEvent.click(incrementButton)
+    expect(spinbutton.value).toBe('2')
+
+    await fireEvent.click(decrementButton)
+    expect(spinbutton.value).toBe('1')
+  })
+
+  test('uses explicit horizontal orientation behavior with both controls', async () => {
+    const screen = render(() => <InputNumber orientation="horizontal" defaultValue={1} />)
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const incrementButton = screen.getByRole('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+
+    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-plus')
+    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-minus')
+
+    await fireEvent.click(incrementButton)
+    expect(spinbutton.value).toBe('2')
+
+    await fireEvent.click(decrementButton)
+    expect(spinbutton.value).toBe('1')
   })
 
   test('hides both increment and decrement controls when disabled by props', () => {

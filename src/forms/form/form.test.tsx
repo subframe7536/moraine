@@ -538,6 +538,38 @@ describe('Form', () => {
     })
   })
 
+  test('schema with uncontrolled Input keeps empty string when clearing value', async () => {
+    const schema = v.object({
+      email: v.pipe(
+        v.string(),
+        v.minLength(1, 'Email is required.'),
+        v.email('Enter a valid email.'),
+      ),
+    })
+    const onError = vi.fn()
+
+    const screen = render(() => (
+      <Form schema={schema} onError={onError}>
+        <FormField name="email" label="Email" required>
+          <Input type="email" placeholder="john@example.com" />
+        </FormField>
+      </Form>
+    ))
+
+    const input = screen.getByRole('textbox') as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'a' }, currentTarget: { value: 'a' } })
+    await fireEvent.input(input, { target: { value: '' }, currentTarget: { value: '' } })
+
+    expect(input.value).toBe('')
+
+    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('Email is required.')).not.toBeNull()
+    })
+  })
+
   test('schema with Checkbox component maps unchecked value to required message', async () => {
     const schema = v.object({
       agree: v.pipe(v.boolean(), v.value(true, 'You must accept the terms.')),

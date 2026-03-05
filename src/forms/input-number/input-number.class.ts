@@ -22,44 +22,78 @@ export const inputNumberBaseVariants = cva(
       variant: SURFACE_VARIANT_CLASSES,
       orientation: {
         horizontal: 'text-center',
-        vertical: 'text-center pe-9',
+        vertical: 'text-center',
       },
       highlight: SURFACE_HIGHLIGHT_VARIANT,
     },
   },
 )
 
-export const inputNumberIncrementPaddingVariants = cva('pe-9', {
+export const inputNumberPaddingVariants = cva('', {
   defaultVariants: {
     size: 'md',
+    orientation: 'horizontal',
+    increment: false,
+    decrement: false,
   },
   variants: {
     size: {
-      xs: 'pe-7',
-      sm: 'pe-8',
-      md: 'pe-9',
-      lg: 'pe-10',
-      xl: 'pe-11',
+      xs: '',
+      sm: '',
+      md: '',
+      lg: '',
+      xl: '',
+    },
+    orientation: {
+      horizontal: '',
+      vertical: '',
+    },
+    increment: {
+      true: '',
+      false: '',
+    },
+    decrement: {
+      true: '',
+      false: '',
+    },
+  },
+  compoundVariants: [
+    { orientation: 'horizontal', increment: true, size: 'xs', class: 'pe-7' },
+    { orientation: 'horizontal', increment: true, size: 'sm', class: 'pe-8' },
+    { orientation: 'horizontal', increment: true, size: 'md', class: 'pe-9' },
+    { orientation: 'horizontal', increment: true, size: 'lg', class: 'pe-10' },
+    { orientation: 'horizontal', increment: true, size: 'xl', class: 'pe-11' },
+    { orientation: 'horizontal', decrement: true, size: 'xs', class: 'ps-7' },
+    { orientation: 'horizontal', decrement: true, size: 'sm', class: 'ps-8' },
+    { orientation: 'horizontal', decrement: true, size: 'md', class: 'ps-9' },
+    { orientation: 'horizontal', decrement: true, size: 'lg', class: 'ps-10' },
+    { orientation: 'horizontal', decrement: true, size: 'xl', class: 'ps-11' },
+    { orientation: 'vertical', increment: true, size: 'xs', class: 'pe-7' },
+    { orientation: 'vertical', increment: true, size: 'sm', class: 'pe-8' },
+    { orientation: 'vertical', increment: true, size: 'md', class: 'pe-9' },
+    { orientation: 'vertical', increment: true, size: 'lg', class: 'pe-10' },
+    { orientation: 'vertical', increment: true, size: 'xl', class: 'pe-11' },
+    { orientation: 'vertical', decrement: true, size: 'xs', class: 'pe-7' },
+    { orientation: 'vertical', decrement: true, size: 'sm', class: 'pe-8' },
+    { orientation: 'vertical', decrement: true, size: 'md', class: 'pe-9' },
+    { orientation: 'vertical', decrement: true, size: 'lg', class: 'pe-10' },
+    { orientation: 'vertical', decrement: true, size: 'xl', class: 'pe-11' },
+  ],
+})
+
+export const inputNumberControlButtonVariants = cva('', {
+  defaultVariants: {
+    orientation: 'horizontal',
+  },
+  variants: {
+    orientation: {
+      horizontal: '',
+      vertical: 'h-full min-h-0 w-full rounded-none px-0',
     },
   },
 })
 
-export const inputNumberDecrementPaddingVariants = cva('ps-9', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      xs: 'ps-7',
-      sm: 'ps-8',
-      md: 'ps-9',
-      lg: 'ps-10',
-      xl: 'ps-11',
-    },
-  },
-})
-
-export const inputNumberIncrementVariants = cva('absolute flex items-center', {
+export const inputNumberIncrementVariants = cva('absolute flex items-center justify-center', {
   defaultVariants: {
     orientation: 'horizontal',
     disabled: false,
@@ -67,7 +101,7 @@ export const inputNumberIncrementVariants = cva('absolute flex items-center', {
   variants: {
     orientation: {
       horizontal: 'inset-y-0 end-0 pe-1',
-      vertical: 'top-0 end-0 pe-1',
+      vertical: 'top-0 end-0 h-1/2',
     },
     disabled: {
       true: 'effect-dis',
@@ -75,7 +109,7 @@ export const inputNumberIncrementVariants = cva('absolute flex items-center', {
   },
 })
 
-export const inputNumberDecrementVariants = cva('absolute flex items-center', {
+export const inputNumberDecrementVariants = cva('absolute flex items-center justify-center', {
   defaultVariants: {
     orientation: 'horizontal',
     disabled: false,
@@ -83,7 +117,7 @@ export const inputNumberDecrementVariants = cva('absolute flex items-center', {
   variants: {
     orientation: {
       horizontal: 'inset-y-0 start-0 ps-1',
-      vertical: 'bottom-0 end-0 pe-1',
+      vertical: 'bottom-0 end-0 h-1/2',
     },
     disabled: {
       true: 'effect-dis',
