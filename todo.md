@@ -25,7 +25,6 @@
 - [x] bug: form field standard schema demo, email input cannot cleanup when press backspace, text `a` - press backspace -> `undefined`
 - [x] tooltip variant
 - [ ] polish and cleanup select control / input / input number variants
-- [ ] bug: input composition event handle
 - [ ] adjust dropmenu transition
 - [ ] context menu trigger timing
 

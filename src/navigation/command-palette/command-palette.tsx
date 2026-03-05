@@ -74,6 +74,8 @@ export interface CommandPaletteProps {
   /** Controlled search term */
   searchTerm?: string
   onSearchTermChange?: (term: string) => void
+  /** Maximum search text length applied on commit. */
+  searchMaxLength?: number
   /** @default true */
   autofocus?: boolean
   /** @default 'icon-search' */
@@ -228,20 +230,30 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   // the '' we just set during navigation.
   let suppressInputChange = false
 
-  function updateSearch(value: string): void {
-    if (suppressInputChange) {
-      suppressInputChange = false
-      return
-    }
+  function applySearchValue(value: string): void {
     if (merged.searchTerm === undefined) {
       setInternalSearch(value)
     }
     merged.onSearchTermChange?.(value)
   }
 
+  function updateSearchFromInput(value: string): void {
+    if (suppressInputChange) {
+      suppressInputChange = false
+      return
+    }
+
+    applySearchValue(value)
+  }
+
   createEffect(() => {
-    if (merged.searchTerm !== undefined && inputRef && inputRef.value !== merged.searchTerm) {
-      inputRef.value = merged.searchTerm
+    if (merged.searchTerm === undefined || !inputRef) {
+      return
+    }
+
+    const nextValue = merged.searchTerm
+    if (inputRef.value !== nextValue) {
+      inputRef.value = nextValue
     }
   })
 
@@ -283,7 +295,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   // ── Navigation ────────────────────────────────────────────────────────────
   function navigateBack(): void {
     setHistory((h) => h.slice(0, -1))
-    updateSearch('')
+    applySearchValue('')
     // Clear the DOM input after Kobalte's sync updates finish
     queueMicrotask(() => {
       if (inputRef) {
@@ -302,7 +314,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         ...h,
         { id: `history-${item.key}`, label: item.itemLabel, items: item.children! },
       ])
-      updateSearch('')
+      applySearchValue('')
       // Suppress the onInputChange('More') Kobalte fires after selection
       suppressInputChange = true
       queueMicrotask(() => {
@@ -343,7 +355,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         merged.classes?.root,
       )}
       onChange={handleChange}
-      onInputChange={updateSearch}
+      onInputChange={updateSearchFromInput}
       allowsEmptyCollection={true}
       closeOnSelection={false}
       shouldFocusWrap={true}
@@ -499,6 +511,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           )}
           placeholder={merged.placeholder}
           autofocus={merged.autofocus}
+          maxLength={merged.searchMaxLength}
           onKeyDown={handleKeyDown}
         />
 

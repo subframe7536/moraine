@@ -50,6 +50,7 @@ export interface InputBaseProps
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
   autofocus?: boolean
   autofocusDelay?: number
+  maxLength?: number
   /**
    * String will regard as icon class, for UnoCSS's presetIcons to render
    */
@@ -97,7 +98,7 @@ export function Input(props: InputProps): JSX.Element {
       'onChange',
       ...FORM_INPUT_INTERACTION_KEYS,
     ],
-    ['type', 'placeholder', 'autocomplete', 'autofocus', 'autofocusDelay', 'children'],
+    ['type', 'placeholder', 'autocomplete', 'autofocus', 'autofocusDelay', 'maxLength', 'children'],
   )
 
   const generatedId = useId(() => formProps.id, 'input')
@@ -118,19 +119,9 @@ export function Input(props: InputProps): JSX.Element {
   )
 
   let inputEl: HTMLInputElement | undefined
-  let isComposing = false
-  let hasPendingCompositionValue = false
-  let lastCommittedDomValue = toDisplayValue(styleProps.defaultValue)
-
-  function toDisplayValue(value: InputValue | null | undefined): string {
-    if (value === null || value === undefined) {
-      return ''
-    }
-
-    return String(value)
-  }
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
+
   const inputValueProps = createMemo<{
     value?: InputValue
     defaultValue?: InputValue
@@ -197,8 +188,6 @@ export function Input(props: InputProps): JSX.Element {
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<InputValue>(value, formProps.modelModifiers)
 
-    lastCommittedDomValue = toDisplayValue(nextValue)
-    hasPendingCompositionValue = false
     field.setFormValue(nextValue)
     formProps.onValueChange?.(nextValue)
     field.emit('input')
@@ -207,7 +196,7 @@ export function Input(props: InputProps): JSX.Element {
   const onInput: JSX.EventHandlerUnion<HTMLInputElement, InputEvent> = (event) => {
     callHandler(event, formProps.onInput as JSX.EventHandlerUnion<HTMLInputElement, InputEvent>)
 
-    if (!isLazy() && !isComposing && !event.isComposing) {
+    if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
     }
   }
@@ -215,7 +204,7 @@ export function Input(props: InputProps): JSX.Element {
   const onChange: JSX.EventHandlerUnion<HTMLInputElement, Event> = (event) => {
     const value = event.currentTarget.value
 
-    if (isLazy() && !isComposing) {
+    if (isLazy()) {
       updateInputValue(value)
     }
 
@@ -228,12 +217,6 @@ export function Input(props: InputProps): JSX.Element {
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
-    if (hasPendingCompositionValue) {
-      event.currentTarget.value =
-        formProps.value !== undefined ? toDisplayValue(formProps.value) : lastCommittedDomValue
-      hasPendingCompositionValue = false
-    }
-
     field.emit('blur')
     callHandler(event, formProps.onBlur as any)
   }
@@ -241,15 +224,6 @@ export function Input(props: InputProps): JSX.Element {
   const onFocus: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
     field.emit('focus')
     callHandler(event, formProps.onFocus as any)
-  }
-
-  const onCompositionStart: JSX.EventHandlerUnion<HTMLInputElement, CompositionEvent> = () => {
-    isComposing = true
-    hasPendingCompositionValue = true
-  }
-
-  const onCompositionEnd: JSX.EventHandlerUnion<HTMLInputElement, CompositionEvent> = () => {
-    isComposing = false
   }
 
   const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
@@ -314,6 +288,7 @@ export function Input(props: InputProps): JSX.Element {
         disabled={field.disabled()}
         readOnly={formProps.readOnly}
         autocomplete={baseProps.autocomplete}
+        maxLength={baseProps.maxLength}
         data-slot="base"
         class={inputBaseVariants(
           {
@@ -339,8 +314,6 @@ export function Input(props: InputProps): JSX.Element {
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
-        onCompositionStart={onCompositionStart}
-        onCompositionEnd={onCompositionEnd}
         {...field.ariaAttrs()}
         {...inputValueProps()}
       />

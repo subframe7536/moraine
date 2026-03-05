@@ -47,6 +47,7 @@ export interface TextareaBaseProps
   placeholder?: string
   autofocus?: boolean
   autofocusDelay?: number
+  maxLength?: number
   autoresizeDelay?: number
   rows?: number
   maxrows?: number
@@ -98,6 +99,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
       'autoresizeDelay',
       'autofocus',
       'autofocusDelay',
+      'maxLength',
       'header',
       'footer',
       'children',
@@ -122,19 +124,9 @@ export function Textarea(props: TextareaProps): JSX.Element {
   )
 
   let textareaEl: HTMLTextAreaElement | undefined
-  let isComposing = false
-  let hasPendingCompositionValue = false
-  let lastCommittedDomValue = toDisplayValue(styleProps.defaultValue)
-
-  function toDisplayValue(value: TextareaValue | null | undefined): string {
-    if (value === null || value === undefined) {
-      return ''
-    }
-
-    return String(value)
-  }
 
   const isLazy = createMemo(() => Boolean(formProps.modelModifiers?.lazy))
+
   const textareaValueProps = createMemo<{
     value?: TextareaValue
     defaultValue?: TextareaValue
@@ -153,8 +145,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<TextareaChangeValue>(value, formProps.modelModifiers)
 
-    lastCommittedDomValue = toDisplayValue(nextValue)
-    hasPendingCompositionValue = false
     field.setFormValue(nextValue)
     formProps.onValueChange?.(nextValue)
     field.emit('input')
@@ -193,7 +183,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
     autoResize()
     callHandler(event, formProps.onInput as JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>)
 
-    if (!isLazy() && !isComposing && !event.isComposing) {
+    if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
     }
   }
@@ -201,7 +191,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const onChange: JSX.EventHandlerUnion<HTMLTextAreaElement, Event> = (event) => {
     const value = event.currentTarget.value
 
-    if (isLazy() && !isComposing) {
+    if (isLazy()) {
       updateInputValue(value)
     }
 
@@ -214,12 +204,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
-    if (hasPendingCompositionValue) {
-      event.currentTarget.value =
-        formProps.value !== undefined ? toDisplayValue(formProps.value) : lastCommittedDomValue
-      hasPendingCompositionValue = false
-    }
-
     field.emit('blur')
     callHandler(event, formProps.onBlur as any)
   }
@@ -227,15 +211,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const onFocus: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
     field.emit('focus')
     callHandler(event, formProps.onFocus as any)
-  }
-
-  const onCompositionStart: JSX.EventHandlerUnion<HTMLTextAreaElement, CompositionEvent> = () => {
-    isComposing = true
-    hasPendingCompositionValue = true
-  }
-
-  const onCompositionEnd: JSX.EventHandlerUnion<HTMLTextAreaElement, CompositionEvent> = () => {
-    isComposing = false
   }
 
   const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
@@ -254,7 +229,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
   createEffect(
     on(
       () => formProps.value,
-      () => {
+      (_value) => {
         // oxlint-disable-next-line solid/reactivity
         queueMicrotask(() => {
           autoResize()
@@ -313,6 +288,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
         required={formProps.required}
         disabled={field.disabled()}
         readOnly={formProps.readOnly}
+        maxLength={layoutProps.maxLength}
         data-slot="base"
         class={textareaBaseVariants(
           {
@@ -328,8 +304,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
-        onCompositionStart={onCompositionStart}
-        onCompositionEnd={onCompositionEnd}
         {...field.ariaAttrs()}
         {...textareaValueProps()}
       />

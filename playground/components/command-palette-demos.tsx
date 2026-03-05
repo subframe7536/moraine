@@ -126,8 +126,8 @@ export function CommandPaletteDemos() {
           }
           classes={{ content: 'top-1/4 translate-y-0' }}
         >
-          <Button variant="outline">
-            Search... <Kbd value={['⌘', 'K']} />
+          <Button variant="outline" trailing={<Kbd value={['⌘', 'K']} />}>
+            Search...
           </Button>
         </Popup>
       </DemoSection>

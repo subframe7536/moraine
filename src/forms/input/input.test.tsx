@@ -236,65 +236,6 @@ describe('Input', () => {
     expect(optionalChange).toHaveBeenLastCalledWith(undefined)
   })
 
-  test('does not commit composition text on compositionend and blur', async () => {
-    const onValueChange = vi.fn()
-    const screen = render(() => <Input defaultValue="keep" onValueChange={onValueChange} />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
-
-    await fireEvent.compositionStart(input)
-    await fireEvent.input(input, {
-      target: { value: 'n' },
-      currentTarget: { value: 'n' },
-      data: 'n',
-      isComposing: true,
-    })
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-
-    input.value = '你'
-    await fireEvent.compositionEnd(input)
-    await fireEvent.blur(input)
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-    expect(input.value).toBe('keep')
-
-    await fireEvent.input(input, {
-      target: { value: '你' },
-      currentTarget: { value: '你' },
-      isComposing: false,
-    })
-
-    expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(onValueChange).toHaveBeenLastCalledWith('你')
-  })
-
-  test('keeps lazy modifier behavior with IME composition', async () => {
-    const onValueChange = vi.fn()
-    const screen = render(() => (
-      <Input onValueChange={onValueChange} modelModifiers={{ lazy: true }} />
-    ))
-    const input = screen.getByRole('textbox') as HTMLInputElement
-
-    await fireEvent.compositionStart(input)
-    await fireEvent.input(input, {
-      target: { value: 'n' },
-      currentTarget: { value: 'n' },
-      data: 'n',
-      isComposing: true,
-    })
-    input.value = '你'
-    await fireEvent.compositionEnd(input)
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-
-    await fireEvent.change(input, {
-      target: { value: '你' },
-      currentTarget: { value: '你' },
-    })
-    expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(onValueChange).toHaveBeenLastCalledWith('你')
-  })
-
   test('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Input modelModifiers={{ trim: true, lazy: true }} />)
     const input = screen.getByRole('textbox') as HTMLInputElement

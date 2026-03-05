@@ -150,6 +150,8 @@ export interface SelectBaseProps
   defaultSearchValue?: string
   /** Called when the search input changes. */
   onSearch?: (value: string) => void
+  /** Maximum search text length applied on final commit. */
+  searchMaxLength?: number
   /** Filter function or boolean. `false` disables filtering. */
   filterOption?: boolean | ((inputValue: string, option: SelectOption) => boolean)
   /** Property on option to filter by (default: label). */
@@ -328,6 +330,7 @@ export function Select(props: SelectProps): JSX.Element {
       'searchValue',
       'defaultSearchValue',
       'onSearch',
+      'searchMaxLength',
       'filterOption',
       'optionFilterProp',
       'openOnClick',
@@ -494,19 +497,24 @@ export function Select(props: SelectProps): JSX.Element {
   // ---- Input ref for controlled search ----
   let inputRef: HTMLInputElement | undefined
 
+  // ---- Current input text tracking (for create-tag item) ----
+  const [currentInputText, setCurrentInputText] = createSignal('')
+
   createEffect(
     on(
       () => searchInteractionProps.searchValue,
       (searchValue) => {
-        if (searchValue !== undefined && inputRef) {
+        if (searchValue === undefined || !inputRef) {
+          return
+        }
+
+        if (inputRef.value !== searchValue) {
           inputRef.value = searchValue
         }
+        setCurrentInputText(searchValue)
       },
     ),
   )
-
-  // ---- Current input text tracking (for create-tag item) ----
-  const [currentInputText, setCurrentInputText] = createSignal('')
 
   // ---- Value lookup ----
   function findOptionByValue(val: SelectValue): NormalizedOption | undefined {
@@ -589,31 +597,9 @@ export function Select(props: SelectProps): JSX.Element {
   // <Show when={hasMatches()}> gate to swap in the full listbox during the
   // close animation — a visible flash of unfiltered options.
   let isDismissing = false
-  let isSearchComposing = false
-  let skipNextCommittedSearchValue: string | null = null
-  let hasPendingSearchCompositionCommit = false
-  let shouldCancelSearchCompositionCommit = false
-  let pendingSearchCompositionCommitToken = 0
-  let valueBeforeSearchComposition = ''
 
   // ---- Input change handler ----
   function handleInputChange(inputValue: string): void {
-    if (isSearchComposing) {
-      return
-    }
-
-    // Some IMEs emit an input event with the same final value right after
-    // compositionend. We already process the final value on compositionend,
-    // so skip one duplicate call.
-    if (skipNextCommittedSearchValue !== null) {
-      if (inputValue === skipNextCommittedSearchValue) {
-        skipNextCommittedSearchValue = null
-        return
-      }
-
-      skipNextCommittedSearchValue = null
-    }
-
     // Token separator check for tags mode
     if (isMultiple() && searchInteractionProps.tokenSeparators?.length) {
       const sepRegex = new RegExp(
@@ -975,8 +961,9 @@ export function Select(props: SelectProps): JSX.Element {
             styleProps.classes?.input,
           )}
           readOnly={!isSearchable()}
+          maxLength={searchInteractionProps.searchMaxLength}
           onInput={(event: InputEvent) => {
-            if (!isSearchable() || isSearchComposing || event.isComposing) {
+            if (!isSearchable()) {
               return
             }
 
@@ -984,49 +971,6 @@ export function Select(props: SelectProps): JSX.Element {
             if (nextValue.trim() !== '') {
               openMenu()
             }
-          }}
-          onCompositionStart={(event: CompositionEvent) => {
-            if (!isSearchable()) {
-              return
-            }
-
-            isSearchComposing = true
-            hasPendingSearchCompositionCommit = false
-            shouldCancelSearchCompositionCommit = false
-            valueBeforeSearchComposition = (event.currentTarget as HTMLInputElement).value
-          }}
-          onCompositionEnd={(event: CompositionEvent) => {
-            if (!isSearchable()) {
-              return
-            }
-
-            const finalValue = (event.currentTarget as HTMLInputElement).value
-            const commitToken = ++pendingSearchCompositionCommitToken
-
-            isSearchComposing = false
-            hasPendingSearchCompositionCommit = true
-
-            queueMicrotask(() => {
-              if (commitToken !== pendingSearchCompositionCommitToken) {
-                return
-              }
-
-              hasPendingSearchCompositionCommit = false
-
-              if (shouldCancelSearchCompositionCommit) {
-                shouldCancelSearchCompositionCommit = false
-                if (inputRef) {
-                  inputRef.value = valueBeforeSearchComposition
-                }
-                return
-              }
-
-              handleInputChange(finalValue)
-              skipNextCommittedSearchValue = finalValue
-              if (finalValue.trim() !== '') {
-                openMenu()
-              }
-            })
           }}
           onClick={() => {
             if (searchInteractionProps.openOnClick === 'control') {
@@ -1100,12 +1044,7 @@ export function Select(props: SelectProps): JSX.Element {
             e.preventDefault()
           }}
           onFocus={() => field.emit('focus')}
-          onBlur={() => {
-            if (isSearchComposing || hasPendingSearchCompositionCommit) {
-              shouldCancelSearchCompositionCommit = true
-            }
-            field.emit('blur')
-          }}
+          onBlur={() => field.emit('blur')}
         />
       )
     }

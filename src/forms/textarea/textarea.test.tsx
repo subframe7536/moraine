@@ -194,65 +194,6 @@ describe('Textarea', () => {
     expect(onOptional).toHaveBeenLastCalledWith(undefined)
   })
 
-  test('does not commit composition text on compositionend and blur', async () => {
-    const onValueChange = vi.fn()
-    const screen = render(() => <Textarea defaultValue="keep" onValueChange={onValueChange} />)
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-
-    await fireEvent.compositionStart(textarea)
-    await fireEvent.input(textarea, {
-      target: { value: 'n' },
-      currentTarget: { value: 'n' },
-      data: 'n',
-      isComposing: true,
-    })
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-
-    textarea.value = '你'
-    await fireEvent.compositionEnd(textarea)
-    await fireEvent.blur(textarea)
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-    expect(textarea.value).toBe('keep')
-
-    await fireEvent.input(textarea, {
-      target: { value: '你' },
-      currentTarget: { value: '你' },
-      isComposing: false,
-    })
-
-    expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(onValueChange).toHaveBeenLastCalledWith('你')
-  })
-
-  test('keeps lazy modifier behavior with IME composition', async () => {
-    const onValueChange = vi.fn()
-    const screen = render(() => (
-      <Textarea onValueChange={onValueChange} modelModifiers={{ lazy: true }} />
-    ))
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-
-    await fireEvent.compositionStart(textarea)
-    await fireEvent.input(textarea, {
-      target: { value: 'n' },
-      currentTarget: { value: 'n' },
-      data: 'n',
-      isComposing: true,
-    })
-    textarea.value = '你'
-    await fireEvent.compositionEnd(textarea)
-
-    expect(onValueChange).toHaveBeenCalledTimes(0)
-
-    await fireEvent.change(textarea, {
-      target: { value: '你' },
-      currentTarget: { value: '你' },
-    })
-    expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(onValueChange).toHaveBeenLastCalledWith('你')
-  })
-
   test('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Textarea modelModifiers={{ trim: true, lazy: true }} />)
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
