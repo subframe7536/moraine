@@ -35,6 +35,20 @@ describe('ContextMenu', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
+  test('does not open on left click', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Open by right click only' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.click(screen.getByText('Row Item'))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
   test('fires onOpenChange when opened and blocks opening when disabled', async () => {
     const onOpenChange = vi.fn()
 
@@ -78,6 +92,125 @@ describe('ContextMenu', () => {
 
     expect(disabledOnOpenChange).not.toHaveBeenCalled()
     disabledScreen.unmount()
+  })
+
+  test('supports controlled open state and reports right-click open attempts', async () => {
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <ContextMenu open={false} onOpenChange={onOpenChange} items={[{ label: 'Controlled item' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('supports defaultOpen without anchor coordinates', async () => {
+    render(() => (
+      <ContextMenu defaultOpen items={[{ label: 'Default open item' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.textContent).toContain('Default open item')
+    })
+  })
+
+  test('opens after 700ms touch long press', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+
+      await vi.advanceTimersByTimeAsync(699)
+      expect(onOpenChange).not.toHaveBeenCalled()
+
+      await vi.advanceTimersByTimeAsync(1)
+      expect(onOpenChange).toHaveBeenCalledWith(true)
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('dismisses menu when right-clicking opened menu content', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Pinned action' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const event = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 18,
+      clientY: 24,
+    })
+    const notCanceled = content.dispatchEvent(event)
+
+    expect(notCanceled).toBe(false)
+    expect(event.defaultPrevented).toBe(true)
+    expect(
+      screen.getByText('Row Item').closest('[data-slot="trigger"]')?.getAttribute('aria-expanded'),
+    ).toBe('false')
+    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+  })
+
+  test('dismisses menu when right-clicking trigger again while open', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Pinned action' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    const row = screen.getByText('Row Item')
+
+    await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const event = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 16,
+      clientY: 22,
+    })
+    const notCanceled = row.dispatchEvent(event)
+
+    expect(notCanceled).toBe(false)
+    expect(event.defaultPrevented).toBe(true)
+    expect(row.closest('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe('false')
+    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -232,17 +365,33 @@ describe('ContextMenu', () => {
   })
 
   test('does not open when context menu trigger is disabled', async () => {
-    const screen = render(() => (
-      <ContextMenu disabled items={[{ label: 'Disabled entry' }]}>
-        <div>Row Item</div>
-      </ContextMenu>
-    ))
+    vi.useFakeTimers()
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
+    try {
+      const screen = render(() => (
+        <ContextMenu disabled items={[{ label: 'Disabled entry' }]}>
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
 
-    await waitFor(() => {
+      const row = screen.getByText('Row Item')
+      await fireEvent.contextMenu(row, { clientX: 24, clientY: 32 })
+
+      await waitFor(() => {
+        expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      })
+
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 30,
+        clientY: 42,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-    })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   test('supports checkbox toggle and keeps disabled item from selecting', async () => {
