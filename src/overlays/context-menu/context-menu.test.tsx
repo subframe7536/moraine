@@ -283,4 +283,21 @@ describe('ContextMenu', () => {
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
   })
+
+  test('destructive item icon does not force muted color class', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="itemLeading"]')).not.toBeNull()
+    })
+
+    const leading = document.body.querySelector('[data-slot="itemLeading"]') as HTMLElement
+    expect(leading.className).not.toContain('text-muted-foreground')
+  })
 })

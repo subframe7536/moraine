@@ -48,7 +48,7 @@ export interface DropdownMenuBaseProps {
 export type DropdownMenuProps = DropdownMenuBaseProps &
   Omit<
     KobalteDropdownMenu.DropdownMenuRootProps,
-    keyof DropdownMenuBaseProps | 'children' | 'class'
+    keyof DropdownMenuBaseProps | 'children' | 'class' | 'arrowPadding'
   >
 
 export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
@@ -62,7 +62,16 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   ) as DropdownMenuProps
   const [menuProps, localProps, restProps] = splitProps(
     merged,
-    ['size', 'items', 'checkedIcon', 'submenuIcon', 'itemRender', 'contentTop', 'contentBottom'],
+    [
+      'size',
+      'disabled',
+      'items',
+      'checkedIcon',
+      'submenuIcon',
+      'itemRender',
+      'contentTop',
+      'contentBottom',
+    ],
     ['classes', 'children'],
   )
 
@@ -73,7 +82,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         tabIndex={-1}
         data-slot="trigger"
         class={cn('outline-none', localProps.classes?.trigger)}
-        disabled={restProps.disabled}
+        disabled={menuProps.disabled}
       >
         {localProps.children}
       </KobalteDropdownMenu.Trigger>

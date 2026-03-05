@@ -44,7 +44,10 @@ export interface ContextMenuBaseProps {
 }
 
 export type ContextMenuProps = ContextMenuBaseProps &
-  Omit<KobalteContextMenu.ContextMenuRootProps, keyof ContextMenuBaseProps | 'children' | 'class'>
+  Omit<
+    KobalteContextMenu.ContextMenuRootProps,
+    keyof ContextMenuBaseProps | 'children' | 'class' | 'arrowPadding'
+  >
 
 export function ContextMenu(props: ContextMenuProps): JSX.Element {
   const merged = mergeProps(

@@ -25,11 +25,10 @@ export const overlayMenuItemVariants = cva(
 export type OverlayMenuItemVariantProps = VariantProps<typeof overlayMenuItemVariants>
 
 export const overlayMenuContentVariants = cva(
-  'z-50 origin-$kb-popper-content-transform-origin bg-popover text-popover-foreground outline-none data-expanded:(animate-in fade-in-0 zoom-in-95) data-closed:(animate-out fade-out-0 zoom-out-95) duration-150',
+  'z-50 origin-$kb-popper-content-transform-origin bg-popover text-popover-foreground outline-none flex flex-col min-w-32 rounded-lg p-1 shadow-lg ring-1 ring-foreground/10 data-expanded:(animate-in fade-in-0 zoom-in-95) data-closed:(animate-out fade-out-0 zoom-out-95) duration-150',
   {
     defaultVariants: {
       side: 'right',
-      sub: false,
     },
     variants: {
       side: {
@@ -37,10 +36,6 @@ export const overlayMenuContentVariants = cva(
         right: 'ml-$kb-popper-content-overflow-padding data-expanded:slide-in-from-l-2',
         bottom: 'mt-$kb-popper-content-overflow-padding data-expanded:slide-in-from-t-2',
         left: 'mr-$kb-popper-content-overflow-padding data-expanded:slide-in-from-r-2',
-      },
-      sub: {
-        true: 'min-w-32 rounded-lg border p-1 shadow-lg',
-        false: 'flex flex-col min-w-36 rounded-lg p-1 shadow-md ring-1 ring-foreground/10',
       },
     },
   },

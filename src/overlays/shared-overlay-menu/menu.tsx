@@ -80,7 +80,7 @@ export function OverlayMenuBaseContent<
           <span
             data-slot="itemLeading"
             class={cn(
-              'col-start-1 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground',
+              'col-start-1 inline-flex size-4 shrink-0 items-center justify-center',
               props.classes?.itemLeading,
             )}
           >
@@ -118,10 +118,7 @@ export function OverlayMenuBaseContent<
           )}
         >
           <Show when={contentProps.hasChildren}>
-            <Icon
-              name={props.submenuIcon}
-              class={cn('text-muted-foreground text-sm', props.classes?.itemSub)}
-            />
+            <Icon name={props.submenuIcon} class={cn('text-sm', props.classes?.itemSub)} />
           </Show>
 
           <Show when={!contentProps.hasChildren}>
@@ -238,17 +235,19 @@ export function OverlayMenuBaseContent<
             />
           </SubTrigger>
 
-          <SubContent
-            data-slot="content"
-            class={overlayMenuContentVariants(
-              { side: props.rootSide === 'left' ? 'left' : 'right', sub: true },
-              props.classes?.content,
-            )}
-          >
-            <Show when={props.contentTop}>{(slot) => slot()({ sub: true })}</Show>
-            <RenderGroups sourceItems={nodeProps.item.children} depth={nodeProps.depth + 1} />
-            <Show when={props.contentBottom}>{(slot) => slot()({ sub: true })}</Show>
-          </SubContent>
+          <Portal>
+            <SubContent
+              data-slot="content"
+              class={overlayMenuContentVariants(
+                { side: props.rootSide === 'left' ? 'left' : 'right' },
+                props.classes?.content,
+              )}
+            >
+              <Show when={props.contentTop}>{(slot) => slot()({ sub: true })}</Show>
+              <RenderGroups sourceItems={nodeProps.item.children} depth={nodeProps.depth + 1} />
+              <Show when={props.contentBottom}>{(slot) => slot()({ sub: true })}</Show>
+            </SubContent>
+          </Portal>
         </Sub>
       </Show>
     )
@@ -275,10 +274,7 @@ export function OverlayMenuBaseContent<
     <Portal>
       <props.content
         data-slot="content"
-        class={overlayMenuContentVariants(
-          { side: props.rootSide, sub: false },
-          props.classes?.content,
-        )}
+        class={overlayMenuContentVariants({ side: props.rootSide }, props.classes?.content)}
       >
         <Show when={props.contentTop}>{(slot) => slot()({ sub: false })}</Show>
         <RenderGroups sourceItems={props.items} depth={0} />

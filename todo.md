@@ -24,9 +24,9 @@
 - [x] bug: input should compatible to IME
 - [x] bug: form field standard schema demo, email input cannot cleanup when press backspace, text `a` - press backspace -> `undefined`
 - [x] tooltip variant
+- [x] adjust dropmenu transition
+- [ ] optimize context menu trigger timing, or implement context by dropdown menu
 - [ ] polish and cleanup select control / input / input number variants
-- [ ] adjust dropmenu transition
-- [ ] context menu trigger timing
 
 # Future
 

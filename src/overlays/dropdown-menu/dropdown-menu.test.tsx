@@ -277,4 +277,51 @@ describe('DropdownMenu', () => {
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
   })
+
+  test('destructive item icon does not force muted color class', async () => {
+    render(() => (
+      <DropdownMenu
+        defaultOpen
+        items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
+      >
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="itemLeading"]')).not.toBeNull()
+    })
+
+    const leading = document.body.querySelector('[data-slot="itemLeading"]') as HTMLElement
+    expect(leading.className).not.toContain('text-muted-foreground')
+  })
+
+  test('renders submenu content through portal instead of nesting inside root content', async () => {
+    render(() => (
+      <DropdownMenu
+        defaultOpen
+        items={[
+          {
+            label: 'More',
+            defaultOpen: true,
+            children: [{ label: 'Nested action' }],
+          },
+        ]}
+      >
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="content"]').length).toBeGreaterThanOrEqual(
+        2,
+      )
+    })
+
+    const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
+    const root = contents[0] as HTMLElement
+    const sub = contents[1] as HTMLElement
+
+    expect(root.contains(sub)).toBe(false)
+  })
 })
