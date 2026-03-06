@@ -76,8 +76,8 @@ describe('Input', () => {
     const screen = render(() => <Input />)
     const input = screen.getByRole('textbox')
 
-    expect(input.className).toContain('ps-3.5')
-    expect(input.className).toContain('pe-3.5')
+    expect(input.className).toContain('ps-2.5')
+    expect(input.className).toContain('pe-2.5')
   })
 
   test('uses slot start padding when leading slot is present', () => {
@@ -85,14 +85,14 @@ describe('Input', () => {
     const input = screen.getByRole('textbox')
 
     expect(input.className).toContain('ps-2')
-    expect(input.className).toContain('pe-3.5')
+    expect(input.className).toContain('pe-2.5')
   })
 
   test('uses slot end padding when trailing slot is present', () => {
     const screen = render(() => <Input trailing="i-lucide-search" />)
     const input = screen.getByRole('textbox')
 
-    expect(input.className).toContain('ps-3.5')
+    expect(input.className).toContain('ps-2.5')
     expect(input.className).toContain('pe-2')
   })
 

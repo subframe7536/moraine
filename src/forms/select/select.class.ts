@@ -2,13 +2,13 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
 import {
+  INPUT_VARIANT_CLASSES,
   SURFACE_HIGHLIGHT_VARIANT,
-  SURFACE_VARIANT_CLASSES,
   TEXT_SIZE_VARIANT,
 } from '../../shared/cva-common.class'
 
 export const selectControlVariants = cva(
-  'flex w-full cursor-pointer items-center rounded-md border border-input bg-transparent text-foreground outline-none transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
+  'flex w-full cursor-pointer items-center rounded-md text-foreground outline-none transition focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -22,7 +22,7 @@ export const selectControlVariants = cva(
         lg: 'min-h-10 text-sm',
         xl: 'min-h-11 text-base',
       },
-      variant: SURFACE_VARIANT_CLASSES,
+      variant: INPUT_VARIANT_CLASSES,
       highlight: SURFACE_HIGHLIGHT_VARIANT,
       disabled: {
         true: 'effect-dis',
@@ -32,7 +32,7 @@ export const selectControlVariants = cva(
 )
 
 export const selectInputVariants = cva(
-  'flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:effect-dis',
+  'flex-1 bg-transparent outline-none style-placeholder disabled:effect-dis',
   {
     defaultVariants: {
       mode: 'single',

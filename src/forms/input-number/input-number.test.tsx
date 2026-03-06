@@ -265,7 +265,7 @@ describe('InputNumber', () => {
     const base = screen.container.querySelector('[data-slot="base"]')
 
     expect(root?.className).toContain('h-11')
-    expect(root?.className).toContain('surface-subtle')
+    expect(root?.className).toContain('bg-muted')
     expect(base?.className).toContain('text-base')
   })
 

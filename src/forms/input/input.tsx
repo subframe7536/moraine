@@ -79,7 +79,7 @@ export function Input(props: InputProps): JSX.Element {
       type: 'text' as NonNullable<JSX.InputHTMLAttributes<HTMLInputElement>['type']>,
       autocomplete: 'off' as const,
       autofocusDelay: 0,
-      variant: 'outline' as const,
+      variant: 'outlined' as const,
       loadingIcon: 'icon-loading' as IconName,
     },
     props,

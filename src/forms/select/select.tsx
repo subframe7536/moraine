@@ -311,7 +311,7 @@ function escapeRegex(str: string): string {
 export function Select(props: SelectProps): JSX.Element {
   const merged = mergeProps(
     {
-      variant: 'outline' as const,
+      variant: 'outlined' as const,
       placeholder: '',
       allowClear: false,
       triggerIcon: 'icon-chevron-down',

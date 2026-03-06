@@ -33,7 +33,7 @@ const GROUPED_OPTIONS: SelectOption[] = [
   },
 ]
 
-const VARIANTS = ['outline', 'soft', 'subtle', 'ghost'] as const
+const VARIANTS = ['outline', 'subtle', 'ghost', 'none'] as const
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
 
 function makeOptions(count: number, offset = 0): SelectOption[] {

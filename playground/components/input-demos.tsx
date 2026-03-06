@@ -4,7 +4,7 @@ import { Input, Textarea } from '../../src'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 
-const VARIANTS = ['outline', 'soft', 'subtle', 'ghost', 'none'] as const
+const VARIANTS = ['outline', 'subtle', 'ghost', 'none'] as const
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
 
 export const InputDemos = () => {

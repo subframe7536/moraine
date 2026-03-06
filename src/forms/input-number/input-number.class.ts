@@ -1,10 +1,10 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
-import { SURFACE_HIGHLIGHT_VARIANT, SURFACE_VARIANT_CLASSES } from '../../shared/cva-common.class'
+import { INPUT_VARIANT_CLASSES, SURFACE_HIGHLIGHT_VARIANT } from '../../shared/cva-common.class'
 
 export const inputNumberRootVariants = cva(
-  'inline-flex w-full items-stretch overflow-hidden rounded-md border border-input bg-transparent transition-[color,box-shadow] dark:bg-input/30 focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
+  'inline-flex w-full items-stretch overflow-hidden rounded-md transition-[color,box-shadow] focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -18,7 +18,7 @@ export const inputNumberRootVariants = cva(
         lg: 'h-10',
         xl: 'h-11',
       },
-      variant: SURFACE_VARIANT_CLASSES,
+      variant: INPUT_VARIANT_CLASSES,
       highlight: SURFACE_HIGHLIGHT_VARIANT,
       disabled: {
         true: 'effect-dis',
@@ -28,7 +28,7 @@ export const inputNumberRootVariants = cva(
 )
 
 export const inputNumberBaseVariants = cva(
-  'min-w-0 flex-1 bg-transparent text-foreground outline-none placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none disabled:bg-transparent',
+  'min-w-0 flex-1 bg-transparent text-foreground outline-none style-placeholder [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none disabled:bg-transparent',
   {
     defaultVariants: {
       size: 'md',
@@ -59,7 +59,7 @@ export function resolveInputNumberAlign(
   return orientation === 'horizontal' && !decrement ? 'start' : 'center'
 }
 
-export const inputNumberControlButtonVariants = cva('', {
+export const inputNumberControlButtonVariants = cva('border-input', {
   defaultVariants: {
     control: 'increment',
     divided: false,
@@ -71,7 +71,7 @@ export const inputNumberControlButtonVariants = cva('', {
       decrement: '',
     },
     divided: {
-      true: 'border-t border-input',
+      true: 'border-t',
     },
     orientation: {
       horizontal: 'h-full shrink-0 rounded-none border-0 shadow-none',
@@ -82,12 +82,12 @@ export const inputNumberControlButtonVariants = cva('', {
     {
       control: 'increment',
       orientation: 'horizontal',
-      class: 'border-s border-input',
+      class: 'border-s',
     },
     {
       control: 'decrement',
       orientation: 'horizontal',
-      class: 'border-e border-input',
+      class: 'border-e',
     },
   ],
 })

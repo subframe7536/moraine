@@ -4,7 +4,7 @@ import { InputNumber } from '../../src'
 
 import { DemoPage, DemoSection } from './common/demo-page'
 
-const VARIANTS = ['outline', 'soft', 'subtle', 'ghost'] as const
+const VARIANTS = ['outline', 'subtle', 'ghost', 'none'] as const
 
 export const InputNumberDemos = () => {
   const [controlledValue, setControlledValue] = createSignal(10)
@@ -78,7 +78,7 @@ export const InputNumberDemos = () => {
             minValue={0}
             maxValue={99}
             step={1}
-            variant="soft"
+            variant="subtle"
           />
           <p class="text-xs text-zinc-600">
             Hold <span class="font-medium">+</span> or <span class="font-medium">−</span> to repeat.

@@ -26,7 +26,9 @@
 - [x] tooltip variant
 - [x] optimize context menu trigger timing, or implement context by dropdown menu
 - [x] adjust dropmenu / context menu show up transition
-- [ ] polish and cleanup select control / input / input number variants
+- [x] polish and cleanup select control / input / input number variants
+- [ ] simplify variants
+- [ ] bug: select menu open and click trigger does not close the menu
 
 # Future
 

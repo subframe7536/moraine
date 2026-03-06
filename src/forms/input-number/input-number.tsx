@@ -61,7 +61,7 @@ export type InputNumberProps = InputNumberBaseProps &
 export function InputNumber(props: InputNumberProps): JSX.Element {
   const merged = mergeProps(
     {
-      variant: 'outline' as const,
+      variant: 'outlined' as const,
       orientation: 'horizontal' as const,
       increment: true,
       decrement: true,
