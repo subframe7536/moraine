@@ -139,7 +139,7 @@ describe('Breadcrumb', () => {
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-house')
     expect(homeLink?.textContent).toContain('Home')
-    expect(homeLink?.querySelector('[data-slot="label"]')).toBeNull()
+    expect(homeLink?.querySelector('[data-slot="label"]')).not.toBeNull()
   })
 
   test('applies disabled state and classes overrides', () => {

@@ -226,11 +226,18 @@ describe('Select - multiple mode', () => {
       />
     ))
 
-    const removeButtons = screen.container.querySelectorAll('[data-slot="tagRemove"]')
+    const removeButtons = screen.container.querySelectorAll(
+      '[data-slot="tag"] [data-slot="trailing"]',
+    )
     expect(removeButtons.length).toBe(2)
+
+    await fireEvent.pointerDown(removeButtons[0] as HTMLElement, { button: 0 })
+    expect(queryBody('[data-slot="content"]')).toBeNull()
+
     await fireEvent.click(removeButtons[0])
 
     expect(onChange).toHaveBeenCalled()
+    expect(queryBody('[data-slot="content"]')).toBeNull()
   })
 
   test('respects maxCount limit', async () => {

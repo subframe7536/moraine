@@ -18,6 +18,8 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { Badge } from '../../elements/badge'
+import type { BadgeBaseProps } from '../../elements/badge'
 import { Icon, IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import { overlayMenuContentVariants } from '../../overlays/shared-overlay-menu/menu.class'
@@ -34,7 +36,6 @@ import { FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS } from '../form-field/form-op
 
 import type { SelectControlVariantProps } from './select.class'
 import {
-  selectTagVariants,
   selectClearVariants,
   selectControlVariants,
   selectInputVariants,
@@ -81,6 +82,7 @@ export type SelectTagRender = (option: SelectOption & { onClose: () => void }) =
 export type SelectLabelRender = (option: SelectOption) => JSX.Element
 
 export type SelectEmptyRender = string | ((context: SelectEmptyRenderContext) => JSX.Element)
+export type SelectOpenOnClick = 'control' | 'trigger'
 
 export interface SelectEmptyRenderContext {
   /** Current input/search text. */
@@ -156,13 +158,16 @@ export interface SelectBaseProps
   filterOption?: boolean | ((inputValue: string, option: SelectOption) => boolean)
   /** Property on option to filter by (default: label). */
   optionFilterProp?: string
-  /** Controls whether click input element can open the menu. */
+  /** Controls whether clicking the control opens the menu. */
+  openOnClick?: SelectOpenOnClick
+  /** Legacy alias for `openOnClick="trigger"`. */
   preventAutoOpen?: boolean
 
   /** Show a clear button when a value is selected. */
   allowClear?: boolean
   /** Called when clear is triggered. */
   onClear?: () => void
+  tagVariant?: BadgeBaseProps['variant']
 
   /** Characters that split input into tokens and immediately select them (requires `multiple`). */
   tokenSeparators?: string[]
@@ -333,6 +338,7 @@ export function Select(props: SelectProps): JSX.Element {
       'searchMaxLength',
       'filterOption',
       'optionFilterProp',
+      'openOnClick',
       'preventAutoOpen',
       'allowClear',
       'onClear',
@@ -357,6 +363,7 @@ export function Select(props: SelectProps): JSX.Element {
       'leadingIcon',
       'triggerIcon',
       'closeIcon',
+      'tagVariant',
     ],
     ['size', 'variant', 'highlight', 'classes'],
   )
@@ -786,6 +793,11 @@ export function Select(props: SelectProps): JSX.Element {
   // pulling focus back to the input.
   let closedByInteractOutside = false
 
+  const opensFromControlClick = createMemo(
+    () =>
+      !searchInteractionProps.preventAutoOpen && searchInteractionProps.openOnClick !== 'trigger',
+  )
+
   // ---- Trigger mode ----
   // Use 'manual' so the dropdown only opens on explicit user actions
   // (click, arrow-down, typing in searchable mode) — never on bare focus.
@@ -975,7 +987,7 @@ export function Select(props: SelectProps): JSX.Element {
             }
           }}
           onClick={() => {
-            if (!searchInteractionProps.preventAutoOpen) {
+            if (opensFromControlClick()) {
               // With triggerMode="manual", clicks don't auto-open.
               // Searchable inputs should open on click, while readonly inputs
               // keep the existing toggle behavior.
@@ -1070,13 +1082,13 @@ export function Select(props: SelectProps): JSX.Element {
           <div
             data-slot="tagsContainer"
             class={cn(
-              'flex flex-1 cursor-pointer select-none flex-wrap items-center gap-1 p-1.5',
+              'flex flex-1 cursor-pointer select-none flex-wrap items-center gap-1 p-1.5 max-w-full',
               styleProps.classes?.tagsContainer,
             )}
             onPointerDown={(e) => {
               e.preventDefault()
               inputRef?.focus()
-              if (!searchInteractionProps.preventAutoOpen) {
+              if (opensFromControlClick()) {
                 // With triggerMode="manual", focus alone won't open.
                 // Open explicitly so clicking the tags area opens the dropdown.
                 openMenu(() => context.close())
@@ -1096,22 +1108,23 @@ export function Select(props: SelectProps): JSX.Element {
                     when={!renderDisplayProps.tagRender}
                     fallback={renderDisplayProps.tagRender!({ ...option.raw, onClose })}
                   >
-                    <span
+                    <Badge
                       data-slot="tag"
-                      class={selectTagVariants({ size: field.size() }, styleProps.classes?.tag)}
+                      size={field.size()}
+                      title={option.label}
+                      variant={renderDisplayProps.tagVariant}
+                      classes={{
+                        base: ['max-w-50% pe-0', styleProps.classes?.tag],
+                        trailing: ['rounded hover:bg-accent', styleProps.classes?.tagRemove],
+                      }}
+                      trailing={renderDisplayProps.closeIcon ?? 'icon-close'}
+                      onTrailingClick={(e) => {
+                        e.stopPropagation()
+                        onClose()
+                      }}
                     >
                       {option.label}
-                      <IconButton
-                        name={renderDisplayProps.closeIcon ?? 'icon-close'}
-                        data-slot="tagRemove"
-                        class={cn('size-4 outline-none', styleProps.classes?.tagRemove)}
-                        tabIndex={-1}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onClose()
-                        }}
-                      />
-                    </span>
+                    </Badge>
                   </Show>
                 )
               }}

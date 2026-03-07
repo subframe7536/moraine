@@ -150,7 +150,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       </Show>
 
       <Show when={contentProps.children}>
-        <span data-slot="label" class={cn('truncate', styleProps.classes?.label)}>
+        <span data-slot="label" class={cn('min-w-0 truncate', styleProps.classes?.label)}>
           {contentProps.children}
         </span>
       </Show>

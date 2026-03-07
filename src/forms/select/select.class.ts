@@ -1,11 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
-import {
-  INPUT_VARIANT_CLASSES,
-  SURFACE_HIGHLIGHT_VARIANT,
-  TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class'
+import { INPUT_VARIANT_CLASSES, SURFACE_HIGHLIGHT_VARIANT } from '../../shared/cva-common.class'
 
 export const selectControlVariants = cva(
   'flex w-full cursor-pointer items-center rounded-md text-foreground outline-none transition focus-within:effect-fv-border data-invalid:effect-invalid focus-within:data-invalid:effect-invalid',
@@ -45,11 +41,11 @@ export const selectInputVariants = cva(
         multiHidden: 'sr-only',
       },
       size: {
-        xs: 'text-xs var-select-6-2-0.5',
-        sm: 'text-xs var-select-7-2.5-1',
-        md: 'text-sm var-select-8-2.5-1',
-        lg: 'text-sm var-select-9-3-1.5',
-        xl: 'text-base var-select-10-3-1.5',
+        xs: 'h-4 text-xs var-select-6-2-0.5',
+        sm: 'h-4.5 text-xs var-select-7-2.5-1',
+        md: 'h-5.5 text-sm var-select-8-2.5-1',
+        lg: 'h-6 text-sm var-select-9-3-1.5',
+        xl: 'h-6.5 text-base var-select-10-3-1.5',
       },
       readOnly: {
         true: 'cursor-pointer',
@@ -123,18 +119,6 @@ export const selectItemVariants = cva(
         lg: 'min-h-9 text-sm',
         xl: 'min-h-10 text-base',
       },
-    },
-  },
-)
-
-export const selectTagVariants = cva(
-  'flex items-center rounded-md bg-accent px-2 font-medium text-accent-foreground cursor-default',
-  {
-    defaultVariants: {
-      size: 'md',
-    },
-    variants: {
-      size: TEXT_SIZE_VARIANT,
     },
   },
 )

@@ -5,6 +5,7 @@ import { render } from 'solid-js/web'
 
 import { AccordionDemos } from './components/accordion-demos'
 import { AvatarDemos } from './components/avatar-demos'
+import { BadgeDemos } from './components/badge-demos'
 import { BreadcrumbDemos } from './components/breadcrumb-demos'
 import { ButtonDemos } from './components/button-demos'
 import { CardDemos } from './components/card-demos'
@@ -34,6 +35,7 @@ import { TooltipDemos } from './components/tooltip-demos'
 
 const PAGES = [
   { key: 'avatar', label: 'Avatar', group: 'General' },
+  { key: 'badge', label: 'Badge', group: 'General' },
   { key: 'button', label: 'Button', group: 'General' },
   { key: 'icon', label: 'Icon', group: 'General' },
   { key: 'kbd', label: 'Kbd', group: 'General' },
@@ -86,6 +88,9 @@ function App() {
           </Match>
           <Match when={page() === 'avatar'}>
             <AvatarDemos />
+          </Match>
+          <Match when={page() === 'badge'}>
+            <BadgeDemos />
           </Match>
           <Match when={page() === 'breadcrumb'}>
             <BreadcrumbDemos />
