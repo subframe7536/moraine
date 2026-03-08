@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-import type { ResizableHandleRegistration, ResizableOrientation } from './handle-manager'
+import type { ResizableHandleRegistration, ResizableOrientation } from './manager'
 
 interface RectInput {
   top: number
@@ -123,7 +123,7 @@ describe('handle-manager', () => {
 
   test('does not assign intersections across different resizable roots', async () => {
     const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./handle-manager')
+      await import('./manager')
 
     const rootA = createRootElement()
     const rootB = createRootElement()
@@ -156,7 +156,7 @@ describe('handle-manager', () => {
 
   test('dedupes scheduled refresh calls within the same tick', async () => {
     const { registerResizableHandle, scheduleResizableHandleIntersectionsRefresh } =
-      await import('./handle-manager')
+      await import('./manager')
 
     const root = createRootElement()
     document.body.append(root)
@@ -194,7 +194,7 @@ describe('handle-manager', () => {
 
   test('keeps intersection results stable with many handles in one root', async () => {
     const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./handle-manager')
+      await import('./manager')
 
     const root = createRootElement()
     const isolatedRoot = createRootElement()
@@ -256,7 +256,7 @@ describe('handle-manager', () => {
 
   test('allows intersections across parent-child roots while keeping unrelated roots isolated', async () => {
     const { refreshResizableHandleIntersections, registerResizableHandle } =
-      await import('./handle-manager')
+      await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -302,7 +302,7 @@ describe('handle-manager', () => {
       refreshResizableHandleIntersections,
       registerResizableHandle,
       startResizableHandleDrag,
-    } = await import('./handle-manager')
+    } = await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -359,7 +359,7 @@ describe('handle-manager', () => {
       refreshResizableHandleIntersections,
       registerResizableHandle,
       startResizableHandleDrag,
-    } = await import('./handle-manager')
+    } = await import('./manager')
 
     const parentRoot = createRootElement()
     const childRoot = createRootElement()
@@ -407,7 +407,7 @@ describe('handle-manager', () => {
       refreshResizableHandleIntersections,
       registerResizableHandle,
       startResizableHandleDrag,
-    } = await import('./handle-manager')
+    } = await import('./manager')
 
     const root = createRootElement()
     document.body.append(root)

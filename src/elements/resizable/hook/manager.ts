@@ -1,4 +1,6 @@
-export type ResizableOrientation = 'vertical' | 'horizontal'
+import type { ResizableOrientation } from './panel'
+
+export type { ResizableOrientation } from './panel'
 
 export const RESIZABLE_HANDLE_TARGET_HANDLE = 0 as const
 export const RESIZABLE_HANDLE_TARGET_START = 1 as const

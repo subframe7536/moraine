@@ -1,8 +1,6 @@
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
-import { callHandler } from '../../../shared/utils'
-
 import {
   RESIZABLE_HANDLE_TARGET_END,
   RESIZABLE_HANDLE_TARGET_HANDLE,
@@ -12,24 +10,18 @@ import {
   registerResizableHandle,
   startResizableHandleDrag,
   updateResizableHandleIntersectionHoverState,
-} from './handle-manager'
+} from './manager'
 import type {
   ResizableHandleIntersectionEdge,
   ResizableHandleIntersectionTarget,
   ResizableHandleRegistration,
-  ResizableOrientation,
-} from './handle-manager'
+} from './manager'
+import type { ResizableOrientation } from './panel'
 
-export interface ResizableHandleOptions extends Omit<
-  JSX.HTMLAttributes<HTMLDivElement>,
-  'children' | 'class'
-> {
-  class?: string
-  disabled?: boolean
-  withHandle?: boolean
-  startIntersection?: boolean
-  endIntersection?: boolean
-  altKey?: boolean | 'only'
+export interface ResizableHandleOptions {
+  renderHandle?: boolean | JSX.Element
+  disableHandle?: boolean
+  intersection?: boolean
   onHandleDragStart?: (event: PointerEvent) => void
   onHandleDrag?: (event: CustomEvent) => void
   onHandleDragEnd?: (event: PointerEvent | TouchEvent | MouseEvent) => void
@@ -64,7 +56,6 @@ export interface ResizableHandleBindings {
   onFocus: (event: FocusEvent) => void
   onBlur: (event: FocusEvent) => void
   onKeyDown: (event: KeyboardEvent) => void
-  onKeyUp: (event: KeyboardEvent) => void
   onPointerDown: (event: PointerEvent) => void
   onIntersectionMouseEnter: (target: ResizableHandleIntersectionEdge) => void
   onIntersectionMouseLeave: (event: MouseEvent) => void
@@ -80,9 +71,7 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
   )
 
   const mergedOptions = createMemo<ResizableHandleOptions>(() => ({
-    startIntersection: true,
-    endIntersection: true,
-    altKey: true,
+    intersection: true,
     ...options.options(),
   }))
 
@@ -90,7 +79,7 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     setInteractionState((previous) => (enabled ? previous | flag : previous & ~flag))
   }
 
-  const disabled = createMemo(() => mergedOptions().disabled === true)
+  const disabled = createMemo(() => mergedOptions().disableHandle === true)
   const cross = createMemo(() => startIntersection() !== null || endIntersection() !== null)
   const dragging = createMemo(() => (interactionState() & HANDLE_STATE_DRAGGING) !== 0)
   const active = createMemo(() => interactionState() !== 0)
@@ -110,9 +99,9 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
       getRootElement: () =>
         (element()?.closest('[data-resizable-root]') as HTMLDivElement | null) ?? undefined,
       getOrientation: options.orientation,
-      getAltKeyMode: () => mergedOptions().altKey ?? true,
-      getStartIntersectionEnabled: () => mergedOptions().startIntersection !== false,
-      getEndIntersectionEnabled: () => mergedOptions().endIntersection !== false,
+      getAltKeyMode: () => true,
+      getStartIntersectionEnabled: () => mergedOptions().intersection !== false,
+      getEndIntersectionEnabled: () => mergedOptions().intersection !== false,
       getStartIntersection: startIntersection,
       getEndIntersection: endIntersection,
       setStartIntersection,
@@ -137,60 +126,44 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     }
 
     const unregister = registerResizableHandle(registration)
-    onCleanup(unregister)
+    onCleanup(() => {
+      unregister()
+      registration = null
+    })
   })
 
   createEffect(() => {
-    void [options.orientation(), mergedOptions().startIntersection, mergedOptions().endIntersection]
+    void [options.orientation(), mergedOptions().intersection]
     scheduleResizableHandleIntersectionsRefresh()
   })
 
-  function onMouseEnter(event: MouseEvent): void {
-    const callResult = callHandler(event, mergedOptions().onMouseEnter)
-    if (!callResult.defaultPrevented) {
-      setInteractionStateFlag(HANDLE_STATE_HOVERED, true)
-      scheduleResizableHandleIntersectionsRefresh()
-    }
+  function onMouseEnter(): void {
+    setInteractionStateFlag(HANDLE_STATE_HOVERED, true)
+    scheduleResizableHandleIntersectionsRefresh()
   }
 
-  function onMouseLeave(event: MouseEvent): void {
-    callHandler(event, mergedOptions().onMouseLeave)
+  function onMouseLeave(): void {
     setInteractionStateFlag(HANDLE_STATE_HOVERED, false)
   }
 
-  function onFocus(event: FocusEvent): void {
-    const callResult = callHandler(event, mergedOptions().onFocus)
-    if (!callResult.defaultPrevented) {
-      setInteractionStateFlag(HANDLE_STATE_FOCUSED, true)
-    }
+  function onFocus(): void {
+    setInteractionStateFlag(HANDLE_STATE_FOCUSED, true)
   }
 
-  function onBlur(event: FocusEvent): void {
-    callHandler(event, mergedOptions().onBlur)
+  function onBlur(): void {
     setInteractionStateFlag(HANDLE_STATE_FOCUSED, false)
   }
 
   function onKeyDown(event: KeyboardEvent): void {
-    const callResult = callHandler(event, mergedOptions().onKeyDown)
-    if (callResult.defaultPrevented || dragging()) {
+    if (dragging()) {
       return
     }
 
-    const altKeyMode = mergedOptions().altKey ?? true
-    options.onKeyDown(
-      options.handleIndex(),
-      event,
-      altKeyMode === 'only' ? true : altKeyMode === false ? false : event.altKey,
-    )
-  }
-
-  function onKeyUp(event: KeyboardEvent): void {
-    callHandler(event, mergedOptions().onKeyUp)
+    options.onKeyDown(options.handleIndex(), event, event.altKey)
   }
 
   function onPointerDown(event: PointerEvent): void {
-    const pointerDownResult = callHandler(event, mergedOptions().onPointerDown)
-    if (pointerDownResult.defaultPrevented || disabled() || !registration) {
+    if (disabled() || !registration) {
       return
     }
 
@@ -261,7 +234,6 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     onFocus,
     onBlur,
     onKeyDown,
-    onKeyUp,
     onPointerDown,
     onIntersectionMouseEnter,
     onIntersectionMouseLeave,

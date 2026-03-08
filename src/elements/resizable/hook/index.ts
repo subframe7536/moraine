@@ -1,1 +1,2 @@
-export * from './core'
+export * from './panel'
+export * from './resize'

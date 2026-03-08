@@ -1,15 +1,22 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import type { SlotClasses } from '../../shared/slot-class'
 import { cn, useId } from '../../shared/utils'
 
-import { getHandleAria, isPanelCollapsed } from './hook/core'
-import type { ResizablePanelItem, ResizableSize } from './hook/core'
-import { RESIZABLE_HANDLE_TARGET_END, RESIZABLE_HANDLE_TARGET_START } from './hook/handle-manager'
-import { useResizableController } from './hook/use-resizable-controller'
-import { useResizableHandle } from './hook/use-resizable-handle'
-import type { ResizableHandleOptions } from './hook/use-resizable-handle'
+import { useResizableHandle } from './hook/handle'
+import type { ResizableHandleOptions } from './hook/handle'
+import { RESIZABLE_HANDLE_TARGET_END, RESIZABLE_HANDLE_TARGET_START } from './hook/manager'
+import {
+  EPSILON,
+  getHandleAria,
+  isPanelCollapsed,
+  normalizePanelSizes,
+  resolveKeyboardDelta,
+  resolvePanels,
+} from './hook/panel'
+import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/panel'
+import { resizeFromHandle, toggleHandleNearestPanel } from './hook/resize'
 import {
   resizableCrossTargetVariants,
   resizableHandleVariants,
@@ -17,112 +24,283 @@ import {
 } from './resizable.class'
 import type { ResizableVariantProps } from './resizable.class'
 
-type ResizableSlots = 'root' | 'panel' | 'handle' | 'handleInner' | 'crossTarget'
+type ResizableSlots = 'root' | 'panel' | 'divider' | 'handle' | 'crossTarget'
 
 export type ResizableClasses = SlotClasses<ResizableSlots>
 
-export interface ResizableProps extends ResizableVariantProps {
+export interface ResizableProps extends ResizableVariantProps, ResizableHandleOptions {
+  id?: string
   panels?: ResizablePanelItem[]
-  sizes?: number[]
   onSizesChange?: (sizes: number[]) => void
   keyboardDelta?: ResizableSize
-  withHandle?: boolean
-  handleProps?: ResizableHandleOptions
   classes?: ResizableClasses
-  id?: string
+}
+
+interface DragState {
+  initialSizes: number[]
+  handleIndex: number
+  altKey: boolean
 }
 
 export function Resizable(props: ResizableProps): JSX.Element {
   const localProps = mergeProps(
     {
-      orientation: 'horizontal' as const,
-      keyboardDelta: 0.1 as const,
-      withHandle: false,
+      orientation: 'horizontal' as ResizableOrientation,
+      keyboardDelta: 0.1 as ResizableSize,
+      renderHandle: true,
     },
     props,
-  ) as ResizableProps
+  )
 
   const panelIdPrefix = useId(() => localProps.id, 'resizable')
+  const orientation = () => localProps.orientation
 
-  const controller = useResizableController({
-    orientation: () => localProps.orientation!,
-    panels: () => localProps.panels ?? [],
-    controlledSizes: () => localProps.sizes,
-    keyboardDelta: () => localProps.keyboardDelta,
-    panelIdPrefix,
-    onSizesChange: (sizes) => localProps.onSizesChange?.(sizes),
+  const [rootElement, setRootElement] = createSignal<HTMLDivElement>()
+  const [rootSize, setRootSize] = createSignal(1)
+  const [uncontrolledSizes, setUncontrolledSizes] = createSignal<number[]>([])
+
+  const resolvedPanels = createMemo(() =>
+    resolvePanels(localProps.panels ?? [], rootSize(), panelIdPrefix()),
+  )
+  const panelCount = createMemo(() => resolvedPanels().length)
+  const panelInitialSizes = createMemo(() => resolvedPanels().map((p) => p.initialSize))
+
+  function normalizeWithCurrentState(controlledSizes?: Array<ResizableSize | undefined>) {
+    return normalizePanelSizes({
+      panelCount: panelCount(),
+      rootSize: rootSize(),
+      panelInitialSizes: panelInitialSizes(),
+      controlledSizes,
+    })
+  }
+
+  const normalizedControlledSizes = createMemo(() => {
+    const next = localProps.panels?.map((p) => p.size)
+    return next?.some((s) => s !== undefined) ? normalizeWithCurrentState(next) : undefined
   })
 
-  const orientation = () => localProps.orientation!
+  const sizes = createMemo(() => normalizedControlledSizes() ?? uncontrolledSizes())
+
+  createEffect(() => {
+    if (normalizedControlledSizes() !== undefined) {
+      return
+    }
+
+    const nextCount = panelCount()
+    setUncontrolledSizes((prev) =>
+      prev.length === 0 || prev.length !== nextCount
+        ? normalizeWithCurrentState()
+        : normalizeWithCurrentState(prev),
+    )
+  })
+
+  createEffect(() => {
+    const element = rootElement()
+    if (!element) {
+      return
+    }
+
+    const updateSize = () => {
+      const rect = element.getBoundingClientRect()
+      const value = orientation() === 'horizontal' ? rect.width : rect.height
+      setRootSize(value > EPSILON ? value : 1)
+    }
+
+    updateSize()
+
+    if (typeof ResizeObserver === 'undefined') {
+      return
+    }
+
+    const observer = new ResizeObserver(updateSize)
+    observer.observe(element)
+    onCleanup(() => observer.disconnect())
+  })
+
+  let prevSizes: number[] = []
+  let prevCollapsed: boolean[] = []
+
+  createEffect(() => {
+    const panels = resolvedPanels()
+    const currentSizes = sizes()
+
+    for (let i = 0; i < panels.length; i++) {
+      const panel = panels[i]
+      const size = currentSizes[i] ?? 0
+      const collapsed = panel ? isPanelCollapsed(size, panel) : false
+
+      if (panel && (prevSizes[i] === undefined || Math.abs((prevSizes[i] ?? 0) - size) > EPSILON)) {
+        panel.onResize?.(size)
+      }
+
+      if (panel && prevCollapsed[i] !== undefined && prevCollapsed[i] !== collapsed) {
+        if (collapsed) {
+          panel.onCollapse?.(size)
+        } else {
+          panel.onExpand?.(size)
+        }
+      }
+    }
+
+    prevSizes = [...currentSizes]
+    prevCollapsed = panels.map((p, i) => isPanelCollapsed(currentSizes[i] ?? 0, p))
+  })
+
+  function normalizeSizes(nextSizes: number[]): number[] {
+    const nextCount = panelCount()
+    if (nextSizes.length !== nextCount) {
+      return normalizeWithCurrentState(nextSizes)
+    }
+
+    let total = 0
+    for (const size of nextSizes) {
+      if (!Number.isFinite(size) || size < 0) {
+        return normalizeWithCurrentState(nextSizes)
+      }
+      total += size
+    }
+
+    return Math.abs(total - 1) > EPSILON * Math.max(1, nextCount)
+      ? normalizeWithCurrentState(nextSizes)
+      : nextSizes
+  }
+
+  function emitSizes(nextSizes: number[]): void {
+    const normalized = normalizeSizes(nextSizes)
+    if (normalizedControlledSizes() === undefined) {
+      setUncontrolledSizes(normalized)
+    }
+    localProps.onSizesChange?.(normalized)
+  }
+
+  let drag: DragState | null = null
+
+  function resizeHandleByDelta(handleIndex: number, deltaPx: number, altKey: boolean): void {
+    if (sizes().length <= 1) {
+      return
+    }
+
+    if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
+      drag = { initialSizes: [...sizes()], handleIndex, altKey }
+    }
+
+    emitSizes(
+      resizeFromHandle({
+        handleIndex,
+        deltaPercentage: deltaPx / Math.max(rootSize(), 1),
+        altKey,
+        initialSizes: drag.initialSizes,
+        panels: resolvedPanels(),
+      }),
+    )
+  }
+
+  function stopHandleDrag(): void {
+    drag = null
+  }
+
+  function onHandleKeyDown(handleIndex: number, event: KeyboardEvent, altKey: boolean): void {
+    if (event.key === 'Enter') {
+      emitSizes(
+        toggleHandleNearestPanel({
+          handleIndex,
+          initialSizes: sizes(),
+          panels: resolvedPanels(),
+        }),
+      )
+      event.preventDefault()
+      return
+    }
+
+    const keyboardDelta = resolveKeyboardDelta(localProps.keyboardDelta, rootSize())
+    let deltaPercentage: number | null = null
+
+    if (
+      (orientation() === 'horizontal' && event.key === 'ArrowLeft') ||
+      (orientation() === 'vertical' && event.key === 'ArrowUp') ||
+      event.key === 'Home'
+    ) {
+      deltaPercentage = event.shiftKey || event.key === 'Home' ? -1 : -keyboardDelta
+    } else if (
+      (orientation() === 'horizontal' && event.key === 'ArrowRight') ||
+      (orientation() === 'vertical' && event.key === 'ArrowDown') ||
+      event.key === 'End'
+    ) {
+      deltaPercentage = event.shiftKey || event.key === 'End' ? 1 : keyboardDelta
+    }
+
+    if (deltaPercentage === null) {
+      return
+    }
+
+    emitSizes(
+      resizeFromHandle({
+        handleIndex,
+        deltaPercentage,
+        altKey,
+        initialSizes: sizes(),
+        panels: resolvedPanels(),
+      }),
+    )
+    event.preventDefault()
+  }
 
   return (
     <div
-      ref={controller.setRootElement}
+      ref={setRootElement}
       id={localProps.id}
       data-slot="root"
       data-resizable-root
-      data-orientation={localProps.orientation}
+      data-orientation={orientation()}
       class={resizableRootVariants({ orientation: orientation() }, localProps.classes?.root)}
     >
-      <For each={controller.resolvedPanels()}>
+      <For each={resolvedPanels()}>
         {(panel, index) => {
-          const panelSize = () => controller.sizes()[index()] ?? 0
-          const collapsed = () => isPanelCollapsed(panelSize(), panel)
-          const shouldRenderHandle = () =>
-            index() < controller.resolvedPanels().length - 1 && panel.handle !== false
-          const mergedHandleOptions = createMemo<ResizableHandleOptions | undefined>(() => {
-            if (panel.handle === false) {
-              return undefined
-            }
+          const mergedHandleOptions = createMemo<ResizableHandleOptions>(() => ({
+            renderHandle: panel.renderHandle ?? localProps.renderHandle,
+            disableHandle: panel.disableHandle ?? localProps.disableHandle,
+            intersection: panel.intersection ?? localProps.intersection,
+            onHandleDragStart: panel.onHandleDragStart ?? localProps.onHandleDragStart,
+            onHandleDrag: panel.onHandleDrag ?? localProps.onHandleDrag,
+            onHandleDragEnd: panel.onHandleDragEnd ?? localProps.onHandleDragEnd,
+          }))
 
-            return Object.assign({}, localProps.handleProps, panel.handle)
-          })
-          const handleDisabled = createMemo(() => mergedHandleOptions()?.disabled === true)
-          const handleTabIndex = createMemo(() => {
-            const value = mergedHandleOptions()?.tabIndex
-            if (typeof value === 'number') {
-              return value
-            }
+          const size = () => sizes()[index()] ?? 0
+          const collapsed = () => isPanelCollapsed(size(), panel)
 
-            return handleDisabled() ? -1 : 0
-          })
-          const showInnerHandle = createMemo(
-            () => mergedHandleOptions()?.withHandle ?? localProps.withHandle ?? false,
+          const aria = createMemo(() =>
+            getHandleAria({ handleIndex: index(), sizes: sizes(), panels: resolvedPanels() }),
           )
+
           const bindings = useResizableHandle({
             handleIndex: index,
             orientation,
             options: mergedHandleOptions,
-            onDrag: controller.resizeHandleByDelta,
-            onDragEnd: controller.stopHandleDrag,
-            onKeyDown: controller.onHandleKeyDown,
+            onDrag: resizeHandleByDelta,
+            onDragEnd: stopHandleDrag,
+            onKeyDown: onHandleKeyDown,
           })
-          const aria = createMemo(() =>
-            getHandleAria({
-              handleIndex: index(),
-              sizes: controller.sizes(),
-              panels: controller.resolvedPanels(),
-            }),
-          )
 
           return (
             <>
               <div
                 id={panel.panelId}
                 data-slot="panel"
-                data-orientation={localProps.orientation}
+                data-orientation={orientation()}
                 data-collapsed={collapsed() ? '' : undefined}
                 data-expanded={panel.collapsible && !collapsed() ? '' : undefined}
                 class={cn('min-h-0 min-w-0 overflow-auto', localProps.classes?.panel, panel.class)}
-                style={{
-                  'flex-basis': `${panelSize() * 100}%`,
-                  ...panel.style,
-                }}
+                style={{ 'flex-basis': `${size() * 100}%`, ...panel.style }}
               >
                 {panel.content}
               </div>
 
-              <Show when={shouldRenderHandle()}>
+              <Show
+                when={
+                  index() < resolvedPanels().length - 1 &&
+                  mergedHandleOptions().disableHandle !== true
+                }
+              >
                 <div
                   ref={bindings.setElement}
                   role="separator"
@@ -131,25 +309,22 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   aria-valuemin={aria().valueMin}
                   aria-valuemax={aria().valueMax}
                   aria-valuenow={aria().valueNow}
-                  aria-disabled={handleDisabled() ? 'true' : undefined}
-                  tabIndex={handleTabIndex()}
-                  data-slot="handle"
+                  aria-disabled={mergedHandleOptions().disableHandle ? 'true' : undefined}
+                  tabIndex={mergedHandleOptions().disableHandle ? -1 : 0}
+                  data-slot="divider"
                   data-orientation={orientation()}
                   data-active={bindings.active() ? '' : undefined}
                   data-dragging={bindings.dragging() ? '' : undefined}
                   class={resizableHandleVariants(
                     { orientation: orientation() },
-                    localProps.classes?.handle,
-                    mergedHandleOptions()?.class,
+                    localProps.classes?.divider,
                   )}
                   onMouseEnter={bindings.onMouseEnter}
                   onMouseLeave={bindings.onMouseLeave}
                   onFocus={bindings.onFocus}
                   onBlur={bindings.onBlur}
                   onKeyDown={bindings.onKeyDown}
-                  onKeyUp={bindings.onKeyUp}
                   onPointerDown={bindings.onPointerDown}
-                  {...mergedHandleOptions()}
                 >
                   <Show when={bindings.startIntersectionVisible()}>
                     <div
@@ -167,15 +342,32 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     />
                   </Show>
 
-                  <Show when={showInnerHandle()}>
-                    <div
-                      data-slot="handle-inner"
-                      class={cn(
-                        'z-10 h-6 w-1 rounded-lg bg-border/90 pointer-events-none flex shrink-0',
-                        orientation() === 'horizontal' ? 'mx-auto' : 'rotate-90',
-                        localProps.classes?.handleInner,
-                      )}
-                    />
+                  <Show when={mergedHandleOptions().renderHandle} keyed>
+                    {(renderHandle) => (
+                      <Show
+                        when={renderHandle === true}
+                        fallback={
+                          <div
+                            data-slot="handle"
+                            class={cn(
+                              'z-10 pointer-events-none flex items-center justify-center',
+                              localProps.classes?.handle,
+                            )}
+                          >
+                            {renderHandle}
+                          </div>
+                        }
+                      >
+                        <div
+                          data-slot="handle"
+                          class={cn(
+                            'z-10 h-6 w-1 rounded-lg bg-border/90 pointer-events-none flex shrink-0',
+                            orientation() === 'horizontal' ? 'mx-auto' : 'rotate-90',
+                            localProps.classes?.handle,
+                          )}
+                        />
+                      </Show>
+                    )}
                   </Show>
 
                   <Show when={bindings.endIntersectionVisible()}>
