@@ -138,132 +138,6 @@ export function Sheet(props: SheetProps): JSX.Element {
       contentProps.title || contentProps.description || contentProps.actions || behaviorProps.close,
     )
 
-  const content = () => (
-    <KobalteDialog.Content
-      data-slot="content"
-      data-side={behaviorProps.side}
-      class={sheetContentVariants(
-        {
-          side: behaviorProps.side,
-          inset: behaviorProps.inset,
-        },
-        !behaviorProps.transition &&
-          'transition-none data-expanded:animate-none data-closed:animate-none',
-        contentProps.classes?.content,
-      )}
-      onPointerDownOutside={onPointerDownOutside}
-      onInteractOutside={onInteractOutside}
-      onEscapeKeyDown={onEscapeKeyDown}
-    >
-      <Show when={contentProps.header || hasDefaultHeader()}>
-        <div
-          data-slot="header"
-          class={cn('flex items-start gap-2 p-4', contentProps.classes?.header)}
-        >
-          <Show
-            when={contentProps.header}
-            fallback={
-              <>
-                <div
-                  data-slot="wrapper"
-                  class={cn('min-w-0 flex-1 grid gap-0.5', contentProps.classes?.wrapper)}
-                >
-                  <Show when={contentProps.title}>
-                    <KobalteDialog.Title
-                      data-slot="title"
-                      class={cn(
-                        'text-foreground text-base font-medium',
-                        contentProps.classes?.title,
-                      )}
-                    >
-                      {contentProps.title}
-                    </KobalteDialog.Title>
-                  </Show>
-
-                  <Show when={contentProps.description}>
-                    <KobalteDialog.Description
-                      data-slot="description"
-                      class={cn('text-muted-foreground text-sm', contentProps.classes?.description)}
-                    >
-                      {contentProps.description}
-                    </KobalteDialog.Description>
-                  </Show>
-                </div>
-
-                <Show when={contentProps.actions}>
-                  <div
-                    data-slot="actions"
-                    class={cn(
-                      'ms-auto inline-flex shrink-0 items-center gap-2',
-                      contentProps.classes?.actions,
-                    )}
-                  >
-                    {contentProps.actions}
-                  </div>
-                </Show>
-
-                <Show when={behaviorProps.close !== false}>
-                  <KobalteDialog.CloseButton
-                    data-slot="close"
-                    class={cn(
-                      'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:(bg-accent text-accent-foreground) focus-visible:effect-fv-border',
-                      contentProps.classes?.close,
-                    )}
-                    aria-label="Close"
-                  >
-                    <Show when={behaviorProps.close !== true} fallback={<Icon name="icon-close" />}>
-                      {behaviorProps.close as JSX.Element}
-                    </Show>
-                  </KobalteDialog.CloseButton>
-                </Show>
-              </>
-            }
-          >
-            {contentProps.header}
-          </Show>
-        </div>
-      </Show>
-
-      <Show when={contentProps.body}>
-        <div
-          data-slot="body"
-          class={cn(
-            'flex-1 overflow-auto',
-            contentProps.header || hasDefaultHeader() ? 'px-4 pb-4 pt-0' : 'p-4',
-            contentProps.classes?.body,
-          )}
-        >
-          {contentProps.body}
-        </div>
-      </Show>
-
-      <Show when={contentProps.footer}>
-        <div
-          data-slot="footer"
-          class={cn('mt-auto flex flex-col gap-2 p-4', contentProps.classes?.footer)}
-        >
-          {contentProps.footer}
-        </div>
-      </Show>
-    </KobalteDialog.Content>
-  )
-
-  const layer = () => (
-    <>
-      <Show when={behaviorProps.overlay}>
-        <KobalteDialog.Overlay
-          data-slot="overlay"
-          class={cn(
-            'fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-expanded:(animate-in fade-in-0) data-closed:(animate-out fade-out-0) data-ending-style:opacity-0 data-starting-style:opacity-0 duration-150',
-            contentProps.classes?.overlay,
-          )}
-        />
-      </Show>
-
-      {content()}
-    </>
-  )
-
   return (
     <KobalteDialog.Root modal {...restProps}>
       <KobalteDialog.Trigger
@@ -275,7 +149,128 @@ export function Sheet(props: SheetProps): JSX.Element {
         {contentProps.children}
       </KobalteDialog.Trigger>
 
-      <KobalteDialog.Portal>{layer()}</KobalteDialog.Portal>
+      <KobalteDialog.Portal>
+        <Show when={behaviorProps.overlay}>
+          <KobalteDialog.Overlay
+            data-slot="overlay"
+            class={cn(
+              'fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-expanded:(animate-in fade-in-0) data-closed:(animate-out fade-out-0) data-ending-style:opacity-0 data-starting-style:opacity-0 duration-150',
+              contentProps.classes?.overlay,
+            )}
+          />
+        </Show>
+
+        <KobalteDialog.Content
+          data-slot="content"
+          data-side={behaviorProps.side}
+          class={sheetContentVariants(
+            {
+              side: behaviorProps.side,
+              inset: behaviorProps.inset,
+            },
+            !behaviorProps.transition &&
+              'transition-none data-expanded:animate-none data-closed:animate-none',
+            contentProps.classes?.content,
+          )}
+          onPointerDownOutside={onPointerDownOutside}
+          onInteractOutside={onInteractOutside}
+          onEscapeKeyDown={onEscapeKeyDown}
+        >
+          <Show when={contentProps.header || hasDefaultHeader()}>
+            <div
+              data-slot="header"
+              class={cn('flex items-start gap-2 p-4', contentProps.classes?.header)}
+            >
+              <Show
+                when={contentProps.header}
+                fallback={
+                  <>
+                    <div
+                      data-slot="wrapper"
+                      class={cn('min-w-0 flex-1 grid gap-0.5', contentProps.classes?.wrapper)}
+                    >
+                      <Show when={contentProps.title}>
+                        <KobalteDialog.Title
+                          data-slot="title"
+                          class={cn(
+                            'text-foreground text-base font-medium',
+                            contentProps.classes?.title,
+                          )}
+                        >
+                          {contentProps.title}
+                        </KobalteDialog.Title>
+                      </Show>
+
+                      <Show when={contentProps.description}>
+                        <KobalteDialog.Description
+                          data-slot="description"
+                          class={cn(
+                            'text-muted-foreground text-sm',
+                            contentProps.classes?.description,
+                          )}
+                        >
+                          {contentProps.description}
+                        </KobalteDialog.Description>
+                      </Show>
+                    </div>
+
+                    <Show when={contentProps.actions}>
+                      <div
+                        data-slot="actions"
+                        class={cn(
+                          'ms-auto inline-flex shrink-0 items-center gap-2',
+                          contentProps.classes?.actions,
+                        )}
+                      >
+                        {contentProps.actions}
+                      </div>
+                    </Show>
+
+                    <Show when={behaviorProps.close !== false}>
+                      <KobalteDialog.CloseButton
+                        data-slot="close"
+                        class={cn(
+                          'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:(bg-accent text-accent-foreground) focus-visible:effect-fv-border',
+                          contentProps.classes?.close,
+                        )}
+                        aria-label="Close"
+                      >
+                        <Show when={behaviorProps.close === true} fallback={behaviorProps.close}>
+                          <Icon name="icon-close" />
+                        </Show>
+                      </KobalteDialog.CloseButton>
+                    </Show>
+                  </>
+                }
+              >
+                {contentProps.header}
+              </Show>
+            </div>
+          </Show>
+
+          <Show when={contentProps.body}>
+            <div
+              data-slot="body"
+              class={cn(
+                'flex-1 overflow-auto',
+                contentProps.header || hasDefaultHeader() ? 'px-4 pb-4 pt-0' : 'p-4',
+                contentProps.classes?.body,
+              )}
+            >
+              {contentProps.body}
+            </div>
+          </Show>
+
+          <Show when={contentProps.footer}>
+            <div
+              data-slot="footer"
+              class={cn('mt-auto flex flex-col gap-2 p-4', contentProps.classes?.footer)}
+            >
+              {contentProps.footer}
+            </div>
+          </Show>
+        </KobalteDialog.Content>
+      </KobalteDialog.Portal>
     </KobalteDialog.Root>
   )
 }

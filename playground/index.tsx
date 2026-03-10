@@ -14,6 +14,7 @@ import { CommandPaletteDemos } from './components/command-palette-demos'
 import { Sidebar } from './components/common/sidebar'
 import { ContextMenuDemos } from './components/context-menu-demos'
 import { DialogDemos } from './components/dialog-demos'
+import { DropdownMenuReactivityDemos } from './components/dialog-reactivity-demos'
 import { DropdownMenuDemos } from './components/dropdown-menu-demos'
 import { FileUploadDemos } from './components/file-upload-demos'
 import { FormDemos } from './components/form-demos'
@@ -56,6 +57,7 @@ const PAGES = [
   { key: 'popup', label: 'Popup', group: 'Overlay' },
   { key: 'popover', label: 'Popover', group: 'Overlay' },
   { key: 'dropdown-menu', label: 'Dropdown Menu', group: 'Overlay' },
+  { key: 'dropdown-menu-reactivity', label: 'Dropdown Menu Reactivity', group: 'Overlay' },
   { key: 'context-menu', label: 'Context Menu', group: 'Overlay' },
   { key: 'dialog', label: 'Dialog', group: 'Overlay' },
   { key: 'sheet', label: 'Sheet', group: 'Overlay' },
@@ -128,6 +130,9 @@ function App() {
           </Match>
           <Match when={page() === 'dropdown-menu'}>
             <DropdownMenuDemos />
+          </Match>
+          <Match when={page() === 'dropdown-menu-reactivity'}>
+            <DropdownMenuReactivityDemos />
           </Match>
           <Match when={page() === 'context-menu'}>
             <ContextMenuDemos />
