@@ -3,7 +3,6 @@ import type { JSX } from 'solid-js'
 import {
   createMemo,
   createSignal,
-  createUniqueId,
   mergeProps,
   onCleanup,
   onMount,
@@ -12,7 +11,7 @@ import {
 } from 'solid-js'
 
 import type { IconName } from '../../elements/icon'
-import { cn } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 import { OverlayMenuBaseContent } from '../shared-overlay-menu/menu'
 import type { OverlayMenuItemVariantProps } from '../shared-overlay-menu/menu.class'
 import type {
@@ -96,6 +95,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   )
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
   const resolvedOpen = createMemo(() => controlProps.open ?? uncontrolledOpen())
+  const resolvedId = useId(() => localProps.id, 'contextmenu')
   let longPressTimeoutId = 0
   let triggerElement: HTMLElement | undefined
 
@@ -312,7 +312,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       open={resolvedOpen()}
       onOpenChange={onRootOpenChange}
       getAnchorRect={getAnchorRect}
-      id={localProps.id || `contextmenu-${createUniqueId()}`}
+      id={resolvedId()}
       {...rootProps}
     >
       <KobalteDropdownMenu.Trigger

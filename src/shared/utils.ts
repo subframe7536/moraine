@@ -8,8 +8,7 @@ import { createMemo, createUniqueId } from 'solid-js'
  *
  * Priority:
  * 1. Returns `deterministicId` if provided
- * 2. Uses `useId` from ConfigProvider if available (for SSR)
- * 3. Falls back to auto-incrementing counter
+ * 2. Falls back to a generated identifier with a prefix
  *
  * @param deterministicId - Optional explicit ID to use
  * @param prefix - Prefix for generated IDs (default: 'rock')
@@ -29,7 +28,7 @@ import { createMemo, createUniqueId } from 'solid-js'
  */
 export function useId(
   deterministicId?: () => string | null | undefined,
-  prefix?: string,
+  prefix = 'rock',
 ): Accessor<string> {
   const resolvedId = createMemo(() => {
     const id = deterministicId?.()

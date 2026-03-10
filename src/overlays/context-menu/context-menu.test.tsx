@@ -5,6 +5,40 @@ import { ContextMenu } from './context-menu'
 import type { ContextMenuProps } from './context-menu'
 
 describe('ContextMenu', () => {
+  test('uses explicit id as id base', async () => {
+    const screen = render(() => (
+      <ContextMenu id="custom-menu" items={[{ label: 'Open item' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const ids = Array.from(document.querySelectorAll('[id]')).map((element) => element.id)
+    expect(ids.some((id) => id.startsWith('custom-menu'))).toBe(true)
+  })
+
+  test('generates contextmenu-prefixed id when id prop is missing', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Open item' }]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const ids = Array.from(document.querySelectorAll('[id]')).map((element) => element.id)
+    expect(ids.some((id) => id.startsWith('contextmenu-'))).toBe(true)
+  })
+
   test('opens on context menu event and supports keyboard selection', async () => {
     const onSelect = vi.fn()
 

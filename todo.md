@@ -1,7 +1,7 @@
 # Current
 
 - [x] invalid and other boolean state should become `data-*` driven css instead of a variant in `cva`
-- [ ] unify id
+- [x] unify id
 - [ ] refactor: overlay components should consider children as content, and provider optional trigger prop
 - [ ] custom true/false value in form elements
 - [ ] polish theme, like ring color etc.
