@@ -11,6 +11,14 @@ type ClassStringLiteral = ts.StringLiteral | ts.NoSubstitutionTemplateLiteral
 
 const TSX_SUFFIX = '.tsx'
 const CLASS_TS_SUFFIX = '.class.ts'
+const BORDER_SIDE_MAP = {
+  t: 't',
+  r: 'r',
+  b: 'b',
+  l: 'l',
+  x: 'x',
+  y: 'y',
+} as const
 
 function isClassFile(id: string): boolean {
   return id.endsWith(CLASS_TS_SUFFIX)
@@ -92,19 +100,174 @@ function unwrapExpression(expression: ts.Expression): ts.Expression {
   return current
 }
 
+function splitTokenByTopLevelColon(token: string): string[] {
+  const parts: string[] = []
+  let bracketDepth = 0
+  let parenDepth = 0
+  let braceDepth = 0
+  let start = 0
+
+  for (let index = 0; index < token.length; index += 1) {
+    const char = token[index]
+    if (char === '\\') {
+      index += 1
+      continue
+    }
+
+    if (char === '[') {
+      bracketDepth += 1
+      continue
+    }
+    if (char === ']') {
+      bracketDepth = Math.max(0, bracketDepth - 1)
+      continue
+    }
+    if (char === '(') {
+      parenDepth += 1
+      continue
+    }
+    if (char === ')') {
+      parenDepth = Math.max(0, parenDepth - 1)
+      continue
+    }
+    if (char === '{') {
+      braceDepth += 1
+      continue
+    }
+    if (char === '}') {
+      braceDepth = Math.max(0, braceDepth - 1)
+      continue
+    }
+
+    if (char === ':' && bracketDepth === 0 && parenDepth === 0 && braceDepth === 0) {
+      parts.push(token.slice(start, index))
+      start = index + 1
+    }
+  }
+
+  parts.push(token.slice(start))
+  return parts
+}
+
+function normalizeBorderUtility(utility: string): string {
+  if (utility === 'b') {
+    return 'border'
+  }
+  if (utility === 'b-transparent') {
+    return 'border-transparent'
+  }
+  if (utility === 'b-border') {
+    return 'border-border'
+  }
+
+  const simpleSideMatch = utility.match(/^b-([trblxy])$/)
+  if (simpleSideMatch) {
+    return `border-${BORDER_SIDE_MAP[simpleSideMatch[1] as keyof typeof BORDER_SIDE_MAP]}`
+  }
+
+  const sideMatch = utility.match(/^b-([trblxy])-(.+)$/)
+  if (sideMatch) {
+    const side = BORDER_SIDE_MAP[sideMatch[1] as keyof typeof BORDER_SIDE_MAP]
+    const tail = sideMatch[2]
+    if (tail === '1') {
+      return `border-${side}`
+    }
+    return `border-${side}-${tail}`
+  }
+
+  const borderMatch = utility.match(/^b-(.+)$/)
+  if (!borderMatch) {
+    return utility
+  }
+
+  const tail = borderMatch[1]
+  if (tail === '1') {
+    return 'border'
+  }
+  return `border-${tail}`
+}
+
+function normalizeUtility(utility: string): string {
+  if (utility === 'font-500') {
+    return 'font-medium'
+  }
+  if (utility === 'content-empty') {
+    return "content-['']"
+  }
+  const cssVarValueMatch = utility.match(/^(.+)-\$([a-z0-9-]+)$/i)
+  if (cssVarValueMatch) {
+    return `${cssVarValueMatch[1]}-[var(--${cssVarValueMatch[2]})]`
+  }
+  if (utility.startsWith('animate-duration-')) {
+    return `[animation-duration:${utility.slice('animate-duration-'.length)}]`
+  }
+  if (utility.startsWith('animate-ease-')) {
+    return `[animation-timing-function:${utility.slice('animate-ease-'.length)}]`
+  }
+  if (utility.startsWith('animate-iteration-')) {
+    return `[animation-iteration-count:${utility.slice('animate-iteration-'.length)}]`
+  }
+  if (utility.startsWith('b-') || utility === 'b') {
+    return normalizeBorderUtility(utility)
+  }
+
+  return utility
+}
+
+function normalizeVariant(variant: string): string {
+  if (variant === 'supports-backdrop-filter') {
+    return 'supports-[backdrop-filter]'
+  }
+  if (variant === 'not-dark') {
+    return '[html:not(.dark)_&]'
+  }
+  if (variant === 'not-last') {
+    return '[&:not(:last-child)]'
+  }
+
+  return variant
+}
+
+function normalizeToken(token: string): string {
+  const parts = splitTokenByTopLevelColon(token)
+  if (parts.length === 1) {
+    return normalizeUtility(token)
+  }
+
+  const utility = normalizeUtility(parts.pop() ?? '')
+  const variants = parts.map(normalizeVariant)
+  const utilityTokens = utility.match(/\S+/g) ?? [utility]
+  return utilityTokens.map((utilityToken) => [...variants, utilityToken].join(':')).join(' ')
+}
+
+export function normalizeClassList(value: string): string {
+  const tokens = value.match(/\S+/g)
+
+  if (!tokens) {
+    return value
+  }
+
+  return tokens.map((token) => normalizeToken(token)).join(' ')
+}
+
 function queueReplacement(
   replacements: Map<string, Replacement>,
   literal: ClassStringLiteral,
   source: string,
-  prefix: string,
 ): void {
   const start = literal.getStart() + 1
   const end = literal.end - 1
   const key = `${start}:${end}`
-  const originalValue = source.slice(start, end)
-  const nextValue = prefixClassList(originalValue, prefix)
+  const originalValue = literal.text
+  const normalizedValue = normalizeClassList(originalValue)
+  const quoteChar = source[literal.getStart()]
+  const nextValue = normalizedValue
+    .replace(/\\/g, '\\\\')
+    .replaceAll(quoteChar, `\\${quoteChar}`)
+    .replace(/\$\{/g, '\\${')
+  const originalSlice = source.slice(start, end)
 
-  if (nextValue === originalValue) {
+  if (nextValue === originalSlice) {
     return
   }
 
@@ -114,7 +277,6 @@ function queueReplacement(
 function collectVariantLeafClassLiterals(
   objectLiteral: ts.ObjectLiteralExpression,
   source: string,
-  prefix: string,
   replacements: Map<string, Replacement>,
 ): void {
   for (const property of objectLiteral.properties) {
@@ -125,12 +287,12 @@ function collectVariantLeafClassLiterals(
     const { initializer } = property
 
     if (isClassStringLiteral(initializer)) {
-      queueReplacement(replacements, initializer, source, prefix)
+      queueReplacement(replacements, initializer, source)
       continue
     }
 
     if (ts.isObjectLiteralExpression(initializer)) {
-      collectVariantLeafClassLiterals(initializer, source, prefix, replacements)
+      collectVariantLeafClassLiterals(initializer, source, replacements)
     }
   }
 }
@@ -138,12 +300,11 @@ function collectVariantLeafClassLiterals(
 function collectCvaClassReplacements(
   call: ts.CallExpression,
   source: string,
-  prefix: string,
   replacements: Map<string, Replacement>,
 ): void {
   const base = call.arguments[0]
   if (isClassStringLiteral(base)) {
-    queueReplacement(replacements, base, source, prefix)
+    queueReplacement(replacements, base, source)
   }
 
   const config = call.arguments[1]
@@ -153,7 +314,7 @@ function collectCvaClassReplacements(
 
   const variantsProperty = getObjectProperty(config, 'variants')
   if (variantsProperty && ts.isObjectLiteralExpression(variantsProperty.initializer)) {
-    collectVariantLeafClassLiterals(variantsProperty.initializer, source, prefix, replacements)
+    collectVariantLeafClassLiterals(variantsProperty.initializer, source, replacements)
   }
 
   const compoundVariantsProperty = getObjectProperty(config, 'compoundVariants')
@@ -174,19 +335,18 @@ function collectCvaClassReplacements(
       continue
     }
 
-    queueReplacement(replacements, classProperty.initializer, source, prefix)
+    queueReplacement(replacements, classProperty.initializer, source)
   }
 }
 
 function collectClassFileReplacements(
   sourceFile: ts.SourceFile,
   source: string,
-  prefix: string,
   replacements: Map<string, Replacement>,
 ): void {
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node) && getCallName(node.expression) === 'cva') {
-      collectCvaClassReplacements(node, source, prefix, replacements)
+      collectCvaClassReplacements(node, source, replacements)
     }
 
     ts.forEachChild(node, visit)
@@ -198,7 +358,6 @@ function collectClassFileReplacements(
 function collectClassOperandReplacements(
   expression: ts.Expression | undefined,
   source: string,
-  prefix: string,
   replacements: Map<string, Replacement>,
   insideClassesArg = false,
 ): void {
@@ -209,25 +368,13 @@ function collectClassOperandReplacements(
   const current = unwrapExpression(expression)
 
   if (isClassStringLiteral(current)) {
-    queueReplacement(replacements, current, source, prefix)
+    queueReplacement(replacements, current, source)
     return
   }
 
   if (ts.isConditionalExpression(current)) {
-    collectClassOperandReplacements(
-      current.whenTrue,
-      source,
-      prefix,
-      replacements,
-      insideClassesArg,
-    )
-    collectClassOperandReplacements(
-      current.whenFalse,
-      source,
-      prefix,
-      replacements,
-      insideClassesArg,
-    )
+    collectClassOperandReplacements(current.whenTrue, source, replacements, insideClassesArg)
+    collectClassOperandReplacements(current.whenFalse, source, replacements, insideClassesArg)
     return
   }
 
@@ -238,7 +385,7 @@ function collectClassOperandReplacements(
       operator === ts.SyntaxKind.BarBarToken ||
       operator === ts.SyntaxKind.QuestionQuestionToken
     ) {
-      collectClassOperandReplacements(current.right, source, prefix, replacements, insideClassesArg)
+      collectClassOperandReplacements(current.right, source, replacements, insideClassesArg)
     }
 
     return
@@ -247,7 +394,7 @@ function collectClassOperandReplacements(
   if (ts.isArrayLiteralExpression(current)) {
     for (const element of current.elements) {
       if (ts.isExpression(element)) {
-        collectClassOperandReplacements(element, source, prefix, replacements, insideClassesArg)
+        collectClassOperandReplacements(element, source, replacements, insideClassesArg)
       }
     }
 
@@ -265,7 +412,7 @@ function collectClassOperandReplacements(
     }
 
     for (const argument of current.arguments) {
-      collectClassOperandReplacements(argument, source, prefix, replacements, insideClassesArg)
+      collectClassOperandReplacements(argument, source, replacements, insideClassesArg)
     }
 
     return
@@ -273,7 +420,7 @@ function collectClassOperandReplacements(
 
   if (callName?.endsWith('Variants')) {
     for (const argument of current.arguments.slice(1)) {
-      collectClassOperandReplacements(argument, source, prefix, replacements, true)
+      collectClassOperandReplacements(argument, source, replacements, true)
     }
   }
 }
@@ -281,7 +428,6 @@ function collectClassOperandReplacements(
 function collectTsxReplacements(
   sourceFile: ts.SourceFile,
   source: string,
-  prefix: string,
   replacements: Map<string, Replacement>,
 ): void {
   const visit = (node: ts.Node): void => {
@@ -292,9 +438,9 @@ function collectTsxReplacements(
       node.initializer
     ) {
       if (ts.isStringLiteral(node.initializer)) {
-        queueReplacement(replacements, node.initializer, source, prefix)
+        queueReplacement(replacements, node.initializer, source)
       } else if (ts.isJsxExpression(node.initializer)) {
-        collectClassOperandReplacements(node.initializer.expression, source, prefix, replacements)
+        collectClassOperandReplacements(node.initializer.expression, source, replacements)
       }
     }
 
@@ -304,19 +450,9 @@ function collectTsxReplacements(
   visit(sourceFile)
 }
 
-export function prefixClassList(value: string, prefix: string): string {
-  const tokens = value.match(/\S+/g)
-
-  if (!tokens) {
-    return value
-  }
-
-  return tokens.map((token) => (token.startsWith(prefix) ? token : `${prefix}${token}`)).join(' ')
-}
-
-export function createInjectRockPrefixTransformer(prefix: string): SourceCodeTransformer {
+export function createMigrateSyntaxTransformer(): SourceCodeTransformer {
   return {
-    name: 'transformer-inject-rock-prefix',
+    name: 'transformer-migrate-syntax',
     enforce: 'pre',
     idFilter: (id) => isClassFile(id) || isTsxFile(id),
     transform(code, id) {
@@ -331,9 +467,9 @@ export function createInjectRockPrefixTransformer(prefix: string): SourceCodeTra
       const replacements = new Map<string, Replacement>()
 
       if (isClassFile(id)) {
-        collectClassFileReplacements(sourceFile, source, prefix, replacements)
+        collectClassFileReplacements(sourceFile, source, replacements)
       } else {
-        collectTsxReplacements(sourceFile, source, prefix, replacements)
+        collectTsxReplacements(sourceFile, source, replacements)
       }
 
       const sorted = Array.from(replacements.values()).sort((a, b) => b.start - a.start)

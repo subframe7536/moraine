@@ -20,24 +20,31 @@
   "type": "module",
   "types": "./dist/index.d.mts",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
+    ".": {
+      "solid": "./dist/index.jsx",
+      "default": "./dist/index.mjs",
+      "type": "./dist/index.d.mts"
+    },
+    "./package.json": "./package.json",
+    "./tw4.css": "./dist/tw4.css",
+    "./tw3.css": "./dist/tw3.css"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
-    "play": "bun vite serve playground",
-    "play:build": "bun vite build playground",
-    "test": "bun vitest",
-    "lint": "oxlint",
-    "format": "oxfmt",
+    "build": "bun --bun tsdown",
+    "dev": "bun --bun tsdown --watch",
+    "play": "bun --bun vite serve playground",
+    "play:build": "bun --bun vite build playground",
+    "test": "bun --bun vitest",
+    "lint": "bun --bun oxlint",
+    "format": "bun --bun oxfmt",
+    "check:modern-css": "bun run scripts/check-modern-css.ts",
     "typecheck": "tsc --noEmit",
     "fix-oxlint": "bun -e \"const p=process.argv[1],f=Bun.file(p),t=await f.text();await Bun.write(p,t.replace(/jsPlugins/g,'//jsPlugins'));await Bun.write(p,t)\" .oxlintrc.json",
     "oxc": "bun run fix-oxlint && oxlint --fix && oxfmt",
-    "qa": "bun run --parallel oxc typecheck",
+    "qa": "bun run --parallel oxc typecheck check:modern-css",
     "release": "bun run test --run && bumpp",
     "prepublishOnly": "bun run build"
   },
@@ -56,6 +63,8 @@
     "bumpp": "^10.4.1",
     "eslint-plugin-solid": "^0.14.5",
     "jsdom": "^28.1.0",
+    "oxc-parser": "^0.118.0",
+    "oxc-walker": "^0.7.0",
     "oxfmt": "^0.37.0",
     "oxlint": "^1.52.0",
     "rolldown-plugin-unocss": "^0.1.0",
@@ -70,8 +79,8 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@unocss/preset-wind4": "^66.6.6",
     "solid-js": "^1.9.11",
+    "tailwindcss": "^4.0.0",
     "typescript": "^5.9.3",
     "unocss": "^66.6.6"
   },
@@ -80,6 +89,7 @@
     "vite": "8.0.0-beta.18"
   },
   "inlinedDependencies": {
-    "valibot": "1.2.0"
+    "valibot": "1.2.0",
+    "@unocss/preset-wind4": "66.6.6"
   }
 }

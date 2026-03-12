@@ -25,7 +25,7 @@ export function Card(props: CardProps): JSX.Element {
     <div
       data-slot="root"
       class={cn(
-        'relative flex flex-col rounded-2xl border bg-card not-dark:bg-clip-padding text-card-foreground shadow-xs/5',
+        'relative flex flex-col rounded-2xl b-1 b-border bg-card not-dark:bg-clip-padding text-card-foreground shadow-xs/5',
         props.classes?.root,
       )}
     >

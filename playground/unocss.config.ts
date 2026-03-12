@@ -1,19 +1,24 @@
+import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import type { PresetWind4Theme } from 'unocss'
 import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 'unocss'
 import { presetAnimations } from 'unocss-preset-animations'
 import { presetFunctionCompletion, presetObjectCompletion } from 'unocss-preset-completion'
 
 import { presetTheme } from '../src/unocss-preset-theme'
-import { createInjectRockPrefixTransformer } from '../src/unocss-transformer-inject-rock-prefix'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [
     presetWind4(),
     presetIcons({
       scale: 1.2,
+      collections: {
+        lucide: () => lucideIcons,
+      },
     }),
     presetAnimations() as any,
-    presetTheme(),
+    presetTheme({
+      lowLayer: true,
+    }),
     presetObjectCompletion(),
     presetFunctionCompletion(),
   ],
@@ -23,7 +28,6 @@ export default defineConfig<PresetWind4Theme>({
     // 2) playground fast-simulate: inject + rock post
     // 3) real user app: rock post only
     transformerVariantGroup(),
-    createInjectRockPrefixTransformer(),
   ],
   content: {
     pipeline: {

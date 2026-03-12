@@ -19,7 +19,7 @@ export const fileUploadRootVariants = cva('relative flex flex-col data-disabled:
 })
 
 export const fileUploadBaseVariants = cva(
-  'group relative inline-flex w-full cursor-pointer items-center justify-center rounded-lg border border-input bg-background text-center outline-none transition-[color,box-shadow] dark:bg-input/30 focus-visible:effect-fv-border data-highlight:surface-highlight data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid',
+  'group relative inline-flex w-full cursor-pointer items-center justify-center rounded-lg b-(1 input) bg-background text-center outline-none transition-[color,box-shadow] dark:bg-input/30 focus-visible:effect-fv-border data-highlight:surface-highlight data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -108,7 +108,7 @@ export const fileUploadFilesVariants = cva('flex flex-col', {
 })
 
 export const fileUploadFileVariants = cva(
-  'relative flex items-center rounded-md border bg-background',
+  'relative flex items-center rounded-md b-(1 border) bg-background',
   {
     defaultVariants: {
       size: 'md',
@@ -183,7 +183,7 @@ export const fileUploadSizeVariants = cva('truncate text-muted-foreground', {
 })
 
 export const fileUploadRemoveVariants = cva(
-  'inline-flex items-center justify-center rounded-sm border border-transparent text-muted-foreground transition-colors hover:(bg-muted text-foreground) focus-visible:effect-fv-border',
+  'inline-flex items-center justify-center rounded-sm b-(1 transparent) text-muted-foreground transition-colors hover:(bg-muted text-foreground) focus-visible:effect-fv-border',
   {
     defaultVariants: {
       size: 'md',

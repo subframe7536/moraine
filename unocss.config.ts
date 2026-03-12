@@ -4,7 +4,6 @@ import { presetAnimations } from 'unocss-preset-animations'
 import { presetFunctionCompletion, presetObjectCompletion } from 'unocss-preset-completion'
 
 import { presetTheme } from './src/unocss-preset-theme'
-import { createInjectRockPrefixTransformer } from './src/unocss-transformer-inject-rock-prefix'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [
@@ -17,7 +16,7 @@ export default defineConfig<PresetWind4Theme>({
     presetObjectCompletion(),
     presetFunctionCompletion(),
   ],
-  transformers: [transformerVariantGroup(), createInjectRockPrefixTransformer()],
+  transformers: [transformerVariantGroup()],
   content: {
     pipeline: {
       include: ['**/*.tsx', '**/*.class.ts', 'node_modules/**/*.*'],

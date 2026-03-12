@@ -72,7 +72,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
             disabled={Boolean(behaviorProps.disabled || item.disabled)}
             forceMount={!behaviorProps.unmountOnHide}
             data-slot="item"
-            class={cn('not-last:b-(b border) data-disabled:effect-dis', renderProps.classes?.item)}
+            class={cn(
+              'not-last:b-(b b-border) data-disabled:effect-dis',
+              renderProps.classes?.item,
+            )}
           >
             <KobalteAccordion.Header
               data-slot="header"

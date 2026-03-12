@@ -45,8 +45,8 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
       xl: 'text-base',
     },
     variant: {
-      card: 'rounded-lg border data-checked:border-primary',
-      table: 'relative border border-muted data-checked:(bg-primary/10 border-primary/50 z-1)',
+      card: 'rounded-lg b-(1 border) data-checked:border-primary',
+      table: 'relative b-(1 muted) data-checked:(bg-primary/10 border-primary/50 z-1)',
     },
     indicator: {
       start: 'flex-row',
@@ -127,7 +127,7 @@ export const radioGroupContainerVariants = cva('flex items-center', {
 })
 
 export const radioGroupBaseVariants = cva(
-  'inline-flex items-center justify-center overflow-hidden rounded-full border border-input bg-background bg-clip-padding outline-none transition-shadow dark:bg-input/30 peer-focus-visible:effect-fv-border data-invalid:effect-invalid',
+  'inline-flex items-center justify-center overflow-hidden rounded-full b-(1 input) bg-background bg-clip-padding outline-none transition-shadow dark:bg-input/30 peer-focus-visible:effect-fv-border data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',

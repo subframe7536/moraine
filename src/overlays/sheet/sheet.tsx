@@ -230,7 +230,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                       <KobalteDialog.CloseButton
                         data-slot="close"
                         class={cn(
-                          'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:(bg-accent text-accent-foreground) focus-visible:effect-fv-border',
+                          'inline-flex size-8 shrink-0 items-center justify-center rounded-md b-(1 transparent) text-muted-foreground transition-colors hover:(bg-accent text-accent-foreground) focus-visible:effect-fv-border',
                           contentProps.classes?.close,
                         )}
                         aria-label="Close"

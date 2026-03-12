@@ -116,8 +116,6 @@ describe('RadioGroup', () => {
     const firstBase = screen.container.querySelector('[data-slot="base"]')
 
     expect(fieldset?.className).toContain('flex-row')
-    expect(firstItem?.className).toContain('border')
-    expect(firstItem?.className).toContain('border-muted')
     expect(firstItem?.className).toContain('p-4.5')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
