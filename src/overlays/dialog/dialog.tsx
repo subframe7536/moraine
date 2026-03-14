@@ -6,12 +6,14 @@ import { Card } from '../../elements/card'
 import { IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Popup } from '../popup'
 
 import { dialogCardVariants } from './dialog.class'
+import type { DialogCardVariantProps } from './dialog.class'
 
-type ModalSlots =
+type DialogSlots =
   | 'trigger'
   | 'overlay'
   | 'content'
@@ -23,36 +25,129 @@ type ModalSlots =
   | 'body'
   | 'footer'
 
-export type ModalClasses = SlotClasses<ModalSlots>
+export type DialogClasses = SlotClasses<DialogSlots>
 
-export type ModalStyles = SlotStyles<ModalSlots>
+export type DialogStyles = SlotStyles<DialogSlots>
 
-export interface ModalBaseProps {
+/**
+ * Base props for the Dialog component.
+ */
+export interface DialogBaseProps extends DialogCardVariantProps {
+  /**
+   * Unique identifier for the dialog.
+   */
   id?: string
+
+  /**
+   * Controlled open state of the dialog.
+   */
   open?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Callback triggered when the open state changes.
+   */
   onOpenChange?: (open: boolean) => void
+
+  /**
+   * Primary title displayed in the dialog header.
+   */
   title?: JSX.Element
+
+  /**
+   * Secondary description displayed below the title.
+   */
   description?: JSX.Element
+
+  /**
+   * Whether to show a background overlay.
+   * @default true
+   */
   overlay?: boolean
+
+  /**
+   * Whether the dialog content body should be scrollable.
+   * @default false
+   */
   scrollable?: boolean
+
+  /**
+   * Whether to enable transition animations.
+   * @default true
+   */
   transition?: boolean
+
+  /**
+   * Whether the dialog should take up the full viewport.
+   * @default false
+   */
   fullscreen?: boolean
+
+  /**
+   * Whether to show a close button.
+   * @default true
+   */
   close?: boolean
+
+  /**
+   * Icon name for the close button.
+   * @default 'icon-close'
+   */
   closeIcon?: IconName
+
+  /**
+   * Whether the dialog can be dismissed by clicking outside or pressing Escape.
+   * @default true
+   */
   dismissible?: boolean
+
+  /**
+   * Callback triggered when a dismissal action is prevented.
+   */
   onClosePrevent?: () => void
+
+  /**
+   * Custom element to render in the header slot.
+   */
   header?: JSX.Element
+
+  /**
+   * Custom element to render in the body slot.
+   */
   body?: JSX.Element
+
+  /**
+   * Custom element to render in the footer slot.
+   */
   footer?: JSX.Element
-  classes?: ModalClasses
-  styles?: ModalStyles
+
+  /**
+   * Slot-based class overrides.
+   */
+  classes?: DialogClasses
+
+  /**
+   * Slot-based style overrides.
+   */
+  styles?: DialogStyles
+
+  /**
+   * Content to render inside the dialog.
+   */
+  children?: JSX.Element
 }
 
-export type ModalProps = ModalBaseProps &
-  Omit<KobalteDialog.DialogRootProps, keyof ModalBaseProps | 'class'>
+/**
+ * Props for the Dialog component.
+ */
+export type DialogProps = RockUIComposeProps<DialogBaseProps, KobalteDialog.DialogRootProps>
 
-export function Dialog(props: ModalProps): JSX.Element {
+export function Dialog(props: DialogProps): JSX.Element {
   const merged = mergeProps(
     {
       overlay: true,
@@ -62,7 +157,7 @@ export function Dialog(props: ModalProps): JSX.Element {
       dismissible: true,
     },
     props,
-  ) as ModalProps
+  ) as DialogProps
   const [behaviorProps, contentProps, restProps] = splitProps(
     merged,
     [

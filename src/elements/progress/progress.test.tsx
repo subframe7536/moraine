@@ -144,21 +144,25 @@ describe('Progress', () => {
         value={60}
         status
         max={['A', 'B', 'C']}
-        styles={{
-          root: { width: '200px' },
-          status: { width: '200px' },
-          base: { width: '200px' },
-          indicator: { width: '200px' },
-          steps: { width: '200px' },
-          step: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            status: { width: '200px' },
+            base: { width: '200px' },
+            indicator: { width: '200px' },
+            steps: { width: '200px' },
+            step: { width: '200px' },
+          } as any
+        }
       />
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement | null
     const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
-    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement | null
+    const indicator = screen.container.querySelector(
+      '[data-slot="indicator"]',
+    ) as HTMLElement | null
     const steps = screen.container.querySelector('[data-slot="steps"]') as HTMLElement | null
     const step = screen.container.querySelector('[data-slot="step"]') as HTMLElement | null
 

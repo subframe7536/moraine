@@ -1,4 +1,4 @@
-import type { JSX, ParentProps } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
@@ -10,18 +10,61 @@ export type CardClasses = SlotClasses<CardSlots>
 
 export type CardStyles = SlotStyles<CardSlots>
 
+/**
+ * Base props for the Card component.
+ */
 export interface CardBaseProps {
+  /**
+   * Whether to use a compact layout.
+   * @default false
+   */
   compact?: boolean
+
+  /**
+   * Title of the card.
+   */
   title?: JSX.Element
+
+  /**
+   * Description of the card.
+   */
   description?: JSX.Element
+
+  /**
+   * Content to render in the header slot, overrides title/description.
+   */
   header?: JSX.Element
+
+  /**
+   * Content to render in the footer slot.
+   */
   footer?: JSX.Element
+
+  /**
+   * Content to render in the action slot (usually a button in the header).
+   */
   action?: JSX.Element
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: CardClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: CardStyles
+
+  /**
+   * Children of the card.
+   */
+  children?: JSX.Element
 }
 
-export type CardProps = ParentProps<CardBaseProps>
+/**
+ * Props for the Card component.
+ */
+export type CardProps = CardBaseProps
 
 export function Card(props: CardProps): JSX.Element {
   return (

@@ -37,35 +37,116 @@ export type TextareaClasses = SlotClasses<TextareaSlots>
 
 export type TextareaStyles = SlotStyles<TextareaSlots>
 
+/**
+ * Base props for the Textarea component.
+ */
 export interface TextareaBaseProps
   extends
-    TextareaStyleVariantProps,
     FormIdentityOptions,
     FormValueOptions<TextareaValue>,
     FormRequiredOption,
     FormReadOnlyOption,
     FormDisableOption {
+  /**
+   * Placeholder text for the textarea.
+   */
   placeholder?: string
+
+  /**
+   * Whether to automatically focus the textarea on mount.
+   * @default false
+   */
   autofocus?: boolean
+
+  /**
+   * Delay in milliseconds before focusing the textarea.
+   * @default 0
+   */
   autofocusDelay?: number
+
+  /**
+   * Maximum character length for the textarea.
+   */
   maxLength?: number
+
+  /**
+   * Delay in milliseconds before triggering autoresize on mount.
+   * @default 0
+   */
   autoresizeDelay?: number
+
+  /**
+   * Default number of rows.
+   * @default 3
+   */
   rows?: number
+
+  /**
+   * Maximum number of rows allowed during autoresize.
+   * @default 0
+   */
   maxrows?: number
+
+  /**
+   * Element to render above the textarea.
+   */
   header?: JSX.Element
+
+  /**
+   * Element to render below the textarea.
+   */
   footer?: JSX.Element
+
+  /**
+   * Modifiers for input processing (e.g., lazy, trim, number).
+   */
   modelModifiers?: ModelModifiers
+
+  /**
+   * Callback when the value changes.
+   */
   onValueChange?: (value: TextareaChangeValue) => void
+
+  /**
+   * Native input event handler.
+   */
   onInput?: JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>
+
+  /**
+   * Native change event handler.
+   */
   onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
+
+  /**
+   * Native blur event handler.
+   */
   onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
+
+  /**
+   * Native focus event handler.
+   */
   onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: TextareaClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: TextareaStyles
+
+  /**
+   * Children elements, rendered inside the root below the textarea.
+   */
   children?: JSX.Element
 }
 
-export type TextareaProps = TextareaBaseProps
+/**
+ * Props for the Textarea component.
+ */
+export type TextareaProps = TextareaBaseProps & TextareaStyleVariantProps
 
 export function Textarea(props: TextareaProps): JSX.Element {
   const merged = mergeProps(

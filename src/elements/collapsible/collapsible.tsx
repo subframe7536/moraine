@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 type CollapsibleSlots = 'root' | 'trigger' | 'content'
@@ -11,24 +12,75 @@ export type CollapsibleClasses = SlotClasses<CollapsibleSlots>
 
 export type CollapsibleStyles = SlotStyles<CollapsibleSlots>
 
+/**
+ * Props passed to the trigger render function.
+ */
 export interface CollapsibleTriggerSlotProps {
+  /**
+   * Whether the collapsible is open.
+   */
   open: boolean
 }
 
+/**
+ * Base props for the Collapsible component.
+ */
 export interface CollapsibleBaseProps {
+  /**
+   * Whether the collapsible is open (controlled).
+   */
   open?: boolean
+
+  /**
+   * Whether the collapsible is open by default (uncontrolled).
+   */
   defaultOpen?: boolean
+
+  /**
+   * Callback when the open state changes.
+   */
   onOpenChange?: (open: boolean) => void
+
+  /**
+   * Whether the collapsible is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether to force mount the content.
+   * @default false
+   */
   forceMount?: boolean
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: CollapsibleClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: CollapsibleStyles
+
+  /**
+   * Custom trigger render function.
+   */
   trigger?: (props: CollapsibleTriggerSlotProps) => JSX.Element
+
+  /**
+   * Content to render inside the collapsible.
+   */
   children?: JSX.Element
 }
 
-export type CollapsibleProps = CollapsibleBaseProps &
-  Omit<KobalteCollapsible.CollapsibleRootProps, keyof CollapsibleBaseProps | 'children' | 'class'>
+/**
+ * Props for the Collapsible component.
+ */
+export type CollapsibleProps = RockUIComposeProps<
+  CollapsibleBaseProps,
+  KobalteCollapsible.CollapsibleRootProps
+>
 
 export function Collapsible(props: CollapsibleProps): JSX.Element {
   const [contentProps, restProps] = splitProps(props as CollapsibleProps, [

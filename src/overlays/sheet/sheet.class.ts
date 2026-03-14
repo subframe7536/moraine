@@ -1,3 +1,4 @@
+import type { VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
 export const sheetContentVariants = cva(
@@ -23,3 +24,5 @@ export const sheetContentVariants = cva(
     },
   },
 )
+
+export type SheetVariantProps = VariantProps<typeof sheetContentVariants>

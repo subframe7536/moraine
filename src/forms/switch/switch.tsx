@@ -5,9 +5,15 @@ import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
-import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
+import type {
+  FormDisableOption,
+  FormIdentityOptions,
+  FormReadOnlyOption,
+  FormRequiredOption,
+} from '../form-field/form-options'
 import { FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS } from '../form-field/form-options'
 
 import type { SwitchVariantProps } from './switch.class'
@@ -33,25 +39,93 @@ export type SwitchClasses = SlotClasses<SwitchSlots>
 
 export type SwitchStyles = SlotStyles<SwitchSlots>
 
+/**
+ * Base props for the Switch component.
+ */
 export interface SwitchBaseProps<TTrue = boolean, TFalse = boolean>
-  extends SwitchVariantProps, FormIdentityOptions, FormDisableOption {
+  extends
+    FormIdentityOptions,
+    FormDisableOption,
+    FormRequiredOption,
+    FormReadOnlyOption,
+    SwitchVariantProps {
+  /**
+   * Whether the switch is checked.
+   */
   checked?: TTrue | TFalse
+
+  /**
+   * Whether the switch is checked by default.
+   */
   defaultChecked?: boolean
+
+  /**
+   * Value to use when the switch is checked.
+   * @default true
+   */
   trueValue?: TTrue
+
+  /**
+   * Value to use when the switch is unchecked.
+   * @default false
+   */
   falseValue?: TFalse
+
+  /**
+   * Whether the switch is in a loading state.
+   * @default false
+   */
   loading?: boolean
+
+  /**
+   * Icon shown during loading state.
+   * @default 'icon-loading'
+   */
   loadingIcon?: IconName
+
+  /**
+   * Icon shown when the switch is checked.
+   */
   checkedIcon?: IconName
+
+  /**
+   * Icon shown when the switch is unchecked.
+   */
   uncheckedIcon?: IconName
+
+  /**
+   * Label for the switch.
+   */
   label?: JSX.Element
+
+  /**
+   * Description for the switch.
+   */
   description?: JSX.Element
+
+  /**
+   * Callback when the switch state changes.
+   */
   onChange?: (value: TTrue | TFalse) => void
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: SwitchClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: SwitchStyles
 }
 
-export type SwitchProps<TTrue = boolean, TFalse = boolean> = SwitchBaseProps<TTrue, TFalse> &
-  Omit<KobalteSwitch.SwitchRootProps, keyof SwitchBaseProps | 'children' | 'class'>
+/**
+ * Props for the Switch component.
+ */
+export type SwitchProps<TTrue = boolean, TFalse = boolean> = RockUIComposeProps<
+  SwitchBaseProps<TTrue, TFalse>,
+  KobalteSwitch.SwitchRootProps
+>
 
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,

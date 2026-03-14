@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, mergeProps, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
@@ -22,24 +23,78 @@ export type AccordionClasses = SlotClasses<AccordionSlots>
 export type AccordionStyles = SlotStyles<AccordionSlots>
 
 export interface AccordionItem {
+  /**
+   * Header label for the accordion item.
+   */
   label?: JSX.Element
+
+  /**
+   * Unique value for the accordion item.
+   */
   value?: string
+
+  /**
+   * Whether the accordion item is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Leading icon name for the accordion item.
+   */
   leading?: IconName
+
+  /**
+   * Content to display when the accordion item is expanded.
+   */
   content?: JSX.Element
 }
 
+/**
+ * Base props for the Accordion component.
+ */
 export interface AccordionBaseProps {
+  /**
+   * Array of accordion items to render.
+   */
   items?: AccordionItem[]
+
+  /**
+   * Whether the entire accordion is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether to unmount accordion content when hidden.
+   * @default true
+   */
   unmountOnHide?: boolean
+
+  /**
+   * Trailing icon name for all accordion items.
+   * @default 'icon-chevron-down'
+   */
   trailing?: IconName
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: AccordionClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: AccordionStyles
 }
 
-export type AccordionProps = AccordionBaseProps &
-  Omit<KobalteAccordion.AccordionRootProps, keyof AccordionBaseProps | 'children' | 'class'>
+/**
+ * Props for the Accordion component.
+ */
+export type AccordionProps = RockUIComposeProps<
+  AccordionBaseProps,
+  KobalteAccordion.AccordionRootProps
+>
 
 export function Accordion(props: AccordionProps): JSX.Element {
   const merged = mergeProps(

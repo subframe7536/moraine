@@ -20,16 +20,37 @@ import type { StandardSchemaV1 } from './standard-schema'
 
 type FormState = object
 
+/**
+ * Event emitted when the form is submitted successfully.
+ */
 export interface FormSubmitEvent<TState extends FormState = FormState> extends SubmitEvent {
+  /**
+   * The current data of the form.
+   */
   data?: TState
 }
 
+/**
+ * Event emitted when the form submission fails due to validation errors.
+ */
 export interface FormErrorEvent extends SubmitEvent {
+  /**
+   * The list of validation errors.
+   */
   errors: FormValidationError[]
 }
 
+/**
+ * Props passed to the form's children when provided as a render function.
+ */
 export interface FormRenderProps {
+  /**
+   * The list of current validation errors in the form.
+   */
   errors: FormValidationError[]
+  /**
+   * Whether the form is currently in a loading state.
+   */
   loading: boolean
 }
 
@@ -39,22 +60,83 @@ export type FormClasses = SlotClasses<FormSlots>
 
 export type FormStyles = SlotStyles<FormSlots>
 
+/**
+ * Base props for the Form component.
+ */
 export interface FormBaseProps<TState extends FormState = FormState> {
+  /**
+   * Unique identifier for the form.
+   */
   id?: string
+
+  /**
+   * The state of the form (controlled).
+   */
   state?: TState
+
+  /**
+   * Standard Schema V1 for form validation.
+   */
   schema?: StandardSchemaV1<TState>
+
+  /**
+   * Custom validation function.
+   */
   validate?: (state: TState | undefined) => FormValidationError[] | Promise<FormValidationError[]>
+
+  /**
+   * When to trigger validation.
+   * @default ['input', 'blur', 'change']
+   */
   validateOn?: FormInputEventType[]
+
+  /**
+   * Delay in milliseconds before triggering validation on input events.
+   * @default 300
+   */
   validateOnInputDelay?: number
+
+  /**
+   * Whether the entire form is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether to automatically set the form to a loading state during submission.
+   * @default true
+   */
   loadingAuto?: boolean
+
+  /**
+   * Callback when the form is submitted successfully.
+   */
   onSubmit?: (event: FormSubmitEvent<TState>) => void | Promise<void>
+
+  /**
+   * Callback when the form submission fails due to validation errors.
+   */
   onError?: (event: FormErrorEvent) => void
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: FormClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: FormStyles
+
+  /**
+   * Children of the form, can be a render function.
+   */
   children?: JSX.Element | ((props: FormRenderProps) => JSX.Element)
 }
 
+/**
+ * Props for the Form component.
+ */
 export type FormProps<TState extends FormState = FormState> = FormBaseProps<TState>
 
 interface FormFieldRuntimeEntry {

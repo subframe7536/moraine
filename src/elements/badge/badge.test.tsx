@@ -95,11 +95,13 @@ describe('Badge', () => {
         data-slot="tag"
         trailing="i-lucide-x"
         onTrailingClick={() => undefined}
-        styles={{
-          base: { width: '200px' },
-          label: { width: '200px' },
-          trailing: { width: '200px' },
-        } as any}
+        styles={
+          {
+            base: { width: '200px' },
+            label: { width: '200px' },
+            trailing: { width: '200px' },
+          } as any
+        }
       >
         Tag
       </Badge>

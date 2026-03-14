@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -57,9 +58,24 @@ export type RadioGroupItemClasses = SlotClasses<RadioGroupItemSlots>
 export type RadioGroupItemStyles = SlotStyles<RadioGroupItemSlots>
 
 export interface RadioGroupItemObject {
+  /**
+   * Value of the radio item.
+   */
   value?: string
+
+  /**
+   * Label for the radio item.
+   */
   label?: JSX.Element
+
+  /**
+   * Description for the radio item.
+   */
   description?: JSX.Element
+
+  /**
+   * Whether the item is disabled.
+   */
   disabled?: boolean
 }
 
@@ -74,26 +90,50 @@ interface NormalizedRadioGroupItem {
   disabled: boolean
 }
 
+/**
+ * Base props for the RadioGroup component.
+ */
 export interface RadioGroupBaseProps
   extends
-    RadioGroupVariantProps,
     FormIdentityOptions,
     FormValueOptions<RadioGroupValue>,
     FormRequiredOption,
     FormDisableOption,
-    FormReadOnlyOption {
+    FormReadOnlyOption,
+    RadioGroupVariantProps {
+  /**
+   * Legend for the radio group.
+   */
   legend?: JSX.Element
+
+  /**
+   * Array of items to render in the group.
+   */
   items?: RadioGroupItem[]
+
+  /**
+   * Callback when the selected value changes.
+   */
   onChange?: (value: RadioGroupValue) => void
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: RadioGroupClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: RadioGroupStyles
 }
 
-export type RadioGroupProps = RadioGroupBaseProps &
-  Omit<
-    KobalteRadioGroup.RadioGroupRootProps,
-    keyof RadioGroupBaseProps | 'id' | 'children' | 'class'
-  >
+/**
+ * Props for the RadioGroup component.
+ */
+export type RadioGroupProps = RockUIComposeProps<
+  RadioGroupBaseProps,
+  KobalteRadioGroup.RadioGroupRootProps
+>
 
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const merged = mergeProps(

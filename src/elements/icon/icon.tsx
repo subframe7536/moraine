@@ -8,7 +8,13 @@ import { iconSizeVariants } from './icon.class'
 
 export type IconName = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
-export interface IconBaseProps {
+/**
+ * Base props for the Icon component.
+ */
+export interface IconBaseProps extends Omit<
+  JSX.HTMLAttributes<HTMLSpanElement>,
+  'aria-hidden' | 'children' | 'style' | 'size' | 'class' | 'id'
+> {
   /**
    * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
    * or app-config aliases such as `icon-search`.
@@ -20,19 +26,33 @@ export interface IconBaseProps {
    * Icon size. Numbers are interpreted as px.
    */
   size?: string | number
+
   /**
-   * Slot name
+   * Data slot for styling.
    * @default 'icon'
    */
   'data-slot'?: string
+
+  /**
+   * Custom style overrides.
+   */
   style?: JSX.CSSProperties
+
+  /**
+   * Additional CSS class.
+   */
+  class?: string
+
+  /**
+   * Unique identifier.
+   */
+  id?: string
 }
 
-export type IconProps = IconBaseProps &
-  Omit<
-    JSX.HTMLAttributes<HTMLSpanElement>,
-    keyof IconBaseProps | 'aria-hidden' | 'children' | 'style'
-  >
+/**
+ * Props for the Icon component.
+ */
+export type IconProps = IconBaseProps
 
 export function Icon(props: IconProps): JSX.Element {
   const [localProps, restProps] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])

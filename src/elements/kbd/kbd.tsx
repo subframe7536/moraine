@@ -13,14 +13,35 @@ export type KbdClasses = SlotClasses<KbdSlots>
 
 export type KbdStyles = SlotStyles<KbdSlots>
 
-export interface KbdBaseProps extends KbdVariantProps {
+/**
+ * Base props for the Kbd component.
+ */
+export interface KbdBaseProps {
+  /**
+   * Slot-based class overrides.
+   */
   classes?: KbdClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: KbdStyles
+
+  /**
+   * Prefix for data-slot attributes.
+   */
   slotPrefix?: string
+
+  /**
+   * Array of keys to display.
+   */
   value?: string[]
 }
 
-export type KbdProps = KbdBaseProps
+/**
+ * Props for the Kbd component.
+ */
+export type KbdProps = KbdBaseProps & KbdVariantProps
 
 export function Kbd(props: KbdProps): JSX.Element {
   const inner = (val: string) => (

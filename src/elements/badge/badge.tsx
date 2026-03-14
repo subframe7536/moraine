@@ -1,4 +1,4 @@
-import type { JSX, ParentProps } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
@@ -20,17 +20,56 @@ export interface BadgeTrailingButtonProps extends Omit<
   'children' | 'name' | 'onClick' | 'size' | 'loading' | 'loadingIcon' | 'type'
 > {}
 
-export interface BadgeBaseProps extends BadgeVariantProps {
+/**
+ * Base props for the Badge component.
+ */
+export interface BadgeBaseProps {
+  /**
+   * Data slot for styling.
+   * @default 'badge'
+   */
   'data-slot'?: string
+
+  /**
+   * Accessible title for the badge.
+   */
   title?: string
+
+  /**
+   * Leading icon name.
+   */
   leading?: IconName
+
+  /**
+   * Trailing icon name.
+   */
   trailing?: IconName
+
+  /**
+   * Callback when the trailing icon/button is clicked.
+   */
   onTrailingClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: BadgeClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: BadgeStyles
+
+  /**
+   * Children of the badge.
+   */
+  children?: JSX.Element
 }
 
-export type BadgeProps = ParentProps<BadgeBaseProps>
+/**
+ * Props for the Badge component.
+ */
+export type BadgeProps = BadgeBaseProps & BadgeVariantProps
 export function Badge(props: BadgeProps): JSX.Element {
   const merged = mergeProps(
     {

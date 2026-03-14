@@ -274,11 +274,7 @@ describe('Modal', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Dialog
-        open
-        body="Body"
-        styles={{ content: { width: '200px' } } as any}
-      >
+      <Dialog open body="Body" styles={{ content: { width: '200px' } } as any}>
         <button type="button">Trigger</button>
       </Dialog>
     ))

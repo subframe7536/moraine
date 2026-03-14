@@ -5,6 +5,7 @@ import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -35,24 +36,92 @@ export type CheckboxClasses = SlotClasses<CheckboxSlots>
 
 export type CheckboxStyles = SlotStyles<CheckboxSlots>
 
+/**
+ * Base props for the Checkbox component.
+ */
 export interface CheckboxBaseProps<TTrue = boolean, TFalse = boolean>
-  extends CheckboxVariantProps, FormIdentityOptions, FormDisableOption {
+  extends FormIdentityOptions, FormDisableOption, CheckboxVariantProps {
+  /**
+   * Whether the checkbox is checked (controlled).
+   */
   checked?: TTrue | TFalse | 'indeterminate'
+
+  /**
+   * Whether the checkbox is checked by default (uncontrolled).
+   * @default false
+   */
   defaultChecked?: boolean | 'indeterminate'
+
+  /**
+   * Value to use when the checkbox is checked.
+   * @default true
+   */
   trueValue?: TTrue
+
+  /**
+   * Value to use when the checkbox is unchecked.
+   * @default false
+   */
   falseValue?: TFalse
+
+  /**
+   * Label for the checkbox.
+   */
   label?: JSX.Element
+
+  /**
+   * Description text for the checkbox.
+   */
   description?: JSX.Element
+
+  /**
+   * Whether to bind the checkbox value to the parent FormField.
+   * @default true
+   */
   formFieldBind?: boolean
+
+  /**
+   * Callback when the checked state changes.
+   */
   onChange?: (value: TTrue | TFalse) => void
+
+  /**
+   * Whether the checkbox is in an indeterminate state.
+   * @default false
+   */
+  indeterminate?: boolean
+
+  /**
+   * Icon to show when checked.
+   * @default 'icon-check'
+   */
   checkedIcon?: IconName
+
+  /**
+   * Icon to show when indeterminate.
+   * @default 'icon-minus'
+   */
   indeterminateIcon?: IconName
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: CheckboxClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: CheckboxStyles
 }
 
-export type CheckboxProps<TTrue = boolean, TFalse = boolean> = CheckboxBaseProps<TTrue, TFalse> &
-  Omit<KobalteCheckbox.CheckboxRootProps, keyof CheckboxBaseProps | 'children' | 'class' | 'ref'>
+/**
+ * Props for the Checkbox component.
+ */
+export type CheckboxProps<TTrue = boolean, TFalse = boolean> = RockUIComposeProps<
+  CheckboxBaseProps<TTrue, TFalse>,
+  KobalteCheckbox.CheckboxRootProps,
+  'ref' | 'indeterminate'
+>
 
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,

@@ -9,8 +9,8 @@
 - [x] simplify theme
 - [x] unify icon size resolver
 - [x] `styles: SlotStyles<SlotNames, JSX.CSSProperties>` (like `classes`)
+- [x] props jsdoc
 - [ ] check `props.highlight` actual usage and style effect, optimize `surface-highlight` and `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
-- [ ] props jsdoc
 - [ ] refine demo into doc?
 
 # V1

@@ -18,26 +18,84 @@ import { cn } from '../../shared/utils'
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
+/**
+ * An individual item in the command palette.
+ */
 export interface CommandPaletteItem {
+  /**
+   * Unique value for the item.
+   */
   value: string
+
+  /**
+   * Primary label for the item.
+   */
   label?: string
+
+  /**
+   * Optional prefix text shown before the label.
+   */
   prefix?: string
+
+  /**
+   * Optional suffix text shown after the label.
+   */
   suffix?: string
+
+  /**
+   * Secondary description text shown below the label.
+   */
   description?: string
-  /** UnoCSS icon class, e.g. `icon-search` or `i-lucide-search` */
+
+  /**
+   * UnoCSS icon class or name to display.
+   * @example 'icon-search'
+   */
   icon?: string
+
+  /**
+   * Array of keyboard shortcuts to display.
+   */
   kbds?: string[]
-  /** Force-active (highlighted) state */
+
+  /**
+   * Whether to force the item into an active (highlighted) state.
+   */
   active?: boolean
+
+  /**
+   * Whether the item is disabled and cannot be selected.
+   */
   disabled?: boolean
-  /** Selecting this item drills into a sub-group */
+
+  /**
+   * Selecting this item drills into a nested group of items.
+   */
   children?: CommandPaletteItem[]
+
+  /**
+   * Callback triggered when the item is selected.
+   */
   onSelect?: () => void
 }
 
+/**
+ * A grouped collection of items in the command palette.
+ */
 export interface CommandPaletteGroup {
+  /**
+   * Unique identifier for the group.
+   */
   id: string
+
+  /**
+   * Display name for the group header.
+   */
   label?: string
+
+  /**
+   * Items belonging to this group.
+   */
   items?: CommandPaletteItem[]
 }
 
@@ -69,39 +127,114 @@ export type CommandPaletteClasses = SlotClasses<CommandPaletteSlots>
 
 export type CommandPaletteStyles = SlotStyles<CommandPaletteSlots>
 
-export interface CommandPaletteProps {
+/**
+ * Base props for the CommandPalette component.
+ */
+export interface CommandPaletteBaseProps {
+  /**
+   * Command groups to display initially.
+   */
   groups?: CommandPaletteGroup[]
-  /** @default 'Search...' */
+
+  /**
+   * Placeholder text for the search input.
+   * @default 'Search...'
+   */
   placeholder?: string
-  /** Controlled search term */
+
+  /**
+   * Controlled search term.
+   */
   searchTerm?: string
+
+  /**
+   * Callback triggered when the search term changes.
+   */
   onSearchTermChange?: (term: string) => void
-  /** Maximum search text length applied on commit. */
+
+  /**
+   * Maximum allowed length for the search text.
+   */
   searchMaxLength?: number
-  /** @default true */
+
+  /**
+   * Whether to focus the search input automatically on mount.
+   * @default true
+   */
   autofocus?: boolean
-  /** @default 'icon-search' */
+
+  /**
+   * Icon name for the search indicator.
+   * @default 'icon-search'
+   */
   searchIcon?: IconName
-  /** @default 'icon-loading' */
+
+  /**
+   * Icon name for the loading state.
+   * @default 'icon-loading'
+   */
   loadingIcon?: IconName
-  /** @default 'icon-chevron-right' */
+
+  /**
+   * Icon name for items with sub-groups.
+   * @default 'icon-chevron-right'
+   */
   childIcon?: IconName
-  /** @default 'icon-arrow-left' */
+
+  /**
+   * Icon name for the group navigation back button.
+   * @default 'icon-arrow-left'
+   */
   backIcon?: IconName
-  /** @default 'icon-close' */
+
+  /**
+   * Icon name for the palette close button.
+   * @default 'icon-close'
+   */
   closeIcon?: IconName
-  /** Show a close button */
+
+  /**
+   * Whether to show a close button in the header.
+   * @default false
+   */
   close?: boolean
+
+  /**
+   * Callback triggered when the close button is clicked.
+   */
   onClose?: () => void
-  /** Show a loading spinner in the search icon slot */
+
+  /**
+   * Whether the palette is in a loading state.
+   */
   loading?: boolean
-  /** Custom empty state content. Defaults to "No results." */
+
+  /**
+   * Elements to show when no items match the search.
+   * @default 'No results.'
+   */
   empty?: JSX.Element
-  /** Optional footer content rendered below the list/empty state. */
+
+  /**
+   * Content to render at bottom of the palette.
+   */
   footer?: JSX.Element
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: CommandPaletteClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: CommandPaletteStyles
 }
+
+/**
+ * Props for the CommandPalette component.
+ */
+export type CommandPaletteProps = CommandPaletteBaseProps
 
 // ─── Internal normalized types ────────────────────────────────────────────────
 

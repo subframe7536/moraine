@@ -4,11 +4,11 @@ import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { tooltipContentVariants } from './tooltip.class'
-
-type TooltipSide = 'top' | 'right' | 'bottom' | 'left'
+import type { TooltipVariantProps } from './tooltip.class'
 
 type TooltipSlots = 'content' | 'trigger' | 'text' | 'kbds' | 'kbd'
 
@@ -16,18 +16,40 @@ export type TooltipClasses = SlotClasses<TooltipSlots>
 
 export type TooltipStyles = SlotStyles<TooltipSlots>
 
-export interface TooltipBaseProps {
-  placement?: TooltipSide
-  invert?: boolean
+/**
+ * Base props for the Tooltip component.
+ */
+export interface TooltipBaseProps extends TooltipVariantProps {
+  /**
+   * Primary text content or element to display.
+   */
   text?: JSX.Element
+
+  /**
+   * Keyboard shortcuts to display next to the text.
+   */
   kbds?: string[]
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: TooltipClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: TooltipStyles
+
+  /**
+   * The reference element that triggers the tooltip.
+   */
   children: JSX.Element
 }
 
-export type TooltipProps = TooltipBaseProps &
-  Omit<KobalteTooltip.TooltipRootProps, keyof TooltipBaseProps | 'children' | 'class'>
+/**
+ * Props for the Tooltip component.
+ */
+export type TooltipProps = RockUIComposeProps<TooltipBaseProps, KobalteTooltip.TooltipRootProps>
 
 export function Tooltip(props: TooltipProps): JSX.Element {
   const merged = mergeProps(
@@ -39,24 +61,26 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     props,
   ) as TooltipProps
-  const [contentProps, restProps] = splitProps(merged, [
-    'text',
-    'kbds',
-    'invert',
-    'classes',
-    'styles',
-    'children',
-  ])
+  const [behaviorProps, contentProps, restProps] = splitProps(
+    merged,
+    ['side', 'invert'],
+    ['text', 'kbds', 'classes', 'styles', 'children'],
+  )
 
   const isDisabled = () => Boolean(restProps.disabled)
 
   return (
-    <KobalteTooltip.Root disabled={isDisabled()} overflowPadding={4} {...restProps}>
+    <KobalteTooltip.Root
+      disabled={isDisabled()}
+      overflowPadding={4}
+      placement={behaviorProps.side as any}
+      {...restProps}
+    >
       <KobalteTooltip.Trigger
         as="span"
         tabIndex={-1}
         data-slot="trigger"
-        style={merged.styles?.trigger}
+        style={contentProps.styles?.trigger}
         class={cn('outline-none', contentProps.classes?.trigger)}
       >
         {contentProps.children}
@@ -65,16 +89,16 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       <KobalteTooltip.Portal>
         <KobalteTooltip.Content
           data-slot="content"
-          style={merged.styles?.content}
+          style={contentProps.styles?.content}
           class={tooltipContentVariants(
-            { side: restProps.placement, invert: contentProps.invert! },
+            { side: behaviorProps.side, invert: behaviorProps.invert },
             contentProps.classes?.content,
           )}
         >
           <Show when={typeof contentProps.text === 'string'} fallback={contentProps.text}>
             <span
               data-slot="text"
-              style={merged.styles?.text}
+              style={contentProps.styles?.text}
               class={cn('leading-4 text-pretty', contentProps.classes?.text)}
             >
               {contentProps.text}
@@ -82,7 +106,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           </Show>
 
           <Kbd
-            variant={contentProps.invert ? 'invert' : undefined}
+            variant={behaviorProps.invert ? 'invert' : undefined}
             size="sm"
             value={contentProps.kbds}
             classes={{

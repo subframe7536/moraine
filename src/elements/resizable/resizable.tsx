@@ -41,24 +41,83 @@ export type ResizableClasses = SlotClasses<ResizableSlots>
 
 export type ResizableStyles = SlotStyles<ResizableSlots>
 
-export interface ResizableProps extends ResizableVariantProps {
+/**
+ * Base props for the Resizable component.
+ */
+export interface ResizableBaseProps {
+  /**
+   * Unique identifier for the resizable root.
+   */
   id?: string
+
+  /**
+   * Array of panels to render.
+   */
   panels?: ResizablePanelItem[]
+
+  /**
+   * Callback when any panel is resized.
+   */
   onResize?: (sizes: number[]) => void
+
+  /**
+   * Callback when a resize operation starts.
+   */
   onResizeStart?: (sizes: number[]) => void
+
+  /**
+   * Callback when a resize operation ends.
+   */
   onResizeEnd?: (sizes: number[]) => void
+
+  /**
+   * Callback when a key is pressed on a handle.
+   */
   onHandleKeyDown?: (context: {
     event: KeyboardEvent
     handleIndex: number
     sizes: number[]
   }) => void
+
+  /**
+   * Whether the resizable component is disabled.
+   * @default false
+   */
   disable?: boolean
+
+  /**
+   * Custom handle to render, or boolean to toggle default handle.
+   * @default true
+   */
   renderHandle?: boolean | JSX.Element
+
+  /**
+   * Whether to use intersection-based handle sizing.
+   * @default false
+   */
   intersection?: boolean
+
+  /**
+   * The amount to resize when using keyboard shortcuts.
+   * @default '10%'
+   */
   keyboardDelta?: ResizableSize
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: ResizableClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: ResizableStyles
 }
+
+/**
+ * Props for the Resizable component.
+ */
+export type ResizableProps = ResizableBaseProps & ResizableVariantProps
 
 interface DragState {
   initialSizes: number[]

@@ -224,11 +224,7 @@ describe('Popover', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Popover
-        open
-        styles={{ content: { width: '200px' } } as any}
-        content="Styled"
-      >
+      <Popover open styles={{ content: { width: '200px' } } as any} content="Styled">
         <button type="button">Trigger</button>
       </Popover>
     ))

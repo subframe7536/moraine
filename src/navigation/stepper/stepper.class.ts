@@ -135,5 +135,4 @@ export const stepperDescriptionVariants = cva('text-muted-foreground text-wrap',
   },
 })
 
-export type StepperVariantProps = VariantProps<typeof stepperItemVariants> &
-  VariantProps<typeof stepperTriggerVariants>
+export type StepperVariantProps = VariantProps<typeof stepperItemVariants>

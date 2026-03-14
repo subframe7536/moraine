@@ -109,8 +109,4 @@ export const tabsLeadingVariants = cva('inline-flex shrink-0 items-center justif
   },
 })
 
-export type TabsVariantProps = VariantProps<typeof tabsRootVariants> &
-  VariantProps<typeof tabsListVariants> &
-  VariantProps<typeof tabsIndicatorVariants> &
-  VariantProps<typeof tabsTriggerVariants> &
-  VariantProps<typeof tabsLeadingVariants>
+export type TabsVariantProps = VariantProps<typeof tabsTriggerVariants>

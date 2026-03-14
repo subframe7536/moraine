@@ -19,11 +19,12 @@ import {
 } from 'solid-js'
 
 import { Badge } from '../../elements/badge'
-import type { BadgeBaseProps } from '../../elements/badge'
+import type { BadgeProps } from '../../elements/badge'
 import { Icon, IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import { overlayMenuContentVariants } from '../../overlays/shared-overlay-menu/menu.class'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -51,27 +52,37 @@ import {
 export type SelectValue = string | number
 
 export interface SelectOption {
+  /** Label to display for the option. */
   label?: string | JSX.Element
+  /** Value of the option. */
   value?: SelectValue
+  /** Whether the option is disabled. */
   disabled?: boolean
+  /** Description shown below the label. */
   description?: string | JSX.Element
+  /** Icon shown next to the label. */
   icon?: IconName
   /** Group children. When present, this option acts as a group header. */
   options?: SelectOption[]
 }
 
 export interface SelectFieldNames {
+  /** Key for option label. Default: 'label'. */
   label?: string
+  /** Key for option value. Default: 'value'. */
   value?: string
-  /** Key for group children array. */
+  /** Key for group children array. Default: 'options'. */
   options?: string
-  /** Key for group header label. */
+  /** Key for group header label. Default: 'label'. */
   groupLabel?: string
 }
 
 export interface SelectOptionRenderState {
+  /** Whether the option is currently selected. */
   isSelected: boolean
+  /** Whether the option is currently highlighted/focused. */
   isHighlighted: boolean
+  /** Whether the option is disabled. */
   isDisabled: boolean
 }
 
@@ -129,12 +140,16 @@ export type SelectStyles = SlotStyles<SelectSlots>
 type SelectSize = NonNullable<SelectControlVariantProps['size']>
 type SelectVariant = NonNullable<SelectControlVariantProps['variant']>
 
+/**
+ * Base props for the Select component.
+ */
 export interface SelectBaseProps
   extends
     FormIdentityOptions,
     FormValueOptions<SelectValue | null | SelectValue[]>,
     FormRequiredOption,
-    FormDisableOption {
+    FormDisableOption,
+    SelectControlVariantProps {
   /** Whether to allow multiple selections. When true, value is `SelectValue[]`. */
   multiple?: boolean
 
@@ -169,7 +184,8 @@ export interface SelectBaseProps
   allowClear?: boolean
   /** Called when clear is triggered. */
   onClear?: () => void
-  tagVariant?: BadgeBaseProps['variant']
+  /** Variant for the selected tags. */
+  tagVariant?: BadgeProps['variant']
 
   /** Characters that split input into tokens and immediately select them (requires `multiple`). */
   tokenSeparators?: string[]
@@ -190,17 +206,23 @@ export interface SelectBaseProps
   /** Custom renderer for the empty state when current filtered result has no matches. */
   emptyRender?: SelectEmptyRender
 
+  /** Size of the select control. */
   size?: SelectSize
+  /** Visual variant of the select control. */
   variant?: SelectVariant
+  /** Whether to highlight the control (e.g., on error). */
   highlight?: boolean
-  disabled?: boolean
+  /** Placeholder text shown when no value is selected. */
   placeholder?: string
+  /** Whether the select is in a loading state. */
   loading?: boolean
+  /** Icon shown during loading state. */
   loadingIcon?: IconName
   /** Icon shown before the input/value area. */
   leadingIcon?: IconName
   /** Icon for the dropdown trigger. Default: 'icon-chevron-down'. */
   triggerIcon?: IconName
+  /** Icon shown on the clear button. */
   closeIcon?: IconName
 
   /** Called when the user scrolls near the bottom of the listbox. Use for infinite loading. */
@@ -208,15 +230,19 @@ export interface SelectBaseProps
   /** Distance (px) from the bottom at which onScrollEnd fires. Default: 20. */
   scrollEndThreshold?: number
 
+  /** Slot-based class overrides. */
   classes?: SelectClasses
+  /** Slot-based style overrides. */
   styles?: SelectStyles
 }
 
-export type SelectProps = SelectBaseProps &
-  Omit<
-    ComboboxRootProps<NormalizedOption, NormalizedGroup>,
-    keyof SelectBaseProps | 'id' | 'children' | 'class'
-  >
+/**
+ * Props for the Select component.
+ */
+export type SelectProps = RockUIComposeProps<
+  SelectBaseProps,
+  ComboboxRootProps<NormalizedOption, NormalizedGroup>
+>
 
 // ---------------------------------------------------------------------------
 // Normalized option types (internal)

@@ -4,9 +4,11 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { popupContentVariants, popupOverlayVariants } from './popup.class'
+import type { PopupContentVariantProps } from './popup.class'
 
 type PopupSlots = 'trigger' | 'overlay' | 'content'
 
@@ -14,20 +16,74 @@ export type PopupClasses = SlotClasses<PopupSlots>
 
 export type PopupStyles = SlotStyles<PopupSlots>
 
-export interface PopupBaseProps {
+/**
+ * Base props for the Popup component.
+ */
+export interface PopupBaseProps extends PopupContentVariantProps {
+  /**
+   * Whether to display a backdrop overlay.
+   * @default true
+   */
   overlay?: boolean
+
+  /**
+   * Whether to allow scrolling within the popup.
+   * @default false
+   */
   scrollable?: boolean
+
+  /**
+   * Whether to enable transition animations.
+   * @default true
+   */
   transition?: boolean
+
+  /**
+   * Whether the popup should cover the entire viewport.
+   * @default false
+   */
   fullscreen?: boolean
+
+  /**
+   * Whether the popup should close on outside interaction or Escape key.
+   * @default true
+   */
   dismissible?: boolean
+
+  /**
+   * Callback triggered when a dismissal is prevented.
+   */
   onClosePrevent?: () => void
+
+  /**
+   * Main content to render inside the popup.
+   */
   content?: JSX.Element
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: PopupClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: PopupStyles
+
+  /**
+   * Element that triggers the popup or additional content.
+   */
+  children?: JSX.Element
 }
 
-export type PopupProps = PopupBaseProps &
-  Omit<KobalteDialog.DialogRootProps, keyof PopupBaseProps | 'class' | 'preventScroll'>
+/**
+ * Props for the Popup component.
+ */
+export type PopupProps = RockUIComposeProps<
+  PopupBaseProps,
+  KobalteDialog.DialogRootProps,
+  'preventScroll'
+>
 
 export function Popup(props: PopupProps): JSX.Element {
   const merged = mergeProps(

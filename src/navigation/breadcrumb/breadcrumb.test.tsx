@@ -175,11 +175,13 @@ describe('Breadcrumb', () => {
   test('applies styles overrides', () => {
     const screen = render(() => (
       <Breadcrumb
-        styles={{
-          root: { width: '200px' },
-          link: { width: '200px' },
-          separator: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            link: { width: '200px' },
+            separator: { width: '200px' },
+          } as any
+        }
         items={[
           { label: 'Home', href: '/', icon: 'i-lucide-house' },
           { label: 'Docs', href: '/docs' },
@@ -189,7 +191,9 @@ describe('Breadcrumb', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const link = screen.container.querySelector('[data-slot="link"]') as HTMLElement | null
-    const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement | null
+    const separator = screen.container.querySelector(
+      '[data-slot="separator"]',
+    ) as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(link?.style.width).toBe('200px')

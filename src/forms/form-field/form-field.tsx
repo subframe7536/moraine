@@ -40,28 +40,98 @@ export type FormFieldClasses = SlotClasses<FormFieldSlots>
 
 export type FormFieldStyles = SlotStyles<FormFieldSlots>
 
+/**
+ * Props passed to the children of FormField when provided as a render function.
+ */
 export interface FormFieldRenderProps {
+  /**
+   * The current error for the field.
+   */
   error?: boolean | string | JSX.Element
 }
 
-export interface FormFieldBaseProps extends FormFieldVariantProps {
+/**
+ * Base props for the FormField component.
+ */
+export interface FormFieldBaseProps {
+  /**
+   * The HTML element or component to render as.
+   * @default 'div'
+   */
   as?: ValidComponent
+
+  /**
+   * Unique identifier for the form field.
+   */
   id?: string
+
+  /**
+   * The name of the field (key in form state).
+   */
   name?: string | string[]
+
+  /**
+   * Label for the field.
+   */
   label?: JSX.Element
+
+  /**
+   * Description text shown below the label.
+   */
   description?: JSX.Element
+
+  /**
+   * Help text shown below the control when no error is present.
+   */
   help?: JSX.Element
+
+  /**
+   * Custom error message or force error state.
+   */
   error?: boolean | string | JSX.Element
+
+  /**
+   * Hint text shown near the label.
+   */
   hint?: JSX.Element
+
+  /**
+   * Whether the field is required.
+   * @default false
+   */
   required?: boolean
+
+  /**
+   * Whether to trigger validation eagerly on every input.
+   * @default false
+   */
   eagerValidation?: boolean
+
+  /**
+   * Delay in milliseconds for debounced input validation.
+   */
   validateOnInputDelay?: number
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: FormFieldClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: FormFieldStyles
+
+  /**
+   * Children of the field, can be a render function.
+   */
   children?: JSX.Element | ((props: FormFieldRenderProps) => JSX.Element)
 }
 
-export type FormFieldProps = FormFieldBaseProps
+/**
+ * Props for the FormField component.
+ */
+export type FormFieldProps = FormFieldBaseProps & FormFieldVariantProps
 
 export function FormField(props: FormFieldProps): JSX.Element {
   const merged = mergeProps(

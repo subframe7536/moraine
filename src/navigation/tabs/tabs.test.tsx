@@ -93,11 +93,13 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={ITEMS}
-        styles={{
-          root: { width: '200px' },
-          trigger: { width: '200px' },
-          content: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            trigger: { width: '200px' },
+            content: { width: '200px' },
+          } as any
+        }
       />
     ))
 

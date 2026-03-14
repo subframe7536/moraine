@@ -227,16 +227,18 @@ describe('Accordion', () => {
       <Accordion
         items={[BASE_ITEMS[0]]}
         defaultValue={['one']}
-        styles={{
-          root: { width: '200px' },
-          item: { width: '200px' },
-          header: { width: '200px' },
-          trigger: { width: '200px' },
-          leading: { width: '200px' },
-          label: { width: '200px' },
-          trailing: { width: '200px' },
-          content: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            item: { width: '200px' },
+            header: { width: '200px' },
+            trigger: { width: '200px' },
+            leading: { width: '200px' },
+            label: { width: '200px' },
+            trailing: { width: '200px' },
+            content: { width: '200px' },
+          } as any
+        }
       />
     ))
 

@@ -4,6 +4,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
@@ -21,21 +22,24 @@ export type ButtonClasses = SlotClasses<ButtonSlots>
 export type ButtonStyles = SlotStyles<ButtonSlots>
 
 /**
- * Additional Rock UI button options on top of Kobalte's polymorphic button props.
+ * Base props for the Button component.
  */
 export interface ButtonBaseProps extends ButtonVariantProps {
   /**
    * Controlled loading state.
+   * @default false
    */
   loading?: boolean
 
   /**
    * Auto toggles loading while async click handlers are pending.
+   * @default false
    */
   loadingAuto?: boolean
 
   /**
    * Optional icon shown when `loading` is active.
+   * @default 'icon-loading'
    */
   loadingIcon?: IconName
 
@@ -50,18 +54,28 @@ export interface ButtonBaseProps extends ButtonVariantProps {
   trailing?: IconName
 
   /**
-   * Slot-based class overrides, similar to Nuxt UI `ui` customization.
+   * Slot-based class overrides.
    */
   classes?: ButtonClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: ButtonStyles
+
+  /**
+   * Children of the button.
+   */
+  children?: JSX.Element
 }
 
 /**
+ * Props for the Button component.
  * Polymorphic button props composed from Kobalte button root props and Rock UI button options.
  */
 export type ButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
   T,
-  ButtonBaseProps & Omit<KobalteButton.ButtonRootProps<ElementOf<T>>, 'class'>
+  RockUIComposeProps<ButtonBaseProps, KobalteButton.ButtonRootProps<ElementOf<T>>>
 >
 
 type PromiseLikeWithFinally = PromiseLike<unknown> & {

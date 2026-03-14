@@ -39,24 +39,72 @@ export type AvatarClasses = SlotClasses<AvatarSlots>
 export type AvatarStyles = SlotStyles<AvatarSlots>
 
 export interface AvatarItem {
+  /**
+   * Source URL for the avatar image.
+   */
   src?: string
+
+  /**
+   * Accessible alt text for the avatar.
+   */
   alt?: string
+
+  /**
+   * Icon name for the badge.
+   */
   badge?: IconName
+
+  /**
+   * Position of the badge.
+   * @default 'bottom-right'
+   */
   badgePosition?: AvatarBadgePosition
+
+  /**
+   * Initial text to show if image fails or is missing.
+   */
   text?: string
+
+  /**
+   * Icon name to show as fallback.
+   */
   fallback?: IconName
+
+  /**
+   * Callback when the loading status of the avatar changes.
+   */
   onStatusChange?: (status: AvatarStatus) => void
 }
 
-export interface AvatarBaseProps
-  extends Pick<AvatarVariantProps, 'size' | 'transition'>, AvatarItem {
+/**
+ * Base props for the Avatar component.
+ */
+export interface AvatarBaseProps extends AvatarItem {
+  /**
+   * Array of items to render in a group.
+   */
   items?: AvatarItem[]
+
+  /**
+   * Maximum number of avatars to show when in a group.
+   */
   max?: number | string
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: AvatarClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: AvatarStyles
 }
 
-export type AvatarProps = AvatarBaseProps
+/**
+ * Props for the Avatar component.
+ */
+export type AvatarProps = AvatarBaseProps & Pick<AvatarVariantProps, 'size' | 'transition'>
 
 interface AvatarFaceInput {
   src: () => string | undefined

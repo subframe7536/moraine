@@ -42,12 +42,33 @@ export type CheckboxGroupStyles<
 export type CheckboxGroupValue = string
 
 export interface CheckboxGroupItemObject<TTrue = boolean, TFalse = boolean> {
+  /**
+   * Value of the group item.
+   */
   value?: string
+  /**
+   * Label for the group item.
+   */
   label?: JSX.Element
+  /**
+   * Description for the group item.
+   */
   description?: JSX.Element
+  /**
+   * Whether the item is disabled.
+   */
   disabled?: boolean
+  /**
+   * Whether the item is indeterminate.
+   */
   indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
+  /**
+   * Custom checked icon for this item.
+   */
   checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
+  /**
+   * Custom indeterminate icon for this item.
+   */
   indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
 }
 
@@ -60,6 +81,9 @@ type CheckboxGroupItemClasses<TTrue = boolean, TFalse = boolean> = Omit<
   'root'
 >
 
+/**
+ * Class overrides for CheckboxGroup and its items.
+ */
 export interface CheckboxGroupClasses<TTrue = boolean, TFalse = boolean> {
   root?: string
   fieldset?: string
@@ -74,27 +98,64 @@ export interface CheckboxGroupClasses<TTrue = boolean, TFalse = boolean> {
   description?: CheckboxGroupItemClasses<TTrue, TFalse>['description']
 }
 
+/**
+ * Base props for the CheckboxGroup component.
+ */
 export interface CheckboxGroupBaseProps<TTrue = boolean, TFalse = boolean>
   extends
-    CheckboxGroupVariantProps,
     FormIdentityOptions,
     FormValueOptions<CheckboxGroupValue[]>,
     FormRequiredOption,
     FormDisableOption {
+  /**
+   * Legend for the checkbox group.
+   */
   legend?: JSX.Element
+
+  /**
+   * Array of items to render in the group.
+   */
   items?: CheckboxGroupItem<TTrue, TFalse>[]
+
+  /**
+   * Default indicator position for all items.
+   */
   indicator?: CheckboxProps<TTrue, TFalse>['indicator']
+
+  /**
+   * Default checked icon for all items.
+   */
   checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
+
+  /**
+   * Default indeterminate icon for all items.
+   */
   indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
+
+  /**
+   * Callback when the selected values change.
+   */
   onChange?: (value: CheckboxGroupValue[]) => void
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: CheckboxGroupClasses<TTrue, TFalse>
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: CheckboxGroupStyles<TTrue, TFalse>
 }
 
+/**
+ * Props for the CheckboxGroup component.
+ */
 export type CheckboxGroupProps<TTrue = boolean, TFalse = boolean> = CheckboxGroupBaseProps<
   TTrue,
   TFalse
->
+> &
+  CheckboxGroupVariantProps
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   id: string

@@ -237,15 +237,19 @@ describe('CheckboxGroup', () => {
       <CheckboxGroup
         items={['A']}
         variant="table"
-        styles={{
-          root: { width: '200px' },
-          base: { width: '200px' },
-          label: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            base: { width: '200px' },
+            label: { width: '200px' },
+          } as any
+        }
       />
     ))
 
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]') as HTMLElement | null
+    const item = screen.container.querySelector(
+      '[data-slot="fieldset"] > [data-slot="root"]',
+    ) as HTMLElement | null
     const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
     const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
 

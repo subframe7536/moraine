@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 
 import type { SeparatorVariantProps } from './separator.class'
 import {
@@ -17,18 +18,39 @@ export type SeparatorClasses = SlotClasses<SeparatorSlots>
 
 export type SeparatorStyles = SlotStyles<SeparatorSlots>
 
-export interface SeparatorBaseProps extends Pick<
-  SeparatorVariantProps,
-  'orientation' | 'size' | 'type'
-> {
+/**
+ * Base props for the Separator component.
+ */
+export interface SeparatorBaseProps extends SeparatorVariantProps {
+  /**
+   * Whether the separator is decorative (hidden from assistive technologies).
+   * @default false
+   */
   decorative?: boolean
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: SeparatorClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: SeparatorStyles
+
+  /**
+   * Additional content to render inside the separator (usually between two borders).
+   */
   children?: JSX.Element
 }
 
-export type SeparatorProps = SeparatorBaseProps &
-  Omit<KobalteSeparator.SeparatorRootProps<HTMLDivElement>, keyof SeparatorBaseProps | 'class'>
+/**
+ * Props for the Separator component.
+ */
+export type SeparatorProps = RockUIComposeProps<
+  SeparatorBaseProps,
+  KobalteSeparator.SeparatorRootProps<HTMLDivElement>
+>
 
 export function Separator(props: SeparatorProps): JSX.Element {
   const merged = mergeProps(

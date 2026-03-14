@@ -5,6 +5,7 @@ import { For, Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 import { IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import type { StepperVariantProps } from './stepper.class'
@@ -22,14 +23,51 @@ import {
 
 export type StepperValue = string
 
+/**
+ * An individual step in the stepper.
+ */
 export interface StepperItem {
+  /**
+   * Unique value for the step.
+   * @default index of the item
+   */
   value?: StepperValue
+
+  /**
+   * Title of the step.
+   */
   title?: JSX.Element
+
+  /**
+   * Secondary description of the step.
+   */
   description?: JSX.Element
+
+  /**
+   * Icon to display in the step indicator.
+   * @default index + 1
+   */
   icon?: IconName
+
+  /**
+   * Content to display when the step is active.
+   */
   content?: JSX.Element
+
+  /**
+   * Whether the step is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Additional class name for the step item.
+   */
   class?: string
+
+  /**
+   * Additional arbitrary properties for the step item.
+   */
   [key: string]: unknown
 }
 
@@ -53,17 +91,48 @@ export type StepperClasses = SlotClasses<StepperSlots>
 
 export type StepperStyles = SlotStyles<StepperSlots>
 
-export interface StepperBaseProps extends Pick<StepperVariantProps, 'orientation' | 'size'> {
+/**
+ * Base props for the Stepper component.
+ */
+export interface StepperBaseProps extends StepperVariantProps {
+  /**
+   * Array of steps to display.
+   */
   items?: StepperItem[]
+
+  /**
+   * Whether to enforce linear navigation (must complete steps in order).
+   * @default true
+   */
   linear?: boolean
+
+  /**
+   * Whether the entire stepper is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether steps are clickable for navigation.
+   * @default false
+   */
   clickable?: boolean
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: StepperClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: StepperStyles
 }
 
-export type StepperProps = StepperBaseProps &
-  Omit<KobalteTabs.TabsRootProps, keyof StepperBaseProps | 'children' | 'class'>
+/**
+ * Props for the Stepper component.
+ */
+export type StepperProps = RockUIComposeProps<StepperBaseProps, KobalteTabs.TabsRootProps>
 
 interface NormalizedStepperItem {
   item: StepperItem

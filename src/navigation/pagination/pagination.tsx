@@ -17,29 +17,138 @@ export type PaginationStyles = SlotStyles<PaginationSlots>
 
 type PaginationVariant = ButtonProps['variant']
 
+/**
+ * Base props for the Pagination component.
+ */
 export interface PaginationBaseProps {
+  /**
+   * Controlled current page number (1-indexed).
+   */
   page?: number
+
+  /**
+   * Initial page number when uncontrolled.
+   * @default 1
+   */
   defaultPage?: number
+
+  /**
+   * Callback triggered when the page changes.
+   */
   onPageChange?: (page: number) => void
+
+  /**
+   * Number of items to display per page.
+   * @default 10
+   */
   itemsPerPage?: number
+
+  /**
+   * Total number of items across all pages.
+   * @default 0
+   */
   total?: number
+
+  /**
+   * Number of page buttons to show on either side of the current page.
+   * @default 2
+   */
   siblingCount?: number
+
+  /**
+   * Whether to show previous and next control buttons.
+   * @default true
+   */
   showControls?: boolean
+
+  /**
+   * Whether the pagination is disabled.
+   */
   disabled?: boolean
+
+  /**
+   * Size of the pagination buttons.
+   * @default 'md'
+   */
   size?: FormFieldSize
+
+  /**
+   * Visual variant for the page buttons.
+   * @default 'ghost'
+   */
   variant?: PaginationVariant
+
+  /**
+   * Visual variant for the active page button.
+   * @default 'outline'
+   */
   activeVariant?: PaginationVariant
+
+  /**
+   * Visual variant for the previous/next control buttons.
+   * @default 'ghost'
+   */
   controlVariant?: PaginationVariant
+
+  /**
+   * Icon name for the previous button.
+   * @default 'icon-chevron-left'
+   */
   prevIcon?: IconName
+
+  /**
+   * Text to display in the previous button.
+   */
   prevText?: string
+
+  /**
+   * Icon name for the next button.
+   * @default 'icon-chevron-right'
+   */
   nextIcon?: IconName
+
+  /**
+   * Text to display in the next button.
+   */
   nextText?: string
+
+  /**
+   * Icon name for the ellipsis indicator.
+   * @default 'icon-ellipsis'
+   */
   ellipsisIcon?: IconName
+
+  /**
+   * Function to generate a destination URL for a given page number.
+   * If provided, pagination items will render as anchor tags.
+   */
   to?: (page: number) => string | undefined
+  /**
+   * Accessibility label for the navigation element.
+   * @default 'Pagination'
+   */
+  'aria-label'?: string
+
+  /**
+   * ARIA role for the navigation element.
+   * @default 'navigation'
+   */
+  role?: JSX.HTMLAttributes<HTMLElement>['role']
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: PaginationClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: PaginationStyles
 }
 
+/**
+ * Props for the Pagination component.
+ */
 export type PaginationProps = PaginationBaseProps
 
 function clampPage(page: number, count: number): number {
@@ -66,7 +175,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       total: 0,
       siblingCount: 2,
       showControls: true,
-      size: 'md' as PaginationBaseProps['size'],
+      size: 'md' as PaginationProps['size'],
       variant: 'ghost' as PaginationVariant,
       activeVariant: 'outline' as PaginationVariant,
       controlVariant: 'ghost' as PaginationVariant,

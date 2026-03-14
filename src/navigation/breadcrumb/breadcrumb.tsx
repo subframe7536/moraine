@@ -10,15 +10,53 @@ import { cn } from '../../shared/utils'
 import { breadcrumbListVariants } from './breadcrumb.class'
 import type { BreadcrumbVariantProps } from './breadcrumb.class'
 
+/**
+ * An individual item in the breadcrumb trail.
+ */
 export interface BreadcrumbItem {
+  /**
+   * Label to display for the breadcrumb item.
+   */
   label?: JSX.Element
+
+  /**
+   * Icon to display next to the label.
+   */
   icon?: IconName
+
+  /**
+   * The destination URL for this item.
+   */
   to?: string
+
+  /**
+   * The destination URL for this item.
+   */
   href?: string
+
+  /**
+   * Where to display the linked URL.
+   */
   target?: string
+
+  /**
+   * Relationship of the linked URL to the current document.
+   */
   rel?: string
+
+  /**
+   * Whether the item is the current active page.
+   */
   active?: boolean
+
+  /**
+   * Whether the item is disabled.
+   */
   disabled?: boolean
+
+  /**
+   * Callback when the item is clicked.
+   */
   onClick?: JSX.EventHandler<HTMLAnchorElement, MouseEvent>
 }
 
@@ -28,23 +66,77 @@ export type BreadcrumbClasses = SlotClasses<BreadcrumbSlots>
 
 export type BreadcrumbStyles = SlotStyles<BreadcrumbSlots>
 
+/**
+ * Context provided to the item secondary renderer.
+ */
 export interface BreadcrumbItemRenderContext {
+  /**
+   * The original item object.
+   */
   item: BreadcrumbItem
+
+  /**
+   * Index of the item in the list.
+   */
   index: number
+
+  /**
+   * Whether the item is the current page.
+   */
   current: boolean
+
+  /**
+   * Whether the item is disabled.
+   */
   disabled: boolean
 }
 
+/**
+ * Base props for the Breadcrumb component.
+ */
 export interface BreadcrumbBaseProps extends BreadcrumbVariantProps {
+  /**
+   * Array of breadcrumb items to display.
+   */
   items?: BreadcrumbItem[]
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: BreadcrumbClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: BreadcrumbStyles
+
+  /**
+   * Icon name for the separator between items.
+   * @default 'icon-chevron-right'
+   */
   separator?: IconName
+
+  /**
+   * Size of the breadcrumb items and icons.
+   * @default 'md'
+   */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+  /**
+   * Accessibility label for the navigation element.
+   * @default 'Breadcrumbs'
+   */
   'aria-label'?: string
+
+  /**
+   * Custom renderer for individual breadcrumb items.
+   */
   itemRender?: (context: BreadcrumbItemRenderContext) => ValidComponent
 }
 
+/**
+ * Props for the Breadcrumb component.
+ */
 export type BreadcrumbProps = BreadcrumbBaseProps
 
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {

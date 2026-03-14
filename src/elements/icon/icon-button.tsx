@@ -9,6 +9,9 @@ import { buttonVariants } from '../button/button.class'
 import { Icon } from './icon'
 import type { IconName } from './icon'
 
+/**
+ * Base props for the IconButton component.
+ */
 export interface IconButtonBaseProps {
   /**
    * Icon source. Strings should be Uno icon classes such as `i-lucide-search`.
@@ -17,19 +20,30 @@ export interface IconButtonBaseProps {
 
   /**
    * Controlled loading state.
+   * @default false
    */
   loading?: boolean
 
   /**
    * Optional icon shown when `loading` is active.
+   * @default 'icon-loading'
    */
   loadingIcon?: IconName
+
+  /**
+   * The size of the button.
+   * @default 'md'
+   */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
+/**
+ * Props for the IconButton component.
+ */
 export type IconButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
   T,
-  IconButtonBaseProps & Omit<KobalteButton.ButtonRootProps<ElementOf<T>>, 'class'>
+  IconButtonBaseProps &
+    Omit<KobalteButton.ButtonRootProps<ElementOf<T>>, keyof IconButtonBaseProps | 'class'>
 >
 
 export function IconButton<T extends ValidComponent = 'button'>(

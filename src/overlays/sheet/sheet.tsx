@@ -5,11 +5,11 @@ import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { sheetContentVariants } from './sheet.class'
-
-type SheetSide = 'left' | 'right' | 'top' | 'bottom'
+import type { SheetVariantProps } from './sheet.class'
 
 type SheetSlots =
   | 'trigger'
@@ -28,31 +28,110 @@ export type SheetClasses = SlotClasses<SheetSlots>
 
 export type SheetStyles = SlotStyles<SheetSlots>
 
-export interface SheetBaseProps {
+/**
+ * Base props for the Sheet component.
+ */
+export interface SheetBaseProps extends SheetVariantProps {
+  /**
+   * Unique identifier for the sheet.
+   */
   id?: string
+
+  /**
+   * Controlled open state of the sheet.
+   */
   open?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Callback triggered when the open state changes.
+   */
   onOpenChange?: (open: boolean) => void
+
+  /**
+   * Primary title displayed in the sheet header.
+   */
   title?: JSX.Element
+
+  /**
+   * Secondary description displayed below the title.
+   */
   description?: JSX.Element
+
+  /**
+   * Whether to display a backdrop overlay.
+   * @default true
+   */
   overlay?: boolean
+
+  /**
+   * Whether to enable transition animations.
+   * @default true
+   */
   transition?: boolean
-  side?: SheetSide
-  inset?: boolean
+
+  /**
+   * Whether to show a close button, or a custom element to use as one.
+   * @default true
+   */
   close?: boolean | JSX.Element
+
+  /**
+   * Whether the sheet should close when interacting outside or pressing Escape.
+   * @default true
+   */
   dismissible?: boolean
+
+  /**
+   * Callback triggered when a dismissal action is prevented.
+   */
   onClosePrevent?: () => void
+
+  /**
+   * Custom element to render in the header slot.
+   */
   header?: JSX.Element
+
+  /**
+   * Custom element to render in the scrollable body slot.
+   */
   body?: JSX.Element
+
+  /**
+   * Custom element to render in the footer slot.
+   */
   footer?: JSX.Element
+
+  /**
+   * Additional action elements to render in the header.
+   */
   actions?: JSX.Element
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: SheetClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: SheetStyles
+
+  /**
+   * Trigger element that opens the sheet.
+   */
   children: JSX.Element
 }
 
-export type SheetProps = SheetBaseProps &
-  Omit<KobalteDialog.DialogRootProps, keyof SheetBaseProps | 'children' | 'class'>
+/**
+ * Props for the Sheet component.
+ */
+export type SheetProps = RockUIComposeProps<SheetBaseProps, KobalteDialog.DialogRootProps>
 
 export function Sheet(props: SheetProps): JSX.Element {
   const merged = mergeProps(

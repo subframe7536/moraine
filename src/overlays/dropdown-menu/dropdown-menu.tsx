@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
 import type { IconName } from '../../elements/icon'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { OverlayMenuBaseContent } from '../shared-overlay-menu/menu'
 import type { OverlayMenuItemVariantProps } from '../shared-overlay-menu/menu.class'
@@ -28,31 +29,110 @@ export type DropdownMenuClasses = OverlayMenuSharedClasses
 export type DropdownMenuStyles = OverlayMenuSharedStyles
 export type DropdownMenuItemRenderContext = OverlayMenuSharedItemRenderContext<DropdownMenuItem>
 
+/**
+ * Base props for the DropdownMenu component.
+ */
 export interface DropdownMenuBaseProps {
+  /**
+   * Unique identifier for the dropdown menu.
+   */
   id?: string
+
+  /**
+   * Controlled open state of the dropdown.
+   */
   open?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Callback triggered when the open state changes.
+   */
   onOpenChange?: (open: boolean) => void
+
+  /**
+   * Preferred placement of the dropdown menu relative to the trigger.
+   * @default 'bottom'
+   */
   placement?: OverlayMenuPlacement
+
+  /**
+   * Distance in pixels between the dropdown menu and the trigger.
+   */
   gutter?: number
+
+  /**
+   * Size of the dropdown menu items.
+   * @default 'md'
+   */
   size?: DropdownMenuSize
+
+  /**
+   * Whether the dropdown menu is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Items to display in the dropdown menu.
+   */
   items?: DropdownMenuItems
+
+  /**
+   * Icon name for checked selection states.
+   * @default 'icon-check'
+   */
   checkedIcon?: IconName
+
+  /**
+   * Icon name for submenu indicators.
+   * @default 'icon-chevron-right'
+   */
   submenuIcon?: IconName
+
+  /**
+   * Custom renderer for individual dropdown menu items.
+   */
   itemRender?: (context: DropdownMenuItemRenderContext) => JSX.Element
+
+  /**
+   * Content to render at the top of the dropdown menu body.
+   */
   contentTop?: OverlayMenuContentSlot
+
+  /**
+   * Content to render at the bottom of the dropdown menu body.
+   */
   contentBottom?: OverlayMenuContentSlot
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: DropdownMenuClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: DropdownMenuStyles
+
+  /**
+   * Trigger element that opens the dropdown menu.
+   */
   children: JSX.Element
 }
 
-export type DropdownMenuProps = DropdownMenuBaseProps &
-  Omit<
-    KobalteDropdownMenu.DropdownMenuRootProps,
-    keyof DropdownMenuBaseProps | 'children' | 'class' | 'arrowPadding'
-  >
+/**
+ * Props for the DropdownMenu component.
+ */
+export type DropdownMenuProps = RockUIComposeProps<
+  DropdownMenuBaseProps,
+  KobalteDropdownMenu.DropdownMenuRootProps,
+  'arrowPadding'
+>
 
 export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const merged = mergeProps(

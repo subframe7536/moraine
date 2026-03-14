@@ -244,11 +244,7 @@ describe('Sheet', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Sheet
-        open
-        body="Body"
-        styles={{ content: { width: '200px' } } as any}
-      >
+      <Sheet open body="Body" styles={{ content: { width: '200px' } } as any}>
         <button type="button">Trigger</button>
       </Sheet>
     ))

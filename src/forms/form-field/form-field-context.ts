@@ -5,18 +5,68 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { FormFieldRuntimeState, FormInputEventType } from '../form/form-context'
 import { useFormContext } from '../form/form-context'
 
+/**
+ * Options for the FormField context.
+ */
 export interface FormFieldContextOptions {
+  /**
+   * The current error message or element for the field.
+   */
   error?: boolean | string | JSX.Element
+
+  /**
+   * The name of the field (key in form state).
+   */
   name?: string
+
+  /**
+   * The path of the field in the form state.
+   */
   path?: string[]
+
+  /**
+   * The size of the form field.
+   */
   size?: FormFieldSize
+
+  /**
+   * Whether to trigger validation eagerly on input.
+   */
   eagerValidation?: boolean
+
+  /**
+   * Delay in milliseconds for debounced input validation.
+   */
   validateOnInputDelay?: number
+
+  /**
+   * Hint text shown near the label.
+   */
   hint?: JSX.Element
+
+  /**
+   * Description text shown below the label.
+   */
   description?: JSX.Element
+
+  /**
+   * Help text shown below the control (when no error).
+   */
   help?: JSX.Element
+
+  /**
+   * Base ID used for ARIA attributes.
+   */
   ariaId: string
+
+  /**
+   * The ID of the primary control element.
+   */
   controlId?: string
+
+  /**
+   * Register a control element with the field.
+   */
   registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
 }
 

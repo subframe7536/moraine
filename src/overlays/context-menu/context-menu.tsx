@@ -11,6 +11,7 @@ import {
 } from 'solid-js'
 
 import type { IconName } from '../../elements/icon'
+import type { RockUIComposeProps } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenuBaseContent } from '../shared-overlay-menu/menu'
 import type { OverlayMenuItemVariantProps } from '../shared-overlay-menu/menu.class'
@@ -36,31 +37,110 @@ export type ContextMenuClasses = OverlayMenuSharedClasses
 export type ContextMenuStyles = OverlayMenuSharedStyles
 export type ContextMenuItemRenderContext = OverlayMenuSharedItemRenderContext<ContextMenuItem>
 
+/**
+ * Base props for the ContextMenu component.
+ */
 export interface ContextMenuBaseProps {
+  /**
+   * Unique identifier for the context menu.
+   */
   id?: string
+
+  /**
+   * Controlled open state of the menu.
+   */
   open?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Callback triggered when the open state changes.
+   */
   onOpenChange?: (open: boolean) => void
+
+  /**
+   * Preferred placement of the menu relative to the interaction point.
+   * @default 'right-start'
+   */
   placement?: OverlayMenuPlacement
+
+  /**
+   * Distance in pixels between the menu and the interaction point.
+   */
   gutter?: number
+
+  /**
+   * Size of the menu items.
+   * @default 'md'
+   */
   size?: ContextMenuSize
+
+  /**
+   * Whether the context menu is disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Items to display in the context menu.
+   */
   items?: ContextMenuItems
+
+  /**
+   * Icon name used for checked menu items.
+   * @default 'icon-check'
+   */
   checkedIcon?: IconName
+
+  /**
+   * Icon name used for submenu indicators.
+   * @default 'icon-chevron-right'
+   */
   submenuIcon?: IconName
+
+  /**
+   * Custom renderer for individual menu items.
+   */
   itemRender?: (context: ContextMenuItemRenderContext) => JSX.Element
+
+  /**
+   * Content to render at the top of the menu.
+   */
   contentTop?: OverlayMenuContentSlot
+
+  /**
+   * Content to render at the bottom of the menu.
+   */
   contentBottom?: OverlayMenuContentSlot
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: ContextMenuClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: ContextMenuStyles
+
+  /**
+   * The element to which the context menu is attached.
+   */
   children: JSX.Element
 }
 
-export type ContextMenuProps = ContextMenuBaseProps &
-  Omit<
-    KobalteDropdownMenu.DropdownMenuRootProps,
-    keyof ContextMenuBaseProps | 'children' | 'class' | 'arrowPadding' | 'getAnchorRect'
-  >
+/**
+ * Props for the ContextMenu component.
+ */
+export type ContextMenuProps = RockUIComposeProps<
+  ContextMenuBaseProps,
+  KobalteDropdownMenu.DropdownMenuRootProps,
+  'arrowPadding' | 'getAnchorRect'
+>
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 

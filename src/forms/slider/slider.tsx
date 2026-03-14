@@ -3,6 +3,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { For, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
+import type { RockUIComposeProps } from '../../shared/types'
 import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -30,28 +31,82 @@ export type SliderClasses = SlotClasses<SliderSlots>
 
 export type SliderStyles = SlotStyles<SliderSlots>
 
+/**
+ * Base props for the Slider component.
+ */
 export interface SliderBaseProps
   extends
-    Pick<SliderVariantProps, 'size' | 'highlight'>,
     FormIdentityOptions,
     FormValueOptions<SliderValue>,
     FormRequiredOption,
     FormDisableOption,
-    FormReadOnlyOption {
+    FormReadOnlyOption,
+    SliderVariantProps {
+  /**
+   * Minimum value of the slider.
+   * @default 0
+   */
   min?: number
+
+  /**
+   * Maximum value of the slider.
+   * @default 100
+   */
   max?: number
+
+  /**
+   * Step increment between values.
+   * @default 1
+   */
   step?: number
+
+  /**
+   * Minimum steps required between thumbs in a multi-thumb slider.
+   * @default 0
+   */
   minStepsBetweenThumbs?: number
+
+  /**
+   * Orientation of the slider.
+   * @default 'horizontal'
+   */
   orientation?: 'horizontal' | 'vertical'
+
+  /**
+   * Whether to invert the slider axis.
+   * @default false
+   */
   inverted?: boolean
+
+  /**
+   * Callback when the slider selection changes during interaction.
+   */
   onValueChange?: (value: SliderValue) => void
+
+  /**
+   * Callback when the slider selection change is committed.
+   */
   onChange?: (value: SliderValue) => void
+
+  /**
+   * Slot-based class overrides.
+   */
   classes?: SliderClasses
+
+  /**
+   * Slot-based style overrides.
+   */
   styles?: SliderStyles
 }
 
-export type SliderProps = SliderBaseProps &
-  Omit<KobalteSlider.SliderRootProps, keyof SliderBaseProps | 'id' | 'children' | 'class'>
+/**
+ * Props for the Slider component.
+ */
+export type SliderProps = RockUIComposeProps<
+  SliderBaseProps,
+  KobalteSlider.SliderRootProps,
+  'minValue' | 'maxValue'
+>
 
 function normalizeSliderValues(
   value: SliderValue | undefined,

@@ -332,11 +332,13 @@ describe('Checkbox', () => {
       <Checkbox
         variant="card"
         label="Styles"
-        styles={{
-          root: { width: '200px' },
-          base: { width: '200px' },
-          label: { width: '200px' },
-        } as any}
+        styles={
+          {
+            root: { width: '200px' },
+            base: { width: '200px' },
+            label: { width: '200px' },
+          } as any
+        }
       />
     ))
 
