@@ -221,4 +221,19 @@ describe('Popover', () => {
       expect(trigger?.getAttribute('aria-expanded')).toBe('false')
     })
   })
+
+  test('applies styles override to content', () => {
+    render(() => (
+      <Popover
+        open
+        styles={{ content: { width: '200px' } } as any}
+        content="Styled"
+      >
+        <button type="button">Trigger</button>
+      </Popover>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    expect(content?.style.width).toBe('200px')
+  })
 })

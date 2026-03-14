@@ -3,7 +3,7 @@ import { Show, createEffect, createMemo, mergeProps, on, onMount, splitProps } f
 
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -35,6 +35,8 @@ type TextareaSlots = 'root' | 'header' | 'base' | 'footer'
 
 export type TextareaClasses = SlotClasses<TextareaSlots>
 
+export type TextareaStyles = SlotStyles<TextareaSlots>
+
 export interface TextareaBaseProps
   extends
     TextareaStyleVariantProps,
@@ -59,6 +61,7 @@ export interface TextareaBaseProps
   onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
   onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
   classes?: TextareaClasses
+  styles?: TextareaStyles
   children?: JSX.Element
 }
 
@@ -252,6 +255,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
   return (
     <div
       data-slot="root"
+      style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
       data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
@@ -267,6 +271,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
       <Show when={layoutProps.header}>
         <div
           data-slot="header"
+          style={merged.styles?.header}
           class={textareaHeaderVariants(
             {
               size: field.size(),
@@ -289,6 +294,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
         readOnly={formProps.readOnly}
         maxLength={layoutProps.maxLength}
         data-slot="base"
+        style={merged.styles?.base}
         class={textareaBaseVariants(
           {
             size: field.size(),
@@ -309,6 +315,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
       <Show when={layoutProps.footer}>
         <div
           data-slot="footer"
+          style={merged.styles?.footer}
           class={textareaFooterVariants(
             {
               size: field.size(),

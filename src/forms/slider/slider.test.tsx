@@ -333,4 +333,16 @@ describe('Slider', () => {
     expect(root?.className).toContain('root-override')
     expect(thumb?.className).toContain('thumb-override')
   })
+
+  test('applies style overrides for root and thumb slots', () => {
+    const screen = render(() => (
+      <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } } as any} />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(thumb?.style.width).toBe('200px')
+  })
 })

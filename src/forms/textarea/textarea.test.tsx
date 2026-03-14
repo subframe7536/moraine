@@ -351,6 +351,13 @@ describe('Textarea', () => {
     expect(root?.className).toContain('root-override')
   })
 
+  test('applies styles.root override', () => {
+    const screen = render(() => <Textarea styles={{ root: { width: '200px' } }} />)
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+  })
+
   test('applies classes.header and classes.footer overrides', () => {
     const screen = render(() => (
       <Textarea
@@ -364,6 +371,21 @@ describe('Textarea', () => {
 
     expect(header?.className).toContain('header-override')
     expect(footer?.className).toContain('footer-override')
+  })
+
+  test('applies styles.header and styles.footer overrides', () => {
+    const screen = render(() => (
+      <Textarea
+        header={<span>Header</span>}
+        footer={<span>Footer</span>}
+        styles={{ header: { width: '200px' }, footer: { width: '200px' } }}
+      />
+    ))
+    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
+    const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
+
+    expect(header?.style.width).toBe('200px')
+    expect(footer?.style.width).toBe('200px')
   })
 
   test('rejects as in type contract', () => {

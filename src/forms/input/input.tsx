@@ -5,7 +5,7 @@ import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -32,6 +32,8 @@ export type InputValue = string | number | undefined
 type InputSlots = 'root' | 'input' | 'leading' | 'trailing'
 
 export type InputClasses = SlotClasses<InputSlots>
+
+export type InputStyles = SlotStyles<InputSlots>
 
 export interface InputBaseProps
   extends
@@ -64,6 +66,7 @@ export interface InputBaseProps
   onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   classes?: InputClasses
+  styles?: InputStyles
   children?: JSX.Element
 }
 
@@ -166,18 +169,6 @@ export function Input(props: InputProps): JSX.Element {
     Boolean(styleProps.loading && loadingTarget() === 'trailing'),
   )
 
-  const iconSizeClass = createMemo(() => {
-    if (field.size() === 'xl') {
-      return 'text-lg'
-    }
-
-    if (field.size() === 'md' || field.size() === 'lg') {
-      return 'text-base'
-    }
-
-    return 'text-sm'
-  })
-
   function updateInputValue(value: string | null | undefined): void {
     const nextValue = applyInputModifiers<InputValue>(value, formProps.modelModifiers)
 
@@ -240,6 +231,7 @@ export function Input(props: InputProps): JSX.Element {
   return (
     <div
       data-slot="root"
+      style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
       data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
@@ -256,6 +248,7 @@ export function Input(props: InputProps): JSX.Element {
         {(iconName) => (
           <span
             data-slot="leading"
+            style={merged.styles?.leading}
             class={inputLeadingVariants(
               {
                 size: field.size(),
@@ -265,7 +258,8 @@ export function Input(props: InputProps): JSX.Element {
           >
             <Icon
               name={iconName()}
-              class={cn('shrink-0', iconSizeClass(), isLeadingLoading() && 'animate-spin')}
+              size={field.size()}
+              class={cn(isLeadingLoading() && 'animate-spin')}
             />
           </span>
         )}
@@ -283,6 +277,7 @@ export function Input(props: InputProps): JSX.Element {
         autocomplete={baseProps.autocomplete}
         maxLength={baseProps.maxLength}
         data-slot="input"
+        style={merged.styles?.input}
         class={inputInputVariants(
           {
             type: baseProps.type === 'file' ? 'file' : undefined,
@@ -306,6 +301,7 @@ export function Input(props: InputProps): JSX.Element {
         {(iconName) => (
           <span
             data-slot="trailing"
+            style={merged.styles?.trailing}
             class={inputTrailingVariants(
               {
                 size: field.size(),
@@ -315,7 +311,8 @@ export function Input(props: InputProps): JSX.Element {
           >
             <Icon
               name={iconName()}
-              class={cn('shrink-0', iconSizeClass(), isTrailingLoading() && 'animate-spin')}
+              size={field.size()}
+              class={cn(isTrailingLoading() && 'animate-spin')}
             />
           </span>
         )}

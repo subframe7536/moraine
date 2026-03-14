@@ -338,6 +338,21 @@ describe('FileUpload', () => {
     expect(file?.className).toContain('file-override')
   })
 
+  test('applies style overrides for root and file slots', async () => {
+    const screen = render(() => (
+      <FileUpload multiple styles={{ root: { width: '200px' }, file: { width: '200px' } } as any} />
+    ))
+    const input = getFileInput(screen.container)
+
+    await setInputFiles(input, [createFile('styled.txt')])
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const file = screen.container.querySelector('[data-slot="file"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(file?.style.width).toBe('200px')
+  })
+
   test('calls onFileReject when files are rejected', async () => {
     const onFileReject = vi.fn()
     const screen = render(() => <FileUpload multiple maxFiles={1} onFileReject={onFileReject} />)

@@ -2,7 +2,7 @@ import * as KobalteProgress from '@kobalte/core/progress'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 
 import type { ProgressVariantProps } from './progress.class'
 import {
@@ -19,6 +19,8 @@ type ProgressStepState = ProgressStepRenderContext['state']
 type ProgressSlots = 'root' | 'status' | 'base' | 'indicator' | 'steps' | 'step'
 
 export type ProgressClasses = SlotClasses<ProgressSlots>
+
+export type ProgressStyles = SlotStyles<ProgressSlots>
 
 export interface ProgressStatusRenderContext {
   percent?: number
@@ -41,6 +43,7 @@ export interface ProgressBaseProps extends Pick<
   renderStatus?: (context: ProgressStatusRenderContext) => JSX.Element
   renderStep?: (context: ProgressStepRenderContext) => JSX.Element
   classes?: ProgressClasses
+  styles?: ProgressStyles
 }
 
 export type ProgressProps = ProgressBaseProps &
@@ -187,7 +190,10 @@ export function Progress(props: ProgressProps): JSX.Element {
               },
               styleProps.classes?.status,
             )}
-            style={statusStyle()}
+            style={{
+              ...statusStyle(),
+              ...merged.styles?.status,
+            }}
           >
             <Show when={behaviorProps.renderStatus} fallback={`${percent() ?? 0}%`}>
               {(renderStatus) => renderStatus()({ percent: percent() })}
@@ -197,6 +203,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
         <KobalteProgress.Track
           data-slot="base"
+          style={merged.styles?.base}
           class={progressBaseVariants(
             {
               orientation: behaviorProps.orientation,
@@ -215,13 +222,17 @@ export function Progress(props: ProgressProps): JSX.Element {
               },
               styleProps.classes?.indicator,
             )}
-            style={indicatorStyle()}
+            style={{
+              ...indicatorStyle(),
+              ...merged.styles?.indicator,
+            }}
           />
         </KobalteProgress.Track>
 
         <Show when={hasSteps()}>
           <div
             data-slot="steps"
+            style={merged.styles?.steps}
             class={progressStepsVariants(
               {
                 orientation: behaviorProps.orientation,
@@ -235,6 +246,7 @@ export function Progress(props: ProgressProps): JSX.Element {
               {(step, index) => (
                 <div
                   data-slot="step"
+                  style={merged.styles?.step}
                   class={progressStepVariants(
                     {
                       state: stepState(index()),
@@ -269,6 +281,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       value={kobalteValue()}
       indeterminate={isIndeterminate()}
       data-slot="root"
+      style={merged.styles?.root}
       data-orientation={behaviorProps.orientation}
       class={progressRootVariants(
         {

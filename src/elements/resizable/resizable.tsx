@@ -9,7 +9,7 @@ import {
   onCleanup,
 } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 
 import {
@@ -39,6 +39,8 @@ type ResizableSlots = 'root' | 'panel' | 'divider' | 'handle' | 'crossTarget'
 
 export type ResizableClasses = SlotClasses<ResizableSlots>
 
+export type ResizableStyles = SlotStyles<ResizableSlots>
+
 export interface ResizableProps extends ResizableVariantProps {
   id?: string
   panels?: ResizablePanelItem[]
@@ -55,6 +57,7 @@ export interface ResizableProps extends ResizableVariantProps {
   intersection?: boolean
   keyboardDelta?: ResizableSize
   classes?: ResizableClasses
+  styles?: ResizableStyles
 }
 
 interface DragState {
@@ -398,6 +401,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       ref={setRootElement}
       id={localProps.id}
       data-slot="root"
+      style={localProps.styles?.root}
       data-resizable-root
       data-orientation={orientation()}
       class={resizableRootVariants({ orientation: orientation() }, localProps.classes?.root)}
@@ -439,7 +443,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   localProps.classes?.panel,
                   panelItem().class,
                 )}
-                style={{ 'flex-basis': `${size() * 100}%`, ...panelItem().style }}
+                style={{
+                  'flex-basis': `${size() * 100}%`,
+                  ...localProps.styles?.panel,
+                  ...panelItem().style,
+                }}
               >
                 {panelItem().content}
               </div>
@@ -456,6 +464,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   aria-disabled={handleDisabled() ? 'true' : undefined}
                   tabIndex={handleDisabled() ? -1 : 0}
                   data-slot="divider"
+                  style={localProps.styles?.divider}
                   data-orientation={orientation()}
                   data-active={bindings.active() ? '' : undefined}
                   data-dragging={bindings.dragging() ? '' : undefined}
@@ -493,6 +502,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         fallback={
                           <div
                             data-slot="handle"
+                            style={localProps.styles?.handle}
                             class={cn(
                               'flex items-center justify-center z-10',
                               localProps.classes?.handle,
@@ -504,6 +514,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       >
                         <div
                           data-slot="handle"
+                          style={localProps.styles?.handle}
                           class={cn(
                             'rounded-lg bg-border/90 flex shrink-0 h-6 w-1 z-10',
                             orientation() === 'horizontal' ? 'mx-auto' : 'rotate-90',

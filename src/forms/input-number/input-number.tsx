@@ -6,7 +6,7 @@ import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button/button'
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -35,6 +35,8 @@ const INPUT_NUMBER_HOLD_REPEAT_INTERVAL = 60
 
 export type InputNumberClasses = SlotClasses<InputNumberSlots>
 
+export type InputNumberStyles = SlotStyles<InputNumberSlots>
+
 export interface InputNumberBaseProps
   extends
     Pick<InputNumberVariantProps, 'size' | 'variant' | 'highlight'>,
@@ -53,6 +55,7 @@ export interface InputNumberBaseProps
   onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
   classes?: InputNumberClasses
+  styles?: InputNumberStyles
 }
 
 export type InputNumberProps = InputNumberBaseProps &
@@ -85,7 +88,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       'autofocus',
       'autofocusDelay',
     ],
-    ['size', 'variant', 'highlight', 'classes'],
+    ['size', 'variant', 'highlight', 'classes', 'styles'],
   )
 
   const generatedId = useId(() => formProps.id, 'input-number')
@@ -255,6 +258,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     return {
       'data-slot': slot,
+      style: styleProps.styles?.[slot],
       disabled:
         field.disabled() ||
         (isIncrement ? controlProps.incrementDisabled : controlProps.decrementDisabled),
@@ -344,6 +348,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       disabled={field.disabled()}
       onRawValueChange={onRawValueChange}
       data-slot="root"
+      style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
       data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
@@ -365,6 +370,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         ref={(e) => (inputEl = e)}
         placeholder={controlProps.placeholder}
         data-slot="base"
+        style={merged.styles?.base}
         class={inputNumberBaseVariants(
           {
             size: field.size(),

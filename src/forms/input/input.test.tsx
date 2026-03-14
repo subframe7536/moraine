@@ -332,6 +332,13 @@ describe('Input', () => {
     expect(root?.className).toContain('root-override')
   })
 
+  test('applies styles.root override', () => {
+    const screen = render(() => <Input styles={{ root: { width: '200px' } }} />)
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+  })
+
   test('rejects as in type contract', () => {
     // @ts-expect-error as has been removed from Input props
     const props: InputProps = { as: 'section' }

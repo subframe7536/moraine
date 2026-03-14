@@ -18,6 +18,7 @@ import type {
   OverlayMenuSharedClasses,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderContext,
+  OverlayMenuSharedStyles,
 } from '../shared-overlay-menu/types'
 import type {
   OverlayMenuContentSlot,
@@ -32,6 +33,7 @@ type ContextMenuSize = NonNullable<OverlayMenuItemVariantProps['size']>
 export type ContextMenuItem = OverlayMenuSharedItem<ContextMenuColor, ContextMenuItem>
 export type ContextMenuItems = OverlayMenuItems<ContextMenuItem>
 export type ContextMenuClasses = OverlayMenuSharedClasses
+export type ContextMenuStyles = OverlayMenuSharedStyles
 export type ContextMenuItemRenderContext = OverlayMenuSharedItemRenderContext<ContextMenuItem>
 
 export interface ContextMenuBaseProps {
@@ -50,6 +52,7 @@ export interface ContextMenuBaseProps {
   contentTop?: OverlayMenuContentSlot
   contentBottom?: OverlayMenuContentSlot
   classes?: ContextMenuClasses
+  styles?: ContextMenuStyles
   children: JSX.Element
 }
 
@@ -87,7 +90,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       'contentTop',
       'contentBottom',
     ],
-    ['id', 'classes', 'children'],
+    ['id', 'classes', 'styles', 'children'],
     ['open', 'defaultOpen', 'onOpenChange'],
   )
   const [uncontrolledOpen, setUncontrolledOpen] = createSignal(
@@ -324,7 +327,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         ref={(element) => {
           triggerElement = element
         }}
-        style={{ '-webkit-touch-callout': 'none' }}
+        style={{ '-webkit-touch-callout': 'none', ...localProps.styles?.trigger }}
         onContextMenu={onContextMenu}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -337,6 +340,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       <OverlayMenuBaseContent<ContextMenuItem>
         content={Content}
         classes={localProps.classes}
+        styles={localProps.styles}
         {...menuProps}
         rootSide={resolveOverlayMenuSide(rootProps.placement)}
       />

@@ -4,7 +4,7 @@ import { For, Show, createMemo, mergeProps } from 'solid-js'
 import { Button } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import { breadcrumbListVariants } from './breadcrumb.class'
@@ -26,6 +26,8 @@ type BreadcrumbSlots = 'root' | 'list' | 'item' | 'link' | 'leading' | 'label' |
 
 export type BreadcrumbClasses = SlotClasses<BreadcrumbSlots>
 
+export type BreadcrumbStyles = SlotStyles<BreadcrumbSlots>
+
 export interface BreadcrumbItemRenderContext {
   item: BreadcrumbItem
   index: number
@@ -36,6 +38,7 @@ export interface BreadcrumbItemRenderContext {
 export interface BreadcrumbBaseProps extends BreadcrumbVariantProps {
   items?: BreadcrumbItem[]
   classes?: BreadcrumbClasses
+  styles?: BreadcrumbStyles
   separator?: IconName
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   'aria-label'?: string
@@ -43,22 +46,6 @@ export interface BreadcrumbBaseProps extends BreadcrumbVariantProps {
 }
 
 export type BreadcrumbProps = BreadcrumbBaseProps
-
-export function getIconSize(size: string | undefined) {
-  switch (size) {
-    case 'xs':
-      return 12
-    case 'sm':
-      return 13
-    case 'md':
-      return 14
-    case 'lg':
-      return 15
-    case 'xl':
-      return 16
-  }
-  return undefined
-}
 
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const merged = mergeProps(
@@ -76,11 +63,13 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   return (
     <nav
       data-slot="root"
+      style={merged.styles?.root}
       aria-label={merged['aria-label']}
       class={cn('min-w-0 relative', merged.classes?.root)}
     >
       <ol
         data-slot="list"
+        style={merged.styles?.list}
         class={breadcrumbListVariants({ wrap: merged.wrap }, merged.classes?.list)}
       >
         <For each={items()}>
@@ -98,7 +87,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
             return (
               <>
-                <li data-slot="item" class={cn('flex min-w-0 items-center', merged.classes?.item)}>
+                <li
+                  data-slot="item"
+                  style={merged.styles?.item}
+                  class={cn('flex min-w-0 items-center', merged.classes?.item)}
+                >
                   <Button
                     as={
                       merged.itemRender
@@ -111,6 +104,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         : 'a'
                     }
                     data-slot="link"
+                    style={merged.styles?.link}
                     variant="ghost"
                     size={merged.size}
                     role="link"
@@ -135,13 +129,14 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                 <Show when={!isLast()}>
                   <li
                     data-slot="separator"
+                    style={merged.styles?.separator}
                     aria-hidden="true"
                     class={cn(
-                      'inline-flex shrink-0 items-center justify-center',
+                      'text-muted-foreground inline-flex shrink-0 items-center justify-center',
                       merged.classes?.separator,
                     )}
                   >
-                    <Icon name={merged.separator} size={getIconSize(merged.size)} />
+                    <Icon name={merged.separator} size={merged.size} />
                   </li>
                 </Show>
               </>

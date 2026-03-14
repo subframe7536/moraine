@@ -14,6 +14,11 @@ function renderCollapsible(props?: {
     trigger?: string
     content?: string
   }
+  styles?: {
+    root?: any
+    trigger?: any
+    content?: any
+  }
 }) {
   return render(() => (
     <Collapsible
@@ -23,6 +28,7 @@ function renderCollapsible(props?: {
       forceMount={props?.forceMount}
       onOpenChange={props?.onOpenChange}
       classes={props?.classes}
+      styles={props?.styles}
       trigger={({ open }) => <span data-testid="trigger-state">{open ? 'open' : 'closed'}</span>}
     >
       <span data-testid="content">Content</span>
@@ -130,6 +136,25 @@ describe('Collapsible', () => {
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('trigger-override')
     expect(content?.className).toContain('content-override')
+  })
+
+  test('applies styles.root/styles.trigger/styles.content overrides', () => {
+    const screen = renderCollapsible({
+      open: true,
+      styles: {
+        root: { width: '200px' },
+        trigger: { width: '200px' },
+        content: { width: '200px' },
+      },
+    })
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(trigger?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
   })
 
   test('forwards id to root', async () => {

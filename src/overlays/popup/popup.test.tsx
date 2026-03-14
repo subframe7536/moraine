@@ -216,4 +216,26 @@ describe('Popup', () => {
       expect(contentNode?.hasAttribute('data-closed')).toBe(true)
     })
   })
+
+  test('applies styles override to trigger/content/overlay', () => {
+    render(() => (
+      <Popup
+        open
+        content="Body"
+        styles={{
+          trigger: { width: '200px' },
+          content: { width: '200px' },
+          overlay: { width: '200px' },
+        } as any}
+      >
+        <button type="button">Trigger</button>
+      </Popup>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement | null
+
+    expect(content?.style.width).toBe('200px')
+    expect(overlay?.style.width).toBe('200px')
+  })
 })

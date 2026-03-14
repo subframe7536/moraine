@@ -232,6 +232,28 @@ describe('CheckboxGroup', () => {
     expect(label?.className).toContain('label-override')
   })
 
+  test('applies style overrides to item and checkbox slots', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        items={['A']}
+        variant="table"
+        styles={{
+          root: { width: '200px' },
+          base: { width: '200px' },
+          label: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+
+    expect(item?.style.width).toBe('200px')
+    expect(base?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+  })
+
   test('validates on change when validateOn is change', async () => {
     const state = { choices: [] as string[] }
 

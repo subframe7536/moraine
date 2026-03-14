@@ -88,4 +88,25 @@ describe('Tabs', () => {
 
     expect(screen.container.querySelector('[data-slot="leading"]')).not.toBeNull()
   })
+
+  test('applies style overrides', () => {
+    const screen = render(() => (
+      <Tabs
+        items={ITEMS}
+        styles={{
+          root: { width: '200px' },
+          trigger: { width: '200px' },
+          content: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(trigger?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
+  })
 })

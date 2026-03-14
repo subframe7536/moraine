@@ -25,6 +25,7 @@ import type {
   OverlayMenuSharedClasses,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderContext,
+  OverlayMenuSharedStyles,
 } from './types'
 import { getOverlayMenuTextValue, normalizeOverlayMenuGroups } from './utils'
 import type { OverlayMenuContentSlot, OverlayMenuItems, OverlayMenuSide } from './utils'
@@ -39,6 +40,7 @@ export interface OverlayMenuBaseContentProps<
   items?: OverlayMenuItems<TItem>
   size?: OverlayMenuSize
   classes?: OverlayMenuSharedClasses
+  styles?: OverlayMenuSharedStyles
   checkedIcon?: IconName
   submenuIcon?: IconName
   itemRender?: (context: OverlayMenuSharedItemRenderContext<TItem>) => JSX.Element
@@ -79,6 +81,7 @@ export function OverlayMenuBaseContent<
         <Show when={contentProps.item.icon}>
           <span
             data-slot="itemLeading"
+            style={props.styles?.itemLeading}
             class={cn(
               'inline-flex shrink-0 col-start-1 size-4 items-center justify-center',
               props.classes?.itemLeading,
@@ -91,10 +94,15 @@ export function OverlayMenuBaseContent<
         <Show when={contentProps.item.label || contentProps.item.description}>
           <span
             data-slot="itemWrapper"
+            style={props.styles?.itemWrapper}
             class={cn('gap-0.5 grid col-start-2', props.classes?.itemWrapper)}
           >
             <Show when={contentProps.item.label}>
-              <span data-slot="itemLabel" class={cn('truncate', props.classes?.itemLabel)}>
+              <span
+                data-slot="itemLabel"
+                style={props.styles?.itemLabel}
+                class={cn('truncate', props.classes?.itemLabel)}
+              >
                 {contentProps.item.label}
               </span>
             </Show>
@@ -102,6 +110,7 @@ export function OverlayMenuBaseContent<
             <Show when={contentProps.item.description}>
               <span
                 data-slot="itemDescription"
+                style={props.styles?.itemDescription}
                 class={cn('text-xs text-muted-foreground truncate', props.classes?.itemDescription)}
               >
                 {contentProps.item.description}
@@ -112,6 +121,7 @@ export function OverlayMenuBaseContent<
 
         <span
           data-slot="itemTrailing"
+          style={props.styles?.itemTrailing}
           class={cn(
             'inline-flex gap-1.5 col-start-3 items-center justify-end',
             props.classes?.itemTrailing,
@@ -135,6 +145,7 @@ export function OverlayMenuBaseContent<
           <Show when={contentProps.isCheckbox}>
             <ItemIndicator
               data-slot="itemIndicator"
+              style={props.styles?.itemIndicator}
               class={cn(
                 'text-sm inline-flex items-center justify-center',
                 props.classes?.itemIndicator,
@@ -157,6 +168,7 @@ export function OverlayMenuBaseContent<
             fallback={
               <Item
                 data-slot="item"
+                style={props.styles?.item}
                 textValue={getOverlayMenuTextValue(nodeProps.item)}
                 disabled={nodeProps.item.disabled}
                 onSelect={nodeProps.item.onSelect}
@@ -174,6 +186,7 @@ export function OverlayMenuBaseContent<
             <Match when={nodeProps.item.type === 'separator'}>
               <Separator
                 data-slot="separator"
+                style={props.styles?.separator}
                 class={cn('mx--1 my-1 b-t-border h-px', props.classes?.separator)}
               />
             </Match>
@@ -181,6 +194,7 @@ export function OverlayMenuBaseContent<
             <Match when={nodeProps.item.type === 'label'}>
               <GroupLabel
                 data-slot="label"
+                style={props.styles?.label}
                 class={cn(
                   'text-xs text-muted-foreground font-medium px-1.5 py-1 inline-flex',
                   props.classes?.label,
@@ -193,6 +207,7 @@ export function OverlayMenuBaseContent<
             <Match when={nodeProps.item.type === 'checkbox'}>
               <CheckboxItem
                 data-slot="item"
+                style={props.styles?.item}
                 textValue={getOverlayMenuTextValue(nodeProps.item)}
                 disabled={nodeProps.item.disabled}
                 checked={nodeProps.item.checked}
@@ -219,6 +234,7 @@ export function OverlayMenuBaseContent<
         >
           <SubTrigger
             data-slot="item"
+            style={props.styles?.item}
             disabled={nodeProps.item.disabled}
             textValue={getOverlayMenuTextValue(nodeProps.item)}
             class={getItemClass(
@@ -238,6 +254,7 @@ export function OverlayMenuBaseContent<
           <Portal>
             <SubContent
               data-slot="content"
+              style={props.styles?.content}
               class={overlayMenuContentVariants(
                 { side: props.rootSide === 'left' ? 'left' : 'right' },
                 props.classes?.content,
@@ -260,7 +277,7 @@ export function OverlayMenuBaseContent<
     return (
       <For each={normalizeOverlayMenuGroups(groupProps.sourceItems)}>
         {(group) => (
-          <Group data-slot="group" class={cn(props.classes?.group)}>
+          <Group data-slot="group" style={props.styles?.group} class={cn(props.classes?.group)}>
             <For each={group}>
               {(item) => <RenderItemNode item={item} depth={groupProps.depth} />}
             </For>
@@ -274,6 +291,7 @@ export function OverlayMenuBaseContent<
     <Portal>
       <props.content
         data-slot="content"
+        style={props.styles?.content}
         class={overlayMenuContentVariants({ side: props.rootSide }, props.classes?.content)}
       >
         <Show when={props.contentTop}>{(slot) => slot()({ sub: false })}</Show>

@@ -35,20 +35,3 @@ export const buttonVariants = cva(
 )
 
 export type ButtonVariantProps = VariantProps<typeof buttonVariants>
-
-export const buttonIconSizeVariants = cva('shrink-0', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      xs: 'text-xs',
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-sm',
-      xl: 'text-base',
-    },
-  },
-})
-
-export type ButtonIconSizeProps = VariantProps<typeof buttonIconSizeVariants>

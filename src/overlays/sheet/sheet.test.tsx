@@ -241,4 +241,19 @@ describe('Sheet', () => {
     const props: SheetProps = { open: true, body: 'Body' }
     expect(props).toBeDefined()
   })
+
+  test('applies styles override to content', () => {
+    render(() => (
+      <Sheet
+        open
+        body="Body"
+        styles={{ content: { width: '200px' } } as any}
+      >
+        <button type="button">Trigger</button>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    expect(content?.style.width).toBe('200px')
+  })
 })

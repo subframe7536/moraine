@@ -138,6 +138,38 @@ describe('Progress', () => {
     expect(step?.className).toContain('step-override')
   })
 
+  test('merges styles overrides into all slots', () => {
+    const screen = render(() => (
+      <Progress
+        value={60}
+        status
+        max={['A', 'B', 'C']}
+        styles={{
+          root: { width: '200px' },
+          status: { width: '200px' },
+          base: { width: '200px' },
+          indicator: { width: '200px' },
+          steps: { width: '200px' },
+          step: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement | null
+    const steps = screen.container.querySelector('[data-slot="steps"]') as HTMLElement | null
+    const step = screen.container.querySelector('[data-slot="step"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(status?.style.width).toBe('200px')
+    expect(base?.style.width).toBe('200px')
+    expect(indicator?.style.width).toBe('200px')
+    expect(steps?.style.width).toBe('200px')
+    expect(step?.style.width).toBe('200px')
+  })
+
   test('rejects inverted in type contract', () => {
     // @ts-expect-error inverted has been removed from Progress props
     const props: ProgressProps = { inverted: true }

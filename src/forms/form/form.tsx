@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 import { createStore, produce, reconcile } from 'solid-js/store'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 
 import type {
@@ -37,6 +37,8 @@ type FormSlots = 'root'
 
 export type FormClasses = SlotClasses<FormSlots>
 
+export type FormStyles = SlotStyles<FormSlots>
+
 export interface FormBaseProps<TState extends FormState = FormState> {
   id?: string
   state?: TState
@@ -49,6 +51,7 @@ export interface FormBaseProps<TState extends FormState = FormState> {
   onSubmit?: (event: FormSubmitEvent<TState>) => void | Promise<void>
   onError?: (event: FormErrorEvent) => void
   classes?: FormClasses
+  styles?: FormStyles
   children?: JSX.Element | ((props: FormRenderProps) => JSX.Element)
 }
 
@@ -209,7 +212,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
     props as FormProps<TState>,
     ['id', 'state', 'schema', 'validate', 'validateOn', 'validateOnInputDelay', 'disabled'],
     ['loadingAuto', 'onSubmit', 'onError'],
-    ['classes', 'children'],
+    ['classes', 'styles', 'children'],
   )
 
   const formId = useId(() => stateProps.id, 'form')
@@ -568,6 +571,7 @@ export function Form<TState extends FormState = FormState>(props: FormProps<TSta
     <FormProvider value={contextValue}>
       <form
         id={formId()}
+        style={renderProps.styles?.root}
         class={cn('w-full data-loading:opacity-80', renderProps.classes?.root)}
         data-loading={formState.loading ? '' : undefined}
         onSubmit={onSubmit}

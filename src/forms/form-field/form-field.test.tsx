@@ -262,6 +262,17 @@ describe('FormField', () => {
     expect(root?.className).toContain('root-override')
   })
 
+  test('applies styles.root override', () => {
+    const screen = render(() => (
+      <FormField styles={{ root: { width: '200px' } }}>
+        <FieldControl />
+      </FormField>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    expect(root?.style.width).toBe('200px')
+  })
+
   test('supports array name prop', async () => {
     const state = { user: { email: '' } }
 

@@ -4,7 +4,7 @@ import { For, Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 
 import { IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 
 import type { StepperVariantProps } from './stepper.class'
@@ -51,12 +51,15 @@ type StepperSlots =
 
 export type StepperClasses = SlotClasses<StepperSlots>
 
+export type StepperStyles = SlotStyles<StepperSlots>
+
 export interface StepperBaseProps extends Pick<StepperVariantProps, 'orientation' | 'size'> {
   items?: StepperItem[]
   linear?: boolean
   disabled?: boolean
   clickable?: boolean
   classes?: StepperClasses
+  styles?: StepperStyles
 }
 
 export type StepperProps = StepperBaseProps &
@@ -182,6 +185,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       <>
         <KobalteTabs.List
           data-slot="header"
+          style={merged.styles?.header}
           class={stepperHeaderVariants({ orientation: merged.orientation }, merged.classes?.header)}
         >
           <For each={normalizedItems()}>
@@ -193,6 +197,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               return (
                 <div
                   data-slot="item"
+                  style={merged.styles?.item}
                   data-state={state()}
                   data-disabled={disabled() ? '' : undefined}
                   class={stepperItemVariants(
@@ -206,6 +211,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                 >
                   <div
                     data-slot="container"
+                    style={merged.styles?.container}
                     class={stepperContainerVariants(
                       { orientation: merged.orientation },
                       merged.classes?.container,
@@ -213,6 +219,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   >
                     <KobalteTabs.Trigger
                       data-slot="trigger"
+                      style={merged.styles?.trigger}
                       data-state={state()}
                       value={entry.value}
                       as={IconButton}
@@ -246,6 +253,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <Show when={entry.index < normalizedItems().length - 1}>
                       <div
                         data-slot="separator"
+                        style={merged.styles?.separator}
                         data-state={state()}
                         data-disabled={disabled() ? '' : undefined}
                         class={stepperSeparatorVariants(
@@ -260,6 +268,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
                   <div
                     data-slot="wrapper"
+                    style={merged.styles?.wrapper}
                     class={stepperWrapperVariants(
                       { orientation: merged.orientation },
                       merged.classes?.wrapper,
@@ -268,6 +277,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <Show when={entry.item.title}>
                       <div
                         data-slot="title"
+                        style={merged.styles?.title}
                         id={`${idPrefix()}-step-${entry.index}-title`}
                         class={stepperTitleVariants({ size: merged.size }, merged.classes?.title)}
                       >
@@ -278,6 +288,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <Show when={entry.item.description}>
                       <div
                         data-slot="description"
+                        style={merged.styles?.description}
                         id={`${idPrefix()}-step-${entry.index}-description`}
                         class={stepperDescriptionVariants(
                           { size: merged.size },
@@ -299,6 +310,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             <Show when={entry.item.content}>
               <KobalteTabs.Content
                 data-slot="content"
+                style={merged.styles?.content}
                 value={entry.value}
                 class={cn('w-full', entry.item.class, merged.classes?.content)}
               >
@@ -314,6 +326,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   return (
     <KobalteTabs.Root
       data-slot="root"
+      style={merged.styles?.root}
       id={id()}
       activationMode={merged.activationMode}
       orientation={merged.orientation}

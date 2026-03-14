@@ -68,8 +68,8 @@ describe('Select - single mode', () => {
     ))
 
     const controls = screen.container.querySelectorAll('[data-slot="base"]')
-    expect(controls[0]?.className).toContain('min-h-7')
-    expect(controls[1]?.className).toContain('min-h-11')
+    expect(controls[0]?.className).toContain('me-1')
+    expect(controls[1]?.className).toContain('me-3')
   })
 
   test('applies classes.root override', () => {
@@ -79,6 +79,15 @@ describe('Select - single mode', () => {
 
     const root = screen.container.firstElementChild as HTMLElement | null
     expect(root?.className).toContain('root-override')
+  })
+
+  test('applies styles.root override', () => {
+    const screen = render(() => (
+      <Select options={FRUITS} placeholder="Pick a fruit" styles={{ root: { width: '200px' } }} />
+    ))
+
+    const root = screen.container.firstElementChild as HTMLElement | null
+    expect(root?.style.width).toBe('200px')
   })
 
   test('renders with placeholder', () => {
@@ -185,7 +194,8 @@ describe('Select - single mode', () => {
 
   test('keeps loading trigger icon animation class', () => {
     const screen = render(() => <Select options={FRUITS} loading placeholder="Pick" />)
-    const icon = screen.container.querySelector('[data-slot="trigger"]')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    const icon = trigger?.firstElementChild
 
     expect(icon?.className).toContain('animate-spin')
   })

@@ -271,4 +271,19 @@ describe('Modal', () => {
       expect(contentNode?.hasAttribute('data-closed')).toBe(true)
     })
   })
+
+  test('applies styles override to content', () => {
+    render(() => (
+      <Dialog
+        open
+        body="Body"
+        styles={{ content: { width: '200px' } } as any}
+      >
+        <button type="button">Trigger</button>
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    expect(content?.style.width).toBe('200px')
+  })
 })

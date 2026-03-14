@@ -141,6 +141,30 @@ describe('Resizable', () => {
     expect(customHandleIcons).toHaveLength(2)
   })
 
+  test('applies styles overrides', () => {
+    const screen = render(() => (
+      <Resizable
+        styles={{
+          root: { width: '200px' },
+          panel: { width: '200px' },
+          divider: { width: '200px' },
+          handle: { width: '200px' },
+        } as any}
+        panels={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
+    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handleInners = screen.container.querySelectorAll('[data-slot="handle"]')
+
+    expect(root?.style.width).toBe('200px')
+    expect((panels[0] as HTMLElement | null)?.style.width).toBe('200px')
+    expect((handles[0] as HTMLElement | null)?.style.width).toBe('200px')
+    expect((handleInners[0] as HTMLElement | null)?.style.width).toBe('200px')
+  })
+
   test('emits keyboard resize lifecycle in controlled mode with px payloads', async () => {
     const events: Array<{ type: 'start' | 'resize' | 'end'; sizes: number[] }> = []
 

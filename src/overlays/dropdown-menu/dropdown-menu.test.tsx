@@ -327,4 +327,23 @@ describe('DropdownMenu', () => {
 
     expect(root.contains(sub)).toBe(false)
   })
+
+  test('applies styles override to content', async () => {
+    render(() => (
+      <DropdownMenu
+        defaultOpen
+        styles={{ content: { width: '200px' } } as any}
+        items={[{ label: 'Open file' }]}
+      >
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    expect(content?.style.width).toBe('200px')
+  })
 })

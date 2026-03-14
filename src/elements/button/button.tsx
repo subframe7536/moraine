@@ -3,7 +3,7 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconName } from '../icon'
@@ -14,11 +14,11 @@ import { buttonVariants } from './button.class'
 /**
  * Class overrides for Button slots.
  */
-type ButtonSlots = 'base' | 'leading' | 'label' | 'trailing'
+type ButtonSlots = 'base' | 'loading' | 'leading' | 'label' | 'trailing'
 
-export type ButtonClasses = SlotClasses<ButtonSlots> & {
-  loading?: SlotClasses<'loading'>['loading']
-}
+export type ButtonClasses = SlotClasses<ButtonSlots>
+
+export type ButtonStyles = SlotStyles<ButtonSlots>
 
 /**
  * Additional Rock UI button options on top of Kobalte's polymorphic button props.
@@ -53,6 +53,7 @@ export interface ButtonBaseProps extends ButtonVariantProps {
    * Slot-based class overrides, similar to Nuxt UI `ui` customization.
    */
   classes?: ButtonClasses
+  styles?: ButtonStyles
 }
 
 /**
@@ -81,7 +82,7 @@ function isPromiseLike(value: unknown): value is PromiseLikeWithFinally {
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const [styleProps, stateProps, contentProps, restProps] = splitProps(
     props as ButtonProps,
-    ['class', 'variant', 'size', 'classes'],
+    ['class', 'variant', 'size', 'classes', 'styles'],
     ['disabled', 'loading', 'loadingAuto', 'loadingIcon', 'onClick'],
     ['leading', 'trailing', 'children'],
   )
@@ -90,6 +91,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const isLoading = createMemo(() =>
     Boolean(stateProps.loading || (stateProps.loadingAuto && loadingAutoState())),
+  )
+
+  const iconSize = createMemo(() =>
+    styleProps.size?.startsWith('icon-') ? styleProps.size.replace('icon-', '') : undefined,
   )
 
   const resolvedLeading = createMemo(() => {
@@ -120,6 +125,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   return (
     <KobalteButton.Root
       data-slot="base"
+      style={styleProps.styles?.base}
       class={buttonVariants(
         {
           variant: styleProps.variant,
@@ -138,8 +144,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(leading) => (
           <Icon
             name={leading()}
+            size={iconSize()}
             data-slot="leading"
-            loading={isLoading()}
+            style={styleProps.styles?.leading}
             class={cn(
               styleProps.classes?.leading,
               isLoading() && ['animate-spin', styleProps.classes?.loading],
@@ -150,7 +157,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       </Show>
 
       <Show when={contentProps.children}>
-        <span data-slot="label" class={cn('min-w-0 truncate', styleProps.classes?.label)}>
+        <span
+          data-slot="label"
+          style={styleProps.styles?.label}
+          class={cn('min-w-0 truncate', styleProps.classes?.label)}
+        >
           {contentProps.children}
         </span>
       </Show>
@@ -159,8 +170,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(trailing) => (
           <Icon
             name={trailing()}
+            size={iconSize()}
             data-slot="trailing"
-            loading={isLoading()}
+            style={styleProps.styles?.trailing}
             class={cn(styleProps.classes?.trailing)}
           />
         )}

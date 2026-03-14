@@ -12,11 +12,11 @@ export const selectControlVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs min-h-7',
-        sm: 'text-xs min-h-8',
-        md: 'text-sm min-h-9',
-        lg: 'text-sm min-h-10',
-        xl: 'text-base min-h-11',
+        xs: 'me-1',
+        sm: 'me-1.5',
+        md: 'me-2',
+        lg: 'me-2.5',
+        xl: 'me-3',
       },
       variant: INPUT_VARIANT_CLASSES,
     },

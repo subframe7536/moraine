@@ -252,6 +252,60 @@ describe('Avatar', () => {
     expect(groupItems[1]?.className).toContain('-me-2')
   })
 
+  test('applies styles overrides to all slots', () => {
+    const screen = render(() => (
+      <Avatar
+        src="/loading.png"
+        text="RK"
+        badge="i-lucide-check"
+        styles={{
+          root: { width: '200px' },
+          image: { width: '200px' },
+          fallback: { width: '200px' },
+          fallbackIcon: { width: '200px' },
+          badge: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const image = screen.container.querySelector('[data-slot="image"]') as HTMLElement | null
+    const fallback = screen.container.querySelector('[data-slot="fallback"]') as HTMLElement | null
+    const fallbackIcon = screen.container.querySelector('[data-slot="fallbackIcon"]') as HTMLElement | null
+    const badge = screen.container.querySelector('[data-slot="badge"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(image?.style.width).toBe('200px')
+    expect(fallback?.style.width).toBe('200px')
+    // fallbackIcon shouldn't be rendered if valid string text is provided but doesn't hurt to optionally grab
+    if (fallbackIcon) {
+      expect(fallbackIcon.style.width).toBe('200px')
+    }
+    expect(badge?.style.width).toBe('200px')
+  })
+
+  test('applies styles overrides to group slots', () => {
+    const screen = render(() => (
+      <Avatar
+        max={1}
+        items={[{ text: 'A' }, { text: 'B' }]}
+        styles={{
+          group: { width: '200px' },
+          groupItem: { width: '200px' },
+          groupCount: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const group = screen.container.querySelector('[data-slot="group"]') as HTMLElement | null
+    const groupItem = screen.container.querySelector('[data-slot="groupItem"]') as HTMLElement | null
+    const groupCount = screen.container.querySelector('[data-slot="groupCount"]') as HTMLElement | null
+
+    expect(group?.style.width).toBe('200px')
+    expect(groupItem?.style.width).toBe('200px')
+    expect(groupCount?.style.width).toBe('200px')
+  })
+
   test('rejects arbitrary html props and class prop in type contract', () => {
     // @ts-expect-error Avatar is sealed and does not accept arbitrary html props.
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }

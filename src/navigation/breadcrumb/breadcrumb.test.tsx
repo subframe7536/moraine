@@ -172,6 +172,30 @@ describe('Breadcrumb', () => {
     expect(separator?.className).toContain('separator-override')
   })
 
+  test('applies styles overrides', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        styles={{
+          root: { width: '200px' },
+          link: { width: '200px' },
+          separator: { width: '200px' },
+        } as any}
+        items={[
+          { label: 'Home', href: '/', icon: 'i-lucide-house' },
+          { label: 'Docs', href: '/docs' },
+        ]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const link = screen.container.querySelector('[data-slot="link"]') as HTMLElement | null
+    const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(link?.style.width).toBe('200px')
+    expect(separator?.style.width).toBe('200px')
+  })
+
   test('supports itemRender with @solidjs/router A component', () => {
     const itemRender = vi.fn<(context: BreadcrumbItemRenderContext) => typeof A>((_) => A)
 

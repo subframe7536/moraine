@@ -89,6 +89,31 @@ describe('Badge', () => {
     expect(remove?.className).toContain('trailing-override')
   })
 
+  test('supports style overrides', () => {
+    const screen = render(() => (
+      <Badge
+        data-slot="tag"
+        trailing="i-lucide-x"
+        onTrailingClick={() => undefined}
+        styles={{
+          base: { width: '200px' },
+          label: { width: '200px' },
+          trailing: { width: '200px' },
+        } as any}
+      >
+        Tag
+      </Badge>
+    ))
+
+    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement | null
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+    const remove = screen.container.querySelector('[data-slot="trailing"]') as HTMLElement | null
+
+    expect(tag?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+    expect(remove?.style.width).toBe('200px')
+  })
+
   test('exports badge from root index', () => {
     expect(ExportedBadge).toBe(Badge)
   })

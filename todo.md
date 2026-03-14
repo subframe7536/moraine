@@ -7,8 +7,8 @@
 - [x] refactor all transformer with `oxc-parser` / `oxc-walk`, add missing keyframes in `tw3.css` / `tw4.css`
 - [x] remove all unocss-specific class syntax and option to simplify by transformer, provide preset
 - [x] simplify theme
-- [ ] unify icon size resolver
-- [ ] `styles: SlotStyles<SlotNames, JSX.CSSProperties>` (like `classes`)
+- [x] unify icon size resolver
+- [x] `styles: SlotStyles<SlotNames, JSX.CSSProperties>` (like `classes`)
 - [ ] check `props.highlight` actual usage and style effect, optimize `surface-highlight` and `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
 - [ ] props jsdoc
 - [ ] refine demo into doc?

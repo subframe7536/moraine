@@ -64,6 +64,23 @@ describe('Kbd', () => {
     expect(item?.className).toContain('item-override')
   })
 
+  test('applies styles.root and styles.item overrides', () => {
+    const screen = render(() => (
+      <Kbd
+        value={['Ctrl', 'K']}
+        styles={{
+          root: { width: '200px' },
+          item: { width: '200px' },
+        }}
+      />
+    ))
+    const root = screen.container.querySelector('[data-slot="kbds"]') as HTMLElement | null
+    const item = screen.container.querySelector('[data-slot="kbd"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(item?.style.width).toBe('200px')
+  })
+
   test('keeps explicit data-slot support for item slot', () => {
     const screen = render(() => <Kbd value={['K', 'S']} slotPrefix="item" />)
     const root = screen.container.querySelector('[data-slot="item-kbds"]')

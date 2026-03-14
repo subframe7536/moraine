@@ -74,6 +74,33 @@ describe('Card', () => {
     expect(footer?.className).toContain('footer-override')
   })
 
+  test('applies styles.root/styles.header/styles.body/styles.footer overrides', () => {
+    const screen = render(() => (
+      <Card
+        header="Header"
+        footer="Footer"
+        styles={{
+          root: { width: '200px' },
+          header: { width: '200px' },
+          body: { width: '200px' },
+          footer: { width: '200px' },
+        }}
+      >
+        Body
+      </Card>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
+    const body = screen.container.querySelector('[data-slot="body"]') as HTMLElement | null
+    const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(header?.style.width).toBe('200px')
+    expect(body?.style.width).toBe('200px')
+    expect(footer?.style.width).toBe('200px')
+  })
+
   test('rejects invalid variant in type contract', () => {
     // @ts-expect-error variant must be a declared Card variant
     const props: CardProps = { variant: 'invalid' }

@@ -10,6 +10,7 @@ import type {
   OverlayMenuSharedClasses,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderContext,
+  OverlayMenuSharedStyles,
 } from '../shared-overlay-menu/types'
 import type {
   OverlayMenuContentSlot,
@@ -24,6 +25,7 @@ type DropdownMenuSize = NonNullable<OverlayMenuItemVariantProps['size']>
 export type DropdownMenuItem = OverlayMenuSharedItem<DropdownMenuColor, DropdownMenuItem>
 export type DropdownMenuItems = OverlayMenuItems<DropdownMenuItem>
 export type DropdownMenuClasses = OverlayMenuSharedClasses
+export type DropdownMenuStyles = OverlayMenuSharedStyles
 export type DropdownMenuItemRenderContext = OverlayMenuSharedItemRenderContext<DropdownMenuItem>
 
 export interface DropdownMenuBaseProps {
@@ -42,6 +44,7 @@ export interface DropdownMenuBaseProps {
   contentTop?: OverlayMenuContentSlot
   contentBottom?: OverlayMenuContentSlot
   classes?: DropdownMenuClasses
+  styles?: DropdownMenuStyles
   children: JSX.Element
 }
 
@@ -72,7 +75,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       'contentTop',
       'contentBottom',
     ],
-    ['classes', 'children'],
+    ['classes', 'styles', 'children'],
   )
 
   return (
@@ -81,6 +84,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         as="span"
         tabIndex={-1}
         data-slot="trigger"
+        style={localProps.styles?.trigger}
         class={cn('outline-none', localProps.classes?.trigger)}
         disabled={menuProps.disabled}
       >
@@ -90,6 +94,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <OverlayMenuBaseContent<DropdownMenuItem>
         content={KobalteDropdownMenu.Content}
         classes={localProps.classes}
+        styles={localProps.styles}
         {...menuProps}
         rootSide={resolveOverlayMenuSide(restProps.placement ?? 'bottom')}
       />

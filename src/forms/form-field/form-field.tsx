@@ -11,7 +11,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { useFormContext } from '../form/form-context'
 import { pathStartsWith, pathToKey, toFieldPath } from '../form/form-path'
@@ -38,6 +38,8 @@ type FormFieldSlots =
 
 export type FormFieldClasses = SlotClasses<FormFieldSlots>
 
+export type FormFieldStyles = SlotStyles<FormFieldSlots>
+
 export interface FormFieldRenderProps {
   error?: boolean | string | JSX.Element
 }
@@ -55,6 +57,7 @@ export interface FormFieldBaseProps extends FormFieldVariantProps {
   eagerValidation?: boolean
   validateOnInputDelay?: number
   classes?: FormFieldClasses
+  styles?: FormFieldStyles
   children?: JSX.Element | ((props: FormFieldRenderProps) => JSX.Element)
 }
 
@@ -229,6 +232,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       <Dynamic
         component={fieldProps.as}
         data-slot="root"
+        style={merged.styles?.root}
         data-orientation={styleProps.orientation}
         class={formFieldSizeVariants(
           {
@@ -241,6 +245,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       >
         <div
           data-slot="wrapper"
+          style={merged.styles?.wrapper}
           class={cn(
             styleProps.orientation === 'horizontal' && 'flex-1',
             styleProps.classes?.wrapper,
@@ -249,6 +254,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
           <Show when={contentProps.label}>
             <div
               data-slot="labelWrapper"
+              style={merged.styles?.labelWrapper}
               class={cn(
                 'flex gap-1 items-center justify-between',
                 styleProps.classes?.labelWrapper,
@@ -257,6 +263,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
               <label
                 for={resolvedLabelTargetId()}
                 data-slot="label"
+                style={merged.styles?.label}
                 class={formFieldLabelVariants(
                   {
                     required: fieldProps.required,
@@ -271,6 +278,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
+                  style={merged.styles?.hint}
                   class={cn('text-muted-foreground ms-1', styleProps.classes?.hint)}
                 >
                   {contentProps.hint}
@@ -283,6 +291,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
+              style={merged.styles?.description}
               class={cn('text-muted-foreground', styleProps.classes?.description)}
             >
               {contentProps.description}
@@ -313,6 +322,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
+                  style={merged.styles?.help}
                   class={cn('text-muted-foreground mt-2', styleProps.classes?.help)}
                 >
                   {contentProps.help}
@@ -323,6 +333,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
             <div
               id={`${ariaId()}-error`}
               data-slot="error"
+              style={merged.styles?.error}
               class={cn('text-destructive mt-2', styleProps.classes?.error)}
             >
               {resolvedError() as JSX.Element}

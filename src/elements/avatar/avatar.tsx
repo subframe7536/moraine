@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createSignal, mergeProps, on, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 import type { IconName } from '../icon'
 import { Icon } from '../icon'
@@ -36,6 +36,8 @@ type AvatarSlots =
 
 export type AvatarClasses = SlotClasses<AvatarSlots>
 
+export type AvatarStyles = SlotStyles<AvatarSlots>
+
 export interface AvatarItem {
   src?: string
   alt?: string
@@ -51,6 +53,7 @@ export interface AvatarBaseProps
   items?: AvatarItem[]
   max?: number | string
   classes?: AvatarClasses
+  styles?: AvatarStyles
 }
 
 export type AvatarProps = AvatarBaseProps
@@ -217,6 +220,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       <span
         data-slot={slot}
         data-status={status()}
+        style={slot === 'groupItem' ? merged.styles?.groupItem : merged.styles?.root}
         class={avatarRootVariants(
           {
             size,
@@ -234,6 +238,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       >
         <img
           data-slot="image"
+          style={merged.styles?.image}
           src={resolvedSrc()}
           alt={face.alt() ?? ''}
           class={avatarImageVariants(
@@ -247,6 +252,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
 
         <span
           data-slot="fallback"
+          style={merged.styles?.fallback}
           class={avatarFallbackVariants(
             {
               size,
@@ -261,6 +267,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
               <Icon
                 name={fallbackIcon()}
                 data-slot="fallbackIcon"
+                style={merged.styles?.fallbackIcon}
                 class={avatarFallbackIconVariants(
                   {
                     size,
@@ -276,6 +283,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
           {(badge) => (
             <span
               data-slot="badge"
+              style={merged.styles?.badge}
               class={avatarBadgeVariants(
                 {
                   size,
@@ -310,11 +318,13 @@ export function Avatar(props: AvatarProps): JSX.Element {
     >
       <div
         data-slot="group"
+        style={merged.styles?.group}
         class={cn('inline-flex flex-row-reverse justify-end', styleProps.classes?.group)}
       >
         <Show when={hiddenCount() > 0}>
           <span
             data-slot="groupCount"
+            style={merged.styles?.groupCount}
             class={avatarGroupCountVariants(
               {
                 size: styleProps.size,

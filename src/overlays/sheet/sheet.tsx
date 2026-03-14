@@ -4,7 +4,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import { sheetContentVariants } from './sheet.class'
@@ -26,6 +26,8 @@ type SheetSlots =
 
 export type SheetClasses = SlotClasses<SheetSlots>
 
+export type SheetStyles = SlotStyles<SheetSlots>
+
 export interface SheetBaseProps {
   id?: string
   open?: boolean
@@ -45,6 +47,7 @@ export interface SheetBaseProps {
   footer?: JSX.Element
   actions?: JSX.Element
   classes?: SheetClasses
+  styles?: SheetStyles
   children: JSX.Element
 }
 
@@ -144,6 +147,7 @@ export function Sheet(props: SheetProps): JSX.Element {
         as="span"
         tabIndex={-1}
         data-slot="trigger"
+        style={merged.styles?.trigger}
         class={cn('outline-none', contentProps.classes?.trigger)}
       >
         {contentProps.children}
@@ -153,6 +157,7 @@ export function Sheet(props: SheetProps): JSX.Element {
         <Show when={behaviorProps.overlay}>
           <KobalteDialog.Overlay
             data-slot="overlay"
+            style={merged.styles?.overlay}
             class={cn(
               'supports-backdrop-filter:backdrop-blur-xs data-ending-style:opacity-0 data-starting-style:opacity-0 bg-black/10 duration-150 inset-0 fixed z-50 data-closed:(animate-out fade-out-0) data-expanded:(animate-in fade-in-0)',
               contentProps.classes?.overlay,
@@ -162,6 +167,7 @@ export function Sheet(props: SheetProps): JSX.Element {
 
         <KobalteDialog.Content
           data-slot="content"
+          style={merged.styles?.content}
           data-side={behaviorProps.side}
           class={sheetContentVariants(
             {
@@ -179,6 +185,7 @@ export function Sheet(props: SheetProps): JSX.Element {
           <Show when={contentProps.header || hasDefaultHeader()}>
             <div
               data-slot="header"
+              style={merged.styles?.header}
               class={cn('p-4 flex gap-2 items-start', contentProps.classes?.header)}
             >
               <Show
@@ -187,11 +194,13 @@ export function Sheet(props: SheetProps): JSX.Element {
                   <>
                     <div
                       data-slot="wrapper"
+                      style={merged.styles?.wrapper}
                       class={cn('flex-1 gap-0.5 grid min-w-0', contentProps.classes?.wrapper)}
                     >
                       <Show when={contentProps.title}>
                         <KobalteDialog.Title
                           data-slot="title"
+                          style={merged.styles?.title}
                           class={cn(
                             'text-base text-foreground font-medium',
                             contentProps.classes?.title,
@@ -204,6 +213,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                       <Show when={contentProps.description}>
                         <KobalteDialog.Description
                           data-slot="description"
+                          style={merged.styles?.description}
                           class={cn(
                             'text-sm text-muted-foreground',
                             contentProps.classes?.description,
@@ -217,6 +227,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                     <Show when={contentProps.actions}>
                       <div
                         data-slot="actions"
+                        style={merged.styles?.actions}
                         class={cn(
                           'ms-auto inline-flex shrink-0 gap-2 items-center',
                           contentProps.classes?.actions,
@@ -229,6 +240,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                     <Show when={behaviorProps.close !== false}>
                       <KobalteDialog.CloseButton
                         data-slot="close"
+                        style={merged.styles?.close}
                         class={cn(
                           'text-muted-foreground b-(1 transparent) rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent) focus-visible:effect-fv-border',
                           contentProps.classes?.close,
@@ -251,6 +263,7 @@ export function Sheet(props: SheetProps): JSX.Element {
           <Show when={contentProps.body}>
             <div
               data-slot="body"
+              style={merged.styles?.body}
               class={cn(
                 'flex-1 overflow-auto',
                 contentProps.header || hasDefaultHeader() ? 'px-4 pb-4 pt-0' : 'p-4',
@@ -264,6 +277,7 @@ export function Sheet(props: SheetProps): JSX.Element {
           <Show when={contentProps.footer}>
             <div
               data-slot="footer"
+              style={merged.styles?.footer}
               class={cn('mt-auto p-4 flex flex-col gap-2', contentProps.classes?.footer)}
             >
               {contentProps.footer}

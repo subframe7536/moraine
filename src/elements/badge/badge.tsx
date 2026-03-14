@@ -1,7 +1,7 @@
 import type { JSX, ParentProps } from 'solid-js'
 import { Show, createMemo, mergeProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 import { Icon, IconButton } from '../icon'
 import type { IconButtonProps, IconName } from '../icon'
@@ -12,6 +12,8 @@ import { badgeIconVariants, badgeVariants } from './badge.class'
 type BadgeSlots = 'base' | 'leading' | 'label' | 'trailing'
 
 export type BadgeClasses = SlotClasses<BadgeSlots>
+
+export type BadgeStyles = SlotStyles<BadgeSlots>
 
 export interface BadgeTrailingButtonProps extends Omit<
   IconButtonProps,
@@ -25,6 +27,7 @@ export interface BadgeBaseProps extends BadgeVariantProps {
   trailing?: IconName
   onTrailingClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
   classes?: BadgeClasses
+  styles?: BadgeStyles
 }
 
 export type BadgeProps = ParentProps<BadgeBaseProps>
@@ -46,6 +49,7 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-size={merged.size}
       data-variant={merged.variant}
       title={merged.title}
+      style={merged.styles?.base}
       class={badgeVariants(
         {
           size: merged.size,
@@ -63,13 +67,18 @@ export function Badge(props: BadgeProps): JSX.Element {
           <Icon
             name={leading()}
             data-slot="leading"
+            style={merged.styles?.leading}
             class={badgeIconVariants(merged.size, merged.classes?.leading, true)}
           />
         )}
       </Show>
 
       <Show when={hasLabel()}>
-        <span data-slot="label" class={cn('min-w-0 truncate', merged.classes?.label)}>
+        <span
+          data-slot="label"
+          style={merged.styles?.label}
+          class={cn('min-w-0 truncate', merged.classes?.label)}
+        >
           {merged.children}
         </span>
       </Show>
@@ -82,6 +91,7 @@ export function Badge(props: BadgeProps): JSX.Element {
               <Icon
                 name={trailing()}
                 data-slot="trailing"
+                style={merged.styles?.trailing}
                 class={badgeIconVariants(merged.size, merged.classes?.trailing, false)}
               />
             }
@@ -90,6 +100,7 @@ export function Badge(props: BadgeProps): JSX.Element {
               name={trailing()}
               size={merged.size}
               data-slot="trailing"
+              style={merged.styles?.trailing}
               class={badgeIconVariants(merged.size, merged.classes?.trailing, false)}
               onClick={merged.onTrailingClick}
             />

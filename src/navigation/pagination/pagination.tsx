@@ -6,12 +6,14 @@ import type { ButtonProps } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import type { FormFieldSize } from '../../forms/form-field/form-field-context'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 type PaginationSlots = 'root' | 'list' | 'item' | 'link' | 'prev' | 'next' | 'ellipsis'
 
 export type PaginationClasses = SlotClasses<PaginationSlots>
+
+export type PaginationStyles = SlotStyles<PaginationSlots>
 
 type PaginationVariant = ButtonProps['variant']
 
@@ -35,6 +37,7 @@ export interface PaginationBaseProps {
   ellipsisIcon?: IconName
   to?: (page: number) => string | undefined
   classes?: PaginationClasses
+  styles?: PaginationStyles
 }
 
 export type PaginationProps = PaginationBaseProps
@@ -78,7 +81,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   const [styleProps, uiProps, pagingProps, restProps] = splitProps(
     merged,
     ['size', 'variant', 'activeVariant', 'controlVariant'],
-    ['classes', 'prevIcon', 'prevText', 'nextIcon', 'nextText', 'ellipsisIcon'],
+    ['classes', 'styles', 'prevIcon', 'prevText', 'nextIcon', 'nextText', 'ellipsisIcon'],
     [
       'page',
       'defaultPage',
@@ -148,15 +151,22 @@ export function Pagination(props: PaginationProps): JSX.Element {
   }
 
   return (
-    <nav data-slot="root" class={cn('w-full', uiProps.classes?.root)} {...restProps}>
+    <nav
+      data-slot="root"
+      style={uiProps.styles?.root}
+      class={cn('w-full', uiProps.classes?.root)}
+      {...restProps}
+    >
       <ul
         data-slot="list"
+        style={uiProps.styles?.list}
         class={cn('flex gap-1 items-center justify-center', uiProps.classes?.list)}
       >
         <Show when={pagingProps.showControls}>
-          <li data-slot="item" class={cn(uiProps.classes?.item)}>
+          <li data-slot="item" style={uiProps.styles?.item} class={cn(uiProps.classes?.item)}>
             <Button
               data-slot="prev"
+              style={uiProps.styles?.prev}
               variant={styleProps.controlVariant}
               size={getSize(styleProps.size, uiProps.prevText)}
               aria-label="Go to previous page"
@@ -176,6 +186,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="item"
+                style={uiProps.styles?.item}
                 aria-hidden={item < 0 ? true : undefined}
                 class={cn(item < 0 && 'flex size-6 items-center', uiProps.classes?.item)}
               >
@@ -184,6 +195,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                   fallback={
                     <Icon
                       data-slot="ellipsis"
+                      style={uiProps.styles?.ellipsis}
                       name={uiProps.ellipsisIcon}
                       class={cn(uiProps.classes?.ellipsis)}
                     />
@@ -191,6 +203,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 >
                   <Button
                     data-slot="link"
+                    style={uiProps.styles?.link}
                     variant={isActive() ? styleProps.activeVariant : styleProps.variant}
                     size={getSize(styleProps.size)}
                     aria-current={isActive() ? 'page' : undefined}
@@ -209,9 +222,10 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={pagingProps.showControls}>
-          <li data-slot="item" class={cn(uiProps.classes?.item)}>
+          <li data-slot="item" style={uiProps.styles?.item} class={cn(uiProps.classes?.item)}>
             <Button
               data-slot="next"
+              style={uiProps.styles?.next}
               variant={styleProps.controlVariant}
               size={getSize(styleProps.size, uiProps.nextText)}
               aria-label="Go to next page"

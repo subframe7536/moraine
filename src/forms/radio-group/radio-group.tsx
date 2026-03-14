@@ -2,7 +2,7 @@ import * as KobalteRadioGroup from '@kobalte/core/radio-group'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -40,6 +40,8 @@ type RadioGroupSlots =
 
 export type RadioGroupClasses = SlotClasses<RadioGroupSlots>
 
+export type RadioGroupStyles = SlotStyles<RadioGroupSlots>
+
 type RadioGroupItemSlots =
   | 'root'
   | 'container'
@@ -51,6 +53,8 @@ type RadioGroupItemSlots =
   | 'description'
 
 export type RadioGroupItemClasses = SlotClasses<RadioGroupItemSlots>
+
+export type RadioGroupItemStyles = SlotStyles<RadioGroupItemSlots>
 
 export interface RadioGroupItemObject {
   value?: string
@@ -82,6 +86,7 @@ export interface RadioGroupBaseProps
   items?: RadioGroupItem[]
   onChange?: (value: RadioGroupValue) => void
   classes?: RadioGroupClasses
+  styles?: RadioGroupStyles
 }
 
 export type RadioGroupProps = RadioGroupBaseProps &
@@ -173,12 +178,14 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       orientation={styleProps.orientation}
       onChange={onChange}
       data-slot="root"
+      style={merged.styles?.root}
       class={cn('relative', styleProps.classes?.root)}
       {...field.ariaAttrs()}
       {...restProps}
     >
       <fieldset
         data-slot="fieldset"
+        style={merged.styles?.fieldset}
         aria-labelledby={collectionProps.legend ? legendId() : undefined}
         class={radioGroupFieldsetVariants(
           {
@@ -192,6 +199,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
           <legend
             id={legendId()}
             data-slot="legend"
+            style={merged.styles?.legend}
             class={radioGroupLegendVariants(
               {
                 size: field.size(),
@@ -212,6 +220,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               value={item.value}
               disabled={item.disabled || field.disabled()}
               data-slot="item"
+              style={merged.styles?.item}
               data-disabled={item.disabled || field.disabled() ? '' : undefined}
               class={radioGroupItemVariants(
                 {
@@ -226,6 +235,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
             >
               <div
                 data-slot="container"
+                style={merged.styles?.container}
                 class={radioGroupContainerVariants(
                   {
                     size: field.size(),
@@ -237,6 +247,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
                 <KobalteRadioGroup.ItemControl
                   data-slot="base"
+                  style={merged.styles?.base}
                   data-invalid={field.invalid() ? '' : undefined}
                   class={radioGroupBaseVariants(
                     {
@@ -248,6 +259,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 >
                   <KobalteRadioGroup.ItemIndicator
                     data-slot="indicator"
+                    style={merged.styles?.indicator}
                     class={cn(
                       'rounded-full flex size-full ring-(4 primary ring inset) items-center justify-center',
                       styleProps.classes?.indicator,
@@ -259,6 +271,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               <Show when={item.label || item.description}>
                 <div
                   data-slot="wrapper"
+                  style={merged.styles?.wrapper}
                   class={radioGroupWrapperVariants(
                     {
                       indicator: styleProps.indicator,
@@ -272,6 +285,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       fallback={
                         <p
                           data-slot="label"
+                          style={merged.styles?.label}
                           class={cn('text-foreground font-medium', styleProps.classes?.label)}
                         >
                           {item.label}
@@ -281,6 +295,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       <label
                         for={item.inputId}
                         data-slot="label"
+                        style={merged.styles?.label}
                         class={cn('text-foreground font-medium', styleProps.classes?.label)}
                       >
                         {item.label}
@@ -291,6 +306,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   <Show when={item.description}>
                     <p
                       data-slot="description"
+                      style={merged.styles?.description}
                       class={cn('text-muted-foreground', styleProps.classes?.description)}
                     >
                       {item.description}

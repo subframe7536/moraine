@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { IconName } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 
 import type { OverlayMenuItems } from './utils'
 
@@ -41,6 +41,8 @@ type OverlayMenuSharedSlots =
   | 'itemSub'
 
 export type OverlayMenuSharedClasses = SlotClasses<OverlayMenuSharedSlots>
+
+export type OverlayMenuSharedStyles = SlotStyles<OverlayMenuSharedSlots>
 
 export interface OverlayMenuSharedItemRenderContext<TItem> {
   item: TItem

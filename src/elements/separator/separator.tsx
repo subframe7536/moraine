@@ -2,7 +2,7 @@ import * as KobalteSeparator from '@kobalte/core/separator'
 import type { JSX } from 'solid-js'
 import { Show, mergeProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 
 import type { SeparatorVariantProps } from './separator.class'
 import {
@@ -15,12 +15,15 @@ type SeparatorSlots = 'root' | 'border' | 'container'
 
 export type SeparatorClasses = SlotClasses<SeparatorSlots>
 
+export type SeparatorStyles = SlotStyles<SeparatorSlots>
+
 export interface SeparatorBaseProps extends Pick<
   SeparatorVariantProps,
   'orientation' | 'size' | 'type'
 > {
   decorative?: boolean
   classes?: SeparatorClasses
+  styles?: SeparatorStyles
   children?: JSX.Element
 }
 
@@ -44,6 +47,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       orientation={merged.orientation}
       aria-hidden={merged.decorative ? true : undefined}
       data-slot="root"
+      style={merged.styles?.root}
       class={separatorRootVariants(
         {
           orientation: merged.orientation,
@@ -53,6 +57,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
     >
       <div
         data-slot="border"
+        style={merged.styles?.border}
         class={separatorBorderVariants(
           {
             orientation: merged.orientation,
@@ -66,6 +71,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       <Show when={merged.children}>
         <div
           data-slot="container"
+          style={merged.styles?.container}
           class={separatorContainerVariants(
             {
               orientation: merged.orientation,
@@ -77,6 +83,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
         </div>
         <div
           data-slot="border"
+          style={merged.styles?.border}
           class={separatorBorderVariants(
             {
               orientation: merged.orientation,

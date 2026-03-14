@@ -3,7 +3,7 @@ import type { DialogContentProps as KobalteDialogContentProps } from '@kobalte/c
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import { popupContentVariants, popupOverlayVariants } from './popup.class'
@@ -11,6 +11,8 @@ import { popupContentVariants, popupOverlayVariants } from './popup.class'
 type PopupSlots = 'trigger' | 'overlay' | 'content'
 
 export type PopupClasses = SlotClasses<PopupSlots>
+
+export type PopupStyles = SlotStyles<PopupSlots>
 
 export interface PopupBaseProps {
   overlay?: boolean
@@ -21,6 +23,7 @@ export interface PopupBaseProps {
   onClosePrevent?: () => void
   content?: JSX.Element
   classes?: PopupClasses
+  styles?: PopupStyles
 }
 
 export type PopupProps = PopupBaseProps &
@@ -121,6 +124,7 @@ export function Popup(props: PopupProps): JSX.Element {
     <Show when={contentProps.content}>
       <KobalteDialog.Content
         data-slot="content"
+        style={merged.styles?.content}
         class={popupContentVariants(
           {
             layout: contentLayout(),
@@ -144,6 +148,7 @@ export function Popup(props: PopupProps): JSX.Element {
           as="span"
           tabIndex={-1}
           data-slot="trigger"
+          style={merged.styles?.trigger}
           class={cn('outline-none', contentProps.classes?.trigger)}
         >
           {contentProps.children}
@@ -158,6 +163,7 @@ export function Popup(props: PopupProps): JSX.Element {
               <Show when={behaviorProps.overlay}>
                 <KobalteDialog.Overlay
                   data-slot="overlay"
+                  style={merged.styles?.overlay}
                   class={popupOverlayVariants(
                     {
                       scrollable: behaviorProps.scrollable,
@@ -173,6 +179,7 @@ export function Popup(props: PopupProps): JSX.Element {
         >
           <KobalteDialog.Overlay
             data-slot="overlay"
+            style={merged.styles?.overlay}
             class={popupOverlayVariants(
               {
                 scrollable: behaviorProps.scrollable,

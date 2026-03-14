@@ -158,6 +158,33 @@ describe('Button', () => {
     expect(button.className).toContain('root-override')
   })
 
+  test('merges styles overrides into slots', () => {
+    const screen = render(() => (
+      <Button
+        leading="i-lucide-menu"
+        trailing="i-lucide-x"
+        styles={{
+          base: { width: '200px' },
+          leading: { width: '200px' },
+          label: { width: '200px' },
+          trailing: { width: '200px' },
+        } as any}
+      >
+        Label
+      </Button>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Label' }) as HTMLElement
+    const leading = button.querySelector('[data-slot="leading"]') as HTMLElement | null
+    const label = button.querySelector('[data-slot="label"]') as HTMLElement | null
+    const trailing = button.querySelector('[data-slot="trailing"]') as HTMLElement | null
+
+    expect(leading?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+    expect(trailing?.style.width).toBe('200px')
+    expect(button.style.width).toBe('200px')
+  })
+
   test('applies loading slot class override while loading', () => {
     const screen = render(() => (
       <Button

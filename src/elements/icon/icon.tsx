@@ -4,6 +4,8 @@ import { Dynamic } from 'solid-js/web'
 
 import { cn } from '../../shared/utils'
 
+import { iconSizeVariants } from './icon.class'
+
 export type IconName = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
 export interface IconBaseProps {
@@ -23,23 +25,34 @@ export interface IconBaseProps {
    * @default 'icon'
    */
   'data-slot'?: string
-  loading?: boolean
   style?: JSX.CSSProperties
 }
 
 export type IconProps = IconBaseProps &
-  Omit<JSX.HTMLAttributes<HTMLSpanElement>, keyof IconBaseProps | 'aria-hidden' | 'children'>
+  Omit<
+    JSX.HTMLAttributes<HTMLSpanElement>,
+    keyof IconBaseProps | 'aria-hidden' | 'children' | 'style'
+  >
 
 export function Icon(props: IconProps): JSX.Element {
   const [localProps, restProps] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])
+
+  const sizeVariant = createMemo(() => {
+    const s = localProps.size
+    if (s === 'xs' || s === 'sm' || s === 'md' || s === 'lg' || s === 'xl') {
+      return s
+    }
+    return undefined
+  })
+
   const style = createMemo(() => {
-    if (!localProps.size) {
+    if (!localProps.size || sizeVariant()) {
       return localProps.style
     }
     return {
       'font-size': typeof localProps.size === 'number' ? `${localProps.size}px` : localProps.size,
-      ...localProps.style,
-    }
+      ...(localProps.style as any),
+    } as JSX.CSSProperties
   })
 
   return (
@@ -53,12 +66,11 @@ export function Icon(props: IconProps): JSX.Element {
       }
       data-slot={localProps['data-slot'] ?? 'icon'}
       class={cn(
-        'inline-flex shrink-0',
+        iconSizeVariants({ size: sizeVariant() }),
         typeof localProps.name === 'string' && localProps.name,
         localProps.class,
       )}
       style={style()}
-      size={localProps.size}
       {...restProps}
       aria-hidden={restProps['aria-label'] ? undefined : true}
     />

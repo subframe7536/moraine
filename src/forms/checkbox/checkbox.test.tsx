@@ -327,6 +327,28 @@ describe('Checkbox', () => {
     expect(base?.className).toContain('size-5')
   })
 
+  test('applies style overrides', () => {
+    const screen = render(() => (
+      <Checkbox
+        variant="card"
+        label="Styles"
+        styles={{
+          root: { width: '200px' },
+          base: { width: '200px' },
+          label: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(base?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+  })
+
   test('toggles when clicking card root container', async () => {
     const screen = render(() => <Checkbox variant="card" label="Card root click" />)
 

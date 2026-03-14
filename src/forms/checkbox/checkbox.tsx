@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js
 
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -33,6 +33,8 @@ type CheckboxSlots =
 
 export type CheckboxClasses = SlotClasses<CheckboxSlots>
 
+export type CheckboxStyles = SlotStyles<CheckboxSlots>
+
 export interface CheckboxBaseProps<TTrue = boolean, TFalse = boolean>
   extends CheckboxVariantProps, FormIdentityOptions, FormDisableOption {
   checked?: TTrue | TFalse | 'indeterminate'
@@ -46,6 +48,7 @@ export interface CheckboxBaseProps<TTrue = boolean, TFalse = boolean>
   checkedIcon?: IconName
   indeterminateIcon?: IconName
   classes?: CheckboxClasses
+  styles?: CheckboxStyles
 }
 
 export type CheckboxProps<TTrue = boolean, TFalse = boolean> = CheckboxBaseProps<TTrue, TFalse> &
@@ -215,6 +218,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       defaultChecked={resolvedDefaultChecked()}
       indeterminate={indeterminate()}
       data-slot="root"
+      style={merged.styles?.root}
       data-disabled={field.disabled() ? '' : undefined}
       class={checkboxRootVariants(
         {
@@ -233,6 +237,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         <>
           <div
             data-slot="container"
+            style={merged.styles?.container}
             class={checkboxContainerVariants(
               {
                 size: field.size(),
@@ -249,6 +254,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
             <KobalteCheckbox.Control
               data-slot="base"
+              style={merged.styles?.base}
               data-invalid={field.invalid() ? '' : undefined}
               class={checkboxBaseVariants(
                 {
@@ -260,6 +266,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             >
               <KobalteCheckbox.Indicator
                 data-slot="indicator"
+                style={merged.styles?.indicator}
                 class={cn(
                   'text-primary-foreground bg-primary flex size-full items-center justify-center',
                   styleProps.classes?.indicator,
@@ -283,6 +290,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={styleProps.label || styleProps.description}>
             <div
               data-slot="wrapper"
+              style={merged.styles?.wrapper}
               class={checkboxWrapperVariants(
                 {
                   indicator: styleProps.indicator,
@@ -298,6 +306,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                     <label
                       for={field.id()}
                       data-slot="label"
+                      style={merged.styles?.label}
                       class={checkboxLabelVariants(
                         {
                           required: restProps.required,
@@ -311,6 +320,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 >
                   <p
                     data-slot="label"
+                    style={merged.styles?.label}
                     class={checkboxLabelVariants(
                       {
                         required: restProps.required,
@@ -326,6 +336,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               <Show when={styleProps.description}>
                 <p
                   data-slot="description"
+                  style={merged.styles?.description}
                   class={cn('text-muted-foreground', styleProps.classes?.description)}
                 >
                   {styleProps.description}

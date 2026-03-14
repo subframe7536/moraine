@@ -490,4 +490,24 @@ describe('ContextMenu', () => {
     const leading = document.body.querySelector('[data-slot="itemLeading"]') as HTMLElement
     expect(leading.className).not.toContain('text-muted-foreground')
   })
+
+  test('applies styles override to content', async () => {
+    const screen = render(() => (
+      <ContextMenu
+        styles={{ content: { width: '200px' } } as any}
+        items={[{ label: 'Open item' }]}
+      >
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    expect(content?.style.width).toBe('200px')
+  })
 })

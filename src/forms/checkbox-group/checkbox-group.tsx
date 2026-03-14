@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
+import type { SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox'
@@ -19,6 +20,24 @@ import {
   checkboxGroupItemVariants,
   checkboxGroupLegendVariants,
 } from './checkbox-group.class'
+
+type CheckboxGroupSlots =
+  | 'root'
+  | 'fieldset'
+  | 'legend'
+  | 'item'
+  | 'container'
+  | 'base'
+  | 'indicator'
+  | 'icon'
+  | 'wrapper'
+  | 'label'
+  | 'description'
+
+export type CheckboxGroupStyles<
+  _TTrue = boolean,
+  _TFalse = boolean,
+> = SlotStyles<CheckboxGroupSlots>
 
 export type CheckboxGroupValue = string
 
@@ -69,6 +88,7 @@ export interface CheckboxGroupBaseProps<TTrue = boolean, TFalse = boolean>
   indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
   onChange?: (value: CheckboxGroupValue[]) => void
   classes?: CheckboxGroupClasses<TTrue, TFalse>
+  styles?: CheckboxGroupStyles<TTrue, TFalse>
 }
 
 export type CheckboxGroupProps<TTrue = boolean, TFalse = boolean> = CheckboxGroupBaseProps<
@@ -175,10 +195,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div id={`${groupId()}-root`} data-slot="root" class={cn('relative', styleProps.classes?.root)}>
+    <div
+      id={`${groupId()}-root`}
+      data-slot="root"
+      style={merged.styles?.root}
+      class={cn('relative', styleProps.classes?.root)}
+    >
       <fieldset
         id={groupId()}
         data-slot="fieldset"
+        style={merged.styles?.fieldset}
         aria-labelledby={collectionProps.legend ? legendId() : undefined}
         class={checkboxGroupFieldsetVariants(
           {
@@ -193,6 +219,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           <legend
             id={legendId()}
             data-slot="legend"
+            style={merged.styles?.legend}
             class={checkboxGroupLegendVariants(
               {
                 size: field.size(),
@@ -236,6 +263,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 ),
                 ...styleProps.classes,
               }}
+              styles={styleProps.styles}
               onChange={(checked) => onItemCheckedChange(item.value, Boolean(checked))}
             />
           )}

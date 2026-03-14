@@ -200,4 +200,25 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
+
+  test('applies style overrides', () => {
+    const screen = render(() => (
+      <Stepper
+        items={ITEMS}
+        styles={{
+          root: { width: '200px' },
+          trigger: { width: '200px' },
+          content: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(trigger?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
+  })
 })

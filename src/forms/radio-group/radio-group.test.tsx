@@ -266,4 +266,25 @@ describe('RadioGroup', () => {
     const label = screen.getByText('Radio group')
     expect(label.getAttribute('for')).toBeNull()
   })
+
+  test('applies style overrides to item and checkbox slots', () => {
+    const screen = render(() => (
+      <RadioGroup
+        items={['A']}
+        styles={{
+          item: { width: '200px' },
+          base: { width: '200px' },
+          label: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+
+    expect(item?.style.width).toBe('200px')
+    expect(base?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+  })
 })

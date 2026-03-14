@@ -221,4 +221,41 @@ describe('Accordion', () => {
     expect(trailing?.className).toContain('trailing-override')
     expect(content?.className).toContain('content-override')
   })
+
+  test('applies styles overrides', () => {
+    const screen = render(() => (
+      <Accordion
+        items={[BASE_ITEMS[0]]}
+        defaultValue={['one']}
+        styles={{
+          root: { width: '200px' },
+          item: { width: '200px' },
+          header: { width: '200px' },
+          trigger: { width: '200px' },
+          leading: { width: '200px' },
+          label: { width: '200px' },
+          trailing: { width: '200px' },
+          content: { width: '200px' },
+        } as any}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
+    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
+    const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement | null
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+    const trailing = screen.container.querySelector('[data-slot="trailing"]') as HTMLElement | null
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect(item?.style.width).toBe('200px')
+    expect(header?.style.width).toBe('200px')
+    expect(trigger?.style.width).toBe('200px')
+    expect(leading?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+    expect(trailing?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
+  })
 })

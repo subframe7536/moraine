@@ -412,6 +412,18 @@ describe('CommandPalette', () => {
     })
   })
 
+  test('applies styles.empty override', async () => {
+    const screen = render(() => (
+      <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />
+    ))
+
+    await waitFor(() => {
+      expect(
+        (screen.container.querySelector('[data-slot="empty"]') as HTMLElement | null)?.style.width,
+      ).toBe('200px')
+    })
+  })
+
   test('applies classes.back override', async () => {
     const screen = render(() => (
       <CommandPalette

@@ -2,7 +2,7 @@ import * as KobalteSlider from '@kobalte/core/slider'
 import type { JSX, ValidComponent } from 'solid-js'
 import { For, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -28,6 +28,8 @@ type SliderSlots = 'root' | 'track' | 'range' | 'thumb'
 
 export type SliderClasses = SlotClasses<SliderSlots>
 
+export type SliderStyles = SlotStyles<SliderSlots>
+
 export interface SliderBaseProps
   extends
     Pick<SliderVariantProps, 'size' | 'highlight'>,
@@ -45,6 +47,7 @@ export interface SliderBaseProps
   onValueChange?: (value: SliderValue) => void
   onChange?: (value: SliderValue) => void
   classes?: SliderClasses
+  styles?: SliderStyles
 }
 
 export type SliderProps = SliderBaseProps &
@@ -221,6 +224,7 @@ export function Slider(props: SliderProps): JSX.Element {
       onChange={onValueChange}
       onChangeEnd={onChange}
       data-slot="root"
+      style={merged.styles?.root}
       data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       class={sliderRootVariants(
@@ -234,6 +238,7 @@ export function Slider(props: SliderProps): JSX.Element {
     >
       <KobalteSlider.Track
         data-slot="track"
+        style={merged.styles?.track}
         data-highlight={field.highlight() ? '' : undefined}
         class={sliderTrackVariants(
           {
@@ -245,6 +250,7 @@ export function Slider(props: SliderProps): JSX.Element {
       >
         <KobalteSlider.Fill
           data-slot="range"
+          style={merged.styles?.range}
           data-highlight={field.highlight() ? '' : undefined}
           class={sliderRangeVariants(
             {
@@ -261,7 +267,7 @@ export function Slider(props: SliderProps): JSX.Element {
             data-slot="thumb"
             data-highlight={field.highlight() ? '' : undefined}
             aria-label={createThumbAriaLabel(thumbIndex, thumbValues().length)}
-            style={thumbStyle(thumbIndex)}
+            style={{ ...thumbStyle(thumbIndex), ...merged.styles?.thumb }}
             class={sliderThumbVariants(
               {
                 size: field.size(),

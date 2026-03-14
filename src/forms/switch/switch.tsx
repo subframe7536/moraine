@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js
 
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -31,6 +31,8 @@ type SwitchSlots =
 
 export type SwitchClasses = SlotClasses<SwitchSlots>
 
+export type SwitchStyles = SlotStyles<SwitchSlots>
+
 export interface SwitchBaseProps<TTrue = boolean, TFalse = boolean>
   extends SwitchVariantProps, FormIdentityOptions, FormDisableOption {
   checked?: TTrue | TFalse
@@ -45,6 +47,7 @@ export interface SwitchBaseProps<TTrue = boolean, TFalse = boolean>
   description?: JSX.Element
   onChange?: (value: TTrue | TFalse) => void
   classes?: SwitchClasses
+  styles?: SwitchStyles
 }
 
 export type SwitchProps<TTrue = boolean, TFalse = boolean> = SwitchBaseProps<TTrue, TFalse> &
@@ -165,6 +168,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       defaultChecked={formProps.defaultChecked}
       onChange={onChange}
       data-slot="root"
+      style={merged.styles?.root}
       class={cn(
         'flex items-start relative',
         field.disabled() && 'effect-dis',
@@ -185,6 +189,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           <>
             <div
               data-slot="container"
+              style={merged.styles?.container}
               class={switchContainerVariants(
                 {
                   size: field.size(),
@@ -201,6 +206,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
               <KobalteSwitch.Control
                 data-slot="base"
+                style={merged.styles?.base}
                 data-invalid={field.invalid() ? '' : undefined}
                 class={switchBaseVariants(
                   {
@@ -211,6 +217,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               >
                 <KobalteSwitch.Thumb
                   data-slot="thumb"
+                  style={merged.styles?.thumb}
                   class={switchThumbVariants(
                     {
                       size: field.size(),
@@ -236,6 +243,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             <Show when={displayProps.label || displayProps.description}>
               <div
                 data-slot="wrapper"
+                style={merged.styles?.wrapper}
                 class={switchWrapperVariants(
                   {
                     size: field.size(),
@@ -247,6 +255,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                   <label
                     for={field.id()}
                     data-slot="label"
+                    style={merged.styles?.label}
                     class={cn(
                       'text-foreground font-medium block',
                       restProps.required && "after:(text-destructive ms-0.5 content-['*'])",
@@ -260,6 +269,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 <Show when={displayProps.description}>
                   <p
                     data-slot="description"
+                    style={merged.styles?.description}
                     class={cn('text-muted-foreground', styleProps.classes?.description)}
                   >
                     {displayProps.description}

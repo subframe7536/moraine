@@ -5,7 +5,7 @@ import { Show, mergeProps, splitProps } from 'solid-js'
 import { Card } from '../../elements/card'
 import { IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 import { Popup } from '../popup'
 
@@ -24,6 +24,8 @@ type ModalSlots =
   | 'footer'
 
 export type ModalClasses = SlotClasses<ModalSlots>
+
+export type ModalStyles = SlotStyles<ModalSlots>
 
 export interface ModalBaseProps {
   id?: string
@@ -44,6 +46,7 @@ export interface ModalBaseProps {
   body?: JSX.Element
   footer?: JSX.Element
   classes?: ModalClasses
+  styles?: ModalStyles
 }
 
 export type ModalProps = ModalBaseProps &
@@ -101,11 +104,13 @@ export function Dialog(props: ModalProps): JSX.Element {
         <Show when={contentProps.title || contentProps.description}>
           <div
             data-slot="wrapper"
+            style={merged.styles?.wrapper}
             class={cn('flex-1 gap-1.5 grid min-w-0', contentProps.classes?.wrapper)}
           >
             <Show when={contentProps.title}>
               <KobalteDialog.Title
                 data-slot="title"
+                style={merged.styles?.title}
                 class={cn(
                   'text-lg leading-none tracking-tight font-semibold',
                   contentProps.classes?.title,
@@ -118,6 +123,7 @@ export function Dialog(props: ModalProps): JSX.Element {
             <Show when={contentProps.description}>
               <KobalteDialog.Description
                 data-slot="description"
+                style={merged.styles?.description}
                 class={cn('text-sm text-muted-foreground', contentProps.classes?.description)}
               >
                 {contentProps.description}
@@ -131,6 +137,7 @@ export function Dialog(props: ModalProps): JSX.Element {
             as={IconButton}
             name={behaviorProps.closeIcon}
             data-slot="close"
+            style={merged.styles?.close}
             aria-label="Close"
             class={cn(
               'p-1 rounded-sm size-7 transition-opacity right-4 top-4 absolute focus-visible:effect-fv hover:bg-accent',

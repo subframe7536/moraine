@@ -128,6 +128,29 @@ describe('Separator', () => {
     expect(withChildren.getByTestId('middle-content').textContent).toBe('L')
   })
 
+  test('applies styles overrides for all slots', () => {
+    const withChildren = render(() => (
+      <Separator
+        styles={{
+          root: { width: '200px' },
+          border: { width: '200px' },
+          container: { width: '200px' },
+        } as any}
+      >
+        <span data-testid="middle-content">L</span>
+      </Separator>
+    ))
+
+    const root = withChildren.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const borders = withChildren.container.querySelectorAll('[data-slot="border"]')
+    const container = withChildren.container.querySelector('[data-slot="container"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+    expect((borders[0] as HTMLElement | null)?.style.width).toBe('200px')
+    expect((borders[1] as HTMLElement | null)?.style.width).toBe('200px')
+    expect(container?.style.width).toBe('200px')
+  })
+
   test('exports separator from root index', () => {
     expect(ExportedSeparator).toBe(Separator)
   })

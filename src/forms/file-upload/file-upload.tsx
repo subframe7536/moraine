@@ -14,7 +14,7 @@ import {
 
 import type { IconName } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -60,6 +60,8 @@ type FileUploadSlots =
 
 export type FileUploadClasses = SlotClasses<FileUploadSlots>
 
+export type FileUploadStyles = SlotStyles<FileUploadSlots>
+
 export interface FileUploadBaseProps
   extends FileUploadVariantProps, FormIdentityOptions, FormRequiredOption, FormDisableOption {
   as?: ValidComponent
@@ -75,6 +77,7 @@ export interface FileUploadBaseProps
   onValueChange?: (value: FileUploadValue) => void
   onFileReject?: (files: FileRejection[]) => void
   classes?: FileUploadClasses
+  styles?: FileUploadStyles
 }
 
 export type FileUploadProps = FileUploadBaseProps &
@@ -360,6 +363,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         type="button"
         aria-label={`Remove ${props.file.name}`}
         data-slot="fileRemove"
+        style={merged.styles?.fileRemove}
         class={fileUploadRemoveVariants(
           {
             size: field.size(),
@@ -425,6 +429,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     return (
       <div
         data-slot="wrapper"
+        style={merged.styles?.wrapper}
         class={fileUploadWrapperVariants(
           {
             size: field.size(),
@@ -435,6 +440,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         <Icon
           name={displayProps.icon}
           data-slot="icon"
+          style={merged.styles?.icon}
           class={fileUploadIconVariants(
             {
               size: field.size(),
@@ -446,6 +452,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         <Show when={displayProps.label}>
           <span
             data-slot="label"
+            style={merged.styles?.label}
             class={fileUploadLabelVariants(
               {
                 size: field.size(),
@@ -460,6 +467,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         <Show when={displayProps.description}>
           <span
             data-slot="description"
+            style={merged.styles?.description}
             class={fileUploadDescriptionVariants(
               {
                 size: field.size(),
@@ -486,6 +494,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       required={formProps.required}
       disabled={field.disabled()}
       data-slot="root"
+      style={merged.styles?.root}
       data-disabled={field.disabled() ? '' : undefined}
       class={fileUploadRootVariants(
         {
@@ -500,6 +509,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         fallback={
           <KobalteFileField.Trigger
             data-slot="base"
+            style={merged.styles?.base}
             data-highlight={field.highlight() ? '' : undefined}
             data-invalid={field.invalid() ? '' : undefined}
             class={fileUploadBaseVariants(
@@ -519,6 +529,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       >
         <KobalteFileField.Dropzone
           data-slot="base"
+          style={merged.styles?.base}
           data-highlight={field.highlight() ? '' : undefined}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
@@ -569,6 +580,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       <Show when={displayProps.preview && selectedFiles().length > 0}>
         <ul
           data-slot="files"
+          style={merged.styles?.files}
           class={fileUploadFilesVariants(
             {
               size: field.size(),
@@ -580,6 +592,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
             {(file, index) => (
               <li
                 data-slot="file"
+                style={merged.styles?.file}
                 class={fileUploadFileVariants(
                   {
                     size: field.size(),
@@ -589,6 +602,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
               >
                 <span
                   data-slot="filePreview"
+                  style={merged.styles?.filePreview}
                   class={fileUploadPreviewVariants(
                     {
                       size: field.size(),
@@ -613,6 +627,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
 
                 <div
                   data-slot="fileMeta"
+                  style={merged.styles?.fileMeta}
                   class={fileUploadMetaVariants(
                     {
                       size: field.size(),
@@ -622,6 +637,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
                 >
                   <span
                     data-slot="fileName"
+                    style={merged.styles?.fileName}
                     class={fileUploadNameVariants(
                       {
                         size: field.size(),
@@ -633,6 +649,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
                   </span>
                   <span
                     data-slot="fileSize"
+                    style={merged.styles?.fileSize}
                     class={fileUploadSizeVariants(
                       {
                         size: field.size(),

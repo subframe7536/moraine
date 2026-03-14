@@ -2,7 +2,7 @@ import * as KobaltePopover from '@kobalte/core/popover'
 import type { JSX } from 'solid-js'
 import { Show, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import { popoverContentVariants } from './popover.class'
@@ -13,6 +13,8 @@ type PopoverSlots = 'trigger' | 'content' | 'body'
 
 export type PopoverClasses = SlotClasses<PopoverSlots>
 
+export type PopoverStyles = SlotStyles<PopoverSlots>
+
 export interface PopoverBaseProps {
   mode?: PopoverMode
   openDelay?: number
@@ -20,6 +22,7 @@ export interface PopoverBaseProps {
   content?: JSX.Element
   dismissible?: boolean
   classes?: PopoverClasses
+  styles?: PopoverStyles
   onClosePrevent?: () => void
   children: JSX.Element
 }
@@ -76,6 +79,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         as="span"
         tabIndex={-1}
         data-slot="trigger"
+        style={merged.styles?.trigger}
         class={cn('outline-none', contentProps.classes?.trigger)}
         onMouseEnter={
           behaviorProps.mode === 'hover'
@@ -109,6 +113,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       <KobaltePopover.Portal>
         <KobaltePopover.Content
           data-slot="content"
+          style={merged.styles?.content}
           class={popoverContentVariants(
             { side: behaviorProps.placement?.split('-')?.[0] as any },
             contentProps.classes?.content,
@@ -146,6 +151,7 @@ export function Popover(props: PopoverProps): JSX.Element {
           <Show when={contentProps.content !== undefined && contentProps.content !== null}>
             <div
               data-slot="body"
+              style={merged.styles?.body}
               class={cn(
                 'max-h-$kb-popper-content-available-height overflow-auto',
                 contentProps.classes?.body,

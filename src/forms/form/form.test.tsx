@@ -277,6 +277,19 @@ describe('Form', () => {
     )
   })
 
+  test('applies styles.root override', () => {
+    const state: TestState = { value: '' }
+    const screen = render(() => (
+      <Form state={state} validate={() => []} styles={{ root: { width: '200px' } }}>
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    expect((screen.container.querySelector('form') as HTMLFormElement).style.width).toBe('200px')
+  })
+
   test('supports children render prop with errors/loading props', async () => {
     const state: TestState = { value: '' }
     const snapshots: Array<{ loading: boolean; errors: string[] }> = []

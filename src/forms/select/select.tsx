@@ -23,7 +23,7 @@ import type { BadgeBaseProps } from '../../elements/badge'
 import { Icon, IconButton } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import { overlayMenuContentVariants } from '../../overlays/shared-overlay-menu/menu.class'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -124,6 +124,8 @@ type SelectSlots =
 
 export type SelectClasses = SlotClasses<SelectSlots>
 
+export type SelectStyles = SlotStyles<SelectSlots>
+
 type SelectSize = NonNullable<SelectControlVariantProps['size']>
 type SelectVariant = NonNullable<SelectControlVariantProps['variant']>
 
@@ -207,6 +209,7 @@ export interface SelectBaseProps
   scrollEndThreshold?: number
 
   classes?: SelectClasses
+  styles?: SelectStyles
 }
 
 export type SelectProps = SelectBaseProps &
@@ -814,6 +817,7 @@ export function Select(props: SelectProps): JSX.Element {
       return (
         <Combobox.ItemLabel
           data-slot="itemLabel"
+          style={merged.styles?.itemLabel}
           class={cn('col-start-1 truncate', styleProps.classes?.itemLabel)}
         >
           <Show when={renderDisplayProps.labelRender} fallback={props.fallbackLabel}>
@@ -840,6 +844,7 @@ export function Select(props: SelectProps): JSX.Element {
           {(desc) => (
             <Combobox.ItemDescription
               data-slot="itemDescription"
+              style={merged.styles?.itemDescription}
               class={cn(
                 'text-xs text-muted-foreground col-start-1',
                 styleProps.classes?.itemDescription,
@@ -852,6 +857,7 @@ export function Select(props: SelectProps): JSX.Element {
 
         <Combobox.ItemIndicator
           data-slot="itemTrailing"
+          style={merged.styles?.itemTrailing}
           class={cn(
             'text-sm inline-flex col-start-2 items-center justify-center',
             styleProps.classes?.itemTrailing,
@@ -883,6 +889,7 @@ export function Select(props: SelectProps): JSX.Element {
       <Combobox.Item
         item={itemProps.item}
         data-slot="item"
+        style={merged.styles?.item}
         onPointerDown={(e) => e.preventDefault()}
         class={selectItemVariants({ size: field.size() }, styleProps.classes?.item)}
       >
@@ -900,10 +907,12 @@ export function Select(props: SelectProps): JSX.Element {
     return (
       <Combobox.Section
         data-slot="group"
+        style={merged.styles?.group}
         class={cn('[&:not(:first-child)]:mt-1.5', styleProps.classes?.group)}
       >
         <span
           data-slot="label"
+          style={merged.styles?.label}
           class={cn(
             'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
             styleProps.classes?.label,
@@ -919,7 +928,9 @@ export function Select(props: SelectProps): JSX.Element {
     return (
       <IconButton
         data-slot="trigger"
+        style={merged.styles?.trigger}
         name={renderDisplayProps.triggerIcon}
+        size={field.size()}
         class={selectTriggerIconVariants({ size: field.size() }, styleProps.classes?.trigger)}
         loading={renderDisplayProps.loading}
         loadingIcon={renderDisplayProps.loadingIcon}
@@ -966,6 +977,7 @@ export function Select(props: SelectProps): JSX.Element {
             inputRef = el
           }}
           data-slot="input"
+          style={merged.styles?.input}
           data-readonly={!isSearchable() && !isMultiple()}
           class={selectInputVariants(
             {
@@ -1071,7 +1083,9 @@ export function Select(props: SelectProps): JSX.Element {
           {(icon) => (
             <Icon
               name={icon()}
+              size={field.size()}
               data-slot="leading"
+              style={merged.styles?.leading}
               class={selectLeadingIconVariants({ size: field.size() }, styleProps.classes?.leading)}
             />
           )}
@@ -1081,6 +1095,7 @@ export function Select(props: SelectProps): JSX.Element {
         <Show when={isMultiple()} fallback={<Input />}>
           <div
             data-slot="tagsContainer"
+            style={merged.styles?.tagsContainer}
             class={cn(
               'p-1.5 flex flex-1 flex-wrap gap-1 max-w-full cursor-pointer select-none items-center',
               styleProps.classes?.tagsContainer,
@@ -1113,6 +1128,7 @@ export function Select(props: SelectProps): JSX.Element {
                       size={field.size()}
                       title={option.label}
                       variant={renderDisplayProps.tagVariant}
+                      styles={{ base: merged.styles?.tag }}
                       classes={{
                         base: ['max-w-50% pe-0', styleProps.classes?.tag],
                         trailing: ['rounded hover:bg-accent', styleProps.classes?.tagRemove],
@@ -1133,6 +1149,7 @@ export function Select(props: SelectProps): JSX.Element {
             <Show when={overflowCount() > 0}>
               <span
                 data-slot="tagOverflow"
+                style={merged.styles?.tagOverflow}
                 class="text-xs text-muted-foreground px-1 flex items-center"
               >
                 +{overflowCount()}
@@ -1147,7 +1164,9 @@ export function Select(props: SelectProps): JSX.Element {
         <Show when={searchInteractionProps.allowClear && props.selectedOptions().length > 0}>
           <IconButton
             name="icon-close"
+            size={field.size()}
             data-slot="clear"
+            style={merged.styles?.clear}
             class={selectClearVariants({ size: field.size() }, styleProps.classes?.clear)}
             tabIndex={-1}
             onClick={(e) => {
@@ -1180,6 +1199,7 @@ export function Select(props: SelectProps): JSX.Element {
         fallback={
           <div
             data-slot="empty"
+            style={merged.styles?.empty}
             class={cn('text-sm text-muted-foreground p-2 text-center', styleProps.classes?.empty)}
           >
             {typeof renderDisplayProps.emptyRender === 'string'
@@ -1213,6 +1233,7 @@ export function Select(props: SelectProps): JSX.Element {
       <Combobox.Portal>
         <Combobox.Content
           data-slot="content"
+          style={merged.styles?.content}
           class={overlayMenuContentVariants({}, styleProps.classes?.content)}
           onInteractOutside={() => {
             closedByInteractOutside = true
@@ -1245,6 +1266,7 @@ export function Select(props: SelectProps): JSX.Element {
                 <Combobox.Listbox
                   // ref={bindListboxScroll}
                   data-slot="listbox"
+                  style={merged.styles?.listbox}
                   class={cn(
                     'outline-none max-h-$kb-popper-content-available-height overflow-y-auto',
                     styleProps.classes?.listbox,
@@ -1255,6 +1277,7 @@ export function Select(props: SelectProps): JSX.Element {
             >
               <Combobox.Listbox
                 data-slot="listbox"
+                style={merged.styles?.listbox}
                 class={cn(
                   'p-1 outline-none max-h-$kb-popper-content-available-height overflow-y-auto',
                   styleProps.classes?.listbox,
@@ -1314,6 +1337,7 @@ export function Select(props: SelectProps): JSX.Element {
       onChange={(isMultiple() ? handleMultipleChange : handleSingleChange) as any}
       closeOnSelection={!isMultiple()}
       removeOnBackspace={isMultiple()}
+      style={merged.styles?.root}
       class={cn('inline-flex h-fit w-full relative', styleProps.classes?.root)}
       {...field.ariaAttrs()}
       {...restProps}
@@ -1321,6 +1345,7 @@ export function Select(props: SelectProps): JSX.Element {
     >
       <Combobox.Control<NormalizedOption>
         data-slot="base"
+        style={merged.styles?.base}
         data-invalid={field.invalid() ? '' : undefined}
         data-highlight={field.highlight() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}

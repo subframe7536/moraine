@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import { tooltipContentVariants } from './tooltip.class'
@@ -14,12 +14,15 @@ type TooltipSlots = 'content' | 'trigger' | 'text' | 'kbds' | 'kbd'
 
 export type TooltipClasses = SlotClasses<TooltipSlots>
 
+export type TooltipStyles = SlotStyles<TooltipSlots>
+
 export interface TooltipBaseProps {
   placement?: TooltipSide
   invert?: boolean
   text?: JSX.Element
   kbds?: string[]
   classes?: TooltipClasses
+  styles?: TooltipStyles
   children: JSX.Element
 }
 
@@ -41,6 +44,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     'kbds',
     'invert',
     'classes',
+    'styles',
     'children',
   ])
 
@@ -52,6 +56,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         as="span"
         tabIndex={-1}
         data-slot="trigger"
+        style={merged.styles?.trigger}
         class={cn('outline-none', contentProps.classes?.trigger)}
       >
         {contentProps.children}
@@ -60,13 +65,18 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       <KobalteTooltip.Portal>
         <KobalteTooltip.Content
           data-slot="content"
+          style={merged.styles?.content}
           class={tooltipContentVariants(
             { side: restProps.placement, invert: contentProps.invert! },
             contentProps.classes?.content,
           )}
         >
           <Show when={typeof contentProps.text === 'string'} fallback={contentProps.text}>
-            <span data-slot="text" class={cn('leading-4 text-pretty', contentProps.classes?.text)}>
+            <span
+              data-slot="text"
+              style={merged.styles?.text}
+              class={cn('leading-4 text-pretty', contentProps.classes?.text)}
+            >
               {contentProps.text}
             </span>
           </Show>

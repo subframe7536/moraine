@@ -4,7 +4,7 @@ import { For, Show, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
-import type { SlotClasses } from '../../shared/slot-class'
+import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import { cn } from '../../shared/utils'
 
 import {
@@ -39,12 +39,15 @@ type TabsSlots =
 
 export type TabsClasses = SlotClasses<TabsSlots>
 
+export type TabsStyles = SlotStyles<TabsSlots>
+
 export interface TabsBaseProps extends Pick<
   TabsVariantProps,
   'orientation' | 'variant' | 'size' | 'color'
 > {
   items?: TabsItem[]
   classes?: TabsClasses
+  styles?: TabsStyles
 }
 
 export type TabsProps = TabsBaseProps &
@@ -75,18 +78,21 @@ export function Tabs(props: TabsProps): JSX.Element {
     'size',
     'color',
     'classes',
+    'styles',
     'items',
   ])
 
   return (
     <KobalteTabs.Root
       data-slot="root"
+      style={merged.styles?.root}
       class={tabsRootVariants({ orientation: localProps.orientation }, localProps.classes?.root)}
       orientation={localProps.orientation}
       {...restProps}
     >
       <KobalteTabs.List
         data-slot="list"
+        style={merged.styles?.list}
         class={tabsListVariants(
           {
             orientation: localProps.orientation,
@@ -97,6 +103,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       >
         <KobalteTabs.Indicator
           data-slot="indicator"
+          style={merged.styles?.indicator}
           class={tabsIndicatorVariants(
             {
               orientation: localProps.orientation,
@@ -110,6 +117,7 @@ export function Tabs(props: TabsProps): JSX.Element {
           {(item, index) => (
             <KobalteTabs.Trigger
               data-slot="trigger"
+              style={merged.styles?.trigger}
               value={normalizeItemValue(item, index())}
               disabled={item.disabled}
               class={tabsTriggerVariants(
@@ -125,6 +133,7 @@ export function Tabs(props: TabsProps): JSX.Element {
               <Show when={item.icon}>
                 <span
                   data-slot="leading"
+                  style={merged.styles?.leading}
                   class={tabsLeadingVariants(
                     { size: localProps.size },
                     localProps.classes?.leading,
@@ -135,7 +144,11 @@ export function Tabs(props: TabsProps): JSX.Element {
               </Show>
 
               <Show when={typeof item.label === 'string'} fallback={item.label}>
-                <span data-slot="label" class={cn('truncate', localProps.classes?.label)}>
+                <span
+                  data-slot="label"
+                  style={merged.styles?.label}
+                  class={cn('truncate', localProps.classes?.label)}
+                >
                   {item.label}
                 </span>
               </Show>
@@ -148,6 +161,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         {(item, index) => (
           <KobalteTabs.Content
             data-slot="content"
+            style={merged.styles?.content}
             value={normalizeItemValue(item, index())}
             class={cn('outline-none w-full', localProps.classes?.content, item.class)}
           >

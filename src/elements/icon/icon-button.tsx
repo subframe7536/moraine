@@ -4,6 +4,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { cn } from '../../shared/utils'
+import { buttonVariants } from '../button/button.class'
 
 import { Icon } from './icon'
 import type { IconName } from './icon'
@@ -24,22 +25,6 @@ export interface IconButtonBaseProps {
    */
   loadingIcon?: IconName
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-}
-
-function getIconSizeClass(size: IconButtonBaseProps['size']) {
-  switch (size) {
-    case 'xs':
-      return 'size-3.5'
-    case 'sm':
-      return 'size-4'
-    case 'md':
-      return 'size-4.5'
-    case 'lg':
-      return 'size-5'
-    case 'xl':
-      return 'size-5.5'
-  }
-  return undefined
 }
 
 export type IconButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
@@ -63,10 +48,11 @@ export function IconButton<T extends ValidComponent = 'button'>(
     <KobalteButton.Root
       data-slot="icon-button"
       class={cn(
-        getIconSizeClass(localProps.size),
-        localProps.loading
-          ? 'opacity-80 cursor-wait pointer-events-none animate-spin'
-          : 'cursor-pointer',
+        buttonVariants({
+          size: localProps.size ? (`icon-${localProps.size}` as any) : 'icon-md',
+          variant: 'ghost',
+        }),
+        localProps.loading ? 'opacity-80 cursor-wait pointer-events-none' : 'cursor-pointer',
         localProps.class,
       )}
       aria-busy={localProps.loading || undefined}
@@ -76,7 +62,8 @@ export function IconButton<T extends ValidComponent = 'button'>(
     >
       <Icon
         name={localProps.loading ? localProps.loadingIcon || 'icon-loading' : localProps.name}
-        class={cn('size-full', localProps.loading && 'animate-spin')}
+        size={localProps.size}
+        class={cn(localProps.loading && 'animate-spin')}
       />
     </KobalteButton.Root>
   )

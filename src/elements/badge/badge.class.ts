@@ -1,8 +1,8 @@
 import type { ClassValue, VariantProps } from 'cls-variant'
 import { cva } from 'cls-variant/cva'
 
-import { buttonIconSizeVariants } from '../button/button.class'
-import type { ButtonIconSizeProps } from '../button/button.class'
+import { iconSizeVariants } from '../icon/icon.class'
+import type { IconSizeProps } from '../icon/icon.class'
 
 export const badgeVariants = cva(
   'font-500 inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
@@ -29,11 +29,11 @@ export const badgeVariants = cva(
 )
 
 export function badgeIconVariants(
-  size: ButtonIconSizeProps['size'],
+  size: IconSizeProps['size'],
   cls: ClassValue,
   isLeading: boolean,
 ) {
-  return buttonIconSizeVariants({ size }, 'scale-80', isLeading ? 'me-.5' : 'ms-.5', cls)
+  return iconSizeVariants({ size }, 'scale-80', isLeading ? 'me-.5' : 'ms-.5', cls)
 }
 
 export type BadgeVariantProps = VariantProps<typeof badgeVariants>
