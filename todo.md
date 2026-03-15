@@ -19,7 +19,7 @@
 - [ ] Calendar https://ant.design/components/calendar.md
 - [ ] DatePicker https://ant.design/components/date-picker.md
 - [ ] Sidebar, shadcn like
-- [ ] New Table: tanstack solid table
+- [ ] Table: tanstack solid table
 
 # Maybe Future
 

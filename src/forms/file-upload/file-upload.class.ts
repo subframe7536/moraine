@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
 
 import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const fileUploadRootVariants = cva('flex flex-col relative data-disabled:effect-dis', {
   defaultVariants: {

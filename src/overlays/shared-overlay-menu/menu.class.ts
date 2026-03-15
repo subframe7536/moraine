@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const overlayMenuItemVariants = cva(
   'text-sm px-1.5 py-1 outline-none rounded-md gap-1.5 grid grid-cols-[auto_1fr_auto] cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',

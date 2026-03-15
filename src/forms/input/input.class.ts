@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
 
 import { INPUT_VARIANT_CLASSES } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const inputRootVariants = cva(
   'rounded-md inline-flex w-full transition-[color,box-shadow] items-center overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis data-highlight:surface-highlight focus-within:data-invalid:effect-invalid',

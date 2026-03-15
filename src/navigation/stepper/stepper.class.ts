@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const stepperRootVariants = cva('flex gap-4', {
   defaultVariants: {
@@ -36,10 +37,10 @@ export const stepperItemVariants = cva('min-w-0 relative data-disabled:effect-di
     },
     size: {
       xs: 'var-stepper-6-4-1.5-0.5',
-      sm: 'var-stepper-8-5-2-0.5',
-      md: 'var-stepper-10-7-2.5-1',
-      lg: 'var-stepper-12-8-3-1',
-      xl: 'var-stepper-14-9-3.5-1',
+      sm: 'var-stepper-7-5-2-0.5',
+      md: 'var-stepper-8-7-2.5-1',
+      lg: 'var-stepper-9-8-3-1',
+      xl: 'var-stepper-10-9-3.5-1',
     },
   },
 })
@@ -57,7 +58,7 @@ export const stepperContainerVariants = cva('flex items-center relative', {
 })
 
 export const stepperTriggerVariants = cva(
-  'rounded-full inline-flex size-$st-size transition-bg justify-center',
+  'rounded-full inline-flex size-$st-size transition-bg items-center justify-center data-clickable:cursor-pointer',
   {
     defaultVariants: {
       size: 'md',
@@ -65,15 +66,15 @@ export const stepperTriggerVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs p-1',
-        sm: 'text-sm p-1.5',
-        md: 'text-base p-2',
-        lg: 'text-lg p-2.5',
-        xl: 'text-xl p-3',
+        xs: 'text-xs',
+        sm: 'text-sm',
+        md: 'text-base',
+        lg: 'text-lg',
+        xl: 'text-xl',
       },
       state: {
         inactive: 'text-muted-foreground border-input bg-background shadow-xs',
-        active: 'text-primary-foreground border-primary bg-primary hover:bg-primary/80',
+        active: 'text-primary-foreground border-primary bg-primary',
         completed: 'text-primary-foreground border-primary bg-primary',
       },
     },

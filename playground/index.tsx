@@ -1,7 +1,9 @@
 import 'uno.css'
 
+// import { cls } from 'cls-variant'
 import { Match, Switch, createSignal, onMount } from 'solid-js'
 import { render } from 'solid-js/web'
+// import { patchCN } from '../src'
 
 import { AccordionDemos } from './components/accordion-demos'
 import { AvatarDemos } from './components/avatar-demos'
@@ -35,6 +37,8 @@ import { SliderDemos } from './components/slider-demos'
 import { StepperDemos } from './components/stepper-demos'
 import { TabsDemos } from './components/tabs-demos'
 import { TooltipDemos } from './components/tooltip-demos'
+
+// patchCN((...args) => (console.log(args[0]), cls(...args)))
 
 const PAGES = [
   { key: 'avatar', label: 'Avatar', group: 'General' },

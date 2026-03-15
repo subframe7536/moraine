@@ -3,7 +3,7 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { cn } from '../../shared/utils'
+import type { RockUIComposeProps } from '../../shared/types'
 
 import { Icon } from './icon'
 import type { IconName } from './icon'
@@ -42,8 +42,7 @@ export interface IconButtonBaseProps {
  */
 export type IconButtonProps<T extends ValidComponent = 'button'> = PolymorphicProps<
   T,
-  IconButtonBaseProps &
-    Omit<KobalteButton.ButtonRootProps<ElementOf<T>>, keyof IconButtonBaseProps | 'class'>
+  RockUIComposeProps<IconButtonBaseProps, KobalteButton.ButtonRootProps<ElementOf<T>>, 'class'>
 >
 
 export function IconButton<T extends ValidComponent = 'button'>(
@@ -69,8 +68,7 @@ export function IconButton<T extends ValidComponent = 'button'>(
     >
       <Icon
         name={localProps.loading ? localProps.loadingIcon || 'icon-loading' : localProps.name}
-        size={localProps.size}
-        class={cn(localProps.loading && 'animate-spin')}
+        class={localProps.loading ? 'animate-loading' : ''}
       />
     </KobalteButton.Root>
   )

@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const tooltipContentVariants = cva(
   'text-xs px-2 py-1 outline-none rounded-md flex max-w-xs w-fit origin-$kb-tooltip-content-transform-origin items-baseline z-50 data-[state=delayed-open]:(animate-in fade-in-0 zoom-in-95) data-closed:(animate-out fade-out-0 zoom-out-95) data-expanded:(animate-in fade-in-0 zoom-in-95)',

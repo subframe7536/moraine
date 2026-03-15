@@ -1,11 +1,9 @@
-import type { ClassValue, VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+import type { VariantProps } from 'cls-variant'
 
-import { iconSizeVariants } from '../icon/icon.class'
-import type { IconSizeProps } from '../icon/icon.class'
+import { cva } from '../../shared/utils'
 
 export const badgeVariants = cva(
-  'font-500 inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
+  'leading-normal font-500 inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
   {
     defaultVariants: {
       size: 'md',
@@ -18,22 +16,14 @@ export const badgeVariants = cva(
         solid: 'text-primary-foreground bg-primary shadow-xs',
       },
       size: {
-        xs: 'text-xs px-1 rounded-sm',
-        sm: 'text-xs px-1 rounded-sm',
-        md: 'text-sm px-1.5 rounded-md',
-        lg: 'text-sm px-1.5 rounded-md',
-        xl: 'text-base px-2 rounded-lg',
+        xs: 'text-2.4 px-1 rounded-xs h-3.5',
+        sm: 'text-2.8 px-1.2 rounded-sm h-4',
+        md: 'text-3.2 px-1.4 rounded-md h-4.5',
+        lg: 'text-3.6 px-1.6 rounded-md h-5',
+        xl: 'text-4 px-1.8 rounded-lg h-5.5',
       },
     },
   },
 )
-
-export function badgeIconVariants(
-  size: IconSizeProps['size'],
-  cls: ClassValue,
-  isLeading: boolean,
-) {
-  return iconSizeVariants({ size }, 'scale-80', isLeading ? 'me-.5' : 'ms-.5', cls)
-}
 
 export type BadgeVariantProps = VariantProps<typeof badgeVariants>

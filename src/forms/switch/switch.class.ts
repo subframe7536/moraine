@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
 
 import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const switchContainerVariants = cva('flex items-center', {
   defaultVariants: {
@@ -55,7 +55,7 @@ export const switchThumbVariants = cva(
 )
 
 export const switchIconClass =
-  'absolute size-10/12 transition-opacity text-primary data-checked:opacity-100 data-unchecked:(opacity-90 text-muted-foreground) data-loading:(opacity-80 animate-spin)'
+  'absolute size-10/12 transition-opacity text-primary data-checked:opacity-100 data-unchecked:(opacity-90 text-muted-foreground) data-loading:(opacity-80 animate-loading)'
 
 export const switchWrapperVariants = cva('ms-2', {
   defaultVariants: {

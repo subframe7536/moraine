@@ -197,7 +197,7 @@ describe('Select - single mode', () => {
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
     const icon = trigger?.firstElementChild
 
-    expect(icon?.className).toContain('animate-spin')
+    expect(icon?.className).toContain('animate-loading')
   })
 })
 

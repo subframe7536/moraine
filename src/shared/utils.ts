@@ -1,5 +1,7 @@
 import { cls } from 'cls-variant'
 import type { ClassValueArray } from 'cls-variant'
+import { cvaFactory } from 'cls-variant/cva'
+import type { CvaFunction } from 'cls-variant/cva'
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
 
@@ -44,9 +46,19 @@ export function useId(
 
   return resolvedId
 }
+type PatchCNFunction = (clz: string) => string
+
+let __fn: PatchCNFunction = (s) => s
+export function patchCN(fn: PatchCNFunction) {
+  __fn = fn
+}
 
 export function cn(...classes: ClassValueArray) {
-  return cls(...classes) || undefined
+  return __fn(cls(...classes)) || undefined
+}
+
+export const cva: CvaFunction = (...args) => {
+  return cvaFactory((...classes) => __fn(cls(...classes)))(...args) || undefined
 }
 
 export interface HandlerCallResult<R = unknown> {

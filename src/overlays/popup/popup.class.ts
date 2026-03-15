@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const popupOverlayVariants = cva(
   'supports-backdrop-filter:backdrop-blur-xs bg-black/10 duration-150 inset-0 fixed z-50 data-closed:(animate-out fade-out-0) data-expanded:(animate-in fade-in-0)',

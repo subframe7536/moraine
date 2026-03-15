@@ -162,7 +162,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             style={styleProps.styles?.leading}
             class={cn(
               styleProps.classes?.leading,
-              isLoading() && ['animate-spin', styleProps.classes?.loading],
+              isLoading() && ['animate-loading', styleProps.classes?.loading],
             )}
             aria-hidden={isLoading() ? true : undefined}
           />

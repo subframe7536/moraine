@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const checkboxRootVariants = cva('flex items-start relative data-disabled:effect-dis', {
   defaultVariants: {

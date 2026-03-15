@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
 
 import { INPUT_VARIANT_CLASSES, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const textareaRootVariants = cva(
   'rounded-md inline-flex flex-col w-full transition-[color,box-shadow] overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis data-highlight:surface-highlight focus-within:data-invalid:effect-invalid',

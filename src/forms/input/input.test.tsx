@@ -123,19 +123,19 @@ describe('Input', () => {
     ) as HTMLElement | null
 
     expect(firstLeading?.className).toContain('icon-loading')
-    expect(firstLeading?.className).toContain('animate-spin')
+    expect(firstLeading?.className).toContain('animate-loading')
     expect(roots[0]?.querySelector('[data-slot="trailing"]')).toBeNull()
 
     expect(secondTrailing?.className).toContain('icon-loading')
-    expect(secondTrailing?.className).toContain('animate-spin')
+    expect(secondTrailing?.className).toContain('animate-loading')
     expect(secondTrailing?.className).not.toContain('i-lucide-at-sign')
     expect(roots[1]?.querySelector('[data-slot="leading"]')).toBeNull()
 
     expect(thirdLeading?.className).toContain('icon-loading')
-    expect(thirdLeading?.className).toContain('animate-spin')
+    expect(thirdLeading?.className).toContain('animate-loading')
     expect(thirdLeading?.className).not.toContain('i-lucide-user')
     expect(thirdTrailing?.className).toContain('i-lucide-mail')
-    expect(thirdTrailing?.className).not.toContain('animate-spin')
+    expect(thirdTrailing?.className).not.toContain('animate-loading')
 
     expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()

@@ -71,7 +71,7 @@ export const AccordionDemos = () => {
           ]}
           classes={{
             root: 'max-w-xl rounded-lg b-1 b-border border-zinc-200 bg-white',
-            trigger: 'px-4 hover:bg-zinc-50',
+            trigger: 'px-4',
             content: 'px-4 text-zinc-700',
           }}
         />

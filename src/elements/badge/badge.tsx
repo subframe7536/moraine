@@ -7,7 +7,7 @@ import { Icon, IconButton } from '../icon'
 import type { IconButtonProps, IconName } from '../icon'
 
 import type { BadgeVariantProps } from './badge.class'
-import { badgeIconVariants, badgeVariants } from './badge.class'
+import { badgeVariants } from './badge.class'
 
 type BadgeSlots = 'base' | 'leading' | 'label' | 'trailing'
 
@@ -107,7 +107,7 @@ export function Badge(props: BadgeProps): JSX.Element {
             name={leading()}
             data-slot="leading"
             style={merged.styles?.leading}
-            class={badgeIconVariants(merged.size, merged.classes?.leading, true)}
+            class={cn('me-.5', merged.classes?.leading)}
           />
         )}
       </Show>
@@ -131,7 +131,7 @@ export function Badge(props: BadgeProps): JSX.Element {
                 name={trailing()}
                 data-slot="trailing"
                 style={merged.styles?.trailing}
-                class={badgeIconVariants(merged.size, merged.classes?.trailing, false)}
+                class={cn('ms-.5', merged.classes?.trailing)}
               />
             }
           >
@@ -140,7 +140,7 @@ export function Badge(props: BadgeProps): JSX.Element {
               size={merged.size}
               data-slot="trailing"
               style={merged.styles?.trailing}
-              class={badgeIconVariants(merged.size, merged.classes?.trailing, false)}
+              class={cn('ms-.5', merged.classes?.trailing)}
               onClick={merged.onTrailingClick}
             />
           </Show>

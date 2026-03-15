@@ -4,8 +4,6 @@ import { Dynamic } from 'solid-js/web'
 
 import { cn } from '../../shared/utils'
 
-import { iconSizeVariants } from './icon.class'
-
 export type IconName = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
 /**
@@ -57,16 +55,8 @@ export type IconProps = IconBaseProps
 export function Icon(props: IconProps): JSX.Element {
   const [localProps, restProps] = splitProps(props, ['name', 'class', 'style', 'size', 'data-slot'])
 
-  const sizeVariant = createMemo(() => {
-    const s = localProps.size
-    if (s === 'xs' || s === 'sm' || s === 'md' || s === 'lg' || s === 'xl') {
-      return s
-    }
-    return undefined
-  })
-
   const style = createMemo(() => {
-    if (!localProps.size || sizeVariant()) {
+    if (!localProps.size) {
       return localProps.style
     }
     return {
@@ -79,17 +69,13 @@ export function Icon(props: IconProps): JSX.Element {
     <Dynamic
       component={
         typeof localProps.name === 'string'
-          ? 'span'
+          ? 'i'
           : typeof localProps.name === 'function'
             ? localProps.name
             : () => localProps.name as JSX.Element
       }
       data-slot={localProps['data-slot'] ?? 'icon'}
-      class={cn(
-        iconSizeVariants({ size: sizeVariant() }),
-        typeof localProps.name === 'string' && localProps.name,
-        localProps.class,
-      )}
+      class={cn(typeof localProps.name === 'string' && localProps.name, localProps.class)}
       style={style()}
       {...restProps}
       aria-hidden={restProps['aria-label'] ? undefined : true}

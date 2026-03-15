@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const kbdItemVariants = cva(
   'leading-none font-medium font-mono rounded inline-flex select-none uppercase items-center justify-center',

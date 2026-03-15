@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const buttonVariants = cva(
   'inline-flex cursor-pointer select-none whitespace-nowrap transition items-center justify-center bg-clip-padding focus-visible:effect-fv-border aria-invalid:effect-invalid aria-disabled:effect-dis data-loading:effect-loading disabled:effect-dis active:shadow-none',
@@ -23,11 +24,11 @@ export const buttonVariants = cva(
         md: 'text-sm px-2.5 py-1 rounded-lg gap-1.5 h-8',
         lg: 'text-base px-2.5 py-1 rounded-lg gap-2 h-9',
         xl: 'text-lg px-2.5 py-1 rounded-xl gap-2 h-10',
-        'icon-xs': 'rounded-md size-6',
-        'icon-sm': 'rounded-md size-7',
-        'icon-md': 'rounded-lg size-8',
-        'icon-lg': 'rounded-lg size-9',
-        'icon-xl': 'rounded-xl size-10',
+        'icon-xs': 'text-xs rounded-sm size-6',
+        'icon-sm': 'text-xs rounded-sm size-7',
+        'icon-md': 'text-sm rounded-md size-8',
+        'icon-lg': 'text-base rounded-lg size-9',
+        'icon-xl': 'text-lg rounded-xl size-10',
       },
     },
   },

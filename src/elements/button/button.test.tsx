@@ -227,7 +227,7 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
-    expect(leading?.className).toContain('animate-spin')
+    expect(leading?.className).toContain('animate-loading')
   })
 
   test('keeps trailing content visible when loading', () => {

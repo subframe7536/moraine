@@ -1,5 +1,6 @@
 import type { VariantProps } from 'cls-variant'
-import { cva } from 'cls-variant/cva'
+
+import { cva } from '../../shared/utils'
 
 export const dialogCardVariants = cva(
   'text-foreground b-(1 border) bg-background max-h-full w-full surface-overlay shadow-none overflow-hidden',

@@ -97,7 +97,7 @@ export const ButtonDemos = () => {
           <Button
             loading={manualLoading()}
             onclick={runManualLoading}
-            leading={<div class="i-lucide:loader-circle animate-spin" />}
+            leading={<div class="i-lucide:loader-circle animate-loading" />}
           >
             {manualLoading() ? 'Processing...' : 'Manual loading'}
           </Button>

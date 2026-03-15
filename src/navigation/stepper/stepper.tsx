@@ -2,7 +2,7 @@ import * as KobalteTabs from '@kobalte/core/tabs'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 
-import { IconButton } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
 import type { IconName } from '../../elements/icon'
 import type { SlotClasses, SlotStyles } from '../../shared/slot'
 import type { RockUIComposeProps } from '../../shared/types'
@@ -290,9 +290,8 @@ export function Stepper(props: StepperProps): JSX.Element {
                       data-slot="trigger"
                       style={merged.styles?.trigger}
                       data-state={state()}
+                      data-clickable={merged.clickable ? '' : undefined}
                       value={entry.value}
-                      as={IconButton}
-                      name={entry.item.icon || (() => entry.index + 1)}
                       ref={(el: HTMLElement) => {
                         const listener: EventListener = (event) => {
                           handleTriggerKeyDown(event as KeyboardEvent, entry.index)
@@ -317,7 +316,9 @@ export function Stepper(props: StepperProps): JSX.Element {
                         },
                         merged.classes?.trigger,
                       )}
-                    />
+                    >
+                      <Icon name={entry.item.icon || (() => entry.index + 1)} />
+                    </KobalteTabs.Trigger>
 
                     <Show when={entry.index < normalizedItems().length - 1}>
                       <div
