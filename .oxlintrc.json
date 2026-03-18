@@ -6,7 +6,7 @@
   },
   "overrides": [
     {
-      "files": ["src/**", "playground/**"],
+      "files": ["src/**", "docs/**"],
       "jsPlugins": ["eslint-plugin-solid", "@unocss/eslint-plugin"],
       "rules": {
         "@unocss/order": ["warn", { "unoFunctions": ["cn", "cva"] }],

@@ -14,6 +14,7 @@
 - [x] select trigger icon position overflow
 - [ ] unify docs: preview different variants, options; card / island to shadcn / nuxt-ui like doc ; visually render count
 - [ ] add `collapsibleMin` in resizable
+- [ ] add toast using `solid-toaster`
 - [ ] check `props.highlight` actual usage and style effect, optimize `surface-highlight` and `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
 
 # V1

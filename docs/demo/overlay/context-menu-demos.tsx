@@ -67,9 +67,9 @@ export default () => {
               children: [
                 [
                   {
-                    label: 'playground/components',
+                    label: 'docs/components',
                     icon: 'i-lucide-folder-open',
-                    onSelect: () => setLastAction('Move to playground/components'),
+                    onSelect: () => setLastAction('Move to docs/components'),
                   },
                   {
                     label: 'docs/content',

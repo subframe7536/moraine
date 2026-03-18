@@ -34,7 +34,7 @@ function dedentSource(source: string): string {
 
 function loadApiDoc(projectRoot: string, key: string): unknown | null {
   try {
-    const jsonPath = path.join(projectRoot, 'playground/api-doc/components', `${key}.json`)
+    const jsonPath = path.join(projectRoot, 'docs/api-doc/components', `${key}.json`)
     const content = readFileSync(jsonPath, 'utf8')
     return JSON.parse(content)
   } catch {

@@ -34,8 +34,8 @@
   "scripts": {
     "build": "bun --bun tsdown",
     "dev": "bun --bun tsdown --watch",
-    "play": "bun run build && bun --bun vite serve playground",
-    "play:build": "bun run build && bun --bun vite build playground",
+    "docs": "bun run build && bun --bun vite serve docs",
+    "docs:build": "bun run build && bun --bun vite build docs",
     "test": "bun --bun vitest",
     "lint": "bun --bun oxlint",
     "format": "bun --bun oxfmt",

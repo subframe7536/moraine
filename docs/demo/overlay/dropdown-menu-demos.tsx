@@ -139,7 +139,7 @@ export default () => {
               onSelect: () => setLastAction('Open dropdown-menu.tsx'),
             },
             {
-              label: 'playground/components/context-menu-demos.tsx',
+              label: 'docs/components/context-menu-demos.tsx',
               icon: 'i-lucide-file-code-2',
               onSelect: () => setLastAction('Open context-menu-demos.tsx'),
             },
@@ -150,7 +150,7 @@ export default () => {
                 [
                   {
                     label: 'Rock UI',
-                    description: 'packages + playground',
+                    description: 'packages + docs',
                     icon: 'i-lucide-folder-kanban',
                     onSelect: () => setLastAction('Open Rock UI workspace'),
                   },

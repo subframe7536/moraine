@@ -465,7 +465,7 @@ export function componentApiPlugin(): Plugin {
     async buildStart() {
       const result = await generateApiDoc(projectRoot)
       if (result) {
-        await writeJsonFiles(path.join(projectRoot, 'playground/api-doc'), result)
+        await writeJsonFiles(path.join(projectRoot, 'docs/api-doc'), result)
       }
     },
 
@@ -477,7 +477,7 @@ export function componentApiPlugin(): Plugin {
 
     async load(id) {
       if (id === RESOLVED_VIRTUAL_INDEX) {
-        const jsonPath = path.join(projectRoot, 'playground/api-doc/index.json')
+        const jsonPath = path.join(projectRoot, 'docs/api-doc/index.json')
         try {
           const content = readFileSync(jsonPath, 'utf8')
           const data = JSON.parse(content)

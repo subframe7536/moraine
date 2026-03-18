@@ -4,4 +4,4 @@ nuxt-ui
 zaidan
 .worktrees
 *.local.*
-playground/api-doc
+docs/api-doc

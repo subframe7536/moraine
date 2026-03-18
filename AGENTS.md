@@ -13,7 +13,7 @@ Use `bun` for all package management and script execution.
 
 - `bun run build` - Build the library using tsdown (outputs to dist/).
 - `bun run dev` - Build in watch mode for development.
-- `bun run play` - Start the Vite playground server on port 3000.
+- `bun run docs` - Start the dev Vite server on port 3000.
 - `bun run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
