@@ -142,7 +142,28 @@ describe('resize', () => {
     expect(unchangedCollapsed).toEqual([0, 1])
   })
 
-  test('expandPanel expands collapsed panel to at least min', () => {
+  test('collapsePanel collapses to collapsibleMin when configured', () => {
+    const panels = resolvePanels(
+      [
+        { panelId: 'left', min: '20%', collapsible: true, collapsibleMin: '10%' },
+        { panelId: 'right', min: '20%' },
+      ],
+      ROOT_SIZE,
+      'resizable-test',
+    )
+
+    const nextSizes = collapsePanel({
+      panelIndex: 0,
+      strategy: RESIZE_FLAG_FOLLOWING,
+      initialSizes: [0.4, 0.6],
+      panels,
+    })
+
+    expect(nextSizes[0]).toBeCloseTo(0.1, 6)
+    expect(nextSizes[1]).toBeCloseTo(0.9, 6)
+  })
+
+  test('expandPanel expands collapsed panel to max when defaultSize is missing', () => {
     const panels = resolvePanels(
       [
         { panelId: 'left', min: '20%', collapsible: true },
@@ -159,8 +180,35 @@ describe('resize', () => {
       panels,
     })
 
-    expect(nextSizes[0]).toBeCloseTo(0.2, 6)
-    expect(nextSizes[1]).toBeCloseTo(0.8, 6)
+    expect(nextSizes[0]).toBeCloseTo(0.8, 6)
+    expect(nextSizes[1]).toBeCloseTo(0.2, 6)
+  })
+
+  test('expandPanel prefers defaultSize when panel is collapsed', () => {
+    const panels = resolvePanels(
+      [
+        {
+          panelId: 'left',
+          min: '20%',
+          defaultSize: '35%',
+          collapsible: true,
+          collapsibleMin: '10%',
+        },
+        { panelId: 'right', min: '20%' },
+      ],
+      ROOT_SIZE,
+      'resizable-test',
+    )
+
+    const nextSizes = expandPanel({
+      panelIndex: 0,
+      strategy: RESIZE_FLAG_FOLLOWING,
+      initialSizes: [0.1, 0.9],
+      panels,
+    })
+
+    expect(nextSizes[0]).toBeCloseTo(0.35, 6)
+    expect(nextSizes[1]).toBeCloseTo(0.65, 6)
   })
 
   test('toggleHandleNearestPanel handles no-collapsible, collapse and expand cases', () => {
@@ -319,17 +367,17 @@ describe('resize', () => {
     expect(nextSizes[1]).toBeCloseTo(0.2, 6)
   })
 
-  test('resizeFromHandle keeps a collapsed panel pinned at edge when dragging further out', () => {
+  test('resizeFromHandle keeps a collapsed panel pinned at collapsibleMin when dragging further out', () => {
     const panels = resolvePanels(
       [
-        { panelId: 'left', min: '20%', max: '100%', collapsible: true },
+        { panelId: 'left', min: '20%', max: '100%', collapsible: true, collapsibleMin: '10%' },
         { panelId: 'right', min: '20%', max: '100%', collapsible: true },
       ],
       ROOT_SIZE,
       'resizable-test',
     )
 
-    const initialSizes = [0, 1]
+    const initialSizes = [0.1, 0.9]
 
     const draggedOutside = resizeFromHandle({
       handleIndex: 0,
@@ -339,21 +387,21 @@ describe('resize', () => {
       panels,
     })
 
-    expect(draggedOutside[0]).toBeCloseTo(0, 6)
-    expect(draggedOutside[1]).toBeCloseTo(1, 6)
+    expect(draggedOutside[0]).toBeCloseTo(0.1, 6)
+    expect(draggedOutside[1]).toBeCloseTo(0.9, 6)
   })
 
-  test('resizeFromHandle expands a collapsed panel without snapping to min', () => {
+  test('resizeFromHandle expands from collapsibleMin without snapping to min', () => {
     const panels = resolvePanels(
       [
-        { panelId: 'left', min: '20%', max: '100%', collapsible: true },
+        { panelId: 'left', min: '20%', max: '100%', collapsible: true, collapsibleMin: '10%' },
         { panelId: 'right', min: '20%', max: '100%', collapsible: true },
       ],
       ROOT_SIZE,
       'resizable-test',
     )
 
-    const initialSizes = [0, 1]
+    const initialSizes = [0.1, 0.9]
 
     const expanded = resizeFromHandle({
       handleIndex: 0,
@@ -363,7 +411,7 @@ describe('resize', () => {
       panels,
     })
 
-    expect(expanded[0]).toBeCloseTo(0.05, 6)
-    expect(expanded[1]).toBeCloseTo(0.95, 6)
+    expect(expanded[0]).toBeCloseTo(0.15, 6)
+    expect(expanded[1]).toBeCloseTo(0.85, 6)
   })
 })

@@ -24,6 +24,10 @@ export const RESIZE_FLAG_BOTH = 3
 type ResizeStrategy = 1 | 2 | 3
 type ResizeSide = 1 | 2
 
+function isCollapsedSize(size: number, collapsedSize: number): boolean {
+  return size < collapsedSize || nearlyEqual(size, collapsedSize)
+}
+
 function withCollapsedPanelMinOverride(
   panels: ResizableResolvedPanel[],
   initialSizes: number[],
@@ -32,14 +36,18 @@ function withCollapsedPanelMinOverride(
   const nextPanels = panels.map((panel, index) => {
     const size = initialSizes[index] ?? 0
 
-    if (!panel.collapsible || panel.min <= 0 || !nearlyEqual(size, 0)) {
+    if (
+      !panel.collapsible ||
+      panel.min <= panel.collapsibleMin ||
+      !isCollapsedSize(size, panel.collapsibleMin)
+    ) {
       return panel
     }
 
     changed = true
     return {
       ...panel,
-      min: 0,
+      min: panel.collapsibleMin,
     }
   })
 
@@ -403,15 +411,15 @@ export function collapsePanel(input: {
   }
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
-  if (!panel.collapsible || nearlyEqual(panelSize, 0)) {
+  if (!panel.collapsible || isCollapsedSize(panelSize, panel.collapsibleMin)) {
     return normalizeSizeVector(input.initialSizes)
   }
 
-  const collapsePanels = withPanelMinOverride(input.panels, input.panelIndex, 0)
+  const collapsePanels = withPanelMinOverride(input.panels, input.panelIndex, panel.collapsibleMin)
 
   return resizePanelByDelta({
     panelIndex: input.panelIndex,
-    deltaPercentage: -panelSize,
+    deltaPercentage: panel.collapsibleMin - panelSize,
     strategy: input.strategy,
     initialSizes: input.initialSizes,
     panels: collapsePanels,
@@ -430,11 +438,9 @@ function resolveExpandedTargetSize(input: {
   }
 
   // Internal sizes are normalized ratios, so resolve defaultSize in a unit-sized root (1).
-  const fallbackDefaultSize = panel.defaultSize
-    ? resolveSize(panel.defaultSize, 1)
-    : (input.initialSizes[input.panelIndex] ?? 0)
+  const fallbackDefaultSize = panel.defaultSize ? resolveSize(panel.defaultSize, 1) : panel.max
   const preferred = input.expandedSize ?? fallbackDefaultSize
-  const normalizedPreferred = Number.isFinite(preferred) ? preferred : panel.min
+  const normalizedPreferred = Number.isFinite(preferred) ? preferred : panel.max
 
   return clamp(normalizedPreferred, panel.min, panel.max)
 }
@@ -452,7 +458,7 @@ export function expandPanel(input: {
   }
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
-  if (!panel.collapsible || !nearlyEqual(panelSize, 0)) {
+  if (!panel.collapsible || !isCollapsedSize(panelSize, panel.collapsibleMin)) {
     return normalizeSizeVector(input.initialSizes)
   }
 
@@ -499,7 +505,7 @@ export function togglePanel(input: {
 
   const panelSize = input.initialSizes[input.panelIndex] ?? 0
 
-  if (nearlyEqual(panelSize, 0)) {
+  if (isCollapsedSize(panelSize, panel.collapsibleMin)) {
     return expandPanel(input)
   }
 

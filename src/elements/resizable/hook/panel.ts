@@ -11,6 +11,7 @@ export function resolvePanels(
   return (panels ?? []).map((panel, index) => {
     const min = clamp(resolveSize(panel.min ?? 0, rootSize), 0, 1)
     const max = clamp(resolveSize(panel.max ?? '100%', rootSize), min, 1)
+    const collapsibleMin = clamp(resolveSize(panel.collapsibleMin ?? 0, rootSize), 0, min)
 
     return {
       panelId: panel.panelId ?? `${panelIdPrefix}-panel-${index + 1}`,
@@ -19,6 +20,7 @@ export function resolvePanels(
       max,
       resizable: panel.resizable !== false,
       collapsible: panel.collapsible === true,
+      collapsibleMin,
       onResize: panel.onResize,
       onCollapse: panel.onCollapse,
       onExpand: panel.onExpand,
@@ -30,7 +32,9 @@ export function resolvePanels(
 }
 
 export function isPanelCollapsed(size: number, panel: ResizableResolvedPanel): boolean {
-  return panel.collapsible && nearlyEqual(size, 0)
+  return (
+    panel.collapsible && (size < panel.collapsibleMin || nearlyEqual(size, panel.collapsibleMin))
+  )
 }
 
 export function getHandleAria(input: {

@@ -39,9 +39,17 @@ export interface ResizablePanelItem {
 
   /**
    * Whether the panel is collapsible.
+   * This prop is reactive; toggling `true/false` can be used as a simple collapse signal.
    * @default false
    */
   collapsible?: boolean
+
+  /**
+   * Size of the panel when collapsed.
+   * Only works when `collapsible` is true.
+   * @default 0
+   */
+  collapsibleMin?: ResizableSize
 
   /**
    * Callback when the panel is resized.
@@ -79,7 +87,7 @@ export const EPSILON = 10 ** -PRECISION
 
 export interface ResizableResolvedPanel extends Omit<
   ResizablePanelItem,
-  'size' | 'defaultSize' | 'min' | 'max' | 'resizable' | 'collapsible'
+  'size' | 'defaultSize' | 'min' | 'max' | 'resizable' | 'collapsible' | 'collapsibleMin'
 > {
   panelId: string
   defaultSize?: ResizableSize
@@ -87,6 +95,7 @@ export interface ResizableResolvedPanel extends Omit<
   max: number
   resizable: boolean
   collapsible: boolean
+  collapsibleMin: number
 }
 
 export interface ResizableHandleAria {

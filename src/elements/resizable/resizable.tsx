@@ -13,7 +13,9 @@ import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import {
+  collapsePanel,
   EPSILON,
+  expandPanel,
   RESIZABLE_HANDLE_TARGET_END,
   RESIZABLE_HANDLE_TARGET_START,
   RESIZE_FLAG_FOLLOWING,
@@ -230,6 +232,87 @@ export function Resizable(props: ResizableProps): JSX.Element {
     prevCollapsed = panels.map((p, i) => isPanelCollapsed(currentSizes[i] ?? 0, p))
   })
 
+  const panelCollapsibleStates = createMemo(() =>
+    (localProps.panels ?? []).map((p) => p.collapsible),
+  )
+
+  let prevCollapsibleStates: Array<boolean | undefined> = []
+  const lastExpandedSizes: Array<number | undefined> = []
+
+  createEffect(() => {
+    const panels = resolvedPanels()
+    const currentSizes = sizes()
+
+    for (let index = 0; index < panels.length; index += 1) {
+      const panel = panels[index]
+      const size = currentSizes[index] ?? 0
+      const collapsed = panel ? isPanelCollapsed(size, panel) : false
+
+      if (!panel || collapsed || size <= panel.collapsibleMin + EPSILON) {
+        continue
+      }
+
+      lastExpandedSizes[index] = size
+    }
+  })
+
+  createEffect(() => {
+    const nextCollapsibleStates = panelCollapsibleStates()
+    const panels = resolvedPanels()
+    let nextSizes = sizes()
+    let changed = false
+
+    for (let panelIndex = 0; panelIndex < nextCollapsibleStates.length; panelIndex += 1) {
+      const previous = prevCollapsibleStates[panelIndex]
+      const next = nextCollapsibleStates[panelIndex]
+
+      if (previous === undefined || next === undefined || previous === next) {
+        continue
+      }
+
+      const panel = panels[panelIndex]
+      if (!panel) {
+        continue
+      }
+
+      const strategy =
+        panelIndex === panels.length - 1 ? RESIZE_FLAG_PRECEDING : RESIZE_FLAG_FOLLOWING
+      const togglePanels = panels.map((item, index) =>
+        index === panelIndex ? Object.assign({}, item, { collapsible: true }) : item,
+      )
+
+      const resized = normalizeSizes(
+        next
+          ? collapsePanel({
+              panelIndex,
+              strategy,
+              initialSizes: nextSizes,
+              panels: togglePanels,
+            })
+          : expandPanel({
+              panelIndex,
+              strategy,
+              initialSizes: nextSizes,
+              panels: togglePanels,
+              expandedSize: lastExpandedSizes[panelIndex],
+            }),
+      )
+
+      if (!hasSizeChange(nextSizes, resized)) {
+        continue
+      }
+
+      nextSizes = resized
+      changed = true
+    }
+
+    prevCollapsibleStates = [...nextCollapsibleStates]
+
+    if (changed) {
+      emitSizes(nextSizes)
+    }
+  })
+
   function hasSizeChange(previousSizes: number[], nextSizes: number[]): boolean {
     if (previousSizes.length !== nextSizes.length) {
       return true
@@ -280,7 +363,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
       const panel = panels[panelIndex]
       const panelSize = snappedSizes[panelIndex] ?? 0
 
-      if (!panel?.collapsible || panelSize <= EPSILON || panelSize + EPSILON >= panel.min) {
+      if (
+        !panel?.collapsible ||
+        panelSize <= panel.collapsibleMin + EPSILON ||
+        panelSize + EPSILON >= panel.min
+      ) {
         continue
       }
 

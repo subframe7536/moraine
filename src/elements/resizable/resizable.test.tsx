@@ -340,6 +340,63 @@ describe('Resizable', () => {
     expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
   })
 
+  test('toggles collapse when collapsible signal changes', async () => {
+    const screen = render(() => {
+      const [collapsed, setCollapsed] = createSignal(false)
+      const [sizes, setSizes] = createSignal<[number, number]>([320, 680])
+
+      function handleResize(nextSizes: number[]): void {
+        const leftSize = nextSizes[0]
+        const rightSize = nextSizes[1]
+        if (!Number.isFinite(leftSize) || !Number.isFinite(rightSize)) {
+          return
+        }
+
+        setSizes([leftSize, rightSize])
+      }
+
+      return (
+        <div>
+          <button
+            type="button"
+            data-slot="toggle-collapsible"
+            onClick={() => setCollapsed((prev) => !prev)}
+          >
+            Toggle
+          </button>
+
+          <Resizable
+            onResize={handleResize}
+            panels={[
+              {
+                content: 'Sidebar',
+                size: sizes()[0],
+                min: '16%',
+                collapsible: collapsed(),
+                collapsibleMin: '10%',
+              },
+              { content: 'Content', size: sizes()[1], min: '24%' },
+            ]}
+          />
+        </div>
+      )
+    })
+
+    const toggle = screen.container.querySelector('[data-slot="toggle-collapsible"]') as HTMLElement
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+
+    expect(panels[0]?.style.flexBasis).toBe('32%')
+
+    await fireEvent.click(toggle)
+    expect(panels[0]?.style.flexBasis).toBe('10%')
+    expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
+
+    await fireEvent.click(toggle)
+    expect(panels[0]?.style.flexBasis).toBe('32%')
+  })
+
   test('calls onHandleKeyDown with handle context and keeps keyboard resize behavior', async () => {
     const onHandleKeyDown = vi.fn()
 
@@ -418,15 +475,21 @@ describe('Resizable', () => {
     expect(panels[1]?.style.flexBasis).toBe('40%')
   })
 
-  test('snaps expanded size to min when releasing a drag from collapsed state', async () => {
+  test('snaps expanded size to min when releasing a drag from collapsibleMin state', async () => {
     const screen = render(() => {
-      const [sizes, setSizes] = createSignal([0, 1000])
+      const [sizes, setSizes] = createSignal([100, 900])
 
       return (
         <Resizable
           onResize={(nextSizes) => setSizes(nextSizes)}
           panels={[
-            { content: 'Left', size: sizes()[0], min: '20%', collapsible: true },
+            {
+              content: 'Left',
+              size: sizes()[0],
+              min: '20%',
+              collapsible: true,
+              collapsibleMin: '10%',
+            },
             { content: 'Right', size: sizes()[1], min: '20%' },
           ]}
         />
@@ -438,12 +501,33 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
     expect(panels[0]?.style.flexBasis).toBe('10%')
+    expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
 
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 50, clientY: 0 })
+    expect(panels[0]?.style.flexBasis).toBe('15%')
+
+    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 50, clientY: 0 })
     expect(panels[0]?.style.flexBasis).toBe('20%')
+  })
+
+  test('marks panel as collapsed when its size equals collapsibleMin', () => {
+    const screen = render(() => (
+      <Resizable
+        panels={[
+          { content: 'Left', size: 100, min: '20%', collapsible: true, collapsibleMin: '10%' },
+          { content: 'Right', size: 900, min: '20%' },
+        ]}
+      />
+    ))
+
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+
+    expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
+    expect(panels[0]?.getAttribute('data-expanded')).toBeNull()
   })
 
   test('does not render built-in collapsible buttons', () => {

@@ -45,7 +45,7 @@ export default () => {
   const [handleIcon, setHandleIcon] = createSignal<'grip' | 'dots'>('grip')
   const [externalSizes, setExternalSizes] = createSignal<[number, number]>([320, 680])
   const [isSidebarCollapsed, setIsSidebarCollapsed] = createSignal(false)
-  const [lastExpandedSize, setLastExpandedSize] = createSignal(320)
+  const externalPixelSizes = createMemo(() => formatPixelSizes(externalSizes()))
 
   const handleIconClass = createMemo(() =>
     handleIcon() === 'grip' ? 'i-lucide-grip-vertical' : 'i-lucide-grip',
@@ -67,23 +67,10 @@ export default () => {
     }
 
     setExternalSizes([sidebarSize, contentSize])
-    if (sidebarSize > 0) {
-      setLastExpandedSize(sidebarSize)
-    }
   }
 
   function toggleExternalSidebar(): void {
-    const [sidebarSize, contentSize] = externalSizes()
-    const totalSize = sidebarSize + contentSize > 0 ? sidebarSize + contentSize : 1000
-
-    if (sidebarSize <= 0) {
-      const restoredSize = Math.min(Math.max(lastExpandedSize(), totalSize * 0.16), totalSize)
-      setExternalSizes([restoredSize, Math.max(totalSize - restoredSize, 0)])
-      return
-    }
-
-    setLastExpandedSize(sidebarSize)
-    setExternalSizes([0, totalSize])
+    setIsSidebarCollapsed((prev) => !prev)
   }
 
   return (
@@ -327,8 +314,8 @@ export default () => {
       </DemoSection>
 
       <DemoSection
-        title="Custom Handle + External Collapse Button"
-        description="Collapse is controlled by an external button and signal; no built-in collapse icon is rendered."
+        title="Collapsible + Collapsible Min"
+        description="One demo combines external collapse control, a visible collapsibleMin rail, custom handle rendering, and controlled size sync."
       >
         <div class="space-y-4">
           <div class="flex flex-wrap gap-3 items-end">
@@ -369,12 +356,11 @@ export default () => {
                 {
                   size: externalSizes()[0],
                   min: '16%',
-                  collapsible: true,
-                  onCollapse: () => setIsSidebarCollapsed(true),
-                  onExpand: () => setIsSidebarCollapsed(false),
+                  collapsible: isSidebarCollapsed(),
+                  collapsibleMin: '10%',
                   content: createPanel(
                     'Sidebar',
-                    'Use the external button to collapse to 0 and restore the last expanded size.',
+                    'Toggle button now drives panel collapse directly via the boolean collapsible signal.',
                     'bg-zinc-50',
                   ),
                 },
@@ -383,7 +369,7 @@ export default () => {
                   min: '24%',
                   content: createPanel(
                     'Editor',
-                    'Divider dragging still works and updates external controlled sizes.',
+                    'Dragging still works and keeps controlled px sizes in sync.',
                     'bg-white',
                   ),
                 },
@@ -392,9 +378,9 @@ export default () => {
           </div>
 
           <p class="text-xs text-zinc-600">
-            Sidebar state: {isSidebarCollapsed() ? 'collapsed' : 'expanded'} · Last expanded:{' '}
-            {Math.round(lastExpandedSize())}px
+            Collapse signal: {isSidebarCollapsed() ? 'true' : 'false'}
           </p>
+          <p class="text-xs text-zinc-600">Current sizes: {externalPixelSizes()}</p>
         </div>
       </DemoSection>
     </DemoPage>
