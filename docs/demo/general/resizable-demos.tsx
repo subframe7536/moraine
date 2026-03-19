@@ -42,14 +42,8 @@ export default () => {
   const controlledSizes = createMemo(() =>
     controlledPanels.map((panel) => (typeof panel.size === 'number' ? panel.size : 0)),
   )
-  const [handleIcon, setHandleIcon] = createSignal<'grip' | 'dots'>('grip')
   const [externalSizes, setExternalSizes] = createSignal<[number, number]>([320, 680])
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = createSignal(false)
   const externalPixelSizes = createMemo(() => formatPixelSizes(externalSizes()))
-
-  const handleIconClass = createMemo(() =>
-    handleIcon() === 'grip' ? 'i-lucide-grip-vertical' : 'i-lucide-grip',
-  )
 
   function handleControlledResize(nextSizes: number[]): void {
     nextSizes.forEach((nextSize, index) => {
@@ -67,10 +61,6 @@ export default () => {
     }
 
     setExternalSizes([sidebarSize, contentSize])
-  }
-
-  function toggleExternalSidebar(): void {
-    setIsSidebarCollapsed((prev) => !prev)
   }
 
   return (
@@ -315,38 +305,15 @@ export default () => {
 
       <DemoSection
         title="Collapsible + Collapsible Min"
-        description="One demo combines external collapse control, a visible collapsibleMin rail, custom handle rendering, and controlled size sync."
+        description="Clicking handle toggles collapse/expand while dragging divider still resizes. The collapsibleMin rail remains visible in collapsed state."
       >
         <div class="space-y-4">
-          <div class="flex flex-wrap gap-3 items-end">
-            <label class="space-y-1">
-              <p class="text-xs text-zinc-600">Handle icon</p>
-              <select
-                class="text-xs px-2 b-1 b-border border-zinc-300 rounded-md bg-white h-8"
-                value={handleIcon()}
-                onChange={(event) =>
-                  setHandleIcon((event.currentTarget.value as 'grip' | 'dots') ?? 'grip')
-                }
-              >
-                <option value="grip">Grip Vertical</option>
-                <option value="dots">Grip Dots</option>
-              </select>
-            </label>
-
-            <button
-              type="button"
-              class="text-xs text-zinc-700 px-3 b-1 b-border border-zinc-300 rounded-md bg-white h-8 hover:bg-zinc-50"
-              onClick={toggleExternalSidebar}
-            >
-              {isSidebarCollapsed() ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            </button>
-          </div>
-
           <div class="b-1 b-border border-zinc-200 rounded-xl h-56 overflow-hidden">
             <Resizable
-              renderHandle={
-                <div class={`text-zinc-600 h-3.5 w-3.5 pointer-events-none ${handleIconClass()}`} />
-              }
+              handleAction="collapse"
+              renderHandle={(state) => (
+                <Icon name={state.collapsed ? 'i-lucide:align-justify' : 'i-lucide:align-left'} />
+              )}
               onResize={handleExternalResize}
               classes={{
                 divider:
@@ -356,11 +323,11 @@ export default () => {
                 {
                   size: externalSizes()[0],
                   min: '16%',
-                  collapsible: isSidebarCollapsed(),
+                  collapsible: true,
                   collapsibleMin: '10%',
                   content: createPanel(
                     'Sidebar',
-                    'Toggle button now drives panel collapse directly via the boolean collapsible signal.',
+                    'Click the handle to collapse/expand. Drag the divider to resize.',
                     'bg-zinc-50',
                   ),
                 },
@@ -377,9 +344,7 @@ export default () => {
             />
           </div>
 
-          <p class="text-xs text-zinc-600">
-            Collapse signal: {isSidebarCollapsed() ? 'true' : 'false'}
-          </p>
+          <p class="text-xs text-zinc-600">Try: click handle to toggle, drag divider to resize.</p>
           <p class="text-xs text-zinc-600">Current sizes: {externalPixelSizes()}</p>
         </div>
       </DemoSection>

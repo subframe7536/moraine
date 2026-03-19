@@ -141,6 +141,117 @@ describe('Resizable', () => {
     expect(customHandleIcons).toHaveLength(2)
   })
 
+  test('supports function renderHandle with state fields and interaction updates', async () => {
+    const screen = render(() => (
+      <Resizable
+        handleAction="collapse"
+        renderHandle={(state) => (
+          <span
+            data-slot="state-handle"
+            data-action={state.action}
+            data-disabled={state.disabled ? 'true' : 'false'}
+            data-active={state.active ? 'true' : 'false'}
+            data-dragging={state.dragging ? 'true' : 'false'}
+            data-can-collapse={state.canCollapse ? 'true' : 'false'}
+            data-collapsed={state.collapsed ? 'true' : 'false'}
+          >
+            state
+          </span>
+        )}
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const getStateHandle = () =>
+      screen.container.querySelector('[data-slot="state-handle"]') as HTMLElement
+
+    expect(getStateHandle().getAttribute('data-action')).toBe('collapse')
+    expect(getStateHandle().getAttribute('data-disabled')).toBe('false')
+    expect(getStateHandle().getAttribute('data-active')).toBe('false')
+    expect(getStateHandle().getAttribute('data-dragging')).toBe('false')
+    expect(getStateHandle().getAttribute('data-can-collapse')).toBe('true')
+    expect(getStateHandle().getAttribute('data-collapsed')).toBe('false')
+
+    await fireEvent.mouseEnter(divider)
+    expect(getStateHandle().getAttribute('data-active')).toBe('true')
+
+    await fireEvent.mouseLeave(divider)
+    expect(getStateHandle().getAttribute('data-active')).toBe('false')
+
+    await fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
+    expect(getStateHandle().getAttribute('data-dragging')).toBe('true')
+    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 0, clientY: 0 })
+    expect(getStateHandle().getAttribute('data-dragging')).toBe('false')
+  })
+
+  test('updates function renderHandle output when collapse state changes', async () => {
+    const screen = render(() => (
+      <Resizable
+        handleAction="collapse"
+        renderHandle={(state) => (
+          <span data-slot="state-collapsed-label">
+            {state.collapsed ? 'collapsed' : 'expanded'}
+          </span>
+        )}
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const getCollapsedLabel = () =>
+      screen.container.querySelector('[data-slot="state-collapsed-label"]') as HTMLElement
+
+    expect(getCollapsedLabel().textContent).toBe('expanded')
+    await fireEvent.click(handle)
+    expect(getCollapsedLabel().textContent).toBe('collapsed')
+    await fireEvent.click(handle)
+    expect(getCollapsedLabel().textContent).toBe('expanded')
+  })
+
+  test('marks function renderHandle state as disabled when root is disabled', () => {
+    const screen = render(() => (
+      <Resizable
+        disable
+        handleAction="collapse"
+        renderHandle={(state) => (
+          <span data-slot="state-disabled-label">{state.disabled ? 'disabled' : 'enabled'}</span>
+        )}
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const label = screen.container.querySelector('[data-slot="state-disabled-label"]')
+    expect(label?.textContent).toBe('disabled')
+  })
+
   test('applies styles overrides', () => {
     const screen = render(() => (
       <Resizable
@@ -310,6 +421,23 @@ describe('Resizable', () => {
     expect(panels[2]?.style.flexBasis).toBe('50%')
   })
 
+  test('does not render uncontrolled panels at 0% before defaults are applied', () => {
+    const screen = render(() => (
+      <Resizable
+        panels={[
+          { content: 'Left', defaultSize: '30%' },
+          { content: 'Right', defaultSize: '70%' },
+        ]}
+      />
+    ))
+
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+    expect(panels[0]?.style.flexBasis).toBe('30%')
+    expect(panels[1]?.style.flexBasis).toBe('70%')
+  })
+
   test('does not toggle collapsible panels with Enter by default', async () => {
     const onResize = vi.fn()
 
@@ -338,6 +466,125 @@ describe('Resizable', () => {
     expect(onResize).not.toHaveBeenCalled()
     expect(panels[0]?.style.flexBasis).toBe('30%')
     expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
+  })
+
+  test('does not toggle collapsible panels when clicking handle by default', async () => {
+    const onResize = vi.fn()
+
+    const screen = render(() => (
+      <Resizable
+        onResize={onResize}
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+
+    await fireEvent.click(handle)
+
+    expect(onResize).not.toHaveBeenCalled()
+    expect(panels[0]?.style.flexBasis).toBe('30%')
+    expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
+  })
+
+  test('toggles nearest collapsible panel when clicking handle in collapse mode', async () => {
+    const screen = render(() => (
+      <Resizable
+        handleAction="collapse"
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+
+    expect(panels[0]?.style.flexBasis).toBe('30%')
+
+    await fireEvent.click(handle)
+    expect(panels[0]?.style.flexBasis).toBe('10%')
+    expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
+
+    await fireEvent.click(handle)
+    expect(panels[0]?.style.flexBasis).toBe('30%')
+    expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
+  })
+
+  test('keeps handle drag non-resize in collapse mode while divider drag still resizes', async () => {
+    const screen = render(() => (
+      <Resizable
+        handleAction="collapse"
+        renderHandle
+        panels={[
+          {
+            content: 'Sidebar',
+            defaultSize: '30%',
+            min: '20%',
+            collapsible: true,
+            collapsibleMin: '10%',
+          },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
+        ]}
+      />
+    ))
+
+    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const panels = screen.container.querySelectorAll(
+      '[data-slot="panel"]',
+    ) as NodeListOf<HTMLDivElement>
+
+    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    expect(panels[0]?.style.flexBasis).toBe('30%')
+    expect(panels[1]?.style.flexBasis).toBe('70%')
+
+    await fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
+    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    expect(panels[0]?.style.flexBasis).toBe('40%')
+    expect(panels[1]?.style.flexBasis).toBe('60%')
+  })
+
+  test('uses pointer cursor for handle in collapse mode and keeps divider resize cursor', () => {
+    const screen = render(() => (
+      <Resizable
+        handleAction="collapse"
+        panels={[
+          { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
+          { content: 'Content', defaultSize: '70%' },
+        ]}
+      />
+    ))
+
+    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+
+    expect(divider.className).toContain('cursor-col-resize')
+    expect(handle.className).toContain('cursor-pointer')
   })
 
   test('toggles collapse when collapsible signal changes', async () => {

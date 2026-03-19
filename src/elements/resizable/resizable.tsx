@@ -27,6 +27,7 @@ import {
   resolvePanels,
   resizeFromHandle,
   resizePanelToSize,
+  toggleHandleNearestPanel,
   useResizableHandle,
 } from './hook'
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook'
@@ -44,6 +45,15 @@ export namespace ResizableT {
   export interface Extend {}
   export interface Classes extends SlotClasses<Slot> {}
   export interface Styles extends SlotStyles<Slot> {}
+  export interface HandleState {
+    orientation: ResizableOrientation
+    disabled: boolean
+    action: 'resize' | 'collapse'
+    active: boolean
+    dragging: boolean
+    canCollapse: boolean
+    collapsed: boolean
+  }
   /**
    * Base props for the Resizable component.
    */
@@ -89,10 +99,21 @@ export namespace ResizableT {
     disable?: boolean
 
     /**
-     * Custom handle to render, or boolean to toggle default handle.
+     * Custom handle to render.
+     * - `true`: render built-in handle.
+     * - `JSX.Element`: render static custom handle content.
+     * - `(state) => JSX.Element`: render dynamic content by handle state.
      * @default true
      */
-    renderHandle?: boolean | JSX.Element
+    renderHandle?: boolean | JSX.Element | ((state: HandleState) => JSX.Element)
+
+    /**
+     * Handle interaction behavior.
+     * - `resize`: handle area follows divider resize interactions.
+     * - `collapse`: handle click toggles the nearest collapsible panel.
+     * @default 'resize'
+     */
+    handleAction?: 'resize' | 'collapse'
 
     /**
      * Whether to use intersection-based handle sizing.
@@ -133,6 +154,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       orientation: 'horizontal' as ResizableOrientation,
       keyboardDelta: '10%' as ResizableSize,
       renderHandle: true,
+      handleAction: 'resize' as const,
     },
     props,
   )
@@ -165,7 +187,15 @@ export function Resizable(props: ResizableProps): JSX.Element {
     return next?.some((s) => s !== undefined) ? normalizeWithCurrentState(next) : undefined
   })
 
-  const sizes = createMemo(() => normalizedControlledSizes() ?? uncontrolledSizes())
+  const sizes = createMemo(() => {
+    const controlled = normalizedControlledSizes()
+    if (controlled !== undefined) {
+      return controlled
+    }
+
+    const uncontrolled = uncontrolledSizes()
+    return uncontrolled.length === panelCount() ? uncontrolled : normalizeWithCurrentState()
+  })
 
   createEffect(() => {
     if (normalizedControlledSizes() !== undefined) {
@@ -399,6 +429,53 @@ export function Resizable(props: ResizableProps): JSX.Element {
     return precedingPanel.resizable !== false && followingPanel.resizable !== false
   }
 
+  function toggleHandleCollapse(handleIndex: number): void {
+    const currentSizes = sizes()
+    const nextSizes = normalizeSizes(
+      toggleHandleNearestPanel({
+        handleIndex,
+        initialSizes: currentSizes,
+        panels: resolvedPanels(),
+        expandedSizes: lastExpandedSizes,
+      }),
+    )
+
+    if (!hasSizeChange(currentSizes, nextSizes)) {
+      return
+    }
+
+    emitSizes(nextSizes)
+  }
+
+  function resolveNearestCollapsibleState(handleIndex: number): {
+    canCollapse: boolean
+    collapsed: boolean
+  } {
+    const panels = resolvedPanels()
+    const precedingPanel = panels[handleIndex]
+    const followingPanel = panels[handleIndex + 1]
+
+    if (precedingPanel?.collapsible) {
+      return {
+        canCollapse: true,
+        collapsed: isPanelCollapsed(sizes()[handleIndex] ?? 0, precedingPanel),
+      }
+    }
+
+    if (followingPanel?.collapsible) {
+      const panelIndex = handleIndex + 1
+      return {
+        canCollapse: true,
+        collapsed: isPanelCollapsed(sizes()[panelIndex] ?? 0, followingPanel),
+      }
+    }
+
+    return {
+      canCollapse: false,
+      collapsed: false,
+    }
+  }
+
   function beginResize(nextSizes: number[]): void {
     localProps.onResizeStart?.(resolvePixelSizes(nextSizes))
   }
@@ -558,6 +635,13 @@ export function Resizable(props: ResizableProps): JSX.Element {
           const handleDisabled = createMemo(
             () => localProps.disable === true || !isHandleResizable(index),
           )
+          const handleCollapseAction = createMemo(
+            () => localProps.handleAction === 'collapse' && localProps.disable !== true,
+          )
+          const handleRenderDisabled = createMemo(() =>
+            localProps.handleAction === 'collapse' ? localProps.disable === true : handleDisabled(),
+          )
+          const collapseState = createMemo(() => resolveNearestCollapsibleState(index))
 
           const aria = createMemo(() =>
             getHandleAria({ handleIndex: index, sizes: sizes(), panels: resolvedPanels() }),
@@ -571,6 +655,48 @@ export function Resizable(props: ResizableProps): JSX.Element {
             onDrag: resizeHandleByDelta,
             onDragEnd: stopHandleDrag,
             onKeyDown: onHandleKeyDown,
+          })
+
+          function onHandlePointerDown(event: PointerEvent): void {
+            if (!handleCollapseAction()) {
+              return
+            }
+
+            event.stopPropagation()
+          }
+
+          function onHandleClick(event: MouseEvent): void {
+            if (!handleCollapseAction()) {
+              return
+            }
+
+            event.stopPropagation()
+            toggleHandleCollapse(index)
+          }
+
+          const handleState = createMemo<ResizableT.HandleState>(() => ({
+            orientation: orientation(),
+            disabled: handleRenderDisabled(),
+            action: localProps.handleAction,
+            active: bindings.active(),
+            dragging: bindings.dragging(),
+            canCollapse: collapseState().canCollapse,
+            collapsed: collapseState().collapsed,
+          }))
+
+          const handleContent = createMemo(() => {
+            const renderHandle = localProps.renderHandle
+            const state = handleState()
+
+            if (renderHandle === true) {
+              return null
+            }
+
+            if (typeof renderHandle === 'function') {
+              return renderHandle(state)
+            }
+
+            return renderHandle
           })
 
           return (
@@ -639,34 +765,24 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     />
                   </Show>
 
-                  <Show when={localProps.renderHandle} keyed>
-                    {(renderHandle) => (
-                      <Show
-                        when={renderHandle === true}
-                        fallback={
-                          <div
-                            data-slot="handle"
-                            style={localProps.styles?.handle}
-                            class={cn(
-                              'flex items-center justify-center z-10',
-                              localProps.classes?.handle,
-                            )}
-                          >
-                            {renderHandle}
-                          </div>
-                        }
-                      >
-                        <div
-                          data-slot="handle"
-                          style={localProps.styles?.handle}
-                          class={cn(
-                            'rounded-lg bg-border/90 flex shrink-0 h-6 w-1 z-10',
-                            orientation() === 'horizontal' ? 'mx-auto' : 'rotate-90',
-                            localProps.classes?.handle,
-                          )}
-                        />
-                      </Show>
-                    )}
+                  <Show when={localProps.renderHandle !== false}>
+                    <button
+                      type="button"
+                      data-slot="handle"
+                      tabIndex={localProps.handleAction === 'collapse' ? undefined : -1}
+                      style={localProps.styles?.handle}
+                      onPointerDown={onHandlePointerDown}
+                      onClick={onHandleClick}
+                      class={cn(
+                        'rounded flex items-center justify-center z-10 focus-visible:effect-fv',
+                        handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
+                        localProps.renderHandle === true &&
+                          'bg-border/90 flex shrink-0 h-6 w-1 cursor-inherit',
+                        localProps.classes?.handle,
+                      )}
+                    >
+                      {handleContent()}
+                    </button>
                   </Show>
 
                   <Show when={bindings.endIntersectionVisible()}>
