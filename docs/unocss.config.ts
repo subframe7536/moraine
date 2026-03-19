@@ -44,7 +44,7 @@ export default defineConfig<PresetWind4Theme>({
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(222.2 84% 4.9%);
-  --card: hsl(0 0% 100%);
+  --card: hsl(220 4% 99%);
   --card-foreground: hsl(222.2 84% 4.9%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(222.2 84% 4.9%);

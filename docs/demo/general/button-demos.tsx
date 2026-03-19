@@ -1,5 +1,6 @@
 import { For, createSignal } from 'solid-js'
 
+import { Icon } from '../../../src'
 import { Button } from '../../../src/elements/button/button'
 import type { ButtonVariantProps } from '../../../src/elements/button/button.class'
 import { DemoPage } from '../../components/demo-page'
@@ -71,7 +72,7 @@ export default () => {
           <For each={ICON_SIZES}>
             {(size) => (
               <Button size={size} variant="secondary" aria-label={`Icon ${size}`}>
-                <div class="i-lucide:star" />
+                <Icon name="i-lucide:star" />
               </Button>
             )}
           </For>

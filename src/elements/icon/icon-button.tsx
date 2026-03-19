@@ -13,8 +13,9 @@ export namespace IconButtonT {
   export type Slot = 'root'
   export interface Variant {}
   export interface Items {}
-  export type Extend<T extends ValidComponent = 'button'> = KobalteButton.ButtonRootProps<
-    ElementOf<T>
+  export type Extend<T extends ValidComponent = 'button'> = PolymorphicProps<
+    T,
+    KobalteButton.ButtonRootProps<ElementOf<T>>
   >
   export interface Classes extends SlotClasses<Slot> {}
   export interface Styles extends SlotStyles<Slot> {}
@@ -49,23 +50,27 @@ export namespace IconButtonT {
   /**
    * Props for the IconButton component.
    */
-  export type Props<T extends ValidComponent = 'button'> = PolymorphicProps<
-    T,
-    RockUIProps<Base, Variant, Extend<T>, Slot>
+  export type Props<T extends ValidComponent = 'button'> = RockUIProps<
+    Base,
+    Variant,
+    Extend<T>,
+    Slot
   >
 }
 
 /**
  * Props for the IconButton component.
  */
-// NOTE: keep `type` here; `interface extends ...` breaks Solid JSX inference for polymorphic components.
 export type IconButtonProps<T extends ValidComponent = 'button'> = IconButtonT.Props<T>
 
+/**
+ * Button with icon, without padding
+ */
 export function IconButton<T extends ValidComponent = 'button'>(
   props: IconButtonProps<T>,
 ): JSX.Element {
   const [localProps, restProps] = splitProps(props as IconButtonProps, [
-    'class',
+    'classes',
     'name',
     'loading',
     'loadingIcon',
@@ -76,7 +81,7 @@ export function IconButton<T extends ValidComponent = 'button'>(
   return (
     <KobalteButton.Root
       data-slot="icon-button"
-      class={iconButtonVariants({ size: localProps.size }, localProps.class)}
+      class={iconButtonVariants({ size: localProps.size }, localProps.classes?.root)}
       aria-busy={localProps.loading || undefined}
       data-loading={localProps.loading ? '' : undefined}
       disabled={localProps.loading || localProps.disabled}

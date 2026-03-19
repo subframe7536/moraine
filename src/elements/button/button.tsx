@@ -3,6 +3,8 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, splitProps } from 'solid-js'
 
+import type { MaybeRenderProp } from '../../shared/render-prop'
+import { resolveRenderProp } from '../../shared/render-prop'
 import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -12,7 +14,7 @@ import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
 
 export namespace ButtonT {
-  export type Slot = 'base' | 'loading' | 'leading' | 'label' | 'trailing'
+  export type Slot = 'root' | 'loading' | 'leading' | 'label' | 'trailing'
   export type Variant = ButtonVariantProps
   export interface Items {}
   export type Extend<T extends ValidComponent = 'button'> = PolymorphicProps<
@@ -55,9 +57,14 @@ export namespace ButtonT {
     trailing?: IconName
 
     /**
-     * Children of the button.
+     * Children of the button. Supports render function form.
      */
-    children?: JSX.Element
+    children?: MaybeRenderProp<{
+      /**
+       * Whether the button is currently in loading state.
+       */
+      loading: boolean
+    }>
   }
 
   /**
@@ -140,13 +147,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   return (
     <KobalteButton.Root
       data-slot="base"
-      style={styleProps.styles?.base}
+      style={styleProps.styles?.root}
       class={buttonVariants(
         {
           variant: styleProps.variant,
           size: styleProps.size,
         },
-        styleProps.classes?.base,
+        styleProps.classes?.root,
       )}
       aria-busy={isLoading() ? true : undefined}
       data-loading={isLoading() ? '' : undefined}
@@ -176,7 +183,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           style={styleProps.styles?.label}
           class={cn('min-w-0 truncate', styleProps.classes?.label)}
         >
-          {contentProps.children}
+          {resolveRenderProp(contentProps.children, () => ({
+            loading: isLoading(),
+          }))}
         </span>
       </Show>
 

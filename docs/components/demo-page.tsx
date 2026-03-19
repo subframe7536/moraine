@@ -41,9 +41,9 @@ export const DemoPage = (props: DemoPageProps) => {
   }
 
   return (
-    <main class="text-zinc-900 p-6 min-h-screen w-full from-stone-100 to-slate-100 via-zinc-50 bg-gradient-to-br sm:p-10">
-      <div class="mx-auto flex flex-col gap-6 max-w-5xl">
-        <header class="text-foreground p-6 sm:p-8">
+    <main class="text-zinc-900 p-6 min-h-screen w-full sm:p-10">
+      <div class="mx-auto flex flex-col gap-8 max-w-5xl">
+        <header class="text-foreground">
           <div class="flex flex-wrap gap-2 items-center">
             <Show when={component()?.category}>
               <p class="text-sm text-zinc-700 tracking-[0.22em] uppercase">

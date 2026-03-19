@@ -137,7 +137,7 @@ describe('Button', () => {
         leading="i-lucide-menu"
         trailing="i-lucide-x"
         classes={{
-          base: 'root-override',
+          root: 'root-override',
           leading: 'leading-override',
           label: 'label-override',
           trailing: 'trailing-override',
@@ -215,6 +215,15 @@ describe('Button', () => {
     expect(leading).toBeNull()
   })
 
+  test('supports function children with loading state', () => {
+    const screen = render(() => (
+      <Button loading>{({ loading }) => (loading ? 'Saving' : 'Save')}</Button>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Saving' })
+    expect(button.textContent).toBe('Saving')
+  })
+
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
       <Button loading loadingIcon="i-lucide-loader-circle">
@@ -270,6 +279,31 @@ describe('Button', () => {
     await waitFor(() => {
       expect(button.hasAttribute('data-loading')).toBe(false)
       expect(button.hasAttribute('aria-busy')).toBe(false)
+    })
+  })
+
+  test('updates function children during auto loading lifecycle', async () => {
+    const deferred = createDeferred()
+    const onclick = vi.fn(() => deferred.promise)
+    const screen = render(() => (
+      <Button loadingAuto onClick={onclick}>
+        {({ loading }) => (loading ? 'Submitting' : 'Submit')}
+      </Button>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Submit' })
+    expect(button.textContent).toBe('Submit')
+
+    await fireEvent.click(button)
+
+    await waitFor(() => {
+      expect(button.textContent).toBe('Submitting')
+    })
+
+    deferred.resolve()
+
+    await waitFor(() => {
+      expect(button.textContent).toBe('Submit')
     })
   })
 
