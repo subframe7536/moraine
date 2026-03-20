@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show } from 'solid-js'
 
 import { Badge } from '../../src'
+import type { ItemsDoc } from '../vite-plugin/api-doc'
 
 import { PropsTable } from './props-table'
 import type { ComponentPropsDoc } from './props-table'
@@ -21,6 +22,7 @@ interface ComponentApiDoc {
   component: ComponentIndexEntry
   slots: string[]
   props: ComponentPropsDoc
+  items?: ItemsDoc
 }
 
 export interface DemoPageProps {
@@ -33,11 +35,12 @@ export interface DemoPageProps {
 export const DemoPage = (props: DemoPageProps) => {
   const component = () => props.apiDoc?.component
   const propsDoc = () => props.apiDoc?.props ?? { own: [], inherited: [] }
+  const itemsDoc = () => props.apiDoc?.items
   const slots = () => props.apiDoc?.slots ?? []
 
   const hasProps = () => {
     const data = propsDoc()
-    return data.own.length > 0 || data.inherited.length > 0
+    return data.own.length > 0 || data.inherited.length > 0 || Boolean(itemsDoc())
   }
 
   return (
@@ -87,7 +90,7 @@ export const DemoPage = (props: DemoPageProps) => {
             <h2 class="text-sm text-zinc-600 tracking-[0.16em] font-semibold mb-4 uppercase">
               Props
             </h2>
-            <PropsTable props={propsDoc()} />
+            <PropsTable props={propsDoc()} items={itemsDoc()} />
           </section>
         </Show>
       </div>

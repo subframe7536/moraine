@@ -33,6 +33,11 @@ interface InheritedGroupDoc {
   props: PropDoc[]
 }
 
+interface ItemsDoc {
+  props: PropDoc[]
+  description?: string
+}
+
 interface ComponentDoc {
   component: ComponentIndexEntry
   slots: string[]
@@ -40,6 +45,7 @@ interface ComponentDoc {
     own: PropDoc[]
     inherited: InheritedGroupDoc[]
   }
+  items?: ItemsDoc
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -52,8 +58,6 @@ function toKebabCase(name: string): string {
 }
 
 function categoryFromSourcePath(sourcePath: string | undefined): string {
-  // Use the parent directory name as the category.
-  // E.g. `src/elements/button/button.tsx` => `button`
   return sourcePath?.replace(/\\/g, '/').split('/')[1] || 'General'
 }
 
@@ -77,7 +81,7 @@ function typeIncludesUndefined(type: ts.Type): boolean {
     return true
   }
   if (type.isUnion()) {
-    return type.types.some((t) => typeIncludesUndefined(t))
+    return type.types.some(typeIncludesUndefined)
   }
   return false
 }
@@ -118,30 +122,24 @@ function inferModuleFromFileName(fileName: string): string {
     const hit = known.find((k) => parts.includes(k))
     return hit ? `${pkg}/${hit}` : pkg
   }
-
   return pkg
 }
 
 async function resolveSourcePath(regionPath: string | undefined): Promise<string | undefined> {
-  if (!regionPath) {
-    return undefined
-  }
-  if (!regionPath.startsWith('src/')) {
+  if (!regionPath || !regionPath.startsWith('src/') || !regionPath.endsWith('.d.ts')) {
     return regionPath
   }
-  if (!regionPath.endsWith('.d.ts')) {
-    return regionPath
-  }
-
   const base = regionPath.slice(0, -'.d.ts'.length)
   const tsx = `${base}.tsx`
   if (existsSync(tsx)) {
     return tsx
   }
+
   const tsFile = `${base}.ts`
   if (existsSync(tsFile)) {
     return tsFile
   }
+
   return regionPath
 }
 
@@ -159,7 +157,6 @@ function buildRegionByLine(text: string): Array<string | undefined> {
     }
     regionByLine[i] = current
   }
-
   return regionByLine
 }
 
@@ -171,6 +168,8 @@ function isJsxElementReturn(typeNode: ts.TypeNode | undefined, sourceFile: ts.So
   return text === 'JSX.Element' || text.endsWith('.JSX.Element')
 }
 
+// ── Extraction Logic ────────────────────────────────────────────────
+
 function extractSlotNames(node: ts.ModuleDeclaration, sourceFile: ts.SourceFile): string[] {
   const body = node.body
   if (!body || !ts.isModuleBlock(body)) {
@@ -178,26 +177,129 @@ function extractSlotNames(node: ts.ModuleDeclaration, sourceFile: ts.SourceFile)
   }
 
   for (const stmt of body.statements) {
-    if (
-      ts.isTypeAliasDeclaration(stmt) &&
-      stmt.name.text === 'Slot' &&
-      ts.isUnionTypeNode(stmt.type)
-    ) {
+    if (!ts.isTypeAliasDeclaration(stmt) || stmt.name.text !== 'Slot') {
+      continue
+    }
+
+    if (ts.isUnionTypeNode(stmt.type)) {
       return stmt.type.types
         .filter((t): t is ts.LiteralTypeNode => ts.isLiteralTypeNode(t))
         .map((t) => t.literal.getText(sourceFile).replace(/^['"]|['"]$/g, ''))
     }
-    // Single string literal: type Slot = 'root'
-    if (
-      ts.isTypeAliasDeclaration(stmt) &&
-      stmt.name.text === 'Slot' &&
-      ts.isLiteralTypeNode(stmt.type)
-    ) {
+    if (ts.isLiteralTypeNode(stmt.type)) {
       return [stmt.type.literal.getText(sourceFile).replace(/^['"]|['"]$/g, '')]
     }
   }
-
   return []
+}
+
+function extractItemsDoc(
+  node: ts.ModuleDeclaration,
+  sourceFile: ts.SourceFile,
+  checker: ts.TypeChecker,
+): ItemsDoc | undefined {
+  const body = node.body
+  if (!body || !ts.isModuleBlock(body)) {
+    return undefined
+  }
+
+  for (const stmt of body.statements) {
+    if (
+      (!ts.isInterfaceDeclaration(stmt) && !ts.isTypeAliasDeclaration(stmt)) ||
+      stmt.name.text !== 'Items'
+    ) {
+      continue
+    }
+
+    const itemsType = ts.isInterfaceDeclaration(stmt)
+      ? checker.getTypeAtLocation(stmt)
+      : checker.getTypeFromTypeNode(stmt.type)
+    const symbol = checker.getSymbolAtLocation(stmt.name)
+    const description = displayText(symbol?.getDocumentationComment(checker)).trim() || undefined
+    const props = extractOwnPropDocsFromType(checker, sourceFile, itemsType, stmt)
+
+    if (!description && props.length === 0) {
+      return undefined
+    }
+    return { props, ...(description ? { description } : {}) }
+  }
+  return undefined
+}
+
+function createPropDoc(checker: ts.TypeChecker, propSymbol: ts.Symbol, location: ts.Node): PropDoc {
+  const name = propSymbol.getName()
+  const propType = checker.getTypeOfSymbolAtLocation(propSymbol, location)
+  const type = checker.typeToString(propType, location, ts.TypeFormatFlags.NoTruncation)
+
+  const optionalFlag = (propSymbol.flags & ts.SymbolFlags.Optional) !== 0
+  const required = !(optionalFlag || typeIncludesUndefined(propType))
+
+  const description = displayText(propSymbol.getDocumentationComment(checker)).trim() || undefined
+  const jsDocTags = propSymbol.getJsDocTags()
+  const defaultTag = jsDocTags.find((t) => t.name === 'default')
+  const defaultValue = defaultTag ? normalizeDefaultTag(defaultTag.text) : undefined
+
+  return {
+    name,
+    required,
+    type,
+    ...(description ? { description } : {}),
+    ...(defaultValue ? { defaultValue } : {}),
+  }
+}
+
+function extractOwnPropDocsFromType(
+  checker: ts.TypeChecker,
+  sourceFile: ts.SourceFile,
+  sourceType: ts.Type,
+  location: ts.Node,
+): PropDoc[] {
+  return checker
+    .getPropertiesOfType(sourceType)
+    .filter((symbol) => {
+      const decl = symbol.declarations?.[0]
+      return (
+        decl?.getSourceFile().fileName === sourceFile.fileName &&
+        (ts.isPropertySignature(decl) || ts.isPropertyDeclaration(decl))
+      )
+    })
+    .map((symbol) => createPropDoc(checker, symbol, location))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+function groupProperties(
+  propsType: ts.Type,
+  checker: ts.TypeChecker,
+  sourceFile: ts.SourceFile,
+  location: ts.Node,
+): { own: PropDoc[]; inherited: InheritedGroupDoc[] } {
+  const ownProps: PropDoc[] = []
+  const inheritedGroups = new Map<string, PropDoc[]>()
+
+  for (const propSymbol of checker.getPropertiesOfType(propsType)) {
+    const doc = createPropDoc(checker, propSymbol, location)
+    const decl = propSymbol.declarations?.[0]
+    const isOwn = decl?.getSourceFile().fileName === sourceFile.fileName
+
+    if (isOwn) {
+      ownProps.push(doc)
+    } else {
+      const from = decl ? inferModuleFromFileName(decl.getSourceFile().fileName) : 'External'
+      const list = inheritedGroups.get(from) ?? []
+      list.push(doc)
+      inheritedGroups.set(from, list)
+    }
+  }
+
+  ownProps.sort((a, b) => a.name.localeCompare(b.name))
+  const inherited: InheritedGroupDoc[] = [...inheritedGroups.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([from, props]) => ({
+      from,
+      props: props.sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+
+  return { own: ownProps, inherited }
 }
 
 // ── Core Generation ──────────────────────────────────────────────────
@@ -205,6 +307,100 @@ function extractSlotNames(node: ts.ModuleDeclaration, sourceFile: ts.SourceFile)
 interface GenerationResult {
   indexDoc: IndexDoc
   componentDocs: Map<string, ComponentDoc>
+}
+
+interface ComponentMetadata {
+  slots: Map<string, string[]>
+  items: Map<string, ItemsDoc>
+}
+
+function collectNamespaceMetadata(
+  sourceFile: ts.SourceFile,
+  checker: ts.TypeChecker,
+): ComponentMetadata {
+  const slots = new Map<string, string[]>()
+  const items = new Map<string, ItemsDoc>()
+
+  const visit = (node: ts.Node) => {
+    if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
+      const componentName = node.name.text.slice(0, -1)
+
+      const slotNames = extractSlotNames(node, sourceFile)
+      if (slotNames.length > 0) {
+        slots.set(componentName, slotNames)
+      }
+
+      const itemsDoc = extractItemsDoc(node, sourceFile, checker)
+      if (itemsDoc) {
+        items.set(componentName, itemsDoc)
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+
+  return { slots, items }
+}
+
+async function processComponentNode(
+  node: ts.FunctionDeclaration,
+  context: {
+    checker: ts.TypeChecker
+    sourceFile: ts.SourceFile
+    regionByLine: Array<string | undefined>
+    metadata: ComponentMetadata
+  },
+): Promise<{ key: string; doc: ComponentDoc } | null> {
+  const { checker, sourceFile, regionByLine, metadata } = context
+
+  // Guard clauses
+  if (!node.name || node.parameters.length === 0) {
+    return null
+  }
+  if (!isJsxElementReturn(node.type, sourceFile)) {
+    return null
+  }
+
+  const param = node.parameters[0]
+  if (!param.type) {
+    return null
+  }
+
+  // Basic Info
+  const componentName = node.name.text
+  const componentKey = toKebabCase(componentName)
+  const fnSymbol = checker.getSymbolAtLocation(node.name)
+  const description = displayText(fnSymbol?.getDocumentationComment(checker)).trim() || undefined
+
+  // Source Path
+  const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line
+  const regionPath = regionByLine[line]
+  const sourcePath = await resolveSourcePath(regionPath)
+
+  // Props
+  const propsType = checker.getTypeFromTypeNode(param.type)
+  const hasAsProp = Boolean(propsType.getProperty('as'))
+  const props = groupProperties(propsType, checker, sourceFile, param.name)
+
+  // Finalize Entry
+  const category = categoryFromSourcePath(sourcePath)
+  const entry: ComponentIndexEntry = {
+    key: componentKey,
+    name: componentName,
+    category,
+    polymorphic: hasAsProp,
+    ...(description && { description }),
+    ...(sourcePath && { sourcePath }),
+  }
+
+  const doc: ComponentDoc = {
+    component: entry,
+    slots: metadata.slots.get(componentName) ?? [],
+    props,
+    ...(metadata.items.get(componentName) && { items: metadata.items.get(componentName) }),
+  }
+
+  return { key: componentKey, doc }
 }
 
 async function generateApiDoc(projectRoot: string): Promise<GenerationResult | null> {
@@ -235,188 +431,34 @@ async function generateApiDoc(projectRoot: string): Promise<GenerationResult | n
   }
 
   const regionByLine = buildRegionByLine(sourceFile.getFullText())
+  const metadata = collectNamespaceMetadata(sourceFile, checker)
+  const context = { checker, sourceFile, regionByLine, metadata }
 
-  // Collect slot data from namespaces (e.g., declare namespace ButtonT { type Slot = ... })
-  const slotsByComponentName = new Map<string, string[]>()
-  const visitNamespaces = (node: ts.Node) => {
-    if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
-      const componentName = node.name.text.slice(0, -1) // Remove trailing 'T'
-      const slots = extractSlotNames(node, sourceFile)
-      if (slots.length > 0) {
-        slotsByComponentName.set(componentName, slots)
-      }
-    }
-    ts.forEachChild(node, visitNamespaces)
-  }
-  visitNamespaces(sourceFile)
-
-  const pendingSourcePathResolves: Array<Promise<void>> = []
-
-  const components: Array<{
-    name: string
-    key: string
-    description?: string
-    sourcePath?: string
-    polymorphic: boolean
-    slots: string[]
-    props: { own: PropDoc[]; inherited: InheritedGroupDoc[] }
-  }> = []
+  const componentPromises: Promise<{ key: string; doc: ComponentDoc }[]>[] = []
 
   const visit = (node: ts.Node) => {
-    if (ts.isFunctionDeclaration(node) && node.name && node.parameters.length > 0) {
-      if (!isJsxElementReturn(node.type, sourceFile)) {
-        ts.forEachChild(node, visit)
-        return
-      }
-
-      const param = node.parameters[0]
-      if (!param.type) {
-        ts.forEachChild(node, visit)
-        return
-      }
-
-      const componentName = node.name.text
-      const componentKey = toKebabCase(componentName)
-
-      const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line
-      const regionPath = regionByLine[line]
-
-      const fnSymbol = checker.getSymbolAtLocation(node.name)
-      const componentDescription = fnSymbol
-        ? displayText(fnSymbol.getDocumentationComment(checker)).trim() || undefined
-        : undefined
-
-      const resolvedSourcePathPromise = resolveSourcePath(regionPath)
-      const propsType = checker.getTypeFromTypeNode(param.type)
-      const hasAsProp = Boolean(propsType.getProperty('as'))
-
-      const ownProps: PropDoc[] = []
-      const inheritedGroups = new Map<string, PropDoc[]>()
-
-      const propsParamLocation = param.name
-
-      for (const propSymbol of checker.getPropertiesOfType(propsType)) {
-        const name = propSymbol.getName()
-        const propType = checker.getTypeOfSymbolAtLocation(propSymbol, propsParamLocation)
-        const type = checker.typeToString(
-          propType,
-          propsParamLocation,
-          ts.TypeFormatFlags.NoTruncation,
-        )
-
-        const optionalFlag = (propSymbol.flags & ts.SymbolFlags.Optional) !== 0
-        const required = !(optionalFlag || typeIncludesUndefined(propType))
-
-        const description =
-          displayText(propSymbol.getDocumentationComment(checker)).trim() || undefined
-        const jsDocTags = propSymbol.getJsDocTags()
-        const defaultTag = jsDocTags.find((t) => t.name === 'default')
-        const defaultValue = defaultTag ? normalizeDefaultTag(defaultTag.text) : undefined
-
-        const doc: PropDoc = {
-          name,
-          required,
-          type,
-          ...(description ? { description } : {}),
-          ...(defaultValue ? { defaultValue } : {}),
-        }
-
-        const decl = propSymbol.declarations?.[0]
-        const isOwn = decl?.getSourceFile().fileName === sourceFile.fileName
-
-        if (isOwn) {
-          ownProps.push(doc)
-        } else {
-          const from = decl ? inferModuleFromFileName(decl.getSourceFile().fileName) : 'External'
-          const list = inheritedGroups.get(from) ?? []
-          list.push(doc)
-          inheritedGroups.set(from, list)
-        }
-      }
-
-      ownProps.sort((a, b) => a.name.localeCompare(b.name))
-      const inherited: InheritedGroupDoc[] = [...inheritedGroups.entries()]
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([from, props]) => ({
-          from,
-          props: props.sort((a, b) => a.name.localeCompare(b.name)),
-        }))
-
-      components.push({
-        name: componentName,
-        key: componentKey,
-        description: componentDescription,
-        sourcePath: undefined,
-        polymorphic: hasAsProp,
-        slots: slotsByComponentName.get(componentName) ?? [],
-        props: { own: ownProps, inherited },
-      })
-
-      pendingSourcePathResolves.push(
-        resolvedSourcePathPromise.then((resolved) => {
-          const target = components.find((c) => c.key === componentKey)
-          if (target) {
-            target.sourcePath = resolved
-          }
-        }),
-      )
+    if (ts.isFunctionDeclaration(node)) {
+      const task = processComponentNode(node, context).then((result) => (result ? [result] : []))
+      componentPromises.push(task)
     }
-
     ts.forEachChild(node, visit)
   }
-
   visit(sourceFile)
 
-  await Promise.all(pendingSourcePathResolves)
+  const resolvedComponents = (await Promise.all(componentPromises)).flat()
 
   // De-dupe by key
-  const byKey = new Map<string, (typeof components)[number]>()
-  for (const c of components) {
-    byKey.set(c.key, c)
+  const componentDocs = new Map<string, ComponentDoc>()
+  for (const { key, doc } of resolvedComponents) {
+    componentDocs.set(key, doc)
   }
-
-  const finalComponents = [...byKey.values()]
 
   const indexDoc: IndexDoc = {
-    components: finalComponents.map((c) => {
-      const sourcePath = c.sourcePath
-      const category = categoryFromSourcePath(sourcePath)
-      return {
-        key: c.key,
-        name: c.name,
-        category,
-        ...(c.description ? { description: c.description } : {}),
-        ...(sourcePath ? { sourcePath } : {}),
-        polymorphic: c.polymorphic,
-      }
-    }),
-  }
-
-  const componentDocs = new Map<string, ComponentDoc>()
-  for (const c of finalComponents) {
-    const sourcePath = c.sourcePath
-    const category = categoryFromSourcePath(sourcePath)
-
-    const componentEntry: ComponentIndexEntry = {
-      key: c.key,
-      name: c.name,
-      category,
-      ...(c.description ? { description: c.description } : {}),
-      ...(sourcePath ? { sourcePath } : {}),
-      polymorphic: c.polymorphic,
-    }
-
-    componentDocs.set(c.key, {
-      component: componentEntry,
-      slots: c.slots,
-      props: c.props,
-    })
+    components: [...componentDocs.values()].map((doc) => doc.component),
   }
 
   return { indexDoc, componentDocs }
 }
-
-// ── YAML Writing ─────────────────────────────────────────────────────
 
 async function writeJsonFiles(outDir: string, result: GenerationResult): Promise<void> {
   const componentsDir = path.join(outDir, 'components')
@@ -483,4 +525,4 @@ export function componentApiPlugin(): Plugin {
 
 // Re-export for use by demo-source plugin
 export { generateApiDoc, writeJsonFiles }
-export type { ComponentDoc, IndexDoc, ComponentIndexEntry, PropDoc, InheritedGroupDoc }
+export type { ComponentDoc, IndexDoc, ComponentIndexEntry, PropDoc, InheritedGroupDoc, ItemsDoc }
