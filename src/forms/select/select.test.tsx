@@ -39,23 +39,27 @@ function queryAllBody(selector: string): NodeListOf<Element> {
   return document.body.querySelectorAll(selector)
 }
 
-test('uses css variable classes for input sizing across modes', () => {
+test('single Select does not accept multiple prop at type level', () => {
+  // @ts-expect-error Select is single-only and should not accept `multiple`
+  const node = <Select options={FRUITS} multiple />
+
+  expect(node).toBeDefined()
+})
+
+test('single Select does not accept multi-only props at type level', () => {
+  // @ts-expect-error Select should reject multi-only options
+  const node = <Select options={FRUITS} allowCreate tokenSeparators={[',']} maxCount={2} />
+
+  expect(node).toBeDefined()
+})
+
+test('uses css variable classes for input sizing in single mode', () => {
   const single = render(() => <Select options={FRUITS} size="xs" placeholder="XS" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
 
   expect(singleInput?.className).toContain('px-$s-p')
   expect(singleInput?.className).toContain('text-xs')
   expect(singleInput?.className).toContain('var-select-0.5')
-
-  const multiSearch = render(() => (
-    <Select multiple search options={FRUITS} size="lg" placeholder="LG" />
-  ))
-  const multiInput = multiSearch.container.querySelector('[data-slot="input"]')
-
-  expect(multiInput?.className).toContain('min-w-12')
-  expect(multiInput?.className).toContain('ps-$s-p')
-  expect(multiInput?.className).toContain('var-select-1.5')
-  expect(multiInput?.className).toContain('text-sm')
 })
 
 describe('Select - single mode', () => {
@@ -140,22 +144,6 @@ describe('Select - single mode', () => {
     })
   })
 
-  test('restricts multiple tags container click opening when openOnClick is trigger', async () => {
-    const screen = render(() => (
-      <Select multiple options={FRUITS} openOnClick="trigger" placeholder="Pick fruits" />
-    ))
-    const tagsContainer = screen.container.querySelector('[data-slot="tagsContainer"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    await fireEvent.pointerDown(tagsContainer as HTMLElement, { button: 0 })
-    expect(queryBody('[data-slot="content"]')).toBeNull()
-
-    await fireEvent.click(trigger)
-    await waitFor(() => {
-      expect(queryBody('[data-slot="content"]')).not.toBeNull()
-    })
-  })
-
   test('shows options when opened', () => {
     render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
 
@@ -199,249 +187,6 @@ describe('Select - single mode', () => {
 
     expect(trigger?.hasAttribute('data-loading')).toBe(true)
     expect(icon?.className).toContain('icon-loading')
-  })
-})
-
-describe('Select - multiple mode', () => {
-  test('renders tags for selected values', () => {
-    const screen = render(() => (
-      <Select multiple options={FRUITS} value={['apple', 'banana']} placeholder="Pick" />
-    ))
-
-    const tags = screen.container.querySelectorAll('[data-slot="tag"]')
-    expect(tags.length).toBe(2)
-  })
-
-  test('calls onChange with array of values', async () => {
-    const onChange = vi.fn()
-    render(() => (
-      <Select multiple options={FRUITS} defaultOpen onChange={onChange} placeholder="Pick" />
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0])
-
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenLastCalledWith(['apple'])
-  })
-
-  test('removes tag on tag remove click', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        options={FRUITS}
-        defaultValue={['apple', 'banana']}
-        onChange={onChange}
-        placeholder="Pick"
-      />
-    ))
-
-    const removeButtons = screen.container.querySelectorAll(
-      '[data-slot="tag"] [data-slot="trailing"]',
-    )
-    expect(removeButtons.length).toBe(2)
-
-    await fireEvent.pointerDown(removeButtons[0] as HTMLElement, { button: 0 })
-    expect(queryBody('[data-slot="content"]')).toBeNull()
-
-    await fireEvent.click(removeButtons[0])
-
-    expect(onChange).toHaveBeenCalled()
-    expect(queryBody('[data-slot="content"]')).toBeNull()
-  })
-
-  test('respects maxCount limit', async () => {
-    const onChange = vi.fn()
-    render(() => (
-      <Select
-        multiple
-        options={FRUITS}
-        defaultValue={['apple']}
-        defaultOpen
-        onChange={onChange}
-        maxCount={1}
-        placeholder="Pick"
-      />
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    // Click banana (second item)
-    await fireEvent.click(items[1])
-
-    // maxCount is 1 and we already have 1 selected, so onChange should not fire
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('shows +N overflow with maxTagCount', () => {
-    const screen = render(() => (
-      <Select
-        multiple
-        options={FRUITS}
-        value={['apple', 'banana']}
-        maxTagCount={1}
-        placeholder="Pick"
-      />
-    ))
-
-    const tags = screen.container.querySelectorAll('[data-slot="tag"]')
-    expect(tags.length).toBe(1)
-
-    const overflow = screen.container.querySelector('[data-slot="tagOverflow"]')
-    expect(overflow).not.toBeNull()
-    expect(overflow?.textContent).toContain('+1')
-  })
-})
-
-describe('Select - tag creation', () => {
-  test('creates and selects tag from token separators without allowCreate', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        tokenSeparators={[',']}
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'custom,' } })
-
-    expect(onChange).toHaveBeenCalledWith(['custom'])
-    await waitFor(() => {
-      expect(input.value).toBe('')
-    })
-  })
-
-  test('keeps trailing partial token and emits onSearch with remainder', async () => {
-    const onChange = vi.fn()
-    const onSearch = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        tokenSeparators={[',']}
-        onChange={onChange}
-        onSearch={onSearch}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Apple,ba' } })
-
-    expect(onChange).toHaveBeenCalledWith(['apple'])
-    expect(onSearch).toHaveBeenLastCalledWith('ba')
-    await waitFor(() => {
-      expect(input.value).toBe('ba')
-    })
-  })
-
-  test('respects maxCount when processing token separators', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        tokenSeparators={[',']}
-        defaultValue={['apple']}
-        maxCount={1}
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'banana,' } })
-
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('input is not searchable by default in multiple mode', () => {
-    const screen = render(() => <Select multiple options={FRUITS} placeholder="Type..." />)
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    expect(input.hasAttribute('readonly')).toBe(true)
-    expect(input.className).toContain('min-w-12')
-    expect(input.className).not.toContain('sr-only')
-  })
-
-  test('keeps the same input structure after selections in non-searchable multiple mode', () => {
-    const screen = render(() => (
-      <Select multiple options={FRUITS} value={['apple']} placeholder="Type..." />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    expect(input.hasAttribute('readonly')).toBe(true)
-    expect(input.className).toContain('min-w-12')
-    expect(input.className).not.toContain('sr-only')
-  })
-
-  test('toggles menu when clicking readonly input in multiple mode', async () => {
-    const screen = render(() => <Select multiple options={FRUITS} placeholder="Pick" />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
-
-    await fireEvent.click(input)
-
-    await waitFor(() => {
-      expect(input.getAttribute('aria-expanded')).toBe('true')
-      expect(queryBody('[data-slot="content"]')).not.toBeNull()
-    })
-
-    await fireEvent.click(input)
-
-    await waitFor(() => {
-      const content = queryBody('[data-slot="content"]')
-      expect(input.getAttribute('aria-expanded')).toBe('false')
-      expect(content?.hasAttribute('data-closed')).toBe(true)
-    })
-  })
-
-  test('does not auto-create tag on Enter when no matched option', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('Dragonfruit')
-  })
-
-  test('keeps Enter toggle behavior when input exactly matches an option', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Apple' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).toHaveBeenCalledWith(['apple'])
-    expect(input.value).toBe('')
   })
 })
 
@@ -499,6 +244,42 @@ describe('Select - search', () => {
     expect(onSearch).toHaveBeenCalledWith('app')
   })
 
+  test('filters options with startsWith mode', async () => {
+    const screen = render(() => (
+      <Select
+        options={FRUITS}
+        search
+        defaultOpen
+        filterOption="startsWith"
+        placeholder="Search..."
+      />
+    ))
+
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'ap' } })
+
+    await waitFor(() => {
+      const items = queryAllBody('[data-slot="item"]')
+      expect(items.length).toBe(1)
+      expect(items[0].textContent).toContain('Apple')
+    })
+  })
+
+  test('filters options with endsWith mode', async () => {
+    const screen = render(() => (
+      <Select options={FRUITS} search defaultOpen filterOption="endsWith" placeholder="Search..." />
+    ))
+
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'na' } })
+
+    await waitFor(() => {
+      const items = queryAllBody('[data-slot="item"]')
+      expect(items.length).toBe(1)
+      expect(items[0].textContent).toContain('Banana')
+    })
+  })
+
   test('opens menu when searchable input becomes non-empty in trigger-only mode', async () => {
     const screen = render(() => (
       <Select options={FRUITS} search openOnClick="trigger" placeholder="Search..." />
@@ -551,6 +332,60 @@ describe('Select - clear', () => {
     await fireEvent.click(clearBtn!)
 
     expect(onClear).toHaveBeenCalledTimes(1)
+  })
+
+  test('clear resets bound form value to defaultValue when provided', async () => {
+    const state = { fruit: 'apple' }
+
+    const screen = render(() => (
+      <Form state={state} validate={() => []}>
+        <FormField name="fruit" label="Fruit">
+          <Select options={FRUITS} defaultValue="apple" allowClear defaultOpen placeholder="Pick" />
+        </FormField>
+      </Form>
+    ))
+
+    const items = queryAllBody('[data-slot="item"]')
+    await fireEvent.click(items[1])
+
+    await waitFor(() => {
+      expect(state.fruit).toBe('banana')
+    })
+
+    const clearBtn = screen.container.querySelector('[data-slot="clear"]')
+    expect(clearBtn).not.toBeNull()
+    await fireEvent.click(clearBtn!)
+
+    await waitFor(() => {
+      expect(state.fruit).toBe('apple')
+    })
+  })
+
+  test('clear resets bound form value to empty string when no defaultValue', async () => {
+    const state = { fruit: '' }
+
+    const screen = render(() => (
+      <Form state={state} validate={() => []}>
+        <FormField name="fruit" label="Fruit">
+          <Select options={FRUITS} allowClear defaultOpen placeholder="Pick" />
+        </FormField>
+      </Form>
+    ))
+
+    const items = queryAllBody('[data-slot="item"]')
+    await fireEvent.click(items[0])
+
+    await waitFor(() => {
+      expect(state.fruit).toBe('apple')
+    })
+
+    const clearBtn = screen.container.querySelector('[data-slot="clear"]')
+    expect(clearBtn).not.toBeNull()
+    await fireEvent.click(clearBtn!)
+
+    await waitFor(() => {
+      expect(state.fruit).toBe('')
+    })
   })
 })
 
@@ -687,132 +522,6 @@ describe('Select - render hooks', () => {
     expect(appleState).toBeDefined()
     expect(appleState?.isSelected).toBe(true)
   })
-
-  test('calls emptyRender with context when no matched items', async () => {
-    let lastContext: SelectT.EmptyRenderContext | undefined
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        emptyRender={(context) => {
-          lastContext = context
-          return <div data-testid="custom-empty">No match for {context.inputValue}</div>
-        }}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-
-    await waitFor(() => {
-      expect(queryBody('[data-testid="custom-empty"]')).not.toBeNull()
-      expect(lastContext).toBeDefined()
-      expect(lastContext?.inputValue).toBe('Dragonfruit')
-      expect(lastContext?.multiple).toBe(true)
-      expect(lastContext?.hasMatches).toBe(false)
-    })
-  })
-
-  test('does not render emptyRender content when there are matched items', async () => {
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        emptyRender={() => <div data-testid="custom-empty">No match</div>}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'App' } })
-
-    await waitFor(() => {
-      expect(queryBody('[data-testid="custom-empty"]')).toBeNull()
-    })
-  })
-
-  test('uses current custom filter rule to decide emptyRender visibility', async () => {
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        filterOption={(inputValue, option) => String(option.value ?? '').endsWith(inputValue)}
-        emptyRender={() => <div data-testid="custom-empty">No match</div>}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'ana' } })
-
-    await waitFor(() => {
-      expect(queryBody('[data-testid="custom-empty"]')).toBeNull()
-    })
-
-    await fireEvent.input(input, { target: { value: 'xyz' } })
-
-    await waitFor(() => {
-      expect(queryBody('[data-testid="custom-empty"]')).not.toBeNull()
-    })
-  })
-
-  test('allows creating a tag via emptyRender context create()', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        allowCreate
-        options={FRUITS}
-        defaultOpen
-        onChange={onChange}
-        emptyRender={(context) => (
-          <button data-testid="create-from-empty" onClick={() => context.create()}>
-            Create {context.inputValue}
-          </button>
-        )}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-
-    await waitFor(() => {
-      expect(queryBody('[data-testid="create-from-empty"]')).not.toBeNull()
-    })
-
-    await fireEvent.click(queryBody('[data-testid="create-from-empty"]')!)
-
-    expect(onChange).toHaveBeenCalledWith(['Dragonfruit'])
-    expect(input.value).toBe('')
-  })
-
-  test('uses tagRender for custom tag rendering', () => {
-    const screen = render(() => (
-      <Select
-        multiple
-        options={FRUITS}
-        value={['apple']}
-        tagRender={(props) => (
-          <span data-testid="custom-tag">
-            {props.label}
-            <button onClick={props.onClose}>x</button>
-          </span>
-        )}
-        placeholder="Pick"
-      />
-    ))
-
-    expect(screen.getByTestId('custom-tag')).not.toBeNull()
-  })
 })
 
 describe('Select - keyboard and ARIA', () => {
@@ -865,32 +574,6 @@ describe('Select - keyboard and ARIA', () => {
     input.dispatchEvent(secondTabEvent)
 
     expect(secondTabEvent.defaultPrevented).toBe(false)
-  })
-
-  test('when menu is open in multiple mode, Tab toggles focused option', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select multiple options={FRUITS} search onChange={onChange} placeholder="Pick" />
-    ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
-
-    input.focus()
-    await fireEvent.click(input)
-    await waitFor(() => {
-      expect(input.getAttribute('aria-expanded')).toBe('true')
-    })
-
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
-
-    const tabEvent = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-      cancelable: true,
-    })
-    input.dispatchEvent(tabEvent)
-
-    expect(tabEvent.defaultPrevented).toBe(true)
-    expect(onChange).toHaveBeenCalledWith(['apple'])
   })
 
   test('does not prevent Tab when menu is closed', () => {
@@ -1070,36 +753,6 @@ describe('Select - emptyRender string', () => {
 })
 
 describe('Select - enriched emptyRender context', () => {
-  test('context includes multiple, selectedValues, isAtMaxCount, and close', async () => {
-    let capturedContext: SelectT.EmptyRenderContext | undefined
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultValue={['apple']}
-        defaultOpen
-        maxCount={2}
-        emptyRender={(ctx) => {
-          capturedContext = ctx
-          return <div data-testid="empty">Empty</div>
-        }}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'xyznonexistent' } })
-
-    await waitFor(() => {
-      expect(capturedContext).toBeDefined()
-      expect(capturedContext?.multiple).toBe(true)
-      expect(capturedContext?.selectedValues).toEqual(['apple'])
-      expect(capturedContext?.isAtMaxCount).toBe(false)
-      expect(typeof capturedContext?.close).toBe('function')
-    })
-  })
-
   test('close from emptyRender context closes dropdown content', async () => {
     const screen = render(() => (
       <Select
@@ -1128,49 +781,5 @@ describe('Select - enriched emptyRender context', () => {
       expect(input.getAttribute('aria-expanded')).toBe('false')
       expect(queryBody('[data-slot="content"]')?.hasAttribute('data-closed')).toBe(true)
     })
-  })
-})
-
-describe('Select - allowCreate', () => {
-  test('creates tag on Enter when allowCreate is true and no match', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        allowCreate
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).toHaveBeenCalledWith(['Dragonfruit'])
-    expect(input.value).toBe('')
-  })
-
-  test('does not create tag on Enter when allowCreate is false', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Select
-        multiple
-        search
-        options={FRUITS}
-        defaultOpen
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
   })
 })

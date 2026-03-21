@@ -1,6 +1,7 @@
 import { For, createSignal } from 'solid-js'
 
-import { Select } from '../../../src'
+import { MultiSelect, Select } from '../../../src'
+import type { MultiSelectT } from '../../../src/forms/select/multi-select'
 import type { SelectT } from '../../../src/forms/select/select'
 import { DemoPage } from '../../components/demo-page'
 import { DemoSection } from '../../components/demo-section'
@@ -44,10 +45,10 @@ function makeOptions(count: number, offset = 0): SelectT.Items[] {
 }
 
 export default () => {
-  const [singleValue, setSingleValue] = createSignal<string | null>(null)
-  const [multiValue, setMultiValue] = createSignal<string[]>([])
-  const [tagValues, setTagValues] = createSignal<string[]>([])
-  const [createTagValues, setCreateTagValues] = createSignal<string[]>([])
+  const [singleValue, setSingleValue] = createSignal<SelectT.Value | null>(null)
+  const [multiValue, setMultiValue] = createSignal<MultiSelectT.Value[]>([])
+  const [tagValues, setTagValues] = createSignal<MultiSelectT.Value[]>([])
+  const [createTagValues, setCreateTagValues] = createSignal<MultiSelectT.Value[]>([])
   const [infiniteOptions, setInfiniteOptions] = createSignal<SelectT.Items[]>(makeOptions(20))
   const [loadingMore, setLoadingMore] = createSignal(false)
 
@@ -61,7 +62,7 @@ export default () => {
           <Select
             options={FRUIT_OPTIONS}
             value={singleValue()}
-            onChange={(v) => setSingleValue(v as string | null)}
+            onChange={setSingleValue}
             placeholder="Pick a fruit..."
             allowClear
           />
@@ -71,11 +72,10 @@ export default () => {
 
       <DemoSection title="Multiple Select" description="Multi-selection with chips and allowClear.">
         <div class="max-w-sm space-y-2">
-          <Select
-            multiple
+          <MultiSelect
             options={FRUIT_OPTIONS}
             value={multiValue()}
-            onChange={(v) => setMultiValue(v as string[])}
+            onChange={setMultiValue}
             placeholder="Pick fruits..."
             allowClear
           />
@@ -88,12 +88,11 @@ export default () => {
         description="Create and select tags when a separator is typed."
       >
         <div class="max-w-sm space-y-2">
-          <Select
-            multiple
+          <MultiSelect
             search
             options={FRUIT_OPTIONS}
             value={tagValues()}
-            onChange={(v) => setTagValues(v as string[])}
+            onChange={setTagValues}
             tokenSeparators={[' ']}
             placeholder="Type text and press Space..."
           />
@@ -106,13 +105,12 @@ export default () => {
         description="Type a new value and press Enter or click Create in the empty state."
       >
         <div class="max-w-sm space-y-2">
-          <Select
-            multiple
+          <MultiSelect
             search
             loading
             options={FRUIT_OPTIONS}
             value={createTagValues()}
-            onChange={(v) => setCreateTagValues(v as string[])}
+            onChange={setCreateTagValues}
             allowCreate
             placeholder="Type to create tags..."
             emptyRender={(ctx) => (
@@ -170,12 +168,11 @@ export default () => {
         <div class="gap-4 grid sm:grid-cols-2">
           <div class="space-y-1">
             <label class="text-xs text-muted-foreground block">maxCount=2</label>
-            <Select multiple options={FRUIT_OPTIONS} maxCount={2} placeholder="Pick up to 2..." />
+            <MultiSelect options={FRUIT_OPTIONS} maxCount={2} placeholder="Pick up to 2..." />
           </div>
           <div class="space-y-1">
             <label class="text-xs text-muted-foreground block">maxTagCount=1 (value has 3)</label>
-            <Select
-              multiple
+            <MultiSelect
               options={FRUIT_OPTIONS}
               defaultValue={['apple', 'banana', 'cherry']}
               maxTagCount={1}
