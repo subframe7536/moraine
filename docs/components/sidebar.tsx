@@ -1,7 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { For, Show, createMemo, createSignal } from 'solid-js'
 
-import { cn, Input, Switch } from '../../src'
+import { version } from '../../package.json'
+import { Badge, cn, Input, Switch } from '../../src'
 
 export interface SidebarPage {
   key: string
@@ -41,8 +42,8 @@ export const Sidebar = (props: SidebarProps) => {
   })
 
   return (
-    <aside class="text-foreground border-e-(1 border) bg-muted flex shrink-0 flex-col h-full w-full relative overflow-hidden">
-      <div class="p-4 pb-3 border-b border-border bg-muted">
+    <aside class="text-foreground bg-muted/50 flex shrink-0 flex-col h-full w-full relative overflow-hidden">
+      <div class="p-4 pb-3 border-b border-border">
         <div class="px-2 flex items-center justify-between">
           <div class="text-foreground flex gap-2 items-center justify-between">
             <div class="flex gap-2 min-w-0 items-center">
@@ -51,7 +52,12 @@ export const Sidebar = (props: SidebarProps) => {
                 <p class="text-[11px] text-muted-foreground tracking-[0.16em] uppercase">
                   Library Docs
                 </p>
-                <p class="text-sm font-semibold truncate">Rock UI</p>
+                <p class="text-sm font-semibold truncate">
+                  Rock UI
+                  <Badge size="xs" classes={{ base: 'font-mono ms-1.5' }}>
+                    v{version}
+                  </Badge>
+                </p>
               </div>
             </div>
           </div>
@@ -92,7 +98,7 @@ export const Sidebar = (props: SidebarProps) => {
                       <button
                         type="button"
                         class={cn(
-                          'text-sm text-muted-foreground px-2.5 py-1.5 text-left rounded-lg transition-colors',
+                          'text-sm text-muted-foreground px-2.5 py-1.5 text-left rounded-lg',
                           props.activePage() === page.key
                             ? 'text-foreground bg-accent/80'
                             : 'hover:(text-foreground bg-muted)',

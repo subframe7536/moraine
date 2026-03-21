@@ -148,7 +148,10 @@ function App() {
         },
       ]}
       orientation="horizontal"
-      classes={{ root: 'h-screen' }}
+      classes={{
+        root: 'h-screen',
+        divider: 'after:(transition-all duration-200 ease-out) hover:after:(bg-accent w-1.5)',
+      }}
     />
   )
 }

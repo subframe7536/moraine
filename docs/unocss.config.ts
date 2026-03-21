@@ -19,7 +19,7 @@ export default defineConfig<PresetWind4Theme>({
     presetTheme({
       enableComponentLayer: {
         idFilter(id: string) {
-          return id.endsWith('.class.ts') || id.endsWith('.tsx')
+          return id.includes('/src/') && (id.endsWith('.class.ts') || id.endsWith('.tsx'))
         },
         beforeTransform(code, id, ctx) {
           transformer.transform(code, id, ctx)
