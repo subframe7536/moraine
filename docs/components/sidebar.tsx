@@ -49,9 +49,6 @@ export const Sidebar = (props: SidebarProps) => {
             <div class="flex gap-2 min-w-0 items-center">
               <img src="/favicon.svg" alt="icon" class="size-6" />
               <div class="min-w-0">
-                <p class="text-[11px] text-muted-foreground tracking-[0.16em] uppercase">
-                  Library Docs
-                </p>
                 <p class="text-sm font-semibold truncate">
                   Rock UI
                   <Badge size="xs" classes={{ base: 'font-mono ms-1.5' }}>

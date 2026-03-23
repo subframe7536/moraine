@@ -49,7 +49,7 @@ export const DemoPage = (props: DemoPageProps) => {
 
   return (
     <main class="text-foreground p-4 min-h-screen w-full sm:p-8">
-      <div class="mx-auto flex flex-col gap-8 max-w-6xl">
+      <div class="mx-auto flex flex-col gap-8 max-w-4xl">
         <header class="text-foreground">
           <div class="flex flex-wrap gap-2 items-center">
             <Show when={component()?.category}>

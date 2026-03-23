@@ -14,9 +14,7 @@ export const DemoSection = (props: DemoSectionProps) => {
   return (
     <section class="relative space-y-4">
       <div class="space-y-1">
-        <h2 class="text-xs text-muted-foreground tracking-[0.18em] font-semibold uppercase">
-          {props.title}
-        </h2>
+        <h2 class="text-lg">{props.title}</h2>
         <p class="text-sm text-muted-foreground">{props.description}</p>
       </div>
       <div class="border border-border rounded-2xl bg-background shadow-sm overflow-hidden">

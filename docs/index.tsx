@@ -134,8 +134,8 @@ function App() {
               setTheme={updateTheme}
             />
           ),
-          defaultSize: '20%',
-          min: 300,
+          defaultSize: '15%',
+          min: 200,
           max: 400,
         },
         {
