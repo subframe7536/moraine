@@ -25,7 +25,7 @@ export namespace CheckboxT {
   export type Slot =
     | 'root'
     | 'container'
-    | 'base'
+    | 'control'
     | 'indicator'
     | 'icon'
     | 'wrapper'
@@ -332,15 +332,15 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             />
 
             <KobalteCheckbox.Control
-              data-slot="base"
-              style={merged.styles?.base}
+              data-slot="control"
+              style={merged.styles?.control}
               data-invalid={field.invalid() ? '' : undefined}
               class={checkboxBaseVariants(
                 {
                   size: field.size(),
                 },
                 styleProps.indicator === 'hidden' && 'sr-only',
-                styleProps.classes?.base,
+                styleProps.classes?.control,
               )}
             >
               <KobalteCheckbox.Indicator

@@ -31,7 +31,7 @@ export namespace RadioGroupT {
     | 'legend'
     | 'item'
     | 'container'
-    | 'base'
+    | 'control'
     | 'indicator'
     | 'wrapper'
     | 'label'
@@ -268,15 +268,15 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 <KobalteRadioGroup.ItemInput id={item.inputId} class="peer" data-slot="input" />
 
                 <KobalteRadioGroup.ItemControl
-                  data-slot="base"
-                  style={merged.styles?.base}
+                  data-slot="control"
+                  style={merged.styles?.control}
                   data-invalid={field.invalid() ? '' : undefined}
                   class={radioGroupBaseVariants(
                     {
                       size: field.size(),
                     },
                     styleProps.indicator === 'hidden' && 'sr-only',
-                    styleProps.classes?.base,
+                    styleProps.classes?.control,
                   )}
                 >
                   <KobalteRadioGroup.ItemIndicator

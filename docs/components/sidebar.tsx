@@ -51,7 +51,7 @@ export const Sidebar = (props: SidebarProps) => {
               <div class="min-w-0">
                 <p class="text-sm font-semibold truncate">
                   Rock UI
-                  <Badge size="xs" classes={{ base: 'font-mono ms-1.5' }}>
+                  <Badge size="xs" classes={{ root: 'font-mono ms-1.5' }}>
                     v{version}
                   </Badge>
                 </p>

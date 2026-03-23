@@ -26,7 +26,7 @@ const INPUT_NUMBER_HOLD_REPEAT_INTERVAL = 60
 type ControlKind = 'increment' | 'decrement'
 
 export namespace InputNumberT {
-  export type Slot = 'root' | 'base' | 'increment' | 'decrement'
+  export type Slot = 'root' | 'input' | 'increment' | 'decrement'
 
   export type Variant = InputNumberVariantProps
 
@@ -453,14 +453,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         id={field.id()}
         ref={(e) => (inputEl = e)}
         placeholder={controlProps.placeholder}
-        data-slot="base"
-        style={merged.styles?.base}
+        data-slot="input"
+        style={merged.styles?.input}
         class={inputNumberBaseVariants(
           {
             size: field.size(),
             align: resolveInputNumberAlign(resolvedOrientation(), resolvedDecrement()),
           },
-          styleProps.classes?.base,
+          styleProps.classes?.input,
         )}
         onBlur={onBlur}
         onFocus={onFocus}

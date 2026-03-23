@@ -291,7 +291,7 @@ export function RenderSelectComboboxFrame<TItems>(
   return (
     <>
       <Combobox.Control<NormalizedOption<TItems>>
-        data-slot="base"
+        data-slot="control"
         style={props.controlStyle}
         data-invalid={props.invalid ? '' : undefined}
         data-highlight={props.highlight ? '' : undefined}

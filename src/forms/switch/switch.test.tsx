@@ -232,7 +232,7 @@ describe('Switch', () => {
     const screen = render(() => <Switch label="Classes" size="xl" />)
 
     const input = screen.container.querySelector('[data-slot="input"]')
-    const base = screen.container.querySelector('[data-slot="base"]')
+    const base = screen.container.querySelector('[data-slot="track"]')
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
     expect(input?.className).toContain('peer')

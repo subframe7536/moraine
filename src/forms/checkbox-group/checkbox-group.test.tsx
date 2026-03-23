@@ -221,18 +221,18 @@ describe('CheckboxGroup', () => {
         variant="table"
         classes={{
           item: 'item-override',
-          base: 'base-override',
+          control: 'control-override',
           label: 'label-override',
         }}
       />
     ))
 
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
-    const base = screen.container.querySelector('[data-slot="base"]')
+    const base = screen.container.querySelector('[data-slot="control"]')
     const label = screen.container.querySelector('[data-slot="label"]')
 
     expect(item?.className).toContain('item-override')
-    expect(base?.className).toContain('base-override')
+    expect(base?.className).toContain('control-override')
     expect(label?.className).toContain('label-override')
   })
 
@@ -244,7 +244,7 @@ describe('CheckboxGroup', () => {
         styles={
           {
             root: { width: '200px' },
-            base: { width: '200px' },
+            control: { width: '200px' },
             label: { width: '200px' },
           } as any
         }
@@ -254,7 +254,7 @@ describe('CheckboxGroup', () => {
     const item = screen.container.querySelector(
       '[data-slot="fieldset"] > [data-slot="root"]',
     ) as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
     const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
 
     expect(item?.style.width).toBe('200px')

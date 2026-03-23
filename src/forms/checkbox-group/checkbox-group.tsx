@@ -28,7 +28,7 @@ export namespace CheckboxGroupT {
     | 'legend'
     | 'item'
     | 'container'
-    | 'base'
+    | 'control'
     | 'indicator'
     | 'icon'
     | 'wrapper'
@@ -81,7 +81,7 @@ export namespace CheckboxGroupT {
     legend?: string
     item?: string
     container?: CheckboxGroupItemClasses<TTrue, TFalse>['container']
-    base?: CheckboxGroupItemClasses<TTrue, TFalse>['base']
+    control?: CheckboxGroupItemClasses<TTrue, TFalse>['control']
     indicator?: CheckboxGroupItemClasses<TTrue, TFalse>['indicator']
     icon?: CheckboxGroupItemClasses<TTrue, TFalse>['icon']
     wrapper?: CheckboxGroupItemClasses<TTrue, TFalse>['wrapper']

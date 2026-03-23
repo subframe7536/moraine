@@ -100,7 +100,7 @@ export namespace MultiSelectT {
   }
   export type Slot =
     | 'root'
-    | 'base'
+    | 'control'
     | 'input'
     | 'leading'
     | 'trigger'
@@ -317,7 +317,7 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
       return base
     }
 
-    // At the limit — disable every unselected option
+    // At the limit â€?disable every unselected option
     return base.map((item) => {
       if (item.isGroup) {
         return Object.assign({}, item, {
@@ -595,7 +595,7 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
 
   // ---- Trigger mode ----
   // Use 'manual' so the dropdown only opens on explicit user actions
-  // (click, arrow-down, typing in searchable mode) — never on bare focus.
+  // (click, arrow-down, typing in searchable mode) â€?never on bare focus.
   // This prevents Tab from retriggering the menu via FocusScope's delayed
   // unmount-auto-focus.
 
@@ -723,9 +723,9 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
                     size={field.size()}
                     title={option.key}
                     variant={commonProps.tagVariant}
-                    styles={{ base: merged.styles?.tag }}
+                    styles={{ root: merged.styles?.tag }}
                     classes={{
-                      base: ['max-w-50% pe-0', styleProps.classes?.tag],
+                      root: ['max-w-50% pe-0', styleProps.classes?.tag],
                       trailing: ['rounded hover:bg-accent scale-85', styleProps.classes?.tagRemove],
                     }}
                     trailing={commonProps.closeIcon ?? 'icon-close'}
@@ -850,13 +850,13 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
       {...restProps}
     >
       <RenderSelectComboboxFrame<MultiSelectT.Items>
-        controlStyle={merged.styles?.base}
+        controlStyle={merged.styles?.control}
         controlClass={selectControlVariants(
           {
             size: field.size(),
             variant: styleProps.variant,
           },
-          styleProps.classes?.base,
+          styleProps.classes?.control,
         )}
         invalid={Boolean(field.invalid())}
         highlight={Boolean(field.highlight())}

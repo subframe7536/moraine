@@ -8,7 +8,7 @@ import { Badge } from './badge'
 describe('Badge', () => {
   test('renders default badge semantics and label', () => {
     const screen = render(() => <Badge>New</Badge>)
-    const badge = screen.container.querySelector('[data-slot="badge"]')
+    const badge = screen.container.querySelector('[data-slot="root"]')
     const label = screen.container.querySelector('[data-slot="label"]')
 
     expect(badge?.tagName).toBe('SPAN')
@@ -29,8 +29,8 @@ describe('Badge', () => {
       </Badge>
     ))
 
-    expect(solid.container.querySelector('[data-slot="badge"]')?.className).toContain('bg-primary')
-    expect(outline.container.querySelector('[data-slot="badge"]')?.className).toContain(
+    expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')
+    expect(outline.container.querySelector('[data-slot="root"]')?.className).toContain(
       'surface-outline-inset',
     )
   })
@@ -71,7 +71,7 @@ describe('Badge', () => {
         trailing="i-lucide-x"
         onTrailingClick={() => undefined}
         classes={{
-          base: 'base-override',
+          root: 'root-override',
           label: 'label-override',
           trailing: 'trailing-override',
         }}
@@ -84,7 +84,7 @@ describe('Badge', () => {
     const label = screen.container.querySelector('[data-slot="label"]')
     const remove = screen.container.querySelector('[data-slot="trailing"]')
 
-    expect(tag?.className).toContain('base-override')
+    expect(tag?.className).toContain('root-override')
     expect(label?.className).toContain('label-override')
     expect(remove?.className).toContain('trailing-override')
   })
@@ -96,7 +96,7 @@ describe('Badge', () => {
         trailing="i-lucide-x"
         onTrailingClick={() => undefined}
         styles={{
-          base: { width: '200px' },
+          root: { width: '200px' },
           label: { width: '200px' },
           trailing: { width: '200px' },
         }}

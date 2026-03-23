@@ -92,7 +92,7 @@ export namespace SelectT {
   }
   export type Slot =
     | 'root'
-    | 'base'
+    | 'control'
     | 'input'
     | 'leading'
     | 'trigger'
@@ -299,7 +299,7 @@ export function Select(props: SelectProps): JSX.Element {
 
   // ---- Trigger mode ----
   // Use 'manual' so the dropdown only opens on explicit user actions
-  // (click, arrow-down, typing in searchable mode) — never on bare focus.
+  // (click, arrow-down, typing in searchable mode) �?never on bare focus.
   // This prevents Tab from retriggering the menu via FocusScope's delayed
   // unmount-auto-focus.
 
@@ -440,13 +440,13 @@ export function Select(props: SelectProps): JSX.Element {
       {...restProps}
     >
       <RenderSelectComboboxFrame<SelectT.Items>
-        controlStyle={merged.styles?.base}
+        controlStyle={merged.styles?.control}
         controlClass={selectControlVariants(
           {
             size: field.size(),
             variant: styleProps.variant,
           },
-          styleProps.classes?.base,
+          styleProps.classes?.control,
         )}
         invalid={Boolean(field.invalid())}
         highlight={Boolean(field.highlight())}

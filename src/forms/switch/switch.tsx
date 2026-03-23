@@ -28,7 +28,7 @@ export namespace SwitchT {
   export type Slot =
     | 'root'
     | 'container'
-    | 'base'
+    | 'track'
     | 'thumb'
     | 'icon'
     | 'wrapper'
@@ -280,14 +280,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               />
 
               <KobalteSwitch.Control
-                data-slot="base"
-                style={merged.styles?.base}
+                data-slot="track"
+                style={merged.styles?.track}
                 data-invalid={field.invalid() ? '' : undefined}
                 class={switchBaseVariants(
                   {
                     size: field.size(),
                   },
-                  styleProps.classes?.base,
+                  styleProps.classes?.track,
                 )}
               >
                 <KobalteSwitch.Thumb

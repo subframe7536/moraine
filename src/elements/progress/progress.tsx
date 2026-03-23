@@ -37,7 +37,7 @@ export namespace ProgressT {
     state: 'active' | 'first' | 'last' | 'other'
   }
 
-  export type Slot = 'root' | 'status' | 'base' | 'indicator' | 'steps' | 'step'
+  export type Slot = 'root' | 'status' | 'track' | 'indicator' | 'steps' | 'step'
   export type Variant = ProgressVariantProps
   export interface Items {}
   export type Extend = KobalteProgress.ProgressRootProps
@@ -239,14 +239,14 @@ export function Progress(props: ProgressProps): JSX.Element {
         </Show>
 
         <KobalteProgress.Track
-          data-slot="base"
-          style={merged.styles?.base}
+          data-slot="track"
+          style={merged.styles?.track}
           class={progressBaseVariants(
             {
               orientation: behaviorProps.orientation,
               size: styleProps.size,
             },
-            styleProps.classes?.base,
+            styleProps.classes?.track,
           )}
         >
           <KobalteProgress.Fill

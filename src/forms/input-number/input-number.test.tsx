@@ -259,7 +259,7 @@ describe('InputNumber', () => {
       '[data-slot="root"]',
     ) as HTMLElement | null
     const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="base"]',
+      '[data-slot="input"]',
     ) as HTMLElement | null
     const incrementOnlyButton = incrementOnly.container.querySelector(
       '[data-slot="increment"]',
@@ -276,7 +276,7 @@ describe('InputNumber', () => {
 
     const decrementOnly = render(() => <InputNumber size="lg" increment={false} />)
     const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="base"]',
+      '[data-slot="input"]',
     ) as HTMLElement | null
     const decrementOnlyButton = decrementOnly.container.querySelector(
       '[data-slot="decrement"]',
@@ -297,7 +297,7 @@ describe('InputNumber', () => {
       '[data-slot="controls"]',
     ) as HTMLElement | null
     const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="base"]',
+      '[data-slot="input"]',
     ) as HTMLElement | null
 
     expect(incrementOnlyControls?.className).toContain('w-8')
@@ -314,7 +314,7 @@ describe('InputNumber', () => {
       '[data-slot="controls"]',
     ) as HTMLElement | null
     const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="base"]',
+      '[data-slot="input"]',
     ) as HTMLElement | null
 
     expect(decrementOnlyControls?.className).toContain('w-8')
@@ -375,7 +375,7 @@ describe('InputNumber', () => {
   test('applies size and variant classes', () => {
     const screen = render(() => <InputNumber size="xl" variant="subtle" highlight />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    const base = screen.container.querySelector('[data-slot="base"]')
+    const base = screen.container.querySelector('[data-slot="input"]')
 
     expect(root?.className).toContain('h-11')
     expect(root?.className).toContain('bg-input/30')

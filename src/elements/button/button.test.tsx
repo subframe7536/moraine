@@ -24,6 +24,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Button' })
 
     expect(button.getAttribute('type')).toBe('button')
+    expect(button.getAttribute('data-slot')).toBe('root')
   })
 
   test('supports anchor rendering via as prop', () => {

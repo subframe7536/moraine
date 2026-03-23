@@ -126,7 +126,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   return (
     <KobalteButton.Root
-      data-slot={styleProps.slotName || 'base'}
+      data-slot={styleProps.slotName || 'root'}
       style={styleProps.styles?.root}
       class={buttonVariants(
         {

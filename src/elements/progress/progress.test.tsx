@@ -10,8 +10,8 @@ describe('Progress', () => {
     const horizontal = render(() => <Progress value={20} size="xs" />)
     const vertical = render(() => <Progress value={20} size="xl" orientation="vertical" />)
 
-    const horizontalBase = horizontal.container.querySelector('[data-slot="base"]')
-    const verticalBase = vertical.container.querySelector('[data-slot="base"]')
+    const horizontalBase = horizontal.container.querySelector('[data-slot="track"]')
+    const verticalBase = vertical.container.querySelector('[data-slot="track"]')
 
     expect(horizontalBase?.className).toContain('h-$p-size')
     expect(horizontalBase?.className).toContain('var-progress-0.5')
@@ -127,7 +127,7 @@ describe('Progress', () => {
         classes={{
           root: 'root-override',
           status: 'status-override',
-          base: 'base-override',
+          track: 'track-override',
           indicator: 'indicator-override',
           steps: 'steps-override',
           step: 'step-override',
@@ -137,14 +137,14 @@ describe('Progress', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const status = screen.container.querySelector('[data-slot="status"]')
-    const base = screen.container.querySelector('[data-slot="base"]')
+    const base = screen.container.querySelector('[data-slot="track"]')
     const indicator = screen.container.querySelector('[data-slot="indicator"]')
     const steps = screen.container.querySelector('[data-slot="steps"]')
     const step = screen.container.querySelector('[data-slot="step"]')
 
     expect(root?.className).toContain('root-override')
     expect(status?.className).toContain('status-override')
-    expect(base?.className).toContain('base-override')
+    expect(base?.className).toContain('track-override')
     expect(indicator?.className).toContain('indicator-override')
     expect(steps?.className).toContain('steps-override')
     expect(step?.className).toContain('step-override')
@@ -160,7 +160,7 @@ describe('Progress', () => {
           {
             root: { width: '200px' },
             status: { width: '200px' },
-            base: { width: '200px' },
+            track: { width: '200px' },
             indicator: { width: '200px' },
             steps: { width: '200px' },
             step: { width: '200px' },
@@ -171,7 +171,7 @@ describe('Progress', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="track"]') as HTMLElement | null
     const indicator = screen.container.querySelector(
       '[data-slot="indicator"]',
     ) as HTMLElement | null

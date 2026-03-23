@@ -113,7 +113,7 @@ describe('RadioGroup', () => {
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
     const firstInput = screen.container.querySelector('[data-slot="input"]')
-    const firstBase = screen.container.querySelector('[data-slot="base"]')
+    const firstBase = screen.container.querySelector('[data-slot="control"]')
 
     expect(fieldset?.className).toContain('flex-row')
     expect(firstItem?.className).toContain('p-4.5')
@@ -274,7 +274,7 @@ describe('RadioGroup', () => {
         styles={
           {
             item: { width: '200px' },
-            base: { width: '200px' },
+            control: { width: '200px' },
             label: { width: '200px' },
           } as any
         }
@@ -282,7 +282,7 @@ describe('RadioGroup', () => {
     ))
 
     const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
     const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
 
     expect(item?.style.width).toBe('200px')

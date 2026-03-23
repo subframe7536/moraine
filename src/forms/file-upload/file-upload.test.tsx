@@ -151,7 +151,7 @@ describe('FileUpload', () => {
   test('dropzone flow accepts files when enabled', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => <FileUpload multiple dropzone onValueChange={onValueChange} />)
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     const file = createFile('drop.txt')
 
     await dropFiles(base, [file])
@@ -165,7 +165,7 @@ describe('FileUpload', () => {
     const screen = render(() => (
       <FileUpload multiple dropzone={false} onValueChange={onValueChange} />
     ))
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     const file = createFile('drop-disabled.txt')
 
     await dropFiles(base, [file])
@@ -175,7 +175,7 @@ describe('FileUpload', () => {
 
   test('dropzone drag-over uses color feedback without scale transform', async () => {
     const screen = render(() => <FileUpload dropzone />)
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     expect(base.className).not.toContain('scale-[')
 

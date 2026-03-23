@@ -2,7 +2,7 @@
 
 A comprehensive, opinionated component library for SolidJS, built on top of Kobalte primitives with UnoCSS styling.
 
-**Status: Active development**. Api may changed before V1.0. Use at your risk!
+**Status: Active development**. Api may breaking changed before V1.0. Use at your risk!
 
 ## Features
 
@@ -26,6 +26,7 @@ bun add unocss oxc-parser oxc-walker
 ```
 
 ### Tailwind CSS
+
 ```bash
 bun add tailwindcss
 ```
@@ -111,7 +112,7 @@ export default defineConfig({
     // presetWind3(),
     presetWind4(),
     presetTheme({
-      enableComponentLayer: true
+      enableComponentLayer: true,
     }),
     // ... other presets
   ],
@@ -159,10 +160,7 @@ Almost all component support `classes` and `styles` props, key is the same as `S
 ```tsx
 import { Button } from '@subf/rock-ui'
 
-<Button
-  classes={{ label: 'bg-green-500' }}
-  styles={{ root: 'bg-red-500' }}
->
+;<Button classes={{ label: 'bg-green-500' }} styles={{ root: 'bg-red-500' }}>
   Click me
 </Button>
 ```

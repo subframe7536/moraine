@@ -316,7 +316,7 @@ describe('Checkbox', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="input"]')
-    const base = screen.container.querySelector('[data-slot="base"]')
+    const base = screen.container.querySelector('[data-slot="control"]')
 
     expect(root?.className).toContain('rounded-lg')
     expect(root?.className).toContain('data-checked:b-primary')
@@ -335,7 +335,7 @@ describe('Checkbox', () => {
         styles={
           {
             root: { width: '200px' },
-            base: { width: '200px' },
+            control: { width: '200px' },
             label: { width: '200px' },
           } as any
         }
@@ -343,7 +343,7 @@ describe('Checkbox', () => {
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="base"]') as HTMLElement | null
+    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
     const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')

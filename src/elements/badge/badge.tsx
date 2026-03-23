@@ -10,7 +10,7 @@ import type { BadgeVariantProps } from './badge.class'
 import { badgeVariants } from './badge.class'
 
 export namespace BadgeT {
-  export type Slot = 'base' | 'leading' | 'label' | 'trailing'
+  export type Slot = 'root' | 'leading' | 'label' | 'trailing'
   export type Variant = BadgeVariantProps
   export interface Items {}
   export interface Extend {}
@@ -23,7 +23,7 @@ export namespace BadgeT {
   export interface Base {
     /**
      * Data slot for styling.
-     * @default 'badge'
+     * @default 'root'
      */
     slotName?: string
 
@@ -72,7 +72,7 @@ export interface BadgeProps extends BadgeT.Props {}
 export function Badge(props: BadgeProps): JSX.Element {
   const merged = mergeProps(
     {
-      slotName: 'badge',
+      slotName: 'root',
       size: 'md' as const,
       variant: 'default' as const,
     },
@@ -87,13 +87,13 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-size={merged.size}
       data-variant={merged.variant}
       title={merged.title}
-      style={merged.styles?.base}
+      style={merged.styles?.root}
       class={badgeVariants(
         {
           size: merged.size,
           variant: merged.variant,
         },
-        merged.classes?.base,
+        merged.classes?.root,
       )}
       onPointerDown={(e) => {
         e.preventDefault()

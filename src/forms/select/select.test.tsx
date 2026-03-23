@@ -71,7 +71,7 @@ describe('Select - single mode', () => {
       </>
     ))
 
-    const controls = screen.container.querySelectorAll('[data-slot="base"]')
+    const controls = screen.container.querySelectorAll('[data-slot="control"]')
     expect(controls[0]?.className).toContain('pe-1')
     expect(controls[1]?.className).toContain('pe-3')
   })
@@ -655,7 +655,7 @@ describe('Select - form integration', () => {
     })
 
     const input = screen.getByRole('combobox')
-    const control = input.closest('[data-slot="base"]')
+    const control = input.closest('[data-slot="control"]')
     expect(input.getAttribute('aria-invalid')).toBe('true')
     expect(control?.hasAttribute('data-invalid')).toBe(true)
   })

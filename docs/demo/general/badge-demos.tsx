@@ -74,7 +74,7 @@ export default () => {
                   trailing="icon-close"
                   title={tag}
                   classes={{
-                    base: 'pe-0',
+                    root: 'pe-0',
                     trailing: 'hover:bg-accent rounded',
                   }}
                   onTrailingClick={() =>

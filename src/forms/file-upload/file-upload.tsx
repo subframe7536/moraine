@@ -44,7 +44,7 @@ import {
 export namespace FileUploadT {
   export type Slot =
     | 'root'
-    | 'base'
+    | 'control'
     | 'wrapper'
     | 'icon'
     | 'label'
@@ -576,8 +576,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         when={displayProps.dropzone}
         fallback={
           <KobalteFileField.Trigger
-            data-slot="base"
-            style={merged.styles?.base}
+            data-slot="control"
+            style={merged.styles?.control}
             data-highlight={field.highlight() ? '' : undefined}
             data-invalid={field.invalid() ? '' : undefined}
             class={fileUploadBaseVariants(
@@ -586,7 +586,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
                 dropzone: false,
               },
               field.disabled() && 'bg-muted/32',
-              styleProps.classes?.base,
+              styleProps.classes?.control,
             )}
             onFocus={() => field.emit('focus')}
             onBlur={() => field.emit('blur')}
@@ -596,8 +596,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         }
       >
         <KobalteFileField.Dropzone
-          data-slot="base"
-          style={merged.styles?.base}
+          data-slot="control"
+          style={merged.styles?.control}
           data-highlight={field.highlight() ? '' : undefined}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
@@ -607,7 +607,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
               dropzone: true,
             },
             field.disabled() && 'bg-muted/32',
-            styleProps.classes?.base,
+            styleProps.classes?.control,
           )}
           onFocus={() => field.emit('focus')}
           onBlur={() => field.emit('blur')}

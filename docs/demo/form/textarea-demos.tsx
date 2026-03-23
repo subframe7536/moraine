@@ -68,7 +68,7 @@ export default () => {
             }
             classes={{
               header: 'b-(b border)',
-              base: 'min-h-24',
+              input: 'min-h-24',
             }}
           />
 
@@ -90,7 +90,7 @@ export default () => {
             }
             classes={{
               footer: 'b-(t border)',
-              base: 'min-h-24',
+              input: 'min-h-24',
             }}
           />
         </div>

@@ -24,7 +24,7 @@ import {
 } from './textarea.class'
 
 export namespace TextareaT {
-  export type Slot = 'root' | 'header' | 'base' | 'footer'
+  export type Slot = 'root' | 'header' | 'input' | 'footer'
 
   export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'highlight' | 'autoresize'>
 
@@ -371,14 +371,14 @@ export function Textarea(props: TextareaProps): JSX.Element {
         disabled={field.disabled()}
         readOnly={formProps.readOnly}
         maxLength={layoutProps.maxLength}
-        data-slot="base"
-        style={merged.styles?.base}
+        data-slot="input"
+        style={merged.styles?.input}
         class={textareaBaseVariants(
           {
             size: field.size(),
             autoresize: layoutProps.autoresize,
           },
-          styleProps.classes?.base,
+          styleProps.classes?.input,
         )}
         onInput={onInput}
         onChange={onChange}

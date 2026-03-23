@@ -88,7 +88,7 @@ describe('Textarea', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
-    const base = screen.container.querySelector('textarea[data-slot="base"]') as HTMLElement | null
+    const base = screen.container.querySelector('textarea[data-slot="input"]') as HTMLElement | null
     const child = screen.getByTestId('child-content')
     const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
 

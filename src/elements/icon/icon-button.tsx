@@ -91,7 +91,7 @@ export function IconButton<T extends ValidComponent = 'button'>(
 
   return (
     <KobalteButton.Root
-      data-slot="icon-button"
+      data-slot="root"
       class={iconButtonVariants({ size: localProps.size }, localProps.classes?.root)}
       style={localProps.styles?.root}
       aria-busy={isLoading() || undefined}

@@ -26,6 +26,7 @@ describe('IconButton', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Copy' })
+    expect(button.getAttribute('data-slot')).toBe('root')
     await fireEvent.click(button)
 
     expect(onClick).toHaveBeenCalledTimes(1)
