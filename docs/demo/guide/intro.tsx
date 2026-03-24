@@ -35,17 +35,13 @@ export default () => {
     <div class="mx-auto p-5 max-w-6xl space-y-10 lg:p-10 sm:p-8">
       <section class="py-2">
         <div class="flex flex-col gap-4 max-w-3xl">
-          <h1 class="text-3xl text-foreground font-bold sm:text-4xl">
-            <div class="mb-4 mt-8">
-              Yet Another <span class="text-#4f88c6">Solid.js</span> UI library
-            </div>
-            <p class="text-sm text-#2c4f7c font-semibold dark:text-#b8d7ff">
-              Fast, Intuitive, Powerful
-            </p>
+          <h1 class="text-4xl text-foreground font-bold mb-2 mt-8 sm:text-5xl">
+            Yet Another <span class="text-#4f88c6">Solid.js</span> UI library
           </h1>
           <p class="text-muted-foreground max-w-2xl sm:text-lg">
-            Inspired by Nuxt UI and shadcn, Rock UI gives you composable primitives, rich variants,
-            and form-focused ergonomics with UnoCSS-first styling.
+            Inspired by the best of Nuxt UI and shadcn, Rock UI is a comprehensive SolidJS component
+            library with atomic class styling, offering a fast, consistent, and intuitive user
+            experiences.
           </p>
           <div class="pt-1 flex flex-wrap gap-2">
             <Button as="a" href="#button">

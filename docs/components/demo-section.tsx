@@ -1,13 +1,15 @@
 import { Show } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { Component } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { ShikiCodeBlock } from './shiki-code-block'
 
 export interface DemoSectionProps {
   title: string
   description: string
+  demo: Component
+  /** Auto-injected by vite-plugin-demo-source at build time */
   code?: string
-  children: JSX.Element
 }
 
 export const DemoSection = (props: DemoSectionProps) => {
@@ -18,7 +20,9 @@ export const DemoSection = (props: DemoSectionProps) => {
         <p class="text-sm text-muted-foreground">{props.description}</p>
       </div>
       <div class="border border-border rounded-2xl bg-background shadow-sm overflow-hidden">
-        <div class="p-6 flex items-center justify-center">{props.children}</div>
+        <div class="p-6 flex items-center justify-center">
+          <Dynamic component={props.demo} />
+        </div>
         <Show when={props.code}>
           <ShikiCodeBlock html={props.code} class="border-t border-border bg-muted/70" />
         </Show>

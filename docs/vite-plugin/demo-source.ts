@@ -13,14 +13,17 @@ const DEMO_DOC_FILE_RE = /[\\/]docs[\\/].*\.tsx$/
 
 const SUPPORTED_LANGUAGES = new Set(['tsx', 'bash'])
 
-interface CodeInjection {
+interface DemoCodeInjection {
+  demoName: string
+  propInsertPos: number
+}
+
+interface SourceCodeInjection {
   propInsertPos: number
   childStart: number
   childEnd: number
   lang: string
-  propName: 'code' | 'html'
   sourceText?: string
-  skip?: boolean
 }
 
 interface ApiDocInjection {
@@ -38,20 +41,25 @@ interface InjectionResult {
   text: string
 }
 
+interface DemoComponentDeclaration {
+  name: string
+  sourceText: string
+}
+
 type ProgramNode = ReturnType<typeof parseSync>['program']
 
 function dedentSource(source: string): string {
   const [first, ...lines] = source.split('\n')
   const minIndent = lines
-    .filter((l) => l.trim().length > 0)
-    .reduce((min, l) => {
-      const indent = l.match(/^(\s*)/)?.[1].length ?? 0
+    .filter((line) => line.trim().length > 0)
+    .reduce((min, line) => {
+      const indent = line.match(/^(\s*)/)?.[1].length ?? 0
       return Math.min(min, indent)
     }, Number.POSITIVE_INFINITY)
 
   return minIndent === Number.POSITIVE_INFINITY
     ? source
-    : [first, ...lines.map((l) => l.slice(minIndent))].join('\n')
+    : [first, ...lines.map((line) => line.slice(minIndent))].join('\n')
 }
 
 function loadApiDoc(projectRoot: string, key: string): unknown | null {
@@ -62,6 +70,10 @@ function loadApiDoc(projectRoot: string, key: string): unknown | null {
   } catch {
     return null
   }
+}
+
+function getPropInsertPos(node: { end: number; selfClosing: boolean }): number {
+  return node.selfClosing ? node.end - 2 : node.end - 1
 }
 
 function hasJsxAttribute(node: { attributes: unknown[] }, attrName: string): boolean {
@@ -81,10 +93,10 @@ function hasJsxAttribute(node: { attributes: unknown[] }, attrName: string): boo
   )
 }
 
-function getLiteralStringAttribute(
+function getJsxAttribute(
   node: { attributes: unknown[] },
   attrName: string,
-): string | undefined {
+): Record<string, unknown> | null {
   const attr = node.attributes.find(
     (item) =>
       typeof item === 'object' &&
@@ -100,7 +112,16 @@ function getLiteralStringAttribute(
       item.name.name === attrName,
   )
 
-  if (!attr || typeof attr !== 'object' || !('value' in attr)) {
+  return attr && typeof attr === 'object' ? (attr as Record<string, unknown>) : null
+}
+
+function getLiteralStringAttribute(
+  node: { attributes: unknown[] },
+  attrName: string,
+): string | undefined {
+  const attr = getJsxAttribute(node, attrName)
+
+  if (!attr || !('value' in attr)) {
     return undefined
   }
 
@@ -133,22 +154,9 @@ function getLiteralStringArrayAttribute(
   node: { attributes: unknown[] },
   attrName: string,
 ): string[] | undefined {
-  const attr = node.attributes.find(
-    (item) =>
-      typeof item === 'object' &&
-      item !== null &&
-      'type' in item &&
-      item.type === 'JSXAttribute' &&
-      'name' in item &&
-      typeof item.name === 'object' &&
-      item.name !== null &&
-      'type' in item.name &&
-      item.name.type === 'JSXIdentifier' &&
-      'name' in item.name &&
-      item.name.name === attrName,
-  )
+  const attr = getJsxAttribute(node, attrName)
 
-  if (!attr || typeof attr !== 'object' || !('value' in attr)) {
+  if (!attr || !('value' in attr)) {
     return undefined
   }
 
@@ -193,6 +201,43 @@ function getLiteralStringArrayAttribute(
   return keys
 }
 
+function getDemoComponentNameAttribute(node: {
+  attributes: unknown[]
+}): { status: 'ok'; demoName: string } | { status: 'missing' | 'invalid' } {
+  const attr = getJsxAttribute(node, 'demo')
+  if (!attr) {
+    return { status: 'missing' }
+  }
+  if (!('value' in attr)) {
+    return { status: 'invalid' }
+  }
+
+  const value = attr.value
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    !('type' in value) ||
+    value.type !== 'JSXExpressionContainer' ||
+    !('expression' in value)
+  ) {
+    return { status: 'invalid' }
+  }
+
+  const expression = value.expression
+  if (
+    expression &&
+    typeof expression === 'object' &&
+    'type' in expression &&
+    expression.type === 'Identifier' &&
+    'name' in expression &&
+    typeof expression.name === 'string'
+  ) {
+    return { status: 'ok', demoName: expression.name }
+  }
+
+  return { status: 'invalid' }
+}
+
 function normalizeHighlightLang(lang: string | undefined): 'tsx' | 'bash' {
   if (!lang) {
     return 'tsx'
@@ -208,25 +253,6 @@ function isJsxIdentifierName(name: unknown, expected: string): boolean {
     name.type === 'JSXIdentifier' &&
     'name' in name &&
     name.name === expected
-  )
-}
-
-function hasSourceCodeChild(node: unknown): boolean {
-  if (!node || typeof node !== 'object' || !('children' in node) || !Array.isArray(node.children)) {
-    return false
-  }
-
-  return node.children.some(
-    (child) =>
-      child &&
-      typeof child === 'object' &&
-      'type' in child &&
-      child.type === 'JSXElement' &&
-      'openingElement' in child &&
-      typeof child.openingElement === 'object' &&
-      child.openingElement !== null &&
-      'name' in child.openingElement &&
-      isJsxIdentifierName(child.openingElement.name, 'SourceCode'),
   )
 }
 
@@ -300,10 +326,9 @@ function extractSourceCodeText(node: unknown, code: string): string | undefined 
   return undefined
 }
 
-function resolveChildBoundaries(
+function resolveSourceCodeBoundaries(
   program: ProgramNode,
-  targetName: string,
-  injections: CodeInjection[],
+  injections: SourceCodeInjection[],
   code: string,
 ): void {
   if (injections.length === 0) {
@@ -316,25 +341,169 @@ function resolveChildBoundaries(
         return
       }
       if (
-        !isJsxIdentifierName(node.openingElement.name, targetName) ||
+        !isJsxIdentifierName(node.openingElement.name, 'SourceCode') ||
         node.openingElement.selfClosing
       ) {
         return
       }
 
-      const injection = injections.find((inj) => inj.childStart === node.openingElement.end)
-      if (injection && node.closingElement) {
-        injection.childEnd = node.closingElement.start
-        if (targetName === 'DemoSection') {
-          injection.skip = hasSourceCodeChild(node)
-          return
-        }
-        if (targetName === 'SourceCode') {
-          injection.sourceText = extractSourceCodeText(node, code)
-        }
+      const injection = injections.find((item) => item.childStart === node.openingElement.end)
+      if (!injection || !node.closingElement) {
+        return
       }
+
+      injection.childEnd = node.closingElement.start
+      injection.sourceText = extractSourceCodeText(node, code)
     },
   })
+}
+
+function getVariableDeclaratorDemoComponentDeclaration(
+  declaration: Record<string, unknown>,
+  statement: Record<string, unknown>,
+  code: string,
+): DemoComponentDeclaration | null {
+  if (!('id' in declaration) || !('init' in declaration)) {
+    return null
+  }
+
+  const identifier = declaration.id
+  const init = declaration.init
+  if (
+    !identifier ||
+    typeof identifier !== 'object' ||
+    !('type' in identifier) ||
+    identifier.type !== 'Identifier' ||
+    !('name' in identifier) ||
+    typeof identifier.name !== 'string'
+  ) {
+    return null
+  }
+
+  if (
+    !init ||
+    typeof init !== 'object' ||
+    !('type' in init) ||
+    (init.type !== 'ArrowFunctionExpression' && init.type !== 'FunctionExpression')
+  ) {
+    return null
+  }
+
+  if (!('start' in statement) || !('end' in statement)) {
+    return null
+  }
+
+  return {
+    name: identifier.name,
+    sourceText: code.slice(statement.start as number, statement.end as number).trim(),
+  }
+}
+
+function getTopLevelDemoComponentDeclaration(
+  statement: unknown,
+  code: string,
+): DemoComponentDeclaration | null {
+  if (!statement || typeof statement !== 'object' || !('type' in statement)) {
+    return null
+  }
+
+  if (statement.type === 'FunctionDeclaration') {
+    if (
+      !('id' in statement) ||
+      !statement.id ||
+      typeof statement.id !== 'object' ||
+      !('type' in statement.id) ||
+      statement.id.type !== 'Identifier' ||
+      !('name' in statement.id) ||
+      typeof statement.id.name !== 'string' ||
+      !('start' in statement) ||
+      !('end' in statement)
+    ) {
+      return null
+    }
+
+    return {
+      name: statement.id.name,
+      sourceText: code.slice(statement.start as number, statement.end as number).trim(),
+    }
+  }
+
+  if (statement.type === 'VariableDeclaration') {
+    if (!('declarations' in statement) || !Array.isArray(statement.declarations)) {
+      return null
+    }
+    if (statement.declarations.length !== 1) {
+      return null
+    }
+    return getVariableDeclaratorDemoComponentDeclaration(
+      statement.declarations[0] as Record<string, unknown>,
+      statement as Record<string, unknown>,
+      code,
+    )
+  }
+
+  if (
+    statement.type === 'ExportNamedDeclaration' &&
+    'declaration' in statement &&
+    statement.declaration &&
+    typeof statement.declaration === 'object'
+  ) {
+    const declaration = statement.declaration as Record<string, unknown>
+    if (declaration.type === 'FunctionDeclaration') {
+      if (
+        !('id' in declaration) ||
+        !declaration.id ||
+        typeof declaration.id !== 'object' ||
+        !('type' in declaration.id) ||
+        declaration.id.type !== 'Identifier' ||
+        !('name' in declaration.id) ||
+        typeof declaration.id.name !== 'string' ||
+        !('start' in statement) ||
+        !('end' in statement)
+      ) {
+        return null
+      }
+
+      return {
+        name: declaration.id.name,
+        sourceText: code.slice(statement.start as number, statement.end as number).trim(),
+      }
+    }
+
+    if (declaration.type === 'VariableDeclaration') {
+      if (!('declarations' in declaration) || !Array.isArray(declaration.declarations)) {
+        return null
+      }
+      if (declaration.declarations.length !== 1) {
+        return null
+      }
+      return getVariableDeclaratorDemoComponentDeclaration(
+        declaration.declarations[0] as Record<string, unknown>,
+        statement as Record<string, unknown>,
+        code,
+      )
+    }
+  }
+
+  return null
+}
+
+function collectTopLevelDemoComponents(program: ProgramNode, code: string): Map<string, string> {
+  const components = new Map<string, string>()
+
+  for (const statement of program.body) {
+    const declaration = getTopLevelDemoComponentDeclaration(statement, code)
+    if (!declaration) {
+      continue
+    }
+    components.set(declaration.name, declaration.sourceText)
+  }
+
+  return components
+}
+
+function warnInvalidDemoUsage(id: string, reason: string): void {
+  console.warn(`[demo-source] ${reason} in ${id}`)
 }
 
 export async function transformDemoSource(
@@ -344,34 +513,39 @@ export async function transformDemoSource(
   projectRoot: string,
 ): Promise<string | null> {
   const { program } = parseSync(id, code, { lang: 'tsx', sourceType: 'module' })
+  const topLevelDemoComponents = collectTopLevelDemoComponents(program, code)
 
-  const demoSectionInjections: CodeInjection[] = []
-  const sourceCodeInjections: CodeInjection[] = []
+  const demoCodeInjections: DemoCodeInjection[] = []
+  const sourceCodeInjections: SourceCodeInjection[] = []
   const apiDocInjections: ApiDocInjection[] = []
   const extraApiDocsInjections: ExtraApiDocsInjection[] = []
 
   walk(program, {
     enter(node) {
-      if (node.type !== 'JSXOpeningElement') {
-        return
-      }
-
-      if (node.name.type !== 'JSXIdentifier') {
+      if (node.type !== 'JSXOpeningElement' || node.name.type !== 'JSXIdentifier') {
         return
       }
 
       if (node.name.name === 'DemoSection') {
-        if (hasJsxAttribute(node, 'code') || node.selfClosing) {
+        if (hasJsxAttribute(node, 'code')) {
           return
         }
 
-        demoSectionInjections.push({
-          propInsertPos: node.end - 1,
-          childStart: node.end,
-          childEnd: -1,
-          lang: 'tsx',
-          propName: 'code',
-        })
+        const demoAttr = getDemoComponentNameAttribute(node)
+        if (demoAttr.status === 'ok') {
+          demoCodeInjections.push({
+            demoName: demoAttr.demoName,
+            propInsertPos: getPropInsertPos(node),
+          })
+          return
+        }
+
+        if (demoAttr.status === 'missing') {
+          warnInvalidDemoUsage(id, 'DemoSection demo attribute is required')
+          return
+        }
+
+        warnInvalidDemoUsage(id, 'DemoSection demo must be a direct identifier')
         return
       }
 
@@ -381,17 +555,16 @@ export async function transformDemoSource(
         }
 
         sourceCodeInjections.push({
-          propInsertPos: node.end - 1,
+          propInsertPos: getPropInsertPos(node),
           childStart: node.end,
           childEnd: -1,
           lang: getLiteralStringAttribute(node, 'lang') ?? 'tsx',
-          propName: 'html',
         })
         return
       }
 
       if (node.name.name === 'DemoPage') {
-        const propInsertPos = node.selfClosing ? node.end - 2 : node.end - 1
+        const propInsertPos = getPropInsertPos(node)
         const componentKey = getLiteralStringAttribute(node, 'componentKey')
         if (!hasJsxAttribute(node, 'apiDoc') && componentKey) {
           apiDocInjections.push({
@@ -411,63 +584,72 @@ export async function transformDemoSource(
     },
   })
 
-  resolveChildBoundaries(program, 'DemoSection', demoSectionInjections, code)
-  resolveChildBoundaries(program, 'SourceCode', sourceCodeInjections, code)
+  resolveSourceCodeBoundaries(program, sourceCodeInjections, code)
 
-  const validDemoSectionInjections = demoSectionInjections.filter(
-    (inj) => inj.childEnd > 0 && !inj.skip,
-  )
-
-  const validSourceCodeInjections = sourceCodeInjections.filter((inj) => inj.childEnd > 0)
-  const validCodeInjections = [...validDemoSectionInjections, ...validSourceCodeInjections]
-  if (
-    validCodeInjections.length === 0 &&
-    apiDocInjections.length === 0 &&
-    extraApiDocsInjections.length === 0
-  ) {
-    return null
-  }
-
+  const validSourceCodeInjections = sourceCodeInjections.filter((item) => item.childEnd > 0)
   const allInjections: InjectionResult[] = []
 
-  for (const inj of validCodeInjections) {
-    const rawChildrenSource =
-      inj.sourceText ??
+  for (const injection of demoCodeInjections) {
+    const sourceText = topLevelDemoComponents.get(injection.demoName)
+    if (!sourceText) {
+      warnInvalidDemoUsage(
+        id,
+        `Demo component "${injection.demoName}" was not found at module top level`,
+      )
+      continue
+    }
+
+    const html = toHTML(sourceText, 'tsx')
+    const escaped = JSON.stringify(html)
+    allInjections.push({ pos: injection.propInsertPos, text: ` code={${escaped}}` })
+  }
+
+  for (const injection of validSourceCodeInjections) {
+    const rawSource =
+      injection.sourceText ??
       code
-        .slice(inj.childStart, inj.childEnd)
+        .slice(injection.childStart, injection.childEnd)
         .trim()
         .replace(/^\n+|\n+$/g, '')
 
-    const childrenSource = dedentSource(rawChildrenSource)
-    const html = toHTML(childrenSource, normalizeHighlightLang(inj.lang))
+    const childrenSource = dedentSource(rawSource)
+    const html = toHTML(childrenSource, normalizeHighlightLang(injection.lang))
     const escaped = JSON.stringify(html)
-    allInjections.push({ pos: inj.propInsertPos, text: ` ${inj.propName}={${escaped}}` })
+    allInjections.push({ pos: injection.propInsertPos, text: ` html={${escaped}}` })
   }
 
-  for (const inj of apiDocInjections) {
-    const doc = loadApiDoc(projectRoot, inj.componentKey)
+  for (const injection of apiDocInjections) {
+    const doc = loadApiDoc(projectRoot, injection.componentKey)
     if (doc) {
-      const serialized = JSON.stringify(doc)
-      allInjections.push({ pos: inj.propInsertPos, text: ` apiDoc={${serialized}}` })
+      allInjections.push({
+        pos: injection.propInsertPos,
+        text: ` apiDoc={${JSON.stringify(doc)}}`,
+      })
     }
   }
 
-  for (const inj of extraApiDocsInjections) {
-    const docs = [...new Set(inj.componentKeys)]
+  for (const injection of extraApiDocsInjections) {
+    const docs = [...new Set(injection.componentKeys)]
       .map((key) => loadApiDoc(projectRoot, key))
       .filter((doc): doc is unknown => Boolean(doc))
 
     if (docs.length > 0) {
-      const serialized = JSON.stringify(docs)
-      allInjections.push({ pos: inj.propInsertPos, text: ` extraApiDocs={${serialized}}` })
+      allInjections.push({
+        pos: injection.propInsertPos,
+        text: ` extraApiDocs={${JSON.stringify(docs)}}`,
+      })
     }
+  }
+
+  if (allInjections.length === 0) {
+    return null
   }
 
   allInjections.sort((a, b) => b.pos - a.pos)
 
   let result = code
-  for (const inj of allInjections) {
-    result = result.slice(0, inj.pos) + inj.text + result.slice(inj.pos)
+  for (const injection of allInjections) {
+    result = result.slice(0, injection.pos) + injection.text + result.slice(injection.pos)
   }
 
   return result

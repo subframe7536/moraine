@@ -24,19 +24,41 @@ const TOAST_PAGE_DOC = {
   },
 }
 
-const wait = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, ms)
-  })
-
-export default () => {
-  const [promiseRuns, setPromiseRuns] = createSignal(0)
-
+function BasicToasts() {
   const runLoadingToast = async () => {
     const id = toast.loading('Uploading files...')
     await wait(1200)
     toast.success('Upload complete', { id })
   }
+
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms)
+    })
+
+  return (
+    <div class="flex flex-wrap gap-3 items-center">
+      <Button onClick={() => toast('Default message', { onAutoClose: console.log })}>
+        Default
+      </Button>
+      <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>
+        Success
+      </Button>
+      <Button variant="outline" onClick={() => toast.warning('Careful with this action')}>
+        Warning
+      </Button>
+      <Button variant="destructive" onClick={() => toast.error('Something went wrong')}>
+        Error
+      </Button>
+      <Button variant="ghost" onClick={runLoadingToast}>
+        Loading -&gt; Success
+      </Button>
+    </div>
+  )
+}
+
+function PromiseScopedInstances() {
+  const [promiseRuns, setPromiseRuns] = createSignal(0)
 
   const runPromiseToast = () => {
     const nextRun = promiseRuns() + 1
@@ -51,6 +73,28 @@ export default () => {
     })
   }
 
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms)
+    })
+
+  return (
+    <div class="flex flex-wrap gap-3 items-center">
+      <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
+      <Button
+        variant="outline"
+        onClick={() => toast.info('To bottom-left custom', { toasterId: 'custom' })}
+      >
+        Send to custom toaster
+      </Button>
+      <Button variant="ghost" onClick={() => toast.dismiss()}>
+        Dismiss all
+      </Button>
+    </div>
+  )
+}
+
+export default () => {
   return (
     <DemoPage componentKey="toaster" apiDoc={TOAST_PAGE_DOC}>
       <section class="space-y-4">
@@ -90,43 +134,14 @@ export default function App() {
       <DemoSection
         title="Basic Toasts"
         description="Send status toasts to the global toaster instance, including loading to success update."
-      >
-        <div class="flex flex-wrap gap-3 items-center">
-          <Button onClick={() => toast('Default message', { onAutoClose: console.log })}>
-            Default
-          </Button>
-          <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>
-            Success
-          </Button>
-          <Button variant="outline" onClick={() => toast.warning('Careful with this action')}>
-            Warning
-          </Button>
-          <Button variant="destructive" onClick={() => toast.error('Something went wrong')}>
-            Error
-          </Button>
-          <Button variant="ghost" onClick={runLoadingToast}>
-            Loading -&gt; Success
-          </Button>
-        </div>
-      </DemoSection>
+        demo={BasicToasts}
+      />
 
       <DemoSection
         title="Promise + Scoped Instances"
         description="Use toast.promise for async lifecycle and route toasts by toasterId."
-      >
-        <div class="flex flex-wrap gap-3 items-center">
-          <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
-          <Button
-            variant="outline"
-            onClick={() => toast.info('To bottom-left custom', { toasterId: 'custom' })}
-          >
-            Send to custom toaster
-          </Button>
-          <Button variant="ghost" onClick={() => toast.dismiss()}>
-            Dismiss all
-          </Button>
-        </div>
-      </DemoSection>
+        demo={PromiseScopedInstances}
+      />
 
       <Toaster
         preventDuplicate

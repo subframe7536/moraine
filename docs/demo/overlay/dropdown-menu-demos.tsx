@@ -5,14 +5,120 @@ import type { DropdownMenuT } from '../../../src'
 import { DemoPage } from '../../components/demo-page'
 import { DemoSection } from '../../components/demo-section'
 
-const badgeClass =
-  'rounded-md b-1 b-border border-border bg-muted px-1.5 py-0.5 font-medium text-[11px] text-foreground'
+function AccountTeam() {
+  const badgeClass =
+    'rounded-md b-1 b-border border-border bg-muted px-1.5 py-0.5 font-medium text-[11px] text-foreground'
 
-const avatarClass =
-  'grid size-4 place-items-center rounded-full bg-linear-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground'
+  const avatarClass =
+    'grid size-4 place-items-center rounded-full bg-linear-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground'
 
-export default () => {
   const [lastAction, setLastAction] = createSignal('None')
+
+  return (
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <DropdownMenu
+        items={[
+          [
+            { type: 'label', label: 'Account' },
+            {
+              label: (
+                <div class="flex gap-2 items-center">
+                  <span class="font-medium">Alex Morgan</span>
+                  <span class={badgeClass}>Owner</span>
+                </div>
+              ),
+              description: 'alex@rockui.dev',
+              icon: <span class={avatarClass}>AM</span>,
+              onSelect: () => setLastAction('Open account profile'),
+            },
+            { type: 'separator' },
+            {
+              label: 'Switch Workspace',
+              icon: 'i-lucide-building-2',
+              children: [
+                [
+                  { type: 'label', label: 'Recent Workspaces' },
+                  {
+                    label: 'Design System',
+                    description: '12 teammates · shared tokens',
+                    icon: 'i-lucide-palette',
+                    onSelect: () => setLastAction('Switch to Design System'),
+                  },
+                  {
+                    label: 'Platform Ops',
+                    description: '8 teammates · deploy tooling',
+                    icon: 'i-lucide-server',
+                    onSelect: () => setLastAction('Switch to Platform Ops'),
+                  },
+                  {
+                    label: 'Support Workspace',
+                    description: '5 teammates · customer issues',
+                    icon: 'i-lucide-life-buoy',
+                    onSelect: () => setLastAction('Switch to Support Workspace'),
+                  },
+                ],
+                [
+                  { type: 'label', label: 'Actions' },
+                  {
+                    label: 'Create Workspace',
+                    icon: 'i-lucide-plus',
+                    onSelect: () => setLastAction('Create workspace'),
+                  },
+                ],
+              ],
+            },
+            {
+              label: 'Invite Teammates',
+              icon: 'i-lucide-user-plus',
+              kbds: ['⌘', 'I'],
+              onSelect: () => setLastAction('Invite teammates'),
+            },
+            {
+              label: 'Billing & Usage',
+              icon: 'i-lucide-credit-card',
+              onSelect: () => setLastAction('Billing & usage'),
+            },
+          ],
+          [
+            { type: 'label', label: 'Preferences' },
+            {
+              label: 'Account Settings',
+              icon: 'i-lucide-settings-2',
+              kbds: ['⌘', ','],
+              onSelect: () => setLastAction('Account settings'),
+            },
+            {
+              label: 'Keyboard Shortcuts',
+              icon: 'i-lucide-command',
+              kbds: ['⌘', 'K'],
+              onSelect: () => setLastAction('Keyboard shortcuts'),
+            },
+            {
+              label: 'Support Inbox',
+              icon: 'i-lucide-life-buoy',
+              onSelect: () => setLastAction('Support inbox'),
+            },
+          ],
+          [
+            {
+              label: 'Sign Out',
+              icon: 'i-lucide-log-out',
+              color: 'destructive',
+              onSelect: () => setLastAction('Sign out'),
+            },
+          ],
+        ]}
+      >
+        <Button variant="outline">Open account menu</Button>
+      </DropdownMenu>
+      <p class="text-sm text-muted-foreground">
+        Last action: <span class="font-medium">{lastAction()}</span>
+      </p>
+    </div>
+  )
+}
+
+function EditorViewOptions() {
   const [showLineNumbers, setShowLineNumbers] = createSignal(true)
   const [showMinimap, setShowMinimap] = createSignal(true)
   const [previewTabs, setPreviewTabs] = createSignal(false)
@@ -27,13 +133,11 @@ export default () => {
         description: 'Jump to commands, files, and symbols',
         icon: 'i-lucide-search',
         kbds: ['⌘', 'K'],
-        onSelect: () => setLastAction('Open command palette'),
       },
       {
         label: 'Go to File…',
         icon: 'i-lucide-file-search',
         kbds: ['⌘', 'P'],
-        onSelect: () => setLastAction('Go to file'),
       },
       {
         label: 'Open Recent',
@@ -44,12 +148,10 @@ export default () => {
             {
               label: 'src/overlays/dropdown-menu/dropdown-menu.tsx',
               icon: 'i-lucide-file-code-2',
-              onSelect: () => setLastAction('Open dropdown-menu.tsx'),
             },
             {
               label: 'docs/components/context-menu-demos.tsx',
               icon: 'i-lucide-file-code-2',
-              onSelect: () => setLastAction('Open context-menu-demos.tsx'),
             },
             {
               label: 'Pinned Workspaces',
@@ -60,13 +162,11 @@ export default () => {
                     label: 'Rock UI',
                     description: 'packages + docs',
                     icon: 'i-lucide-folder-kanban',
-                    onSelect: () => setLastAction('Open Rock UI workspace'),
                   },
                   {
                     label: 'Docs Site',
                     description: 'marketing + guides',
                     icon: 'i-lucide-book-open',
-                    onSelect: () => setLastAction('Open Docs Site workspace'),
                   },
                 ],
               ],
@@ -137,16 +237,48 @@ export default () => {
         label: 'Toggle Terminal',
         icon: 'i-lucide-square-terminal',
         kbds: ['⌃', '`'],
-        onSelect: () => setLastAction('Toggle terminal'),
       },
       {
         label: 'Focus Problems',
         icon: 'i-lucide-triangle-alert',
         kbds: ['⇧', '⌘', 'M'],
-        onSelect: () => setLastAction('Focus problems'),
       },
     ],
   ])
+
+  return (
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-wrap gap-3 items-center">
+        <DropdownMenu items={editorItems()}>
+          <Button variant="outline">Editor menu</Button>
+        </DropdownMenu>
+      </div>
+      <div class="text-sm text-muted-foreground flex flex-wrap gap-4">
+        <span>
+          Line numbers: <span class="font-medium">{String(showLineNumbers())}</span>
+        </span>
+        <span>
+          Minimap: <span class="font-medium">{String(showMinimap())}</span>
+        </span>
+        <span>
+          Preview tabs: <span class="font-medium">{String(previewTabs())}</span>
+        </span>
+        <span>
+          Auto save: <span class="font-medium">{String(autoSave())}</span>
+        </span>
+        <span>
+          Theme: <span class="font-medium uppercase">{theme()}</span>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ProjectReleaseActions() {
+  const [lastAction, setLastAction] = createSignal('None')
+
+  const badgeClass =
+    'rounded-md b-1 b-border border-border bg-muted px-1.5 py-0.5 font-medium text-[11px] text-foreground'
 
   const projectItems: DropdownMenuT.Items = [
     [
@@ -265,159 +397,42 @@ export default () => {
   ]
 
   return (
+    <>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <DropdownMenu items={projectItems}>
+          <Button>Project actions</Button>
+        </DropdownMenu>
+        <p class="text-sm text-muted-foreground">
+          Tip: use arrow keys to walk the nested “Move To…” and release sections.
+        </p>
+      </div>
+      <div class="text-sm text-muted-foreground">
+        Last action: <span class="font-medium">{lastAction()}</span>
+      </div>
+    </>
+  )
+}
+
+export default () => {
+  return (
     <DemoPage componentKey="dropdown-menu">
       <DemoSection
         title="Account / Team"
         description="An account dropdown with grouped actions, workspace switching, shortcut hints, and a destructive sign-out row."
-      >
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <DropdownMenu
-            items={[
-              [
-                { type: 'label', label: 'Account' },
-                {
-                  label: (
-                    <div class="flex gap-2 items-center">
-                      <span class="font-medium">Alex Morgan</span>
-                      <span class={badgeClass}>Owner</span>
-                    </div>
-                  ),
-                  description: 'alex@rockui.dev',
-                  icon: <span class={avatarClass}>AM</span>,
-                  onSelect: () => setLastAction('Open account profile'),
-                },
-                { type: 'separator' },
-                {
-                  label: 'Switch Workspace',
-                  icon: 'i-lucide-building-2',
-                  children: [
-                    [
-                      { type: 'label', label: 'Recent Workspaces' },
-                      {
-                        label: 'Design System',
-                        description: '12 teammates · shared tokens',
-                        icon: 'i-lucide-palette',
-                        onSelect: () => setLastAction('Switch to Design System'),
-                      },
-                      {
-                        label: 'Platform Ops',
-                        description: '8 teammates · deploy tooling',
-                        icon: 'i-lucide-server',
-                        onSelect: () => setLastAction('Switch to Platform Ops'),
-                      },
-                      {
-                        label: 'Support Workspace',
-                        description: '5 teammates · customer issues',
-                        icon: 'i-lucide-life-buoy',
-                        onSelect: () => setLastAction('Switch to Support Workspace'),
-                      },
-                    ],
-                    [
-                      { type: 'label', label: 'Actions' },
-                      {
-                        label: 'Create Workspace',
-                        icon: 'i-lucide-plus',
-                        onSelect: () => setLastAction('Create workspace'),
-                      },
-                    ],
-                  ],
-                },
-                {
-                  label: 'Invite Teammates',
-                  icon: 'i-lucide-user-plus',
-                  kbds: ['⌘', 'I'],
-                  onSelect: () => setLastAction('Invite teammates'),
-                },
-                {
-                  label: 'Billing & Usage',
-                  icon: 'i-lucide-credit-card',
-                  onSelect: () => setLastAction('Billing & usage'),
-                },
-              ],
-              [
-                { type: 'label', label: 'Preferences' },
-                {
-                  label: 'Account Settings',
-                  icon: 'i-lucide-settings-2',
-                  kbds: ['⌘', ','],
-                  onSelect: () => setLastAction('Account settings'),
-                },
-                {
-                  label: 'Keyboard Shortcuts',
-                  icon: 'i-lucide-command',
-                  kbds: ['⌘', 'K'],
-                  onSelect: () => setLastAction('Keyboard shortcuts'),
-                },
-                {
-                  label: 'Support Inbox',
-                  icon: 'i-lucide-life-buoy',
-                  onSelect: () => setLastAction('Support inbox'),
-                },
-              ],
-              [
-                {
-                  label: 'Sign Out',
-                  icon: 'i-lucide-log-out',
-                  color: 'destructive',
-                  onSelect: () => setLastAction('Sign out'),
-                },
-              ],
-            ]}
-          >
-            <Button variant="outline">Open account menu</Button>
-          </DropdownMenu>
-          <p class="text-sm text-muted-foreground">
-            Last action: <span class="font-medium">{lastAction()}</span>
-          </p>
-        </div>
-      </DemoSection>
+        demo={AccountTeam}
+      />
 
       <DemoSection
         title="Editor / View Options"
         description="A workspace-style menu with recent files, nested submenus, checkbox toggles, and theme selection for keyboard and pointer testing."
-      >
-        <div class="flex flex-col gap-3">
-          <div class="flex flex-wrap gap-3 items-center">
-            <DropdownMenu items={editorItems()}>
-              <Button variant="outline">Editor menu</Button>
-            </DropdownMenu>
-          </div>
-          <div class="text-sm text-muted-foreground flex flex-wrap gap-4">
-            <span>
-              Line numbers: <span class="font-medium">{String(showLineNumbers())}</span>
-            </span>
-            <span>
-              Minimap: <span class="font-medium">{String(showMinimap())}</span>
-            </span>
-            <span>
-              Preview tabs: <span class="font-medium">{String(previewTabs())}</span>
-            </span>
-            <span>
-              Auto save: <span class="font-medium">{String(autoSave())}</span>
-            </span>
-            <span>
-              Theme: <span class="font-medium uppercase">{theme()}</span>
-            </span>
-          </div>
-        </div>
-      </DemoSection>
+        demo={EditorViewOptions}
+      />
 
       <DemoSection
         title="Project / Release Actions"
         description="A heavier project menu with move flows, release actions, mixed-content labels, and destructive project operations."
-      >
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <DropdownMenu items={projectItems}>
-            <Button>Project actions</Button>
-          </DropdownMenu>
-          <p class="text-sm text-muted-foreground">
-            Tip: use arrow keys to walk the nested “Move To…” and release sections.
-          </p>
-        </div>
-        <div class="text-sm text-muted-foreground">
-          Last action: <span class="font-medium">{lastAction()}</span>
-        </div>
-      </DemoSection>
+        demo={ProjectReleaseActions}
+      />
     </DemoPage>
   )
 }

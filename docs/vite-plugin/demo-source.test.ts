@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -25,7 +25,131 @@ afterEach(() => {
 })
 
 describe('transformDemoSource', () => {
-  test('injects DemoSection code prop with highlighted html', async () => {
+  test('injects DemoSection code prop from named arrow demo component', async () => {
+    const projectRoot = await createTempProject()
+    const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
+
+    const source = `
+import { DemoSection } from '../components/demo-section'
+
+const helperText = 'helper'
+
+export const BasicDemo = () => <div>{helperText}</div>
+
+export default () => (
+  <DemoSection title="Basic" description="desc" demo={BasicDemo} />
+)
+`
+
+    const transformed = await transformDemoSource(
+      source,
+      '/tmp/docs/demo/general/sample-demos.tsx',
+      toHTML,
+      projectRoot,
+    )
+
+    expect(transformed).toContain('code={')
+    expect(toHTML).toHaveBeenCalledWith(
+      'export const BasicDemo = () => <div>{helperText}</div>',
+      'tsx',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('injects DemoSection code prop from named function demo component', async () => {
+    const projectRoot = await createTempProject()
+    const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
+
+    const source = `
+import { DemoSection } from '../components/demo-section'
+
+function BasicDemo() {
+  return <div>demo</div>
+}
+
+export default () => (
+  <DemoSection title="Basic" description="desc" demo={BasicDemo} />
+)
+`
+
+    const transformed = await transformDemoSource(
+      source,
+      '/tmp/docs/demo/general/sample-demos.tsx',
+      toHTML,
+      projectRoot,
+    )
+
+    expect(transformed).toContain('code={')
+    expect(toHTML).toHaveBeenCalledWith(
+      `function BasicDemo() {
+  return <div>demo</div>
+}`,
+      'tsx',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('warns and skips DemoSection code injection when demo is not an identifier', async () => {
+    const projectRoot = await createTempProject()
+    const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const source = `
+import { DemoSection } from '../components/demo-section'
+
+export default () => (
+  <DemoSection title="Basic" description="desc" demo={() => <div>demo</div>} />
+)
+`
+
+    const transformed = await transformDemoSource(
+      source,
+      '/tmp/docs/demo/general/sample-demos.tsx',
+      toHTML,
+      projectRoot,
+    )
+
+    expect(transformed).toBeNull()
+    expect(toHTML).not.toHaveBeenCalled()
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('DemoSection demo must be a direct identifier'),
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('warns and skips DemoSection code injection when named demo component is missing', async () => {
+    const projectRoot = await createTempProject()
+    const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const source = `
+import { DemoSection } from '../components/demo-section'
+
+export default () => (
+  <DemoSection title="Basic" description="desc" demo={MissingDemo} />
+)
+`
+
+    const transformed = await transformDemoSource(
+      source,
+      '/tmp/docs/demo/general/sample-demos.tsx',
+      toHTML,
+      projectRoot,
+    )
+
+    expect(transformed).toBeNull()
+    expect(toHTML).not.toHaveBeenCalled()
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Demo component "MissingDemo" was not found'),
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('does not inject DemoSection code from legacy children-only usage', async () => {
     const projectRoot = await createTempProject()
     const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
 
@@ -46,8 +170,8 @@ export default () => (
       projectRoot,
     )
 
-    expect(transformed).toContain('code={')
-    expect(toHTML).toHaveBeenCalledWith('<div>demo</div>', 'tsx')
+    expect(transformed).toBeNull()
+    expect(toHTML).not.toHaveBeenCalled()
 
     await rm(projectRoot, { recursive: true, force: true })
   })
@@ -105,54 +229,25 @@ export default () => (
     await rm(projectRoot, { recursive: true, force: true })
   })
 
-  test('does not inject DemoSection code when SourceCode exists in children', async () => {
+  test('transforms a real demo file using top-level demo components', async () => {
     const projectRoot = await createTempProject()
     const toHTML = vi.fn((source: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${source}</pre>`)
-
-    const source = `
-import { DemoSection } from '../../components/demo-section'
-import { SourceCode } from 'virtual:demo-source'
-
-export default () => (
-  <DemoSection title="Setup" description="desc">
-    <SourceCode lang="bash">bun add solid-toaster</SourceCode>
-  </DemoSection>
-)
-`
+    const source = await readFile(
+      path.join(process.cwd(), 'docs/demo/overlay/tooltip-demos.tsx'),
+      'utf8',
+    )
 
     const transformed = await transformDemoSource(
       source,
-      '/tmp/docs/demo/overlay/toaster-demos.tsx',
+      '/tmp/docs/demo/overlay/tooltip-demos.tsx',
       toHTML,
       projectRoot,
     )
 
-    expect(transformed).toContain('<DemoSection title="Setup" description="desc">')
-    expect(transformed).not.toContain(' code={')
-    expect(transformed).toContain(' html={')
-
-    await rm(projectRoot, { recursive: true, force: true })
-  })
-
-  test('does not inject SourceCode html when html prop already exists', async () => {
-    const projectRoot = await createTempProject()
-    const toHTML = vi.fn((input: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${input}</pre>`)
-
-    const source = `
-import { SourceCode } from 'virtual:demo-source'
-
-export default () => <SourceCode html={'<pre>ok</pre>'}>bun add solid-toaster</SourceCode>
-`
-
-    const transformed = await transformDemoSource(
-      source,
-      '/tmp/docs/demo/guide/intro.tsx',
-      toHTML,
-      projectRoot,
-    )
-
-    expect(transformed).toBeNull()
-    expect(toHTML).not.toHaveBeenCalled()
+    expect(transformed).not.toBeNull()
+    expect(transformed).toContain('demo={PlacementsDemo}')
+    expect(transformed).toContain('code={')
+    expect(toHTML).toHaveBeenCalledWith(expect.stringContaining('function PlacementsDemo'), 'tsx')
 
     await rm(projectRoot, { recursive: true, force: true })
   })
