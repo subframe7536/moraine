@@ -160,7 +160,7 @@ Almost all component support `classes` and `styles` props, key is the same as `S
 ```tsx
 import { Button } from '@subf/rock-ui'
 
-;<Button classes={{ label: 'bg-green-500' }} styles={{ root: 'bg-red-500' }}>
+<Button classes={{ label: 'bg-green-500' }} styles={{ root: 'bg-red-500' }}>
   Click me
 </Button>
 ```

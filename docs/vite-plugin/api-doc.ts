@@ -243,15 +243,29 @@ function extractItemsAliasPropDocs(
   }
   visited.add(visitKey)
 
-  if (ts.isTypeReferenceNode(typeNode) && typeNode.typeArguments && typeNode.typeArguments.length > 0) {
-    const firstArgProps = extractItemsAliasPropDocs(checker, sourceFile, typeNode.typeArguments[0], visited)
+  if (
+    ts.isTypeReferenceNode(typeNode) &&
+    typeNode.typeArguments &&
+    typeNode.typeArguments.length > 0
+  ) {
+    const firstArgProps = extractItemsAliasPropDocs(
+      checker,
+      sourceFile,
+      typeNode.typeArguments[0],
+      visited,
+    )
     if (firstArgProps.length > 0) {
       return firstArgProps
     }
   }
 
   if (ts.isArrayTypeNode(typeNode)) {
-    const elementProps = extractItemsAliasPropDocs(checker, sourceFile, typeNode.elementType, visited)
+    const elementProps = extractItemsAliasPropDocs(
+      checker,
+      sourceFile,
+      typeNode.elementType,
+      visited,
+    )
     if (elementProps.length > 0) {
       return elementProps
     }

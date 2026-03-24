@@ -35,14 +35,16 @@ export default () => {
     <div class="mx-auto p-5 max-w-6xl space-y-10 lg:p-10 sm:p-8">
       <section class="py-2">
         <div class="flex flex-col gap-4 max-w-3xl">
-          <p class="text-xs text-muted-foreground tracking-[0.18em] font-semibold uppercase">
-            Rock UI
-          </p>
-          <h1 class="text-3xl text-foreground leading-tight font-semibold sm:text-4xl">
-            SolidJS component library for building production-grade interfaces quickly.
+          <h1 class="text-3xl text-foreground font-bold sm:text-4xl">
+            <div class="mb-4 mt-8">
+              Yet Another <span class="text-#4f88c6">Solid.js</span> UI library
+            </div>
+            <p class="text-sm text-#2c4f7c font-semibold dark:text-#b8d7ff">
+              Fast, Intuitive, Powerful
+            </p>
           </h1>
           <p class="text-muted-foreground max-w-2xl sm:text-lg">
-            Inspired by Nuxt UI and shadcn. Rock UI gives you composable primitives, rich variants,
+            Inspired by Nuxt UI and shadcn, Rock UI gives you composable primitives, rich variants,
             and form-focused ergonomics with UnoCSS-first styling.
           </p>
           <div class="pt-1 flex flex-wrap gap-2">
@@ -170,7 +172,9 @@ export default () => {
           <For each={groupedComponents()}>
             {(group) => (
               <div class="space-y-2">
-                <div class="flex items-center justify-between">{group.category}</div>
+                <div class="text-primary font-500 flex items-center justify-between">
+                  {group.category}
+                </div>
                 <div class="gap-2 grid lg:grid-cols-4 sm:grid-cols-2">
                   <For each={group.components}>
                     {(component) => (

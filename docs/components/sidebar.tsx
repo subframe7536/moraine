@@ -79,15 +79,12 @@ export const Sidebar = (props: SidebarProps) => {
         </div>
       </div>
 
-      <div class="p-4 pb-22 pt-3 flex-1 overflow-y-auto">
+      <div class="p-4 pb-10 pt-3 flex-1 overflow-y-auto">
         <nav class="pb-2 flex flex-col gap-4">
           <For each={grouped()}>
             {([group, pages]) => (
               <section>
-                <div class="text-[11px] text-muted-foreground tracking-[0.14em] mb-1.5 px-2 flex uppercase items-center justify-between">
-                  <span class="font-semibold">{group}</span>
-                  <span class="text-muted-foreground">{pages.length}</span>
-                </div>
+                <div class="text-(sm muted-foreground) font-bold mb-1 mt-3 px-2">{group}</div>
 
                 <div class="flex flex-col gap-0.5">
                   <For each={pages}>
