@@ -105,8 +105,8 @@ function App() {
             />
           ),
           defaultSize: '15%',
-          min: 200,
-          max: 400,
+          min: '12%',
+          max: '18%',
         },
         {
           content: (

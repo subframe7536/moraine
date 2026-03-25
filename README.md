@@ -41,6 +41,7 @@ bun add @subf/flint-ui solid-js
 ```bash
 bun add unocss
 ```
+
 - install `oxc-parser` and `oxc-walker` if needed
 
 ### Tailwind CSS

@@ -78,6 +78,9 @@ export default defineConfig([
       }),
       solid(),
     ],
+    deps: {
+      neverBundle: ['@unocss/core', '@unocss/transformer-compile-class'],
+    },
     dts: true,
   },
   {
