@@ -10,7 +10,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import {
@@ -133,7 +133,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

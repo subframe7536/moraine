@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { tooltipContentVariants } from './tooltip.class'
@@ -40,7 +40,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

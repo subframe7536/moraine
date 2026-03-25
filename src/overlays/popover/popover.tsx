@@ -2,7 +2,7 @@ import * as KobaltePopover from '@kobalte/core/popover'
 import type { JSX } from 'solid-js'
 import { Show, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { popoverContentVariants } from './popover.class'
@@ -65,7 +65,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

@@ -4,7 +4,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { sheetContentVariants } from './sheet.class'
@@ -123,7 +123,7 @@ export namespace SheetT {
   /**
    * Props for the Sheet component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

@@ -5,7 +5,7 @@ import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -143,7 +143,7 @@ export namespace InputT {
   /**
    * Props for the Input component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

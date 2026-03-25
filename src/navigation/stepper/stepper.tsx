@@ -4,7 +4,7 @@ import { For, Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import type { StepperVariantProps } from './stepper.class'
@@ -116,7 +116,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

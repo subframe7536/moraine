@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox'
@@ -132,7 +132,7 @@ export namespace CheckboxGroupT {
   /**
    * Props for the CheckboxGroup component.
    */
-  export interface Props<TTrue = boolean, TFalse = boolean> extends RockUIProps<
+  export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
     Extend,

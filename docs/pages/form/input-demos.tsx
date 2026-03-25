@@ -104,7 +104,7 @@ function TextareaAutoresize() {
 }
 
 function TextareaHeaderFooter() {
-  const [composerValue, setComposerValue] = createSignal('Hello Rock UI!')
+  const [composerValue, setComposerValue] = createSignal('Hello Flint UI!')
 
   return (
     <div class="gap-3 grid lg:grid-cols-2">

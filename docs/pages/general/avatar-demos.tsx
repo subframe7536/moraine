@@ -19,7 +19,7 @@ function SingleAvatar() {
   return (
     <div class="flex gap-4 items-center">
       <Avatar
-        items={[{ src: source(), alt: 'Rock UI' }]}
+        items={[{ src: source(), alt: 'Flint UI' }]}
         classes={{
           root: 'ring-ring',
         }}
@@ -41,8 +41,8 @@ function SingleAvatar() {
 function FallbackModes() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Avatar items={[{ text: 'RK' }]} />
-      <Avatar items={[{ alt: 'Rock UI Team' }]} />
+      <Avatar items={[{ text: 'FL' }]} />
+      <Avatar items={[{ alt: 'Flint UI Team' }]} />
       <Avatar items={[{ fallback: 'i-lucide-user' }]} />
     </div>
   )

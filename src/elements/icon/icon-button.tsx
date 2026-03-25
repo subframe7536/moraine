@@ -3,7 +3,7 @@ import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 
 import { Icon } from './icon'
@@ -52,12 +52,7 @@ export namespace IconButtonT {
   /**
    * Props for the IconButton component.
    */
-  export type Props<T extends ValidComponent = 'button'> = RockUIProps<
-    Base,
-    Variant,
-    Extend<T>,
-    Slot
-  >
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base, Variant, Extend<T>, Slot>
 }
 
 /**

@@ -11,7 +11,7 @@ import {
 } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenuBaseContent } from '../shared-overlay-menu/menu'
 import type { OverlayMenuItemVariantProps } from '../shared-overlay-menu/menu.class'
@@ -139,7 +139,7 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export interface Props extends RockUIProps<
+  export interface Props extends BaseProps<
     Base,
     Variant,
     Extend,

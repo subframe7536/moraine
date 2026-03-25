@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { transformerInjectPrefix, prefixClassList } from './inject-prefix'
 
-const TEST_PREFIX = 'rk-'
+const TEST_PREFIX = 'fl-'
 
 async function runTransform(source: string, id: string): Promise<string> {
   const variantGroupTransformer = transformerVariantGroup()
@@ -23,7 +23,7 @@ async function runTransform(source: string, id: string): Promise<string> {
   return code.toString()
 }
 
-describe('transformer-inject-rock-prefix', () => {
+describe('transformer-inject-flint-prefix', () => {
   test('prefixClassList is idempotent and ignores empty tokens', () => {
     expect(prefixClassList(`${TEST_PREFIX}a b   c`, TEST_PREFIX)).toBe(
       `${TEST_PREFIX}a ${TEST_PREFIX}b ${TEST_PREFIX}c`,

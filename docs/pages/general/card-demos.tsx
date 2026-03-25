@@ -80,7 +80,7 @@ function WithImage() {
       >
         <h3 class="font-semibold">Beautiful Landscape</h3>
         <p class="text-sm text-muted-foreground mt-1">
-          A compact media card style adapted to the sealed Rock Card API.
+          A compact media card style adapted to the sealed Flint Card API.
         </p>
       </Card>
     </div>

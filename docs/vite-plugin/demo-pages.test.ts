@@ -7,7 +7,7 @@ import { describe, expect, test } from 'vitest'
 import { buildDemoPagesModuleCode, scanDemoPages } from './demo-pages'
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'rock-ui-demo-pages-'))
+  return mkdtemp(path.join(tmpdir(), 'flint-ui-demo-pages-'))
 }
 
 describe('scanDemoPages', () => {

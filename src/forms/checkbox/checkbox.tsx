@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -111,7 +111,7 @@ export namespace CheckboxT {
   /**
    * Props for the Checkbox component.
    */
-  export interface Props<TTrue = boolean, TFalse = boolean> extends RockUIProps<
+  export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
     Extend,

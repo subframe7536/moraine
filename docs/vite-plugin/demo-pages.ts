@@ -10,7 +10,7 @@ export interface DemoPageEntry {
 }
 
 const VIRTUAL_DEMO_PAGES = 'virtual:demo-pages'
-const RESOLVED_VIRTUAL_DEMO_PAGES = '\0rock-ui-demo-pages'
+const RESOLVED_VIRTUAL_DEMO_PAGES = '\0flint-ui-demo-pages'
 
 function toPosixPath(filePath: string): string {
   return filePath.replaceAll('\\', '/')
@@ -109,7 +109,7 @@ export function demoPagesPlugin(): Plugin {
   let projectRoot = ''
 
   return {
-    name: 'rock-ui-demo-pages',
+    name: 'flint-ui-demo-pages',
     enforce: 'pre',
 
     configResolved(config) {

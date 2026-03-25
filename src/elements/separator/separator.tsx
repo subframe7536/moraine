@@ -2,7 +2,7 @@ import * as KobalteSeparator from '@kobalte/core/separator'
 import type { JSX } from 'solid-js'
 import { Show, mergeProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 
 import type { SeparatorVariantProps } from './separator.class'
 import {
@@ -37,7 +37,7 @@ export namespace SeparatorT {
   /**
    * Props for the Separator component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

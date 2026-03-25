@@ -3,7 +3,7 @@ import type { DialogContentProps as KobalteDialogContentProps } from '@kobalte/c
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { popupContentVariants, popupOverlayVariants } from './popup.class'
@@ -70,7 +70,7 @@ export namespace PopupT {
   /**
    * Props for the Popup component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot, 'preventScroll'> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot, 'preventScroll'> {}
 }
 
 /**

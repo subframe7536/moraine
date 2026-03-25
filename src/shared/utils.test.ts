@@ -22,8 +22,8 @@ describe('useId', () => {
     expect(generatedId.startsWith('dialog-')).toBe(true)
   })
 
-  test('uses rock prefix by default', () => {
+  test('uses flint prefix by default', () => {
     const generatedId = resolveId()
-    expect(generatedId.startsWith('rock-')).toBe(true)
+    expect(generatedId.startsWith('fl-')).toBe(true)
   })
 })

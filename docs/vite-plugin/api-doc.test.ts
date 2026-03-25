@@ -106,7 +106,7 @@ declare function ExternalAlias(props: ExternalAliasProps): JSX.Element
 `
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'rock-ui-api-doc-'))
+  return mkdtemp(path.join(tmpdir(), 'flint-ui-api-doc-'))
 }
 
 async function writeProjectDts(projectRoot: string, content: string): Promise<void> {
@@ -319,7 +319,7 @@ export interface ExternalProps {
 
 describe('writeJsonFiles', () => {
   test('writes index/components and removes stale component files', async () => {
-    const outDir = await mkdtemp(path.join(tmpdir(), 'rock-ui-api-json-'))
+    const outDir = await mkdtemp(path.join(tmpdir(), 'flint-ui-api-json-'))
     const stalePath = path.join(outDir, 'components', 'stale.json')
     await mkdir(path.dirname(stalePath), { recursive: true })
     await writeFile(stalePath, '{"stale":true}', 'utf8')
@@ -369,7 +369,7 @@ describe('writeJsonFiles', () => {
   })
 
   test('clears stale component files even when no components are generated', async () => {
-    const outDir = await mkdtemp(path.join(tmpdir(), 'rock-ui-api-json-empty-'))
+    const outDir = await mkdtemp(path.join(tmpdir(), 'flint-ui-api-json-empty-'))
     const stalePath = path.join(outDir, 'components', 'stale.json')
     await mkdir(path.dirname(stalePath), { recursive: true })
     await writeFile(stalePath, '{"stale":true}', 'utf8')

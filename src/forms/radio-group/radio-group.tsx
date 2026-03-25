@@ -2,7 +2,7 @@ import * as KobalteRadioGroup from '@kobalte/core/radio-group'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -99,7 +99,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

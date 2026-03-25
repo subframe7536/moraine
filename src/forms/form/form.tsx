@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 import { createStore, produce, reconcile } from 'solid-js/store'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import type {
@@ -133,7 +133,7 @@ export namespace FormT {
   /**
    * Props for the Form component.
    */
-  export interface Props<TState extends FormState = FormState> extends RockUIProps<
+  export interface Props<TState extends FormState = FormState> extends BaseProps<
     Base<TState>,
     Variant,
     Extend,

@@ -13,14 +13,14 @@ import { createMemo, createUniqueId } from 'solid-js'
  * 2. Falls back to a generated identifier with a prefix
  *
  * @param deterministicId - Optional explicit ID to use
- * @param prefix - Prefix for generated IDs (default: 'rock')
+ * @param prefix - Prefix for generated IDs (default: 'fl')
  * @returns A unique string identifier
  *
  * @example
  * ```tsx
  * // Auto-generated ID
  * const id = useId()
- * id() // 'rock-1'
+ * id() // 'fl-1'
  *
  * // With custom prefix
  * const [local, rest] = splitProps(props, ['id'])
@@ -30,7 +30,7 @@ import { createMemo, createUniqueId } from 'solid-js'
  */
 export function useId(
   deterministicId?: () => string | null | undefined,
-  prefix = 'rock',
+  prefix = 'fl',
 ): Accessor<string> {
   const resolvedId = createMemo(() => {
     const id = deterministicId?.()

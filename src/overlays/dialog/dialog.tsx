@@ -5,7 +5,7 @@ import { Show, mergeProps, splitProps } from 'solid-js'
 import { Card } from '../../elements/card'
 import { IconButton } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Popup } from '../popup'
 
@@ -147,7 +147,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

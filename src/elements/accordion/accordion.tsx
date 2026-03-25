@@ -2,7 +2,7 @@ import * as KobalteAccordion from '@kobalte/core/accordion'
 import type { JSX } from 'solid-js'
 import { For, Show, mergeProps, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
@@ -80,7 +80,7 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

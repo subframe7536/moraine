@@ -38,7 +38,7 @@ async function applyPreTransformers(
 
 async function generateComponentLayerCss(
   strategy: 'hash' | 'prefix',
-  utilityPrefix: `${string}-` = 'rk-',
+  utilityPrefix: `${string}-` = 'fl-',
 ): Promise<{
   componentCode: string
   consumerCode: string
@@ -86,11 +86,11 @@ async function generateComponentLayerCss(
 }
 
 describe('presetTheme component layer', () => {
-  test('defaults enableComponentLayer to prefix strategy with rk- utility prefix', () => {
+  test('defaults enableComponentLayer to prefix strategy with fl- utility prefix', () => {
     expect(resolvePresetThemeOptions({ enableComponentLayer: true })).toMatchObject({
       enableComponentLayer: true,
       strategy: 'prefix',
-      utilityPrefix: 'rk-',
+      utilityPrefix: 'fl-',
     })
   })
 
@@ -99,7 +99,7 @@ describe('presetTheme component layer', () => {
 
     expect(componentCode).toContain('ui-bg-transparent')
     expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: rock-component */')
+    expect(css).toContain('/* layer: flint-component */')
     expect(css).toContain('.ui-bg-transparent{background-color:transparent;}')
     expect(css).toContain('/* layer: default */')
     expect(css).toContain(
@@ -114,7 +114,7 @@ describe('presetTheme component layer', () => {
     expect(componentCode).toMatch(/rkc-[a-z0-9]+/)
     expect(componentCode).not.toContain('bg-transparent')
     expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: rock-component */')
+    expect(css).toContain('/* layer: flint-component */')
     expect(css).toMatch(/\.rkc-[a-z0-9]+\{background-color:transparent;\}/)
     expect(css).toContain('/* layer: default */')
     expect(css).toContain(

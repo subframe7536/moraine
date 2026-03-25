@@ -11,7 +11,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormContext } from '../form/form-context'
 import { pathStartsWith, pathToKey, toFieldPath } from '../form/form-path'
@@ -125,7 +125,7 @@ export namespace FormFieldT {
   /**
    * Props for the FormField component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

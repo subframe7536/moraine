@@ -14,7 +14,7 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -142,7 +142,7 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

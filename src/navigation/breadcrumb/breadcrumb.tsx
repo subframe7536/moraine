@@ -4,7 +4,7 @@ import { For, Show, createMemo, mergeProps } from 'solid-js'
 import { Button } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { breadcrumbListVariants } from './breadcrumb.class'
@@ -129,7 +129,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

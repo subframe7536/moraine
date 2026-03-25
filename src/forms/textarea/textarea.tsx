@@ -3,7 +3,7 @@ import { Show, createEffect, createMemo, mergeProps, on, onMount, splitProps } f
 
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -136,7 +136,7 @@ export namespace TextareaT {
   /**
    * Props for the Textarea component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

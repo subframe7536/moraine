@@ -27,7 +27,7 @@ function AccountTeam() {
                   <span class={badgeClass}>Owner</span>
                 </div>
               ),
-              description: 'alex@rockui.dev',
+              description: 'alex@flintui.dev',
               icon: <span class={avatarClass}>AM</span>,
               onSelect: () => setLastAction('Open account profile'),
             },
@@ -159,7 +159,7 @@ function EditorViewOptions() {
               children: [
                 [
                   {
-                    label: 'Rock UI',
+                    label: 'Flint UI',
                     description: 'packages + docs',
                     icon: 'i-lucide-folder-kanban',
                   },
@@ -286,7 +286,7 @@ function ProjectReleaseActions() {
         type: 'label',
         label: (
           <div class="flex gap-2 items-center">
-            <span>Project: rock-ui</span>
+            <span>Project: flint-ui</span>
             <span class={badgeClass}>main</span>
           </div>
         ),

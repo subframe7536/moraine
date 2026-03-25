@@ -6,7 +6,7 @@ import type { ButtonProps } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import type { FormFieldSize } from '../../forms/form-field/form-field-context'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 type PaginationVariant = ButtonProps['variant']
@@ -152,7 +152,7 @@ export namespace PaginationT {
   /**
    * Props for the Pagination component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

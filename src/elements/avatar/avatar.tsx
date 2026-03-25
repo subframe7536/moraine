@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -89,7 +89,7 @@ export namespace AvatarT {
   /**
    * Props for the Avatar component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

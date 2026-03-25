@@ -7,7 +7,7 @@ import { Badge } from '../../elements/badge'
 import type { BadgeProps } from '../../elements/badge'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import type {
   FormDisableOption,
@@ -211,7 +211,7 @@ export namespace MultiSelectT {
   /**
    * Props for the MultiSelect component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

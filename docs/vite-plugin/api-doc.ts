@@ -93,7 +93,7 @@ function inferModuleFromFileName(fileName: string): string {
   const normalized = fileName.replaceAll('\\', '/')
   const idx = normalized.lastIndexOf('/node_modules/')
   if (idx === -1) {
-    return 'Rock UI'
+    return 'Flint UI'
   }
 
   const rest = normalized.slice(idx + '/node_modules/'.length)
@@ -545,7 +545,7 @@ export function componentApiPlugin(): Plugin {
   let projectRoot: string
 
   return {
-    name: 'rock-ui-api-doc',
+    name: 'flint-ui-api-doc',
     enforce: 'pre',
 
     configResolved(config) {

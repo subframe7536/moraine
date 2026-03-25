@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { injectCompileClassTrigger, transformerInjectCompileClass } from './inject-compile-class'
 
-const TEST_TRIGGER = ':uno-rock:'
+const TEST_TRIGGER = ':uno-pl:'
 
 async function runTransform(source: string, id: string): Promise<string> {
   const variantGroupTransformer = transformerVariantGroup()

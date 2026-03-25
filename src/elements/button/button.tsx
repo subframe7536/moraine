@@ -5,7 +5,7 @@ import { Show, createMemo, splitProps } from 'solid-js'
 
 import type { MaybeRenderProp } from '../../shared/render-prop'
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { cn } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -74,25 +74,17 @@ export namespace ButtonT {
 
   /**
    * Props for the Button component.
-   * Polymorphic button props composed from Kobalte button root props and Rock UI button options.
    */
-  export type Props<T extends ValidComponent = 'button'> = RockUIProps<
-    Base,
-    Variant,
-    Extend<T>,
-    Slot
-  >
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base, Variant, Extend<T>, Slot>
 }
 
 /**
  * Props for the Button component.
- * Polymorphic button props composed from Kobalte button root props and Rock UI button options.
  */
-// NOTE: keep `type` here; `interface extends ...` breaks Solid JSX inference for polymorphic components.
 export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
 
 /**
- * Rock UI Button built on top of Kobalte `Button.Root` with polymorphic `as` support.
+ * Button component built on top of Kobalte `Button.Root` with polymorphic `as` support.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const [styleProps, stateProps, contentProps, restProps] = splitProps(

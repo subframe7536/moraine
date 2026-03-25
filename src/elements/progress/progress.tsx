@@ -2,7 +2,7 @@ import * as KobalteProgress from '@kobalte/core/progress'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 
 import type { ProgressVariantProps } from './progress.class'
 import {
@@ -81,7 +81,7 @@ export namespace ProgressT {
     renderStep?: (context: StepRenderContext) => JSX.Element
   }
 
-  export interface Props extends RockUIProps<
+  export interface Props extends BaseProps<
     Base,
     Variant,
     Extend,

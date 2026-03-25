@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file contains definitive guidelines for agentic coding agents working on Rock UI, a SolidJS component library that provide comprehensive components, reference from Nuxt UI and Shadcn.
+This file contains definitive guidelines for agentic coding agents working on Flint UI, a SolidJS component library that provide comprehensive components, reference from Nuxt UI and Shadcn.
 Agents must follow these instructions to ensure consistency, quality, and maintainability.
 
 Current stage: pre-alpha. breaking change allowed.

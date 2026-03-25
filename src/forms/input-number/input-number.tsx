@@ -6,7 +6,7 @@ import { Button } from '../../elements/button'
 import type { ButtonT } from '../../elements/button'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type { FormDisableOption, FormIdentityOptions } from '../form-field/form-options'
@@ -121,7 +121,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

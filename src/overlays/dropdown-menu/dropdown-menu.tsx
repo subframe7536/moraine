@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { OverlayMenuBaseContent } from '../shared-overlay-menu/menu'
 import type { OverlayMenuItemVariantProps } from '../shared-overlay-menu/menu.class'
@@ -121,7 +121,7 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot, 'arrowPadding'> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot, 'arrowPadding'> {}
 }
 
 /**

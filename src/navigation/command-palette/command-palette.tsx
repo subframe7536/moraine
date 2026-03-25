@@ -13,7 +13,7 @@ import {
 import { Icon, IconButton } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { Kbd } from '../../elements/kbd'
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -223,7 +223,7 @@ export namespace CommandPaletteT {
     footer?: JSX.Element
   }
 
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**
@@ -354,7 +354,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
 
     warnedDuplicateValues.add(value)
     console.warn(
-      `[rock-ui] CommandPalette received duplicate item value "${value}". ` +
+      `[platinum] CommandPalette received duplicate item value "${value}". ` +
         'Using a deduplicated internal key. Ensure item.value is unique for predictable selection.',
     )
   }

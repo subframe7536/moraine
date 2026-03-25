@@ -60,7 +60,7 @@ describe('Avatar', () => {
   })
 
   test('treats one item as single avatar structure', () => {
-    const screen = render(() => <Avatar items={[{ text: 'RK' }]} />)
+    const screen = render(() => <Avatar items={[{ text: 'FL' }]} />)
 
     expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="group"]')).toBeNull()
@@ -69,7 +69,7 @@ describe('Avatar', () => {
 
   test('renders fallback first while image is loading', () => {
     outcomesBySrc.set('/loading.png', 'pending')
-    const screen = render(() => <Avatar items={[{ src: '/loading.png', text: 'RK' }]} />)
+    const screen = render(() => <Avatar items={[{ src: '/loading.png', text: 'FL' }]} />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]')
@@ -82,7 +82,7 @@ describe('Avatar', () => {
 
   test('switches to loaded state and crossfades image', async () => {
     outcomesBySrc.set('/loaded.png', 'success')
-    const screen = render(() => <Avatar items={[{ src: '/loaded.png', alt: 'Rock UI' }]} />)
+    const screen = render(() => <Avatar items={[{ src: '/loaded.png', alt: 'Flint UI' }]} />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
@@ -167,10 +167,10 @@ describe('Avatar', () => {
   })
 
   test('generates initials from alt when text is not provided', () => {
-    const screen = render(() => <Avatar items={[{ alt: 'Rock UI Team' }]} />)
+    const screen = render(() => <Avatar items={[{ alt: 'Flint UI Team' }]} />)
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
-    expect(fallback?.textContent).toBe('RU')
+    expect(fallback?.textContent).toBe('FU')
   })
 
   test('resets to loading state when src changes', async () => {
@@ -182,7 +182,7 @@ describe('Avatar', () => {
       const [source, setSourceSignal] = createSignal('/first.png')
       setSource = setSourceSignal
 
-      return <Avatar items={[{ src: source(), text: 'RK' }]} />
+      return <Avatar items={[{ src: source(), text: 'FL' }]} />
     })
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -277,7 +277,7 @@ describe('Avatar', () => {
   test('applies styles overrides to all slots', () => {
     const screen = render(() => (
       <Avatar
-        items={[{ src: '/loading.png', text: 'RK', icon: 'i-lucide-check' }]}
+        items={[{ src: '/loading.png', text: 'FL', icon: 'i-lucide-check' }]}
         styles={
           {
             root: { width: '200px' },

@@ -2,7 +2,7 @@ import * as KobalteSlider from '@kobalte/core/slider'
 import type { JSX, ValidComponent } from 'solid-js'
 import { For, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -97,13 +97,7 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export interface Props extends RockUIProps<
-    Base,
-    Variant,
-    Extend,
-    Slot,
-    'minValue' | 'maxValue'
-  > {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot, 'minValue' | 'maxValue'> {}
 }
 
 /**

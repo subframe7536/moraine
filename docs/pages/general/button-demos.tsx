@@ -139,7 +139,7 @@ export default () => {
     <DemoPage componentKey="button">
       <DemoSection
         title="Variants"
-        description="Visual variants from the Rock UI button class contract."
+        description="Visual variants from the Flint UI button class contract."
         demo={Variants}
       />
 

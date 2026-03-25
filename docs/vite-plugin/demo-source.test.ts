@@ -7,7 +7,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import { transformDemoSource } from './demo-source'
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'rock-ui-demo-source-'))
+  return mkdtemp(path.join(tmpdir(), 'flint-ui-demo-source-'))
 }
 
 async function writeComponentApiDoc(

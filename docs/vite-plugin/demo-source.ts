@@ -591,9 +591,7 @@ export async function transformDemoSource(
 
   resolveShikiCodeBlockBoundaries(program, shikiCodeBlockInjections, code)
 
-  const validShikiCodeBlockInjections = shikiCodeBlockInjections.filter(
-    (item) => item.childEnd > 0,
-  )
+  const validShikiCodeBlockInjections = shikiCodeBlockInjections.filter((item) => item.childEnd > 0)
   const allInjections: InjectionResult[] = []
 
   for (const injection of demoCodeInjections) {
@@ -669,7 +667,7 @@ export async function demoSourcePlugin(projectRoot?: string): Promise<Plugin> {
   let resolvedRoot = ''
 
   return {
-    name: 'rock-ui-demo-source',
+    name: 'flint-ui-demo-source',
     enforce: 'pre',
 
     configResolved(config) {

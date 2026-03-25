@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace CardT {
@@ -56,7 +56,7 @@ export namespace CardT {
   /**
    * Props for the Card component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

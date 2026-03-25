@@ -2,7 +2,7 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { RockUIProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {
@@ -59,7 +59,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export interface Props extends RockUIProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**

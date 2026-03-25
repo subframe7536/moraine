@@ -58,9 +58,9 @@ export interface ComponentLayerOptions extends Partial<
    * Controls how component-owned utilities are isolated from consumer utilities.
    *
    * - `prefix`: prefixes component utilities with `utilityPrefix` and keeps them in the
-   *   dedicated `rock-component` layer.
+   *   dedicated `flint-component` layer.
    * - `hash`: compiles component utilities into internal hash classes in the
-   *   `rock-component` layer.
+   *   `flint-component` layer.
    *
    * `prefix` is the default because it keeps the generated output readable while still
    * making component styles override-safe out of the box.
@@ -70,7 +70,7 @@ export interface ComponentLayerOptions extends Partial<
   strategy?: ComponentLayerStrategy
   /**
    * Prefix used for component-owned utilities when `strategy` is `prefix`.
-   * @default 'rk-'
+   * @default 'fl-'
    */
   utilityPrefix?: `${string}-`
 }
@@ -81,10 +81,10 @@ export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 
   enableComponentLayer?: boolean | ComponentLayerOptions
 }
 
-const ROCK_COMPONENT_LAYER = 'rock-component'
-const DEFAULT_COMPONENT_UTILITY_PREFIX = 'rk-'
-const ROCK_HASH_TRIGGER = ':uno-rock:'
-const ROCK_HASH_CLASS_PREFIX = 'rkc-'
+const FLINT_COMPONENT_LAYER = 'flint-component'
+const DEFAULT_COMPONENT_UTILITY_PREFIX = 'fl-'
+const FLINT_HASH_TRIGGER = ':uno-flint:'
+const FLINT_HASH_CLASS_PREFIX = 'flc-'
 
 const RE_ATTR = /^(data|aria)-(\w+):/
 interface ResolvedPresetThemeOptions {
@@ -104,9 +104,9 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
     compileClassTransformerPromise ??= import('@unocss/transformer-compile-class').then(
       ({ default: transformerCompileClass }) =>
         transformerCompileClass({
-          trigger: ROCK_HASH_TRIGGER,
-          classPrefix: ROCK_HASH_CLASS_PREFIX,
-          layer: ROCK_COMPONENT_LAYER,
+          trigger: FLINT_HASH_TRIGGER,
+          classPrefix: FLINT_HASH_CLASS_PREFIX,
+          layer: FLINT_COMPONENT_LAYER,
         }),
     )
 
@@ -115,7 +115,7 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
     compileClassTransformerPromise = undefined
 
     throw new Error(
-      '[preset-theme-rock] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
+      '[preset-theme-flint] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
       { cause: error },
     )
   }
@@ -123,7 +123,7 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
 
 function createHashClassTransformer(idFilter: (id: string) => boolean): SourceCodeTransformer {
   return {
-    name: 'transformer-rock-hash-class',
+    name: 'transformer-flint-hash-class',
     enforce: 'pre',
     idFilter,
     async transform(code, id, context) {
@@ -159,7 +159,7 @@ export function resolvePresetThemeOptions(
     strategy,
     utilityPrefix,
     idFilter:
-      (isObj && layerOpt.idFilter) || ((id: string) => id.includes('node_modules/rock-ui/')),
+      (isObj && layerOpt.idFilter) || ((id: string) => id.includes('node_modules/flint-ui/')),
     beforeTransform: (isObj && layerOpt.beforeTransform) || options?.beforeTransform,
   }
 }
@@ -173,7 +173,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       transformers.push(createHashClassTransformer(normalized.idFilter))
       transformers.unshift(
         transformerInjectCompileClass({
-          trigger: ROCK_HASH_TRIGGER,
+          trigger: FLINT_HASH_TRIGGER,
           idFilter: normalized.idFilter,
           beforeTransform: normalized.beforeTransform,
         }),
@@ -213,7 +213,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
 
       return {
         matcher: matcher.slice(normalized.utilityPrefix.length),
-        layer: ROCK_COMPONENT_LAYER,
+        layer: FLINT_COMPONENT_LAYER,
       }
     })
   }
@@ -251,7 +251,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
   }
 
   return {
-    name: 'preset-theme-rock',
+    name: 'preset-theme-flint',
     theme: {
       ...(normalized.wind3
         ? { borderRadius: radius, boxShadow: shadow, fontFamily: font }
@@ -291,7 +291,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       },
     },
     layers: {
-      [ROCK_COMPONENT_LAYER]: -1,
+      [FLINT_COMPONENT_LAYER]: -1,
       default: 1,
     },
     transformers,

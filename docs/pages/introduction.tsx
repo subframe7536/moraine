@@ -39,9 +39,9 @@ export default () => {
             Yet Another <span class="text-#4f88c6">Solid.js</span> UI library
           </h1>
           <p class="text-muted-foreground max-w-2xl sm:text-lg">
-            Inspired by the best of Nuxt UI and shadcn, Rock UI is a comprehensive SolidJS component
-            library with atomic class styling, offering a fast, consistent, and intuitive user
-            experiences.
+            Inspired by the best of Nuxt UI and shadcn, Flint UI is a comprehensive SolidJS
+            component library with atomic class styling, offering a fast, consistent, and intuitive
+            user experiences.
           </p>
           <div class="pt-1 flex flex-wrap gap-2">
             <Button as="a" href="#button">
@@ -52,7 +52,7 @@ export default () => {
             </Button>
             <Button
               as="a"
-              href="https://github.com/subframe7536/rock-ui"
+              href="https://github.com/subframe7536/flint-ui"
               variant="outline"
               target="_blank"
               rel="noreferrer"
@@ -131,7 +131,7 @@ export default () => {
               value: 'bun',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  bun add @subf/rock-ui
+                  bun add @subf/flint-ui
                 </ShikiCodeBlock>
               ),
             },
@@ -140,7 +140,7 @@ export default () => {
               value: 'pnpm',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  pnpm add @subf/rock-ui
+                  pnpm add @subf/flint-ui
                 </ShikiCodeBlock>
               ),
             },
@@ -149,7 +149,7 @@ export default () => {
               value: 'npm',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  npm i @subf/rock-ui
+                  npm i @subf/flint-ui
                 </ShikiCodeBlock>
               ),
             },

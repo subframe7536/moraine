@@ -65,7 +65,7 @@ export const Sidebar = (props: SidebarProps) => {
               <img src="/favicon.svg" alt="icon" class="size-6" />
               <div class="min-w-0">
                 <p class="text-lg font-semibold truncate">
-                  Rock UI
+                  Flint UI
                   <Badge size="xs" classes={{ root: 'font-mono ms-1.5' }}>
                     v{version}
                   </Badge>

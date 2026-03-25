@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "rock-ui",
+      "name": "flint-ui",
       "dependencies": {
         "@kobalte/core": "~0.13.11",
         "@kobalte/utils": "*",
