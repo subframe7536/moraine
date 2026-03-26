@@ -2,7 +2,6 @@ import type { UnoCSSPluginOptions } from 'rolldown-plugin-unocss'
 import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from 'unocss'
-import { presetAnimations } from 'unocss-preset-animations'
 import solid from 'vite-plugin-solid'
 
 import { presetTheme } from './src/unocss-preset-theme'
@@ -19,7 +18,6 @@ const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
         presetIcons({
           scale: 1.2,
         }),
-        presetAnimations() as any,
         theme,
       ],
       preflights: wind3
@@ -41,11 +39,9 @@ const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
                 if (e.startsWith('var-')) {
                   return false
                 }
-                // Keep animate-* and keyframes-* tokens for animation keyframes
+                // Keep animate-* and keyframes-* tokens for presetTheme animations
                 if (
                   e.includes('animate-') ||
-                  e.includes('zoom-') ||
-                  e.includes('fade-') ||
                   e.includes('keyframes-')
                 ) {
                   return false

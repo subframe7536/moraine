@@ -85,8 +85,98 @@ const FLINT_COMPONENT_LAYER = 'flint-component'
 const DEFAULT_COMPONENT_UTILITY_PREFIX = 'fl-'
 const FLINT_HASH_TRIGGER = ':uno-flint:'
 const FLINT_HASH_CLASS_PREFIX = 'flc-'
+const FLINT_ENTER_ANIMATION_NAME = 'flint-enter'
+const FLINT_EXIT_ANIMATION_NAME = 'flint-exit'
+const FLINT_ANIMATION_DURATION_VAR = 'var(--flint-animation-duration,150ms)'
 
 const RE_ATTR = /^(data|aria)-(\w+):/
+const CORE_ANIMATION_KEYFRAMES = {
+  [FLINT_ENTER_ANIMATION_NAME]:
+    '{ from { opacity: var(--flint-enter-opacity, 1); transform: translate3d(var(--flint-enter-translate-x, 0), var(--flint-enter-translate-y, 0), 0) scale3d(var(--flint-enter-scale, 1), var(--flint-enter-scale, 1), var(--flint-enter-scale, 1)) rotate(var(--flint-enter-rotate, 0)) } }',
+  [FLINT_EXIT_ANIMATION_NAME]:
+    '{ to { opacity: var(--flint-exit-opacity, 1); transform: translate3d(var(--flint-exit-translate-x, 0), var(--flint-exit-translate-y, 0), 0) scale3d(var(--flint-exit-scale, 1), var(--flint-exit-scale, 1), var(--flint-exit-scale, 1)) rotate(var(--flint-exit-rotate, 0)) } }',
+  'accordion-down': '{ from { height: 0 } to { height: var(--kb-accordion-content-height) } }',
+  'accordion-up': '{ from { height: var(--kb-accordion-content-height) } to { height: 0 } }',
+  carousel: '{ 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }',
+  'carousel-rtl': '{ 0% { transform: translateX(100%) } 100% { transform: translateX(-100%) } }',
+  'carousel-vertical':
+    '{ 0% { transform: translateY(100%) } 100% { transform: translateY(-100%) } }',
+  'carousel-inverse':
+    '{ 0% { transform: translateX(100%) } 100% { transform: translateX(-100%) } }',
+  'carousel-inverse-rtl':
+    '{ 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }',
+  'carousel-inverse-vertical':
+    '{ 0% { transform: translateY(-100%) } 100% { transform: translateY(100%) } }',
+  swing: '{ 0%, 100% { transform: translateX(-60%) } 50% { transform: translateX(60%) } }',
+  'swing-vertical':
+    '{ 0%, 100% { transform: translateY(60%) } 50% { transform: translateY(-60%) } }',
+  elastic:
+    '{ 0% { transform: translateX(-100%) scaleX(0.9) } 45% { transform: translateX(0) scaleX(1) } 100% { transform: translateX(100%) scaleX(0.9) } }',
+  'elastic-vertical':
+    '{ 0% { transform: translateY(100%) scaleY(0.9) } 45% { transform: translateY(0) scaleY(1) } 100% { transform: translateY(-100%) scaleY(0.9) } }',
+} as const
+const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
+
+function getAnimType(name: string): 'flint' | 'looping' | 'default' {
+  if (name === FLINT_ENTER_ANIMATION_NAME || name === FLINT_EXIT_ANIMATION_NAME) {
+    return 'flint'
+  }
+  if (LOOPING_PREFIXES.some((p) => name.startsWith(p))) {
+    return 'looping'
+  }
+  return 'default'
+}
+
+const CORE_ANIMATION_DURATIONS = Object.fromEntries(
+  Object.keys(CORE_ANIMATION_KEYFRAMES).map((name) => {
+    const type = getAnimType(name)
+    return [
+      name,
+      type === 'flint' ? FLINT_ANIMATION_DURATION_VAR : type === 'looping' ? '2s' : '150ms',
+    ]
+  }),
+)
+const CORE_ANIMATION_TIMING_FNS = Object.fromEntries(
+  Object.keys(CORE_ANIMATION_KEYFRAMES).map((name) => [name, 'ease-in-out']),
+)
+const CORE_ANIMATION_COUNTS = Object.fromEntries(
+  Object.keys(CORE_ANIMATION_KEYFRAMES).map((name) => [
+    name,
+    getAnimType(name) === 'looping' ? 'infinite' : '1',
+  ]),
+)
+const SEMANTIC_ANIMATION_SHORTCUTS = {
+  'animate-overlay-in': `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0]`,
+  'animate-overlay-out': `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0]`,
+  'animate-surface-in': `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0] [--flint-enter-scale:0.9]`,
+  'animate-surface-out': `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0] [--flint-exit-scale:0.9]`,
+  ...Object.fromEntries(
+    (['menu', 'popover', 'tooltip', 'sheet'] as const).flatMap((type) => {
+      const isSheet = type === 'sheet'
+      const offset = isSheet ? '2.5' : type === 'tooltip' ? '0.25' : '0.5'
+      const directions = ['top', 'right', 'bottom', 'left'] as const
+      const signs: Record<string, string> = { top: '-', right: '', bottom: '', left: '-' }
+      const axes: Record<string, string> = { top: 'y', right: 'x', bottom: 'y', left: 'x' }
+
+      return directions.flatMap((dir) => {
+        const translateProp = `translate-${axes[dir]}`
+        const val = `${signs[dir]}${offset}rem`
+        const scaleTokens = isSheet ? '' : ' [--flint-enter-scale:0.9] [--flint-exit-scale:0.9]'
+
+        return [
+          [
+            `animate-${type}-in-from-${dir}`,
+            `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0]${scaleTokens} [--flint-enter-${translateProp}:${val}]`,
+          ],
+          [
+            `animate-${type}-out-to-${dir}`,
+            `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0]${scaleTokens} [--flint-exit-${translateProp}:${val}]`,
+          ],
+        ]
+      })
+    }),
+  ),
+} as const
 interface ResolvedPresetThemeOptions {
   wind3: boolean
   icons: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
@@ -137,89 +227,78 @@ function createHashClassTransformer(idFilter: (id: string) => boolean): SourceCo
 export function resolvePresetThemeOptions(
   options?: PresetThemeOptions,
 ): ResolvedPresetThemeOptions {
-  const layerOpt = options?.enableComponentLayer ?? false
-  const isObj = typeof layerOpt === 'object' && layerOpt !== null
-
-  let enableComponentLayer = false
-  let strategy: ComponentLayerStrategy = 'prefix'
-  let utilityPrefix: `${string}-` = DEFAULT_COMPONENT_UTILITY_PREFIX
-
-  if (isObj) {
-    enableComponentLayer = true
-    strategy = layerOpt.strategy ?? 'prefix'
-    utilityPrefix = layerOpt.utilityPrefix ?? DEFAULT_COMPONENT_UTILITY_PREFIX
-  } else if (layerOpt) {
-    enableComponentLayer = true
-  }
+  const raw = options?.enableComponentLayer ?? false
+  const layerOpts: ComponentLayerOptions | undefined =
+    typeof raw === 'object' && raw !== null ? raw : raw ? {} : undefined
 
   return {
     wind3: options?.wind3 ?? false,
     icons: options?.icons ?? {},
-    enableComponentLayer,
-    strategy,
-    utilityPrefix,
-    idFilter:
-      (isObj && layerOpt.idFilter) || ((id: string) => id.includes('node_modules/flint-ui/')),
-    beforeTransform: (isObj && layerOpt.beforeTransform) || options?.beforeTransform,
+    enableComponentLayer: layerOpts !== undefined,
+    strategy: layerOpts?.strategy ?? 'prefix',
+    utilityPrefix: layerOpts?.utilityPrefix ?? DEFAULT_COMPONENT_UTILITY_PREFIX,
+    idFilter: layerOpts?.idFilter ?? ((id: string) => id.includes('node_modules/flint-ui/')),
+    beforeTransform: layerOpts?.beforeTransform ?? options?.beforeTransform,
   }
 }
 
 export function presetTheme(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
 
-  const transformers: Preset['transformers'] = []
-  if (normalized.enableComponentLayer) {
-    if (normalized.strategy === 'hash') {
-      transformers.push(createHashClassTransformer(normalized.idFilter))
-      transformers.unshift(
-        transformerInjectCompileClass({
-          trigger: FLINT_HASH_TRIGGER,
-          idFilter: normalized.idFilter,
-          beforeTransform: normalized.beforeTransform,
-        }),
-      )
-    } else {
-      transformers.push(
-        transformerInjectPrefix({
-          prefix: normalized.utilityPrefix,
-          idFilter: normalized.idFilter,
-          beforeTransform: normalized.beforeTransform,
-        }),
-      )
-    }
-  }
+  const isHash = normalized.strategy === 'hash'
+  const transformers: Preset['transformers'] = [
+    ...(normalized.enableComponentLayer && isHash
+      ? [createHashClassTransformer(normalized.idFilter)]
+      : []),
+    ...(normalized.enableComponentLayer && isHash
+      ? [
+          transformerInjectCompileClass({
+            trigger: FLINT_HASH_TRIGGER,
+            idFilter: normalized.idFilter,
+            beforeTransform: normalized.beforeTransform,
+          }),
+        ]
+      : normalized.enableComponentLayer
+        ? [
+            transformerInjectPrefix({
+              prefix: normalized.utilityPrefix,
+              idFilter: normalized.idFilter,
+              beforeTransform: normalized.beforeTransform,
+            }),
+          ]
+        : []),
+  ]
 
+  const usePrefixLayer = normalized.enableComponentLayer && normalized.strategy === 'prefix'
   const variants: Preset['variants'] = [
     (matcher) => {
       const match = matcher.match(RE_ATTR)
       if (!match) {
         return matcher
       }
-
       return {
-        // Remove the prefix (e.g., "data-invalid:") from the matcher string
         matcher: matcher.slice(match[0].length),
-        // Transform the selector to include the attribute: .foo -> .foo[data-invalid]
         selector: (s) => `${s}[${match[1]}-${match[2]}]`,
       }
     },
+    ...(usePrefixLayer
+      ? [
+          (matcher: string) => {
+            if (!matcher.startsWith(normalized.utilityPrefix)) {
+              return matcher
+            }
+            return {
+              matcher: matcher.slice(normalized.utilityPrefix.length),
+              layer: FLINT_COMPONENT_LAYER,
+            }
+          },
+        ]
+      : []),
   ]
 
-  if (normalized.enableComponentLayer && normalized.strategy === 'prefix') {
-    variants.push((matcher) => {
-      if (!matcher.startsWith(normalized.utilityPrefix)) {
-        return matcher
-      }
-
-      return {
-        matcher: matcher.slice(normalized.utilityPrefix.length),
-        layer: FLINT_COMPONENT_LAYER,
-      }
-    })
-  }
-
   function createLength(theme: { spacing?: any }, num: string | number) {
-    return `calc(${normalized.wind3 ? (theme.spacing?.[0] ?? '0.25rem') : 'var(--spacing)'} * ${num})`
+    const base = normalized.wind3 ? (theme.spacing?.[0] ?? '0.25rem') : 'var(--spacing)'
+    return `calc(${base} * ${num})`
   }
 
   const radius = {
@@ -250,12 +329,14 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
     serif: 'var(--font-serif)',
   }
 
+  const themeSpacing = normalized.wind3
+    ? { borderRadius: radius, boxShadow: shadow, fontFamily: font }
+    : { radius, shadow, font }
+
   return {
     name: 'preset-theme-flint',
     theme: {
-      ...(normalized.wind3
-        ? { borderRadius: radius, boxShadow: shadow, fontFamily: font }
-        : { radius, shadow, font }),
+      ...themeSpacing,
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
@@ -274,20 +355,10 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
         destructive: { DEFAULT: 'var(--destructive)', foreground: 'var(--destructive-foreground)' },
       },
       animation: {
-        keyframes: {
-          'accordion-down':
-            '{ from { height: 0 } to { height: var(--kb-accordion-content-height) } }',
-          'accordion-up':
-            '{ from { height: var(--kb-accordion-content-height) } to { height: 0 } }',
-        },
-        timingFns: {
-          'accordion-down': 'ease-in-out',
-          'accordion-up': 'ease-in-out',
-        },
-        durations: {
-          'accordion-down': '150ms',
-          'accordion-up': '150ms',
-        },
+        keyframes: CORE_ANIMATION_KEYFRAMES,
+        timingFns: CORE_ANIMATION_TIMING_FNS,
+        durations: CORE_ANIMATION_DURATIONS,
+        counts: CORE_ANIMATION_COUNTS,
       },
     },
     layers: {
@@ -321,6 +392,9 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       ['surface-highlight', 'ring-1 ring-border/50'],
       ['surface-overlay', 'ring-1 ring-foreground/10'],
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
+      ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
+        ([name, value]) => [name, value] as [string, string],
+      ),
       ...Object.entries(DEFAULT_ICONS).map(
         ([k, v]) =>
           [`icon-${k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`, v] as [string, string],

@@ -118,7 +118,7 @@ Flint UI uses Shadcn's style system, so you can just reuse Shadcn's theme CSS va
 
 ### UnoCSS
 
-You can use `presetWind3` or `presetWind4` here
+You can use `presetWind3` or `presetWind4` here. `presetTheme` already includes Flint UI's animation utilities, so no extra UnoCSS animation preset is required.
 
 ```ts
 // unocss.config.ts

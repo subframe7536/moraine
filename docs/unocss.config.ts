@@ -7,7 +7,6 @@ import {
   transformerVariantGroup,
   presetTypography,
 } from 'unocss'
-import { presetAnimations } from 'unocss-preset-animations'
 
 import { presetTheme } from '../src/unocss-preset-theme'
 
@@ -22,10 +21,9 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetTypography(),
-    presetAnimations() as any,
     presetTheme({
       enableComponentLayer: {
-        strategy: 'prefix',
+        strategy: 'hash',
         idFilter(id: string) {
           return id.includes('/src/') && (id.endsWith('.class.ts') || id.endsWith('.tsx'))
         },

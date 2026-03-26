@@ -8,7 +8,7 @@ export function FileExplorer() {
   const [lastAction, setLastAction] = createSignal('None')
 
   return (
-    <>
+    <div class="flex flex-col gap-4">
       <ContextMenu
         items={[
           [
@@ -104,9 +104,9 @@ export function FileExplorer() {
           <div class="text-xs text-muted-foreground">Right click this file row</div>
         </div>
       </ContextMenu>
-      <p class="text-sm text-muted-foreground mt-3">
+      <p class="text-sm text-muted-foreground px-4">
         Last action: <span class="font-medium">{lastAction()}</span>
       </p>
-    </>
+    </div>
   )
 }

@@ -4,7 +4,7 @@ Flint UI follows the shadcn-style token model. You can reuse existing theme vari
 
 ## UnoCSS
 
-Use either `presetWind3` or `presetWind4`, then add `presetTheme` from Flint UI.
+Use either `presetWind3` or `presetWind4`, then add `presetTheme` from Flint UI. Built-in component animations are included in `presetTheme`, so no extra animation preset is needed.
 
 ```tsx
 // unocss.config.ts

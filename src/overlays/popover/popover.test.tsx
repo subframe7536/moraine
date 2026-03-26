@@ -1,10 +1,36 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { describe, expect, test, vi } from 'vitest'
+import { createSignal } from 'solid-js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+
+let getMockPlacement: () => string = () => 'bottom'
+let setMockPlacement: (value: string) => void = () => undefined
+
+vi.mock('@kobalte/core/popper', async () => {
+  const actual = await vi.importActual<typeof import('@kobalte/core/popper')>(
+    '@kobalte/core/popper',
+  )
+
+  return {
+    ...actual,
+    usePopperContext: () => ({
+      currentPlacement: () => getMockPlacement(),
+      contentRef: () => undefined,
+      setPositionerRef: () => undefined,
+      setArrowRef: () => undefined,
+    }),
+  }
+})
 
 import { Popover } from './popover'
 import type { PopoverProps } from './popover'
 
 describe('Popover', () => {
+  beforeEach(() => {
+    const [placement, setPlacement] = createSignal('bottom')
+    getMockPlacement = placement
+    setMockPlacement = setPlacement
+  })
+
   test('supports click mode and renders content', () => {
     render(() => (
       <Popover open content="Popover content">
@@ -48,6 +74,8 @@ describe('Popover', () => {
     ['bottom-start', 'mt-$kb-popper-content-overflow-padding'],
     ['left-start', 'mr-$kb-popper-content-overflow-padding'],
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
+    setMockPlacement(placement)
+
     render(() => (
       <Popover open placement={placement} content="Placement content">
         <button type="button">Trigger</button>
@@ -231,5 +259,30 @@ describe('Popover', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
+  })
+
+  test('uses runtime placement to resolve side-aware animation classes', () => {
+    const [version, setVersion] = createSignal(0)
+
+    render(() => {
+      version()
+
+      return (
+        <Popover open placement="bottom" content="Popover content">
+          <button type="button">Trigger</button>
+        </Popover>
+      )
+    })
+
+    const initialContent = document.body.querySelector('[data-slot="content"]')
+    expect(initialContent?.className).toContain('data-expanded:animate-popover-in-from-top')
+    expect(initialContent?.className).not.toContain('data-expanded:animate-popover-in-from-left')
+
+    setMockPlacement('right')
+    setVersion(1)
+
+    const updatedContent = document.body.querySelector('[data-slot="content"]')
+    expect(updatedContent?.className).toContain('data-expanded:animate-popover-in-from-left')
+    expect(updatedContent?.className).not.toContain('data-expanded:animate-popover-in-from-top')
   })
 })

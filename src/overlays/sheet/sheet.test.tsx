@@ -6,11 +6,11 @@ import type { SheetProps } from './sheet'
 
 describe('Sheet', () => {
   test.each([
-    ['left', 'left-0'],
-    ['right', 'right-0'],
-    ['top', 'top-0'],
-    ['bottom', 'bottom-0'],
-  ] as const)('applies side variant %s to content', (side, expectedClass) => {
+    ['left', 'left-0', 'data-expanded:animate-sheet-in-from-left', 'data-closed:animate-sheet-out-to-left'],
+    ['right', 'right-0', 'data-expanded:animate-sheet-in-from-right', 'data-closed:animate-sheet-out-to-right'],
+    ['top', 'top-0', 'data-expanded:animate-sheet-in-from-top', 'data-closed:animate-sheet-out-to-top'],
+    ['bottom', 'bottom-0', 'data-expanded:animate-sheet-in-from-bottom', 'data-closed:animate-sheet-out-to-bottom'],
+  ] as const)('applies side variant %s to content', (side, expectedClass, expandedClass, closedClass) => {
     render(() => (
       <Sheet open side={side} body="Sheet body">
         <button type="button">Trigger</button>
@@ -21,7 +21,8 @@ describe('Sheet', () => {
 
     expect(content?.getAttribute('data-side')).toBe(side)
     expect(content?.className).toContain(expectedClass)
-    expect(content?.className).toContain('data-expanded:(animate-in fade-in-0)')
+    expect(content?.className).toContain(expandedClass)
+    expect(content?.className).toContain(closedClass)
   })
 
   test('applies inset + transition=false classes', () => {
@@ -43,9 +44,7 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="content"]')
 
     expect(content?.className).toContain('sm:(m-4 b-1 b-border rounded-2xl)')
-    expect(content?.className).toContain(
-      'transition-none data-expanded:animate-none data-closed:animate-none',
-    )
+    expect(content?.className).toContain('transition-none data-expanded:animate-none data-closed:animate-none')
     expect(content?.className).toContain('content-class')
   })
 

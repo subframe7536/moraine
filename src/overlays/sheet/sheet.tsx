@@ -237,7 +237,7 @@ export function Sheet(props: SheetProps): JSX.Element {
             data-slot="overlay"
             style={merged.styles?.overlay}
             class={cn(
-              'supports-backdrop-filter:backdrop-blur-xs data-ending-style:opacity-0 data-starting-style:opacity-0 bg-black/10 duration-150 inset-0 fixed z-50 data-closed:(animate-out fade-out-0) data-expanded:(animate-in fade-in-0)',
+              'supports-backdrop-filter:backdrop-blur-xs data-ending-style:opacity-0 data-starting-style:opacity-0 bg-black/10 duration-150 inset-0 fixed z-50 data-closed:animate-overlay-out data-expanded:animate-overlay-in',
               contentProps.classes?.overlay,
             )}
           />

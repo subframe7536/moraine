@@ -3,14 +3,16 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils'
 
 export const tooltipContentVariants = cva(
-  'text-xs px-2 py-1 outline-none rounded-md flex max-w-xs w-fit origin-$kb-tooltip-content-transform-origin items-baseline z-50 data-[state=delayed-open]:(animate-in fade-in-0 zoom-in-95) data-closed:(animate-out fade-out-0 zoom-out-95) data-expanded:(animate-in fade-in-0 zoom-in-95)',
+  'text-xs px-2 py-1 outline-none rounded-md flex max-w-xs w-fit origin-$kb-tooltip-content-transform-origin items-baseline z-50',
   {
     variants: {
       side: {
-        left: 'mr-$kb-popper-content-overflow-padding data-expanded:slide-in-from-right-1',
-        right: 'ml-$kb-popper-content-overflow-padding data-expanded:slide-in-from-left-1',
-        top: 'mb-$kb-popper-content-overflow-padding data-expanded:slide-in-from-bottom-1',
-        bottom: 'mt-$kb-popper-content-overflow-padding data-expanded:slide-in-from-top-1',
+        left: 'mr-$kb-popper-content-overflow-padding data-closed:animate-tooltip-out-to-right data-expanded:animate-tooltip-in-from-right',
+        right:
+          'ml-$kb-popper-content-overflow-padding data-closed:animate-tooltip-out-to-left data-expanded:animate-tooltip-in-from-left',
+        top: 'mb-$kb-popper-content-overflow-padding data-closed:animate-tooltip-out-to-bottom data-expanded:animate-tooltip-in-from-bottom',
+        bottom:
+          'mt-$kb-popper-content-overflow-padding data-closed:animate-tooltip-out-to-top data-expanded:animate-tooltip-in-from-top',
       },
       invert: {
         true: 'text-background bg-foreground',

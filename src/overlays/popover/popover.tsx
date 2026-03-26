@@ -1,7 +1,10 @@
 import * as KobaltePopover from '@kobalte/core/popover'
+import { usePopperContext } from '@kobalte/core/popper'
 import type { JSX } from 'solid-js'
-import { Show, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
+import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
+import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
+import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
@@ -73,6 +76,8 @@ export namespace PopoverT {
  */
 export interface PopoverProps extends PopoverT.Props {}
 
+type PopoverSide = OverlayMenuSide
+
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
   const merged = mergeProps(
@@ -103,6 +108,72 @@ export function Popover(props: PopoverProps): JSX.Element {
     clearTimeout(openTimer)
     clearTimeout(closeTimer)
   })
+
+  function Content(): JSX.Element {
+    const popperContext = usePopperContext()
+    const resolvedSide = createMemo<PopoverSide>(() => {
+      const runtimePlacement = popperContext.currentPlacement()
+
+      if (runtimePlacement) {
+        return resolveOverlayMenuSide(runtimePlacement)
+      }
+
+      return resolveOverlayMenuSide(behaviorProps.placement)
+    })
+
+    return (
+      <KobaltePopover.Content
+        data-slot="content"
+        style={merged.styles?.content}
+        class={popoverContentVariants(
+          { side: resolvedSide() },
+          contentProps.classes?.content,
+        )}
+        onPointerDownOutside={(event) => {
+          if (behaviorProps.dismissible) {
+            return
+          }
+          event.preventDefault()
+          hasPreventedPointerAttempt = true
+          clearTimeout(resetTimeout)
+          resetTimeout = setTimeout(() => {
+            hasPreventedPointerAttempt = false
+            resetTimeout = undefined
+          }, 0)
+          behaviorProps.onClosePrevent?.()
+        }}
+        onInteractOutside={(event) => {
+          if (behaviorProps.dismissible || event.defaultPrevented) {
+            return
+          }
+          event.preventDefault()
+          if (!hasPreventedPointerAttempt) {
+            behaviorProps.onClosePrevent?.()
+          }
+        }}
+        onEscapeKeyDown={(event) => {
+          if (behaviorProps.dismissible) {
+            return
+          }
+          event.preventDefault()
+          behaviorProps.onClosePrevent?.()
+        }}
+      >
+        <Show when={contentProps.content !== undefined && contentProps.content !== null}>
+          <div
+            data-slot="body"
+            style={merged.styles?.body}
+            class={cn(
+              'max-h-$kb-popper-content-available-height overflow-auto',
+              contentProps.classes?.body,
+            )}
+          >
+            {contentProps.content}
+          </div>
+        </Show>
+      </KobaltePopover.Content>
+    )
+  }
 
   return (
     <KobaltePopover.Root
@@ -153,56 +224,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         {contentProps.children}
       </KobaltePopover.Trigger>
       <KobaltePopover.Portal>
-        <KobaltePopover.Content
-          data-slot="content"
-          style={merged.styles?.content}
-          class={popoverContentVariants(
-            { side: behaviorProps.placement?.split('-')?.[0] as any },
-            contentProps.classes?.content,
-          )}
-          onPointerDownOutside={(event) => {
-            if (behaviorProps.dismissible) {
-              return
-            }
-            event.preventDefault()
-            hasPreventedPointerAttempt = true
-            clearTimeout(resetTimeout)
-            resetTimeout = setTimeout(() => {
-              hasPreventedPointerAttempt = false
-              resetTimeout = undefined
-            }, 0)
-            behaviorProps.onClosePrevent?.()
-          }}
-          onInteractOutside={(event) => {
-            if (behaviorProps.dismissible || event.defaultPrevented) {
-              return
-            }
-            event.preventDefault()
-            if (!hasPreventedPointerAttempt) {
-              behaviorProps.onClosePrevent?.()
-            }
-          }}
-          onEscapeKeyDown={(event) => {
-            if (behaviorProps.dismissible) {
-              return
-            }
-            event.preventDefault()
-            behaviorProps.onClosePrevent?.()
-          }}
-        >
-          <Show when={contentProps.content !== undefined && contentProps.content !== null}>
-            <div
-              data-slot="body"
-              style={merged.styles?.body}
-              class={cn(
-                'max-h-$kb-popper-content-available-height overflow-auto',
-                contentProps.classes?.body,
-              )}
-            >
-              {contentProps.content}
-            </div>
-          </Show>
-        </KobaltePopover.Content>
+        <Content />
       </KobaltePopover.Portal>
     </KobaltePopover.Root>
   )

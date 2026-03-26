@@ -28,7 +28,7 @@ describe('Modal', () => {
 
     expect(card?.className).toContain('bg-background')
     expect(card?.className).toContain('surface-overlay')
-    expect(content?.className).toContain('data-expanded:(animate-in fade-in-0 zoom-in-95)')
+    expect(content?.className).toContain('data-expanded:animate-surface-in')
   })
 
   test('composes dialog as popup container + card shell', () => {

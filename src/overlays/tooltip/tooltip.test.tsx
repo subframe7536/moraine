@@ -1,10 +1,36 @@
 import { render } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { createSignal } from 'solid-js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+
+let getMockPlacement: () => string = () => 'top'
+let setMockPlacement: (value: string) => void = () => undefined
+
+vi.mock('@kobalte/core/popper', async () => {
+  const actual = await vi.importActual<typeof import('@kobalte/core/popper')>(
+    '@kobalte/core/popper',
+  )
+
+  return {
+    ...actual,
+    usePopperContext: () => ({
+      currentPlacement: () => getMockPlacement(),
+      contentRef: () => undefined,
+      setPositionerRef: () => undefined,
+      setArrowRef: () => undefined,
+    }),
+  }
+})
 
 import { Tooltip } from './tooltip'
 import type { TooltipProps } from './tooltip'
 
 describe('Tooltip', () => {
+  beforeEach(() => {
+    const [placement, setPlacement] = createSignal('top')
+    getMockPlacement = placement
+    setMockPlacement = setPlacement
+  })
+
   test('renders text content when open is controlled', () => {
     render(() => (
       <Tooltip open text="Tooltip content">
@@ -90,5 +116,32 @@ describe('Tooltip', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
+  })
+
+  test('uses runtime placement to resolve side-aware animation classes', () => {
+    const [version, setVersion] = createSignal(0)
+
+    render(() => {
+      version()
+
+      return (
+        <Tooltip open side="top" text="Tooltip content">
+          <button type="button">Trigger</button>
+        </Tooltip>
+      )
+    })
+
+    const initialContent = document.body.querySelector('[data-slot="content"]')
+    expect(initialContent?.className).toContain('data-expanded:animate-tooltip-in-from-bottom')
+    expect(initialContent?.className).toContain('data-closed:animate-tooltip-out-to-bottom')
+    expect(initialContent?.className).not.toContain('data-expanded:animate-tooltip-in-from-top')
+
+    setMockPlacement('bottom')
+    setVersion(1)
+
+    const updatedContent = document.body.querySelector('[data-slot="content"]')
+    expect(updatedContent?.className).toContain('data-expanded:animate-tooltip-in-from-top')
+    expect(updatedContent?.className).toContain('data-closed:animate-tooltip-out-to-top')
+    expect(updatedContent?.className).not.toContain('data-expanded:animate-tooltip-in-from-bottom')
   })
 })
