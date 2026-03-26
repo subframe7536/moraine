@@ -4,10 +4,10 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
-import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
-import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
+import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
+import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
 
 import { tooltipContentVariants } from './tooltip.class'
 import type { TooltipVariantProps } from './tooltip.class'
@@ -17,8 +17,8 @@ export namespace TooltipT {
   export type Variant = TooltipVariantProps
   export interface Items {}
   export type Extend = KobalteTooltip.TooltipRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Tooltip component.

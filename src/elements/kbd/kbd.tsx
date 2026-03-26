@@ -11,9 +11,9 @@ export namespace KbdT {
   export type Slot = 'root' | 'item'
   export type Variant = KbdVariantProps
   export interface Items {}
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
   /**
    * Base props for the Kbd component.
    */

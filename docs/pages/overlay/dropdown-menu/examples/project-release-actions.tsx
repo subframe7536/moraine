@@ -8,7 +8,7 @@ export function ProjectReleaseActions() {
   const badgeClass =
     'rounded-md b-1 b-border border-border bg-muted px-1.5 py-0.5 font-medium text-[11px] text-foreground'
 
-  const projectItems: DropdownMenuT.Items = [
+  const projectItems: NonNullable<DropdownMenuT.Base['items']> = [
     [
       {
         type: 'label',

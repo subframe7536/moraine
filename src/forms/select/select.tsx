@@ -54,23 +54,6 @@ import type {
 export namespace SelectT {
   export type Value = string | number
 
-  export interface Items {
-    /** Label to display for the option. */
-    label?: string | JSX.Element
-    /** Text key used for filtering and matching; set this when `label` is not a string. */
-    key?: string
-    /** Value of the option. */
-    value?: Value
-    /** Whether the option is disabled. */
-    disabled?: boolean
-    /** Description shown below the label. */
-    description?: string | JSX.Element
-    /** Icon shown next to the label. */
-    icon?: IconT.Name
-    /** One-layer child options for grouped select. */
-    children?: Items[]
-  }
-
   export interface OptionRenderState {
     /** Whether the option is currently selected. */
     isSelected: boolean
@@ -107,13 +90,26 @@ export namespace SelectT {
     | 'empty'
 
   export type Variant = SelectControlVariantProps
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
-  export type Extend = Omit<
-    ComboboxRootProps<NormalizedOption, NormalizedGroup>,
-    'multiple' | 'value' | 'defaultValue' | 'onChange'
-  >
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export interface Items {
+    /** Label to display for the option. */
+    label?: string | JSX.Element
+    /** Text key used for filtering and matching; set this when `label` is not a string. */
+    key?: string
+    /** Value of the option. */
+    value?: Value
+    /** Whether the option is disabled. */
+    disabled?: boolean
+    /** Description shown below the label. */
+    description?: string | JSX.Element
+    /** Icon shown next to the label. */
+    icon?: IconT.Name
+    /** One-layer child options for grouped select. */
+    children?: Items[]
+  }
+  export type Extend = ComboboxRootProps<NormalizedOption, NormalizedGroup>
 
   /**
    * Base props for the Select component.
@@ -187,15 +183,13 @@ export namespace SelectT {
   /**
    * Props for the Select component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot, 'multiple'> {}
 }
 
 /**
  * Props for the Select component.
  */
-export type SelectProps = Omit<SelectT.Props, 'multiple'> & {
-  multiple?: never
-}
+export interface SelectProps extends SelectT.Props {}
 
 type NormalizedOption = SharedNormalizedOption<SelectT.Items>
 type NormalizedGroup = SharedNormalizedGroup<SelectT.Items>

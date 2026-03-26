@@ -4,7 +4,11 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { buildExamplePageEntries, buildExamplePagesModuleCode, scanExamplePages } from './example-pages'
+import {
+  buildExamplePageEntries,
+  buildExamplePagesModuleCode,
+  scanExamplePages,
+} from './example-pages'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'flint-ui-example-pages-'))
@@ -61,7 +65,11 @@ describe('buildExamplePageEntries', () => {
   test('prefers component names and falls back to title case labels', () => {
     const pages = buildExamplePageEntries(
       [
-        { key: 'multi-select', group: 'form', importPath: './pages/form/multi-select/multi-select.md' },
+        {
+          key: 'multi-select',
+          group: 'form',
+          importPath: './pages/form/multi-select/multi-select.md',
+        },
         { key: 'style-setup', importPath: './pages/style-setup.md' },
       ],
       new Map([['multi-select', 'MultiSelect']]),

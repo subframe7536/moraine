@@ -58,13 +58,13 @@ export namespace FormT {
 
   export type Slot = 'root'
 
-  export interface Variant {}
+  export type Variant = {}
 
   export interface Items {}
 
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Form component.

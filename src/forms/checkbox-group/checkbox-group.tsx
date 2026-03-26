@@ -36,7 +36,10 @@ export namespace CheckboxGroupT {
     | 'description'
 
   export type Variant = CheckboxGroupVariantProps
-  export interface Item<TTrue = boolean, TFalse = boolean> {
+
+  export type Extend = never
+
+  export interface Items<TTrue = boolean, TFalse = boolean> {
     /**
      * Value of the group item.
      */
@@ -66,25 +69,20 @@ export namespace CheckboxGroupT {
      */
     indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
   }
-
-  export interface Extend {}
-
   /**
    * Class overrides for CheckboxGroup and its items.
    */
-  export interface Classes<TTrue = boolean, TFalse = boolean> extends Omit<
+  export type Classes<TTrue = boolean, TFalse = boolean> = Omit<
     NonNullable<CheckboxProps<TTrue, TFalse>['classes']>,
     'root'
-  > {
+  > & {
     root?: string
     fieldset?: string
     legend?: string
     item?: string
   }
 
-  export interface Styles extends SlotStyles<Slot> {}
-
-  export type Items<TTrue = boolean, TFalse = boolean> = string | Item<TTrue, TFalse>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the CheckboxGroup component.
@@ -99,7 +97,7 @@ export namespace CheckboxGroupT {
     /**
      * Array of items to render in the group.
      */
-    items?: Items<TTrue, TFalse>[]
+    items?: (string | Items<TTrue, TFalse>)[]
 
     /**
      * Default indicator position for all items.

@@ -6,11 +6,11 @@ import { cn } from '../../shared/utils'
 
 export namespace CardT {
   export type Slot = 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
-  export interface Variant {}
+  export type Variant = {}
   export interface Items {}
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Card component.

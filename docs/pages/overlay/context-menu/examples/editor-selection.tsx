@@ -8,7 +8,7 @@ export function EditorSelection() {
   const [showInlineHints, setShowInlineHints] = createSignal(false)
   const [editorTheme, setEditorTheme] = createSignal<'light' | 'dark' | 'system'>('dark')
 
-  const editorItems = createMemo<ContextMenuT.Items>(() => [
+  const editorItems = createMemo<NonNullable<ContextMenuT.Base['items']>>(() => [
     [
       { type: 'label', label: 'Editor Selection' },
       {

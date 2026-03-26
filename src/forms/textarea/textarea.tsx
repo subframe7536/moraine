@@ -33,9 +33,9 @@ export namespace TextareaT {
   export type Value = string | number | undefined
   export type ChangeValue = Value | null
 
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Textarea component.

@@ -7,11 +7,11 @@ import { cn } from '../../shared/utils'
 
 export namespace CollapsibleT {
   export type Slot = 'root' | 'trigger' | 'content'
-  export interface Variant {}
+  export type Variant = {}
   export interface Items {}
   export type Extend = KobalteCollapsible.CollapsibleRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Props passed to the trigger render function.

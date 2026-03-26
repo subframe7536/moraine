@@ -1,14 +1,16 @@
+import type * as KPopper from '@kobalte/core/popper'
 import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
+
+import { Tooltip } from './tooltip'
+import type { TooltipProps } from './tooltip'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
 
 vi.mock('@kobalte/core/popper', async () => {
-  const actual = await vi.importActual<typeof import('@kobalte/core/popper')>(
-    '@kobalte/core/popper',
-  )
+  const actual = await vi.importActual<typeof KPopper>('@kobalte/core/popper')
 
   return {
     ...actual,
@@ -20,9 +22,6 @@ vi.mock('@kobalte/core/popper', async () => {
     }),
   }
 })
-
-import { Tooltip } from './tooltip'
-import type { TooltipProps } from './tooltip'
 
 describe('Tooltip', () => {
   beforeEach(() => {
@@ -121,6 +120,7 @@ describe('Tooltip', () => {
   test('uses runtime placement to resolve side-aware animation classes', () => {
     const [version, setVersion] = createSignal(0)
 
+    // oxlint-disable-next-line solid/reactivity
     render(() => {
       version()
 

@@ -30,7 +30,7 @@ export interface OverlayMenuSharedItem<TColor extends string, TItem> {
   /**
    * Icon name or custom element to display at the start of the item.
    */
-  icon?: IconT.Name | JSX.Element
+  icon?: IconT.Name
 
   /**
    * Array of keyboard shortcuts to display as keys.

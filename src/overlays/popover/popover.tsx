@@ -3,10 +3,10 @@ import { usePopperContext } from '@kobalte/core/popper'
 import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
-import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
+import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
+import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
 
 import { popoverContentVariants } from './popover.class'
 import type { PopoverContentVariantProps } from './popover.class'
@@ -18,8 +18,8 @@ export namespace PopoverT {
   export type Variant = PopoverContentVariantProps
   export interface Items {}
   export type Extend = KobaltePopover.PopoverRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Popover component.
@@ -125,10 +125,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       <KobaltePopover.Content
         data-slot="content"
         style={merged.styles?.content}
-        class={popoverContentVariants(
-          { side: resolvedSide() },
-          contentProps.classes?.content,
-        )}
+        class={popoverContentVariants({ side: resolvedSide() }, contentProps.classes?.content)}
         onPointerDownOutside={(event) => {
           if (behaviorProps.dismissible) {
             return

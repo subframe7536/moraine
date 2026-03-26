@@ -27,8 +27,8 @@ export namespace SheetT {
   export type Variant = SheetVariantProps
   export interface Items {}
   export type Extend = KobalteDialog.DialogRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Sheet component.

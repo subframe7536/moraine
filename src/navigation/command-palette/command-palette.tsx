@@ -42,7 +42,7 @@ export namespace CommandPaletteT {
     | 'back'
     | 'close'
     | 'empty'
-  export interface Variant {}
+  export type Variant = {}
   /**
    * An individual item in the command palette.
    */
@@ -124,10 +124,10 @@ export namespace CommandPaletteT {
     children?: Item[]
   }
 
-  export interface Extend {}
+  export type Extend = never
 
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the CommandPalette component.

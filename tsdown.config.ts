@@ -40,10 +40,7 @@ const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
                   return false
                 }
                 // Keep animate-* and keyframes-* tokens for presetTheme animations
-                if (
-                  e.includes('animate-') ||
-                  e.includes('keyframes-')
-                ) {
+                if (e.includes('animate-') || e.includes('keyframes-')) {
                   return false
                 }
                 // Keep shortcuts

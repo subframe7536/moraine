@@ -89,9 +89,9 @@ export namespace BreadcrumbT {
     disabled: boolean
   }
 
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Breadcrumb component.

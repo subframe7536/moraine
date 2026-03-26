@@ -8,12 +8,12 @@ import { cn } from '../../shared/utils'
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
   export type Slot = 'icon'
-  export interface Variant {}
+  export type Variant = {}
   export interface Items {}
-  export interface Extend {}
+  export type Extend = never
 
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Icon component.

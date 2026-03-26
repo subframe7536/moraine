@@ -121,8 +121,8 @@ export namespace MultiSelectT {
   export type Variant = SelectControlVariantProps
 
   export type Extend = ComboboxRootProps<NormalizedOption, NormalizedGroup>
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the MultiSelect component.
@@ -210,21 +210,13 @@ export namespace MultiSelectT {
   /**
    * Props for the MultiSelect component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot, 'multiple'> {}
 }
 
 /**
  * Props for the MultiSelect component.
  */
-export interface MultiSelectProps extends Omit<
-  MultiSelectT.Props,
-  'multiple' | 'value' | 'defaultValue' | 'onChange'
-> {
-  value?: MultiSelectT.Value[]
-  defaultValue?: MultiSelectT.Value[]
-  onChange?: (value: MultiSelectT.Value[]) => void
-  multiple?: never
-}
+export interface MultiSelectProps extends MultiSelectT.Props {}
 
 // ---------------------------------------------------------------------------
 // Normalized option types (internal)

@@ -1,6 +1,6 @@
 import * as KobalteButton from '@kobalte/core/button'
 import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
@@ -13,14 +13,15 @@ import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonT {
   export type Slot = 'root' | 'icon'
-  export interface Variant extends IconButtonVariantProps {}
+  export type Variant = IconButtonVariantProps
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
+
   export interface Items {}
-  export type Extend<T extends ValidComponent = 'button'> = PolymorphicProps<
-    T,
-    KobalteButton.ButtonRootProps<ElementOf<T>>
+  export type Extend = Omit<
+    PolymorphicProps<'button', KobalteButton.ButtonRootProps<ElementOf<'button'>>>,
+    'as'
   >
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
   /**
    * Base props for the IconButton component.
    */
@@ -52,20 +53,18 @@ export namespace IconButtonT {
   /**
    * Props for the IconButton component.
    */
-  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base, Variant, Extend<T>, Slot>
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**
  * Props for the IconButton component.
  */
-export type IconButtonProps<T extends ValidComponent = 'button'> = IconButtonT.Props<T>
+export interface IconButtonProps extends IconButtonT.Props {}
 
 /**
  * Button with icon, without padding
  */
-export function IconButton<T extends ValidComponent = 'button'>(
-  props: IconButtonProps<T>,
-): JSX.Element {
+export function IconButton(props: IconButtonProps): JSX.Element {
   const [localProps, restProps] = splitProps(props as IconButtonProps, [
     'classes',
     'styles',
@@ -78,7 +77,7 @@ export function IconButton<T extends ValidComponent = 'button'>(
     'onClick',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<ElementOf<T>, MouseEvent>({
+  const { isLoading, onClick } = useLoadingAutoClick<ElementOf<'button'>, MouseEvent>({
     loading: () => localProps.loading,
     loadingAuto: () => localProps.loadingAuto,
     onClick: () => localProps.onClick,

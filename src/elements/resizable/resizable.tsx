@@ -44,9 +44,9 @@ export namespace ResizableT {
   export type Slot = 'root' | 'panel' | 'divider' | 'handle' | 'crossTarget'
   export type Variant = ResizableVariantProps
   export interface Items extends ResizablePanelItem {}
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
   export interface HandleState {
     orientation: ResizableOrientation
     disabled: boolean

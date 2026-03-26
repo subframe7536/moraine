@@ -24,13 +24,12 @@ type DropdownMenuSize = NonNullable<OverlayMenuItemVariantProps['size']>
 
 export namespace DropdownMenuT {
   export type Slot = OverlayMenuSharedSlots
-  export interface Variant {}
-  export type Extend = KobalteDropdownMenu.DropdownMenuRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Variant = {}
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
-  export type Item = OverlayMenuSharedItem<DropdownMenuColor, Item>
-  export type Items = OverlayMenuItems<Item>
+  export interface Items extends OverlayMenuSharedItem<DropdownMenuColor, Items> {}
+  export type Extend = KobalteDropdownMenu.DropdownMenuRootProps
 
   /**
    * Base props for the DropdownMenu component.
@@ -83,7 +82,7 @@ export namespace DropdownMenuT {
     /**
      * Items to display in the dropdown menu.
      */
-    items?: Items
+    items?: OverlayMenuItems<Items>
 
     /**
      * Icon name for checked selection states.
@@ -100,7 +99,7 @@ export namespace DropdownMenuT {
     /**
      * Custom renderer for individual dropdown menu items.
      */
-    itemRender?: (context: OverlayMenuSharedItemRenderContext<Item>) => JSX.Element
+    itemRender?: (context: OverlayMenuSharedItemRenderContext<Items>) => JSX.Element
 
     /**
      * Content to render at the top of the dropdown menu body.
@@ -167,7 +166,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         {localProps.children}
       </KobalteDropdownMenu.Trigger>
 
-      <OverlayMenuBaseContent<DropdownMenuT.Item>
+      <OverlayMenuBaseContent<DropdownMenuT.Items>
         content={KobalteDropdownMenu.Content}
         classes={localProps.classes}
         styles={localProps.styles}

@@ -38,37 +38,34 @@ export namespace RadioGroupT {
     | 'description'
 
   export type Variant = RadioGroupVariantProps
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
-   * A radio item: either a string (shorthand for value and label) or an object.
+   * A radio item object.
    */
-  export type Items =
-    | string
-    | {
-        /**
-         * Value of the radio item.
-         */
-        value?: string
+  export interface Items {
+    /**
+     * Value of the radio item.
+     */
+    value?: string
 
-        /**
-         * Label for the radio item.
-         */
-        label?: JSX.Element
+    /**
+     * Label for the radio item.
+     */
+    label?: JSX.Element
 
-        /**
-         * Description for the radio item.
-         */
-        description?: JSX.Element
+    /**
+     * Description for the radio item.
+     */
+    description?: JSX.Element
 
-        /**
-         * Whether the item is disabled.
-         */
-        disabled?: boolean
-      }
-
+    /**
+     * Whether the item is disabled.
+     */
+    disabled?: boolean
+  }
   export type Extend = KobalteRadioGroup.RadioGroupRootProps
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
 
   /**
    * Base props for the RadioGroup component.
@@ -88,7 +85,7 @@ export namespace RadioGroupT {
     /**
      * Array of items to render in the group.
      */
-    items?: Items[]
+    items?: (string | Items)[]
 
     /**
      * Callback when the selected value changes.

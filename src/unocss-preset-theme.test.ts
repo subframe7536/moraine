@@ -146,8 +146,12 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-surface-in{')
     expect(css).toContain('.animate-menu-in-from-top{')
     expect(css).toContain('.animate-sheet-out-to-right{')
-    expect(css).toContain('animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1')
-    expect(css).toContain('animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1')
+    expect(css).toContain(
+      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+    )
+    expect(css).toContain(
+      'animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1',
+    )
     expect(css).toContain('--flint-enter-opacity:0')
     expect(css).toContain('--flint-enter-scale:0.95')
     expect(css).toContain('--flint-enter-translate-y:-0.5rem')
@@ -189,8 +193,12 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-surface-out{')
     expect(css).toContain('.animate-sheet-in-from-right{')
     expect(css).toContain('.animate-sheet-out-to-right{')
-    expect(css).toContain('animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1')
-    expect(css).toContain('animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1')
+    expect(css).toContain(
+      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+    )
+    expect(css).toContain(
+      'animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1',
+    )
     expect(css).toContain('--flint-enter-translate-x:2.5rem')
     expect(css).toContain('--flint-exit-translate-x:2.5rem')
     expect(css).not.toContain('--flint-enter-scale:0.9;--flint-enter-translate-x:2.5rem')
@@ -226,7 +234,9 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-sheet-in-from-left{')
     expect(css).toContain('--flint-enter-translate-x:-2.5rem')
     expect(css).toContain('.animate-sheet-in-from-right{')
-    expect(css).toContain('animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1')
+    expect(css).toContain(
+      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+    )
     expect(css).toContain('--flint-enter-translate-x:2.5rem')
   })
 })

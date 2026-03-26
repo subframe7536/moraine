@@ -9,7 +9,7 @@ export function EditorViewOptions() {
   const [autoSave, setAutoSave] = createSignal(true)
   const [theme, setTheme] = createSignal<'light' | 'dark' | 'system'>('dark')
 
-  const editorItems = createMemo<DropdownMenuT.Items>(() => [
+  const editorItems = createMemo<NonNullable<DropdownMenuT.Base['items']>>(() => [
     [
       { type: 'label', label: 'Editor' },
       {

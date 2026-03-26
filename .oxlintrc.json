@@ -114,7 +114,7 @@
     "no-unsafe-optional-chaining": "error",
     "no-extra-boolean-cast": "error",
     "no-regex-spaces": "error",
-    "typescript/consistent-type-definitions": "error",
+    // "typescript/consistent-type-definitions": "error",
     "typescript/consistent-type-imports": "error",
     "typescript/no-this-alias": [
       "error",

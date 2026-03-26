@@ -13,9 +13,9 @@ export namespace BadgeT {
   export type Slot = 'root' | 'leading' | 'label' | 'trailing'
   export type Variant = BadgeVariantProps
   export interface Items {}
-  export interface Extend {}
-  export interface Classes extends SlotClasses<Slot> {}
-  export interface Styles extends SlotStyles<Slot> {}
+  export type Extend = never
+  export type Classes = SlotClasses<Slot>
+  export type Styles = SlotStyles<Slot>
 
   /**
    * Base props for the Badge component.
