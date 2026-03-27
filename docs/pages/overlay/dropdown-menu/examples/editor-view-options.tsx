@@ -49,7 +49,7 @@ export function EditorViewOptions() {
                       type: 'group',
                       children: [
                         {
-                          label: 'Flint UI',
+                          label: 'Moraine',
                           description: 'packages + docs',
                           icon: 'i-lucide-folder-kanban',
                         },

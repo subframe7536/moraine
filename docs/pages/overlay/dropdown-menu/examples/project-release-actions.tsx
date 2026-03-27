@@ -13,7 +13,7 @@ export function ProjectReleaseActions() {
       type: 'group',
       label: (
         <div class="flex gap-2 items-center">
-          <span>Project: flint-ui</span>
+          <span>Project: moraine</span>
           <span class={badgeClass}>main</span>
         </div>
       ),

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "flint-ui",
+      "name": "moraine",
       "dependencies": {
         "@kobalte/core": "~0.13.11",
         "@kobalte/utils": "*",

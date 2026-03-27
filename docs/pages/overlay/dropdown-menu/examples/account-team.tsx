@@ -25,7 +25,7 @@ export function AccountTeam() {
                     <span class={badgeClass}>Owner</span>
                   </div>
                 ),
-                description: 'alex@flintui.dev',
+                description: 'alex@moraine.dev',
                 icon: <span class={avatarClass}>AM</span>,
                 onSelect: () => setLastAction('Open account profile'),
               },

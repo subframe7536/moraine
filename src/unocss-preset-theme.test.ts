@@ -38,7 +38,7 @@ async function applyPreTransformers(
 
 async function generateComponentLayerCss(
   strategy: 'hash' | 'prefix',
-  utilityPrefix: `${string}-` = 'fl-',
+  utilityPrefix: `${string}-` = 'mr-',
 ): Promise<{
   componentCode: string
   consumerCode: string
@@ -90,7 +90,7 @@ describe('presetTheme component layer', () => {
     expect(resolvePresetThemeOptions({ enableComponentLayer: true })).toMatchObject({
       enableComponentLayer: true,
       strategy: 'prefix',
-      utilityPrefix: 'fl-',
+      utilityPrefix: 'mo-',
     })
   })
 
@@ -99,7 +99,7 @@ describe('presetTheme component layer', () => {
 
     expect(componentCode).toContain('ui-bg-transparent')
     expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: flint-component */')
+    expect(css).toContain('/* layer: moraine-component */')
     expect(css).toContain('.ui-bg-transparent{background-color:transparent;}')
     expect(css).toContain('/* layer: default */')
     expect(css).toContain(
@@ -111,11 +111,12 @@ describe('presetTheme component layer', () => {
   test('hash strategy hashes only component-owned utilities and leaves user overrides raw', async () => {
     const { componentCode, consumerCode, css } = await generateComponentLayerCss('hash')
 
-    expect(componentCode).toMatch(/flc-[a-z0-9]+/)
+    expect(componentCode).toMatch(/mrc-[a-z0-9]+/)
     expect(componentCode).not.toContain('bg-transparent')
+    console.log(componentCode)
     expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: flint-component */')
-    expect(css).toMatch(/\.flc-[a-z0-9]+\{background-color:transparent;\}/)
+    expect(css).toContain('/* layer: moraine-component */')
+    expect(css).toMatch(/\.mrc-[a-z0-9]+\{background-color:transparent;\}/)
     expect(css).toContain('/* layer: default */')
     expect(css).toContain(
       '.bg-background{background-color:color-mix(in srgb, var(--background) var(--un-bg-opacity), transparent);}',
@@ -140,25 +141,25 @@ describe('presetTheme component layer', () => {
       { preflights: true },
     )
 
-    expect(css).toContain('@keyframes flint-enter')
-    expect(css).toContain('@keyframes flint-exit')
+    expect(css).toContain('@keyframes moraine-enter')
+    expect(css).toContain('@keyframes moraine-exit')
     expect(css).toContain('.animate-overlay-in{')
     expect(css).toContain('.animate-surface-in{')
     expect(css).toContain('.animate-menu-in-from-top{')
     expect(css).toContain('.animate-sheet-out-to-right{')
     expect(css).toContain(
-      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+      'animation:moraine-enter var(--moraine-animation-duration,150ms) ease-in-out 1',
     )
     expect(css).toContain(
-      'animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1',
+      'animation:moraine-exit var(--moraine-animation-duration,150ms) ease-in-out 1',
     )
-    expect(css).toContain('--flint-enter-opacity:0')
-    expect(css).toContain('--flint-enter-scale:0.95')
-    expect(css).toContain('--flint-enter-translate-y:-0.5rem')
-    expect(css).toContain('--flint-exit-translate-x:2.5rem')
-    expect(css).toContain('--flint-exit-scale:0.95')
-    expect(css).not.toContain('animation:flint-enter;}')
-    expect(css).not.toContain('animation:flint-exit;}')
+    expect(css).toContain('--moraine-enter-opacity:0')
+    expect(css).toContain('--moraine-enter-scale:0.9')
+    expect(css).toContain('--moraine-enter-translate-y:-0.5rem')
+    expect(css).toContain('--moraine-exit-translate-x:2.5rem')
+    expect(css).toContain('--moraine-exit-scale:0.9')
+    expect(css).not.toContain('animation:moraine-enter;}')
+    expect(css).not.toContain('animation:moraine-exit;}')
     expect(css).not.toContain('@keyframes surface-in')
     expect(css).not.toContain('@keyframes menu-in-from-top')
     expect(css).not.toContain('@keyframes sheet-out-to-right')
@@ -183,25 +184,25 @@ describe('presetTheme component layer', () => {
     )
 
     expect(css).toContain('.animate-menu-in-from-left{')
-    expect(css).toContain('--flint-enter-scale:0.9')
-    expect(css).toContain('--flint-enter-translate-x:-0.5rem')
+    expect(css).toContain('--moraine-enter-scale:0.9')
+    expect(css).toContain('--moraine-enter-translate-x:-0.5rem')
     expect(css).toContain('.animate-menu-out-to-left{')
-    expect(css).toContain('--flint-exit-scale:0.9')
-    expect(css).toContain('--flint-exit-translate-x:-0.5rem')
+    expect(css).toContain('--moraine-exit-scale:0.9')
+    expect(css).toContain('--moraine-exit-translate-x:-0.5rem')
     expect(css).toContain('.animate-popover-in-from-top{')
     expect(css).toContain('.animate-tooltip-in-from-bottom{')
     expect(css).toContain('.animate-surface-out{')
     expect(css).toContain('.animate-sheet-in-from-right{')
     expect(css).toContain('.animate-sheet-out-to-right{')
     expect(css).toContain(
-      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+      'animation:moraine-enter var(--moraine-animation-duration,150ms) ease-in-out 1',
     )
     expect(css).toContain(
-      'animation:flint-exit var(--flint-animation-duration,150ms) ease-in-out 1',
+      'animation:moraine-exit var(--moraine-animation-duration,150ms) ease-in-out 1',
     )
-    expect(css).toContain('--flint-enter-translate-x:2.5rem')
-    expect(css).toContain('--flint-exit-translate-x:2.5rem')
-    expect(css).not.toContain('--flint-enter-scale:0.9;--flint-enter-translate-x:2.5rem')
+    expect(css).toContain('--moraine-enter-translate-x:2.5rem')
+    expect(css).toContain('--moraine-exit-translate-x:2.5rem')
+    expect(css).not.toContain('--moraine-enter-scale:0.9;--moraine-enter-translate-x:2.5rem')
   })
 
   test('matches old preset horizontal direction signs for semantic enter animations', async () => {
@@ -223,20 +224,20 @@ describe('presetTheme component layer', () => {
       { preflights: true },
     )
 
-    expect(css).toContain('.animate-menu-in-from-left{')
-    expect(css).toContain('--flint-enter-translate-x:-0.5rem')
-    expect(css).toContain('.animate-menu-in-from-right{')
-    expect(css).toContain('--flint-enter-translate-x:0.5rem')
+    expect(css).toContain('.animate-menu-in-from-left,')
+    expect(css).toContain('--moraine-enter-translate-x:-0.5rem')
+    expect(css).toContain('.animate-menu-in-from-right,')
+    expect(css).toContain('--moraine-enter-translate-x:0.5rem')
     expect(css).toContain('.animate-popover-in-from-left{')
     expect(css).toContain('.animate-popover-in-from-right{')
-    expect(css).toContain('--flint-enter-translate-x:-0.25rem')
-    expect(css).toContain('--flint-enter-translate-x:0.25rem')
+    expect(css).toContain('--moraine-enter-translate-x:-0.25rem')
+    expect(css).toContain('--moraine-enter-translate-x:0.25rem')
     expect(css).toContain('.animate-sheet-in-from-left{')
-    expect(css).toContain('--flint-enter-translate-x:-2.5rem')
+    expect(css).toContain('--moraine-enter-translate-x:-2.5rem')
     expect(css).toContain('.animate-sheet-in-from-right{')
     expect(css).toContain(
-      'animation:flint-enter var(--flint-animation-duration,150ms) ease-in-out 1',
+      'animation:moraine-enter var(--moraine-animation-duration,150ms) ease-in-out 1',
     )
-    expect(css).toContain('--flint-enter-translate-x:2.5rem')
+    expect(css).toContain('--moraine-enter-translate-x:2.5rem')
   })
 })

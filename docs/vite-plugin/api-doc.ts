@@ -93,7 +93,7 @@ function inferModuleFromFileName(fileName: string): string {
   const normalized = fileName.replaceAll('\\', '/')
   const idx = normalized.lastIndexOf('/node_modules/')
   if (idx === -1) {
-    return 'Flint UI'
+    return 'Moraine'
   }
 
   const rest = normalized.slice(idx + '/node_modules/'.length)
@@ -545,7 +545,7 @@ export function componentApiPlugin(): Plugin {
   let projectRoot: string
 
   return {
-    name: 'flint-ui-api-doc',
+    name: 'moraine-api-doc',
     enforce: 'pre',
 
     configResolved(config) {

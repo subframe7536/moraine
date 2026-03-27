@@ -1,6 +1,6 @@
 ## Variants
 
-Visual variants from the Flint UI button class contract.
+Visual variants from the Moraine button class contract.
 
 :::example
 name: Variants

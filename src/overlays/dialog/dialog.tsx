@@ -241,12 +241,14 @@ export function Dialog(props: DialogProps): JSX.Element {
             as={IconButton}
             name={behaviorProps.closeIcon}
             data-slot="close"
-            style={merged.styles?.close}
+            styles={{ root: merged.styles?.close }}
             aria-label="Close"
-            class={cn(
-              'p-1 rounded-sm size-7 transition-opacity right-4 top-4 absolute focus-visible:effect-fv hover:bg-accent',
-              contentProps.classes?.close,
-            )}
+            classes={{
+              root: [
+                'p-1 rounded-sm size-7 transition-opacity right-4 top-4 absolute focus-visible:effect-fv hover:bg-accent',
+                contentProps.classes?.close,
+              ],
+            }}
           />
         </Show>
       </>

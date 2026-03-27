@@ -12,7 +12,7 @@ export interface ExamplePageEntry {
 }
 
 const VIRTUAL_EXAMPLE_PAGES = 'virtual:example-pages'
-const RESOLVED_VIRTUAL_EXAMPLE_PAGES = '\0flint-ui-example-pages'
+const RESOLVED_VIRTUAL_EXAMPLE_PAGES = '\0moraine-example-pages'
 
 function toPosixPath(filePath: string): string {
   return filePath.replaceAll('\\', '/')
@@ -163,7 +163,7 @@ export function examplePagesPlugin(): Plugin {
   let projectRoot = ''
 
   return {
-    name: 'flint-ui-example-pages',
+    name: 'moraine-example-pages',
     enforce: 'pre',
 
     configResolved(config) {

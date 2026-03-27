@@ -16,7 +16,7 @@ export function SingleAvatar() {
   return (
     <div class="flex gap-4 items-center">
       <Avatar
-        items={[{ src: source(), alt: 'Flint UI' }]}
+        items={[{ src: source(), alt: 'Moraine' }]}
         classes={{
           root: 'ring-ring',
         }}

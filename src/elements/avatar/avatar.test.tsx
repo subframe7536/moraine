@@ -60,7 +60,7 @@ describe('Avatar', () => {
   })
 
   test('treats one item as single avatar structure', () => {
-    const screen = render(() => <Avatar items={[{ text: 'FL' }]} />)
+    const screen = render(() => <Avatar items={[{ text: 'MR' }]} />)
 
     expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="group"]')).toBeNull()
@@ -69,20 +69,20 @@ describe('Avatar', () => {
 
   test('renders fallback first while image is loading', () => {
     outcomesBySrc.set('/loading.png', 'pending')
-    const screen = render(() => <Avatar items={[{ src: '/loading.png', text: 'FL' }]} />)
+    const screen = render(() => <Avatar items={[{ src: '/loading.png', text: 'MR' }]} />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]')
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
     expect(root?.getAttribute('data-status')).toBe('loading')
-    expect(image?.className).toContain('opacity-0')
-    expect(fallback?.textContent).toBe('RK')
+    expect(image?.className).toContain('hidden-hitless')
+    expect(fallback?.textContent).toBe('MR')
   })
 
   test('switches to loaded state and crossfades image', async () => {
     outcomesBySrc.set('/loaded.png', 'success')
-    const screen = render(() => <Avatar items={[{ src: '/loaded.png', alt: 'Flint UI' }]} />)
+    const screen = render(() => <Avatar items={[{ src: '/loaded.png', alt: 'Moraine' }]} />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
@@ -94,7 +94,7 @@ describe('Avatar', () => {
 
     expect(image?.getAttribute('src')).toContain('/loaded.png')
     expect(image?.className).toContain('opacity-100')
-    expect(fallback?.className).toContain('opacity-0')
+    expect(fallback?.className).toContain('hidden-hitless')
   })
 
   test('uses fallback icon on error state', async () => {
@@ -167,10 +167,10 @@ describe('Avatar', () => {
   })
 
   test('generates initials from alt when text is not provided', () => {
-    const screen = render(() => <Avatar items={[{ alt: 'Flint UI Team' }]} />)
+    const screen = render(() => <Avatar items={[{ alt: 'Moraine Team' }]} />)
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
-    expect(fallback?.textContent).toBe('FU')
+    expect(fallback?.textContent).toBe('MT')
   })
 
   test('resets to loading state when src changes', async () => {
@@ -182,7 +182,7 @@ describe('Avatar', () => {
       const [source, setSourceSignal] = createSignal('/first.png')
       setSource = setSourceSignal
 
-      return <Avatar items={[{ src: source(), text: 'FL' }]} />
+      return <Avatar items={[{ src: source(), text: 'MR' }]} />
     })
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -277,7 +277,7 @@ describe('Avatar', () => {
   test('applies styles overrides to all slots', () => {
     const screen = render(() => (
       <Avatar
-        items={[{ src: '/loading.png', text: 'FL', icon: 'i-lucide-check' }]}
+        items={[{ src: '/loading.png', text: 'MR', icon: 'i-lucide-check' }]}
         styles={
           {
             root: { width: '200px' },

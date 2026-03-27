@@ -1,22 +1,8 @@
-<p align="center">
-  <svg width="128" height="128" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <rect fill="#212a36" width="512" height="512" x="0" y="0" rx="100" />
-    <g fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M106 231.1L223.07 107l148.71 36.21L406 322.27l-89.53 82.39-166.76-28.83z" />
-      <path d="M223.42 112.98l3.99 63.16 89.06 37.27 55.31-70.31" />
-      <path d="M106 231.1l121.88-52.97-78.17 197.7z" />
-      <path d="M400.96 322.98l-85.66-111.33 1.29 193z" />
-    </g>
-  </svg>
-</p>
+# Moraine
 
-<h1 align="center">Flint UI</h1>
+Yet another Solid.js UI library.
 
-<p align="center">
-  Yet Another <a href="https://solidjs.com">Solid.js</a> UI library
-</p>
-
-Inspired by the best of Nuxt UI and shadcn, Flint UI is a comprehensive SolidJS component library with atomic class styling, offering a fast, consistent, and intuitive user experiences.
+Inspired by the best of Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component library with atomic class styling, offering a fast, consistent, and intuitive user experiences.
 
 > [!important]
 > **Status: Active development**. Api may breaking changed before V1.0. Use at your risk!
@@ -33,7 +19,7 @@ Inspired by the best of Nuxt UI and shadcn, Flint UI is a comprehensive SolidJS 
 ## Installation
 
 ```bash
-bun add @subf/flint-ui solid-js
+bun add moraine
 ```
 
 ### UnoCSS
@@ -53,7 +39,7 @@ bun add tailwindcss
 ## Quick Start
 
 ```tsx
-import { Button, Input } from '@subf/flint-ui'
+import { Button, Input } from 'moraine'
 
 function App() {
   return (
@@ -114,17 +100,17 @@ function App() {
 
 ## Styling
 
-Flint UI uses Shadcn's style system, so you can just reuse Shadcn's theme CSS variables (e.g. https://tweakcn.com)
+Moraine uses Shadcn's style system, so you can just reuse Shadcn's theme CSS variables (e.g. https://tweakcn.com)
 
 ### UnoCSS
 
-You can use `presetWind3` or `presetWind4` here. `presetTheme` already includes Flint UI's animation utilities, so no extra UnoCSS animation preset is required.
+You can use `presetWind3` or `presetWind4` here. `presetTheme` already includes Moraine's animation utilities, so no extra UnoCSS animation preset is required.
 
 ```ts
 // unocss.config.ts
 import { defineConfig } from 'unocss'
 import { presetWind3, presetWind4 } from 'unocss'
-import { presetTheme } from '@subf/flint-ui/unocss-preset-theme'
+import { presetTheme } from 'moraine/unocss-preset-theme'
 
 export default defineConfig({
   presets: [
@@ -144,7 +130,7 @@ Create a CSS config file
 
 ```css
 @import 'tailwindcss';
-@source "./node_modules/@subf/flint-ui/**/*";
+@source "./node_modules/moraine/**/*";
 ```
 
 ### Tailwind CSS v3
@@ -154,7 +140,7 @@ Create a `tailwind.config.js` or `tailwind.config.ts` file:
 ```js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './node_modules/@subf/flint-ui/**/*'],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './node_modules/moraine/**/*'],
   theme: {
     extend: {},
   },
@@ -177,7 +163,7 @@ Then import the CSS:
 Almost all component support `classes` and `styles` props, key is the same as `Slot`.
 
 ```tsx
-import { Button } from '@subf/flint-ui'
+import { Button } from 'moraine'
 
 function MyButton() {
   return (
@@ -193,7 +179,7 @@ function MyButton() {
 Builtin `cn` only support concat classes, you can extend it by `extendCN`
 
 ```ts
-import { extendCN } from '@subf/flint-ui'
+import { extendCN } from 'moraine'
 import { twMerge } from 'tailwind-merge'
 
 extendCN(twMerge)

@@ -22,8 +22,8 @@ describe('useId', () => {
     expect(generatedId.startsWith('dialog-')).toBe(true)
   })
 
-  test('uses flint prefix by default', () => {
+  test('uses moraine prefix by default', () => {
     const generatedId = resolveId()
-    expect(generatedId.startsWith('fl-')).toBe(true)
+    expect(generatedId.startsWith('mo-')).toBe(true)
   })
 })

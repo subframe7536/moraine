@@ -58,9 +58,9 @@ export interface ComponentLayerOptions extends Partial<
    * Controls how component-owned utilities are isolated from consumer utilities.
    *
    * - `prefix`: prefixes component utilities with `utilityPrefix` and keeps them in the
-   *   dedicated `flint-component` layer.
+   *   dedicated `moraine-component` layer.
    * - `hash`: compiles component utilities into internal hash classes in the
-   *   `flint-component` layer.
+   *   `moraine-component` layer.
    *
    * `prefix` is the default because it keeps the generated output readable while still
    * making component styles override-safe out of the box.
@@ -70,7 +70,7 @@ export interface ComponentLayerOptions extends Partial<
   strategy?: ComponentLayerStrategy
   /**
    * Prefix used for component-owned utilities when `strategy` is `prefix`.
-   * @default 'fl-'
+   * @default 'mr-'
    */
   utilityPrefix?: `${string}-`
 }
@@ -81,20 +81,20 @@ export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 
   enableComponentLayer?: boolean | ComponentLayerOptions
 }
 
-const FLINT_COMPONENT_LAYER = 'flint-component'
-const DEFAULT_COMPONENT_UTILITY_PREFIX = 'fl-'
-const FLINT_HASH_TRIGGER = ':uno-flint:'
-const FLINT_HASH_CLASS_PREFIX = 'flc-'
-const FLINT_ENTER_ANIMATION_NAME = 'flint-enter'
-const FLINT_EXIT_ANIMATION_NAME = 'flint-exit'
-const FLINT_ANIMATION_DURATION_VAR = 'var(--flint-animation-duration,150ms)'
+const MORAINE_COMPONENT_LAYER = 'moraine-component'
+const DEFAULT_COMPONENT_UTILITY_PREFIX = 'mr-'
+const MORAINE_HASH_TRIGGER = ':uno-moraine:'
+const MORAINE_HASH_CLASS_PREFIX = 'mrc-'
+const MORAINE_ENTER_ANIMATION_NAME = 'moraine-enter'
+const MORAINE_EXIT_ANIMATION_NAME = 'moraine-exit'
+const MORAINE_ANIMATION_DURATION_VAR = 'var(--moraine-animation-duration,150ms)'
 
 const RE_ATTR = /^(data|aria)-(\w+):/
 const CORE_ANIMATION_KEYFRAMES = {
-  [FLINT_ENTER_ANIMATION_NAME]:
-    '{ from { opacity: var(--flint-enter-opacity, 1); transform: translate3d(var(--flint-enter-translate-x, 0), var(--flint-enter-translate-y, 0), 0) scale3d(var(--flint-enter-scale, 1), var(--flint-enter-scale, 1), var(--flint-enter-scale, 1)) rotate(var(--flint-enter-rotate, 0)) } }',
-  [FLINT_EXIT_ANIMATION_NAME]:
-    '{ to { opacity: var(--flint-exit-opacity, 1); transform: translate3d(var(--flint-exit-translate-x, 0), var(--flint-exit-translate-y, 0), 0) scale3d(var(--flint-exit-scale, 1), var(--flint-exit-scale, 1), var(--flint-exit-scale, 1)) rotate(var(--flint-exit-rotate, 0)) } }',
+  [MORAINE_ENTER_ANIMATION_NAME]:
+    '{ from { opacity: var(--moraine-enter-opacity, 1); transform: translate3d(var(--moraine-enter-translate-x, 0), var(--moraine-enter-translate-y, 0), 0) scale3d(var(--moraine-enter-scale, 1), var(--moraine-enter-scale, 1), var(--moraine-enter-scale, 1)) rotate(var(--moraine-enter-rotate, 0)) } }',
+  [MORAINE_EXIT_ANIMATION_NAME]:
+    '{ to { opacity: var(--moraine-exit-opacity, 1); transform: translate3d(var(--moraine-exit-translate-x, 0), var(--moraine-exit-translate-y, 0), 0) scale3d(var(--moraine-exit-scale, 1), var(--moraine-exit-scale, 1), var(--moraine-exit-scale, 1)) rotate(var(--moraine-exit-rotate, 0)) } }',
   'accordion-down': '{ from { height: 0 } to { height: var(--kb-accordion-content-height) } }',
   'accordion-up': '{ from { height: var(--kb-accordion-content-height) } to { height: 0 } }',
   carousel: '{ 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }',
@@ -117,9 +117,9 @@ const CORE_ANIMATION_KEYFRAMES = {
 } as const
 const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
 
-function getAnimType(name: string): 'flint' | 'looping' | 'default' {
-  if (name === FLINT_ENTER_ANIMATION_NAME || name === FLINT_EXIT_ANIMATION_NAME) {
-    return 'flint'
+function getAnimType(name: string): 'moraine' | 'looping' | 'default' {
+  if (name === MORAINE_ENTER_ANIMATION_NAME || name === MORAINE_EXIT_ANIMATION_NAME) {
+    return 'moraine'
   }
   if (LOOPING_PREFIXES.some((p) => name.startsWith(p))) {
     return 'looping'
@@ -132,7 +132,7 @@ const CORE_ANIMATION_DURATIONS = Object.fromEntries(
     const type = getAnimType(name)
     return [
       name,
-      type === 'flint' ? FLINT_ANIMATION_DURATION_VAR : type === 'looping' ? '2s' : '150ms',
+      type === 'moraine' ? MORAINE_ANIMATION_DURATION_VAR : type === 'looping' ? '2s' : '150ms',
     ]
   }),
 )
@@ -146,10 +146,10 @@ const CORE_ANIMATION_COUNTS = Object.fromEntries(
   ]),
 )
 const SEMANTIC_ANIMATION_SHORTCUTS = {
-  'animate-overlay-in': `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0]`,
-  'animate-overlay-out': `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0]`,
-  'animate-surface-in': `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0] [--flint-enter-scale:0.9]`,
-  'animate-surface-out': `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0] [--flint-exit-scale:0.9]`,
+  'animate-overlay-in': `animate-${MORAINE_ENTER_ANIMATION_NAME} [--moraine-enter-opacity:0]`,
+  'animate-overlay-out': `animate-${MORAINE_EXIT_ANIMATION_NAME} [--moraine-exit-opacity:0]`,
+  'animate-surface-in': `animate-${MORAINE_ENTER_ANIMATION_NAME} [--moraine-enter-opacity:0] [--moraine-enter-scale:0.9]`,
+  'animate-surface-out': `animate-${MORAINE_EXIT_ANIMATION_NAME} [--moraine-exit-opacity:0] [--moraine-exit-scale:0.9]`,
   ...Object.fromEntries(
     (['menu', 'popover', 'tooltip', 'sheet'] as const).flatMap((type) => {
       const isSheet = type === 'sheet'
@@ -161,16 +161,16 @@ const SEMANTIC_ANIMATION_SHORTCUTS = {
       return directions.flatMap((dir) => {
         const translateProp = `translate-${axes[dir]}`
         const val = `${signs[dir]}${offset}rem`
-        const scaleTokens = isSheet ? '' : ' [--flint-enter-scale:0.9] [--flint-exit-scale:0.9]'
+        const scaleTokens = isSheet ? '' : ' [--moraine-enter-scale:0.9] [--moraine-exit-scale:0.9]'
 
         return [
           [
             `animate-${type}-in-from-${dir}`,
-            `animate-${FLINT_ENTER_ANIMATION_NAME} [--flint-enter-opacity:0]${scaleTokens} [--flint-enter-${translateProp}:${val}]`,
+            `animate-${MORAINE_ENTER_ANIMATION_NAME} [--moraine-enter-opacity:0]${scaleTokens} [--moraine-enter-${translateProp}:${val}]`,
           ],
           [
             `animate-${type}-out-to-${dir}`,
-            `animate-${FLINT_EXIT_ANIMATION_NAME} [--flint-exit-opacity:0]${scaleTokens} [--flint-exit-${translateProp}:${val}]`,
+            `animate-${MORAINE_EXIT_ANIMATION_NAME} [--moraine-exit-opacity:0]${scaleTokens} [--moraine-exit-${translateProp}:${val}]`,
           ],
         ]
       })
@@ -194,9 +194,9 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
     compileClassTransformerPromise ??= import('@unocss/transformer-compile-class').then(
       ({ default: transformerCompileClass }) =>
         transformerCompileClass({
-          trigger: FLINT_HASH_TRIGGER,
-          classPrefix: FLINT_HASH_CLASS_PREFIX,
-          layer: FLINT_COMPONENT_LAYER,
+          trigger: MORAINE_HASH_TRIGGER,
+          classPrefix: MORAINE_HASH_CLASS_PREFIX,
+          layer: MORAINE_COMPONENT_LAYER,
         }),
     )
 
@@ -205,7 +205,7 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
     compileClassTransformerPromise = undefined
 
     throw new Error(
-      '[preset-theme-flint] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
+      '[preset-theme-moraine] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
       { cause: error },
     )
   }
@@ -213,7 +213,7 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
 
 function createHashClassTransformer(idFilter: (id: string) => boolean): SourceCodeTransformer {
   return {
-    name: 'transformer-flint-hash-class',
+    name: 'transformer-moraine-hash-class',
     enforce: 'pre',
     idFilter,
     async transform(code, id, context) {
@@ -237,7 +237,7 @@ export function resolvePresetThemeOptions(
     enableComponentLayer: layerOpts !== undefined,
     strategy: layerOpts?.strategy ?? 'prefix',
     utilityPrefix: layerOpts?.utilityPrefix ?? DEFAULT_COMPONENT_UTILITY_PREFIX,
-    idFilter: layerOpts?.idFilter ?? ((id: string) => id.includes('node_modules/flint-ui/')),
+    idFilter: layerOpts?.idFilter ?? ((id: string) => id.includes('node_modules/moraine/')),
     beforeTransform: layerOpts?.beforeTransform ?? options?.beforeTransform,
   }
 }
@@ -246,17 +246,15 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
 
   const isHash = normalized.strategy === 'hash'
-  const transformers: Preset['transformers'] = [
-    ...(normalized.enableComponentLayer && isHash
-      ? [createHashClassTransformer(normalized.idFilter)]
-      : []),
-    ...(normalized.enableComponentLayer && isHash
+  const transformers: Preset['transformers'] =
+    normalized.enableComponentLayer && isHash
       ? [
           transformerInjectCompileClass({
-            trigger: FLINT_HASH_TRIGGER,
+            trigger: MORAINE_HASH_TRIGGER,
             idFilter: normalized.idFilter,
             beforeTransform: normalized.beforeTransform,
           }),
+          createHashClassTransformer(normalized.idFilter),
         ]
       : normalized.enableComponentLayer
         ? [
@@ -266,8 +264,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
               beforeTransform: normalized.beforeTransform,
             }),
           ]
-        : []),
-  ]
+        : []
 
   const usePrefixLayer = normalized.enableComponentLayer && normalized.strategy === 'prefix'
   const variants: Preset['variants'] = [
@@ -289,7 +286,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
             }
             return {
               matcher: matcher.slice(normalized.utilityPrefix.length),
-              layer: FLINT_COMPONENT_LAYER,
+              layer: MORAINE_COMPONENT_LAYER,
             }
           },
         ]
@@ -334,7 +331,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
     : { radius, shadow, font }
 
   return {
-    name: 'preset-theme-flint',
+    name: 'preset-theme-moraine',
     theme: {
       ...themeSpacing,
       colors: {
@@ -362,7 +359,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       },
     },
     layers: {
-      [FLINT_COMPONENT_LAYER]: -1,
+      [MORAINE_COMPONENT_LAYER]: -1,
       default: 1,
     },
     transformers,

@@ -11,7 +11,7 @@ import {
 } from './example-pages'
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'flint-ui-example-pages-'))
+  return mkdtemp(path.join(tmpdir(), 'moraine-example-pages-'))
 }
 
 describe('scanExamplePages', () => {

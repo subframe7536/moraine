@@ -243,7 +243,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
           alt={props.alt ?? ''}
           class={avatarImageVariants(
             { transition: merged.transition },
-            status() === 'loading' ? 'opacity-100' : 'hidden-hitless',
+            status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
             merged.classes?.image,
           )}
         />

@@ -405,7 +405,7 @@ export function exampleMarkdownPlugin(projectRoot?: string): Plugin {
   let resolvedRoot = ''
 
   return {
-    name: 'flint-ui-example-markdown',
+    name: 'moraine-example-markdown',
     enforce: 'pre',
 
     configResolved(config) {

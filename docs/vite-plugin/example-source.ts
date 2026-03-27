@@ -210,7 +210,7 @@ export async function exampleSourcePlugin(): Promise<Plugin> {
   })
 
   return {
-    name: 'flint-ui-example-source',
+    name: 'moraine-example-source',
     enforce: 'pre',
 
     transform: {

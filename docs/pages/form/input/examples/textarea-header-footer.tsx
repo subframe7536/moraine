@@ -2,7 +2,7 @@ import { Textarea } from '@src'
 import { createSignal } from 'solid-js'
 
 export function TextareaHeaderFooter() {
-  const [composerValue, setComposerValue] = createSignal('Hello Flint UI!')
+  const [composerValue, setComposerValue] = createSignal('Hello Moraine!')
 
   return (
     <div class="gap-3 grid lg:grid-cols-2">

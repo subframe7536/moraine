@@ -100,7 +100,7 @@ export const IntroductionHomeWidget = () => {
               value: 'bun',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  bun add @subf/flint-ui
+                  bun add moraine
                 </ShikiCodeBlock>
               ),
             },
@@ -109,7 +109,7 @@ export const IntroductionHomeWidget = () => {
               value: 'pnpm',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  pnpm add @subf/flint-ui
+                  pnpm add moraine
                 </ShikiCodeBlock>
               ),
             },
@@ -118,7 +118,7 @@ export const IntroductionHomeWidget = () => {
               value: 'npm',
               content: (
                 <ShikiCodeBlock variant="source" lang="bash">
-                  npm i @subf/flint-ui
+                  npm i moraine
                 </ShikiCodeBlock>
               ),
             },

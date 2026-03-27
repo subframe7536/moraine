@@ -17,7 +17,7 @@ export interface TransformerInjectPrefixOption {
   /**
    * Custom filter function
    * @param id file path
-   * @default id => id.includes('node_modules/flint-ui/')
+   * @default id => id.includes('node_modules/moraine/')
    */
   idFilter?: (id: string) => boolean
   /**

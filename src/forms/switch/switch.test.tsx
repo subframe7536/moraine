@@ -236,7 +236,7 @@ describe('Switch', () => {
     const base = screen.container.querySelector('[data-slot="track"]')
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
-    expect(root?.className).toContain('cursor-pointer')
+    expect(root?.className).not.toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
     expect(base?.className).toContain('peer-focus-visible:effect-fv-border')
     expect(base?.className).toContain('w-11')
