@@ -19,7 +19,6 @@ interface UseSelectFieldProps {
   id?: string
   name?: string
   size?: FormFieldSize
-  highlight?: boolean
   disabled?: boolean
   initialValue: unknown
 }
@@ -56,7 +55,6 @@ export function useSelectField(props: () => UseSelectFieldProps): UseSelectField
         id: current.id,
         name: current.name,
         size: current.size,
-        highlight: current.highlight,
         disabled: current.disabled,
       }
     },

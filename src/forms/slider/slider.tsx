@@ -81,8 +81,6 @@ export namespace SliderT {
      */
     inverted?: boolean
 
-    highlight?: boolean
-
     /**
      * Callback when the slider selection changes during interaction.
      */
@@ -147,7 +145,7 @@ export function Slider(props: SliderProps): JSX.Element {
     merged as SliderProps,
     [...FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS, 'readOnly', 'onValueChange', 'onChange'],
     ['min', 'max', 'step', 'minStepsBetweenThumbs', 'orientation', 'inverted'],
-    ['size', 'classes', 'styles', 'highlight'],
+    ['size', 'classes', 'styles'],
   )
 
   const generatedId = useId(() => formProps.id, 'slider')
@@ -156,7 +154,6 @@ export function Slider(props: SliderProps): JSX.Element {
       id: formProps.id,
       name: formProps.name,
       size: styleProps.size,
-      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -278,7 +275,6 @@ export function Slider(props: SliderProps): JSX.Element {
       onChangeEnd={onChange}
       data-slot="root"
       style={styleProps.styles?.root}
-      data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       class={sliderRootVariants(
         {
@@ -292,7 +288,6 @@ export function Slider(props: SliderProps): JSX.Element {
       <KobalteSlider.Track
         data-slot="track"
         style={styleProps.styles?.track}
-        data-highlight={field.highlight() ? '' : undefined}
         class={sliderTrackVariants(
           {
             size: field.size(),
@@ -304,7 +299,6 @@ export function Slider(props: SliderProps): JSX.Element {
         <KobalteSlider.Fill
           data-slot="range"
           style={styleProps.styles?.range}
-          data-highlight={field.highlight() ? '' : undefined}
           class={sliderRangeVariants(
             {
               orientation: rangeProps.orientation,
@@ -318,7 +312,6 @@ export function Slider(props: SliderProps): JSX.Element {
         {(thumbIndex) => (
           <KobalteSlider.Thumb
             data-slot="thumb"
-            data-highlight={field.highlight() ? '' : undefined}
             aria-label={createThumbAriaLabel(thumbIndex, thumbValues().length)}
             style={{ ...thumbStyle(thumbIndex), ...styleProps.styles?.thumb }}
             class={sliderThumbVariants(

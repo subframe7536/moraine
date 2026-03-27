@@ -22,6 +22,13 @@ function queryAllBody(selector: string): NodeListOf<Element> {
 }
 
 describe('MultiSelect', () => {
+  test('does not accept highlight prop at type level', () => {
+    // @ts-expect-error highlight has been removed from MultiSelect props
+    const props: MultiSelectProps = { options: FRUITS, highlight: true }
+
+    expect(props).toBeDefined()
+  })
+
   test('renders tags for selected values', () => {
     const screen = render(() => <MultiSelect options={FRUITS} value={['apple', 'banana']} />)
 

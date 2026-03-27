@@ -419,7 +419,6 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       ],
       ['surface-outline', 'ring-1 ring-border'],
       ['surface-outline-inset', 'ring ring-inset ring-border'],
-      ['surface-highlight', 'ring-1 ring-border/50'],
       ['surface-overlay', 'ring-1 ring-foreground/10'],
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
       ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(

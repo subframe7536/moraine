@@ -159,7 +159,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       'autofocus',
       'autofocusDelay',
     ],
-    ['size', 'variant', 'highlight', 'classes', 'styles'],
+    ['size', 'variant', 'classes', 'styles'],
   )
 
   const generatedId = useId(() => formProps.id, 'input-number')
@@ -168,7 +168,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id: formProps.id,
       name: formProps.name,
       size: styleProps.size,
-      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -434,7 +433,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       data-slot="root"
       style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
-      data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       class={inputNumberRootVariants(
         {

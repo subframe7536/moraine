@@ -74,7 +74,6 @@ export interface UseFormFieldProps {
   id?: string
   name?: string
   size?: FormFieldSize
-  highlight?: boolean
   disabled?: boolean
 }
 
@@ -92,7 +91,6 @@ export interface UseFormFieldReturn {
   name: Accessor<string | undefined>
   value: Accessor<unknown>
   size: Accessor<FormFieldSize>
-  highlight: Accessor<boolean | undefined>
   disabled: Accessor<boolean>
   invalid: Accessor<boolean>
   ariaAttrs: Accessor<Record<string, string | boolean | undefined>>
@@ -164,13 +162,6 @@ export function useFormField(
     return formContext.getFieldValue(fieldName)
   })
   const size = createMemo(() => fieldProps().size ?? formField?.size ?? options().defaultSize)
-  const highlight = createMemo(() => {
-    if (formField?.error) {
-      return true
-    }
-
-    return fieldProps().highlight
-  })
   const disabled = createMemo(() => Boolean(formContext?.disabled || fieldProps().disabled))
   const invalid = createMemo(() => Boolean(formField?.error))
   const runtimeState = createMemo(() => formContext?.getFieldState(name()) ?? EMPTY_RUNTIME_STATE)
@@ -277,7 +268,6 @@ export function useFormField(
     name,
     value,
     size,
-    highlight,
     disabled,
     invalid,
     ariaAttrs,

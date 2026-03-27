@@ -45,7 +45,6 @@ interface SelectComboboxFrameProps<TItems> {
   controlStyle?: JSX.CSSProperties
   controlClass?: ClassValue
   invalid: boolean
-  highlight: boolean
   disabled: boolean
   renderTriggerContent: (state: SelectControlState<TItems>) => JSX.Element
   hasMatches: () => boolean
@@ -317,7 +316,6 @@ export function RenderSelectComboboxFrame<TItems>(
         data-slot="control"
         style={props.controlStyle}
         data-invalid={props.invalid ? '' : undefined}
-        data-highlight={props.highlight ? '' : undefined}
         data-disabled={props.disabled ? '' : undefined}
         class={cn(props.controlClass)}
       >

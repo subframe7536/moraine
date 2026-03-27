@@ -14,12 +14,12 @@ Textarea size scale from xs to xl.
 name: Sizes
 :::
 
-## Autoresize + Highlight
+## Autoresize
 
-Autoresize growth with maxrows and highlight state.
+Autoresize growth with maxrows.
 
 :::example
-name: AutoresizeHighlight
+name: Autoresize
 :::
 
 ## Header + Footer Composition

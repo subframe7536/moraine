@@ -26,7 +26,7 @@ import {
 export namespace TextareaT {
   export type Slot = 'root' | 'header' | 'input' | 'footer'
 
-  export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'highlight' | 'autoresize'>
+  export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'autoresize'>
 
   export interface Items {}
 
@@ -192,7 +192,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
       id: formProps.id,
       name: formProps.name,
       size: styleProps.size,
-      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -335,7 +334,6 @@ export function Textarea(props: TextareaProps): JSX.Element {
       data-slot="root"
       style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
-      data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       class={textareaRootVariants(
         {

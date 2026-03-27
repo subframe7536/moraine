@@ -28,7 +28,7 @@ import {
 export namespace InputT {
   export type Slot = 'root' | 'input' | 'leading' | 'trailing'
 
-  export type Variant = Pick<InputVariantProps, 'size' | 'variant' | 'highlight'>
+  export type Variant = InputVariantProps
 
   export interface Items {}
 
@@ -186,7 +186,6 @@ export function Input(props: InputProps): JSX.Element {
       id: formProps.id,
       name: formProps.name,
       size: styleProps.size,
-      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -313,7 +312,6 @@ export function Input(props: InputProps): JSX.Element {
       data-slot="root"
       style={merged.styles?.root}
       data-invalid={field.invalid() ? '' : undefined}
-      data-highlight={field.highlight() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       class={inputRootVariants(
         {

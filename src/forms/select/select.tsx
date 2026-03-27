@@ -159,8 +159,6 @@ export namespace SelectT {
     labelRender?: (option: SelectT.Items) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: string | ((context: EmptyRenderContext) => JSX.Element)
-    /** Whether to highlight the control (e.g., on error). */
-    highlight?: boolean
     /** Placeholder text shown when no value is selected. */
     placeholder?: string
     /** Whether the select is in a loading state. */
@@ -208,7 +206,6 @@ export function Select(props: SelectProps): JSX.Element {
     id: formProps.id,
     name: formProps.name,
     size: styleProps.size,
-    highlight: styleProps.highlight,
     disabled: formProps.disabled,
     initialValue: formProps.defaultValue ?? '',
   }))
@@ -441,7 +438,6 @@ export function Select(props: SelectProps): JSX.Element {
           styleProps.classes?.control,
         )}
         invalid={Boolean(field.invalid())}
-        highlight={Boolean(field.highlight())}
         disabled={Boolean(field.disabled())}
         renderTriggerContent={(state) => <SelectTriggerContent {...state} />}
         hasMatches={hasMatches}

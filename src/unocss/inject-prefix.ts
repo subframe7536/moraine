@@ -2,6 +2,8 @@ import type { SourceCodeTransformer } from 'unocss'
 
 import { normalizeId, runTransform } from './shared'
 
+const blockList = new Set(['peer', 'group'])
+
 export function prefixClassList(value: string, prefix: string): string {
   const tokens = value.match(/\S+/g)
 
@@ -9,7 +11,11 @@ export function prefixClassList(value: string, prefix: string): string {
     return value
   }
 
-  return tokens.map((token) => (token.startsWith(prefix) ? token : `${prefix}${token}`)).join(' ')
+  return tokens
+    .map((token) =>
+      token.startsWith(prefix) || blockList.has(token) ? token : `${prefix}${token}`,
+    )
+    .join(' ')
 }
 
 export interface TransformerInjectPrefixOption {

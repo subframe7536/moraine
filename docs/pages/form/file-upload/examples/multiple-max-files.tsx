@@ -43,7 +43,6 @@ export function MultipleMaxFiles() {
         description="Drop or select multiple files."
         onValueChange={setMultiValue}
         onFileReject={(files) => setRejectedCount(files.length)}
-        highlight
       />
       <p class="text-xs text-muted-foreground">Selected count: {fileCount(multiValue())}</p>
       <p class="text-xs text-muted-foreground">Selected names: {fileNames(multiValue())}</p>

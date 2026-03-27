@@ -373,7 +373,7 @@ describe('InputNumber', () => {
   })
 
   test('applies size and variant classes', () => {
-    const screen = render(() => <InputNumber size="xl" variant="subtle" highlight />)
+    const screen = render(() => <InputNumber size="xl" variant="subtle" />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="input"]')
 

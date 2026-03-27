@@ -325,7 +325,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       'onFileReject',
     ],
     ['dropzone', 'preview', 'label', 'description', 'icon', 'fileIcon'],
-    ['size', 'highlight', 'classes'],
+    ['size', 'classes'],
   )
 
   const generatedId = useId(() => formProps.id, 'file-upload')
@@ -334,7 +334,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       id: formProps.id,
       name: formProps.name,
       size: styleProps.size,
-      highlight: styleProps.highlight,
       disabled: formProps.disabled,
     }),
     () => ({
@@ -578,7 +577,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
           <KobalteFileField.Trigger
             data-slot="control"
             style={merged.styles?.control}
-            data-highlight={field.highlight() ? '' : undefined}
             data-invalid={field.invalid() ? '' : undefined}
             class={fileUploadBaseVariants(
               {
@@ -598,7 +596,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         <KobalteFileField.Dropzone
           data-slot="control"
           style={merged.styles?.control}
-          data-highlight={field.highlight() ? '' : undefined}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
           class={fileUploadBaseVariants(

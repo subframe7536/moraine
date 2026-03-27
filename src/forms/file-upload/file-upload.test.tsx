@@ -5,6 +5,7 @@ import { Form } from '../form'
 import { FormField } from '../form-field'
 
 import { FileUpload } from './file-upload'
+import type { FileUploadProps } from './file-upload'
 
 function createFile(name: string, type = 'text/plain', content = 'content'): File {
   return new File([content], name, { type })
@@ -93,6 +94,13 @@ function createForm(validateOn: Array<'blur' | 'change' | 'input'>) {
 }
 
 describe('FileUpload', () => {
+  test('does not accept highlight prop at type level', () => {
+    // @ts-expect-error highlight has been removed from FileUpload props
+    const props: FileUploadProps = { highlight: true }
+
+    expect(props).toBeDefined()
+  })
+
   test('renders base attributes and text', () => {
     const screen = render(() => (
       <FileUpload

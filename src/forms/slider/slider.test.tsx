@@ -92,7 +92,7 @@ describe('Slider', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="root"][id$="-root"]')
     const track = screen.container.querySelector('[data-slot="track"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
     const inputs = getInputs(screen.container)
@@ -327,7 +327,7 @@ describe('Slider', () => {
       <Slider classes={{ root: 'root-override', thumb: 'thumb-override' }} />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="root"][id$="-root"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
     expect(root?.className).toContain('root-override')
@@ -339,7 +339,9 @@ describe('Slider', () => {
       <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } } as any} />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector(
+      '[data-slot="root"][id$="-root"]',
+    ) as HTMLElement | null
     const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')

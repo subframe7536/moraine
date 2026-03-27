@@ -4,7 +4,7 @@ import { INPUT_VARIANT } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
 export const inputRootVariants = cva(
-  'rounded-md inline-flex w-full transition-[color,box-shadow] items-center overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis data-highlight:surface-highlight focus-within:data-invalid:effect-invalid',
+  'rounded-md inline-flex w-full transition-[color,box-shadow] items-center overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -77,6 +77,4 @@ export const inputTrailingVariants = cva('text-muted-foreground flex shrink-0 it
   },
 })
 
-export type InputVariantProps = VariantProps<typeof inputRootVariants> & {
-  highlight?: boolean
-}
+export type InputVariantProps = VariantProps<typeof inputRootVariants>

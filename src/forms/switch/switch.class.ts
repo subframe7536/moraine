@@ -13,7 +13,7 @@ export const switchContainerVariants = cva('flex items-center', {
 })
 
 export const switchBaseVariants = cva(
-  'p-px outline-none b-(1 transparent) rounded-full bg-input inline-flex shrink-0 cursor-pointer transition-[color,box-shadow] items-center peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/80 data-checked:bg-primary',
+  'p-px outline-none b-(1 transparent) rounded-full bg-input inline-flex shrink-0 cursor-pointer transition-[color,box-shadow] items-center peer-focus:effect-fv-border data-invalid:effect-invalid dark:bg-input/80 data-checked:bg-primary',
   {
     defaultVariants: {
       size: 'md',

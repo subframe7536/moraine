@@ -4,7 +4,7 @@ import { INPUT_VARIANT } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
 export const inputNumberRootVariants = cva(
-  'rounded-md inline-flex w-full transition-[color,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis data-highlight:surface-highlight focus-within:data-invalid:effect-invalid',
+  'rounded-md inline-flex w-full transition-[color,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -107,6 +107,4 @@ export const inputNumberControlColumnVariants = cva('flex shrink-0 flex-col h-fu
   },
 })
 
-export type InputNumberVariantProps = VariantProps<typeof inputNumberRootVariants> & {
-  highlight?: boolean
-}
+export type InputNumberVariantProps = VariantProps<typeof inputNumberRootVariants>

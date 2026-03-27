@@ -16,7 +16,6 @@ export function Controlled() {
         minValue={0}
         maxValue={99}
         variant="subtle"
-        highlight
       />
       <p class="text-xs text-muted-foreground">Current value: {controlledValue()}</p>
     </div>

@@ -24,8 +24,9 @@
 - [x] when select is trigger-mode, cursor should not be pointer on control
 - [x] infinity scroll select should trigger load-more instantly instead of waiting for scroll end
 - [x] optimize switch spacing in different size variants and cursor
-- [ ] fix component layer hash strategy style incorrect
-- [ ] check `props.highlight` actual usage and style effect, optimize `surface-highlight` and `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
+- [x] fix component layer hash strategy style incorrect
+- [x] remove `props.highlight`
+- [ ] optmize `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
 
 # V1
 

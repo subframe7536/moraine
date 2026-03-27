@@ -17,7 +17,7 @@ import { FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS } from '../form-field/form-options
 
 import type { SwitchVariantProps } from './switch.class'
 import {
-  switchBaseVariants,
+  switchBaseVariants as switchTrackVariants,
   switchContainerVariants,
   switchIconClass,
   switchThumbVariants,
@@ -283,7 +283,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-slot="track"
                 style={merged.styles?.track}
                 data-invalid={field.invalid() ? '' : undefined}
-                class={switchBaseVariants(
+                class={switchTrackVariants(
                   {
                     size: field.size(),
                   },

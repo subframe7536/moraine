@@ -74,7 +74,7 @@ export const SELECT_SPLIT_COMMON_KEYS = [
   'closeIcon',
 ] as const
 
-export const SELECT_SPLIT_STYLE_KEYS = ['size', 'variant', 'highlight', 'classes'] as const
+export const SELECT_SPLIT_STYLE_KEYS = ['size', 'variant', 'classes'] as const
 
 export const MULTI_SELECT_SPLIT_EXTRA_KEYS = [
   'tokenSeparators',

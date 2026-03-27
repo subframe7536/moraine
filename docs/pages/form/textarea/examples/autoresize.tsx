@@ -1,7 +1,7 @@
 import { Textarea } from '@src'
 import { createSignal } from 'solid-js'
 
-export function AutoresizeHighlight() {
+export function Autoresize() {
   const [value, setValue] = createSignal('Type here to see autoresize...')
 
   return (
@@ -9,7 +9,6 @@ export function AutoresizeHighlight() {
       <Textarea
         autoresize
         maxrows={6}
-        highlight
         value={value()}
         onValueChange={(next) => setValue(String(next ?? ''))}
         placeholder="Start typing..."

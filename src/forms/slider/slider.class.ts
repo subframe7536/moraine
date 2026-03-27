@@ -4,7 +4,7 @@ import { CHECKABLE_BASE_SIZE_VARIANT } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
 export const sliderRootVariants = cva(
-  'flex select-none relative touch-none data-highlight:(rounded-md surface-highlight) data-disabled:effect-dis',
+  'flex select-none relative touch-none data-disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',
@@ -27,7 +27,7 @@ export const sliderRootVariants = cva(
 )
 
 export const sliderTrackVariants = cva(
-  'grow select-none relative before:(rounded-full bg-input content-empty absolute) data-highlight:surface-highlight',
+  'grow select-none relative before:(rounded-full bg-input content-empty absolute)',
   {
     defaultVariants: {
       size: 'md',
@@ -49,23 +49,20 @@ export const sliderTrackVariants = cva(
   },
 )
 
-export const sliderRangeVariants = cva(
-  'rounded-full bg-primary select-none absolute data-highlight:(ring-1 ring-background/40 ring-inset)',
-  {
-    defaultVariants: {
-      orientation: 'horizontal',
-    },
-    variants: {
-      orientation: {
-        horizontal: 'ms-0.5 h-full',
-        vertical: 'mb-0.5 w-full',
-      },
+export const sliderRangeVariants = cva('rounded-full bg-primary select-none absolute', {
+  defaultVariants: {
+    orientation: 'horizontal',
+  },
+  variants: {
+    orientation: {
+      horizontal: 'ms-0.5 h-full',
+      vertical: 'mb-0.5 w-full',
     },
   },
-)
+})
 
 export const sliderThumbVariants = cva(
-  'outline-none rounded-full bg-white shrink-0 block cursor-pointer select-none surface-outline shadow-xs/5 transition-[box-shadow,transform] relative focus-visible:effect-fv hover:effect-fv data-highlight:surface-highlight data-dragging:scale-120 not-dark:bg-clip-padding',
+  'outline-none rounded-full bg-white shrink-0 block cursor-pointer select-none surface-outline shadow-xs/5 transition-[box-shadow,transform] relative focus-visible:effect-fv hover:effect-fv data-dragging:scale-120 not-dark:bg-clip-padding',
   {
     defaultVariants: {
       size: 'md',

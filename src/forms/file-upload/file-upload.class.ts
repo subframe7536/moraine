@@ -19,7 +19,7 @@ export const fileUploadRootVariants = cva('flex flex-col relative data-disabled:
 })
 
 export const fileUploadBaseVariants = cva(
-  'text-center outline-none b-(1 input) rounded-lg bg-background inline-flex w-full cursor-pointer transition-[color,box-shadow] items-center justify-center relative focus-visible:effect-fv-border data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid dark:bg-input/30 data-highlight:surface-highlight',
+  'text-center outline-none b-(1 input) rounded-lg bg-background inline-flex w-full cursor-pointer transition-[color,box-shadow] items-center justify-center relative focus-visible:effect-fv-border data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',
@@ -200,6 +200,4 @@ export const fileUploadRemoveVariants = cva(
   },
 )
 
-export type FileUploadVariantProps = VariantProps<typeof fileUploadBaseVariants> & {
-  highlight?: boolean
-}
+export type FileUploadVariantProps = VariantProps<typeof fileUploadBaseVariants>
