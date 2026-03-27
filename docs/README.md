@@ -69,21 +69,34 @@ Examples:
 
 ```md
 :::widget
-name: introduction-home
+name: intro-cards
 :::
 ```
 
 Widgets are resolved by `docs/widgets/index.ts`.
 
+### `:::code-tabs`
+
+```md
+:::code-tabs
+package: moraine
+:::
+```
+
+Fields:
+
+- `package` (required): package name used to generate install commands for bun/pnpm/npm.
+
 ## Runtime Rendering Model
 
-`docs/components/example-markdown-page.tsx` renders a flat segment list produced at compile time:
+`docs/components/markdown.tsx` renders a flat segment list produced at compile time:
 
 - Markdown segment -> `MarkdownContent`
 - Example segment -> `ExampleBlock` (live preview + optional source panel)
 - Widget segment -> dynamic component from `docsWidgetMap`
+- Code-tabs segment -> `CodeBlockTabs` (build-time highlighted install commands)
 
-Page shell and API tables are provided by `docs/components/example-page.tsx`.
+Page shell and API tables are provided by `docs/components/markdown.tsx`.
 
 ## API Docs Integration
 

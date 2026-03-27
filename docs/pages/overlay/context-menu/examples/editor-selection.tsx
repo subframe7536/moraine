@@ -89,7 +89,7 @@ export function EditorSelection() {
   ])
 
   return (
-    <>
+    <div class="flex flex-col">
       <ContextMenu items={editorItems()}>
         <div class="text-sm text-foreground p-4 b-1 b-border border-border rounded-lg bg-background flex flex-col min-h-28 w-full justify-between">
           <div class="text-xs text-foreground font-mono">
@@ -112,6 +112,6 @@ export function EditorSelection() {
           Theme: <span class="font-medium uppercase">{editorTheme()}</span>
         </span>
       </div>
-    </>
+    </div>
   )
 }

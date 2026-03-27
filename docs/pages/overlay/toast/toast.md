@@ -1,26 +1,24 @@
 ---
 apiDocOverride:
-  {
-    'component':
-      {
-        'key': 'toast',
-        'name': 'Toast',
-        'category': 'overlays',
-        'description': 'solid-toaster integration guide with real runtime examples, including promise and scoped instances.',
-        'polymorphic': false,
-      },
-    'slots': [],
-    'props': { 'own': [], 'inherited': [] },
-  }
+  component:
+    key: toast
+    name: Toast
+    category: overlays
+    description: solid-toaster integration guide with real runtime examples, including promise and scoped instances.
+    polymorphic: false
+  slots: []
+  props:
+    own: []
+    inherited: []
 ---
 
 ## Setup
 
 Install solid-toaster, import styles, mount one or more Toaster instances.
 
-```bash
-bun add solid-toaster
-```
+:::code-tabs
+package: solid-toaster
+:::
 
 ```tsx
 import 'solid-toaster/style.css'

@@ -1,8 +1,8 @@
 import { parseSync } from 'oxc-parser'
 import { walk } from 'oxc-walker'
-import { createHighlighterCore } from 'shiki/core'
-import { createJavaScriptRegexEngine } from 'shiki/engine-javascript.mjs'
 import type { Plugin } from 'vite'
+
+import { getDocsHighlighter } from './shiki-highlight'
 
 interface ComponentDeclaration {
   name: string
@@ -203,11 +203,7 @@ export function transformExampleSourceModule(
 }
 
 export async function exampleSourcePlugin(): Promise<Plugin> {
-  const highlighter = await createHighlighterCore({
-    themes: [import('shiki/themes/one-light.mjs'), import('shiki/themes/one-dark-pro.mjs')],
-    langs: [import('shiki/langs/tsx.mjs'), import('shiki/langs/bash.mjs')],
-    engine: createJavaScriptRegexEngine(),
-  })
+  const highlighter = await getDocsHighlighter()
 
   return {
     name: 'moraine-example-source',

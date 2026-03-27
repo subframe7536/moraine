@@ -5,13 +5,59 @@ import MarkdownIt from 'markdown-it'
 import type { Plugin } from 'vite'
 import YAML from 'yaml'
 
+import { getDocsHighlighter } from './shiki-highlight'
+
 const PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.md$/
 
-const markdown = new MarkdownIt({
-  html: false,
-  linkify: true,
-  typographer: true,
-})
+type MarkdownHighlightLang = 'bash' | 'tsx' | 'css' | 'javascript'
+
+const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
+  bash: 'bash',
+  sh: 'bash',
+  shell: 'bash',
+  zsh: 'bash',
+  console: 'bash',
+  tsx: 'tsx',
+  ts: 'tsx',
+  typescript: 'tsx',
+  jsx: 'tsx',
+  css: 'css',
+  js: 'javascript',
+  cjs: 'javascript',
+  mjs: 'javascript',
+  javascript: 'javascript',
+}
+
+function normalizeMarkdownLang(value: string): MarkdownHighlightLang | null {
+  const key = value.trim().toLowerCase()
+  if (!key) {
+    return null
+  }
+  return MARKDOWN_LANG_ALIASES[key] ?? null
+}
+
+function createMarkdown(
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): MarkdownIt {
+  return new MarkdownIt({
+    html: false,
+    linkify: true,
+    typographer: true,
+    highlight(source, info) {
+      if (!highlightCode) {
+        return ''
+      }
+
+      const langToken = info.trim().split(/\s+/g)[0] ?? ''
+      const lang = normalizeMarkdownLang(langToken)
+      if (!lang) {
+        return ''
+      }
+
+      return highlightCode(source, lang) ?? ''
+    },
+  })
+}
 
 interface MarkdownSegment {
   type: 'markdown'
@@ -30,7 +76,16 @@ interface WidgetDirectiveSegment {
   props?: Record<string, unknown>
 }
 
-type ParsedSegment = MarkdownSegment | ExampleDirectiveSegment | WidgetDirectiveSegment
+interface CodeTabsDirectiveSegment {
+  type: 'code-tabs'
+  packageName: string
+}
+
+type ParsedSegment =
+  | MarkdownSegment
+  | ExampleDirectiveSegment
+  | WidgetDirectiveSegment
+  | CodeTabsDirectiveSegment
 
 interface FrontmatterData {
   extraApiKeys?: string[]
@@ -44,6 +99,7 @@ interface ParsedFrontmatter {
 
 interface CompileMarkdownOptions {
   projectRoot?: string
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null
 }
 
 interface ExampleImport {
@@ -56,6 +112,12 @@ interface ExampleImport {
 interface SegmentLiteral {
   code: string
   importSpec?: ExampleImport
+}
+
+interface CodeTabItemLiteral {
+  label: string
+  value: string
+  html: string
 }
 
 function toPosixPath(value: string): string {
@@ -77,6 +139,36 @@ function toImportPath(fromFile: string, toFile: string): string {
 
 function toSingleQuoted(value: string): string {
   return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
+}
+
+function escapeHTML(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
+function createPlainCodeBlockHTML(source: string): string {
+  return `<pre><code>${escapeHTML(source)}</code></pre>`
+}
+
+function createCodeTabsItems(
+  packageName: string,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): CodeTabItemLiteral[] {
+  const commands = [
+    { label: 'bun', value: 'bun', source: `bun add ${packageName}` },
+    { label: 'pnpm', value: 'pnpm', source: `pnpm add ${packageName}` },
+    { label: 'npm', value: 'npm', source: `npm i ${packageName}` },
+  ]
+
+  return commands.map((command) => ({
+    label: command.label,
+    value: command.value,
+    html: highlightCode?.(command.source, 'bash') ?? createPlainCodeBlockHTML(command.source),
+  }))
 }
 
 function parseFrontmatter(markdownSource: string): ParsedFrontmatter {
@@ -208,6 +300,18 @@ function parseSegments(source: string, id: string): ParsedSegment[] {
       continue
     }
 
+    if (directiveName === 'code-tabs') {
+      const packageName = payload.package
+      if (typeof packageName !== 'string' || !packageName.trim()) {
+        throw new Error(`[example-markdown] :::code-tabs requires "package" in ${id}`)
+      }
+      segments.push({
+        type: 'code-tabs',
+        packageName: packageName.trim(),
+      })
+      continue
+    }
+
     throw new Error(`[example-markdown] unsupported :::${directiveName} block in ${id}`)
   }
 
@@ -284,12 +388,16 @@ function derivePageKey(pageId: string): string {
   return fileBaseName === parentName ? parentName : fileBaseName
 }
 
-function buildSegmentLiterals(segments: ParsedSegment[]): SegmentLiteral[] {
+function buildSegmentLiterals(
+  segments: ParsedSegment[],
+  renderMarkdown: (source: string) => string,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): SegmentLiteral[] {
   let exampleIndex = 0
 
   return segments.map((segment) => {
     if (segment.type === 'markdown') {
-      const html = markdown.render(segment.text).trim()
+      const html = renderMarkdown(segment.text).trim()
       return {
         code: `{ type: 'markdown', html: ${JSON.stringify(html)} }`,
       }
@@ -300,6 +408,13 @@ function buildSegmentLiterals(segments: ParsedSegment[]): SegmentLiteral[] {
         code: `{ type: 'widget', widgetName: ${JSON.stringify(segment.widgetName)}${
           segment.props ? `, props: ${JSON.stringify(segment.props)}` : ''
         } }`,
+      }
+    }
+
+    if (segment.type === 'code-tabs') {
+      const items = createCodeTabsItems(segment.packageName, highlightCode)
+      return {
+        code: `{ type: 'code-tabs', items: ${JSON.stringify(items)} }`,
       }
     }
 
@@ -327,16 +442,21 @@ export function compileMarkdownPage(
   const idWithoutQuery = id.split('?')[0] ?? id
   const parsedFrontmatter = parseFrontmatter(markdownSource)
   const parsedSegments = parseSegments(parsedFrontmatter.content, idWithoutQuery)
-  const segmentLiterals = buildSegmentLiterals(parsedSegments)
+  const markdown = createMarkdown(options.highlightCode)
+  const segmentLiterals = buildSegmentLiterals(
+    parsedSegments,
+    (source) => markdown.render(source),
+    options.highlightCode,
+  )
 
   const docsRoot = resolveDocsRoot(idWithoutQuery)
   const derivedComponentKey = derivePageKey(idWithoutQuery)
   const runtimePath = toImportPath(
     idWithoutQuery,
-    path.join(docsRoot, 'components/example-markdown-page'),
+    path.join(docsRoot, 'components/markdown'),
   )
 
-  const importLines = [`import { renderExampleMarkdownPage } from ${toSingleQuoted(runtimePath)}`]
+  const importLines = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
   const segmentCodes: string[] = []
 
   for (const literal of segmentLiterals) {
@@ -395,13 +515,15 @@ export function compileMarkdownPage(
     `const segments = [${segmentCodes.join(', ')}]`,
     '',
     'export default function MarkdownPage() {',
-    `  return renderExampleMarkdownPage({ ${configFields.join(', ')} })`,
+    `  return Markdown({ ${configFields.join(', ')} })`,
     '}',
     '',
   ].join('\n')
 }
 
 export function exampleMarkdownPlugin(projectRoot?: string): Plugin {
+  const highlighterPromise = getDocsHighlighter()
+
   let resolvedRoot = ''
 
   return {
@@ -417,8 +539,16 @@ export function exampleMarkdownPlugin(projectRoot?: string): Plugin {
       filter: {
         id: [PAGE_FILE_RE],
       },
-      handler(code, id) {
-        return compileMarkdownPage(code, id, { projectRoot: resolvedRoot })
+      async handler(code, id) {
+        const highlighter = await highlighterPromise
+        return compileMarkdownPage(code, id, {
+          projectRoot: resolvedRoot,
+          highlightCode: (source, lang) =>
+            highlighter.codeToHtml(source, {
+              lang,
+              themes: { light: 'one-light', dark: 'one-dark-pro' },
+            }),
+        })
       },
     },
   }
