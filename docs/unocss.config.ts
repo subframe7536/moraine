@@ -8,7 +8,7 @@ import {
   presetTypography,
 } from 'unocss'
 
-import { presetTheme } from '../src/unocss-preset-theme'
+import { presetTheme } from '../src/unocss/theme'
 
 const transformer = transformerVariantGroup()
 export default defineConfig<PresetWind4Theme>({

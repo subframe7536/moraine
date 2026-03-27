@@ -4,8 +4,8 @@ import { defineConfig } from 'tsdown'
 import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from 'unocss'
 import solid from 'vite-plugin-solid'
 
-import { presetTheme } from './src/unocss-preset-theme'
-import { createMigrateSyntaxTransformer } from './src/unocss-transformer/migrate-syntax'
+import { presetTheme } from './src/unocss'
+import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax'
 
 const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
   const theme = presetTheme()
@@ -61,7 +61,7 @@ const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
 // export both js and jsx
 export default defineConfig([
   {
-    entry: ['./src/index.ts', './src/unocss-preset-theme.ts'],
+    entry: { index: './src/index.ts', unocss: './src/unocss/index.ts' },
     // use the solid plugin to handle jsx
     plugins: [
       unocss({
@@ -99,7 +99,7 @@ export default defineConfig([
         }
         exports['./tw3.css'] = './dist/tw3.css'
         exports['./tw4.css'] = './dist/tw4.css'
-        exports['./unocss-preset-theme'] = './dist/unocss-preset-theme.mjs'
+        exports['./unocss'] = './dist/unocss.mjs'
         return exports
       },
     },

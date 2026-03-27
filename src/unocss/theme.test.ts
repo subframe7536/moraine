@@ -2,7 +2,7 @@ import MagicString from 'magic-string'
 import { createGenerator, presetWind4 } from 'unocss'
 import { describe, expect, test } from 'vitest'
 
-import { presetTheme, resolvePresetThemeOptions } from './unocss-preset-theme'
+import { presetTheme, resolvePresetThemeOptions } from './theme'
 
 async function applyPreTransformers(
   source: string,

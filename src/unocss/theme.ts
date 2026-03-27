@@ -1,8 +1,8 @@
 import type { Preset, SourceCodeTransformer } from 'unocss'
 
-import { transformerInjectCompileClass } from './unocss-transformer/inject-compile-class'
-import { transformerInjectPrefix } from './unocss-transformer/inject-prefix'
-import type { TransformerInjectPrefixOption } from './unocss-transformer/inject-prefix'
+import { transformerInjectCompileClass } from './inject-compile-class'
+import { transformerInjectPrefix } from './inject-prefix'
+import type { TransformerInjectPrefixOption } from './inject-prefix'
 
 export const DEFAULT_ICONS = {
   arrowDown: 'i-lucide-arrow-down',

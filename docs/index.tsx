@@ -83,8 +83,8 @@ function App() {
             />
           ),
           defaultSize: '15%',
-          min: '12%',
-          max: '18%',
+          min: 240,
+          max: 400,
         },
         {
           content: (

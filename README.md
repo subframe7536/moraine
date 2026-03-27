@@ -110,7 +110,7 @@ You can use `presetWind3` or `presetWind4` here. `presetTheme` already includes 
 // unocss.config.ts
 import { defineConfig } from 'unocss'
 import { presetWind3, presetWind4 } from 'unocss'
-import { presetTheme } from 'moraine/unocss-preset-theme'
+import { presetTheme } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [

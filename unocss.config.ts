@@ -2,7 +2,7 @@ import type { PresetWind4Theme } from 'unocss'
 import { presetWind4, transformerVariantGroup, presetIcons, defineConfig } from 'unocss'
 import { presetFunctionCompletion, presetObjectCompletion } from 'unocss-preset-completion'
 
-import { presetTheme } from './src/unocss-preset-theme'
+import { presetTheme } from './src/unocss'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [

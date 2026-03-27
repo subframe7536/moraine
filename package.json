@@ -26,7 +26,7 @@
     "./package.json": "./package.json",
     "./tw4.css": "./dist/tw4.css",
     "./tw3.css": "./dist/tw3.css",
-    "./unocss-preset-theme": "./dist/unocss-preset-theme.mjs"
+    "./unocss": "./dist/unocss.mjs"
   },
   "publishConfig": {
     "access": "public",
