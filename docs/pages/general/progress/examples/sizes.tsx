@@ -11,8 +11,8 @@ export function Sizes() {
     <div class="w-xl space-y-3">
       <For each={SIZES}>
         {(size) => (
-          <div class="flex items-center gap-3">
-            <span class="w-8 font-mono text-xs text-muted-foreground">{size}</span>
+          <div class="flex gap-3 items-center">
+            <span class="text-xs text-muted-foreground font-mono w-8">{size}</span>
             <div class="flex-1">
               <Progress value={56} size={size} />
             </div>

@@ -12,10 +12,7 @@ import type {
   OverlayMenuSharedItemRenderContext,
   OverlayMenuSharedSlots,
 } from '../shared-overlay-menu/types'
-import type {
-  OverlayMenuContentSlot,
-  OverlayMenuPlacement,
-} from '../shared-overlay-menu/utils'
+import type { OverlayMenuContentSlot, OverlayMenuPlacement } from '../shared-overlay-menu/utils'
 import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
 
 type DropdownMenuColor = NonNullable<OverlayMenuItemVariantProps['color']>

@@ -451,10 +451,7 @@ export function compileMarkdownPage(
 
   const docsRoot = resolveDocsRoot(idWithoutQuery)
   const derivedComponentKey = derivePageKey(idWithoutQuery)
-  const runtimePath = toImportPath(
-    idWithoutQuery,
-    path.join(docsRoot, 'components/markdown'),
-  )
+  const runtimePath = toImportPath(idWithoutQuery, path.join(docsRoot, 'components/markdown'))
 
   const importLines = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
   const segmentCodes: string[] = []

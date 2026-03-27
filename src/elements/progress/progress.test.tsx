@@ -120,12 +120,16 @@ describe('Progress', () => {
 
   test('uses reverse animation classes without inverse utilities', () => {
     const horizontal = render(() => <Progress value={null} animation="reverse" />)
-    const vertical = render(() => <Progress value={null} orientation="vertical" animation="reverse" />)
+    const vertical = render(() => (
+      <Progress value={null} orientation="vertical" animation="reverse" />
+    ))
 
     const horizontalIndicator = horizontal.container.querySelector(
       '[data-slot="indicator"]',
     ) as HTMLElement
-    const verticalIndicator = vertical.container.querySelector('[data-slot="indicator"]') as HTMLElement
+    const verticalIndicator = vertical.container.querySelector(
+      '[data-slot="indicator"]',
+    ) as HTMLElement
 
     expect(horizontalIndicator.className).toContain('animate-carousel-rtl')
     expect(horizontalIndicator.className).toContain('rtl:animate-carousel')

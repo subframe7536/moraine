@@ -5,7 +5,13 @@ export type SlotClasses<TSlot extends string> = Partial<Record<TSlot, ClassValue
 
 export type SlotStyles<TSlot extends string> = Partial<Record<TSlot, JSX.CSSProperties>>
 
-export type BaseProps<B, V, E, TSlot extends string, ExtraOmitKeys extends PropertyKey = never> = B &
+export type BaseProps<
+  B,
+  V,
+  E,
+  TSlot extends string,
+  ExtraOmitKeys extends PropertyKey = never,
+> = B &
   V &
   ([E] extends [never]
     ? {}

@@ -69,8 +69,8 @@ export default defineConfig<PresetWind4Theme>({
   --muted-foreground: hsl(215.4 16.3% 46.9%);
   --accent: hsl(210 40% 88.1%);
   --accent-foreground: hsl(222.2 47.4% 11.2%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 40% 98%);
+  --destructive: hsl(351.74 100% 40.54%);
+  --destructive-foreground: hsl(359.81 59.23% 96.94%);
   --border: hsl(214.3 31.8% 91.4%);
   --input: hsl(214.3 31.8% 91.4%);
   --ring: hsl(221.2 43.2% 58.3%);
@@ -121,8 +121,8 @@ export default defineConfig<PresetWind4Theme>({
   --muted-foreground: hsl(215 20.2% 65.1%);
   --accent: hsl(217.2 32.6% 32.5%);
   --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
+  --destructive: hsl(358.77 100% 69.84%);
+  --destructive-foreground: hsl(358.88 74.66% 50.36%);
   --border: hsl(217.2 32.6% 17.5%);
   --input: hsl(217.2 32.6% 17.5%);
   --ring: hsl(224.3 76.3% 48%);

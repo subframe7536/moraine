@@ -60,8 +60,7 @@ package: solid-toaster
 `
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.md', {
-      highlightCode: (source, lang) =>
-        `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
+      highlightCode: (source, lang) => `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
     })
 
     expect(code).toContain("type: 'code-tabs'")
@@ -89,8 +88,7 @@ bun add solid-toaster
 `
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.md', {
-      highlightCode: (source, lang) =>
-        `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
+      highlightCode: (source, lang) => `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
     })
 
     expect(code).toContain('shiki bash')
