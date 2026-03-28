@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Pagination, PaginationT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Render controls as links and override variant pairing when needed.
 
@@ -6,7 +18,7 @@ Render controls as links and override variant pairing when needed.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Size scale from `xs` to `xl` for page links and previous/next controls.
 
@@ -14,7 +26,7 @@ Size scale from `xs` to `xl` for page links and previous/next controls.
 name: Sizes
 :::
 
-## Controlled
+### Controlled
 
 Default ghost + outline controls with external page state management.
 
@@ -22,10 +34,16 @@ Default ghost + outline controls with external page state management.
 name: Controlled
 :::
 
-## Minimal
+### Minimal
 
 Hide prev/next controls and show only page buttons.
 
 :::example
 name: Minimal
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

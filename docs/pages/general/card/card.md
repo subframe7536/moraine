@@ -1,4 +1,16 @@
-## Default
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Card, CardT } from 'moraine'
+```
+
+## Examples
+
+### Default
 
 Create project form card from coss/ui.
 
@@ -6,7 +18,7 @@ Create project form card from coss/ui.
 name: Default
 :::
 
-## Sizes
+### Sizes
 
 Default and compact size presets.
 
@@ -14,7 +26,7 @@ Default and compact size presets.
 name: Sizes
 :::
 
-## With Image
+### With Image
 
 Media-first card using body slot customization.
 
@@ -22,10 +34,16 @@ Media-first card using body slot customization.
 name: WithImage
 :::
 
-## Header Action
+### Header Action
 
 Custom action area inside the header slot.
 
 :::example
 name: HeaderAction
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

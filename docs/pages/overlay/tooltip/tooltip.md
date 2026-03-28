@@ -1,4 +1,16 @@
-## Placements
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Tooltip, TooltipT } from 'moraine'
+```
+
+## Examples
+
+### Placements
 
 Tooltip positioned on each side.
 
@@ -6,7 +18,7 @@ Tooltip positioned on each side.
 name: Placements
 :::
 
-## Trigger Types
+### Trigger Types
 
 Tooltip on buttons and inline text.
 
@@ -14,7 +26,7 @@ Tooltip on buttons and inline text.
 name: TriggerTypes
 :::
 
-## Keyboard Shortcuts
+### Keyboard Shortcuts
 
 Display keyboard shortcut hints alongside tooltip text.
 
@@ -22,10 +34,16 @@ Display keyboard shortcut hints alongside tooltip text.
 name: KeyboardShortcuts
 :::
 
-## Text Only vs Shortcuts Only
+### Text Only vs Shortcuts Only
 
 Content variations.
 
 :::example
 name: TextOnlyVsShortcutsOnly
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

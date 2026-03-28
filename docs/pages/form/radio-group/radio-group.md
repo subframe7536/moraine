@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { RadioGroup, RadioGroupT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 List, card, and table variants for single selection.
 
@@ -6,7 +18,7 @@ List, card, and table variants for single selection.
 name: Variants
 :::
 
-## Sizes + Orientation
+### Sizes + Orientation
 
 Size scale and vertical/horizontal modes.
 
@@ -14,7 +26,7 @@ Size scale and vertical/horizontal modes.
 name: SizesOrientation
 :::
 
-## Controlled + Disabled
+### Controlled + Disabled
 
 Controlled value with disabled option in data set.
 
@@ -22,10 +34,16 @@ Controlled value with disabled option in data set.
 name: ControlledDisabled
 :::
 
-## Indicator Positions
+### Indicator Positions
 
 Start/end/hidden indicator styles with card variant.
 
 :::example
 name: IndicatorPositions
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -1,12 +1,24 @@
 import { render } from '@solidjs/testing-library'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-vi.mock('../widgets', () => ({
-  docsWidgetMap: {},
-}))
-
 import { Markdown } from './markdown'
-import { MARKDOWN_ANCHOR_LINK_CLASS } from '../vite-plugin/markdown/const'
+
+vi.mock('../widgets', () => ({
+  docsWidgetMap: {
+    'docs-header': (props: Record<string, unknown>) => (
+      <div data-testid="docs-header">
+        <span>{String(props.componentKey ?? '')}</span>
+        <span>
+          {String(
+            (props.apiDoc as { component?: { name?: string } } | undefined)?.component?.name ?? '',
+          )}
+        </span>
+        <span>{String(props.kobalteHref ?? '')}</span>
+      </div>
+    ),
+    'docs-api-reference': () => <div data-testid="docs-api-reference">API Widget</div>,
+  },
+}))
 
 class MockIntersectionObserver {
   static instances: MockIntersectionObserver[] = []
@@ -67,7 +79,7 @@ afterEach(() => {
 })
 
 describe('Markdown On This Page', () => {
-  test('renders github and kobalte header links with prefix icons', () => {
+  test('renders docs widgets and injects runtime context props', () => {
     const screen = render(() =>
       Markdown({
         componentKey: 'button',
@@ -78,7 +90,6 @@ describe('Markdown On This Page', () => {
             name: 'Button',
             category: 'Elements',
             polymorphic: false,
-            sourcePath: 'src/elements/button/button.tsx',
           },
           slots: [],
           props: {
@@ -86,38 +97,34 @@ describe('Markdown On This Page', () => {
             inherited: [],
           },
         },
-        segments: [{ type: 'markdown', html: '<p>Body</p>' }],
+        segments: [
+          { type: 'widget', widgetName: 'docs-header' },
+          { type: 'widget', widgetName: 'docs-api-reference' },
+        ],
       }),
     )
 
-    const githubLink = screen.getByRole('link', { name: 'GitHub Source' }) as HTMLAnchorElement
-    const kobalteLink = screen.getByRole('link', { name: 'Kobalte' }) as HTMLAnchorElement
-
-    expect(githubLink.getAttribute('href')).toBe(
-      'https://github.com/subframe7536/moraine/blob/main/src/elements/button/button.tsx',
-    )
-    expect(githubLink.getAttribute('target')).toBe('_blank')
-    expect(githubLink.querySelector('[data-slot="leading"]')?.className).toContain('i-lucide:github')
-    expect(kobalteLink.getAttribute('href')).toBe('https://kobalte.dev/docs/core/components/button')
-    expect(kobalteLink.getAttribute('target')).toBe('_blank')
-    expect(kobalteLink.querySelector('[data-slot="leading"]')?.className).toContain('icon-external')
+    const header = screen.getByTestId('docs-header')
+    expect(header.textContent).toContain('button')
+    expect(header.textContent).toContain('Button')
+    expect(header.textContent).toContain('https://kobalte.dev/docs/core/components/button')
+    expect(screen.getByTestId('docs-api-reference').textContent).toBe('API Widget')
   })
 
-  test('renders github header link without kobalte when kobalteHref is absent', () => {
+  test('does not auto render header or api without widget segments', () => {
     const screen = render(() =>
       Markdown({
-        componentKey: 'card',
+        componentKey: 'checkbox',
         apiDoc: {
           component: {
-            key: 'card',
-            name: 'Card',
-            category: 'Elements',
+            key: 'checkbox',
+            name: 'Checkbox',
+            category: 'Form',
             polymorphic: false,
-            sourcePath: 'src/elements/card/card.tsx',
           },
-          slots: [],
+          slots: ['root'],
           props: {
-            own: [],
+            own: [{ name: 'checked', required: false, type: 'boolean' }],
             inherited: [],
           },
         },
@@ -125,34 +132,18 @@ describe('Markdown On This Page', () => {
       }),
     )
 
-    expect(screen.getByRole('link', { name: 'GitHub Source' })).toBeTruthy()
-    expect(screen.queryByRole('link', { name: 'Kobalte' })).toBeNull()
+    expect(screen.queryByTestId('docs-header')).toBeNull()
+    expect(screen.container.querySelector('#api-reference')).toBeNull()
   })
 
-  test('renders page header title without h1', () => {
+  test('shows fallback when widget is missing', () => {
     const screen = render(() =>
       Markdown({
-        componentKey: 'button',
-        apiDoc: {
-          component: {
-            key: 'button',
-            name: 'Button',
-            category: 'Elements',
-            polymorphic: false,
-          },
-          slots: [],
-          props: {
-            own: [],
-            inherited: [],
-          },
-        },
-        segments: [{ type: 'markdown', html: '<p>Body</p>' }],
+        segments: [{ type: 'widget', widgetName: 'missing-widget' }],
       }),
     )
 
-    const pageTitle = screen.getByText('Button')
-    expect(pageTitle.tagName).toBe('P')
-    expect(screen.queryByRole('heading', { name: 'Button', level: 1 })).toBeNull()
+    expect(screen.getByText('Widget not found: missing-widget')).toBeTruthy()
   })
 
   test('renders toc from compile-time entries', () => {
@@ -189,109 +180,9 @@ describe('Markdown On This Page', () => {
     expect(screen.getByRole('link', { name: 'Intro' })).toBeTruthy()
   })
 
-  test('renders API Reference h1 and api section h2 headings', () => {
-    const screen = render(() =>
-      Markdown({
-        apiDoc: {
-          component: {
-            key: 'checkbox',
-            name: 'Checkbox',
-            category: 'Form',
-            polymorphic: false,
-          },
-          slots: ['root'],
-          props: {
-            own: [{ name: 'checked', required: false, type: 'boolean' }],
-            inherited: [{ from: 'Base', props: [] }],
-          },
-          items: { props: [] },
-        },
-        onThisPageEntries: [
-          { id: 'api-reference', label: 'API Reference', level: 1 },
-          { id: 'api-slots', label: 'Slots', level: 2 },
-          { id: 'api-props', label: 'Props', level: 2 },
-          { id: 'api-items', label: 'Items', level: 2 },
-          { id: 'api-inherited-base', label: 'Inherited from Base', level: 2 },
-        ],
-        segments: [{ type: 'markdown', html: '<p>Body</p>' }],
-      }),
-    )
-
-    const apiReferenceHeading = screen.container.querySelector('#api-reference')
-    const slotsHeading = screen.container.querySelector('#api-slots')
-    const propsHeading = screen.container.querySelector('#api-props')
-    const itemsHeading = screen.container.querySelector('#api-items')
-    const inheritedHeading = screen.container.querySelector('#api-inherited-base')
-    const apiReferenceLink = screen.container.querySelector<HTMLAnchorElement>('#api-reference > a')
-
-    expect(apiReferenceHeading?.tagName).toBe('H1')
-    expect(slotsHeading?.tagName).toBe('H2')
-    expect(propsHeading?.tagName).toBe('H2')
-    expect(itemsHeading?.tagName).toBe('H2')
-    expect(inheritedHeading?.tagName).toBe('H2')
-    expect(apiReferenceLink?.className).toBe(MARKDOWN_ANCHOR_LINK_CLASS)
-  })
-
-  test('hides empty api sections', () => {
-    const screen = render(() =>
-      Markdown({
-        apiDoc: {
-          component: {
-            key: 'checkbox',
-            name: 'Checkbox',
-            category: 'Form',
-            polymorphic: false,
-          },
-          slots: [],
-          props: {
-            own: [],
-            inherited: [{ from: 'Base', props: [] }],
-          },
-        },
-        onThisPageEntries: [
-          { id: 'api-reference', label: 'API Reference', level: 1 },
-          { id: 'api-inherited-base', label: 'Inherited from Base', level: 2 },
-        ],
-        segments: [{ type: 'markdown', html: '<p>Body</p>' }],
-      }),
-    )
-
-    expect(screen.container.querySelector('#api-reference')?.tagName).toBe('H1')
-    expect(screen.container.querySelector('#api-inherited-base')?.tagName).toBe('H2')
-    expect(screen.container.querySelector('#api-slots')).toBeNull()
-    expect(screen.container.querySelector('#api-props')).toBeNull()
-    expect(screen.container.querySelector('#api-items')).toBeNull()
-  })
-
-  test('renders inherited sections without any toggle controls', () => {
-    const screen = render(() =>
-      Markdown({
-        apiDoc: {
-          component: {
-            key: 'checkbox',
-            name: 'Checkbox',
-            category: 'Form',
-            polymorphic: false,
-          },
-          slots: [],
-          props: {
-            own: [],
-            inherited: [{ from: 'Base', props: [{ name: 'id', required: false, type: 'string' }] }],
-          },
-        },
-        onThisPageEntries: [{ id: 'api-inherited-base', label: 'Inherited from Base', level: 2 }],
-        segments: [{ type: 'markdown', html: '<p>Body</p>' }],
-      }),
-    )
-
-    expect(screen.container.querySelector('#api-inherited-base')?.textContent).toContain(
-      'Inherited from Base',
-    )
-    expect(screen.queryByRole('button', { name: /Inherited/i })).toBeNull()
-  })
-
   test('updates active toc item for scrollspy and hash', () => {
-    globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
+    globalThis.IntersectionObserver =
+      MockIntersectionObserver as unknown as typeof IntersectionObserver
 
     const screen = render(() =>
       Markdown({

@@ -1,4 +1,16 @@
-## Single Select
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Select, SelectT } from 'moraine'
+```
+
+## Examples
+
+### Single Select
 
 Basic single selection with controlled value.
 
@@ -6,7 +18,7 @@ Basic single selection with controlled value.
 name: SingleSelect
 :::
 
-## Variants
+### Variants
 
 Visual style variants.
 
@@ -14,7 +26,7 @@ Visual style variants.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 From xs to xl.
 
@@ -22,7 +34,7 @@ From xs to xl.
 name: Sizes
 :::
 
-## Disabled
+### Disabled
 
 Non-interactive state.
 
@@ -30,7 +42,7 @@ Non-interactive state.
 name: Disabled
 :::
 
-## Trigger-Only Open
+### Trigger-Only Open
 
 Only the trigger icon can open the dropdown menu.
 
@@ -38,7 +50,7 @@ Only the trigger icon can open the dropdown menu.
 name: TriggerOnlyOpen
 :::
 
-## Searchable
+### Searchable
 
 Type to filter options.
 
@@ -46,7 +58,7 @@ Type to filter options.
 name: Searchable
 :::
 
-## Grouped Options
+### Grouped Options
 
 Options organized in sections.
 
@@ -54,10 +66,16 @@ Options organized in sections.
 name: GroupedOptions
 :::
 
-## Infinite Scroll
+### Infinite Scroll
 
 Scroll to the bottom to load more options.
 
 :::example
 name: InfiniteScroll
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

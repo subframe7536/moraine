@@ -82,6 +82,22 @@ name: intro-cards
 
 Widgets are resolved by `docs/widgets/index.ts`.
 
+Component pages should explicitly include:
+
+```md
+:::widget
+name: docs-header
+:::
+```
+
+and:
+
+```md
+:::widget
+name: docs-api-reference
+:::
+```
+
 ### `:::code-tabs`
 
 ```md
@@ -105,7 +121,8 @@ Directive parsing lives in `docs/vite-plugin/markdown/directives.ts`.
 - Widget segment -> dynamic component from `docsWidgetMap`
 - Code-tabs segment -> install-command tabs with build-time highlighted code
 
-Page shell and API tables are provided by `docs/components/markdown.tsx`.
+Page shell and On This Page layout are provided by `docs/components/markdown.tsx`.
+Header and API rendering are provided by explicit widgets in page markdown.
 
 ## API Docs Integration
 
@@ -118,8 +135,7 @@ The markdown compiler derives `componentKey` from page path and loads matching A
 It injects:
 
 - `apiDoc` for the derived component key
-- `extraApiDocs` from frontmatter `extraApiKeys`
-- merged `apiDoc` when frontmatter `apiDocOverride` exists
+- merged `apiDoc` when `docs-header` widget provides `props.apiDocOverride`
 
 `componentKey` is only exposed to runtime when there is API doc data to render.
 

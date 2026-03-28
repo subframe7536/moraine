@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Checkbox, CheckboxT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 List and card variants with start/end/hidden indicator positions.
 
@@ -6,7 +18,7 @@ List and card variants with start/end/hidden indicator positions.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Scale from xs to xl with unified label spacing.
 
@@ -14,7 +26,7 @@ Scale from xs to xl with unified label spacing.
 name: Sizes
 :::
 
-## Indeterminate + Custom Icons
+### Indeterminate + Custom Icons
 
 Custom checked/indeterminate icons with controlled indeterminate transition.
 
@@ -22,10 +34,16 @@ Custom checked/indeterminate icons with controlled indeterminate transition.
 name: IndeterminateCustomIcons
 :::
 
-## Custom True/False Values
+### Custom True/False Values
 
 Map checked state to domain values instead of boolean.
 
 :::example
 name: CustomTrueFalseValues
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

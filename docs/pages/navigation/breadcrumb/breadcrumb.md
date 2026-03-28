@@ -1,4 +1,16 @@
-## Default
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Breadcrumb, BreadcrumbT } from 'moraine'
+```
+
+## Examples
+
+### Default
 
 Simple breadcrumb trail with active last item.
 
@@ -6,7 +18,7 @@ Simple breadcrumb trail with active last item.
 name: Default
 :::
 
-## Sizes
+### Sizes
 
 Different size.
 
@@ -14,7 +26,7 @@ Different size.
 name: Sizes
 :::
 
-## Custom Separator + Disabled
+### Custom Separator + Disabled
 
 Use an alternative separator and mark links as disabled.
 
@@ -22,10 +34,16 @@ Use an alternative separator and mark links as disabled.
 name: CustomSeparatorDisabled
 :::
 
-## Wrapping
+### Wrapping
 
 Toggle wrapping behavior for long breadcrumb labels.
 
 :::example
 name: Wrapping
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

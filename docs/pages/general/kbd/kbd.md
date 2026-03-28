@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Kbd, KbdT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Outline, default, and invert visual modes.
 
@@ -6,7 +18,7 @@ Outline, default, and invert visual modes.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Keycap sizes from xs to xl.
 
@@ -14,10 +26,16 @@ Keycap sizes from xs to xl.
 name: Sizes
 :::
 
-## Shortcut Composition
+### Shortcut Composition
 
 Inline command palette hints.
 
 :::example
 name: ShortcutComposition
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

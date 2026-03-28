@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Badge, BadgeT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Default, outline, and solid styles.
 
@@ -6,7 +18,7 @@ Default, outline, and solid styles.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Size scale with leading and trailing icons.
 
@@ -14,7 +26,7 @@ Size scale with leading and trailing icons.
 name: Sizes
 :::
 
-## Status and Metadata
+### Status and Metadata
 
 Common badge content for pills, counters, and status labels.
 
@@ -22,10 +34,16 @@ Common badge content for pills, counters, and status labels.
 name: StatusAndMetadata
 :::
 
-## Dismissible tags
+### Dismissible tags
 
 Clickable trailing icons support removable tag UIs like Select multi-value chips.
 
 :::example
 name: DismissibleTags
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

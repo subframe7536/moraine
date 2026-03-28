@@ -1,4 +1,16 @@
-## Icon Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Icon, IconT } from 'moraine'
+```
+
+## Examples
+
+### Icon Sizes
 
 Numeric pixel sizes from 12 to 48.
 
@@ -6,7 +18,7 @@ Numeric pixel sizes from 12 to 48.
 name: IconSizes
 :::
 
-## Icon Gallery
+### Icon Gallery
 
 Common Lucide icons rendered via UnoCSS classes.
 
@@ -14,10 +26,16 @@ Common Lucide icons rendered via UnoCSS classes.
 name: IconGallery
 :::
 
-## Icon as JSX
+### Icon as JSX
 
 Pass a JSX element or render function instead of a string name.
 
 :::example
 name: IconAsJSX
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

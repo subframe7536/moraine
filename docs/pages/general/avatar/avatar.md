@@ -1,4 +1,16 @@
-## Single Avatar
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Avatar, AvatarT } from 'moraine'
+```
+
+## Examples
+
+### Single Avatar
 
 Fallback first, then image crossfades in after preload.
 
@@ -6,7 +18,7 @@ Fallback first, then image crossfades in after preload.
 name: SingleAvatar
 :::
 
-## Sizes
+### Sizes
 
 Scale from `xs` to `xl` for single and grouped avatar contexts.
 
@@ -14,7 +26,7 @@ Scale from `xs` to `xl` for single and grouped avatar contexts.
 name: Sizes
 :::
 
-## Fallback Modes
+### Fallback Modes
 
 Text, initials-from-alt and fallback icon.
 
@@ -22,7 +34,7 @@ Text, initials-from-alt and fallback icon.
 name: FallbackModes
 :::
 
-## Badge Positions
+### Badge Positions
 
 Top/bottom + left/right corner badge.
 
@@ -30,10 +42,16 @@ Top/bottom + left/right corner badge.
 name: BadgePositions
 :::
 
-## Merged Group Mode
+### Merged Group Mode
 
 Use the same Avatar component with items.
 
 :::example
 name: MergedGroupMode
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

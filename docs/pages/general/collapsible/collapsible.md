@@ -1,4 +1,16 @@
-## Uncontrolled
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Collapsible, CollapsibleT } from 'moraine'
+```
+
+## Examples
+
+### Uncontrolled
 
 Default closed panel using trigger render context.
 
@@ -6,7 +18,7 @@ Default closed panel using trigger render context.
 name: Uncontrolled
 :::
 
-## Controlled
+### Controlled
 
 External state controls the panel open status.
 
@@ -14,7 +26,7 @@ External state controls the panel open status.
 name: Controlled
 :::
 
-## Disabled + Force Mount
+### Disabled + Force Mount
 
 Disabled trigger and force-mount content behavior.
 
@@ -22,10 +34,16 @@ Disabled trigger and force-mount content behavior.
 name: DisabledForceMount
 :::
 
-## Compact Trigger Composition
+### Compact Trigger Composition
 
 Use compact trigger UI for dense list and settings surfaces.
 
 :::example
 name: CompactTriggerComposition
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

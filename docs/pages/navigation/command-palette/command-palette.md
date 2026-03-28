@@ -1,4 +1,16 @@
-## Usage
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { CommandPalette, CommandPaletteT } from 'moraine'
+```
+
+## Examples
+
+### Usage
 
 Click the button or press ⌘K to open the command palette.
 
@@ -6,7 +18,7 @@ Click the button or press ⌘K to open the command palette.
 name: Usage
 :::
 
-## Basic
+### Basic
 
 Groups of items with icons, kbds, and descriptions.
 
@@ -14,7 +26,7 @@ Groups of items with icons, kbds, and descriptions.
 name: Basic
 :::
 
-## Custom Empty State
+### Custom Empty State
 
 Override the default 'No results.' message.
 
@@ -22,7 +34,7 @@ Override the default 'No results.' message.
 name: CustomEmptyState
 :::
 
-## Loading
+### Loading
 
 Search icon becomes a spinner while loading.
 
@@ -30,7 +42,7 @@ Search icon becomes a spinner while loading.
 name: Loading
 :::
 
-## With Close Button
+### With Close Button
 
 A close button in the input trailing slot.
 
@@ -38,10 +50,16 @@ A close button in the input trailing slot.
 name: WithCloseButton
 :::
 
-## Sub-Navigation
+### Sub-Navigation
 
 Items with children drill into a sub-group. Press Backspace or the back button to return.
 
 :::example
 name: SubNavigation
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -1,4 +1,16 @@
-## Default Container
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Popup, PopupT } from 'moraine'
+```
+
+## Examples
+
+### Default Container
 
 Popup provides only container + overlay. Content styling is fully custom.
 
@@ -6,7 +18,7 @@ Popup provides only container + overlay. Content styling is fully custom.
 name: DefaultContainer
 :::
 
-## Dismiss Control
+### Dismiss Control
 
 Block outside dismiss and count prevent-close attempts.
 
@@ -14,10 +26,16 @@ Block outside dismiss and count prevent-close attempts.
 name: DismissControl
 :::
 
-## Scrollable Overlay Mode
+### Scrollable Overlay Mode
 
 Scrollable overlay keeps content in flow while preserving the backdrop.
 
 :::example
 name: ScrollableOverlayMode
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

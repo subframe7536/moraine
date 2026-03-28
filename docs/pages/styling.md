@@ -31,7 +31,7 @@ export default defineConfig({
 Add Moraine package files to `@source` so utility classes are detected.
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "./node_modules/moraine/**/*";
 ```
 

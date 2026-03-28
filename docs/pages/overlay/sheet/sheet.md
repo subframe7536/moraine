@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Sheet, SheetT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Inset layout with custom close content or hidden close control.
 
@@ -6,7 +18,7 @@ Inset layout with custom close content or hidden close control.
 name: Variants
 :::
 
-## Sides
+### Sides
 
 Open sheet from each side with shared shell slots.
 
@@ -14,10 +26,16 @@ Open sheet from each side with shared shell slots.
 name: Sides
 :::
 
-## Dismiss Control
+### Dismiss Control
 
 Prevent close on outside interaction and Escape while counting attempts.
 
 :::example
 name: DismissControl
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

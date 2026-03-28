@@ -5,7 +5,7 @@ export function Sizes() {
   const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
 
   return (
-    <div class="space-y-4">
+    <div class="w-xl space-y-4">
       <For each={SIZES}>
         {(size) => (
           <div class="space-y-2">

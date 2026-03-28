@@ -11,12 +11,17 @@ const INDICATORS = ['start', 'end', 'hidden'] as const
 
 export function Indicator() {
   return (
-    <div class="gap-4 grid xl:grid-cols-3 md:grid-cols-2">
+    <div class="gap-4 grid md:grid-cols-2 xl:grid-cols-3">
       <For each={INDICATORS}>
         {(indicator) => (
           <div class="p-4 b-(1 border) rounded-lg space-y-1">
             <p class="text-xs text-muted-foreground">Indicator: {indicator}</p>
-            <CheckboxGroup legend="Channels" items={ITEMS} indicator={indicator} defaultValue={['beta']} />
+            <CheckboxGroup
+              legend="Channels"
+              items={ITEMS}
+              indicator={indicator}
+              defaultValue={['beta']}
+            />
           </div>
         )}
       </For>

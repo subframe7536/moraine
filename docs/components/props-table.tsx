@@ -29,6 +29,10 @@ export interface PropsTableSection {
   heading: string
   description?: string
   props: PropDoc[]
+  groups?: {
+    description: string
+    props: PropDoc[]
+  }[]
 }
 
 export function PropsTable(props: PropsTableProps): JSX.Element {
@@ -98,7 +102,7 @@ function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
 function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.Element {
   return (
     <div class={API_HEADING_PROSE_CLASS}>
-      <h2 id={sectionProps.section.id} class={MARKDOWN_ANCHOR_HEADING_CLASS}>
+      <h3 id={sectionProps.section.id} class={MARKDOWN_ANCHOR_HEADING_CLASS}>
         {sectionProps.section.heading}
         <a
           href={`#${sectionProps.section.id}`}
@@ -107,13 +111,25 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
         >
           #
         </a>
-      </h2>
+      </h3>
 
       <Show when={sectionProps.section.description}>
         {(description) => <p class="text-sm text-muted-foreground">{description()}</p>}
       </Show>
 
-      <PropRows props={sectionProps.section.props} />
+      <Show
+        when={sectionProps.section.groups?.length}
+        fallback={<PropRows props={sectionProps.section.props} />}
+      >
+        <For each={sectionProps.section.groups}>
+          {(group) => (
+            <>
+              <p class="text-sm text-muted-foreground">{group.description}</p>
+              <PropRows props={group.props} />
+            </>
+          )}
+        </For>
+      </Show>
     </div>
   )
 }

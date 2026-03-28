@@ -28,7 +28,7 @@
 - [x] remove `props.highlight`
 - [x] optmize `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
 - [x] GitHub source code link, kobalte link in header
-- [ ] docs: in per page, add Import section before examples, add title "Examples" for all examples
+- [x] docs: in per page, add Import section before examples, add title "Examples" for all examples
 - [ ] add doc guide: icon, slot-based styling, animation
 - [ ] split icon.css
 

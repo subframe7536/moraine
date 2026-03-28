@@ -1,4 +1,16 @@
-## Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Stepper, StepperT } from 'moraine'
+```
+
+## Examples
+
+### Sizes
 
 Preview the Stepper across all supported sizes using the default linear, non-clickable behavior.
 
@@ -6,7 +18,7 @@ Preview the Stepper across all supported sizes using the default linear, non-cli
 name: Sizes
 :::
 
-## Controlled + Non-linear
+### Controlled + Non-linear
 
 Manage the active step externally and allow jumping to any step.
 
@@ -14,7 +26,7 @@ Manage the active step externally and allow jumping to any step.
 name: ControlledNonLinear
 :::
 
-## Clickable vs Read-Only
+### Clickable vs Read-Only
 
 Compare the default read-only mode with explicit click-enabled interaction.
 
@@ -22,7 +34,7 @@ Compare the default read-only mode with explicit click-enabled interaction.
 name: ClickableVsReadOnly
 :::
 
-## Linear Checkout
+### Linear Checkout
 
 Enable clicking while still only allowing the next available step to be selected.
 
@@ -30,10 +42,16 @@ Enable clicking while still only allowing the next available step to be selected
 name: LinearCheckout
 :::
 
-## Vertical
+### Vertical
 
 Render the stepper vertically as a read-only progress indicator.
 
 :::example
 name: Vertical
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

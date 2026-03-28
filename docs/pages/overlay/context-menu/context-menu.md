@@ -1,4 +1,16 @@
-## Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { ContextMenu, ContextMenuT } from 'moraine'
+```
+
+## Examples
+
+### Sizes
 
 Menu item size scale from `sm` to `lg` for compact and roomy density.
 
@@ -6,7 +18,7 @@ Menu item size scale from `sm` to `lg` for compact and roomy density.
 name: Sizes
 :::
 
-## Placements
+### Placements
 
 Same file menu rendered with top/right/bottom/left placements for quick transition-direction sanity checks.
 
@@ -14,7 +26,7 @@ Same file menu rendered with top/right/bottom/left placements for quick transiti
 name: Placements
 :::
 
-## File Explorer
+### File Explorer
 
 A file-row context menu with move flows, shortcuts, mixed labels, and destructive actions.
 
@@ -22,7 +34,7 @@ A file-row context menu with move flows, shortcuts, mixed labels, and destructiv
 name: FileExplorer
 :::
 
-## Editor Selection
+### Editor Selection
 
 A code-editor-style context menu with refactors, toggles, and theme switching for keyboard and pointer testing.
 
@@ -30,10 +42,16 @@ A code-editor-style context menu with refactors, toggles, and theme switching fo
 name: EditorSelection
 :::
 
-## Project / Issue Actions
+### Project / Issue Actions
 
 A denser project card menu with assignee and sprint submenus plus archive/delete actions.
 
 :::example
 name: ProjectIssueActions
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

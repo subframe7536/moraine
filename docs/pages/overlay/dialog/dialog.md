@@ -1,4 +1,16 @@
-## Default Shell
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Dialog, DialogT } from 'moraine'
+```
+
+## Examples
+
+### Default Shell
 
 Header, description, actions, body, and footer slots.
 
@@ -6,7 +18,7 @@ Header, description, actions, body, and footer slots.
 name: DefaultShell
 :::
 
-## Variants
+### Variants
 
 `close` supports default button, hidden, and custom JSX content.
 
@@ -14,10 +26,16 @@ name: DefaultShell
 name: Variants
 :::
 
-## Scrollable + Dismissible Control
+### Scrollable + Dismissible Control
 
 Scrollable body with prevent-close callback when dismiss is disabled.
 
 :::example
 name: ScrollableDismissibleControl
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

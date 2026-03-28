@@ -30,10 +30,7 @@ export type ParsedSegment =
   | WidgetDirectiveSegment
   | CodeTabsDirectiveSegment
 
-export interface FrontmatterData {
-  extraApiKeys?: string[]
-  apiDocOverride?: Record<string, unknown>
-}
+export interface FrontmatterData {}
 
 export interface ParsedFrontmatter {
   data: FrontmatterData

@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { CheckboxGroup, CheckboxGroupT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 List, card, and table variants with shared items data.
 
@@ -6,7 +18,7 @@ List, card, and table variants with shared items data.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Size scale from xs to xl in card variant.
 
@@ -14,7 +26,7 @@ Size scale from xs to xl in card variant.
 name: Sizes
 :::
 
-## Orientation
+### Orientation
 
 Vertical and horizontal layouts with the same item set.
 
@@ -22,7 +34,7 @@ Vertical and horizontal layouts with the same item set.
 name: Orientation
 :::
 
-## Indicator
+### Indicator
 
 Start/end/hidden indicator positions in list layout.
 
@@ -30,10 +42,16 @@ Start/end/hidden indicator positions in list layout.
 name: Indicator
 :::
 
-## Controlled + Disabled Items
+### Controlled + Disabled Items
 
 Controlled selected values with per-item disabled state.
 
 :::example
 name: ControlledDisabledItems
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

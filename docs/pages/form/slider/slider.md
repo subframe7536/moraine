@@ -1,4 +1,16 @@
-## Controlled Single
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Slider, SliderT } from 'moraine'
+```
+
+## Examples
+
+### Controlled Single
 
 Input phase updates with onValueChange and commit phase updates with onChange.
 
@@ -6,7 +18,7 @@ Input phase updates with onValueChange and commit phase updates with onChange.
 name: ControlledSingle
 :::
 
-## Sizes
+### Sizes
 
 Track and thumb sizing from xs to xl.
 
@@ -14,7 +26,7 @@ Track and thumb sizing from xs to xl.
 name: Sizes
 :::
 
-## Orientations
+### Orientations
 
 Horizontal default layout and vertical layout with fixed container height.
 
@@ -22,7 +34,7 @@ Horizontal default layout and vertical layout with fixed container height.
 name: Orientations
 :::
 
-## Range Slider
+### Range Slider
 
 Two thumbs with min steps between thumbs and controlled array value.
 
@@ -30,10 +42,16 @@ Two thumbs with min steps between thumbs and controlled array value.
 name: RangeSlider
 :::
 
-## Form Integration
+### Form Integration
 
 Submit to validate required minimum value through Form + FormField.
 
 :::example
 name: FormIntegration
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

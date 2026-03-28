@@ -1,4 +1,16 @@
-## Single
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Accordion, AccordionT } from 'moraine'
+```
+
+## Examples
+
+### Single
 
 Single-open mode with controlled state and icon leading/trailing slots.
 
@@ -6,7 +18,7 @@ Single-open mode with controlled state and icon leading/trailing slots.
 name: Single
 :::
 
-## Multiple
+### Multiple
 
 Multiple-open mode with custom trailing icons.
 
@@ -14,10 +26,16 @@ Multiple-open mode with custom trailing icons.
 name: Multiple
 :::
 
-## Disabled + Custom Content
+### Disabled + Custom Content
 
 Mix disabled items with rich JSX content blocks.
 
 :::example
 name: DisabledCustomContent
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

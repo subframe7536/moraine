@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Tabs, TabsT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Pill and link visual variants for the tab list.
 
@@ -6,7 +18,7 @@ Pill and link visual variants for the tab list.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Trigger size scale from xs to xl.
 
@@ -14,7 +26,7 @@ Trigger size scale from xs to xl.
 name: Sizes
 :::
 
-## Orientations
+### Orientations
 
 Horizontal and vertical orientation with the same items contract.
 
@@ -22,10 +34,16 @@ Horizontal and vertical orientation with the same items contract.
 name: Orientations
 :::
 
-## Controlled + Disabled Items
+### Controlled + Disabled Items
 
 Controlled value with disabled tab options and external navigation controls.
 
 :::example
 name: ControlledDisabledItems
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

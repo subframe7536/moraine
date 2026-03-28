@@ -1,4 +1,16 @@
-## Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { DropdownMenu, DropdownMenuT } from 'moraine'
+```
+
+## Examples
+
+### Sizes
 
 Menu item size scale from `sm` to `lg` for compact and roomy density.
 
@@ -6,7 +18,7 @@ Menu item size scale from `sm` to `lg` for compact and roomy density.
 name: Sizes
 :::
 
-## Account / Team
+### Account / Team
 
 An account dropdown with grouped actions, workspace switching, shortcut hints, and a destructive sign-out row.
 
@@ -14,7 +26,7 @@ An account dropdown with grouped actions, workspace switching, shortcut hints, a
 name: AccountTeam
 :::
 
-## Editor / View Options
+### Editor / View Options
 
 A workspace-style menu with recent files, nested submenus, checkbox toggles, and theme selection for keyboard and pointer testing.
 
@@ -22,10 +34,16 @@ A workspace-style menu with recent files, nested submenus, checkbox toggles, and
 name: EditorViewOptions
 :::
 
-## Project / Release Actions
+### Project / Release Actions
 
 A heavier project menu with move flows, release actions, mixed-content labels, and destructive project operations.
 
 :::example
 name: ProjectReleaseActions
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -5,7 +5,7 @@ export function Types() {
   const TYPES = ['solid', 'dashed', 'dotted'] as const
 
   return (
-    <div class="space-y-4">
+    <div class="w-xl space-y-4">
       <For each={TYPES}>
         {(type) => (
           <div class="space-y-2">

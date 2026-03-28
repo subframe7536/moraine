@@ -5,10 +5,7 @@ import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { Resizable } from './resizable'
 
-type ResizeObserverCallback = (
-  entries: ResizeObserverEntry[],
-  observer: ResizeObserver,
-) => void
+type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
 class MockResizeObserver {
   private static readonly instances = new Set<MockResizeObserver>()

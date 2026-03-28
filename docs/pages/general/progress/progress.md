@@ -1,4 +1,16 @@
-## Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Progress, ProgressT } from 'moraine'
+```
+
+## Examples
+
+### Sizes
 
 Size scale from `xs` to `xl`.
 
@@ -6,7 +18,7 @@ Size scale from `xs` to `xl`.
 name: Sizes
 :::
 
-## Orientations
+### Orientations
 
 Horizontal and vertical layouts with consistent value rendering.
 
@@ -14,7 +26,7 @@ Horizontal and vertical layouts with consistent value rendering.
 name: Orientations
 :::
 
-## Determinate
+### Determinate
 
 Standard progress bar with status text and custom status renderer.
 
@@ -22,7 +34,7 @@ Standard progress bar with status text and custom status renderer.
 name: Determinate
 :::
 
-## Animations
+### Animations
 
 Indeterminate animation variants: `carousel`, `reverse`, `swing`, and `elastic`.
 
@@ -30,10 +42,16 @@ Indeterminate animation variants: `carousel`, `reverse`, `swing`, and `elastic`.
 name: Animations
 :::
 
-## Step Mode
+### Step Mode
 
 String-array max renders named steps.
 
 :::example
 name: StepMode
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

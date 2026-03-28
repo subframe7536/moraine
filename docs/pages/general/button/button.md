@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Button, ButtonT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Visual variants from the Moraine button class contract.
 
@@ -6,7 +18,7 @@ Visual variants from the Moraine button class contract.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Text button sizes with a leading icon to preview spacing.
 
@@ -14,7 +26,7 @@ Text button sizes with a leading icon to preview spacing.
 name: Sizes
 :::
 
-## Loading States
+### Loading States
 
 Controlled loading and async auto-loading from click handlers.
 
@@ -22,7 +34,7 @@ Controlled loading and async auto-loading from click handlers.
 name: LoadingStates
 :::
 
-### Loading Placement
+#### Loading Placement
 
 When loading, the icon replaces `leading` first. If no `leading` is set, it replaces `trailing`.
 
@@ -30,7 +42,7 @@ When loading, the icon replaces `leading` first. If no `leading` is set, it repl
 name: LoadingPlacement
 :::
 
-## Icon Buttons
+### Icon Buttons
 
 Icon-only sizes and variants.
 
@@ -38,10 +50,16 @@ Icon-only sizes and variants.
 name: IconButtons
 :::
 
-## Polymorphic
+### Polymorphic
 
 Anchor rendering support via the polymorphic as prop.
 
 :::example
 name: Polymorphic
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

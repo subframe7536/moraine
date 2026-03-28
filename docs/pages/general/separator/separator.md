@@ -1,4 +1,16 @@
-## Sizes
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Separator, SeparatorT } from 'moraine'
+```
+
+## Examples
+
+### Sizes
 
 Border thickness variants.
 
@@ -6,7 +18,7 @@ Border thickness variants.
 name: Sizes
 :::
 
-## Types
+### Types
 
 Solid, dashed, and dotted divider styles.
 
@@ -14,10 +26,16 @@ Solid, dashed, and dotted divider styles.
 name: Types
 :::
 
-## With Content + Vertical
+### With Content + Vertical
 
 Inline content and vertical separators in flexible layouts.
 
 :::example
 name: WithContentVertical
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -1,18 +1,20 @@
----
+:::widget
+name: docs-header
+props:
 apiDocOverride:
-  component:
-    key: toast
-    name: Toast
-    category: overlays
-    description: solid-toaster integration guide with real runtime examples, including promise and scoped instances.
-    polymorphic: false
-  slots: []
-  props:
-    own: []
-    inherited: []
----
+component:
+key: toast
+name: Toast
+category: overlays
+description: solid-toaster integration guide with real runtime examples, including promise and scoped instances.
+polymorphic: false
+slots: []
+props:
+own: []
+inherited: []
+:::
 
-## Setup
+## Import
 
 Install `solid-toaster`:
 
@@ -20,7 +22,7 @@ Install `solid-toaster`:
 package: solid-toaster
 :::
 
-Import styles, mount one or more Toaster instances.
+Then import styles, mount a `Toaster` instance.
 
 ```tsx
 import 'solid-toaster/style.css'
@@ -37,7 +39,9 @@ export default function App() {
 }
 ```
 
-## Basic Toasts
+## Examples
+
+### Basic Toasts
 
 Send status toasts to the global toaster instance, including loading to success update.
 
@@ -45,7 +49,7 @@ Send status toasts to the global toaster instance, including loading to success 
 name: BasicToasts
 :::
 
-## Promise + Scoped Instances
+### Promise + Scoped Instances
 
 Use toast.promise for async lifecycle and route toasts by toasterId.
 
@@ -54,4 +58,10 @@ name: PromiseScopedInstances
 :::
 :::widget
 name: toast-hosts
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

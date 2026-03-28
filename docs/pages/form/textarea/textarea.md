@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Textarea, TextareaT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Outline/subtle/ghost/none visual variants.
 
@@ -6,7 +18,7 @@ Outline/subtle/ghost/none visual variants.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Textarea size scale from xs to xl.
 
@@ -14,7 +26,7 @@ Textarea size scale from xs to xl.
 name: Sizes
 :::
 
-## Autoresize
+### Autoresize
 
 Autoresize growth with maxrows.
 
@@ -22,10 +34,16 @@ Autoresize growth with maxrows.
 name: Autoresize
 :::
 
-## Header + Footer
+### Header + Footer
 
 Build composer-like surfaces using header/footer slots.
 
 :::example
 name: HeaderFooter
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

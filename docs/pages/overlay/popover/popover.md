@@ -1,4 +1,16 @@
-## Placements
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Popover, PopoverT } from 'moraine'
+```
+
+## Examples
+
+### Placements
 
 Click trigger with four placement variants.
 
@@ -6,7 +18,7 @@ Click trigger with four placement variants.
 name: Placements
 :::
 
-## Hover Mode
+### Hover Mode
 
 Hover-based popover using open and close delays.
 
@@ -14,10 +26,16 @@ Hover-based popover using open and close delays.
 name: HoverMode
 :::
 
-## Dismiss Control
+### Dismiss Control
 
 Prevent closing on outside interaction and Escape key.
 
 :::example
 name: DismissControl
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

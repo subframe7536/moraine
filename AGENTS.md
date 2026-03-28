@@ -18,7 +18,7 @@ Use `bun` for all package management and script execution.
 
 ### Linting & Formatting
 
-- `bun run lint` - Run oxlint (fast linter based on oxc).
+- `bun run lint` - Run oxlint with fix (fast linter based on oxc).
 - `bun run format` - Format code using oxfmt.
 - `bun run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
 

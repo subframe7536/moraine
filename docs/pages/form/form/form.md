@@ -1,9 +1,16 @@
----
-extraApiKeys:
-  - form-field
----
+:::widget
+name: docs-header
+:::
 
-## Workspace Provisioning
+## import
+
+```tsx
+import { Form, FormT } from 'moraine'
+```
+
+## Examples
+
+### Workspace Provisioning
 
 Create a new workspace with owner identity, default role, and rollout target.
 
@@ -11,7 +18,7 @@ Create a new workspace with owner identity, default role, and rollout target.
 name: WorkspaceProvisioning
 :::
 
-## Release Readiness Checklist
+### Release Readiness Checklist
 
 Validate release metadata, rollout channels, and approval gate before deployment.
 
@@ -19,7 +26,7 @@ Validate release metadata, rollout channels, and approval gate before deployment
 name: ReleaseReadinessChecklist
 :::
 
-## Incident Escalation Policy
+### Incident Escalation Policy
 
 Configure nested policy fields for severity routing and automatic rollback behavior.
 
@@ -27,10 +34,16 @@ Configure nested policy fields for severity routing and automatic rollback behav
 name: IncidentEscalationPolicy
 :::
 
-## Access Request Review
+### Access Request Review
 
 Review temporary access requests with scoped permissions and required reviewers.
 
 :::example
 name: AccessRequestReview
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

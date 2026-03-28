@@ -1,4 +1,16 @@
-## Basic + Controlled
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Switch, SwitchT } from 'moraine'
+```
+
+## Examples
+
+### Basic + Controlled
 
 Uncontrolled and controlled switch with icon slots.
 
@@ -6,7 +18,7 @@ Uncontrolled and controlled switch with icon slots.
 name: BasicControlled
 :::
 
-## Variants
+### Variants
 
 Loading, disabled, and explicit icon combinations.
 
@@ -14,7 +26,7 @@ Loading, disabled, and explicit icon combinations.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Switch size scale from xs to xl.
 
@@ -22,10 +34,16 @@ Switch size scale from xs to xl.
 name: Sizes
 :::
 
-## Custom True/False Values
+### Custom True/False Values
 
 Map checked state to domain values instead of boolean.
 
 :::example
 name: CustomTrueFalseValues
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

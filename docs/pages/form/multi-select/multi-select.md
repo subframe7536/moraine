@@ -1,4 +1,16 @@
-## Multiple Select
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { MultiSelect, MultiSelectT } from 'moraine'
+```
+
+## Examples
+
+### Multiple Select
 
 Multi-selection with chips and allowClear.
 
@@ -6,7 +18,7 @@ Multi-selection with chips and allowClear.
 name: MultipleSelect
 :::
 
-## Token Separators
+### Token Separators
 
 Create and select tags when a separator is typed.
 
@@ -14,7 +26,7 @@ Create and select tags when a separator is typed.
 name: TokenSeparators
 :::
 
-## Create New Tags
+### Create New Tags
 
 Type a new value and press Enter or click Create in the empty state.
 
@@ -22,10 +34,16 @@ Type a new value and press Enter or click Create in the empty state.
 name: CreateNewTags
 :::
 
-## Max Count & Max Tag Count
+### Max Count & Max Tag Count
 
 Limit selections and visible chips.
 
 :::example
 name: MaxCountMaxTagCount
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -28,6 +28,9 @@ export default defineConfig<PresetWind4Theme>({
       },
       cssExtend() {
         return {
+          'p>code': {
+            'margin-inline': '0.1rem',
+          },
           'code::before': {
             content: 'none',
           },

@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Input, InputT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Visual style variants.
 
@@ -6,7 +18,7 @@ Visual style variants.
 name: InputVariants
 :::
 
-## Sizes
+### Sizes
 
 From xs to xl.
 
@@ -14,7 +26,7 @@ From xs to xl.
 name: InputSizes
 :::
 
-## With Icons
+### With Icons
 
 Leading and trailing icon slots.
 
@@ -22,10 +34,16 @@ Leading and trailing icon slots.
 name: InputWithIcons
 :::
 
-## States
+### States
 
 Loading, disabled, and type.
 
 :::example
 name: InputStates
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

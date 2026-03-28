@@ -1,4 +1,16 @@
-## Basic Horizontal
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { Resizable, ResizableT } from 'moraine'
+```
+
+## Examples
+
+### Basic Horizontal
 
 Two panels with auto-inserted divider and root-level handle rendering.
 
@@ -6,7 +18,7 @@ Two panels with auto-inserted divider and root-level handle rendering.
 name: BasicHorizontal
 :::
 
-## Controlled Sizes
+### Controlled Sizes
 
 Use panel.size + onResize to sync external state. The callback now returns pixel sizes.
 
@@ -14,7 +26,7 @@ Use panel.size + onResize to sync external state. The callback now returns pixel
 name: ControlledSizes
 :::
 
-## Vertical + Disable
+### Vertical + Disable
 
 The root disable prop keeps dividers visible while turning off drag and keyboard resizing.
 
@@ -22,7 +34,7 @@ The root disable prop keeps dividers visible while turning off drag and keyboard
 name: VerticalDisable
 :::
 
-## Nested Panels
+### Nested Panels
 
 Use the root intersection prop to control whether crossed dividers become draggable.
 
@@ -30,10 +42,16 @@ Use the root intersection prop to control whether crossed dividers become dragga
 name: NestedPanels
 :::
 
-## Collapsible + Collapsible Min
+### Collapsible + Collapsible Min
 
 Clicking handle toggles collapse/expand while dragging divider still resizes. The collapsibleMin rail remains visible in collapsed state.
 
 :::example
 name: CollapsibleCollapsibleMin
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

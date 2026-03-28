@@ -1,4 +1,16 @@
-## Variants
+:::widget
+name: docs-header
+:::
+
+## import
+
+```tsx
+import { InputNumber, InputNumberT } from 'moraine'
+```
+
+## Examples
+
+### Variants
 
 Visual style variants for the input shell.
 
@@ -6,7 +18,7 @@ Visual style variants for the input shell.
 name: Variants
 :::
 
-## Sizes
+### Sizes
 
 Size scale from `xs` to `xl` for input height and control rail sizing.
 
@@ -14,7 +26,7 @@ Size scale from `xs` to `xl` for input height and control rail sizing.
 name: Sizes
 :::
 
-## Orientations
+### Orientations
 
 Horizontal (default) and vertical button layouts.
 
@@ -22,7 +34,7 @@ Horizontal (default) and vertical button layouts.
 name: Orientations
 :::
 
-## Controlled
+### Controlled
 
 Value bound to a signal with live readout.
 
@@ -30,7 +42,7 @@ Value bound to a signal with live readout.
 name: Controlled
 :::
 
-## Disabled
+### Disabled
 
 Non-interactive disabled state.
 
@@ -38,7 +50,7 @@ Non-interactive disabled state.
 name: Disabled
 :::
 
-## Long Press
+### Long Press
 
 Press and hold increment or decrement to continuously step the value.
 
@@ -46,10 +58,16 @@ Press and hold increment or decrement to continuously step the value.
 name: LongPress
 :::
 
-## Min / Max / Step
+### Min / Max / Step
 
 Constrained ranges and custom step increments.
 
 :::example
 name: MinMaxStep
+:::
+
+## API Reference
+
+:::widget
+name: docs-api-reference
 :::

@@ -1,7 +1,8 @@
-import path from 'node:path'
 import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 import MarkdownIt from 'markdown-it'
+import { mergeConfig } from 'vite'
 
 import { loadComponentApiDoc } from '../api-doc/load'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
@@ -9,7 +10,6 @@ import { toKebabCase, toSingleQuoted } from '../core/strings'
 
 import { MARKDOWN_ANCHOR_HEADING_CLASS, MARKDOWN_ANCHOR_LINK_CLASS } from './const'
 import { parseSegments } from './directives'
-import { deepMerge, parseFrontmatter } from './frontmatter'
 import type { CompileMarkdownOptions, MarkdownHighlightLang, ParsedSegment } from './types'
 
 const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
@@ -127,14 +127,14 @@ function createMarkdown(
     if (
       Array.isArray(onThisPageEntries) &&
       Number.isFinite(level) &&
-      level >= 1 &&
+      level >= 2 &&
       level <= 5 &&
       headingText.trim()
     ) {
       onThisPageEntries.push({
         id: slug,
         label: headingText.trim(),
-        level,
+        level: level - 1,
       })
     }
 
@@ -267,25 +267,25 @@ function inferKobalteComponentDocsHref(
   return null
 }
 
-function createInheritedOnThisPageEntries(
-  inheritedGroups: TocInheritedGroup[],
-  idPrefix: string,
-): OnThisPageEntryLiteral[] {
-  const entries: OnThisPageEntryLiteral[] = []
-  const slugCounter = new Map<string, number>()
+function extractHeaderApiDocOverride(segments: ParsedSegment[]): Record<string, unknown> | null {
+  for (const segment of segments) {
+    if (segment.type !== 'widget' || segment.widgetName !== 'docs-header') {
+      continue
+    }
 
-  for (const group of inheritedGroups) {
-    const baseSlug = toAnchorSlug(group.from)
-    const nextCount = (slugCounter.get(baseSlug) ?? 0) + 1
-    slugCounter.set(baseSlug, nextCount)
-    entries.push({
-      id: `${idPrefix}${baseSlug}${nextCount === 1 ? '' : `-${nextCount}`}`,
-      label: `Inherited from ${group.from}`,
-      level: 2,
-    })
+    if (!segment.props) {
+      return null
+    }
+
+    const apiDocOverride = segment.props.apiDocOverride
+    if (!apiDocOverride || typeof apiDocOverride !== 'object' || Array.isArray(apiDocOverride)) {
+      return null
+    }
+
+    return apiDocOverride as Record<string, unknown>
   }
 
-  return entries
+  return null
 }
 
 function buildSegmentLiterals(
@@ -343,12 +343,12 @@ export function compileMarkdownPage(
 ): string {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
-  const parsedFrontmatter = parseFrontmatter(markdownSource)
-  const segments = parseSegments(parsedFrontmatter.content, idWithoutQuery)
+  const segments = parseSegments(markdownSource, idWithoutQuery)
+  const widgetApiDocOverride = extractHeaderApiDocOverride(segments)
   const markdown = createMarkdown(options.highlightCode)
-  const hasProps = (data: { own: unknown[]; inherited: unknown[] }, items?: unknown) => {
-    return data.own.length > 0 || data.inherited.length > 0 || Boolean(items)
-  }
+  const hasDocsApiReferenceWidget = segments.some(
+    (segment) => segment.type === 'widget' && segment.widgetName === 'docs-api-reference',
+  )
   const segmentLiterals = buildSegmentLiterals(
     segments,
     (source) => {
@@ -390,28 +390,21 @@ export function compileMarkdownPage(
     segmentCodes.push(literal.code)
   }
 
-  const extraApiKeys = parsedFrontmatter.data.extraApiKeys ?? []
   const loadedApiDoc = options.projectRoot
     ? loadComponentApiDoc(options.projectRoot, page.pageKey)
     : null
-  const loadedExtraApiDocs =
-    options.projectRoot && extraApiKeys.length > 0
-      ? [...new Set(extraApiKeys)]
-          .map((key) => loadComponentApiDoc(options.projectRoot!, key))
-          .filter((value): value is NonNullable<typeof value> => Boolean(value))
-      : []
 
   const mergedApiDoc =
-    parsedFrontmatter.data.apiDocOverride && loadedApiDoc
-      ? deepMerge(loadedApiDoc, parsedFrontmatter.data.apiDocOverride)
-      : (loadedApiDoc ?? parsedFrontmatter.data.apiDocOverride)
+    widgetApiDocOverride && loadedApiDoc
+      ? mergeConfig(loadedApiDoc, widgetApiDocOverride)
+      : (loadedApiDoc ?? widgetApiDocOverride)
   const tocApiDoc = asTocApiDoc(mergedApiDoc)
-  const tocExtraApiDocs = loadedExtraApiDocs
-    .map((doc) => asTocApiDoc(doc))
-    .filter((doc): doc is TocApiDocShape => Boolean(doc))
 
-  const shouldExposeComponentKey = Boolean(mergedApiDoc || loadedExtraApiDocs.length > 0)
-  const kobalteHref = inferKobalteComponentDocsHref(options.projectRoot, tocApiDoc?.component.sourcePath)
+  const shouldExposeComponentKey = Boolean(mergedApiDoc)
+  const kobalteHref = inferKobalteComponentDocsHref(
+    options.projectRoot,
+    tocApiDoc?.component.sourcePath,
+  )
   const onThisPageEntries: OnThisPageEntryLiteral[] = []
   const hasMainSlots = Boolean(tocApiDoc?.slots.length)
   const hasMainProps = Boolean(tocApiDoc?.props.own.length)
@@ -423,54 +416,24 @@ export function compileMarkdownPage(
       onThisPageEntries.push(...segment.onThisPageEntries)
     }
   }
-  if (hasMainApiReference) {
-    onThisPageEntries.push({
-      id: 'api-reference',
-      label: 'API Reference',
-      level: 1,
-    })
-  }
-  if (hasMainSlots) {
-    onThisPageEntries.push({ id: 'api-slots', label: 'Slots', level: 2 })
-  }
-  if (hasMainProps) {
-    onThisPageEntries.push({ id: 'api-props', label: 'Props', level: 2 })
-  }
-  if (hasMainItems) {
-    onThisPageEntries.push({ id: 'api-items', label: 'Items', level: 2 })
-  }
-  if (hasMainInherited) {
-    onThisPageEntries.push(
-      ...createInheritedOnThisPageEntries(tocApiDoc?.props.inherited ?? [], 'api-inherited-'),
-    )
-  }
-  for (const doc of tocExtraApiDocs) {
-    const baseId = toAnchorSlug(doc.component.key || doc.component.name)
-    onThisPageEntries.push({
-      id: `${baseId}-api`,
-      label: `${doc.component.name} API`,
-      level: 2,
-    })
-    if (doc.slots.length > 0) {
-      onThisPageEntries.push({
-        id: `${baseId}-api-slots`,
-        label: `${doc.component.name} Slots`,
-        level: 2,
-      })
+  if (hasDocsApiReferenceWidget && hasMainApiReference) {
+    if (hasMainSlots) {
+      onThisPageEntries.push({ id: 'api-slots', label: 'Slots', level: 2 })
     }
-    if (hasProps(doc.props, doc.items)) {
-      onThisPageEntries.push({
-        id: `${baseId}-api-props`,
-        label: `${doc.component.name} Props`,
-        level: 2,
-      })
+    if (hasMainProps) {
+      onThisPageEntries.push({ id: 'api-props', label: 'Props', level: 2 })
+    }
+    if (hasMainItems) {
+      onThisPageEntries.push({ id: 'api-items', label: 'Items', level: 2 })
+    }
+    if (hasMainInherited) {
+      onThisPageEntries.push({ id: 'api-inherited', label: 'Inherited', level: 2 })
     }
   }
   const configFields = [
     shouldExposeComponentKey ? `componentKey: ${JSON.stringify(page.pageKey)}` : '',
     mergedApiDoc ? `apiDoc: ${JSON.stringify(mergedApiDoc)}` : '',
     kobalteHref ? `kobalteHref: ${JSON.stringify(kobalteHref)}` : '',
-    loadedExtraApiDocs.length > 0 ? `extraApiDocs: ${JSON.stringify(loadedExtraApiDocs)}` : '',
     `onThisPageEntries: ${JSON.stringify(onThisPageEntries)}`,
     'segments',
   ].filter(Boolean)
