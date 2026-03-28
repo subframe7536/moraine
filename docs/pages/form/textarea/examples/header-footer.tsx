@@ -1,11 +1,11 @@
 import { Textarea } from '@src'
 import { createSignal } from 'solid-js'
 
-export function TextareaHeaderFooter() {
+export function HeaderFooter() {
   const [composerValue, setComposerValue] = createSignal('Hello Moraine!')
 
   return (
-    <div class="gap-3 grid lg:grid-cols-2">
+    <div class="gap-6 grid lg:grid-cols-3">
       <Textarea
         placeholder="Ask, search or chat..."
         header={

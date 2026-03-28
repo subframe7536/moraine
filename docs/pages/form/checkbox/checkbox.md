@@ -1,9 +1,9 @@
-## Variants + Indicator
+## Variants
 
 List and card variants with start/end/hidden indicator positions.
 
 :::example
-name: VariantsIndicator
+name: Variants
 :::
 
 ## Sizes
@@ -22,7 +22,7 @@ Custom checked/indeterminate icons with controlled indeterminate transition.
 name: IndeterminateCustomIcons
 :::
 
-## Custom true/false values
+## Custom True/False Values
 
 Map checked state to domain values instead of boolean.
 

@@ -1,17 +1,25 @@
+## Variants
+
+Render controls as links and override variant pairing when needed.
+
+:::example
+name: Variants
+:::
+
+## Sizes
+
+Size scale from `xs` to `xl` for page links and previous/next controls.
+
+:::example
+name: Sizes
+:::
+
 ## Controlled
 
 Default ghost + outline controls with external page state management.
 
 :::example
 name: Controlled
-:::
-
-## Custom Variants
-
-Render controls as links and override variant pairing when needed.
-
-:::example
-name: CustomVariants
 :::
 
 ## Minimal

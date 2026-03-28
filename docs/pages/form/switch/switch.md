@@ -6,6 +6,14 @@ Uncontrolled and controlled switch with icon slots.
 name: BasicControlled
 :::
 
+## Variants
+
+Loading, disabled, and explicit icon combinations.
+
+:::example
+name: Variants
+:::
+
 ## Sizes
 
 Switch size scale from xs to xl.
@@ -14,15 +22,7 @@ Switch size scale from xs to xl.
 name: Sizes
 :::
 
-## Icon and State Variants
-
-Loading, disabled, and explicit icon combinations.
-
-:::example
-name: IconAndStateVariants
-:::
-
-## Custom true/false values
+## Custom True/False Values
 
 Map checked state to domain values instead of boolean.
 

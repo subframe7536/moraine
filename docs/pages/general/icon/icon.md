@@ -1,17 +1,17 @@
-## Icon Gallery
-
-Common Lucide icons rendered via UnoCSS classes.
-
-:::example
-name: IconGallery
-:::
-
 ## Icon Sizes
 
 Numeric pixel sizes from 12 to 48.
 
 :::example
 name: IconSizes
+:::
+
+## Icon Gallery
+
+Common Lucide icons rendered via UnoCSS classes.
+
+:::example
+name: IconGallery
 :::
 
 ## Icon as JSX

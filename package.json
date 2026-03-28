@@ -2,21 +2,21 @@
   "name": "moraine",
   "version": "0.0.2",
   "description": "Comprehensive SolidJS component library with atomic class styling.",
+  "keywords": [
+    "components",
+    "kobalte",
+    "solid",
+    "solidjs",
+    "tailwindcss",
+    "ui",
+    "unocss"
+  ],
   "homepage": "https://github.com/subframe7536/moraine#readme",
   "bugs": {
     "url": "https://github.com/subframe7536/moraine/issues"
   },
   "license": "MIT",
   "author": "subframe7536",
-  "keywords": [
-    "solidjs",
-    "solid",
-    "ui",
-    "components",
-    "unocss",
-    "tailwindcss",
-    "kobalte"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/subframe7536/moraine.git"
@@ -49,7 +49,7 @@
     "docs:build": "bun run build && vite build docs",
     "test": "vitest",
     "lint": "oxlint",
-    "format": "oxfmt",
+    "format": "oxfmt --fix",
     "typecheck": "tsc --noEmit",
     "fix-oxlint": "bun -e \"const p=process.argv[1],f=Bun.file(p),t=await f.text();await Bun.write(p,t.replace(/jsPlugins/g,'//jsPlugins'));await Bun.write(p,t)\" .oxlintrc.json",
     "oxc": "bun run fix-oxlint && oxlint --fix && oxfmt",

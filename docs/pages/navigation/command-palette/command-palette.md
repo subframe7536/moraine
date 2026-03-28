@@ -14,20 +14,12 @@ Groups of items with icons, kbds, and descriptions.
 name: Basic
 :::
 
-## Sub-navigation
+## Custom Empty State
 
-Items with children drill into a sub-group. Press Backspace or the back button to return.
-
-:::example
-name: SubNavigation
-:::
-
-## With Close Button
-
-A close button in the input trailing slot.
+Override the default 'No results.' message.
 
 :::example
-name: WithCloseButton
+name: CustomEmptyState
 :::
 
 ## Loading
@@ -38,10 +30,18 @@ Search icon becomes a spinner while loading.
 name: Loading
 :::
 
-## Custom empty state
+## With Close Button
 
-Override the default 'No results.' message.
+A close button in the input trailing slot.
 
 :::example
-name: CustomEmptyState
+name: WithCloseButton
+:::
+
+## Sub-Navigation
+
+Items with children drill into a sub-group. Press Backspace or the back button to return.
+
+:::example
+name: SubNavigation
 :::

@@ -1,6 +1,6 @@
 import { Breadcrumb } from '@src'
 
-export function Size() {
+export function Sizes() {
   return (
     <>
       <Breadcrumb

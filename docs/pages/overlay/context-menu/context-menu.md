@@ -1,3 +1,19 @@
+## Sizes
+
+Menu item size scale from `sm` to `lg` for compact and roomy density.
+
+:::example
+name: Sizes
+:::
+
+## Placements
+
+Same file menu rendered with top/right/bottom/left placements for quick transition-direction sanity checks.
+
+:::example
+name: Placements
+:::
+
 ## File Explorer
 
 A file-row context menu with move flows, shortcuts, mixed labels, and destructive actions.
@@ -12,14 +28,6 @@ A code-editor-style context menu with refactors, toggles, and theme switching fo
 
 :::example
 name: EditorSelection
-:::
-
-## Placements
-
-Same file menu rendered with top/right/bottom/left placements for quick transition-direction sanity checks.
-
-:::example
-name: Placements
 :::
 
 ## Project / Issue Actions

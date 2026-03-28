@@ -1,3 +1,11 @@
+## Sizes
+
+Menu item size scale from `sm` to `lg` for compact and roomy density.
+
+:::example
+name: Sizes
+:::
+
 ## Account / Team
 
 An account dropdown with grouped actions, workspace switching, shortcut hints, and a destructive sign-out row.

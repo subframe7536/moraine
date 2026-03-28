@@ -1,6 +1,6 @@
 import { CheckboxGroup } from '@src'
 
-export function VariantMatrix() {
+export function Variants() {
   const ITEMS = [
     { value: 'alpha', label: 'Alpha', description: 'Primary rollout channel' },
     { value: 'beta', label: 'Beta', description: 'Early access channel' },

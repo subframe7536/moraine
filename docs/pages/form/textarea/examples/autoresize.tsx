@@ -14,7 +14,6 @@ export function Autoresize() {
         placeholder="Start typing..."
       />
       <p class="text-xs text-muted-foreground">Characters: {value().length}</p>
-      <Textarea disabled value="Disabled textarea state" rows={2} />
     </div>
   )
 }

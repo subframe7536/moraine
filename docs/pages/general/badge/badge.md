@@ -14,7 +14,7 @@ Size scale with leading and trailing icons.
 name: Sizes
 :::
 
-## Status and metadata
+## Status and Metadata
 
 Common badge content for pills, counters, and status labels.
 

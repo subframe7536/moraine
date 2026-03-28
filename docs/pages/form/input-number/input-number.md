@@ -1,17 +1,25 @@
-## Orientations
-
-Horizontal (default) and vertical button layouts.
-
-:::example
-name: Orientations
-:::
-
 ## Variants
 
 Visual style variants for the input shell.
 
 :::example
 name: Variants
+:::
+
+## Sizes
+
+Size scale from `xs` to `xl` for input height and control rail sizing.
+
+:::example
+name: Sizes
+:::
+
+## Orientations
+
+Horizontal (default) and vertical button layouts.
+
+:::example
+name: Orientations
 :::
 
 ## Controlled
@@ -22,7 +30,15 @@ Value bound to a signal with live readout.
 name: Controlled
 :::
 
-## Long press
+## Disabled
+
+Non-interactive disabled state.
+
+:::example
+name: Disabled
+:::
+
+## Long Press
 
 Press and hold increment or decrement to continuously step the value.
 
@@ -36,12 +52,4 @@ Constrained ranges and custom step increments.
 
 :::example
 name: MinMaxStep
-:::
-
-## Disabled
-
-Non-interactive disabled state.
-
-:::example
-name: Disabled
 :::

@@ -1,6 +1,6 @@
 import { Switch } from '@src'
 
-export function IconAndStateVariants() {
+export function Variants() {
   return (
     <div class="flex flex-col gap-3 max-w-xl">
       <Switch

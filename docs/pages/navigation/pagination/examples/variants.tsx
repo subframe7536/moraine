@@ -1,6 +1,6 @@
 import { Pagination } from '@src'
 
-export function CustomVariants() {
+export function Variants() {
   return (
     <Pagination
       total={60}

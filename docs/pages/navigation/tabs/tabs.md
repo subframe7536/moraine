@@ -6,20 +6,20 @@ Pill and link visual variants for the tab list.
 name: Variants
 :::
 
-## Orientation
-
-Horizontal and vertical orientation with the same items contract.
-
-:::example
-name: Orientation
-:::
-
 ## Sizes
 
 Trigger size scale from xs to xl.
 
 :::example
 name: Sizes
+:::
+
+## Orientations
+
+Horizontal and vertical orientation with the same items contract.
+
+:::example
+name: Orientations
 :::
 
 ## Controlled + Disabled Items

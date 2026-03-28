@@ -6,20 +6,20 @@ Simple breadcrumb trail with active last item.
 name: Default
 :::
 
+## Sizes
+
+Different size.
+
+:::example
+name: Sizes
+:::
+
 ## Custom Separator + Disabled
 
 Use an alternative separator and mark links as disabled.
 
 :::example
 name: CustomSeparatorDisabled
-:::
-
-## Size
-
-Different size.
-
-:::example
-name: Size
 :::
 
 ## Wrapping

@@ -1,6 +1,6 @@
 import { Tabs } from '@src'
 
-export function Orientation() {
+export function Orientations() {
   return (
     <div class="flex gap-8 w-2xl">
       <Tabs

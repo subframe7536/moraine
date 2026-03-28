@@ -1,25 +1,9 @@
-## Size variants
+## Sizes
 
 Preview the Stepper across all supported sizes using the default linear, non-clickable behavior.
 
 :::example
-name: SizeVariants
-:::
-
-## Linear Checkout
-
-Enable clicking while still only allowing the next available step to be selected.
-
-:::example
-name: LinearCheckout
-:::
-
-## Clickable vs read-only
-
-Compare the default read-only mode with explicit click-enabled interaction.
-
-:::example
-name: ClickableVsReadOnly
+name: Sizes
 :::
 
 ## Controlled + Non-linear
@@ -28,6 +12,22 @@ Manage the active step externally and allow jumping to any step.
 
 :::example
 name: ControlledNonLinear
+:::
+
+## Clickable vs Read-Only
+
+Compare the default read-only mode with explicit click-enabled interaction.
+
+:::example
+name: ClickableVsReadOnly
+:::
+
+## Linear Checkout
+
+Enable clicking while still only allowing the next available step to be selected.
+
+:::example
+name: LinearCheckout
 :::
 
 ## Vertical

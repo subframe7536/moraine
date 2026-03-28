@@ -1,17 +1,9 @@
-## Variant Matrix
+## Variants
 
 List, card, and table variants for single selection.
 
 :::example
-name: VariantMatrix
-:::
-
-## Indicator Positions
-
-Start/end/hidden indicator styles with card variant.
-
-:::example
-name: IndicatorPositions
+name: Variants
 :::
 
 ## Sizes + Orientation
@@ -28,4 +20,12 @@ Controlled value with disabled option in data set.
 
 :::example
 name: ControlledDisabled
+:::
+
+## Indicator Positions
+
+Start/end/hidden indicator styles with card variant.
+
+:::example
+name: IndicatorPositions
 :::

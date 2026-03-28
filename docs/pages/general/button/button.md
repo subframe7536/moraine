@@ -14,14 +14,6 @@ Text button sizes with a leading icon to preview spacing.
 name: Sizes
 :::
 
-## Icon Buttons
-
-Icon-only sizes and variants.
-
-:::example
-name: IconButtons
-:::
-
 ## Loading States
 
 Controlled loading and async auto-loading from click handlers.
@@ -36,6 +28,14 @@ When loading, the icon replaces `leading` first. If no `leading` is set, it repl
 
 :::example
 name: LoadingPlacement
+:::
+
+## Icon Buttons
+
+Icon-only sizes and variants.
+
+:::example
+name: IconButtons
 :::
 
 ## Polymorphic

@@ -1,17 +1,9 @@
-## Variant Matrix
+## Variants
 
 List, card, and table variants with shared items data.
 
 :::example
-name: VariantMatrix
-:::
-
-## Orientation + Indicator
-
-Vertical/horizontal layout with start/end/hidden indicator positions.
-
-:::example
-name: OrientationIndicator
+name: Variants
 :::
 
 ## Sizes
@@ -20,6 +12,22 @@ Size scale from xs to xl in card variant.
 
 :::example
 name: Sizes
+:::
+
+## Orientation
+
+Vertical and horizontal layouts with the same item set.
+
+:::example
+name: Orientation
+:::
+
+## Indicator
+
+Start/end/hidden indicator positions in list layout.
+
+:::example
+name: Indicator
 :::
 
 ## Controlled + Disabled Items

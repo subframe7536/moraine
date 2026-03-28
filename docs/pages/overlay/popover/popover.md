@@ -1,9 +1,9 @@
-## Placement
+## Placements
 
 Click trigger with four placement variants.
 
 :::example
-name: Placement
+name: Placements
 :::
 
 ## Hover Mode

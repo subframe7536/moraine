@@ -22,10 +22,10 @@ Autoresize growth with maxrows.
 name: Autoresize
 :::
 
-## Header + Footer Composition
+## Header + Footer
 
 Build composer-like surfaces using header/footer slots.
 
 :::example
-name: HeaderFooterComposition
+name: HeaderFooter
 :::

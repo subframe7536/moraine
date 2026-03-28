@@ -1,6 +1,6 @@
 import { Slider } from '@src'
 
-export function Orientation() {
+export function Orientations() {
   return (
     <div class="gap-8 grid items-start sm:grid-cols-2">
       <div class="w-50 space-y-2">

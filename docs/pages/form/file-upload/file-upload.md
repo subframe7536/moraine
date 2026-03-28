@@ -14,6 +14,14 @@ Append files across selections, reject overflow, and show selected names.
 name: MultipleMaxFiles
 :::
 
+## Sizes
+
+Size scale from `xs` to `xl` for trigger height, spacing, and file list density.
+
+:::example
+name: Sizes
+:::
+
 ## Trigger Mode (No Dropzone)
 
 Use button-style trigger behavior by disabling dropzone interaction.

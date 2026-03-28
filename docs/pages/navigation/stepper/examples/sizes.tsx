@@ -1,7 +1,7 @@
 import { Stepper } from '@src'
 import { For } from 'solid-js'
 
-export function SizeVariants() {
+export function Sizes() {
   const createCheckoutSteps = () => [
     {
       title: 'Address',

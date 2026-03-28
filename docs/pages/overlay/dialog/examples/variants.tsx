@@ -1,6 +1,6 @@
 import { Button, Dialog } from '@src'
 
-export function CloseVariants() {
+export function Variants() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
       <Dialog

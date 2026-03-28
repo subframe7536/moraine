@@ -6,30 +6,6 @@ Basic single selection with controlled value.
 name: SingleSelect
 :::
 
-## Searchable
-
-Type to filter options.
-
-:::example
-name: Searchable
-:::
-
-## Trigger-only Open
-
-Only the trigger icon can open the dropdown menu.
-
-:::example
-name: TriggerOnlyOpen
-:::
-
-## Grouped Options
-
-Options organized in sections.
-
-:::example
-name: GroupedOptions
-:::
-
 ## Variants
 
 Visual style variants.
@@ -52,6 +28,30 @@ Non-interactive state.
 
 :::example
 name: Disabled
+:::
+
+## Trigger-Only Open
+
+Only the trigger icon can open the dropdown menu.
+
+:::example
+name: TriggerOnlyOpen
+:::
+
+## Searchable
+
+Type to filter options.
+
+:::example
+name: Searchable
+:::
+
+## Grouped Options
+
+Options organized in sections.
+
+:::example
+name: GroupedOptions
 :::
 
 ## Infinite Scroll

@@ -6,6 +6,14 @@ Fallback first, then image crossfades in after preload.
 name: SingleAvatar
 :::
 
+## Sizes
+
+Scale from `xs` to `xl` for single and grouped avatar contexts.
+
+:::example
+name: Sizes
+:::
+
 ## Fallback Modes
 
 Text, initials-from-alt and fallback icon.

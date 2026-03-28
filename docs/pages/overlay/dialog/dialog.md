@@ -6,12 +6,12 @@ Header, description, actions, body, and footer slots.
 name: DefaultShell
 :::
 
-## Close Variants
+## Variants
 
 `close` supports default button, hidden, and custom JSX content.
 
 :::example
-name: CloseVariants
+name: Variants
 :::
 
 ## Scrollable + Dismissible Control

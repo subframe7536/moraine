@@ -1,6 +1,6 @@
 import { Checkbox } from '@src'
 
-export function VariantsIndicator() {
+export function Variants() {
   return (
     <div class="gap-8 grid sm:grid-cols-2">
       <div class="space-y-3">

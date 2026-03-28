@@ -1,7 +1,7 @@
 import { Button, Popover } from '@src'
 import { For } from 'solid-js'
 
-export function Placement() {
+export function Placements() {
   const PLACEMENTS = ['top', 'right', 'bottom', 'left'] as const
 
   return (

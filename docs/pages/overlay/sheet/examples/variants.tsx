@@ -1,6 +1,6 @@
 import { Button, Sheet } from '@src'
 
-export function InsetCloseVariants() {
+export function Variants() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
       <Sheet

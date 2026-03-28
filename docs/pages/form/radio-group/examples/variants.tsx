@@ -1,6 +1,6 @@
 import { RadioGroup } from '@src'
 
-export function VariantMatrix() {
+export function Variants() {
   const ITEMS = [
     { value: 'starter', label: 'Starter', description: 'For personal projects' },
     { value: 'pro', label: 'Pro', description: 'For teams and scaling' },

@@ -1,4 +1,4 @@
-## Input Variants
+## Variants
 
 Visual style variants.
 
@@ -6,7 +6,7 @@ Visual style variants.
 name: InputVariants
 :::
 
-## Input Sizes
+## Sizes
 
 From xs to xl.
 
@@ -14,7 +14,7 @@ From xs to xl.
 name: InputSizes
 :::
 
-## Input with Icons
+## With Icons
 
 Leading and trailing icon slots.
 
@@ -22,42 +22,10 @@ Leading and trailing icon slots.
 name: InputWithIcons
 :::
 
-## Input States
+## States
 
 Loading, disabled, and type.
 
 :::example
 name: InputStates
-:::
-
-## Textarea Variants
-
-Same visual variants as Input.
-
-:::example
-name: TextareaVariants
-:::
-
-## Textarea Sizes
-
-From xs to xl.
-
-:::example
-name: TextareaSizes
-:::
-
-## Textarea Autoresize
-
-Grows with content up to maxrows.
-
-:::example
-name: TextareaAutoresize
-:::
-
-## Textarea Header/Footer
-
-Block-start and block-end addons via header/footer slots.
-
-:::example
-name: TextareaHeaderFooter
 :::
