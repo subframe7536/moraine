@@ -291,7 +291,9 @@ function groupProperties(
       continue
     }
 
-    const from = declaration ? inferModuleFromFileName(declaration.getSourceFile().fileName) : 'External'
+    const from = declaration
+      ? inferModuleFromFileName(declaration.getSourceFile().fileName)
+      : 'External'
     const list = inheritedGroups.get(from) ?? []
     list.push(doc)
     inheritedGroups.set(from, list)
@@ -362,7 +364,8 @@ function processComponentNode(
   const componentName = node.name.text
   const componentKey = toKebabCase(componentName)
   const functionSymbol = checker.getSymbolAtLocation(node.name)
-  const description = displayText(functionSymbol?.getDocumentationComment(checker)).trim() || undefined
+  const description =
+    displayText(functionSymbol?.getDocumentationComment(checker)).trim() || undefined
   const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line
   const sourcePath = resolveSourcePath(regionByLine[line])
   const propsType = checker.getTypeFromTypeNode(propsParam.type)

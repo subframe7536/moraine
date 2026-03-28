@@ -24,6 +24,8 @@ name: Variants
     expect(code).toContain("from './examples/variants.tsx'")
     expect(code).toContain('?example-source&name=Variants')
     expect(code).toContain("type: 'markdown'")
+    expect(code).toContain('id=\\"variants\\"')
+    expect(code).toContain('href=\\"#variants\\"')
   })
 
   test('uses explicit source override when provided', () => {
@@ -80,5 +82,21 @@ bun add solid-toaster
 
     expect(code).toContain('shiki bash')
     expect(code).not.toContain('language-bash')
+  })
+
+  test('deduplicates repeated heading anchors', () => {
+    const markdown = `
+## Same Heading
+
+Some content.
+
+## Same Heading
+`
+
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/textarea/textarea.md')
+    expect(code).toContain('id=\\"same-heading\\"')
+    expect(code).toContain('href=\\"#same-heading\\"')
+    expect(code).toContain('id=\\"same-heading-2\\"')
+    expect(code).toContain('href=\\"#same-heading-2\\"')
   })
 })

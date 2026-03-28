@@ -1,12 +1,13 @@
 import 'uno.css'
 
-import { Show, createEffect, createMemo, createSignal, onMount } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 import { Dynamic, render } from 'solid-js/web'
 import { exampleMap, pages } from 'virtual:example-pages'
 
 import { Resizable } from '../src/elements/resizable'
 
 import { Sidebar } from './components/sidebar'
+import { resolvePageKeyFromLocation, toPagePath } from './routing'
 
 type ThemeMode = 'light' | 'dark'
 
@@ -23,35 +24,46 @@ function applyTheme(theme: ThemeMode): void {
 
 function App() {
   const [theme, setTheme] = createSignal<ThemeMode>('light')
+  const pageKeys = pages.map((entry) => entry.key)
+  const fallbackPage = pageKeys[0]
+  const initialPage = resolvePageKeyFromLocation(location, pageKeys) ?? ''
 
-  const [page, setPage] = createSignal(location.hash.slice(1) || 'intro')
+  const [page, setPage] = createSignal(initialPage)
+
+  const syncPageFromLocation = () => {
+    const nextPage = resolvePageKeyFromLocation(location, pageKeys)
+    if (!nextPage) {
+      return
+    }
+
+    setPage(nextPage)
+
+    const expectedPath = toPagePath(nextPage)
+    if (location.pathname !== expectedPath) {
+      history.replaceState(null, '', expectedPath)
+    }
+  }
 
   onMount(() => {
     const initialTheme = getInitialTheme()
     setTheme(initialTheme)
     applyTheme(initialTheme)
 
-    window.addEventListener('hashchange', () => {
-      setPage(location.hash.slice(1) || 'button')
+    syncPageFromLocation()
+
+    const handlePopstate = () => {
+      syncPageFromLocation()
+    }
+
+    window.addEventListener('popstate', handlePopstate)
+    onCleanup(() => {
+      window.removeEventListener('popstate', handlePopstate)
     })
   })
 
-  createEffect(() => {
-    const current = page()
-    const hasExample = Boolean(exampleMap[current])
-    if (hasExample) {
-      return
-    }
-    const first = pages[0]?.key
-    if (first) {
-      setPage(first)
-      location.hash = first
-    }
-  })
-
   const navigate = (key: string) => {
-    location.hash = key
     setPage(key)
+    history.pushState(null, '', toPagePath(key))
   }
 
   const updateTheme = (nextTheme: ThemeMode) => {
@@ -67,7 +79,9 @@ function App() {
     run()
   }
 
-  const ActiveExample = createMemo(() => exampleMap[page()])
+  const ActiveExample = createMemo(
+    () => exampleMap[page()] ?? (fallbackPage ? exampleMap[fallbackPage] : undefined),
+  )
 
   return (
     <Resizable

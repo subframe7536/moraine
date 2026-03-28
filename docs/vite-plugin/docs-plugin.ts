@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { exactRegex } from '@rolldown/pluginutils'
 import { normalizePath } from 'vite'
 import type { Plugin } from 'vite'

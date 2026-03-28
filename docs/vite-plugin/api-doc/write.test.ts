@@ -53,9 +53,9 @@ describe('writeJsonFiles', () => {
     expect(JSON.parse(await readFile(path.join(outDir, 'index.json'), 'utf8'))).toEqual(
       result.indexDoc,
     )
-    expect(JSON.parse(await readFile(path.join(outDir, 'components', 'demo.json'), 'utf8'))).toEqual(
-      result.componentDocs.get('demo'),
-    )
+    expect(
+      JSON.parse(await readFile(path.join(outDir, 'components', 'demo.json'), 'utf8')),
+    ).toEqual(result.componentDocs.get('demo'))
 
     await rm(outDir, { recursive: true, force: true })
   })

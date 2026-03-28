@@ -5,7 +5,8 @@ import { buildSiteMetaTags, siteMetaPlugin } from './site-meta'
 const SITE_META = {
   siteName: 'Moraine',
   title: 'Moraine Docs',
-  description: 'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
+  description:
+    'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
   siteUrl: 'https://ui.subf.dev/',
   imagePath: '/og-image.png',
   imageAlt: 'Moraine Docs brand cover image',
@@ -106,10 +107,14 @@ describe('siteMetaPlugin', () => {
 
     const tags = result as ReturnType<typeof buildSiteMetaTags>
     expect(tags.filter((tag) => tag.tag === 'title')).toHaveLength(1)
-    expect(tags.filter((tag) => tag.tag === 'link' && tag.attrs?.rel === 'canonical')).toHaveLength(1)
+    expect(tags.filter((tag) => tag.tag === 'link' && tag.attrs?.rel === 'canonical')).toHaveLength(
+      1,
+    )
     expect(
       tags.filter(
-        (tag) => tag.tag === 'meta' && (tag.attrs?.property === 'og:image' || tag.attrs?.name === 'twitter:image'),
+        (tag) =>
+          tag.tag === 'meta' &&
+          (tag.attrs?.property === 'og:image' || tag.attrs?.name === 'twitter:image'),
       ),
     ).toHaveLength(2)
   })

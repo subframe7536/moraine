@@ -155,12 +155,8 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-sheet-side-right')
     expect(css).toContain('.animate-popover-in')
     expect(css).toContain('.animate-popover-side-left')
-    expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,150ms) ease-in-out 1',
-    )
-    expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,150ms) ease-in-out 1',
-    )
+    expect(css).toContain('animation:mo-enter var(--mo-anim-duration,150ms) ease-in-out 1')
+    expect(css).toContain('animation:mo-exit var(--mo-anim-duration,150ms) ease-in-out 1')
     expect(css).toContain('--mo-enter-opacity:0')
     expect(css).toContain('--mo-enter-scale:0.9')
     expect(css).toContain('--mo-enter-translate-y:0.5rem')
@@ -214,12 +210,8 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-sheet-in')
     expect(css).toContain('.animate-sheet-out')
     expect(css).toContain('.animate-sheet-side-right')
-    expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,150ms) ease-in-out 1',
-    )
-    expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,150ms) ease-in-out 1',
-    )
+    expect(css).toContain('animation:mo-enter var(--mo-anim-duration,150ms) ease-in-out 1')
+    expect(css).toContain('animation:mo-exit var(--mo-anim-duration,150ms) ease-in-out 1')
     expect(css).toContain('--mo-enter-translate-x:2.5rem')
     expect(css).toContain('--mo-exit-translate-x:2.5rem')
     expect(css).not.toContain('.animate-menu-in-from-left{')

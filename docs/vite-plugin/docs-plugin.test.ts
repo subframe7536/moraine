@@ -99,7 +99,9 @@ describe('docsPlugin', () => {
         : resolveId?.handler('virtual:example-pages')
 
     const apiModule =
-      typeof load === 'function' ? await load(resolvedApiId as string) : await load?.handler(resolvedApiId as string)
+      typeof load === 'function'
+        ? await load(resolvedApiId as string)
+        : await load?.handler(resolvedApiId as string)
     const pagesModule =
       typeof load === 'function'
         ? await load(resolvedPagesId as string)

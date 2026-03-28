@@ -1,10 +1,12 @@
-import MarkdownIt from 'markdown-it'
 import path from 'node:path'
+
+import MarkdownIt from 'markdown-it'
 
 import { loadComponentApiDoc } from '../api-doc/load'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
-import { toSingleQuoted } from '../core/strings'
+import { toKebabCase, toSingleQuoted } from '../core/strings'
 
+import { MARKDOWN_ANCHOR_HEADING_CLASS, MARKDOWN_ANCHOR_LINK_CLASS } from './const'
 import { parseSegments } from './directives'
 import { deepMerge, parseFrontmatter } from './frontmatter'
 import type { CompileMarkdownOptions, MarkdownHighlightLang, ParsedSegment } from './types'
@@ -52,10 +54,14 @@ function normalizeMarkdownLang(value: string): MarkdownHighlightLang | null {
   return MARKDOWN_LANG_ALIASES[key] ?? null
 }
 
+function toAnchorSlug(value: string): string {
+  return toKebabCase(value) || 'section'
+}
+
 function createMarkdown(
   highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
 ): MarkdownIt {
-  return new MarkdownIt({
+  const markdown = new MarkdownIt({
     html: false,
     linkify: true,
     typographer: true,
@@ -73,6 +79,51 @@ function createMarkdown(
       return highlightCode(source, lang) ?? ''
     },
   })
+
+  const headingSlugCounter = new Map<string, number>()
+
+  const createHeadingSlug = (headingText: string) => {
+    const baseSlug = toAnchorSlug(headingText)
+    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
+    const nextCount = currentCount + 1
+    headingSlugCounter.set(baseSlug, nextCount)
+    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
+  }
+
+  const defaultHeadingOpenRule = markdown.renderer.rules.heading_open
+  markdown.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
+    const token = tokens[idx]
+    const inlineToken = tokens[idx + 1]
+    const headingText = inlineToken?.type === 'inline' ? inlineToken.content : ''
+    const slug = createHeadingSlug(headingText)
+
+    token.attrSet('id', slug)
+    token.attrJoin('class', MARKDOWN_ANCHOR_HEADING_CLASS)
+    token.meta = { ...token.meta, anchorSlug: slug }
+
+    if (defaultHeadingOpenRule) {
+      return defaultHeadingOpenRule(tokens, idx, options, env, self)
+    }
+    return self.renderToken(tokens, idx, options)
+  }
+
+  const defaultHeadingCloseRule = markdown.renderer.rules.heading_close
+  markdown.renderer.rules.heading_close = (tokens, idx, options, env, self) => {
+    const openToken = tokens[idx - 2]
+    const anchorSlug =
+      typeof openToken?.meta?.anchorSlug === 'string' ? openToken.meta.anchorSlug : ''
+    const anchorHtml = anchorSlug
+      ? `<a class="${MARKDOWN_ANCHOR_LINK_CLASS}" href="#${anchorSlug}" aria-label="Link to this section">#</a>`
+      : ''
+
+    if (defaultHeadingCloseRule) {
+      return `${anchorHtml}${defaultHeadingCloseRule(tokens, idx, options, env, self)}`
+    }
+
+    return `${anchorHtml}${self.renderToken(tokens, idx, options)}`
+  }
+
+  return markdown
 }
 
 function escapeHtml(value: string): string {

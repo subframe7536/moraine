@@ -139,7 +139,9 @@ export function resolveExampleComponentSource(code: string, name: string): strin
     }
   }
 
-  return name === 'default' ? resolveDefaultExportSource(program, code, byName) : (byName.get(name) ?? null)
+  return name === 'default'
+    ? resolveDefaultExportSource(program, code, byName)
+    : (byName.get(name) ?? null)
 }
 
 export function transformExampleSourceModule(

@@ -73,7 +73,10 @@ export async function scanExamplePages(projectRoot: string): Promise<ExamplePage
   return files
     .map((filePath) => {
       const page = resolveDocsPageContext(filePath)
-      return Object.assign({ key: page.pageKey, importPath: page.runtimeImportPath }, page.group ? { group: page.group } : {})
+      return Object.assign(
+        { key: page.pageKey, importPath: page.runtimeImportPath },
+        page.group ? { group: page.group } : {},
+      )
     })
     .sort(compareByGroupAndPath)
 }

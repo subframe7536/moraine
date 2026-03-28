@@ -1,9 +1,10 @@
 import type { Component } from 'solid-js'
-import { For, Show } from 'solid-js'
+import { For, Show, onCleanup, onMount } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Tabs } from '../../src'
+import { Badge, Tabs, cn } from '../../src'
 import type { ItemsDoc } from '../vite-plugin/api-doc/types'
+import { MARKDOWN_ANCHOR_HEADING_CLASS } from '../vite-plugin/markdown/const'
 import { docsWidgetMap } from '../widgets'
 
 import { PropsTable } from './props-table'
@@ -65,6 +66,34 @@ export interface RenderExampleMarkdownPageInput {
   segments: RenderSegment[]
 }
 
+function toAnchorSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+interface AnchoredHeadingProps {
+  id: string
+  label: string
+  class: string
+}
+
+function AnchoredHeading(props: AnchoredHeadingProps) {
+  return (
+    <h2 id={props.id} class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, props.class)}>
+      <a
+        href={`#${props.id}`}
+        class={MARKDOWN_ANCHOR_HEADING_CLASS}
+        aria-label={`Link to ${props.label}`}
+      >
+        #
+      </a>
+      {props.label}
+    </h2>
+  )
+}
+
 export function Markdown(input: RenderExampleMarkdownPageInput) {
   const component = () => input.apiDoc?.component
   const propsDoc = () => input.apiDoc?.props ?? { own: [], inherited: [] }
@@ -77,6 +106,41 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
   }
 
   const shouldShowHeader = () => Boolean(component() || input.componentKey)
+
+  let pendingAnchorRaf = 0
+  const cancelAnchorScroll = () => {
+    if (pendingAnchorRaf !== 0) {
+      cancelAnimationFrame(pendingAnchorRaf)
+      pendingAnchorRaf = 0
+    }
+  }
+
+  const scrollToAnchor = () => {
+    cancelAnchorScroll()
+    const hash = location.hash.slice(1)
+    if (!hash) {
+      return true
+    }
+
+    const anchorId = decodeURIComponent(hash)
+    const target = document.getElementById(anchorId)
+    if (!target) {
+      return false
+    }
+    target.scrollIntoView()
+    return true
+  }
+
+  onMount(() => {
+    console.log('mounted', location.hash)
+    scrollToAnchor()
+
+    window.addEventListener('hashchange', scrollToAnchor)
+    onCleanup(() => {
+      window.removeEventListener('hashchange', scrollToAnchor)
+      cancelAnchorScroll()
+    })
+  })
 
   const renderSegment = (segment: RenderSegment) => {
     switch (segment.type) {
@@ -183,9 +247,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
         <Show when={slots().length > 0}>
           <section>
-            <h2 class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase">
-              Slots
-            </h2>
+            <AnchoredHeading
+              id="api-slots"
+              label="Slots"
+              class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase"
+            />
             <div class="flex flex-wrap gap-2">
               <For each={slots()}>{(slot) => <Badge>{slot}</Badge>}</For>
             </div>
@@ -194,9 +260,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
         <Show when={hasProps(propsDoc(), itemsDoc())}>
           <section>
-            <h2 class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase">
-              Props
-            </h2>
+            <AnchoredHeading
+              id="api-props"
+              label="Props"
+              class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase"
+            />
             <PropsTable props={propsDoc()} items={itemsDoc()} />
           </section>
         </Show>
@@ -206,9 +274,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             <>
               <section>
                 <div class="mb-4 flex flex-wrap gap-2 items-center">
-                  <h2 class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
-                    {doc.component.name} API
-                  </h2>
+                  <AnchoredHeading
+                    id={`${toAnchorSlug(doc.component.key || doc.component.name)}-api`}
+                    label={`${doc.component.name} API`}
+                    class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase"
+                  />
                   <p class="text-xs text-muted-foreground font-mono">{doc.component.key}</p>
                 </div>
                 <Show when={doc.component.description}>
@@ -223,9 +293,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
               <Show when={doc.slots.length > 0}>
                 <section>
-                  <h2 class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase">
-                    {doc.component.name} Slots
-                  </h2>
+                  <AnchoredHeading
+                    id={`${toAnchorSlug(doc.component.key || doc.component.name)}-api-slots`}
+                    label={`${doc.component.name} Slots`}
+                    class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase"
+                  />
                   <div class="flex flex-wrap gap-2">
                     <For each={doc.slots}>{(slot) => <Badge>{slot}</Badge>}</For>
                   </div>
@@ -234,9 +306,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
               <Show when={hasProps(doc.props, doc.items)}>
                 <section>
-                  <h2 class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase">
-                    {doc.component.name} Props
-                  </h2>
+                  <AnchoredHeading
+                    id={`${toAnchorSlug(doc.component.key || doc.component.name)}-api-props`}
+                    label={`${doc.component.name} Props`}
+                    class="text-xs text-muted-foreground tracking-[0.16em] font-semibold mb-4 uppercase"
+                  />
                   <PropsTable props={doc.props} items={doc.items} />
                 </section>
               </Show>

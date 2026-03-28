@@ -20,7 +20,8 @@ function LoadingExample() {
 }
 `
 
-    expect(resolveExampleComponentSource(source, 'LoadingExample')).toBe(`function LoadingExample() {
+    expect(resolveExampleComponentSource(source, 'LoadingExample'))
+      .toBe(`function LoadingExample() {
   return <div>loading</div>
 }`)
   })

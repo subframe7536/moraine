@@ -72,9 +72,7 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
   }
 
   const disabled = createMemo(() => options.disable() === true)
-  const crossHovered = createMemo(
-    () => (interactionState() & HANDLE_STATE_CROSS_HOVERED) !== 0,
-  )
+  const crossHovered = createMemo(() => (interactionState() & HANDLE_STATE_CROSS_HOVERED) !== 0)
   const dragging = createMemo(() => (interactionState() & HANDLE_STATE_DRAGGING) !== 0)
   const active = createMemo(() => interactionState() !== 0)
 
