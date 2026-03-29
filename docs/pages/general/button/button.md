@@ -1,5 +1,4 @@
-:::widget
-name: docs-header
+:::docs-header
 :::
 
 ## import
@@ -60,6 +59,5 @@ name: Polymorphic
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::

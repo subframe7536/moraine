@@ -3,7 +3,7 @@ import apiIndex from 'virtual:api-doc'
 
 import { Badge } from '../../src'
 
-export const IntroComponentsWidget = () => {
+export const IntroComponents = () => {
   const groupedComponents = createMemo(() => {
     const map = new Map<string, typeof apiIndex.components>()
 

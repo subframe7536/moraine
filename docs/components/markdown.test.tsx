@@ -3,21 +3,34 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { Markdown } from './markdown'
 
-vi.mock('../widgets', () => ({
-  docsWidgetMap: {
-    'docs-header': (props: Record<string, unknown>) => (
-      <div data-testid="docs-header">
-        <span>{String(props.componentKey ?? '')}</span>
-        <span>
-          {String(
-            (props.apiDoc as { component?: { name?: string } } | undefined)?.component?.name ?? '',
-          )}
-        </span>
-        <span>{String(props.kobalteHref ?? '')}</span>
-      </div>
-    ),
-    'docs-api-reference': () => <div data-testid="docs-api-reference">API Widget</div>,
-  },
+vi.mock('./docs-header', () => ({
+  DocsHeader: (props: Record<string, unknown>) => (
+    <div data-testid="docs-header">
+      <span>{String(props.componentKey ?? '')}</span>
+      <span>
+        {String(
+          (props.apiDoc as { component?: { name?: string } } | undefined)?.component?.name ?? '',
+        )}
+      </span>
+      <span>{String(props.kobalteHref ?? '')}</span>
+    </div>
+  ),
+}))
+
+vi.mock('./docs-api-reference', () => ({
+  DocsApiReference: () => <div data-testid="docs-api-reference">API Widget</div>,
+}))
+
+vi.mock('./intro-cards', () => ({
+  IntroCards: () => <div data-testid="intro-cards">Intro Cards</div>,
+}))
+
+vi.mock('./toast-hosts', () => ({
+  ToastHosts: () => <div data-testid="toast-hosts">Toast Hosts</div>,
+}))
+
+vi.mock('./intro-components', () => ({
+  IntroComponents: () => <div data-testid="intro-components">Intro Components</div>,
 }))
 
 class MockIntersectionObserver {
@@ -97,10 +110,7 @@ describe('Markdown On This Page', () => {
             inherited: [],
           },
         },
-        segments: [
-          { type: 'widget', widgetName: 'docs-header' },
-          { type: 'widget', widgetName: 'docs-api-reference' },
-        ],
+        segments: [{ type: 'docs-header' }, { type: 'docs-api-reference' }],
       }),
     )
 
@@ -134,16 +144,6 @@ describe('Markdown On This Page', () => {
 
     expect(screen.queryByTestId('docs-header')).toBeNull()
     expect(screen.container.querySelector('#api-reference')).toBeNull()
-  })
-
-  test('shows fallback when widget is missing', () => {
-    const screen = render(() =>
-      Markdown({
-        segments: [{ type: 'widget', widgetName: 'missing-widget' }],
-      }),
-    )
-
-    expect(screen.getByText('Widget not found: missing-widget')).toBeTruthy()
   })
 
   test('renders toc from compile-time entries', () => {

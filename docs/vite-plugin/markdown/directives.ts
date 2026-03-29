@@ -9,6 +9,10 @@ function parseDirectivePayload(
   id: string,
   directive: string,
 ): Record<string, unknown> {
+  if (!raw.trim()) {
+    return {}
+  }
+
   try {
     const parsed = YAML.parse(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -83,20 +87,19 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
       continue
     }
 
-    if (directiveName === 'widget') {
-      const widgetName = payload.name
-      if (typeof widgetName !== 'string' || !widgetName.trim()) {
-        throw new Error(`[example-markdown] :::widget requires "name" in ${id}`)
-      }
+    const WIDGET_DIRECTIVES = [
+      'docs-header',
+      'docs-api-reference',
+      'intro-cards',
+      'intro-components',
+      'toast-hosts',
+    ] as const
 
-      const props =
-        payload.props && typeof payload.props === 'object' && !Array.isArray(payload.props)
-          ? (payload.props as Record<string, unknown>)
-          : undefined
+    if (WIDGET_DIRECTIVES.includes(directiveName as (typeof WIDGET_DIRECTIVES)[number])) {
+      const props = Object.keys(payload).length > 0 ? payload : undefined
 
       segments.push({
-        type: 'widget',
-        widgetName: widgetName.trim(),
+        type: directiveName as (typeof WIDGET_DIRECTIVES)[number],
         ...(props ? { props } : {}),
       })
       continue

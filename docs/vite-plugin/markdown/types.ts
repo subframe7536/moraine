@@ -13,9 +13,28 @@ export interface ExampleDirectiveSegment {
   name: string
 }
 
-export interface WidgetDirectiveSegment {
-  type: 'widget'
-  widgetName: string
+export interface DocsHeaderDirectiveSegment {
+  type: 'docs-header'
+  props?: Record<string, unknown>
+}
+
+export interface DocsApiReferenceDirectiveSegment {
+  type: 'docs-api-reference'
+  props?: Record<string, unknown>
+}
+
+export interface IntroCardsDirectiveSegment {
+  type: 'intro-cards'
+  props?: Record<string, unknown>
+}
+
+export interface IntroComponentsDirectiveSegment {
+  type: 'intro-components'
+  props?: Record<string, unknown>
+}
+
+export interface ToastHostsDirectiveSegment {
+  type: 'toast-hosts'
   props?: Record<string, unknown>
 }
 
@@ -27,7 +46,11 @@ export interface CodeTabsDirectiveSegment {
 export type ParsedSegment =
   | MarkdownSegment
   | ExampleDirectiveSegment
-  | WidgetDirectiveSegment
+  | DocsHeaderDirectiveSegment
+  | DocsApiReferenceDirectiveSegment
+  | IntroCardsDirectiveSegment
+  | IntroComponentsDirectiveSegment
+  | ToastHostsDirectiveSegment
   | CodeTabsDirectiveSegment
 
 export interface FrontmatterData {}

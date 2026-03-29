@@ -1,12 +1,12 @@
-:::widget
-name: docs-header
-props:
-apiDocOverride:
-component:
-key: toast
+:::docs-header
+componentKey: toast
 name: Toast
 category: overlays
 description: A succinct message that is displayed temporarily.
+kobalteHref: https://github.com/subframe7536/solid-toaster
+:::
+
+:::toast-hosts
 :::
 
 ## Import
@@ -51,12 +51,8 @@ Use toast.promise for async lifecycle and route toasts by toasterId.
 :::example
 name: PromiseScopedInstances
 :::
-:::widget
-name: toast-hosts
-:::
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::

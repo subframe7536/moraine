@@ -1,5 +1,4 @@
-:::widget
-name: docs-header
+:::docs-header
 :::
 
 ## import
@@ -76,6 +75,5 @@ name: InfiniteScroll
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::

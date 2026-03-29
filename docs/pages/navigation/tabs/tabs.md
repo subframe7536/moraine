@@ -1,5 +1,4 @@
-:::widget
-name: docs-header
+:::docs-header
 :::
 
 ## import
@@ -44,6 +43,5 @@ name: ControlledDisabledItems
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::

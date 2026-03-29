@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { parseSegments } from './directives'
 
 describe('parseSegments', () => {
-  test('parses example, widget and code-tabs directives', () => {
+  test('parses example, widget directives and code-tabs directives', () => {
     const source = `
 hello
 
@@ -11,10 +11,8 @@ hello
 name: Variants
 :::
 
-:::widget
-name: intro-cards
-props:
-  title: Intro
+:::intro-cards
+title: Intro
 :::
 
 :::code-tabs
@@ -25,7 +23,7 @@ package: moraine
     expect(parseSegments(source, '/tmp/docs/pages/introduction.md')).toEqual([
       { type: 'markdown', text: 'hello' },
       { type: 'example', name: 'Variants', source: './examples/variants.tsx' },
-      { type: 'widget', widgetName: 'intro-cards', props: { title: 'Intro' } },
+      { type: 'intro-cards', props: { title: 'Intro' } },
       { type: 'code-tabs', packageName: 'moraine' },
     ])
   })

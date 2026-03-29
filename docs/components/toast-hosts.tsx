@@ -9,7 +9,7 @@ const TOASTER_STYLE = {
   '--border-radius': 'var(--radius)',
 }
 
-export const ToastHostsWidget = () => {
+export const ToastHosts = () => {
   return (
     <>
       <Toaster preventDuplicate style={TOASTER_STYLE} visibleToasts={4} />

@@ -1,19 +1,23 @@
 import { Show } from 'solid-js'
 
 import { Button } from '../../src'
-import type { ExamplePageApiDoc } from '../components/markdown'
+
+import type { ExamplePageApiDoc } from './markdown'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
-interface DocsHeaderWidgetProps {
+interface DocsHeaderProps {
   componentKey?: string
   apiDoc?: ExamplePageApiDoc
   kobalteHref?: string
+  name?: string
+  category?: string
+  description?: string
 }
 
-export const DocsHeaderWidget = (props: DocsHeaderWidgetProps) => {
+export const DocsHeader = (props: DocsHeaderProps) => {
   const component = () => props.apiDoc?.component
-  const pageTitle = () => component()?.name ?? props.componentKey
+  const pageTitle = () => props.name ?? props.componentKey
   const githubSourceHref = () => {
     const sourcePath = component()?.sourcePath
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}` : undefined
@@ -23,19 +27,13 @@ export const DocsHeaderWidget = (props: DocsHeaderWidgetProps) => {
     <Show when={component() || props.componentKey}>
       <header class="text-foreground">
         <div class="flex flex-wrap gap-2 items-center">
-          <Show when={component()?.category}>
+          <Show when={component()?.category || props.category}>
             <p class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
-              {component()!.category}
+              {component()?.category || props.category}
             </p>
           </Show>
           <Show when={props.componentKey}>
             <p class="text-xs text-muted-foreground font-mono">{props.componentKey}</p>
-          </Show>
-          <Show when={component()?.polymorphic}>
-            <span class="text-xs text-muted-foreground">•</span>
-          </Show>
-          <Show when={component()?.polymorphic}>
-            <p class="text-xs text-muted-foreground font-medium">Polymorphic</p>
           </Show>
         </div>
 
@@ -43,9 +41,9 @@ export const DocsHeaderWidget = (props: DocsHeaderWidgetProps) => {
           <p class="text-2xl font-semibold mt-3 sm:text-3xl">{pageTitle()}</p>
         </Show>
 
-        <Show when={component()?.description}>
+        <Show when={component()?.description || props.description}>
           <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
-            {component()!.description}
+            {component()?.description || props.description}
           </p>
         </Show>
 
@@ -76,7 +74,7 @@ export const DocsHeaderWidget = (props: DocsHeaderWidgetProps) => {
                   variant="outline"
                   leading="icon-external"
                 >
-                  Kobalte
+                  Upstream
                 </Button>
               )}
             </Show>

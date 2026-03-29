@@ -1,6 +1,6 @@
 import { Card, Icon } from '../../src'
 
-export const IntroCardsWidget = () => {
+export const IntroCards = () => {
   return (
     <section class="gap-4 grid lg:grid-cols-3 sm:grid-cols-2">
       <Card

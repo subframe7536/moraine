@@ -2,8 +2,7 @@
 
 Inspired by Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component library with atomic class styling.
 
-:::widget
-name: intro-cards
+:::intro-cards
 :::
 
 ## Quick Start
@@ -16,6 +15,5 @@ package: moraine
 
 ## All Components
 
-:::widget
-name: intro-components
+:::intro-components
 :::

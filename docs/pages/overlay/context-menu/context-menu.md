@@ -1,5 +1,4 @@
-:::widget
-name: docs-header
+:::docs-header
 :::
 
 ## import
@@ -52,6 +51,5 @@ name: ProjectIssueActions
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::

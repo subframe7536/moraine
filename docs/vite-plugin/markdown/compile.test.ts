@@ -60,8 +60,7 @@ name: Variants
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::
 `
 
@@ -112,8 +111,7 @@ name: docs-api-reference
     const markdown = `
 ## Demo
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::
 `
 
@@ -126,32 +124,29 @@ name: docs-api-reference
 
   test('injects conditional api toc entries for slots/items/inherited', () => {
     const markdown = `
-:::widget
-name: docs-header
-props:
-  apiDocOverride:
-    component:
-      key: custom
-      name: Custom
-      category: Form
-      polymorphic: false
-    slots:
-      - root
-    props:
-      own: []
-      inherited:
-        - from: Base
-          props: []
-    items:
-      props: []
+:::docs-header
+apiDocOverride:
+  component:
+    key: custom
+    name: Custom
+    category: Form
+    polymorphic: false
+  slots:
+    - root
+  props:
+    own: []
+    inherited:
+      - from: Base
+        props: []
+  items:
+    props: []
 :::
 
 ## Demo
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::
 `
 
@@ -166,31 +161,28 @@ name: docs-api-reference
 
   test('injects a single inherited toc entry even with multiple inherited sources', () => {
     const markdown = `
-:::widget
-name: docs-header
-props:
-  apiDocOverride:
-    component:
-      key: custom
-      name: Custom
-      category: Form
-      polymorphic: false
-    slots: []
-    props:
-      own: []
-      inherited:
-        - from: BaseItem
-          props: []
-        - from: BaseItem
-          props: []
+:::docs-header
+apiDocOverride:
+  component:
+    key: custom
+    name: Custom
+    category: Form
+    polymorphic: false
+  slots: []
+  props:
+    own: []
+    inherited:
+      - from: BaseItem
+        props: []
+      - from: BaseItem
+        props: []
 :::
 
 ## Demo
 
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::
 `
 
@@ -216,8 +208,7 @@ apiDocOverride:
 ---
 ## API Reference
 
-:::widget
-name: docs-api-reference
+:::docs-api-reference
 :::
 `
 
@@ -241,17 +232,16 @@ source: ./examples/button-variants.tsx
     expect(code).toContain("from './examples/button-variants.tsx'")
   })
 
-  test('supports :::widget directive', () => {
+  test('supports standalone widget directives', () => {
     const markdown = `
-:::widget
-name: intro-cards
+:::intro-cards
 :::
 `
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.md')
     expect(code).toContain("from '../components/markdown'")
     expect(code).not.toContain('componentKey:')
-    expect(code).toContain('widgetName: "intro-cards"')
+    expect(code).toContain('type: "intro-cards"')
   })
 
   test('supports :::code-tabs directive', () => {

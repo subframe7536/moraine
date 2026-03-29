@@ -2,16 +2,17 @@ import { For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Badge, cn } from '../../src'
-import type { ExamplePageApiDoc } from '../components/markdown'
-import { API_HEADING_PROSE_CLASS, PropsTable } from '../components/props-table'
-import type { ComponentPropsDoc, PropsTableSection } from '../components/props-table'
 import type { ItemsDoc } from '../vite-plugin/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from '../vite-plugin/markdown/const'
 
-interface DocsApiReferenceWidgetProps {
+import type { ExamplePageApiDoc } from './markdown'
+import { API_HEADING_PROSE_CLASS, PropsTable } from './props-table'
+import type { ComponentPropsDoc, PropsTableSection } from './props-table'
+
+interface DocsApiReferenceProps {
   apiDoc?: ExamplePageApiDoc
 }
 
@@ -62,7 +63,7 @@ function createInheritedSections(
   ]
 }
 
-export const DocsApiReferenceWidget = (props: DocsApiReferenceWidgetProps) => {
+export const DocsApiReference = (props: DocsApiReferenceProps) => {
   const slots = () => props.apiDoc?.slots ?? []
   const propsDoc = () => props.apiDoc?.props ?? { own: [], inherited: [] }
   const itemsDoc = () => props.apiDoc?.items

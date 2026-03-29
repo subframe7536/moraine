@@ -269,7 +269,7 @@ function inferKobalteComponentDocsHref(
 
 function extractHeaderApiDocOverride(segments: ParsedSegment[]): Record<string, unknown> | null {
   for (const segment of segments) {
-    if (segment.type !== 'widget' || segment.widgetName !== 'docs-header') {
+    if (segment.type !== 'docs-header') {
       continue
     }
 
@@ -304,9 +304,15 @@ function buildSegmentLiterals(
       }
     }
 
-    if (segment.type === 'widget') {
+    if (
+      segment.type === 'docs-header' ||
+      segment.type === 'docs-api-reference' ||
+      segment.type === 'intro-cards' ||
+      segment.type === 'intro-components' ||
+      segment.type === 'toast-hosts'
+    ) {
       return {
-        code: `{ type: 'widget', widgetName: ${JSON.stringify(segment.widgetName)}${
+        code: `{ type: ${JSON.stringify(segment.type)}${
           segment.props ? `, props: ${JSON.stringify(segment.props)}` : ''
         } }`,
       }
@@ -347,7 +353,7 @@ export function compileMarkdownPage(
   const widgetApiDocOverride = extractHeaderApiDocOverride(segments)
   const markdown = createMarkdown(options.highlightCode)
   const hasDocsApiReferenceWidget = segments.some(
-    (segment) => segment.type === 'widget' && segment.widgetName === 'docs-api-reference',
+    (segment) => segment.type === 'docs-api-reference',
   )
   const segmentLiterals = buildSegmentLiterals(
     segments,

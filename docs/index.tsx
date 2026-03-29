@@ -1,83 +1,21 @@
 import 'uno.css'
 
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createMemo } from 'solid-js'
 import { Dynamic, render } from 'solid-js/web'
 import { exampleMap, pages } from 'virtual:example-pages'
 
 import { Resizable } from '../src/elements/resizable'
 
 import { Sidebar } from './components/sidebar'
-import { resolvePageKeyFromLocation, toPagePath } from './routing'
-
-type ThemeMode = 'light' | 'dark'
-
-function getInitialTheme(): ThemeMode {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function applyTheme(theme: ThemeMode): void {
-  const isDark = theme === 'dark'
-  const root = document.documentElement
-  root.classList.toggle('dark', isDark)
-  root.style.colorScheme = isDark ? 'dark' : 'light'
-}
+import { useRouting } from './hooks/use-routing'
+import { useTheme } from './hooks/use-theme'
 
 function App() {
-  const [theme, setTheme] = createSignal<ThemeMode>('light')
   const pageKeys = pages.map((entry) => entry.key)
   const fallbackPage = pageKeys[0]
-  const initialPage = resolvePageKeyFromLocation(location, pageKeys) ?? ''
 
-  const [page, setPage] = createSignal(initialPage)
-
-  const syncPageFromLocation = () => {
-    const nextPage = resolvePageKeyFromLocation(location, pageKeys)
-    if (!nextPage) {
-      return
-    }
-
-    setPage(nextPage)
-
-    const expectedPath = toPagePath(nextPage)
-    if (location.pathname !== expectedPath) {
-      history.replaceState(null, '', expectedPath)
-    }
-  }
-
-  onMount(() => {
-    const initialTheme = getInitialTheme()
-    setTheme(initialTheme)
-    applyTheme(initialTheme)
-
-    syncPageFromLocation()
-
-    const handlePopstate = () => {
-      syncPageFromLocation()
-    }
-
-    window.addEventListener('popstate', handlePopstate)
-    onCleanup(() => {
-      window.removeEventListener('popstate', handlePopstate)
-    })
-  })
-
-  const navigate = (key: string) => {
-    setPage(key)
-    history.pushState(null, '', toPagePath(key))
-  }
-
-  const updateTheme = (nextTheme: ThemeMode) => {
-    const run = () => {
-      setTheme(nextTheme)
-      applyTheme(nextTheme)
-    }
-
-    if (typeof document.startViewTransition === 'function') {
-      document.startViewTransition(run)
-      return
-    }
-    run()
-  }
+  const { theme, updateTheme } = useTheme()
+  const { page, navigate } = useRouting(pageKeys, fallbackPage)
 
   const ActiveExample = createMemo(
     () => exampleMap[page()] ?? (fallbackPage ? exampleMap[fallbackPage] : undefined),
