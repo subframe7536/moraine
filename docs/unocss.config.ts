@@ -28,8 +28,12 @@ export default defineConfig<PresetWind4Theme>({
       },
       cssExtend() {
         return {
-          'p>code': {
+          ':is(p, h2, h3, li)>code': {
             'margin-inline': '0.1rem',
+            'padding': '0 0.25rem',
+            'background': 'var(--muted)',
+            'border': '1px solid var(--border)',
+            'border-radius': '0.4em'
           },
           'code::before': {
             content: 'none',

@@ -17,6 +17,8 @@ export interface ExamplePageScanEntry {
   importPath: string
 }
 
+const PAGE_LABEL_OVERRIDES = new Map<string, string>([['typescript', 'TypeScript']])
+
 async function collectMarkdownFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true })
   const sortedEntries = [...entries].sort((left, right) => left.name.localeCompare(right.name))
@@ -58,7 +60,10 @@ export function buildExamplePageEntries(
     Object.assign(
       {
         key: page.key,
-        label: componentNameMap.get(page.key) ?? toTitleCaseFromKey(page.key),
+        label:
+          componentNameMap.get(page.key) ??
+          PAGE_LABEL_OVERRIDES.get(page.key) ??
+          toTitleCaseFromKey(page.key),
         importPath: page.importPath,
       },
       page.group ? { group: page.group } : {},

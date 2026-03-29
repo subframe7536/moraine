@@ -29,8 +29,8 @@
 - [x] optmize `surface-outline` and `surface-overlay`, unify text size / line height / spacing / border color , border implement style (directly border or box-shadow)
 - [x] GitHub source code link, kobalte link in header
 - [x] docs: in per page, add Import section before examples, add title "Examples" for all examples
-- [ ] add doc guide: icon, slot-based styling, animation
-- [ ] split icon.css
+- [x] add doc guide: icon, slot-based styling, animation
+- [x] split icon.css
 
 # V1
 

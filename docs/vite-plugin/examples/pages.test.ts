@@ -56,7 +56,7 @@ describe('buildExamplePagesModuleCode', () => {
 })
 
 describe('buildExamplePageEntries', () => {
-  test('prefers component names and falls back to title case labels', () => {
+  test('prefers component names, then overrides, then title case labels', () => {
     const pages = buildExamplePageEntries(
       [
         {
@@ -64,6 +64,7 @@ describe('buildExamplePageEntries', () => {
           group: 'form',
           importPath: './pages/form/multi-select/multi-select.md',
         },
+        { key: 'typescript', importPath: './pages/typescript.md' },
         { key: 'style-setup', importPath: './pages/style-setup.md' },
       ],
       new Map([['multi-select', 'MultiSelect']]),
@@ -75,6 +76,11 @@ describe('buildExamplePageEntries', () => {
         group: 'form',
         label: 'MultiSelect',
         importPath: './pages/form/multi-select/multi-select.md',
+      },
+      {
+        key: 'typescript',
+        label: 'TypeScript',
+        importPath: './pages/typescript.md',
       },
       {
         key: 'style-setup',

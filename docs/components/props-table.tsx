@@ -45,13 +45,13 @@ export function PropsTable(props: PropsTableProps): JSX.Element {
 
 function normalizeType(type: string): string {
   let result = type
-  result = result.replace('cls_variant0.', '')
+  result = result.replaceAll('cls_variant0.', '')
   return result
 }
 
 function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
   return (
-    <div class="b-1 b-border rounded-lg overflow-x-auto">
+    <div class="my-6 b-1 b-border rounded-lg overflow-x-auto">
       <table class="text-sm m-0 w-full border-collapse">
         <thead>
           <tr class="text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase">
