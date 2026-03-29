@@ -35,6 +35,7 @@
     "./package.json": "./package.json",
     "./tw4.css": "./dist/tw4.css",
     "./tw3.css": "./dist/tw3.css",
+    "./icon.css": "./dist/icon.css",
     "./unocss": "./dist/unocss.mjs"
   },
   "publishConfig": {

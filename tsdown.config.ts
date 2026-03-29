@@ -5,11 +5,19 @@ import { defineConfig } from 'tsdown'
 import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from 'unocss'
 import solid from 'vite-plugin-solid'
 
-import { presetTheme } from './src/unocss'
+import { DEFAULT_ICON_SHORTCUTS, presetMoraine } from './src/unocss'
 import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax'
+function hasShortcutSuffix(token: string, shortcuts: Iterable<string>): boolean {
+  for (const shortcut of shortcuts) {
+    if (token.endsWith(shortcut)) {
+      return true
+    }
+  }
+  return false
+}
 
 const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
-  const theme = presetTheme()
+  const theme = presetMoraine()
   return {
     filter: { id: ['src/**/*.tsx', 'src/**/*.ts'] },
     config: {
@@ -47,8 +55,8 @@ const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
                 if (e.includes('animate-') || e.includes('keyframes-')) {
                   return false
                 }
-                // Keep shortcuts
-                if ([...shortcuts].some((s) => e.endsWith(s))) {
+                // Keep shortcuts without icon
+                if (hasShortcutSuffix(e, shortcuts) && !e.startsWith('icon-')) {
                   return false
                 }
                 // Delete everything else
@@ -89,6 +97,24 @@ export default defineConfig([
         fileName: 'tw4.css',
         ...baseUnocssConfig(false),
       }),
+      unocss({
+        generateCSS: true,
+        fileName: 'icon.css',
+        filter: { id: /^$/ },
+        config: {
+          configFile: false,
+          presets: [
+            presetIcons({
+              scale: 1.2,
+              collections: {
+                lucide: () => lucideIcons,
+              },
+            }),
+          ],
+          shortcuts: DEFAULT_ICON_SHORTCUTS,
+          safelist: DEFAULT_ICON_SHORTCUTS.map(([name]) => name),
+        },
+      }),
     ],
     exports: {
       customExports(exports) {
@@ -103,6 +129,7 @@ export default defineConfig([
         }
         exports['./tw3.css'] = './dist/tw3.css'
         exports['./tw4.css'] = './dist/tw4.css'
+        exports['./icon.css'] = './dist/icon.css'
         exports['./unocss'] = './dist/unocss.mjs'
         return exports
       },

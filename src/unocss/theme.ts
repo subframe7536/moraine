@@ -49,6 +49,11 @@ export const DEFAULT_ICONS = {
   warning: 'i-lucide-triangle-alert',
 } as const
 
+export const DEFAULT_ICON_SHORTCUTS = Object.entries(DEFAULT_ICONS).map(
+  ([k, v]) =>
+    [`icon-${k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`, v] as [string, string],
+)
+
 export type ComponentLayerStrategy = 'hash' | 'prefix'
 
 export interface ComponentLayerOptions extends Partial<
@@ -275,7 +280,7 @@ export function resolvePresetThemeOptions(
   }
 }
 
-export function presetTheme(options?: PresetThemeOptions): Preset {
+export function presetMoraine(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
 
   const isHash = normalized.strategy === 'hash'
@@ -423,10 +428,7 @@ export function presetTheme(options?: PresetThemeOptions): Preset {
       ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
         ([name, value]) => [name, value] as [string, string],
       ),
-      ...Object.entries(DEFAULT_ICONS).map(
-        ([k, v]) =>
-          [`icon-${k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`, v] as [string, string],
-      ),
+      ...DEFAULT_ICON_SHORTCUTS,
     ],
     rules: [
       [

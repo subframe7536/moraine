@@ -8,7 +8,7 @@ import {
   presetTypography,
 } from 'unocss'
 
-import { presetTheme } from '../src/unocss/theme'
+import { presetMoraine } from '../src/unocss/theme'
 
 const transformer = transformerVariantGroup()
 export default defineConfig<PresetWind4Theme>({
@@ -40,7 +40,7 @@ export default defineConfig<PresetWind4Theme>({
         }
       },
     }),
-    presetTheme({
+    presetMoraine({
       enableComponentLayer: {
         strategy: 'prefix',
         idFilter(id: string) {

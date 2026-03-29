@@ -3,7 +3,7 @@ import MagicString from 'magic-string'
 import { createGenerator, presetIcons, presetWind4 } from 'unocss'
 import { describe, expect, test } from 'vitest'
 
-import { presetTheme, resolvePresetThemeOptions } from './theme'
+import { presetMoraine, resolvePresetThemeOptions } from './theme'
 
 async function applyPreTransformers(
   source: string,
@@ -14,7 +14,7 @@ async function applyPreTransformers(
   const context = {
     uno: generator,
     tokens: new Set<string>(),
-    invalidate() {},
+    invalidate() { },
   }
 
   for (const transformer of generator.config.transformers || []) {
@@ -48,7 +48,7 @@ async function generateComponentLayerCss(
   const generator = await createGenerator({
     presets: [
       presetWind4(),
-      presetTheme({
+      presetMoraine({
         enableComponentLayer: {
           strategy,
           utilityPrefix,
@@ -127,7 +127,7 @@ describe('presetTheme component layer', () => {
 
   test('provides semantic animation utilities via shared enter and exit keyframes', async () => {
     const generator = await createGenerator({
-      presets: [presetWind4(), presetTheme()],
+      presets: [presetWind4(), presetMoraine()],
     })
 
     const { css } = await generator.generate(
@@ -171,7 +171,7 @@ describe('presetTheme component layer', () => {
 
   test('provides split trigger and side animation utilities for overlays', async () => {
     const generator = await createGenerator({
-      presets: [presetWind4(), presetTheme()],
+      presets: [presetWind4(), presetMoraine()],
     })
 
     const { css } = await generator.generate(
@@ -224,7 +224,7 @@ describe('presetTheme component layer', () => {
 
   test('removes carousel inverse utilities while keeping base carousel utilities', async () => {
     const generator = await createGenerator({
-      presets: [presetWind4(), presetTheme()],
+      presets: [presetWind4(), presetMoraine()],
     })
 
     const { css } = await generator.generate(
@@ -255,7 +255,7 @@ describe('presetTheme component layer', () => {
 
   test('uses semantic side classes with expected horizontal direction signs', async () => {
     const generator = await createGenerator({
-      presets: [presetWind4(), presetTheme()],
+      presets: [presetWind4(), presetMoraine()],
     })
 
     const { css } = await generator.generate(
@@ -297,7 +297,7 @@ describe('presetTheme component layer', () => {
             lucide: () => lucideIcons,
           },
         }),
-        presetTheme(),
+        presetMoraine(),
       ],
     })
 
