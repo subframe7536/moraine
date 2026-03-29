@@ -31,6 +31,7 @@
 - [x] docs: in per page, add Import section before examples, add title "Examples" for all examples
 - [x] add doc guide: icon, slot-based styling, animation
 - [x] split icon.css
+- [ ] namespace.variants should be `never` instead of `{}`, handle it in `BaseProps`
 
 # V1
 
