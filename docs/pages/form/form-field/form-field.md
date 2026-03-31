@@ -57,7 +57,5 @@ Use array path names for nested form fields.
 name: NestedPath
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

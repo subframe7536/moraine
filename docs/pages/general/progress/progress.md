@@ -49,7 +49,5 @@ String-array max renders named steps.
 name: StepMode
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

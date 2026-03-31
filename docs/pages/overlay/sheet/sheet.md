@@ -33,7 +33,5 @@ Prevent close on outside interaction and Escape while counting attempts.
 name: DismissControl
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

@@ -12,7 +12,7 @@ vi.mock('./docs-header', () => ({
           (props.apiDoc as { component?: { name?: string } } | undefined)?.component?.name ?? '',
         )}
       </span>
-      <span>{String(props.kobalteHref ?? '')}</span>
+      <span>{String(props.upstreamHref ?? '')}</span>
     </div>
   ),
 }))
@@ -96,7 +96,7 @@ describe('Markdown On This Page', () => {
     const screen = render(() =>
       Markdown({
         componentKey: 'button',
-        kobalteHref: 'https://kobalte.dev/docs/core/components/button',
+        upstreamHref: 'https://kobalte.dev/docs/core/components/button',
         apiDoc: {
           component: {
             key: 'button',

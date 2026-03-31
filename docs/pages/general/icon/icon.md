@@ -33,7 +33,5 @@ Pass a JSX element or render function instead of a string name.
 name: IconAsJSX
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

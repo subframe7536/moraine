@@ -41,7 +41,5 @@ Map checked state to domain values instead of boolean.
 name: CustomTrueFalseValues
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

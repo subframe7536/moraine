@@ -49,7 +49,5 @@ Submit to validate a required attachment with Form + FormField.
 name: FormIntegration
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

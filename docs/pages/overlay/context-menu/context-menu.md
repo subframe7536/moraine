@@ -49,7 +49,5 @@ A denser project card menu with assignee and sprint submenus plus archive/delete
 name: ProjectIssueActions
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

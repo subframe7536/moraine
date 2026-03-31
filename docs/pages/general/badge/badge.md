@@ -41,7 +41,5 @@ Clickable trailing icons support removable tag UIs like Select multi-value chips
 name: DismissibleTags
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

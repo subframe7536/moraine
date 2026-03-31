@@ -65,7 +65,5 @@ Constrained ranges and custom step increments.
 name: MinMaxStep
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

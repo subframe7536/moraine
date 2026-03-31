@@ -10,10 +10,25 @@ import { toKebabCase, toSingleQuoted } from '../core/strings'
 
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
+  DOCS_H_CLASS_BY_LEVEL,
+  DOCS_P_CLASS,
+  DOCS_UL_CLASS,
+  DOCS_OL_CLASS,
+  DOCS_LI_CLASS,
+  DOCS_A_CLASS,
+  DOCS_BLOCKQUOTE_CLASS,
+  DOCS_STRONG_CLASS,
+  DOCS_HR_CLASS,
+  DOCS_INLINE_CODE_CLASS,
+  DOCS_PRE_CLASS,
+  DOCS_CODE_BLOCK_CLASS,
+  DOCS_CODE_BLOCK_INNER_CLASS,
+  DOCS_CODE_PRE_EXTRA_CLASS,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from './const'
 import { parseSegments } from './directives'
+import { parseFrontmatter } from './frontmatter'
 import type { CompileMarkdownOptions, MarkdownHighlightLang, ParsedSegment } from './types'
 
 const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
@@ -145,6 +160,10 @@ function createMarkdown(
 
     token.attrSet('id', slug)
     token.attrJoin('class', MARKDOWN_ANCHOR_HEADING_CLASS)
+    const headingTypoClass = DOCS_H_CLASS_BY_LEVEL[level]
+    if (headingTypoClass) {
+      token.attrJoin('class', headingTypoClass)
+    }
     token.meta = { ...token.meta, anchorSlug: slug }
 
     if (defaultHeadingOpenRule) {
@@ -246,6 +265,71 @@ function createMarkdown(
     return self.renderToken(tokens, idx, options)
   }
 
+  // --- Docs prose shortcut class injection ---
+  // Widget <section> elements (rendered as SolidJS JSX) never go through
+  // this pipeline, so they are automatically excluded from these styles.
+
+  markdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_P_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_UL_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_OL_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_LI_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_A_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.code_inline = (tokens, idx) => {
+    const token = tokens[idx]
+    return `<code class="${DOCS_INLINE_CODE_CLASS}">${markdown.utils.escapeHtml(token.content)}</code>`
+  }
+
+  markdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_BLOCKQUOTE_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.strong_open = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_STRONG_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  markdown.renderer.rules.hr = (tokens, idx, options, env, self) => {
+    tokens[idx].attrJoin('class', DOCS_HR_CLASS)
+    return self.renderToken(tokens, idx, options)
+  }
+
+  const defaultFenceRule = markdown.renderer.rules.fence
+  markdown.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const output = defaultFenceRule
+      ? defaultFenceRule(tokens, idx, options, env, self)
+      : self.renderToken(tokens, idx, options)
+    // Plain fallback: `<pre>` with no attributes.
+    const plainReplaced = output.replace(/^<pre>/, `<pre class="${DOCS_PRE_CLASS}">`)
+    if (plainReplaced !== output) {
+      return plainReplaced
+    }
+    // Shiki output: `<pre class="shiki ...">` — wrap in a styled container so it
+    // gets the same rounded border and font-size as ShikiCodeBlock.
+    const preWithPadding = output.replace(/(<pre\s[^>]*class=")/, `$1${DOCS_CODE_PRE_EXTRA_CLASS} `)
+    return `<div class="${DOCS_CODE_BLOCK_CLASS}"><div class="${DOCS_CODE_BLOCK_INNER_CLASS}">${preWithPadding}</div></div>`
+  }
+
   return markdown
 }
 
@@ -343,13 +427,11 @@ function renderApiDocDescriptions(apiDoc: unknown, markdown: MarkdownIt): unknow
 
 function renderApiReferenceDescriptions(
   model: {
-    showSlots: boolean
-    slots: string[]
-    showSections: boolean
     sections: Array<{
       id: string
       heading: string
       description?: string
+      badges?: string[]
       props: unknown[]
       groups?: Array<{ description: string; props: unknown[] }>
     }>
@@ -539,12 +621,14 @@ function buildSegmentLiterals(
     const codeAlias = `ExampleCode${exampleIndex}`
     exampleIndex += 1
 
+    const sourcePath = segment.source
+
     return {
       code: `{ type: 'example', component: ${componentAlias}, code: ${codeAlias} }`,
       importSpec: {
         componentAlias,
         codeAlias,
-        sourcePath: segment.source,
+        sourcePath,
         exportName: segment.name,
       },
     }
@@ -558,7 +642,10 @@ export function compileMarkdownPage(
 ): string {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
-  const segments = parseSegments(markdownSource, idWithoutQuery)
+  const parsedFrontmatter = parseFrontmatter(markdownSource, idWithoutQuery)
+  const segments = parseSegments(parsedFrontmatter.content, idWithoutQuery, {
+    directiveAliases: options.directiveAliases,
+  })
   const widgetApiDocOverride = extractHeaderApiDocOverride(segments)
   const markdown = createMarkdown(options.highlightCode)
   const hasDocsApiReferenceWidget = segments.some(
@@ -617,7 +704,7 @@ export function compileMarkdownPage(
   const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, markdown)
 
   const shouldExposeComponentKey = Boolean(mergedApiDoc)
-  const kobalteHref = inferKobalteComponentDocsHref(
+  const upstreamHref = inferKobalteComponentDocsHref(
     options.projectRoot,
     tocApiDoc?.component.sourcePath,
   )
@@ -635,9 +722,19 @@ export function compileMarkdownPage(
             id: string
             heading: string
             description?: string
+            badges?: string[]
             props: unknown[]
             groups?: Array<{ description: string; props: unknown[] }>
           }> = []
+
+          if (hasMainSlots) {
+            sections.push({
+              id: 'api-slots',
+              heading: 'Slots',
+              badges: tocApiDoc.slots as string[],
+              props: [],
+            })
+          }
 
           if (hasMainProps) {
             sections.push({
@@ -671,12 +768,7 @@ export function compileMarkdownPage(
             })
           }
 
-          return {
-            showSlots: hasMainSlots,
-            slots: tocApiDoc.slots as string[],
-            showSections: sections.length > 0,
-            sections,
-          }
+          return { sections }
         })()
       : null
   const renderedApiReferenceModel = renderApiReferenceDescriptions(apiReferenceModel, markdown)
@@ -685,25 +777,28 @@ export function compileMarkdownPage(
       onThisPageEntries.push(...segment.onThisPageEntries)
     }
   }
-  if (hasDocsApiReferenceWidget && hasMainApiReference) {
-    if (hasMainSlots) {
-      onThisPageEntries.push({ id: 'api-slots', label: 'Slots', level: 2 })
-    }
-    if (hasMainProps) {
-      onThisPageEntries.push({ id: 'api-props', label: 'Props', level: 2 })
-    }
-    if (hasMainItems) {
-      onThisPageEntries.push({ id: 'api-items', label: 'Items', level: 2 })
-    }
-    if (hasMainInherited) {
-      onThisPageEntries.push({ id: 'api-inherited', label: 'Inherited', level: 2 })
+  onThisPageEntries.push({
+    id: 'api-ref',
+    label: 'API Reference',
+    level: 1,
+  })
+  if (hasDocsApiReferenceWidget && renderedApiReferenceModel) {
+    for (const section of renderedApiReferenceModel.sections) {
+      onThisPageEntries.push({
+        id: section.id,
+        label: section.heading,
+        level: 2,
+      })
     }
   }
   const configFields = [
     shouldExposeComponentKey ? `componentKey: ${JSON.stringify(page.pageKey)}` : '',
+    Object.keys(parsedFrontmatter.data).length > 0
+      ? `frontmatter: ${JSON.stringify(parsedFrontmatter.data)}`
+      : '',
     renderedApiDoc ? `apiDoc: ${JSON.stringify(renderedApiDoc)}` : '',
     renderedApiReferenceModel ? `apiReference: ${JSON.stringify(renderedApiReferenceModel)}` : '',
-    kobalteHref ? `kobalteHref: ${JSON.stringify(kobalteHref)}` : '',
+    upstreamHref ? `upstreamHref: ${JSON.stringify(upstreamHref)}` : '',
     `onThisPageEntries: ${JSON.stringify(onThisPageEntries)}`,
     'segments',
   ].filter(Boolean)

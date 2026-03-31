@@ -1,15 +1,14 @@
 import type { JSX } from 'solid-js'
-import { For, Show } from 'solid-js'
+import { createMemo, For, Show } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
+import { Badge, cn } from '../../src'
 import type { PropDoc } from '../vite-plugin/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
-  DOCS_PROSE_CLASS,
 } from '../vite-plugin/markdown/const'
-
-export const API_HEADING_PROSE_CLASS = DOCS_PROSE_CLASS
 
 export interface PropsTableProps {
   sections: PropsTableSection[]
@@ -29,6 +28,7 @@ export interface PropsTableSection {
   id: string
   heading: string
   description?: string
+  badges?: string[]
   props: PropDoc[]
   groups?: {
     description: string
@@ -37,11 +37,7 @@ export interface PropsTableSection {
 }
 
 export function PropsTable(props: PropsTableProps): JSX.Element {
-  return (
-    <div class="bg-background flex flex-col gap-4">
-      <For each={props.sections}>{(section) => <SectionTableBlock section={section} />}</For>
-    </div>
-  )
+  return <For each={props.sections}>{(section) => <SectionTableBlock section={section} />}</For>
 }
 
 function normalizeType(type: string): string {
@@ -52,7 +48,7 @@ function normalizeType(type: string): string {
 
 function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
   return (
-    <div class="my-6 b-1 b-border rounded-lg overflow-x-auto">
+    <div class="mb-6 mt-4 b-1 b-border rounded-lg overflow-x-auto">
       <table class="text-sm m-0 w-full border-collapse">
         <thead>
           <tr class="text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase">
@@ -105,19 +101,39 @@ function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
   )
 }
 
-function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.Element {
+export function HeadingWithAnchor(props: {
+  id: string
+  children: JSX.Element
+  level?: number
+  class?: string
+}): JSX.Element {
+  const comp = createMemo(() => `h${props.level ?? 3}`)
   return (
-    <div class={API_HEADING_PROSE_CLASS}>
-      <h3 id={sectionProps.section.id} class={MARKDOWN_ANCHOR_HEADING_CLASS}>
+    <Dynamic
+      component={comp()}
+      id={props.id}
+      class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, `docs-${comp()}`, props.class)}
+    >
+      {props.children}
+      <a
+        href={`#${props.id}`}
+        class={MARKDOWN_ANCHOR_LINK_CLASS}
+        aria-label={DOCS_HEADING_ANCHOR_ARIA_LABEL}
+      >
+        #
+      </a>
+    </Dynamic>
+  )
+}
+
+function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.Element {
+  const hasBadges = () => (sectionProps.section.badges?.length ?? 0) > 0
+
+  return (
+    <>
+      <HeadingWithAnchor id={sectionProps.section.id}>
         {sectionProps.section.heading}
-        <a
-          href={`#${sectionProps.section.id}`}
-          class={MARKDOWN_ANCHOR_LINK_CLASS}
-          aria-label={DOCS_HEADING_ANCHOR_ARIA_LABEL}
-        >
-          #
-        </a>
-      </h3>
+      </HeadingWithAnchor>
 
       <Show when={sectionProps.section.description}>
         {(description) => (
@@ -130,22 +146,31 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
       </Show>
 
       <Show
-        when={sectionProps.section.groups?.length}
-        fallback={<PropRows props={sectionProps.section.props} />}
+        when={!hasBadges()}
+        fallback={
+          <div class="mb-6 mt-4 flex flex-wrap gap-2">
+            <For each={sectionProps.section.badges ?? []}>{(badge) => <Badge>{badge}</Badge>}</For>
+          </div>
+        }
       >
-        <For each={sectionProps.section.groups}>
-          {(group) => (
-            <>
-              <div
-                class="text-sm text-muted-foreground"
-                // oxlint-disable-next-line solid/no-innerhtml
-                innerHTML={group.description}
-              />
-              <PropRows props={group.props} />
-            </>
-          )}
-        </For>
+        <Show
+          when={sectionProps.section.groups?.length}
+          fallback={<PropRows props={sectionProps.section.props} />}
+        >
+          <For each={sectionProps.section.groups}>
+            {(group) => (
+              <>
+                <div
+                  class="text-sm text-muted-foreground"
+                  // oxlint-disable-next-line solid/no-innerhtml
+                  innerHTML={group.description}
+                />
+                <PropRows props={group.props} />
+              </>
+            )}
+          </For>
+        </Show>
       </Show>
-    </div>
+    </>
   )
 }

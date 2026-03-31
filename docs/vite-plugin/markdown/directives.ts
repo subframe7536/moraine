@@ -4,6 +4,40 @@ import { toKebabCase, toPosixPath } from '../core/strings'
 
 import type { ParsedSegment } from './types'
 
+interface ParseSegmentsOptions {
+  directiveAliases?: Map<string, string>
+}
+
+function normalizeWidgetPayload(payload: Record<string, unknown>): {
+  markdownText?: string
+  props?: Record<string, unknown>
+} {
+  const nextPayload = { ...payload }
+  const title = typeof nextPayload.title === 'string' ? nextPayload.title.trim() : ''
+  const description =
+    typeof nextPayload.description === 'string' ? nextPayload.description.trim() : ''
+
+  if ('title' in nextPayload) {
+    delete nextPayload.title
+  }
+  if ('description' in nextPayload) {
+    delete nextPayload.description
+  }
+
+  const markdownParts: string[] = []
+  if (title) {
+    markdownParts.push(`## ${title}`)
+  }
+  if (description) {
+    markdownParts.push(description)
+  }
+
+  return {
+    markdownText: markdownParts.length > 0 ? markdownParts.join('\n\n') : undefined,
+    props: Object.keys(nextPayload).length > 0 ? nextPayload : undefined,
+  }
+}
+
 function parseDirectivePayload(
   raw: string,
   id: string,
@@ -24,7 +58,11 @@ function parseDirectivePayload(
   }
 }
 
-export function parseSegments(source: string, id: string): ParsedSegment[] {
+export function parseSegments(
+  source: string,
+  id: string,
+  options: ParseSegmentsOptions = {},
+): ParsedSegment[] {
   const lines = source.split(/\r?\n/g)
   const segments: ParsedSegment[] = []
   const markdownBuffer: string[] = []
@@ -50,6 +88,8 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
       continue
     }
 
+    const normalizedDirectiveName = options.directiveAliases?.get(directiveName) ?? directiveName
+
     flushMarkdown()
 
     const payloadLines: string[] = []
@@ -64,12 +104,16 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
     }
 
     if (!foundEnd) {
-      throw new Error(`[example-markdown] unclosed :::${directiveName} block in ${id}`)
+      throw new Error(`[example-markdown] unclosed :::${normalizedDirectiveName} block in ${id}`)
     }
 
-    const payload = parseDirectivePayload(payloadLines.join('\n'), id, `:::${directiveName}`)
+    const payload = parseDirectivePayload(
+      payloadLines.join('\n'),
+      id,
+      `:::${normalizedDirectiveName}`,
+    )
 
-    if (directiveName === 'example') {
+    if (normalizedDirectiveName === 'example') {
       const name = payload.name
       if (typeof name !== 'string' || !name.trim()) {
         throw new Error(`[example-markdown] :::example requires "name" in ${id}`)
@@ -83,6 +127,9 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
           typeof sourcePath === 'string' && sourcePath.trim()
             ? toPosixPath(sourcePath.trim())
             : `./examples/${toKebabCase(name.trim())}.tsx`,
+        ...(typeof sourcePath === 'string' && sourcePath.trim()
+          ? { explicitSource: true as const }
+          : {}),
       })
       continue
     }
@@ -95,17 +142,24 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
       'toast-hosts',
     ] as const
 
-    if (WIDGET_DIRECTIVES.includes(directiveName as (typeof WIDGET_DIRECTIVES)[number])) {
-      const props = Object.keys(payload).length > 0 ? payload : undefined
+    if (WIDGET_DIRECTIVES.includes(normalizedDirectiveName as (typeof WIDGET_DIRECTIVES)[number])) {
+      const { markdownText, props } = normalizeWidgetPayload(payload)
+
+      if (markdownText) {
+        segments.push({
+          type: 'markdown',
+          text: markdownText,
+        })
+      }
 
       segments.push({
-        type: directiveName as (typeof WIDGET_DIRECTIVES)[number],
+        type: normalizedDirectiveName as (typeof WIDGET_DIRECTIVES)[number],
         ...(props ? { props } : {}),
       })
       continue
     }
 
-    if (directiveName === 'code-tabs') {
+    if (normalizedDirectiveName === 'code-tabs') {
       const packageName = payload.package
       if (typeof packageName !== 'string' || !packageName.trim()) {
         throw new Error(`[example-markdown] :::code-tabs requires "package" in ${id}`)
@@ -118,7 +172,7 @@ export function parseSegments(source: string, id: string): ParsedSegment[] {
       continue
     }
 
-    throw new Error(`[example-markdown] unsupported :::${directiveName} block in ${id}`)
+    throw new Error(`[example-markdown] unsupported :::${normalizedDirectiveName} block in ${id}`)
   }
 
   flushMarkdown()

@@ -49,7 +49,5 @@ Controlled selected values with per-item disabled state.
 name: ControlledDisabledItems
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

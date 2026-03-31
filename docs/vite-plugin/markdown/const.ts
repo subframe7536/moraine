@@ -5,6 +5,26 @@ export const MARKDOWN_ANCHOR_LINK_CLASS =
 // Keep widget heading anchors and markdown-it heading anchors consistent.
 export const DOCS_HEADING_ANCHOR_ARIA_LABEL = 'Link to this section'
 
-// Shared prose styling for both pure markdown and docs widgets.
-export const DOCS_PROSE_CLASS =
-  'max-w-none prose prose-neutral prose-headings:(text-foreground font-semibold mb-2 mt-4) prose-p:(text-muted-foreground leading-6) prose-pre:(b-1 b-border rounded-xl bg-muted) dark:prose-invert'
+// Typography shortcut class names injected by the markdown-it renderer pipeline.
+// Each constant is declared here so UnoCSS content-scanning picks them up.
+export const DOCS_H_CLASS_BY_LEVEL: Readonly<Record<number, string>> = {
+  1: 'docs-h1',
+  2: 'docs-h2',
+  3: 'docs-h3',
+  4: 'docs-h4',
+  5: 'docs-h5',
+}
+export const DOCS_P_CLASS = 'docs-p'
+export const DOCS_UL_CLASS = 'docs-ul'
+export const DOCS_OL_CLASS = 'docs-ol'
+export const DOCS_LI_CLASS = 'docs-li'
+export const DOCS_A_CLASS = 'docs-a'
+export const DOCS_BLOCKQUOTE_CLASS = 'docs-blockquote'
+export const DOCS_STRONG_CLASS = 'docs-strong'
+export const DOCS_HR_CLASS = 'docs-hr'
+export const DOCS_INLINE_CODE_CLASS = 'docs-inline-code'
+export const DOCS_PRE_CLASS = 'docs-pre'
+export const DOCS_CODE_BLOCK_CLASS = 'docs-code-block'
+export const DOCS_CODE_BLOCK_INNER_CLASS = 'docs-code-block-inner'
+// These atomic utilities must live here so UnoCSS content-scanning picks them up.
+export const DOCS_CODE_PRE_EXTRA_CLASS = 'm-0 p-4'

@@ -41,7 +41,5 @@ Limit selections and visible chips.
 name: MaxCountMaxTagCount
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

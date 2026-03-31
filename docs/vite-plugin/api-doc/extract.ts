@@ -177,7 +177,11 @@ function inferModuleFromFileName(fileName: string): string {
       ? trimKobalteDistHashSuffix(componentName)
       : componentName
 
-    if (distRoot === 'dist' && normalizedComponentName && !normalizedComponentName.startsWith('index-')) {
+    if (
+      distRoot === 'dist' &&
+      normalizedComponentName &&
+      !normalizedComponentName.startsWith('index-')
+    ) {
       return `${pkg}/${normalizedComponentName}`
     }
 
@@ -259,10 +263,7 @@ function getLiteralStringText(node: ts.Expression): string | undefined {
   return undefined
 }
 
-function extractSlotNames(
-  node: ts.ModuleDeclaration,
-  checker: ts.TypeChecker,
-): string[] {
+function extractSlotNames(node: ts.ModuleDeclaration, checker: ts.TypeChecker): string[] {
   const body = node.body
   if (!body || !ts.isModuleBlock(body)) {
     return []

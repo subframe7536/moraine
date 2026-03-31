@@ -41,7 +41,5 @@ Review temporary access requests with scoped permissions and required reviewers.
 name: AccessRequestReview
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

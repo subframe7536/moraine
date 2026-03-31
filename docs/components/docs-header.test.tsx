@@ -26,4 +26,3 @@ describe('DocsHeader description html rendering', () => {
     expect(screen.container.querySelector('code')?.textContent).toBe('search')
   })
 })
-

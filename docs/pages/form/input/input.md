@@ -41,7 +41,5 @@ Loading, disabled, and type.
 name: InputStates
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

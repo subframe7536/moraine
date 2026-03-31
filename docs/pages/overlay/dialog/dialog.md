@@ -33,7 +33,5 @@ Scrollable body with prevent-close callback when dismiss is disabled.
 name: ScrollableDismissibleControl
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

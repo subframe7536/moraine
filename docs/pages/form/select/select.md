@@ -73,7 +73,5 @@ Scroll to the bottom to load more options.
 name: InfiniteScroll
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

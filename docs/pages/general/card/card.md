@@ -41,7 +41,5 @@ Custom action area inside the header slot.
 name: HeaderAction
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

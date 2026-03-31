@@ -49,7 +49,5 @@ Submit to validate required minimum value through Form + FormField.
 name: FormIntegration
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

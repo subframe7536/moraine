@@ -1,47 +1,37 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import type { PresetWind4Theme } from 'unocss'
-import {
-  defineConfig,
-  presetIcons,
-  presetWind4,
-  transformerVariantGroup,
-  presetTypography,
-} from 'unocss'
+import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 'unocss'
 
 import { presetMoraine } from '../src/unocss/theme'
 
 const transformer = transformerVariantGroup()
 export default defineConfig<PresetWind4Theme>({
+  shortcuts: {
+    'docs-h1': 'text-3xl text-foreground font-bold mb-3 mt-8',
+    'docs-h2': 'text-2xl text-foreground font-semibold mb-4 mt-8',
+    'docs-h3': 'text-xl text-foreground font-semibold mb-2 mt-4',
+    'docs-h4': 'text-base text-foreground font-semibold mb-1.5 mt-3',
+    'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
+    'docs-p': 'text-muted-foreground leading-6 mb-3',
+    'docs-ul': 'list-disc list-outside pl-5 mb-3 text-muted-foreground',
+    'docs-ol': 'list-decimal list-outside pl-5 mb-3 text-muted-foreground',
+    'docs-li': 'leading-6',
+    'docs-a': 'text-primary underline underline-offset-2 hover:text-primary/80',
+    'docs-blockquote': 'pl-4 border-l-2 border-border text-muted-foreground italic my-4',
+    'docs-strong': 'text-foreground font-semibold',
+    'docs-hr': 'border-t border-border my-6',
+    'docs-inline-code':
+      'mx-[0.1rem] px-[0.25rem] py-0 bg-muted border border-border rounded-[0.4em] text-sm font-mono',
+    'docs-pre': 'b-1 b-border rounded-xl bg-muted overflow-x-auto text-xs my-4',
+    'docs-code-block': 'b-1 b-border rounded-xl overflow-hidden my-4',
+    'docs-code-block-inner': 'text-xs leading-relaxed overflow-x-auto font-mono',
+  },
   presets: [
     presetWind4(),
     presetIcons({
       scale: 1.2,
       collections: {
         lucide: () => lucideIcons,
-      },
-    }),
-    presetTypography({
-      compatibility: {
-        noColonIs: true,
-        noColonNot: true,
-        noColonWhere: true,
-      },
-      cssExtend() {
-        return {
-          ':is(p, h2, h3, li)>code': {
-            'margin-inline': '0.1rem',
-            padding: '0 0.25rem',
-            background: 'var(--muted)',
-            border: '1px solid var(--border)',
-            'border-radius': '0.4em',
-          },
-          'code::before': {
-            content: 'none',
-          },
-          'code::after': {
-            content: 'none',
-          },
-        }
       },
     }),
     presetMoraine({

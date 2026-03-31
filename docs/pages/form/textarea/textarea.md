@@ -41,7 +41,5 @@ Build composer-like surfaces using header/footer slots.
 name: HeaderFooter
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

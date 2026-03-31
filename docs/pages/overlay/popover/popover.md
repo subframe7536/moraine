@@ -33,7 +33,5 @@ Prevent closing on outside interaction and Escape key.
 name: DismissControl
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

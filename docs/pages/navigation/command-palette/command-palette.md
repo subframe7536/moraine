@@ -57,7 +57,5 @@ Items with children drill into a sub-group. Press Backspace or the back button t
 name: SubNavigation
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

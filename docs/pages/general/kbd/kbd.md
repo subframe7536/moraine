@@ -33,7 +33,5 @@ Inline command palette hints.
 name: ShortcutComposition
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

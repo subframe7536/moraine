@@ -33,7 +33,5 @@ Scrollable overlay keeps content in flow while preserving the backdrop.
 name: ScrollableOverlayMode
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

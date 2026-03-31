@@ -41,7 +41,5 @@ Content variations.
 name: TextOnlyVsShortcutsOnly
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

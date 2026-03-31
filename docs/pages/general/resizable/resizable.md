@@ -49,7 +49,5 @@ Clicking handle toggles collapse/expand while dragging divider still resizes. Th
 name: CollapsibleCollapsibleMin
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

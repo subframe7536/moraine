@@ -9,7 +9,7 @@ const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/mai
 interface DocsHeaderProps {
   componentKey?: string
   apiDoc?: ExamplePageApiDoc
-  kobalteHref?: string
+  upstreamHref?: string
   name?: string
   category?: string
   description?: string
@@ -28,17 +28,17 @@ export const DocsHeader = (props: DocsHeaderProps) => {
       <header class="text-foreground">
         <div class="flex flex-wrap gap-2 items-center">
           <Show when={component()?.category || props.category}>
-            <p class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
+            <span class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
               {component()?.category || props.category}
-            </p>
+            </span>
           </Show>
           <Show when={props.componentKey}>
-            <p class="text-xs text-muted-foreground font-mono">{props.componentKey}</p>
+            <span class="text-xs text-muted-foreground font-mono">{props.componentKey}</span>
           </Show>
         </div>
 
         <Show when={pageTitle()}>
-          <p class="text-2xl font-semibold mt-3 capitalize sm:text-3xl">{pageTitle()}</p>
+          <h1 class="text-2xl font-semibold mt-3 capitalize sm:text-3xl">{pageTitle()}</h1>
         </Show>
 
         <Show when={component()?.description || props.description}>
@@ -51,7 +51,7 @@ export const DocsHeader = (props: DocsHeaderProps) => {
           )}
         </Show>
 
-        <Show when={githubSourceHref() || props.kobalteHref}>
+        <Show when={githubSourceHref() || props.upstreamHref}>
           <div class="text-xs mt-3 flex flex-wrap gap-3 items-center">
             <Show when={githubSourceHref()}>
               {(href) => (
@@ -68,7 +68,7 @@ export const DocsHeader = (props: DocsHeaderProps) => {
               )}
             </Show>
 
-            <Show when={props.kobalteHref}>
+            <Show when={props.upstreamHref}>
               {(href) => (
                 <Button
                   as="a"

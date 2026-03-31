@@ -41,7 +41,5 @@ A heavier project menu with move flows, release actions, mixed-content labels, a
 name: ProjectReleaseActions
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

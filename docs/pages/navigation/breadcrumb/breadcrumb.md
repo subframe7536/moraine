@@ -41,7 +41,5 @@ Toggle wrapping behavior for long breadcrumb labels.
 name: Wrapping
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

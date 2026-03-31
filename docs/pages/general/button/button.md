@@ -57,7 +57,5 @@ Anchor rendering support via the polymorphic as prop.
 name: Polymorphic
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

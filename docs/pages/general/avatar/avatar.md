@@ -49,7 +49,5 @@ Use the same Avatar component with items.
 name: MergedGroupMode
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

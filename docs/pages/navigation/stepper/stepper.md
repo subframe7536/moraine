@@ -49,7 +49,5 @@ Render the stepper vertically as a read-only progress indicator.
 name: Vertical
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

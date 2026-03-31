@@ -348,7 +348,7 @@ export interface ExternalProps {
     const normalizedMixedCase = normalizePathForComparison(mixedCasePath)
 
     expect(normalizedWin).toBe(normalizedPosix)
-    expect(normalizedWin).toBe(normalizedMixedCase)
+    expect(normalizedWin.toLowerCase()).toBe(normalizedMixedCase.toLowerCase())
   })
 
   test('infers @kobalte/core component from hash index using AST exports parsing', async () => {

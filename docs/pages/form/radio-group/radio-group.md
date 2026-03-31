@@ -41,7 +41,5 @@ Start/end/hidden indicator styles with card variant.
 name: IndicatorPositions
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

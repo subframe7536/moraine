@@ -11,6 +11,7 @@ export interface ExampleDirectiveSegment {
   type: 'example'
   source: string
   name: string
+  explicitSource?: true
 }
 
 export interface DocsHeaderDirectiveSegment {
@@ -53,7 +54,19 @@ export type ParsedSegment =
   | ToastHostsDirectiveSegment
   | CodeTabsDirectiveSegment
 
-export interface FrontmatterData {}
+export interface FrontmatterExampleRef {
+  name: string
+  file: string
+}
+
+export interface FrontmatterData {
+  category?: string
+  component?: string
+  description?: string
+  keywords?: string[]
+  related?: string[]
+  examples?: FrontmatterExampleRef[]
+}
 
 export interface ParsedFrontmatter {
   data: FrontmatterData
@@ -62,5 +75,6 @@ export interface ParsedFrontmatter {
 
 export interface CompileMarkdownOptions {
   projectRoot?: string
+  directiveAliases?: Map<string, string>
   highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null
 }

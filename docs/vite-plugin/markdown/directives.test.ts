@@ -23,7 +23,8 @@ package: moraine
     expect(parseSegments(source, '/tmp/docs/pages/introduction.md')).toEqual([
       { type: 'markdown', text: 'hello' },
       { type: 'example', name: 'Variants', source: './examples/variants.tsx' },
-      { type: 'intro-cards', props: { title: 'Intro' } },
+      { type: 'markdown', text: '## Intro' },
+      { type: 'intro-cards' },
       { type: 'code-tabs', packageName: 'moraine' },
     ])
   })
@@ -50,5 +51,29 @@ src: demo.mp4
     expect(() => parseSegments(source, '/tmp/docs/pages/introduction.md')).toThrow(
       'unsupported :::video block',
     )
+  })
+
+  test('supports directive aliases registered by the plugin registry', () => {
+    const source = `
+:::header
+title: Button
+:::
+
+:::api-reference
+:::
+`
+
+    expect(
+      parseSegments(source, '/tmp/docs/pages/general/button/button.md', {
+        directiveAliases: new Map([
+          ['header', 'docs-header'],
+          ['api-reference', 'docs-api-reference'],
+        ]),
+      }),
+    ).toEqual([
+      { type: 'markdown', text: '## Button' },
+      { type: 'docs-header' },
+      { type: 'docs-api-reference' },
+    ])
   })
 })

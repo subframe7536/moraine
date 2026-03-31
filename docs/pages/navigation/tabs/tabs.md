@@ -41,7 +41,5 @@ Controlled value with disabled tab options and external navigation controls.
 name: ControlledDisabledItems
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

@@ -13,7 +13,11 @@ export function TriggerOnlyOpen() {
 
   return (
     <div class="max-w-sm">
-      <Select options={FRUIT_OPTIONS} openOnClick="trigger" placeholder="Click trigger icon to open..." />
+      <Select
+        options={FRUIT_OPTIONS}
+        openOnClick="trigger"
+        placeholder="Click trigger icon to open..."
+      />
     </div>
   )
 }

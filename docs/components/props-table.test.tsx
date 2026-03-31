@@ -24,9 +24,7 @@ describe('PropsTable description html rendering', () => {
           {
             id: 'api-inherited',
             heading: 'Inherited',
-            props: [
-              { name: 'placeholder', required: false, type: 'string' },
-            ],
+            props: [{ name: 'placeholder', required: false, type: 'string' }],
             groups: [
               {
                 description: 'From <code>@kobalte/core/button</code>',

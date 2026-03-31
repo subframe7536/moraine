@@ -33,7 +33,5 @@ Inline content and vertical separators in flexible layouts.
 name: WithContentVertical
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

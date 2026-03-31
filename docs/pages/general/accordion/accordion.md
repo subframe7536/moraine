@@ -33,7 +33,5 @@ Mix disabled items with rich JSX content blocks.
 name: DisabledCustomContent
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::

@@ -3,7 +3,7 @@ componentKey: toast
 name: Toast
 category: overlays
 description: A succinct message that is displayed temporarily.
-kobalteHref: https://github.com/subframe7536/solid-toaster
+upstreamHref: https://github.com/subframe7536/solid-toaster
 :::
 
 :::toast-hosts
@@ -51,8 +51,6 @@ Use toast.promise for async lifecycle and route toasts by toasterId.
 :::example
 name: PromiseScopedInstances
 :::
-
-## API Reference
 
 :::docs-api-reference
 :::

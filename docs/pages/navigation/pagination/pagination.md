@@ -41,7 +41,5 @@ Hide prev/next controls and show only page buttons.
 name: Minimal
 :::
 
-## API Reference
-
 :::docs-api-reference
 :::
