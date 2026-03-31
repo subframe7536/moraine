@@ -1,5 +1,6 @@
 import type { ComboboxContextValue } from '@kobalte/core/combobox'
 import { createEffect, createMemo, createSignal, on } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
 import { useId } from '../../../shared/utils'
 import { useFormField } from '../../form-field/form-field-context'
@@ -25,11 +26,6 @@ interface UseSelectFieldProps {
 
 interface UseSelectFieldReturn extends UseFormFieldReturn {
   handleClear: (clearFn: () => void, onClear?: () => void) => void
-}
-
-interface UseSelectMenuControlProps {
-  openOnClick?: 'control' | 'trigger'
-  preventAutoOpen?: boolean
 }
 
 interface UseSelectFilterProps<TOption extends SelectFilterableOption<TRaw>, TRaw> {
@@ -83,13 +79,11 @@ export function useSelectField(props: () => UseSelectFieldProps): UseSelectField
 /**
  * Shared open/close control logic for select-like dropdown menus.
  */
-export function useSelectMenuControl(props: () => UseSelectMenuControlProps) {
+export function useSelectMenuControl(mode: Accessor<'control' | 'trigger'>) {
   const [isDismissing, setIsDismissing] = createSignal(false)
   let closedByInteractOutside = false
 
-  const opensFromControlClick = createMemo(
-    () => !props().preventAutoOpen && props().openOnClick !== 'trigger',
-  )
+  const opensFromControlClick = createMemo(() => mode() !== 'trigger')
 
   function markDismissing() {
     setIsDismissing(true)

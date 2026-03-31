@@ -149,19 +149,26 @@ export namespace MultiSelectT {
     onSearch?: (value: string) => void
     /** Maximum search text length applied on final commit. */
     searchMaxLength?: number
-    /** Filter function or boolean. `false` disables filtering. */
+    /**
+     * Filter function or boolean. `false` disables filtering.
+     * @default true
+     */
     filterOption?:
       | boolean
       | 'startsWith'
       | 'endsWith'
       | 'contains'
       | ((inputValue: string, option: MultiSelectT.Items) => boolean)
-    /** Controls whether clicking the control opens the menu. */
+    /**
+     * Controls whether clicking the control opens the menu.
+     * @default 'control'
+     */
     openOnClick?: 'control' | 'trigger'
-    /** Legacy alias for `openOnClick="trigger"`. */
-    preventAutoOpen?: boolean
 
-    /** Show a clear button when a value is selected. */
+    /**
+     * Show a clear button when a value is selected.
+     * @default false
+     */
     allowClear?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
@@ -186,15 +193,24 @@ export namespace MultiSelectT {
     labelRender?: (option: MultiSelectT.Items) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: string | ((context: EmptyRenderContext) => JSX.Element)
-    /** Placeholder text shown when no value is selected. */
+    /**
+     * Placeholder text shown when no value is selected.
+     * @default ''
+     */
     placeholder?: string
     /** Whether the select is in a loading state. */
     loading?: boolean
-    /** Icon shown during loading state. */
+    /**
+     * Icon shown during loading state.
+     * @default 'icon-loading'
+     */
     loadingIcon?: IconT.Name
     /** Icon shown before the input/value area. */
     leadingIcon?: IconT.Name
-    /** Icon for the dropdown trigger. Default: 'icon-chevron-down'. */
+    /**
+     * Icon for the dropdown trigger.
+     * @default 'icon-chevron-down'
+     */
     triggerIcon?: IconT.Name
     /** Icon shown on the clear button. */
     closeIcon?: IconT.Name
@@ -242,7 +258,7 @@ function escapeRegex(str: string): string {
 export function MultiSelect(props: MultiSelectProps): JSX.Element {
   const merged = mergeProps(SELECT_COMMON_DEFAULT_PROPS, props)
 
-  const [local, rest] = splitProps(merged as MultiSelectProps, MULTI_SELECT_SPLIT_KEYS)
+  const [local, rest] = splitProps(merged, MULTI_SELECT_SPLIT_KEYS)
 
   const field = useSelectField(() => ({
     id: local.id,
@@ -251,10 +267,7 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
     disabled: local.disabled,
     initialValue: local.defaultValue ?? [],
   }))
-  const menuControl = useSelectMenuControl(() => ({
-    openOnClick: local.openOnClick,
-    preventAutoOpen: local.preventAutoOpen,
-  }))
+  const menuControl = useSelectMenuControl(() => local.openOnClick)
 
   // ---- Mode-derived booleans ----
   const isSearchable = () => Boolean(local.search)

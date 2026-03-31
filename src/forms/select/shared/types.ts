@@ -53,7 +53,6 @@ export const SELECT_SPLIT_KEYS = [
   'searchMaxLength',
   'filterOption',
   'openOnClick',
-  'preventAutoOpen',
   'allowClear',
   'onClear',
   'virtualized',

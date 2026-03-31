@@ -77,6 +77,7 @@ export namespace AvatarT {
   export interface Base {
     /**
      * Array of items to render in a group.
+     * @default []
      */
     items?: Items[]
 
