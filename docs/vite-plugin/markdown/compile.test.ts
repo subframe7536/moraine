@@ -292,4 +292,85 @@ Some content.
     expect(code).toContain('"id":"same-heading"')
     expect(code).toContain('"id":"same-heading-2"')
   })
+
+  test('renders api descriptions markdown to html at build time', () => {
+    const markdown = `
+:::docs-header
+apiDocOverride:
+  component:
+    key: custom
+    name: Custom
+    category: Form
+    polymorphic: false
+    description: "Use **bold** and [link](https://example.com)."
+  slots: []
+  props:
+    own:
+      - name: value
+        required: false
+        type: string
+        description: "Inline \`code\` and **strong**."
+    inherited:
+      - from: "\`base-lib\`"
+        props:
+          - name: inherited
+            required: false
+            type: string
+            description: "Inherited *markdown*."
+  items:
+    description: "Item desc with [docs](https://example.com/docs)."
+    props: []
+:::
+
+## API Reference
+
+:::docs-api-reference
+:::
+`
+
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
+    expect(code).toContain('<strong>bold</strong>')
+    expect(code).toContain('<a href=\\"https://example.com\\">link</a>')
+    expect(code).toContain('<code>code</code>')
+    expect(code).toContain('<strong>strong</strong>')
+    expect(code).toContain('From <code>base-lib</code>')
+    expect(code).toContain('<em>markdown</em>')
+    expect(code).toContain('<a href=\\"https://example.com/docs\\">docs</a>')
+  })
+
+  test('uses block markdown rendering for multiline/list api descriptions', () => {
+    const markdown = `
+:::docs-header
+apiDocOverride:
+  component:
+    key: custom
+    name: Custom
+    category: Form
+    polymorphic: false
+  slots: []
+  props:
+    own:
+      - name: notes
+        required: false
+        type: string
+        description: |
+          Summary:
+
+          - first
+          - second
+    inherited: []
+:::
+
+## API Reference
+
+:::docs-api-reference
+:::
+`
+
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
+    expect(code).toContain('<p>Summary:</p>')
+    expect(code).toContain('<ul>')
+    expect(code).toContain('<li>first</li>')
+    expect(code).toContain('<li>second</li>')
+  })
 })

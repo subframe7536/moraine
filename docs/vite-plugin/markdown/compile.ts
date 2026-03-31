@@ -64,7 +64,7 @@ interface TocInheritedGroup {
 }
 
 interface TocApiDocShape {
-  component: { key: string; name: string; sourcePath?: string }
+  component: { key: string; name: string; sourcePath?: string; description?: string }
   slots: unknown[]
   props: { own: unknown[]; inherited: TocInheritedGroup[] }
   items?: unknown
@@ -247,6 +247,130 @@ function createMarkdown(
   }
 
   return markdown
+}
+
+const BLOCK_DESCRIPTION_PATTERN = /```|(^|\n)\s*>|\n\s*\n|(^|\n)\s*(?:[-*+]|\d+\.)\s+/m
+
+function renderDescriptionMarkdown(value: string, markdown: MarkdownIt): string {
+  const text = value.trim()
+  if (!text) {
+    return ''
+  }
+
+  return BLOCK_DESCRIPTION_PATTERN.test(text)
+    ? markdown.render(text).trim()
+    : markdown.renderInline(text)
+}
+
+function asObjectRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+  return value as Record<string, unknown>
+}
+
+function renderDescriptionField<T extends Record<string, unknown>>(
+  input: T,
+  markdown: MarkdownIt,
+): T {
+  if (typeof input.description !== 'string') {
+    return input
+  }
+
+  return {
+    ...input,
+    description: renderDescriptionMarkdown(input.description, markdown),
+  }
+}
+
+function renderPropDescriptions(props: unknown, markdown: MarkdownIt): unknown[] {
+  if (!Array.isArray(props)) {
+    return []
+  }
+
+  return props.map((prop) => {
+    const record = asObjectRecord(prop)
+    return record ? renderDescriptionField(record, markdown) : prop
+  })
+}
+
+function renderItemsDescriptions(items: unknown, markdown: MarkdownIt): unknown {
+  const record = asObjectRecord(items)
+  if (!record) {
+    return items
+  }
+
+  return {
+    ...renderDescriptionField(record, markdown),
+    props: renderPropDescriptions(record.props, markdown),
+  }
+}
+
+function renderApiDocDescriptions(apiDoc: unknown, markdown: MarkdownIt): unknown {
+  const record = asObjectRecord(apiDoc)
+  if (!record) {
+    return apiDoc
+  }
+
+  const component = asObjectRecord(record.component)
+  const props = asObjectRecord(record.props)
+
+  const own = renderPropDescriptions(props?.own, markdown)
+  const inherited = Array.isArray(props?.inherited)
+    ? props!.inherited
+        .map((group) => {
+          const groupRecord = asObjectRecord(group)
+          if (!groupRecord || typeof groupRecord.from !== 'string') {
+            return null
+          }
+          groupRecord.props = renderPropDescriptions(groupRecord.props, markdown)
+          return groupRecord
+        })
+        .filter(Boolean)
+    : []
+
+  return {
+    ...record,
+    component: component ? renderDescriptionField(component, markdown) : record.component,
+    props: {
+      ...props,
+      own,
+      inherited,
+    },
+    items: renderItemsDescriptions(record.items, markdown),
+  }
+}
+
+function renderApiReferenceDescriptions(
+  model: {
+    showSlots: boolean
+    slots: string[]
+    showSections: boolean
+    sections: Array<{
+      id: string
+      heading: string
+      description?: string
+      props: unknown[]
+      groups?: Array<{ description: string; props: unknown[] }>
+    }>
+  } | null,
+  markdown: MarkdownIt,
+) {
+  if (!model) {
+    return model
+  }
+
+  return {
+    ...model,
+    sections: model.sections.map((section) => ({
+      ...renderDescriptionField(section, markdown),
+      props: renderPropDescriptions(section.props, markdown),
+      groups: section.groups?.map((group) => ({
+        ...renderDescriptionField(group, markdown),
+        props: renderPropDescriptions(group.props, markdown),
+      })),
+    })),
+  }
 }
 
 function escapeHtml(value: string): string {
@@ -490,6 +614,7 @@ export function compileMarkdownPage(
       ? mergeConfig(loadedApiDoc, widgetApiDocOverride)
       : (loadedApiDoc ?? widgetApiDocOverride)
   const tocApiDoc = asTocApiDoc(mergedApiDoc)
+  const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, markdown)
 
   const shouldExposeComponentKey = Boolean(mergedApiDoc)
   const kobalteHref = inferKobalteComponentDocsHref(
@@ -554,6 +679,7 @@ export function compileMarkdownPage(
           }
         })()
       : null
+  const renderedApiReferenceModel = renderApiReferenceDescriptions(apiReferenceModel, markdown)
   for (const segment of segmentLiterals) {
     if (segment.onThisPageEntries) {
       onThisPageEntries.push(...segment.onThisPageEntries)
@@ -575,8 +701,8 @@ export function compileMarkdownPage(
   }
   const configFields = [
     shouldExposeComponentKey ? `componentKey: ${JSON.stringify(page.pageKey)}` : '',
-    mergedApiDoc ? `apiDoc: ${JSON.stringify(mergedApiDoc)}` : '',
-    apiReferenceModel ? `apiReference: ${JSON.stringify(apiReferenceModel)}` : '',
+    renderedApiDoc ? `apiDoc: ${JSON.stringify(renderedApiDoc)}` : '',
+    renderedApiReferenceModel ? `apiReference: ${JSON.stringify(renderedApiReferenceModel)}` : '',
     kobalteHref ? `kobalteHref: ${JSON.stringify(kobalteHref)}` : '',
     `onThisPageEntries: ${JSON.stringify(onThisPageEntries)}`,
     'segments',

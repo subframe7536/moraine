@@ -36,8 +36,6 @@ export interface PropsTableSection {
   }[]
 }
 
-const DESCRIPTION_PREFIX = 'From '
-
 export function PropsTable(props: PropsTableProps): JSX.Element {
   return (
     <div class="bg-background flex flex-col gap-4">
@@ -90,7 +88,12 @@ function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
                     when={prop.description}
                     fallback={<span class="text-muted-foreground/80">—</span>}
                   >
-                    {prop.description}
+                    {(description) => (
+                      <div
+                        // oxlint-disable-next-line solid/no-innerhtml
+                        innerHTML={description()}
+                      />
+                    )}
                   </Show>
                 </td>
               </tr>
@@ -117,7 +120,13 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
       </h3>
 
       <Show when={sectionProps.section.description}>
-        {(description) => <p class="text-sm text-muted-foreground">{description()}</p>}
+        {(description) => (
+          <div
+            class="text-sm text-muted-foreground"
+            // oxlint-disable-next-line solid/no-innerhtml
+            innerHTML={description()}
+          />
+        )}
       </Show>
 
       <Show
@@ -127,15 +136,11 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
         <For each={sectionProps.section.groups}>
           {(group) => (
             <>
-              <p class="text-sm text-muted-foreground">
-                <Show
-                  when={group.description.startsWith(DESCRIPTION_PREFIX)}
-                  fallback={group.description}
-                >
-                  {DESCRIPTION_PREFIX}
-                  <code>{group.description.slice(DESCRIPTION_PREFIX.length)}</code>
-                </Show>
-              </p>
+              <div
+                class="text-sm text-muted-foreground"
+                // oxlint-disable-next-line solid/no-innerhtml
+                innerHTML={group.description}
+              />
               <PropRows props={group.props} />
             </>
           )}

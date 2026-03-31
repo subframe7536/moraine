@@ -42,9 +42,13 @@ export const DocsHeader = (props: DocsHeaderProps) => {
         </Show>
 
         <Show when={component()?.description || props.description}>
-          <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
-            {component()?.description || props.description}
-          </p>
+          {(description) => (
+            <div
+              class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base"
+              // oxlint-disable-next-line solid/no-innerhtml
+              innerHTML={description()}
+            />
+          )}
         </Show>
 
         <Show when={githubSourceHref() || props.kobalteHref}>
