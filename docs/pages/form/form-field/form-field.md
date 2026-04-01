@@ -33,6 +33,14 @@ Use `orientation="horizontal"` for form-like row layouts.
 name: HorizontalLayout
 :::
 
+### Sizes
+
+Preview the field typography scale from xs to xl.
+
+:::example
+name: Sizes
+:::
+
 ### Manual Error
 
 Force error state with a custom error message.

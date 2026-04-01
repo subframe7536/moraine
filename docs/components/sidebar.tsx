@@ -111,7 +111,7 @@ export const Sidebar = (props: SidebarProps) => {
                       <button
                         type="button"
                         class={cn(
-                          'text-sm text-muted-foreground px-2.5 py-1.5 text-left rounded-lg',
+                          'text-sm text-muted-foreground px-2.5 py-1.5 text-left rounded-lg hover:cursor-pointer',
                           props.activePage() === page.key
                             ? 'text-foreground bg-accent/80'
                             : 'hover:(text-muted-foreground bg-muted)',
