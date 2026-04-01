@@ -31,7 +31,7 @@ function App() {
   }
 
   return (
-    <div class="h-screen">
+    <div class="h-screen overflow-hidden">
       {/* Mobile layout */}
       <Show when={isMobile()}>
         <div class="flex flex-col h-full">
