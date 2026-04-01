@@ -2,7 +2,7 @@ import { Breadcrumb } from '@src'
 
 export function Sizes() {
   return (
-    <>
+    <div class="flex flex-col gap-4">
       <Breadcrumb
         size="sm"
         items={[
@@ -19,6 +19,6 @@ export function Sizes() {
           { label: 'Danger Zone', href: '#', disabled: true, icon: 'i-lucide:triangle-alert' },
         ]}
       />
-    </>
+    </div>
   )
 }
