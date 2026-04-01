@@ -51,6 +51,7 @@ function App() {
                   setActivePage={navigateAndCloseSidebar}
                   theme={theme}
                   setTheme={updateTheme}
+                  onClose={() => setMobileSidebarOpen(false)}
                 />
               }
             >
