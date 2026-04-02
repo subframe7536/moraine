@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import { buttonVariants } from '../../src/elements/button/button.class'
 import { Switch, cn } from '../../src'
+import { buttonVariants } from '../../src/elements/button/button.class'
 
 export interface ContentHeaderProps {
   pageTitle: Accessor<string>
@@ -13,19 +13,26 @@ export interface ContentHeaderProps {
 
 export function ContentHeader(props: ContentHeaderProps) {
   return (
-    <header class="sticky top-0 z-10 flex items-center justify-between h-12 px-4 backdrop-blur-md bg-background/70 border-b border-border/40">
-      <div class="flex items-center gap-1 min-w-0">
+    <header
+      class={cn(
+        'px-4 bg-background/70 flex h-12 transition-shadow duration-300 items-center top-0 justify-between sticky z-10 backdrop-blur-md sm:px-6',
+        props.scrolled() && 'shadow-sm',
+      )}
+    >
+      <div class="flex gap-1 min-w-0 items-center">
         {props.leading}
         <span
           class={cn(
-            'text-sm font-semibold text-foreground transition-(opacity transform duration-200) truncate',
-            props.scrolled() ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none',
+            'text-sm text-foreground font-semibold truncate transition-([opacity,transform] duration-200) lg:text-lg',
+            props.scrolled()
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 pointer-events-none translate-y-2',
           )}
         >
           {props.pageTitle()}
         </span>
       </div>
-      <div class="flex items-center gap-0.5 shrink-0" aria-label="Page actions">
+      <div class="flex shrink-0 gap-3 items-center" aria-label="Page actions">
         <Switch
           size="sm"
           checked={props.theme() === 'dark'}

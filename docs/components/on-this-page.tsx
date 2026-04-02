@@ -12,7 +12,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
   const { activeId } = useTableOfContents(() => props.entries)
 
   return (
-    <aside class="p-4 shrink-0 max-h-[calc(100vh-4rem)] w-60 hidden self-start top-8 sticky overflow-y-auto xl:block">
+    <aside class="p-4 shrink-0 max-h-[calc(100vh-4rem)] w-60 hidden self-start top-12 sticky overflow-y-auto xl:block">
       <p class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
         On This Page
       </p>
