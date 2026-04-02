@@ -44,39 +44,38 @@ function App() {
       {/* Mobile layout */}
       <Show when={isMobile()}>
         <div class="flex flex-col h-full">
-          <header class="flex items-center h-14 border-b border-border px-4 bg-background shrink-0">
-            <Sheet
-              side="left"
-              open={mobileSidebarOpen()}
-              onOpenChange={setMobileSidebarOpen}
-              close={false}
-              classes={{
-                body: '!p-0 !overflow-hidden',
-              }}
-              body={
-                <Sidebar
-                  pages={pages}
-                  activePage={page}
-                  setActivePage={navigateAndCloseSidebar}
-                  onClose={() => setMobileSidebarOpen(false)}
-                />
-              }
-            >
-              <Button
-                variant="ghost"
-                size="sm"
-                leading="i-lucide-menu"
-                aria-label="Toggle sidebar"
-              />
-            </Sheet>
-            <span class="ms-3 font-semibold text-foreground">Moraine</span>
-          </header>
           <div
-            class="flex-1 min-h-0 overflow-y-auto relative"
+            class="flex-1 min-h-0 overflow-y-auto"
             data-docs-scroll-root="true"
             onScroll={handleContentScroll}
           >
             <ContentHeader
+              leading={
+                <Sheet
+                  side="left"
+                  open={mobileSidebarOpen()}
+                  onOpenChange={setMobileSidebarOpen}
+                  close={false}
+                  classes={{
+                    body: '!p-0 !overflow-hidden',
+                  }}
+                  body={
+                    <Sidebar
+                      pages={pages}
+                      activePage={page}
+                      setActivePage={navigateAndCloseSidebar}
+                      onClose={() => setMobileSidebarOpen(false)}
+                    />
+                  }
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leading="i-lucide-menu"
+                    aria-label="Toggle sidebar"
+                  />
+                </Sheet>
+              }
               pageTitle={pageTitle}
               scrolled={scrolled}
               theme={theme}
@@ -113,7 +112,7 @@ function App() {
             {
               content: (
                 <div
-                  class="h-full overflow-y-auto relative"
+                  class="h-full overflow-y-auto"
                   data-docs-scroll-root="true"
                   onScroll={handleContentScroll}
                 >

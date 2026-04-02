@@ -1,4 +1,4 @@
-import type { Accessor } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import { buttonVariants } from '../../src/elements/button/button.class'
 import { Switch, cn } from '../../src'
@@ -8,20 +8,24 @@ export interface ContentHeaderProps {
   scrolled: Accessor<boolean>
   theme: Accessor<'light' | 'dark'>
   setTheme: (theme: 'light' | 'dark') => void
+  leading?: JSX.Element
 }
 
 export function ContentHeader(props: ContentHeaderProps) {
   return (
     <header class="sticky top-0 z-10 flex items-center justify-between h-12 px-4 backdrop-blur-md bg-background/70 border-b border-border/40">
-      <span
-        class={cn(
-          'text-sm font-semibold text-foreground transition-(opacity transform duration-200)',
-          props.scrolled() ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none',
-        )}
-      >
-        {props.pageTitle()}
-      </span>
-      <div class="flex items-center gap-0.5" aria-label="Page actions">
+      <div class="flex items-center gap-1 min-w-0">
+        {props.leading}
+        <span
+          class={cn(
+            'text-sm font-semibold text-foreground transition-(opacity transform duration-200) truncate',
+            props.scrolled() ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none',
+          )}
+        >
+          {props.pageTitle()}
+        </span>
+      </div>
+      <div class="flex items-center gap-0.5 shrink-0" aria-label="Page actions">
         <Switch
           size="sm"
           checked={props.theme() === 'dark'}

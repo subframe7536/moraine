@@ -7,10 +7,10 @@ import { presetMoraine } from '../src/unocss/theme'
 const transformer = transformerVariantGroup()
 export default defineConfig<PresetWind4Theme>({
   shortcuts: {
-    'docs-h1': 'text-3xl text-foreground font-bold mb-3 mt-8',
-    'docs-h2': 'text-2xl text-foreground font-semibold mb-4 mt-8',
-    'docs-h3': 'text-xl text-foreground font-semibold mb-2 mt-4',
-    'docs-h4': 'text-base text-foreground font-semibold mb-1.5 mt-3',
+    'docs-h1': 'text-2xl sm:text-3xl text-foreground font-bold mb-3 mt-5 sm:mt-8',
+    'docs-h2': 'text-xl sm:text-2xl text-foreground font-semibold mb-3 sm:mb-4 mt-5 sm:mt-8',
+    'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold mb-2 mt-3 sm:mt-4',
+    'docs-h4': 'text-sm sm:text-base text-foreground font-semibold mb-1.5 mt-3',
     'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
     'docs-p': 'text-muted-foreground leading-6 mb-3',
     'docs-ul': 'list-disc list-outside pl-5 mb-3 text-muted-foreground',
