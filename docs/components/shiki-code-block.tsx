@@ -60,7 +60,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
       <Show
         when={props.html}
         fallback={
-          <pre class="text-xs leading-relaxed m-0 p-4 bg-transparent overflow-x-auto">
+          <pre class="text-sm leading-relaxed m-0 p-4 bg-transparent overflow-x-auto">
             <code class="font-mono">{props.children}</code>
           </pre>
         }
@@ -84,7 +84,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
 
             {/* eslint-disable-next-line solid/no-innerhtml -- shiki HTML generated at build time */}
             <div
-              class="text-xs leading-relaxed overflow-x-auto [&_code]:font-mono [&_pre]:(m-0 p-4)"
+              class="text-sm leading-relaxed overflow-x-auto [&_code]:font-mono [&_pre]:(m-0 p-4)"
               // oxlint-disable-next-line solid/no-innerhtml
               innerHTML={html()}
             />

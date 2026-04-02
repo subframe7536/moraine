@@ -8,27 +8,13 @@ import { loadComponentApiDoc } from '../api-doc/load'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
 import { toKebabCase, toSingleQuoted } from '../core/strings'
 
-import {
-  DOCS_HEADING_ANCHOR_ARIA_LABEL,
-  DOCS_H_CLASS_BY_LEVEL,
-  DOCS_P_CLASS,
-  DOCS_UL_CLASS,
-  DOCS_OL_CLASS,
-  DOCS_LI_CLASS,
-  DOCS_A_CLASS,
-  DOCS_BLOCKQUOTE_CLASS,
-  DOCS_STRONG_CLASS,
-  DOCS_HR_CLASS,
-  DOCS_INLINE_CODE_CLASS,
-  DOCS_PRE_CLASS,
-  DOCS_CODE_BLOCK_CLASS,
-  DOCS_CODE_BLOCK_INNER_CLASS,
-  DOCS_CODE_PRE_EXTRA_CLASS,
-  MARKDOWN_ANCHOR_HEADING_CLASS,
-  MARKDOWN_ANCHOR_LINK_CLASS,
-} from './const'
 import { parseSegments } from './directives'
 import { parseFrontmatter } from './frontmatter'
+import {
+  DOCS_HEADING_ANCHOR_ARIA_LABEL,
+  MARKDOWN_ANCHOR_HEADING_CLASS,
+  MARKDOWN_ANCHOR_LINK_CLASS,
+} from './shared'
 import type { CompileMarkdownOptions, MarkdownHighlightLang, ParsedSegment } from './types'
 
 const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
@@ -160,10 +146,7 @@ function createMarkdown(
 
     token.attrSet('id', slug)
     token.attrJoin('class', MARKDOWN_ANCHOR_HEADING_CLASS)
-    const headingTypoClass = DOCS_H_CLASS_BY_LEVEL[level]
-    if (headingTypoClass) {
-      token.attrJoin('class', headingTypoClass)
-    }
+    token.attrJoin('class', `docs-h${level}`)
     token.meta = { ...token.meta, anchorSlug: slug }
 
     if (defaultHeadingOpenRule) {
@@ -270,47 +253,47 @@ function createMarkdown(
   // this pipeline, so they are automatically excluded from these styles.
 
   markdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_P_CLASS)
+    tokens[idx].attrJoin('class', 'docs-p')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_UL_CLASS)
+    tokens[idx].attrJoin('class', 'docs-ul')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_OL_CLASS)
+    tokens[idx].attrJoin('class', 'docs-ol')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_LI_CLASS)
+    tokens[idx].attrJoin('class', 'docs-li')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_A_CLASS)
+    tokens[idx].attrJoin('class', 'docs-a')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.code_inline = (tokens, idx) => {
     const token = tokens[idx]
-    return `<code class="${DOCS_INLINE_CODE_CLASS}">${markdown.utils.escapeHtml(token.content)}</code>`
+    return `<code class="docs-inline-code">${markdown.utils.escapeHtml(token.content)}</code>`
   }
 
   markdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_BLOCKQUOTE_CLASS)
+    tokens[idx].attrJoin('class', 'docs-blockquote')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.strong_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_STRONG_CLASS)
+    tokens[idx].attrJoin('class', 'docs-strong')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.hr = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', DOCS_HR_CLASS)
+    tokens[idx].attrJoin('class', 'docs-hr')
     return self.renderToken(tokens, idx, options)
   }
 
@@ -320,14 +303,14 @@ function createMarkdown(
       ? defaultFenceRule(tokens, idx, options, env, self)
       : self.renderToken(tokens, idx, options)
     // Plain fallback: `<pre>` with no attributes.
-    const plainReplaced = output.replace(/^<pre>/, `<pre class="${DOCS_PRE_CLASS}">`)
+    const plainReplaced = output.replace(/^<pre>/, `<pre class="docs-pre">`)
     if (plainReplaced !== output) {
       return plainReplaced
     }
     // Shiki output: `<pre class="shiki ...">` — wrap in a styled container so it
     // gets the same rounded border and font-size as ShikiCodeBlock.
-    const preWithPadding = output.replace(/(<pre\s[^>]*class=")/, `$1${DOCS_CODE_PRE_EXTRA_CLASS} `)
-    return `<div class="${DOCS_CODE_BLOCK_CLASS}"><div class="${DOCS_CODE_BLOCK_INNER_CLASS}">${preWithPadding}</div></div>`
+    const preWithPadding = output.replace(/(<pre\s[^>]*class=")/, `$1text-sm m-0 p-4 `)
+    return `<div class="docs-code-block"><div class="docs-code-block-inner">${preWithPadding}</div></div>`
   }
 
   return markdown

@@ -6,9 +6,9 @@ import { Badge, cn } from '../../src'
 import type { PropDoc } from '../vite-plugin/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
-  MARKDOWN_ANCHOR_LINK_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
-} from '../vite-plugin/markdown/const'
+  MARKDOWN_ANCHOR_LINK_CLASS,
+} from '../vite-plugin/markdown/shared'
 
 export interface PropsTableProps {
   sections: PropsTableSection[]

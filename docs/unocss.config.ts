@@ -5,27 +5,29 @@ import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 
 import { presetMoraine } from '../src/unocss/theme'
 
 const transformer = transformerVariantGroup()
+const markdownShortCuts = {
+  'docs-h1': 'text-2xl sm:text-3xl text-foreground font-bold mb-3 mt-5 sm:mt-8',
+  'docs-h2': 'text-xl sm:text-2xl text-foreground font-semibold mb-3 sm:mb-4 mt-5 sm:mt-8',
+  'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold mb-2 mt-3 sm:mt-4',
+  'docs-h4': 'text-sm sm:text-base text-foreground font-semibold mb-1.5 mt-3',
+  'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
+  'docs-p': 'text-muted-foreground leading-6 mb-3',
+  'docs-ul': 'list-disc list-outside pl-5 mb-3 text-muted-foreground',
+  'docs-ol': 'list-decimal list-outside pl-5 mb-3 text-muted-foreground',
+  'docs-li': 'leading-6',
+  'docs-a': 'text-primary underline underline-offset-2 hover:text-primary/80',
+  'docs-blockquote': 'pl-4 border-l-2 border-border text-muted-foreground italic my-4',
+  'docs-strong': 'text-foreground font-semibold',
+  'docs-hr': 'border-t border-border my-6',
+  'docs-inline-code':
+    'mx-[0.1rem] px-[0.25rem] py-0 bg-muted border border-border rounded-[0.4em] text-sm font-mono',
+  'docs-pre': 'b-1 b-border rounded-xl bg-muted overflow-x-auto text-xs my-4',
+  'docs-code-block': 'b-1 b-border rounded-xl overflow-hidden my-4',
+  'docs-code-block-inner': 'text-xs leading-relaxed overflow-x-auto font-mono',
+}
 export default defineConfig<PresetWind4Theme>({
-  shortcuts: {
-    'docs-h1': 'text-2xl sm:text-3xl text-foreground font-bold mb-3 mt-5 sm:mt-8',
-    'docs-h2': 'text-xl sm:text-2xl text-foreground font-semibold mb-3 sm:mb-4 mt-5 sm:mt-8',
-    'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold mb-2 mt-3 sm:mt-4',
-    'docs-h4': 'text-sm sm:text-base text-foreground font-semibold mb-1.5 mt-3',
-    'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
-    'docs-p': 'text-muted-foreground leading-6 mb-3',
-    'docs-ul': 'list-disc list-outside pl-5 mb-3 text-muted-foreground',
-    'docs-ol': 'list-decimal list-outside pl-5 mb-3 text-muted-foreground',
-    'docs-li': 'leading-6',
-    'docs-a': 'text-primary underline underline-offset-2 hover:text-primary/80',
-    'docs-blockquote': 'pl-4 border-l-2 border-border text-muted-foreground italic my-4',
-    'docs-strong': 'text-foreground font-semibold',
-    'docs-hr': 'border-t border-border my-6',
-    'docs-inline-code':
-      'mx-[0.1rem] px-[0.25rem] py-0 bg-muted border border-border rounded-[0.4em] text-sm font-mono',
-    'docs-pre': 'b-1 b-border rounded-xl bg-muted overflow-x-auto text-xs my-4',
-    'docs-code-block': 'b-1 b-border rounded-xl overflow-hidden my-4',
-    'docs-code-block-inner': 'text-xs leading-relaxed overflow-x-auto font-mono',
-  },
+  shortcuts: markdownShortCuts,
+  safelist: Object.keys(markdownShortCuts),
   presets: [
     presetWind4(),
     presetIcons({
@@ -60,7 +62,6 @@ export default defineConfig<PresetWind4Theme>({
         './**/*.class.ts',
         '../src/**/*.tsx',
         '../src/**/*.class.ts',
-        './vite-plugin/markdown/const.ts',
         'node_modules/**/*.*',
       ],
     },
