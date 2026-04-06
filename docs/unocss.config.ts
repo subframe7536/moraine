@@ -20,7 +20,7 @@ const markdownShortCuts = {
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border my-6',
   'docs-inline-code':
-    'mx-[0.1rem] px-[0.25rem] py-0 bg-muted border border-border rounded-[0.4em] text-sm font-mono',
+    'mx-[0.1rem] px-[0.25rem] py-0 bg-muted border border-border rounded-[0.4em] text-sm font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
   'docs-pre': 'b-1 b-border rounded-xl bg-muted overflow-x-auto text-xs my-4',
   'docs-code-block': 'b-1 b-border rounded-xl overflow-hidden my-4',
   'docs-code-block-inner': 'text-xs leading-relaxed overflow-x-auto font-mono',
