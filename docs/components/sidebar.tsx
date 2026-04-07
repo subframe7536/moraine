@@ -4,10 +4,19 @@ import { For, Show, createMemo } from 'solid-js'
 import { version } from '../../package.json'
 import { Badge, Button, cn, Input } from '../../src'
 
+type SidebarPageStatus = 'new' | 'update' | 'unreleased'
+
+const SIDEBAR_PAGE_STATUS_LABELS: Record<SidebarPageStatus, string> = {
+  new: 'NEW',
+  update: 'UPDATE',
+  unreleased: 'UNRELEASED',
+}
+
 export interface SidebarPage {
   key: string
   label: string
   group?: string
+  status?: SidebarPageStatus
 }
 
 export interface SidebarProps {
@@ -84,7 +93,16 @@ export const Sidebar = (props: SidebarProps) => {
                       )}
                       onClick={() => props.setActivePage(page.key)}
                     >
-                      {page.label}
+                      <span class="flex gap-2 min-w-0 w-full items-center justify-between">
+                        <span class="truncate">{page.label}</span>
+                        <Show when={page.status}>
+                          {(status) => (
+                            <span class="text-2.4 text-foreground leading-none font-semibold px-1 py-0.5 border border-border rounded-xs bg-background/80 shrink-0 uppercase">
+                              {SIDEBAR_PAGE_STATUS_LABELS[status()]}
+                            </span>
+                          )}
+                        </Show>
+                      </span>
                     </button>
                   )}
                 </For>

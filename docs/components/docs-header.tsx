@@ -1,10 +1,24 @@
 import { Show } from 'solid-js'
 
-import { Button } from '../../src'
+import { Badge, Button } from '../../src'
 
 import type { ExamplePageApiDoc } from './markdown'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
+type DocsHeaderStatus = 'new' | 'update' | 'unreleased'
+
+const DOCS_HEADER_STATUS_LABELS: Record<DocsHeaderStatus, string> = {
+  new: 'NEW',
+  update: 'UPDATE',
+  unreleased: 'UNRELEASED',
+}
+
+const DOCS_HEADER_STATUS_ALIASES = new Map<string, DocsHeaderStatus>([
+  ['new', 'new'],
+  ['update', 'update'],
+  ['unreleased', 'unreleased'],
+  ['unrelease', 'unreleased'],
+])
 
 interface DocsHeaderProps {
   componentKey?: string
@@ -13,11 +27,13 @@ interface DocsHeaderProps {
   name?: string
   category?: string
   description?: string
+  status?: DocsHeaderStatus
 }
 
 export const DocsHeader = (props: DocsHeaderProps) => {
   const component = () => props.apiDoc?.component
   const pageTitle = () => props.name ?? props.componentKey
+  const status = () => DOCS_HEADER_STATUS_ALIASES.get(String(props.status ?? '').toLowerCase())
   const githubSourceHref = () => {
     const sourcePath = component()?.sourcePath
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}` : undefined
@@ -38,7 +54,20 @@ export const DocsHeader = (props: DocsHeaderProps) => {
         </div>
 
         <Show when={pageTitle()}>
-          <div class="text-2xl font-semibold mt-3 capitalize sm:text-3xl">{pageTitle()}</div>
+          <div class="mt-3 flex flex-wrap gap-2.5 items-center">
+            <div class="text-2xl font-semibold capitalize sm:text-3xl">{pageTitle()}</div>
+            <Show when={status()}>
+              {(nextStatus) => (
+                <Badge
+                  size="sm"
+                  variant="outline"
+                  classes={{ root: 'tracking-wide font-semibold' }}
+                >
+                  {DOCS_HEADER_STATUS_LABELS[nextStatus()]}
+                </Badge>
+              )}
+            </Show>
+          </div>
         </Show>
 
         <Show when={component()?.description || props.description}>

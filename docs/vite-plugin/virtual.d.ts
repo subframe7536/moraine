@@ -19,10 +19,13 @@ declare module 'virtual:api-doc' {
 declare module 'virtual:example-pages' {
   import type { Component } from 'solid-js'
 
+  export type ExamplePageStatus = 'new' | 'update' | 'unreleased'
+
   export interface ExamplePageEntry {
     key: string
     group?: string
     label: string
+    status?: ExamplePageStatus
   }
 
   export const exampleMap: Record<string, Component>
