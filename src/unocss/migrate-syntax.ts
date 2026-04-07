@@ -1,4 +1,4 @@
-import type { SourceCodeTransformer } from 'unocss'
+import type { SourceCodeTransformer } from '@unocss/core'
 
 import { runTransform, normalizeId } from './shared'
 
@@ -174,7 +174,7 @@ export function createMigrateSyntaxTransformer(): SourceCodeTransformer {
         const quoteChar = source[start - 1]
         const nextValue = normalizedValue
           .replace(/\\/g, '\\\\')
-          .replaceAll(quoteChar, `\\${quoteChar}`)
+          .replaceAll(quoteChar!, `\\${quoteChar}`)
           .replace(/\$\{/g, '\\\${')
         const originalSlice = source.slice(start, end)
 

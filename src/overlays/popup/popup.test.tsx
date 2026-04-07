@@ -184,9 +184,7 @@ describe('Popup', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-
-      const contentNode = document.body.querySelector('[data-slot="content"]')
-      expect(contentNode?.hasAttribute('data-closed')).toBe(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
   })
 

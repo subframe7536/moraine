@@ -66,7 +66,9 @@ export const Sidebar = (props: SidebarProps) => {
           {(section) => (
             <section>
               <Show when={section.group}>
-                <div class="text-(sm muted-foreground) font-bold mb-1 mt-3 px-2">{section.group}</div>
+                <div class="text-(sm muted-foreground) font-bold mb-1 mt-3 px-2">
+                  {section.group}
+                </div>
               </Show>
 
               <div class="flex flex-col gap-0.5">

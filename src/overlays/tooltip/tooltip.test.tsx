@@ -120,7 +120,7 @@ describe('Tooltip', () => {
   test('uses runtime placement to resolve side-aware animation classes', () => {
     const [version, setVersion] = createSignal(0)
 
-    // oxlint-disable-next-line solid/reactivity
+    // oxlint-disable-next-line subf/solid-reactivity
     render(() => {
       version()
 

@@ -69,7 +69,7 @@ export function Kbd(props: KbdProps): JSX.Element {
   return (
     <Show when={props.value}>
       <Switch>
-        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]} />}</Match>
+        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]!} />}</Match>
         <Match when={props.value!.length > 1}>
           <span
             data-slot={props.slotPrefix ? `${props.slotPrefix}-kbds` : 'kbds'}

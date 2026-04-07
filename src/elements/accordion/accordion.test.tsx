@@ -2,8 +2,9 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Accordion } from './accordion'
+import type { AccordionT } from './accordion'
 
-const BASE_ITEMS = [
+const BASE_ITEMS: [AccordionT.Items, AccordionT.Items, AccordionT.Items] = [
   {
     value: 'one',
     label: 'One',
@@ -13,7 +14,6 @@ const BASE_ITEMS = [
   {
     value: 'two',
     label: 'Two',
-    trailing: 'icon-plus',
     content: <span>Content two</span>,
   },
   {

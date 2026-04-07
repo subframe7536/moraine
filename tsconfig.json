@@ -1,25 +1,15 @@
 {
+  "extends": "@subf/config/tsconfig-lib",
   "compilerOptions": {
-    "target": "ESNext",
+    "baseUrl": ".",
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "baseUrl": ".",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "paths": {
       "@src": ["./src/index.ts"],
       "@src/*": ["./src/*"]
     },
-    "types": ["vite/client", "@testing-library/dom", "@types/node"],
-    "allowJs": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "noEmit": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "types": ["vite/client", "@testing-library/dom", "node"]
   },
   "include": ["src", "test", "docs"],
   "exclude": ["**/dist", "**/node_modules"]

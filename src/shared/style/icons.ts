@@ -48,7 +48,7 @@ export const DEFAULT_ICONS = {
  * Semantic `icon-*` shortcut pairs derived from DEFAULT_ICONS.
  * e.g. `arrowDown` → `['icon-arrow-down', 'i-lucide-arrow-down']`
  */
-export const DEFAULT_ICON_SHORTCUTS = Object.entries(DEFAULT_ICONS).map(
+export const DEFAULT_ICON_SHORTCUTS: [string, string][] = Object.entries(DEFAULT_ICONS).map(
   ([k, v]) =>
     [`icon-${k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`, v] as [string, string],
 )

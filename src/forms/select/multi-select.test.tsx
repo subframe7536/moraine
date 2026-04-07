@@ -41,7 +41,7 @@ describe('MultiSelect', () => {
     render(() => <MultiSelect options={FRUITS} defaultOpen onChange={onChange} />)
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0])
+    await fireEvent.click(items[0]!)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
@@ -60,7 +60,7 @@ describe('MultiSelect', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1])
+    await fireEvent.click(items[1]!)
 
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -428,7 +428,7 @@ describe('MultiSelect', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1])
+    await fireEvent.click(items[1]!)
 
     await waitFor(() => {
       expect(state.fruits).toEqual(['apple', 'banana'])
@@ -455,7 +455,7 @@ describe('MultiSelect', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0])
+    await fireEvent.click(items[0]!)
 
     await waitFor(() => {
       expect(state.fruits).toEqual(['apple'])

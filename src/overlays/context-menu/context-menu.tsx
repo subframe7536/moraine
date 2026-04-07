@@ -186,6 +186,15 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     }
   }
 
+  const openFromPoint = (x: number, y: number): void => {
+    if (local.disabled) {
+      return
+    }
+
+    setAnchorPoint({ x, y })
+    commitOpen(true)
+  }
+
   const clearLongPressTimeout = (): void => {
     if (typeof window === 'undefined') {
       return
@@ -244,15 +253,6 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       document.removeEventListener('contextmenu', onDocumentContextMenuCapture, true)
     })
   })
-
-  const openFromPoint = (x: number, y: number): void => {
-    if (local.disabled) {
-      return
-    }
-
-    setAnchorPoint({ x, y })
-    commitOpen(true)
-  }
 
   const onContextMenu = (event: MouseEvent): void => {
     if (event.defaultPrevented) {

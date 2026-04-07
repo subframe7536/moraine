@@ -223,7 +223,10 @@ describe('Textarea', () => {
       </>
     ))
 
-    const [resizable, maxLimited] = screen.getAllByRole('textbox') as HTMLTextAreaElement[]
+    const [resizable, maxLimited] = screen.getAllByRole('textbox') as [
+      HTMLTextAreaElement,
+      HTMLTextAreaElement,
+    ]
 
     Object.defineProperty(resizable, 'scrollHeight', {
       configurable: true,

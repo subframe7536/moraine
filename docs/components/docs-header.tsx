@@ -45,7 +45,7 @@ export const DocsHeader = (props: DocsHeaderProps) => {
           {(description) => (
             <div
               class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base"
-              // oxlint-disable-next-line solid/no-innerhtml
+              // oxlint-disable-next-line subf/solid-no-innerhtml
               innerHTML={description()}
             />
           )}

@@ -16,8 +16,8 @@ export function CollapsibleCollapsibleMin() {
   const externalPixelSizes = createMemo(() => formatPixelSizes(externalSizes()))
 
   function handleExternalResize(nextSizes: number[]): void {
-    const sidebarSize = nextSizes[0]
-    const contentSize = nextSizes[1]
+    const sidebarSize = nextSizes[0]!
+    const contentSize = nextSizes[1]!
     if (!Number.isFinite(sidebarSize) || !Number.isFinite(contentSize)) {
       return
     }

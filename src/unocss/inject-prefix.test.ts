@@ -55,7 +55,10 @@ describe('transformer-inject-moraine-prefix', () => {
   })
 
   test('prefixes class strings with escaped quotes', async () => {
-    const output = await runTransform(`const view = <div class={'a \\'b\\' c'} />`, 'src/example.tsx')
+    const output = await runTransform(
+      `const view = <div class={'a \\'b\\' c'} />`,
+      'src/example.tsx',
+    )
 
     expect(output).toContain(`class={'${TEST_PREFIX}a ${TEST_PREFIX}\\'b\\' ${TEST_PREFIX}c'}`)
   })

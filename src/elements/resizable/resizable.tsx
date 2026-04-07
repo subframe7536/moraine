@@ -427,7 +427,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
 
     for (let index = 0; index < previousSizes.length; index += 1) {
-      if (Math.abs(previousSizes[index] - nextSizes[index]) > EPSILON) {
+      if (Math.abs(previousSizes[index]! - nextSizes[index]!) > EPSILON) {
         return true
       }
     }

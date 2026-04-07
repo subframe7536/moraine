@@ -324,7 +324,12 @@ function extractItemsAliasPropDocs(
     typeNode.typeArguments &&
     typeNode.typeArguments.length > 0
   ) {
-    const props = extractItemsAliasPropDocs(checker, sourceFile, typeNode.typeArguments[0], visited)
+    const props = extractItemsAliasPropDocs(
+      checker,
+      sourceFile,
+      typeNode.typeArguments[0]!,
+      visited,
+    )
     if (props.length > 0) {
       return props
     }
@@ -511,7 +516,7 @@ function processComponentNode(
     return null
   }
 
-  const propsParam = node.parameters[0]
+  const propsParam = node.parameters[0]!
   if (!propsParam.type) {
     return null
   }
@@ -613,7 +618,7 @@ function replaceTypeReferences(
 }
 
 function cloneTypeNode(typeNode: ts.TypeNode): ts.TypeNode {
-  const nodeFactory = ts.factory as ts.NodeFactory & { cloneNode(node: ts.Node): ts.Node }
+  const nodeFactory = ts.factory as ts.NodeFactory & { cloneNode: (node: ts.Node) => ts.Node }
   return nodeFactory.cloneNode(typeNode) as ts.TypeNode
 }
 
@@ -629,7 +634,7 @@ function preprocessGenericTypeAliases(text: string, fileName: string): string {
       continue
     }
 
-    const typeParam = statement.typeParameters[0]
+    const typeParam = statement.typeParameters[0]!
     if (!typeParam.default) {
       continue
     }
@@ -656,7 +661,7 @@ function preprocessGenericTypeAliases(text: string, fileName: string): string {
       continue
     }
 
-    const typeParam = statement.typeParameters[0]
+    const typeParam = statement.typeParameters[0]!
     if (!typeParam.default) {
       continue
     }
@@ -775,7 +780,7 @@ function preprocessGenericTypeAliases(text: string, fileName: string): string {
   }
 
   const transformed = ts.transform(sourceFile, [transformer])
-  const output = ts.createPrinter().printFile(transformed.transformed[0])
+  const output = ts.createPrinter().printFile(transformed.transformed[0]!)
   transformed.dispose()
 
   return changed ? output : text

@@ -32,7 +32,7 @@ export function SegmentRenderer(props: {
       >
         {(segment) => (
           <div
-            // oxlint-disable-next-line solid/no-innerhtml
+            // oxlint-disable-next-line subf/solid-no-innerhtml
             innerHTML={segment().html}
           />
         )}

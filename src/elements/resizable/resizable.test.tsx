@@ -805,8 +805,8 @@ describe('Resizable', () => {
       const [sizes, setSizes] = createSignal<[number, number]>([320, 680])
 
       function handleResize(nextSizes: number[]): void {
-        const leftSize = nextSizes[0]
-        const rightSize = nextSizes[1]
+        const leftSize = nextSizes[0]!
+        const rightSize = nextSizes[1]!
         if (!Number.isFinite(leftSize) || !Number.isFinite(rightSize)) {
           return
         }
@@ -1096,7 +1096,7 @@ describe('Resizable', () => {
     ))
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const [outerHandle, innerHandle] = Array.from(handles) as HTMLDivElement[]
+    const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
@@ -1138,7 +1138,7 @@ describe('Resizable', () => {
     ))
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const [outerHandle, innerHandle] = Array.from(handles) as HTMLDivElement[]
+    const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
@@ -1172,7 +1172,7 @@ describe('Resizable', () => {
     ))
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const [outerHandle, innerHandle] = Array.from(handles) as HTMLDivElement[]
+    const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
@@ -1303,7 +1303,7 @@ describe('Resizable', () => {
     ))
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const [outerHandle, innerHandle] = Array.from(handles) as HTMLDivElement[]
+    const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
@@ -1343,7 +1343,7 @@ describe('Resizable', () => {
     ))
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const [outerHandle, innerHandle] = Array.from(handles) as HTMLDivElement[]
+    const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 

@@ -125,11 +125,7 @@ const buttonClasses = cva('btn', {
   },
 })
 // Reuse `cn()` under the hood to merge variant classes with other conditionals
-buttonClasses(
-  { color: 'primary', disabled: isDisabled },
-  'other',
-  condition && 'another'
-)
+buttonClasses({ color: 'primary', disabled: isDisabled }, 'other', condition && 'another')
 // => "btn btn-primary btn-disabled other another"
 ```
 

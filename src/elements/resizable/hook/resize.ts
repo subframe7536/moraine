@@ -264,7 +264,7 @@ export function resizeFromHandle(input: {
       deltaPercentage = -deltaPercentage
     }
 
-    const panel = panels[panelIndex]
+    const panel = panels[panelIndex]!
     const panelSize = input.initialSizes[panelIndex] ?? 0
     const minDelta = panel.min - panelSize
     const maxDelta = panel.max - panelSize

@@ -347,8 +347,8 @@ export function Select(props: SelectProps): JSX.Element {
             inputRef = el
           }}
           data-slot="input"
-          style={merged.styles?.input}
           data-readonly={!isSearchable()}
+          style={merged.styles?.input}
           class={selectInputVariants(
             {
               mode: 'single',

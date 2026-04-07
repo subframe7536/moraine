@@ -60,7 +60,7 @@ function getVariableComponentDeclaration(
     return null
   }
 
-  const declaration = statement.declarations[0]
+  const declaration = statement.declarations[0]!
   if (
     declaration.id.type !== 'Identifier' ||
     !declaration.init ||

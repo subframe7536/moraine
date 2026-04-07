@@ -141,7 +141,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
                   'text-sm leading-relaxed bg-muted/70 h-full transition-height duration-300 ease-in-out [scrollbar-width:none] [&_code]:font-mono [&_pre]:(m-0 p-4 min-w-max) [&::-webkit-scrollbar]:hidden',
                   isExpandable() && !isExpanded() ? 'overflow-hidden' : 'overflow-auto',
                 )}
-                // oxlint-disable-next-line solid/no-innerhtml
+                // oxlint-disable-next-line subf/solid-no-innerhtml
                 innerHTML={html()}
               />
 

@@ -227,7 +227,7 @@ function isIgnoredIndex(ignoredSpans: Span[], index: number): boolean {
 
   while (left <= right) {
     const mid = (left + right) >> 1
-    const span = ignoredSpans[mid]
+    const span = ignoredSpans[mid]!
 
     if (index < span.start) {
       right = mid - 1

@@ -1,6 +1,6 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
-import type { PresetWind4Theme } from 'unocss'
-import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 'unocss'
+import type { PresetWind4Theme } from '@subf/unocss'
+import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from '@subf/unocss'
 
 import { presetMoraine } from '../src/unocss/theme'
 

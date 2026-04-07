@@ -1,4 +1,4 @@
-import type { SourceCodeTransformer } from 'unocss'
+import type { SourceCodeTransformer } from '@unocss/core'
 
 import { normalizeId, runTransform } from './shared'
 

@@ -121,7 +121,7 @@ function createMarkdown(
 
   const defaultHeadingOpenRule = markdown.renderer.rules.heading_open
   markdown.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     const inlineToken = tokens[idx + 1]
     const headingText = inlineToken?.type === 'inline' ? inlineToken.content : ''
     const slug = createHeadingSlug(headingText)
@@ -175,7 +175,7 @@ function createMarkdown(
   // (Rounded wrapper, header typography, row borders/hover.)
   const defaultTableOpenRule = markdown.renderer.rules.table_open
   markdown.renderer.rules.table_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     token.attrSet('class', 'text-sm m-0 w-full border-collapse')
 
     const openHtml = defaultTableOpenRule
@@ -218,7 +218,7 @@ function createMarkdown(
 
   const defaultTrOpenRule = markdown.renderer.rules.tr_open
   markdown.renderer.rules.tr_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     const useThead = isInsideThead(tokens, idx)
     token.attrJoin('class', useThead ? DEFAULT_TABLE_THEAD_TR_CLASS : DEFAULT_TABLE_TBODY_TR_CLASS)
 
@@ -230,7 +230,7 @@ function createMarkdown(
 
   const defaultThOpenRule = markdown.renderer.rules.th_open
   markdown.renderer.rules.th_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     token.attrJoin('class', DEFAULT_TABLE_TH_CLASS)
     if (defaultThOpenRule) {
       return defaultThOpenRule(tokens, idx, options, env, self)
@@ -240,7 +240,7 @@ function createMarkdown(
 
   const defaultTdOpenRule = markdown.renderer.rules.td_open
   markdown.renderer.rules.td_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     token.attrJoin('class', DEFAULT_TABLE_TD_CLASS)
     if (defaultTdOpenRule) {
       return defaultTdOpenRule(tokens, idx, options, env, self)
@@ -253,47 +253,47 @@ function createMarkdown(
   // this pipeline, so they are automatically excluded from these styles.
 
   markdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-p')
+    tokens[idx]!.attrJoin('class', 'docs-p')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-ul')
+    tokens[idx]!.attrJoin('class', 'docs-ul')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-ol')
+    tokens[idx]!.attrJoin('class', 'docs-ol')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-li')
+    tokens[idx]!.attrJoin('class', 'docs-li')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-a')
+    tokens[idx]!.attrJoin('class', 'docs-a')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.code_inline = (tokens, idx) => {
-    const token = tokens[idx]
+    const token = tokens[idx]!
     return `<code class="docs-inline-code">${markdown.utils.escapeHtml(token.content)}</code>`
   }
 
   markdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-blockquote')
+    tokens[idx]!.attrJoin('class', 'docs-blockquote')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.strong_open = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-strong')
+    tokens[idx]!.attrJoin('class', 'docs-strong')
     return self.renderToken(tokens, idx, options)
   }
 
   markdown.renderer.rules.hr = (tokens, idx, options, env, self) => {
-    tokens[idx].attrJoin('class', 'docs-hr')
+    tokens[idx]!.attrJoin('class', 'docs-hr')
     return self.renderToken(tokens, idx, options)
   }
 

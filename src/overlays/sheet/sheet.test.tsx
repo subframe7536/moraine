@@ -140,9 +140,7 @@ describe('Sheet', () => {
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-
-      const content = document.body.querySelector('[data-slot="content"]')
-      expect(content?.hasAttribute('data-closed')).toBe(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
   })
 
@@ -232,9 +230,7 @@ describe('Sheet', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-
-      const contentNode = document.body.querySelector('[data-slot="content"]')
-      expect(contentNode?.hasAttribute('data-closed')).toBe(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
   })
 

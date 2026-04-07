@@ -82,7 +82,7 @@ function PropRows(tableProps: { props: PropDoc[] }): JSX.Element {
                   >
                     {(description) => (
                       <div
-                        // oxlint-disable-next-line solid/no-innerhtml
+                        // oxlint-disable-next-line subf/solid-no-innerhtml
                         innerHTML={description()}
                       />
                     )}
@@ -133,7 +133,7 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
         {(description) => (
           <div
             class="text-sm text-muted-foreground"
-            // oxlint-disable-next-line solid/no-innerhtml
+            // oxlint-disable-next-line subf/solid-no-innerhtml
             innerHTML={description()}
           />
         )}
@@ -156,7 +156,7 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
               <>
                 <div
                   class="text-sm text-muted-foreground"
-                  // oxlint-disable-next-line solid/no-innerhtml
+                  // oxlint-disable-next-line subf/solid-no-innerhtml
                   innerHTML={group.description}
                 />
                 <PropRows props={group.props} />

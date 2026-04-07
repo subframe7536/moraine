@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import uno from 'unocss/vite'
+import uno from '@subf/unocss/vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 

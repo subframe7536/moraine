@@ -240,9 +240,7 @@ describe('Popover', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-
-      const contentNode = document.body.querySelector('[data-slot="content"]')
-      expect(contentNode?.hasAttribute('data-closed')).toBe(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
       const trigger = document.body.querySelector('[data-slot="trigger"]')
       expect(trigger?.getAttribute('aria-expanded')).toBe('false')
@@ -263,7 +261,7 @@ describe('Popover', () => {
   test('uses runtime placement to resolve side-aware animation classes', () => {
     const [version, setVersion] = createSignal(0)
 
-    // oxlint-disable-next-line solid/reactivity
+    // oxlint-disable-next-line subf/solid-reactivity
     render(() => {
       version()
 

@@ -49,11 +49,11 @@ export function useId(
 type extendCNFunction = (clz: string) => string
 
 let __fn: extendCNFunction = (s) => s
-export function extendCN(fn: extendCNFunction) {
+export function extendCN(fn: extendCNFunction): void {
   __fn = fn
 }
 
-export function cn(...classes: ClassValueArray) {
+export function cn(...classes: ClassValueArray): string | undefined {
   return __fn(cls(...classes)) || undefined
 }
 

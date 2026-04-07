@@ -463,7 +463,6 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
           touched: true,
           dirty: true,
         })
-        return
     }
   }
 

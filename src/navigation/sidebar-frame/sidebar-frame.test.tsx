@@ -87,7 +87,9 @@ describe('SidebarFrame', () => {
     expect(floatingScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
       'rounded-2xl',
     )
-    expect(floatingScreen.container.querySelector('[data-slot="layout"]')?.className).toContain('p-2')
+    expect(floatingScreen.container.querySelector('[data-slot="layout"]')?.className).toContain(
+      'p-2',
+    )
     expect(insetScreen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
       'rounded-2xl',
     )
@@ -98,7 +100,9 @@ describe('SidebarFrame', () => {
   })
 
   test('handles right side layout order and inset direction', () => {
-    const screen = render(() => <SidebarFrame {...createBaseProps()} side="right" variant="inset" />)
+    const screen = render(() => (
+      <SidebarFrame {...createBaseProps()} side="right" variant="inset" />
+    ))
 
     expect(screen.container.querySelector('[data-slot="layout"]')?.className).toContain(
       'flex-row-reverse',

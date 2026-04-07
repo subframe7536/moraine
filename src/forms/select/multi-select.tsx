@@ -295,6 +295,20 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
 
   // ---- maxCount: track selected values to disable remaining options ----
   const [selectedValueSet, setSelectedValueSet] = createSignal<Set<string>>(new Set())
+  // ---- Value lookup ----
+  const findOptionByValue = createFindOptionByValue(() => allFlatOptions())
+
+  // ---- Value conversion memos ----
+  const multiKobalteValue = createMemo(() => {
+    if (local.value === undefined) {
+      return undefined
+    }
+    const values = local.value
+
+    return values
+      .map((v) => findOptionByValue(v))
+      .filter((o): o is NormalizedOption => o !== undefined)
+  })
 
   // Initialize selection tracking from value (controlled) or defaultValue (uncontrolled)
   createEffect(() => {
@@ -357,21 +371,6 @@ export function MultiSelect(props: MultiSelectProps): JSX.Element {
     filterOption: () => local.filterOption,
     allOptions: allFlatOptions,
     inputValue: currentInputText,
-  })
-
-  // ---- Value lookup ----
-  const findOptionByValue = createFindOptionByValue(() => allFlatOptions())
-
-  // ---- Value conversion memos ----
-  const multiKobalteValue = createMemo(() => {
-    if (local.value === undefined) {
-      return undefined
-    }
-    const values = local.value
-
-    return values
-      .map((v) => findOptionByValue(v))
-      .filter((o): o is NormalizedOption => o !== undefined)
   })
 
   const kobalteDefaultValue = createMemo(() => {

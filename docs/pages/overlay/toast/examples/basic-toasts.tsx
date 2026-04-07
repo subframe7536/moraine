@@ -4,16 +4,16 @@ import { Button } from '@src'
 import { toast } from 'solid-toaster'
 
 export function BasicToasts() {
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms)
+    })
+
   const runLoadingToast = async () => {
     const id = toast.loading('Uploading files...')
     await wait(1200)
     toast.success('Upload complete', { id })
   }
-
-  const wait = (ms: number) =>
-    new Promise<void>((resolve) => {
-      setTimeout(resolve, ms)
-    })
 
   return (
     <div class="flex flex-wrap gap-3 items-center">

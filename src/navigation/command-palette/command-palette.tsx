@@ -416,7 +416,9 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   // ── Current groups: last history entry or root ─────────────────────────────
   const currentGroups = createMemo<CommandPaletteT.Items[]>(() => {
     const hist = history()
-    return hist.length > 0 ? [hist[hist.length - 1]] : (merged.items ?? [])
+    return (
+      hist.length > 0 ? [hist[hist.length - 1]] : (merged.items ?? [])
+    ) as CommandPaletteT.Items[]
   })
 
   const normalizedGroups = createMemo<NormalizedGroup[]>(() =>

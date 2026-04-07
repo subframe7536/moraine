@@ -171,7 +171,7 @@ describe('Select - single mode', () => {
     render(() => <Select options={FRUITS} defaultOpen onChange={onChange} placeholder="Pick" />)
 
     const options = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(options[0])
+    await fireEvent.click(options[0]!)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith('apple')
@@ -189,7 +189,7 @@ describe('Select - single mode', () => {
 
     const items = queryAllBody('[data-slot="item"]')
     const cherryItem = items[2]
-    expect(cherryItem.getAttribute('aria-disabled')).toBe('true')
+    expect(cherryItem?.getAttribute('aria-disabled')).toBe('true')
   })
 
   test('shows loading trigger icon while loading', () => {
@@ -273,7 +273,7 @@ describe('Select - search', () => {
     await waitFor(() => {
       const items = queryAllBody('[data-slot="item"]')
       expect(items.length).toBe(1)
-      expect(items[0].textContent).toContain('Apple')
+      expect(items[0]?.textContent).toContain('Apple')
     })
   })
 
@@ -288,7 +288,7 @@ describe('Select - search', () => {
     await waitFor(() => {
       const items = queryAllBody('[data-slot="item"]')
       expect(items.length).toBe(1)
-      expect(items[0].textContent).toContain('Banana')
+      expect(items[0]?.textContent).toContain('Banana')
     })
   })
 
@@ -358,7 +358,7 @@ describe('Select - clear', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1])
+    await fireEvent.click(items[1]!)
 
     await waitFor(() => {
       expect(state.fruit).toBe('banana')
@@ -385,7 +385,7 @@ describe('Select - clear', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0])
+    await fireEvent.click(items[0]!)
 
     await waitFor(() => {
       expect(state.fruit).toBe('apple')
@@ -407,8 +407,8 @@ describe('Select - groups', () => {
 
     const sectionLabels = queryAllBody('[data-slot="label"]')
     expect(sectionLabels.length).toBe(2)
-    expect(sectionLabels[0].textContent).toBe('Fruits')
-    expect(sectionLabels[1].textContent).toBe('Vegetables')
+    expect(sectionLabels[0]?.textContent).toBe('Fruits')
+    expect(sectionLabels[1]?.textContent).toBe('Vegetables')
   })
 
   test('renders options within groups', () => {
@@ -423,8 +423,8 @@ describe('Select - groups', () => {
 
     const items = queryAllBody('[data-slot="item"]')
     expect(items.length).toBe(4)
-    expect(items[0].getAttribute('aria-posinset')).toBeNull()
-    expect(items[0].getAttribute('aria-setsize')).toBeNull()
+    expect(items[0]?.getAttribute('aria-posinset')).toBeNull()
+    expect(items[0]?.getAttribute('aria-setsize')).toBeNull()
   })
 
   test('renders grouped options with virtualized mode when explicitly enabled', () => {
@@ -435,8 +435,8 @@ describe('Select - groups', () => {
 
     expect(sectionLabels.length).toBe(2)
     expect(items.length).toBe(4)
-    expect(items[0].getAttribute('aria-posinset')).toBe('1')
-    expect(items[0].getAttribute('aria-setsize')).toBe('4')
+    expect(items[0]?.getAttribute('aria-posinset')).toBe('1')
+    expect(items[0]?.getAttribute('aria-setsize')).toBe('4')
   })
 
   test('treats empty children as a normal option', () => {
@@ -703,7 +703,7 @@ describe('Select - form integration', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0])
+    await fireEvent.click(items[0]!)
 
     await waitFor(() => {
       expect(screen.getByText('Select banana')).not.toBeNull()
@@ -791,7 +791,7 @@ describe('Select - enriched emptyRender context', () => {
 
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('false')
-      expect(queryBody('[data-slot="content"]')?.hasAttribute('data-closed')).toBe(true)
+      expect(queryBody('[data-slot="content"]')).toBeNull()
     })
   })
 })

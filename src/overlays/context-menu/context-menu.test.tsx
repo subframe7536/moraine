@@ -221,7 +221,7 @@ describe('ContextMenu', () => {
       screen.getByText('Row Item').closest('[data-slot="trigger"]')?.getAttribute('aria-expanded'),
     ).toBe('false')
     expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
   })
 
   test('dismisses menu when right-clicking trigger again while open', async () => {
@@ -251,7 +251,7 @@ describe('ContextMenu', () => {
     expect(event.defaultPrevented).toBe(true)
     expect(row.closest('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe('false')
     expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {

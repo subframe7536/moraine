@@ -5,8 +5,11 @@ import { Stepper } from './stepper'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
+    // oxlint-disable-next-line class-methods-use-this
     observe() {}
+    // oxlint-disable-next-line class-methods-use-this
     unobserve() {}
+    // oxlint-disable-next-line class-methods-use-this
     disconnect() {}
   }
 }

@@ -1,4 +1,4 @@
-import type { Preset, SourceCodeTransformer } from 'unocss'
+import type { Preset, SourceCodeTransformer } from '@unocss/core'
 
 import {
   getMoraineAnimCounts,
@@ -307,31 +307,31 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       [
         /var-input-([\d.]+)/,
         ([, num], { theme }) => ({
-          '--i-sm': createLength(theme, num),
+          '--i-sm': createLength(theme, num!),
           '--i-lg': createLength(theme, Number(num) + 1),
         }),
       ],
       [
         /var-progress-([\d.]+)/,
         ([, num], { theme }) => ({
-          '--p-size': createLength(theme, num),
+          '--p-size': createLength(theme, num!),
         }),
       ],
       [
         /var-select-([\d.]+)/,
         ([, num], { theme }) => ({
-          '--s-p': createLength(theme, num),
+          '--s-p': createLength(theme, num!),
           '--s-m': createLength(theme, Number(num) + 3.5),
         }),
       ],
       [
         /var-stepper-([\d.]+)-([\d.]+)-([\d.]+)-([\d.]+)/,
         ([, triggerSize, separatorOffset, gap, verticalPt], { theme }) => ({
-          '--st-size': createLength(theme, triggerSize),
-          '--st-sep-x': createLength(theme, separatorOffset),
+          '--st-size': createLength(theme, triggerSize!),
+          '--st-sep-x': createLength(theme, separatorOffset!),
           '--st-sep-top': createLength(theme, Number(triggerSize) + 1),
-          '--st-gap': createLength(theme, gap),
-          '--st-pt': createLength(theme, verticalPt),
+          '--st-gap': createLength(theme, gap!),
+          '--st-pt': createLength(theme, verticalPt!),
         }),
       ],
       [

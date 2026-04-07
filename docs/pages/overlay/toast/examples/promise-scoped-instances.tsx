@@ -6,6 +6,10 @@ import { toast } from 'solid-toaster'
 
 export function PromiseScopedInstances() {
   const [promiseRuns, setPromiseRuns] = createSignal(0)
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms)
+    })
 
   const runPromiseToast = () => {
     const nextRun = promiseRuns() + 1
@@ -19,11 +23,6 @@ export function PromiseScopedInstances() {
       duration: 1e6,
     })
   }
-
-  const wait = (ms: number) =>
-    new Promise<void>((resolve) => {
-      setTimeout(resolve, ms)
-    })
 
   return (
     <div class="flex flex-wrap gap-3 items-center">

@@ -52,7 +52,7 @@ export function normalizeSizeVector(sizes: number[]): number[] {
   let normalizedTotal = 0
 
   for (let index = 0; index < sizeCount; index += 1) {
-    const nextSize = fixToPrecision(normalized[index] / total)
+    const nextSize = fixToPrecision(normalized[index]! / total)
     normalized[index] = nextSize
     normalizedTotal += nextSize
   }

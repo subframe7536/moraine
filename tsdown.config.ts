@@ -90,7 +90,9 @@ export default defineConfig([
     deps: {
       neverBundle: ['@unocss/core', '@unocss/transformer-compile-class', 'tailwindcss'],
     },
-    dts: true,
+    dts: {
+      parallel: true,
+    },
   },
   {
     entry: ['./src/index.ts'],

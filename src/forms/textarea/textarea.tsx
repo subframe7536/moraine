@@ -288,7 +288,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
     on(
       () => merged.value,
       () => {
-        // oxlint-disable-next-line solid/reactivity
+        // oxlint-disable-next-line subf/solid-reactivity
         queueMicrotask(() => {
           autoResize()
         })
