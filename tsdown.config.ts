@@ -1,8 +1,8 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
+import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from '@subf/unocss'
 import type { UnoCSSPluginOptions } from 'rolldown-plugin-unocss'
 import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
-import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from 'unocss'
 import solid from 'vite-plugin-solid'
 
 import { DEFAULT_ICON_SHORTCUTS, presetMoraine } from './src/unocss'

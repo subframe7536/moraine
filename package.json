@@ -84,7 +84,6 @@
     "tailwindcss": "^4.0.0",
     "tsdown": "^0.21.7",
     "typescript": "^5.9.3",
-    "unocss": "^66.6.7",
     "valibot": "^1.3.1",
     "vite": "^8.0.5",
     "vite-plugin-solid": "^2.11.12",
@@ -93,23 +92,20 @@
   },
   "peerDependencies": {
     "@iconify/tailwind": "1.2.0",
+    "@subf/unocss": "^0.2.0",
     "solid-js": "^1.9.12",
-    "tailwindcss": ">=3.0.0",
-    "unocss": "^66.6.6"
+    "tailwindcss": ">=3.0.0"
   },
   "peerDependenciesMeta": {
     "@iconify/tailwind": {
       "optional": true
     },
-    "tailwindcss": {
+    "@subf/unocss": {
       "optional": true
     },
-    "unocss": {
+    "tailwindcss": {
       "optional": true
     }
-  },
-  "overrides": {
-    "@unocss/inspector": "npm:has-flag"
   },
   "inlinedDependencies": {
     "tailwindcss": "4.2.2",

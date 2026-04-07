@@ -1,6 +1,6 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
+import { createGenerator, presetIcons, presetWind4 } from '@subf/unocss'
 import MagicString from 'magic-string'
-import { createGenerator, presetIcons, presetWind4 } from 'unocss'
 import { describe, expect, test } from 'vitest'
 
 import { presetMoraine, resolvePresetThemeOptions } from './theme'

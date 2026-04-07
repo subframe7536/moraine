@@ -19,11 +19,11 @@ bun add moraine solid-js unocss
 
 2. Setup Styles
 
-UnoCSS as example here. TailwindCSS is experimentally supported.
+[`@subf/unocss`](https://github.com/subframe7536/unocss) as example here. You can also use the full `unocss` if desired, or Tailwind CSS with the experimental Moraine plugin.
 
 ```ts
 // unocss.config.ts
-import { defineConfig, presetWind4 } from 'unocss'
+import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
@@ -31,7 +31,7 @@ export default defineConfig({
 })
 ```
 
-3. Now you can import components directly from `moraine`.
+1. Now you can import components directly from `moraine`.
 
 ```tsx
 import { Button, Input } from 'moraine'

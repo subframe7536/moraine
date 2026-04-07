@@ -1,5 +1,5 @@
-import type { PresetWind4Theme } from 'unocss'
-import { presetWind4, transformerVariantGroup, presetIcons, defineConfig } from 'unocss'
+import type { PresetWind4Theme } from '@subf/unocss'
+import { presetWind4, transformerVariantGroup, presetIcons, defineConfig } from '@subf/unocss'
 import { presetFunctionCompletion, presetObjectCompletion } from 'unocss-preset-completion'
 
 import { presetMoraine } from './src/unocss'

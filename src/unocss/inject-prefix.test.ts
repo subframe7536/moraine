@@ -1,5 +1,5 @@
+import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
-import { transformerVariantGroup } from 'unocss'
 import { describe, expect, test } from 'vitest'
 
 import { transformerInjectPrefix, prefixClassList } from './inject-prefix'

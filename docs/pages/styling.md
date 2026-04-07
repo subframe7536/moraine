@@ -6,10 +6,11 @@ Moraine follows the shadcn-style token model. You can reuse existing theme varia
 
 Use either `presetWind3` or `presetWind4`, then add `presetTheme` from Moraine. Built-in component animations are included in `presetTheme`, so no extra animation preset is needed.
 
+[`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS that optimizes for `solid-js` + `oxlint`'s use case. It is recommended for use with Moraine, but the full `unocss` can also be used if desired.
+
 ```tsx
 // unocss.config.ts
-import { defineConfig } from 'unocss'
-import { presetWind3, presetWind4 } from 'unocss'
+import { presetWind3, presetWind4 } from '@subf/unocss'
 import { presetTheme } from 'moraine/unocss'
 
 export default defineConfig({
