@@ -15,7 +15,8 @@ Wrapper trigger with a floating content portal containing text and optional keyb
 trigger
 └── content (portal)
     ├── text (optional)
-    └── kbds (Kbd, optional)
+    └── kbds (optional)
+        └── kbd (×n)
 ```
 
 ## Examples

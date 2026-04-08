@@ -11,7 +11,7 @@ import { CommandPalette } from 'moraine'
 
 Search input and results list with grouped items and optional footer.
 
-Input area:
+### Input area
 
 ```text
 root
@@ -22,22 +22,22 @@ root
     └── close (IconButton, optional)
 ```
 
-Results:
+### Results
 
 ```text
 root
 ├── listbox
-│   └── item (×n)
-│       ├── itemLeading (Icon, optional)
-│       ├── itemWrapper
-│       │   ├── itemLabel (optional)
-│       │   │   ├── itemLabelPrefix (optional)
-│       │   │   ├── itemLabelBase
-│       │   │   └── itemLabelSuffix (optional)
-│       │   └── itemDescription (optional)
-│       └── itemTrailing (Icon or Kbd, optional)
-├── group (×n, optional)
-│   └── label (optional)
+│   ├── item (×n)
+│   │   ├── itemLeading (Icon, optional)
+│   │   ├── itemWrapper
+│   │   │   ├── itemLabel (optional)
+│   │   │   │   ├── itemLabelPrefix (optional)
+│   │   │   │   ├── itemLabelBase
+│   │   │   │   └── itemLabelSuffix (optional)
+│   │   │   └── itemDescription (optional)
+│   │   └── itemTrailing (Icon or Kbd, optional)
+│   └── group (×n, optional)
+│       └── label (optional)
 ├── empty (optional, no matches)
 └── footer (optional)
 ```

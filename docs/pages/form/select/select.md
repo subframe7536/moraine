@@ -11,7 +11,7 @@ import { Select } from 'moraine'
 
 Trigger control and a floating listbox with grouped options.
 
-Control:
+### Control
 
 ```text
 control
@@ -21,7 +21,7 @@ control
 └── trigger (IconButton)
 ```
 
-Listbox:
+### Listbox
 
 ```text
 content (portal)

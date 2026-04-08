@@ -11,7 +11,7 @@ import { FileUpload } from 'moraine'
 
 Upload control and optional file preview list.
 
-Upload area:
+### Upload area
 
 ```text
 root
@@ -22,7 +22,7 @@ root
         └── description (optional)
 ```
 
-File preview list:
+### File preview list
 
 ```text
 root

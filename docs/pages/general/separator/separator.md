@@ -11,14 +11,14 @@ import { Separator } from 'moraine'
 
 Horizontal or vertical rule with an optional content label in the center.
 
-Without content:
+### Without content
 
 ```text
 root
 └── border
 ```
 
-With content:
+### With content
 
 ```text
 root

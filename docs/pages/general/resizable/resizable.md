@@ -13,11 +13,11 @@ Panels separated by interactive dividers with optional handle and intersection t
 
 ```text
 root
-└── panel (×n)
-    └── divider (between panels)
-        ├── cross-target (optional, intersection start)
-        ├── handle (optional)
-        └── cross-target (optional, intersection end)
+├── panel (×n)
+└── divider (between panels)
+    ├── cross-target (optional, intersection start)
+    ├── handle (optional)
+    └── cross-target (optional, intersection end)
 ```
 
 ## Examples

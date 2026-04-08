@@ -11,7 +11,7 @@ import { DropdownMenu } from 'moraine'
 
 Wrapper trigger with a floating menu portal containing grouped items.
 
-Menu:
+### Menu
 
 ```text
 trigger
@@ -22,7 +22,7 @@ trigger
         └── item (×n)
 ```
 
-Item internals:
+### Item internals
 
 ```text
 item

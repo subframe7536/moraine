@@ -11,7 +11,7 @@ import { MultiSelect } from 'moraine'
 
 Tag container with inline input and a floating listbox with grouped options.
 
-Control:
+### Control
 
 ```text
 control
@@ -23,7 +23,7 @@ control
 └── trigger (IconButton)
 ```
 
-Listbox:
+### Listbox
 
 ```text
 content (portal)

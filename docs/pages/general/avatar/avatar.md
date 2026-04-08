@@ -11,7 +11,7 @@ import { Avatar } from 'moraine'
 
 Single avatar with image fallback, or a group of avatars with an overflow counter.
 
-Single avatar:
+### Single avatar
 
 ```text
 root
@@ -21,7 +21,7 @@ root
 └── badge (optional)
 ```
 
-Group avatar:
+### Group avatar
 
 ```text
 group

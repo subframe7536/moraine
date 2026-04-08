@@ -11,23 +11,23 @@ import { InputNumber } from 'moraine'
 
 Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
 
-Horizontal:
+### Horizontal
 
 ```text
 root
-├── (decrement button, optional)
+├── decrement (optional)
 ├── input
-└── (increment button, optional)
+└── increment (optional)
 ```
 
-Vertical:
+### Vertical
 
 ```text
 root
 ├── input
 └── controls
-    ├── (increment button, optional)
-    └── (decrement button, optional)
+    ├── increment (optional)
+    └── decrement (optional)
 ```
 
 ## Examples

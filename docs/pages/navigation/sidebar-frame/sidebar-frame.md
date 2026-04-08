@@ -14,11 +14,12 @@ Root frame containing a sidebar with optional header/footer and a scrollable mai
 
 ```text
 root
-├── sidebar
-│   ├── sidebarHeader (optional)
-│   ├── sidebarBody
-│   └── sidebarFooter (optional)
-└── main
+└── layout
+    ├── sidebar
+    │   ├── sidebarHeader (optional)
+    │   ├── sidebarBody
+    │   └── sidebarFooter (optional)
+    └── main
 ```
 
 ## Examples

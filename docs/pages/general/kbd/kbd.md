@@ -11,13 +11,13 @@ import { Kbd } from 'moraine'
 
 Keyboard shortcut display with different structures for single vs. multiple keys.
 
-Single key:
+### Single key
 
 ```text
 kbd
 ```
 
-Multiple keys:
+### Multiple keys
 
 ```text
 kbds
