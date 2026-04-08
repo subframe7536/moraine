@@ -144,7 +144,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       dismissible: true,
     },
     props,
-  ) as SheetProps
+  )
   const [local, rest] = splitProps(merged, [
     'overlay',
     'transition',

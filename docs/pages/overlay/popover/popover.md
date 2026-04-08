@@ -7,6 +7,16 @@
 import { Popover } from 'moraine'
 ```
 
+## Slot Structure
+
+Wrapper trigger with a floating content portal containing the body.
+
+```text
+trigger
+└── content (portal)
+    └── body
+```
+
 ## Examples
 
 ### Placements

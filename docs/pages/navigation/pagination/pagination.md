@@ -7,6 +7,21 @@
 import { Pagination } from 'moraine'
 ```
 
+## Slot Structure
+
+Page controls with previous, next, and numbered page link buttons.
+
+```text
+root
+└── list
+    ├── item (prev)
+    │   └── prev (Button)
+    ├── item (×n, page links)
+    │   └── link (Button)
+    └── item (next)
+        └── next (Button)
+```
+
 ## Examples
 
 ### Variants

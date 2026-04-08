@@ -7,6 +7,17 @@
 import { Badge } from 'moraine'
 ```
 
+## Slot Structure
+
+Compact label with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon or IconButton, optional)
+```
+
 ## Examples
 
 ### Variants

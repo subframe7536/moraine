@@ -7,6 +7,21 @@
 import { Checkbox } from 'moraine'
 ```
 
+## Slot Structure
+
+Checkbox indicator with optional label and description.
+
+```text
+root
+├── container
+│   ├── input
+│   └── control
+│       └── indicator (optional)
+└── wrapper (optional)
+    ├── label (optional)
+    └── description (optional)
+```
+
 ## Examples
 
 ### Variants

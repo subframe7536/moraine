@@ -7,6 +7,17 @@
 import { Button } from 'moraine'
 ```
 
+## Slot Structure
+
+Trigger element with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon, optional)
+```
+
 ## Examples
 
 ### Variants

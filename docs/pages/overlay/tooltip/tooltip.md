@@ -7,6 +7,18 @@
 import { Tooltip } from 'moraine'
 ```
 
+## Slot Structure
+
+Wrapper trigger with a floating content portal containing text and optional keyboard hints.
+
+```text
+trigger
+└── content (portal)
+    ├── text (optional)
+    └── kbds (optional)
+        └── kbd (×n)
+```
+
 ## Examples
 
 ### Placements

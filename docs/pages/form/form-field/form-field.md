@@ -7,6 +7,22 @@
 import { FormField } from 'moraine'
 ```
 
+## Slot Structure
+
+Label, description, and hint area above a control slot with validation feedback.
+
+```text
+root
+├── wrapper
+│   ├── labelWrapper (optional)
+│   │   ├── label
+│   │   └── hint (optional)
+│   └── description (optional)
+└── {children}
+    ├── help (optional)
+    └── error (optional)
+```
+
 ## Examples
 
 ### Basic

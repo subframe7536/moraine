@@ -7,6 +7,20 @@
 import { Tabs } from 'moraine'
 ```
 
+## Slot Structure
+
+Tab list with triggers and associated content panels.
+
+```text
+root
+├── list
+│   ├── indicator (optional)
+│   └── trigger (×n)
+│       ├── leading (Icon, optional)
+│       └── label (optional)
+└── content (×n)
+```
+
 ## Examples
 
 ### Variants

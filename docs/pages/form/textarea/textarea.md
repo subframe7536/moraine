@@ -7,6 +7,17 @@
 import { Textarea } from 'moraine'
 ```
 
+## Slot Structure
+
+Multi-line text input with optional header and footer slots.
+
+```text
+root
+├── header (optional)
+├── input
+└── footer (optional)
+```
+
 ## Examples
 
 ### Variants

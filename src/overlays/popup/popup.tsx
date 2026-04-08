@@ -82,7 +82,7 @@ export function Popup(props: PopupProps): JSX.Element {
       dismissible: true,
     },
     props,
-  ) as PopupProps
+  )
   const [local, rest] = splitProps(merged, [
     'overlay',
     'scrollable',

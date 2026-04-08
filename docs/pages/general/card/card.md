@@ -7,6 +7,20 @@
 import { Card } from 'moraine'
 ```
 
+## Slot Structure
+
+Structured content container with optional header, body, and footer sections.
+
+```text
+root
+├── header (optional)
+│   ├── title (optional)
+│   ├── description (optional)
+│   └── action (optional)
+├── body (optional)
+└── footer (optional)
+```
+
 ## Examples
 
 ### Default

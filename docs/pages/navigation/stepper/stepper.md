@@ -7,6 +7,23 @@
 import { Stepper } from 'moraine'
 ```
 
+## Slot Structure
+
+Header with step items and optional per-step content panels.
+
+```text
+root
+├── header
+│   └── item (×n)
+│       ├── container
+│       │   ├── trigger
+│       │   └── separator (optional, between items)
+│       └── wrapper (optional)
+│           ├── title (optional)
+│           └── description (optional)
+└── content (×n, optional)
+```
+
 ## Examples
 
 ### Sizes

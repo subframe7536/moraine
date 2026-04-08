@@ -145,7 +145,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     props,
   )
 
-  const [local, rest] = splitProps(merged as CheckboxProps<TTrue, TFalse>, [
+  const [local, rest] = splitProps(merged, [
     ...FORM_ID_NAME_DISABLED_ON_CHANGE_KEYS,
     'checked',
     'defaultChecked',

@@ -108,7 +108,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       size: 'md' as const,
     },
     props,
-  ) as TabsProps
+  )
 
   const [local, rest] = splitProps(merged, [
     'orientation',

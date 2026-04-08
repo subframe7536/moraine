@@ -7,6 +7,16 @@
 import { Collapsible } from 'moraine'
 ```
 
+## Slot Structure
+
+Single expandable section with an optional trigger slot.
+
+```text
+root
+├── trigger (optional)
+└── content
+```
+
 ## Examples
 
 ### Uncontrolled

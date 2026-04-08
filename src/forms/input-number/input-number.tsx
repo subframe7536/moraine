@@ -188,7 +188,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged as InputNumberProps, [
+  const [local, rest] = splitProps(merged, [
     ...FORM_ID_NAME_DISABLED_KEYS,
     'onRawValueChange',
     ...FORM_INPUT_INTERACTION_KEYS,

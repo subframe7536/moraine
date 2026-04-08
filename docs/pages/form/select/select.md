@@ -7,6 +7,34 @@
 import { Select } from 'moraine'
 ```
 
+## Slot Structure
+
+Trigger control and a floating listbox with grouped options.
+
+### Control
+
+```text
+control
+├── leading (Icon, optional)
+├── input
+├── clear (IconButton, optional)
+└── trigger (IconButton)
+```
+
+### Listbox
+
+```text
+content (portal)
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLabel
+│   │   ├── itemDescription (optional)
+│   │   └── itemTrailing (optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+└── empty (optional, no matches)
+```
+
 ## Examples
 
 ### Single Select

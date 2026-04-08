@@ -64,7 +64,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       invert: false,
     },
     props,
-  ) as TooltipProps
+  )
   const [local, rest] = splitProps(merged, [
     'side',
     'invert',

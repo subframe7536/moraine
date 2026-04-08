@@ -8,6 +8,20 @@ status: new
 import { SidebarFrame, SidebarFrameSheetResizableRender } from 'moraine'
 ```
 
+## Slot Structure
+
+Root frame containing a sidebar with optional header/footer and a scrollable main area.
+
+```text
+root
+└── layout
+    ├── sidebar
+    │   ├── sidebarHeader (optional)
+    │   ├── sidebarBody
+    │   └── sidebarFooter (optional)
+    └── main
+```
+
 ## Examples
 
 ### Basic

@@ -7,6 +7,17 @@
 import { CheckboxGroup } from 'moraine'
 ```
 
+## Slot Structure
+
+Fieldset with an optional legend grouping multiple Checkbox items.
+
+```text
+root
+└── fieldset
+    ├── legend (optional)
+    └── root (Checkbox, ×n)
+```
+
 ## Examples
 
 ### Variants

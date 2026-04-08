@@ -78,7 +78,7 @@ export interface CollapsibleProps extends CollapsibleT.Props {}
 
 /** Expandable content section with animated open/close transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [local, rest] = splitProps(props as CollapsibleProps, [
+  const [local, rest] = splitProps(props, [
     'classes',
     'styles',
     'children',

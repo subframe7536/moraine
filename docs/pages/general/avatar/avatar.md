@@ -7,6 +7,32 @@
 import { Avatar } from 'moraine'
 ```
 
+## Slot Structure
+
+Single avatar with image fallback, or a group of avatars with an overflow counter.
+
+### Single avatar
+
+```text
+root
+├── image
+├── fallback
+│   └── fallbackIcon (Icon, optional)
+└── badge (optional)
+```
+
+### Group avatar
+
+```text
+group
+├── groupCount (optional, overflow count)
+└── groupItem (×n)
+    ├── image
+    ├── fallback
+    │   └── fallbackIcon (Icon, optional)
+    └── badge (optional)
+```
+
 ## Examples
 
 ### Single Avatar

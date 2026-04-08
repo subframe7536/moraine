@@ -7,6 +7,29 @@
 import { InputNumber } from 'moraine'
 ```
 
+## Slot Structure
+
+Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
+
+### Horizontal
+
+```text
+root
+├── decrement (optional)
+├── input
+└── increment (optional)
+```
+
+### Vertical
+
+```text
+root
+├── input
+└── controls
+    ├── increment (optional)
+    └── decrement (optional)
+```
+
 ## Examples
 
 ### Variants

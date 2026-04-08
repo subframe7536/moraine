@@ -7,6 +7,23 @@
 import { Kbd } from 'moraine'
 ```
 
+## Slot Structure
+
+Keyboard shortcut display with different structures for single vs. multiple keys.
+
+### Single key
+
+```text
+kbd
+```
+
+### Multiple keys
+
+```text
+kbds
+└── kbd (×n)
+```
+
 ## Examples
 
 ### Variants

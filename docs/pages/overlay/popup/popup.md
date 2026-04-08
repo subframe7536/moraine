@@ -7,6 +7,16 @@
 import { Popup } from 'moraine'
 ```
 
+## Slot Structure
+
+Wrapper trigger with an optional backdrop and a floating content portal.
+
+```text
+trigger
+├── overlay (optional)
+└── content (portal)
+```
+
 ## Examples
 
 ### Default Container

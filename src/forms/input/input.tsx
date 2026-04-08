@@ -161,7 +161,7 @@ export function Input(props: InputProps): JSX.Element {
       loadingIcon: 'icon-loading' as IconT.Name,
     },
     props,
-  ) as InputProps
+  )
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(

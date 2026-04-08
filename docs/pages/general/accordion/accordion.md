@@ -7,6 +7,21 @@
 import { Accordion } from 'moraine'
 ```
 
+## Slot Structure
+
+Stacked item list where each item has a clickable header and collapsible content.
+
+```text
+root
+└── item (×n)
+    ├── header
+    │   └── trigger
+    │       ├── leading (Icon, optional)
+    │       ├── label (optional)
+    │       └── trailing (Icon, optional)
+    └── content (optional)
+```
+
 ## Examples
 
 ### Single

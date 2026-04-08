@@ -7,6 +7,18 @@
 import { Breadcrumb } from 'moraine'
 ```
 
+## Slot Structure
+
+Ordered navigation list with links and separators between items.
+
+```text
+root
+└── list
+    └── item (×n)
+        ├── link
+        └── separator (optional, between items)
+```
+
 ## Examples
 
 ### Default

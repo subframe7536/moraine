@@ -171,7 +171,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
       autoresize: false,
     },
     props,
-  ) as TextareaProps
+  )
 
   const generatedId = useId(() => merged.id, 'textarea')
   const field = useFormField(

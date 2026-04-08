@@ -7,6 +7,26 @@
 import { Separator } from 'moraine'
 ```
 
+## Slot Structure
+
+Horizontal or vertical rule with an optional content label in the center.
+
+### Without content
+
+```text
+root
+└── border
+```
+
+### With content
+
+```text
+root
+├── border
+├── container
+└── border
+```
+
 ## Examples
 
 ### Sizes

@@ -98,7 +98,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       trailing: 'icon-chevron-down' as IconT.Name,
     },
     props,
-  ) as AccordionProps
+  )
 
   const [local, rest] = splitProps(merged, [
     'disabled',

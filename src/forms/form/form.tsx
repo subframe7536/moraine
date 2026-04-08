@@ -293,7 +293,7 @@ async function validateStandardSchema(
 
 /** Form container with schema-based validation and submission handling. */
 export function Form<TState extends object = object>(props: FormProps<TState>): JSX.Element {
-  const [local, rest] = splitProps(props as FormProps<TState>, [
+  const [local, rest] = splitProps(props, [
     'id',
     'state',
     'schema',
