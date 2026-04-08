@@ -41,5 +41,17 @@ Custom action area inside the header slot.
 name: HeaderAction
 :::
 
+## DOM Structure
+
+```
+root
+├── header (optional)
+│   ├── title (optional)
+│   ├── description (optional)
+│   └── action (optional)
+├── body (optional)
+└── footer (optional)
+```
+
 :::docs-api-reference
 :::

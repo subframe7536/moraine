@@ -49,5 +49,23 @@ Submit to validate a required attachment with Form + FormField.
 name: FormIntegration
 :::
 
+## DOM Structure
+
+```
+root
+├── control (dropzone or trigger button)
+│   └── wrapper
+│       ├── icon (Icon)
+│       ├── label (optional)
+│       └── description (optional)
+└── files (optional, preview list)
+    └── file (×n)
+        ├── filePreview
+        ├── fileMeta
+        │   ├── fileName
+        │   └── fileSize
+        └── fileRemove
+```
+
 :::docs-api-reference
 :::

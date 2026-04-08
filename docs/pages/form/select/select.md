@@ -73,5 +73,27 @@ Scroll to the bottom to load more options.
 name: InfiniteScroll
 :::
 
+## DOM Structure
+
+```
+control
+├── leading (Icon, optional)
+├── input
+├── clear (IconButton, optional)
+└── trigger (IconButton)
+```
+
+```
+content (portal)
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLabel
+│   │   ├── itemDescription (optional)
+│   │   └── itemTrailing (optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+└── empty (optional, no matches)
+```
+
 :::docs-api-reference
 :::

@@ -33,5 +33,11 @@ Pass a JSX element or render function instead of a string name.
 name: IconAsJSX
 :::
 
+## DOM Structure
+
+```
+icon
+```
+
 :::docs-api-reference
 :::

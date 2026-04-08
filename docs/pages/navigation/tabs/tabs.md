@@ -41,5 +41,17 @@ Controlled value with disabled tab options and external navigation controls.
 name: ControlledDisabledItems
 :::
 
+## DOM Structure
+
+```
+root
+├── list
+│   ├── indicator (optional)
+│   └── trigger (×n)
+│       ├── leading (Icon, optional)
+│       └── label (optional)
+└── content (×n)
+```
+
 :::docs-api-reference
 :::

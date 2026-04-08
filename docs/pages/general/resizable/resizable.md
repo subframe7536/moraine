@@ -49,5 +49,16 @@ Clicking handle toggles collapse/expand while dragging divider still resizes. Th
 name: CollapsibleCollapsibleMin
 :::
 
+## DOM Structure
+
+```
+root
+└── panel (×n)
+    └── divider (between panels)
+        ├── cross-target (optional, intersection start)
+        ├── handle (optional)
+        └── cross-target (optional, intersection end)
+```
+
 :::docs-api-reference
 :::

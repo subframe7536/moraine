@@ -41,5 +41,14 @@ Clickable trailing icons support removable tag UIs like Select multi-value chips
 name: DismissibleTags
 :::
 
+## DOM Structure
+
+```
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon or IconButton, optional)
+```
+
 :::docs-api-reference
 :::

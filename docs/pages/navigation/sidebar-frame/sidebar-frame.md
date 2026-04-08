@@ -58,5 +58,16 @@ Use optional `renderSidebarHeader` and `renderSidebarFooter` while keeping body 
 name: HeaderFooterSlots
 :::
 
+## DOM Structure
+
+```
+root
+├── sidebar
+│   ├── sidebarHeader (optional)
+│   ├── sidebarBody
+│   └── sidebarFooter (optional)
+└── main
+```
+
 :::docs-api-reference
 :::

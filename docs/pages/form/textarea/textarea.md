@@ -41,5 +41,14 @@ Build composer-like surfaces using header/footer slots.
 name: HeaderFooter
 :::
 
+## DOM Structure
+
+```
+root
+├── header (optional)
+├── input
+└── footer (optional)
+```
+
 :::docs-api-reference
 :::

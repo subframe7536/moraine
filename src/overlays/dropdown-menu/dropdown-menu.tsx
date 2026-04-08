@@ -130,7 +130,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       submenuIcon: 'icon-chevron-right' as IconT.Name,
     },
     props,
-  ) as DropdownMenuProps
+  )
   const [local, rest] = splitProps(merged, [
     'size',
     'disabled',

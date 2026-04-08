@@ -145,7 +145,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged as FormFieldProps, [
+  const [local, rest] = splitProps(merged, [
     'as',
     'id',
     'name',

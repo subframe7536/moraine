@@ -41,5 +41,14 @@ Loading, disabled, and type.
 name: InputStates
 :::
 
+## DOM Structure
+
+```
+root
+├── leading (optional)
+├── input
+└── trailing (optional)
+```
+
 :::docs-api-reference
 :::

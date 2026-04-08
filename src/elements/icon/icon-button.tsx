@@ -65,7 +65,7 @@ export interface IconButtonProps extends IconButtonT.Props {}
  * Button with icon, without padding
  */
 export function IconButton(props: IconButtonProps): JSX.Element {
-  const [local, rest] = splitProps(props as IconButtonProps, [
+  const [local, rest] = splitProps(props, [
     'classes',
     'styles',
     'name',

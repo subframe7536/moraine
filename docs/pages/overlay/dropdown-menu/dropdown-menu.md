@@ -41,5 +41,24 @@ A heavier project menu with move flows, release actions, mixed-content labels, a
 name: ProjectReleaseActions
 :::
 
+## DOM Structure
+
+```
+trigger
+└── content (portal)
+    └── group (×n)
+        ├── label (optional)
+        ├── separator (optional)
+        └── item (×n)
+            ├── itemLeading (optional)
+            ├── itemWrapper
+            │   ├── itemLabel (optional)
+            │   └── itemDescription (optional)
+            └── itemTrailing
+                └── itemIndicator (optional, checkbox items)
+```
+
+Submenu items additionally render a nested `content` portal with the same structure.
+
 :::docs-api-reference
 :::

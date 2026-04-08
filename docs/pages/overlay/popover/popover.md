@@ -33,5 +33,13 @@ Prevent closing on outside interaction and Escape key.
 name: DismissControl
 :::
 
+## DOM Structure
+
+```
+trigger
+└── content (portal)
+    └── body
+```
+
 :::docs-api-reference
 :::

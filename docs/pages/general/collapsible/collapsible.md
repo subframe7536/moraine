@@ -41,5 +41,13 @@ Use compact trigger UI for dense list and settings surfaces.
 name: CompactTriggerComposition
 :::
 
+## DOM Structure
+
+```
+root
+├── trigger (optional)
+└── content
+```
+
 :::docs-api-reference
 :::

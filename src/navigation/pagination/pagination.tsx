@@ -198,7 +198,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       defaultPage: 1,
     },
     props,
-  ) as PaginationProps
+  )
 
   const [local, rest] = splitProps(merged, [
     'size',

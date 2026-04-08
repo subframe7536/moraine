@@ -65,5 +65,19 @@ Use array path names for nested form fields.
 name: NestedPath
 :::
 
+## DOM Structure
+
+```
+root
+├── wrapper
+│   ├── labelWrapper (optional)
+│   │   ├── label
+│   │   └── hint (optional)
+│   └── description (optional)
+└── {children}
+    ├── help (optional)
+    └── error (optional)
+```
+
 :::docs-api-reference
 :::

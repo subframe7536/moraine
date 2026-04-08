@@ -90,7 +90,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       dismissible: true,
     },
     props,
-  ) as PopoverProps
+  )
   const [local, rest] = splitProps(merged, [
     'mode',
     'placement',

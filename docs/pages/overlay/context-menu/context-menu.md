@@ -49,5 +49,24 @@ A denser project card menu with assignee and sprint submenus plus archive/delete
 name: ProjectIssueActions
 :::
 
+## DOM Structure
+
+```
+trigger
+└── content (portal)
+    └── group (×n)
+        ├── label (optional)
+        ├── separator (optional)
+        └── item (×n)
+            ├── itemLeading (optional)
+            ├── itemWrapper
+            │   ├── itemLabel (optional)
+            │   └── itemDescription (optional)
+            └── itemTrailing
+                └── itemIndicator (optional, checkbox items)
+```
+
+Submenu items additionally render a nested `content` portal with the same structure.
+
 :::docs-api-reference
 :::

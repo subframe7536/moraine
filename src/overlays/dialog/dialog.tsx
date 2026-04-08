@@ -161,7 +161,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       dismissible: true,
     },
     props,
-  ) as DialogProps
+  )
   const [local, rest] = splitProps(merged, [
     'overlay',
     'scrollable',

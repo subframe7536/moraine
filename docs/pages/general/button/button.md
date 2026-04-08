@@ -57,5 +57,14 @@ Anchor rendering support via the polymorphic as prop.
 name: Polymorphic
 :::
 
+## DOM Structure
+
+```
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon, optional)
+```
+
 :::docs-api-reference
 :::

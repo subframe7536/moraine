@@ -33,5 +33,20 @@ Inline command palette hints.
 name: ShortcutComposition
 :::
 
+## DOM Structure
+
+Single key:
+
+```
+kbd
+```
+
+Multiple keys:
+
+```
+kbds
+└── kbd (×n)
+```
+
 :::docs-api-reference
 :::

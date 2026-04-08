@@ -145,7 +145,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       placement: 'right-start' as const,
     },
     props,
-  ) as ContextMenuProps
+  )
   const [local, rest] = splitProps(merged, [
     'size',
     'disabled',

@@ -33,5 +33,23 @@ Inline content and vertical separators in flexible layouts.
 name: WithContentVertical
 :::
 
+## DOM Structure
+
+Without content:
+
+```
+root
+└── border
+```
+
+With content:
+
+```
+root
+├── border
+├── container
+└── border
+```
+
 :::docs-api-reference
 :::

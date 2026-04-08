@@ -122,7 +122,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged as ProgressProps, [
+  const [local, rest] = splitProps(merged, [
     'value',
     'max',
     'status',

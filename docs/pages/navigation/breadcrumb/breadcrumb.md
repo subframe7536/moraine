@@ -41,5 +41,15 @@ Toggle wrapping behavior for long breadcrumb labels.
 name: Wrapping
 :::
 
+## DOM Structure
+
+```
+root
+└── list
+    └── item (×n)
+        ├── link
+        └── separator (optional, between items)
+```
+
 :::docs-api-reference
 :::

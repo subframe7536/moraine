@@ -125,7 +125,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged as RadioGroupProps, [
+  const [local, rest] = splitProps(merged, [
     ...FORM_ID_NAME_VALUE_REQUIRED_DISABLED_KEYS,
     'onChange',
     'legend',

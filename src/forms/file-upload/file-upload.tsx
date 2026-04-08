@@ -311,7 +311,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged as FileUploadProps, [
+  const [local, rest] = splitProps(merged, [
     'as',
     ...FORM_ID_NAME_DISABLED_KEYS,
     'accept',

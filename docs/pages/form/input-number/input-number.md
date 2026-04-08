@@ -65,5 +65,15 @@ Constrained ranges and custom step increments.
 name: MinMaxStep
 :::
 
+## DOM Structure
+
+```
+root
+├── input
+└── controls (optional, vertical orientation)
+```
+
+Horizontal orientation renders decrement/increment controls inline alongside `input` instead.
+
 :::docs-api-reference
 :::

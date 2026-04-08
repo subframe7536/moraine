@@ -33,5 +33,20 @@ Scrollable body with prevent-close callback when dismiss is disabled.
 name: ScrollableDismissibleControl
 :::
 
+## DOM Structure
+
+```
+trigger
+├── overlay (optional)
+└── content (portal)
+    ├── header (optional)
+    │   ├── wrapper (optional)
+    │   │   ├── title (optional)
+    │   │   └── description (optional)
+    │   └── close (optional)
+    ├── body (optional)
+    └── footer (optional)
+```
+
 :::docs-api-reference
 :::

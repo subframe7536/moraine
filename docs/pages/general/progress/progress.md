@@ -49,5 +49,16 @@ String-array max renders named steps.
 name: StepMode
 :::
 
+## DOM Structure
+
+```
+root
+├── status (optional, determinate only)
+├── track
+│   └── indicator
+└── steps (optional, step mode)
+    └── step (×n)
+```
+
 :::docs-api-reference
 :::

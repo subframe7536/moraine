@@ -87,7 +87,7 @@ export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
  * Button component built on top of Kobalte `Button.Root` with polymorphic `as` support.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
-  const [local, rest] = splitProps(props as ButtonProps, [
+  const [local, rest] = splitProps(props, [
     'variant',
     'size',
     'classes',

@@ -41,5 +41,18 @@ Map checked state to domain values instead of boolean.
 name: CustomTrueFalseValues
 :::
 
+## DOM Structure
+
+```
+root
+├── container
+│   ├── input
+│   └── control
+│       └── indicator (optional)
+└── wrapper (optional)
+    ├── label (optional)
+    └── description (optional)
+```
+
 :::docs-api-reference
 :::

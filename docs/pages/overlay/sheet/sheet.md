@@ -33,5 +33,21 @@ Prevent close on outside interaction and Escape while counting attempts.
 name: DismissControl
 :::
 
+## DOM Structure
+
+```
+trigger
+├── overlay (optional)
+└── content (portal)
+    ├── header (optional)
+    │   ├── wrapper (optional)
+    │   │   ├── title (optional)
+    │   │   └── description (optional)
+    │   ├── actions (optional)
+    │   └── close (optional)
+    ├── body (optional)
+    └── footer (optional)
+```
+
 :::docs-api-reference
 :::

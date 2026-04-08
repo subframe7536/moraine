@@ -49,5 +49,14 @@ Submit to validate required minimum value through Form + FormField.
 name: FormIntegration
 :::
 
+## DOM Structure
+
+```
+root
+├── track
+│   └── range
+└── thumb (×n)
+```
+
 :::docs-api-reference
 :::

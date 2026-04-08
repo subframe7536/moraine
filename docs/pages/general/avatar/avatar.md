@@ -49,5 +49,29 @@ Use the same Avatar component with items.
 name: MergedGroupMode
 :::
 
+## DOM Structure
+
+Single avatar:
+
+```
+root
+├── image
+├── fallback
+│   └── fallbackIcon (Icon, optional)
+└── badge (optional)
+```
+
+Group avatar:
+
+```
+group
+├── groupCount (optional, overflow count)
+└── groupItem (×n, same as single avatar)
+    ├── image
+    ├── fallback
+    │   └── fallbackIcon (Icon, optional)
+    └── badge (optional)
+```
+
 :::docs-api-reference
 :::

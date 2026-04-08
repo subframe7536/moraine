@@ -41,5 +41,21 @@ Start/end/hidden indicator styles with card variant.
 name: IndicatorPositions
 :::
 
+## DOM Structure
+
+```
+root
+└── fieldset
+    ├── legend (optional)
+    └── item (×n)
+        ├── container
+        │   ├── input
+        │   └── control
+        │       └── indicator
+        └── wrapper (optional)
+            ├── label (optional)
+            └── description (optional)
+```
+
 :::docs-api-reference
 :::

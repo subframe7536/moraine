@@ -41,5 +41,14 @@ Content variations.
 name: TextOnlyVsShortcutsOnly
 :::
 
+## DOM Structure
+
+```
+trigger
+└── content (portal)
+    ├── text (optional)
+    └── kbds (Kbd, optional)
+```
+
 :::docs-api-reference
 :::

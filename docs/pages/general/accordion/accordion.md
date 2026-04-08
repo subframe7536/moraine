@@ -33,5 +33,18 @@ Mix disabled items with rich JSX content blocks.
 name: DisabledCustomContent
 :::
 
+## DOM Structure
+
+```
+root
+└── item (×n)
+    ├── header
+    │   └── trigger
+    │       ├── leading (Icon, optional)
+    │       ├── label (optional)
+    │       └── trailing (Icon, optional)
+    └── content (optional)
+```
+
 :::docs-api-reference
 :::

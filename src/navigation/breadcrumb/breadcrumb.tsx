@@ -146,7 +146,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       'aria-label': 'Breadcrumbs',
     },
     props,
-  ) as BreadcrumbProps
+  )
 
   const items = createMemo(() => merged.items ?? [])
 

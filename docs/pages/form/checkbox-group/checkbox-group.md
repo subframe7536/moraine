@@ -49,5 +49,14 @@ Controlled selected values with per-item disabled state.
 name: ControlledDisabledItems
 :::
 
+## DOM Structure
+
+```
+root
+└── fieldset
+    ├── legend (optional)
+    └── root (Checkbox, ×n)
+```
+
 :::docs-api-reference
 :::
