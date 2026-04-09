@@ -931,3 +931,11 @@ export function runTransform(code: MagicString, id: string, factory: Replacement
   collectTsxClassReplacements(source, replacements, factory, ignoredSpans)
   applyReplacements(code, source, replacements)
 }
+
+let inVSC: boolean | undefined = undefined
+export function isInVSCode() {
+  if (inVSC === undefined) {
+    inVSC = typeof process !== 'undefined' && process.stdout && !!process.env.VSCODE_CWD
+  }
+  return inVSC
+}

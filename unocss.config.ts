@@ -1,6 +1,11 @@
 import type { PresetWind4Theme } from '@subf/unocss'
-import { presetWind4, transformerVariantGroup, presetIcons, defineConfig } from '@subf/unocss'
-import { presetFunctionCompletion, presetObjectCompletion } from 'unocss-preset-completion'
+import {
+  presetWind4,
+  transformerVariantGroup,
+  presetIcons,
+  defineConfig,
+  presetCompletion,
+} from '@subf/unocss'
 
 import { presetMoraine } from './src/unocss'
 
@@ -10,9 +15,10 @@ export default defineConfig<PresetWind4Theme>({
     presetIcons({
       scale: 1.2,
     }),
-    presetMoraine(),
-    presetObjectCompletion(),
-    presetFunctionCompletion(),
+    presetMoraine({
+      // enableComponentLayer: true,
+    }),
+    presetCompletion(),
   ],
   transformers: [transformerVariantGroup()],
   content: {
