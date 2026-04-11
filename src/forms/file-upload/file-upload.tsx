@@ -71,12 +71,6 @@ export namespace FileUploadT {
    */
   export interface Base extends FormIdentityOptions, FormRequiredOption, FormDisableOption {
     /**
-     * The HTML element or component to render as.
-     * @default 'div'
-     */
-    as?: ValidComponent
-
-    /**
      * Accepted file types (e.g., ".jpg,.png", "image/*").
      * @default '*'
      */
@@ -312,7 +306,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   )
 
   const [local, rest] = splitProps(merged, [
-    'as',
     ...FORM_ID_NAME_DISABLED_KEYS,
     'accept',
     'multiple',
@@ -553,7 +546,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
 
   return (
     <KobalteFileField.Root
-      as={local.as}
       id={`${field.id()}-root`}
       name={field.name()}
       accept={local.accept}
