@@ -29,7 +29,9 @@ function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
 }
 
-export const moraineTailwind = (options: MorainePluginOptions = {}) =>
+type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plugin>
+
+export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
     ({ addUtilities, matchVariant }) => {
       if (options.icons !== false) {

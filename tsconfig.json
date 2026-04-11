@@ -1,7 +1,6 @@
 {
   "extends": "@subf/config/tsconfig-lib",
   "compilerOptions": {
-    "baseUrl": ".",
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
