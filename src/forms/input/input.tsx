@@ -3,7 +3,7 @@ import { Show, createMemo, mergeProps, onMount } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import type { ModelModifiers } from '../../shared/input-modifiers'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -40,7 +40,7 @@ export namespace InputT {
   /**
    * Base props for the Input component.
    */
-  export interface Base
+  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
       FormIdentityOptions,
       FormValueOptions<Value>,
@@ -79,7 +79,7 @@ export namespace InputT {
     /**
      * The maximum number of characters allowed in the input.
      */
-    maxLength?: number
+    maxLength?: number | string
 
     /**
      * Leading icon name.
@@ -104,24 +104,24 @@ export namespace InputT {
     loadingIcon?: IconT.Name
 
     /**
-     * Modifiers for the input value (e.g., trim, lazy).
+     * Modifiers for the input value (e.g., trim, lazy, number).
      */
-    modelModifiers?: ModelModifiers
+    modelModifiers?: M
 
     /**
-     * Callback when the value changes.
+     * Callback when the input value changes during input.
      */
-    onValueChange?: (value: Value) => void
+    onValueChange?: (value: ModifierValue<M>) => void
+
+    /**
+     * Callback when the input value change is committed.
+     */
+    onChange?: (value: ModifierValue<M>) => void
 
     /**
      * Event handler for the input event.
      */
     onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
-
-    /**
-     * Event handler for the change event.
-     */
-    onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>
 
     /**
      * Event handler for the blur event.
@@ -142,16 +142,22 @@ export namespace InputT {
   /**
    * Props for the Input component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props<
+    M extends ModelModifiers | undefined = ModelModifiers | undefined,
+  > extends BaseProps<Base<M>, Variant, Extend, Slot> {}
 }
 
 /**
  * Props for the Input component.
  */
-export interface InputProps extends InputT.Props {}
+export interface InputProps<
+  M extends ModelModifiers | undefined = ModelModifiers | undefined,
+> extends InputT.Props<M> {}
 
 /** Text input component with leading/trailing icon slots, loading state, and form field integration. */
-export function Input(props: InputProps): JSX.Element {
+export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
+  props: InputProps<M>,
+): JSX.Element {
   const merged = mergeProps(
     {
       type: 'text',
@@ -231,8 +237,8 @@ export function Input(props: InputProps): JSX.Element {
     Boolean(merged.loading && loadingTarget() === 'trailing'),
   )
 
-  function updateInputValue(value: string | null | undefined): void {
-    const nextValue = applyInputModifiers<InputT.Value>(value, merged.modelModifiers)
+  function updateInputValue(value: string): void {
+    const nextValue = applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers)
 
     field.setFormValue(nextValue)
     merged.onValueChange?.(nextValue)
@@ -259,7 +265,7 @@ export function Input(props: InputProps): JSX.Element {
     }
 
     field.emit('change')
-    callHandler(event, merged.onChange as JSX.EventHandlerUnion<HTMLInputElement, Event>)
+    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {

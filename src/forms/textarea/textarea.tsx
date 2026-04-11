@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, on, onMount } from 'solid-js'
 
-import type { ModelModifiers } from '../../shared/input-modifiers'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { callHandler, useId } from '../../shared/utils'
@@ -40,7 +40,6 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 
 export namespace TextareaT {
   export type Value = string | number | undefined
-  export type ChangeValue = Value | null
 
   export type Slot = 'root' | 'header' | 'input' | 'footer'
 
@@ -55,7 +54,7 @@ export namespace TextareaT {
   /**
    * Base props for the Textarea component.
    */
-  export interface Base
+  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
       FormIdentityOptions,
       FormValueOptions<Value>,
@@ -82,7 +81,7 @@ export namespace TextareaT {
     /**
      * Maximum character length for the textarea.
      */
-    maxLength?: number
+    maxLength?: number | string
 
     /**
      * Whether the textarea should automatically resize based on content.
@@ -121,22 +120,22 @@ export namespace TextareaT {
     /**
      * Modifiers for input processing (e.g., lazy, trim, number).
      */
-    modelModifiers?: ModelModifiers
+    modelModifiers?: M
 
     /**
-     * Callback when the value changes.
+     * Callback when the textarea value changes during input.
      */
-    onValueChange?: (value: ChangeValue) => void
+    onValueChange?: (value: ModifierValue<M>) => void
+
+    /**
+     * Callback when the textarea value change is committed.
+     */
+    onChange?: (value: ModifierValue<M>) => void
 
     /**
      * Native input event handler.
      */
     onInput?: JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>
-
-    /**
-     * Native change event handler.
-     */
-    onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
 
     /**
      * Native blur event handler.
@@ -157,16 +156,22 @@ export namespace TextareaT {
   /**
    * Props for the Textarea component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props<
+    M extends ModelModifiers | undefined = ModelModifiers | undefined,
+  > extends BaseProps<Base<M>, Variant, Extend, Slot> {}
 }
 
 /**
  * Props for the Textarea component.
  */
-export interface TextareaProps extends TextareaT.Props {}
+export interface TextareaProps<
+  M extends ModelModifiers | undefined = ModelModifiers | undefined,
+> extends TextareaT.Props<M> {}
 
 /** Multi-line text input with autoresize support and form field integration. */
-export function Textarea(props: TextareaProps): JSX.Element {
+export function Textarea<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
+  props: TextareaProps<M>,
+): JSX.Element {
   const merged = mergeProps(
     {
       rows: 3,
@@ -214,8 +219,8 @@ export function Textarea(props: TextareaProps): JSX.Element {
     return {}
   })
 
-  function updateInputValue(value: string | null | undefined): void {
-    const nextValue = applyInputModifiers<TextareaT.ChangeValue>(value, merged.modelModifiers)
+  function updateInputValue(value: string): void {
+    const nextValue = applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers)
     field.setFormValue(nextValue)
     merged.onValueChange?.(nextValue)
     field.emit('input')
@@ -264,7 +269,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
     }
 
     field.emit('change')
-    callHandler(event, merged.onChange as JSX.EventHandlerUnion<HTMLTextAreaElement, Event>)
+    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
   }
 
   const onBlur: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
