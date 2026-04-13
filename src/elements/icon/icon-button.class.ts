@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils'
 
 export const iconButtonVariants = cva(
-  'inline-flex cursor-pointer cursor-pointer select-none whitespace-nowrap items-center justify-center bg-clip-padding data-loading:effect-loading',
+  'inline-flex cursor-pointer select-none items-center justify-center data-loading:effect-loading',
   {
     defaultVariants: {
       size: 'md',
