@@ -686,7 +686,7 @@ export function compileMarkdownPage(
   const tocApiDoc = asTocApiDoc(mergedApiDoc)
   const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, markdown)
 
-  const shouldExposeComponentKey = Boolean(page.pageKey)
+  const shouldExposeComponentKey = Boolean(page.group)
   const upstreamHref = inferKobalteComponentDocsHref(
     options.projectRoot,
     tocApiDoc?.component.sourcePath,
