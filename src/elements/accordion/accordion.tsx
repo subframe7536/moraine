@@ -255,14 +255,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   data-closed={isExpanded() ? undefined : ''}
                   hidden={!isExpanded()}
                   aria-labelledby={triggerId}
-                  class="text-sm overflow-hidden data-closed:animate-accordion-up data-expanded:animate-accordion-down"
+                  class={cn(
+                    'text-sm overflow-hidden data-closed:animate-accordion-up data-expanded:animate-accordion-down',
+                    local.classes?.content,
+                  )}
                 >
                   <Show when={entry.item.content}>
                     <div
-                      class={cn(
-                        'style-accordion-content pb-2.5 h-$kb-collapsible-content-height',
-                        local.classes?.content,
-                      )}
+                      class="style-accordion-content pb-2.5 h-$kb-collapsible-content-height"
                     >
                       {entry.item.content}
                     </div>

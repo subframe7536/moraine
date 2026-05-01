@@ -81,6 +81,7 @@ export function IconButton(props: IconButtonProps): JSX.Element {
     loadingAuto: () => local.loadingAuto,
     onClick: () => local.onClick,
   })
+  const isDisabled = () => isLoading() || local.disabled
 
   return (
     <Dynamic
@@ -89,8 +90,10 @@ export function IconButton(props: IconButtonProps): JSX.Element {
       class={iconButtonVariants({ size: local.size }, local.classes?.root)}
       style={local.styles?.root}
       aria-busy={isLoading() || undefined}
+      aria-disabled={isDisabled() || undefined}
+      data-disabled={isDisabled() ? '' : undefined}
       data-loading={isLoading() ? '' : undefined}
-      disabled={isLoading() || local.disabled}
+      disabled={isDisabled()}
       type={rest.type ?? 'button'}
       onClick={onClick}
       {...rest}

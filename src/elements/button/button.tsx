@@ -103,10 +103,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<ElementOf<T>, MouseEvent>({
+  const { isLoading, onClick } = useLoadingAutoClick<HTMLElement, MouseEvent>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
-    onClick: () => local.onClick,
+    onClick: () => local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
   })
 
   const iconSize = createMemo(() =>
@@ -143,6 +143,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const component = createMemo(() => local.as ?? 'button')
+  const isButtonElement = createMemo(() => component() === 'button')
+  const isDisabled = createMemo(() => isLoading() || local.disabled)
   const type = createMemo(() =>
     component() === 'button' && rest.type === undefined ? 'button' : rest.type,
   )
@@ -160,10 +162,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         local.classes?.root,
       )}
       aria-busy={isLoading() ? true : undefined}
+      aria-disabled={isDisabled() ? true : undefined}
+      data-disabled={isDisabled() ? '' : undefined}
       data-loading={isLoading() ? '' : undefined}
-      disabled={isLoading() || local.disabled}
+      disabled={isButtonElement() ? isDisabled() : undefined}
       type={type()}
-      onClick={onClick}
+      onClick={onClick as JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>}
       {...rest}
     >
       <Show when={resolvedLeading()}>
