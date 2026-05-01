@@ -1,6 +1,5 @@
-import * as KobalteSeparator from '@kobalte/core/separator'
 import type { JSX } from 'solid-js'
-import { Show, mergeProps } from 'solid-js'
+import { Show, mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 
@@ -16,7 +15,9 @@ export namespace SeparatorT {
   export type Variant = SeparatorVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteSeparator.SeparatorRootProps<HTMLDivElement>
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement> & {
+    orientation?: 'horizontal' | 'vertical'
+  }
 
   export interface Item {}
   /**
@@ -58,59 +59,71 @@ export function Separator(props: SeparatorProps): JSX.Element {
     props,
   )
 
+  const [local, rest] = splitProps(merged, [
+    'children',
+    'classes',
+    'decorative',
+    'orientation',
+    'size',
+    'styles',
+    'type',
+  ])
+
   return (
-    <KobalteSeparator.Root
-      as="div"
-      orientation={merged.orientation}
-      aria-hidden={merged.decorative ? true : undefined}
+    <div
+      role="separator"
+      data-orientation={local.orientation}
+      aria-orientation={local.orientation === 'vertical' ? 'vertical' : undefined}
+      aria-hidden={local.decorative ? true : undefined}
       data-slot="root"
-      style={merged.styles?.root}
+      style={local.styles?.root}
       class={separatorRootVariants(
         {
-          orientation: merged.orientation,
+          orientation: local.orientation,
         },
-        merged.classes?.root,
+        local.classes?.root,
       )}
+      {...rest}
     >
       <div
         data-slot="border"
-        style={merged.styles?.border}
+        style={local.styles?.border}
         class={separatorBorderVariants(
           {
-            orientation: merged.orientation,
-            size: merged.size,
-            type: merged.type,
+            orientation: local.orientation,
+            size: local.size,
+            type: local.type,
           },
-          merged.classes?.border,
+          local.classes?.border,
         )}
       />
 
-      <Show when={merged.children}>
+      <Show when={local.children}>
         <div
           data-slot="container"
-          style={merged.styles?.container}
+          style={local.styles?.container}
           class={separatorContainerVariants(
             {
-              orientation: merged.orientation,
+              orientation: local.orientation,
             },
-            merged.classes?.container,
+            local.classes?.container,
           )}
         >
-          {merged.children}
+          {local.children}
         </div>
         <div
           data-slot="border"
-          style={merged.styles?.border}
+          style={local.styles?.border}
           class={separatorBorderVariants(
             {
-              orientation: merged.orientation,
-              size: merged.size,
-              type: merged.type,
+              orientation: local.orientation,
+              size: local.size,
+              type: local.type,
             },
-            merged.classes?.border,
+            local.classes?.border,
           )}
         />
       </Show>
-    </KobalteSeparator.Root>
+    </div>
   )
 }

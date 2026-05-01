@@ -1,9 +1,17 @@
 import type { ClassValue } from 'cls-variant'
-import type { JSX } from 'solid-js'
+import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
 
 export type SlotClasses<TSlot extends string> = Partial<Record<TSlot, ClassValue>>
 
 export type SlotStyles<TSlot extends string> = Partial<Record<TSlot, JSX.CSSProperties>>
+
+export type ElementOf<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
+  ? HTMLElementTagNameMap[T]
+  : HTMLElement
+
+export type PolymorphicProps<T extends ValidComponent, Props = {}> = Props & {
+  as?: T
+} & Omit<ComponentProps<T>, keyof Props | 'as'>
 
 export type BaseProps<
   B,

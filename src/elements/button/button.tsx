@@ -1,11 +1,10 @@
-import * as KobalteButton from '@kobalte/core/button'
-import type { ElementOf, PolymorphicProps } from '@kobalte/core/polymorphic'
 import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import type { MaybeRenderProp } from '../../shared/render-prop'
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, ElementOf, PolymorphicProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { cn } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -21,7 +20,7 @@ export namespace ButtonT {
   export type Styles = SlotStyles<Slot>
   export type Extend<T extends ValidComponent = 'button'> = PolymorphicProps<
     T,
-    KobalteButton.ButtonRootProps<ElementOf<T>>
+    JSX.HTMLAttributes<ElementOf<T>>
   >
 
   export interface Item {}
@@ -84,10 +83,11 @@ export namespace ButtonT {
 export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
 
 /**
- * Button component built on top of Kobalte `Button.Root` with polymorphic `as` support.
+ * Button component with polymorphic `as` support.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const [local, rest] = splitProps(props as ButtonProps, [
+    'as',
     'variant',
     'size',
     'classes',
@@ -142,8 +142,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return local.trailing
   })
 
+  const component = createMemo(() => local.as ?? 'button')
+  const type = createMemo(() =>
+    component() === 'button' && rest.type === undefined ? 'button' : rest.type,
+  )
+
   return (
-    <KobalteButton.Root
+    <Dynamic
+      component={component()}
       data-slot={local.slotName || 'root'}
       style={local.styles?.root}
       class={buttonVariants(
@@ -156,6 +162,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       aria-busy={isLoading() ? true : undefined}
       data-loading={isLoading() ? '' : undefined}
       disabled={isLoading() || local.disabled}
+      type={type()}
       onClick={onClick}
       {...rest}
     >
@@ -201,6 +208,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           />
         )}
       </Show>
-    </KobalteButton.Root>
+    </Dynamic>
   )
 }

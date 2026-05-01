@@ -1,4 +1,4 @@
-import { clamp } from '@kobalte/utils'
+import { clamp } from '../../../shared/math'
 
 import { fixToPrecision, nearlyEqual, resolveSize } from './size'
 import type { ResizableHandleAria, ResizablePanelItem, ResizableResolvedPanel } from './types'

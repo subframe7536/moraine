@@ -1,11 +1,11 @@
-import * as KobalteTabs from '@kobalte/core/tabs'
 import type { JSX } from 'solid-js'
-import { For, Show, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import { createControllableSignal } from '../../shared/create-controllable-signal'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 
 import {
   tabsIndicatorVariants,
@@ -29,7 +29,12 @@ export namespace TabsT {
   export type Variant = TabsVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteTabs.TabsRootProps
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement> & {
+    value?: string
+    defaultValue?: string
+    onChange?: (value: string) => void
+    orientation?: 'horizontal' | 'vertical'
+  }
 
   /**
    * An individual tab in the tabs component.
@@ -111,7 +116,10 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   const [local, rest] = splitProps(merged, [
+    'defaultValue',
+    'onChange',
     'orientation',
+    'value',
     'variant',
     'size',
     'classes',
@@ -119,17 +127,101 @@ export function Tabs(props: TabsProps): JSX.Element {
     'items',
   ])
 
+  const id = useId(() => rest.id as string | undefined, 'tabs')
+  const items = createMemo(() =>
+    (local.items ?? []).map((item, index) => ({
+      item,
+      index,
+      value: normalizeItemValue(item, index),
+    })),
+  )
+  const fallbackValue = createMemo(() => items().find((entry) => !entry.item.disabled)?.value)
+  const [selectedValue, setSelectedValue] = createControllableSignal<string>({
+    value: () => local.value,
+    defaultValue: () => local.defaultValue ?? fallbackValue(),
+    onChange: local.onChange,
+  })
+  const resolvedValue = createMemo(() => {
+    const value = selectedValue()
+    if (value && items().some((entry) => entry.value === value && !entry.item.disabled)) {
+      return value
+    }
+
+    return fallbackValue()
+  })
+
+  const enabledValues = createMemo(() =>
+    items()
+      .filter((entry) => !entry.item.disabled)
+      .map((entry) => entry.value),
+  )
+
+  function focusAdjacentTab(currentValue: string, direction: -1 | 1): void {
+    const values = enabledValues()
+    const currentIndex = values.indexOf(currentValue)
+    if (currentIndex < 0) {
+      return
+    }
+
+    const nextValue = values[currentIndex + direction]
+    if (!nextValue) {
+      return
+    }
+
+    const nextTab = document.getElementById(`${id()}-tab-${nextValue}`)
+    nextTab?.focus()
+    setSelectedValue(nextValue)
+  }
+
+  function handleTriggerKeyDown(event: KeyboardEvent, value: string): void {
+    const isHorizontal = local.orientation === 'horizontal'
+
+    if ((isHorizontal && event.key === 'ArrowRight') || (!isHorizontal && event.key === 'ArrowDown')) {
+      event.preventDefault()
+      focusAdjacentTab(value, 1)
+      return
+    }
+
+    if ((isHorizontal && event.key === 'ArrowLeft') || (!isHorizontal && event.key === 'ArrowUp')) {
+      event.preventDefault()
+      focusAdjacentTab(value, -1)
+      return
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault()
+      const firstValue = enabledValues()[0]
+      if (!firstValue) {
+        return
+      }
+      document.getElementById(`${id()}-tab-${firstValue}`)?.focus()
+      setSelectedValue(firstValue)
+      return
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault()
+      const lastValue = enabledValues().at(-1)
+      if (!lastValue) {
+        return
+      }
+      document.getElementById(`${id()}-tab-${lastValue}`)?.focus()
+      setSelectedValue(lastValue)
+    }
+  }
+
   return (
-    <KobalteTabs.Root
+    <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={local.styles?.root}
       class={tabsRootVariants({ orientation: local.orientation }, local.classes?.root)}
-      orientation={local.orientation}
       {...rest}
     >
-      <KobalteTabs.List
+      <div
+        role="tablist"
+        aria-orientation={local.orientation}
         data-slot="list"
-        style={merged.styles?.list}
+        style={local.styles?.list}
         class={tabsListVariants(
           {
             orientation: local.orientation,
@@ -138,9 +230,10 @@ export function Tabs(props: TabsProps): JSX.Element {
           local.classes?.list,
         )}
       >
-        <KobalteTabs.Indicator
+        <div
+          aria-hidden="true"
           data-slot="indicator"
-          style={merged.styles?.indicator}
+          style={local.styles?.indicator}
           class={tabsIndicatorVariants(
             {
               orientation: local.orientation,
@@ -150,13 +243,19 @@ export function Tabs(props: TabsProps): JSX.Element {
           )}
         />
 
-        <For each={local.items}>
-          {(item, index) => (
-            <KobalteTabs.Trigger
+        <For each={items()}>
+          {(entry) => (
+            <button
+              id={`${id()}-tab-${entry.value}`}
+              type="button"
+              role="tab"
               data-slot="trigger"
-              style={merged.styles?.trigger}
-              value={normalizeItemValue(item, index())}
-              disabled={item.disabled}
+              data-selected={resolvedValue() === entry.value ? '' : undefined}
+              style={local.styles?.trigger}
+              aria-selected={resolvedValue() === entry.value}
+              aria-controls={`${id()}-panel-${entry.value}`}
+              tabIndex={resolvedValue() === entry.value ? 0 : -1}
+              disabled={entry.item.disabled}
               class={tabsTriggerVariants(
                 {
                   orientation: local.orientation,
@@ -165,43 +264,49 @@ export function Tabs(props: TabsProps): JSX.Element {
                 },
                 local.classes?.trigger,
               )}
+              onClick={() => setSelectedValue(entry.value)}
+              onKeyDown={(event) => handleTriggerKeyDown(event, entry.value)}
             >
-              <Show when={item.icon}>
+              <Show when={entry.item.icon}>
                 <span
                   data-slot="leading"
-                  style={merged.styles?.leading}
+                  style={local.styles?.leading}
                   class={tabsLeadingVariants({ size: local.size }, local.classes?.leading)}
                 >
-                  <Icon name={item.icon} />
+                  <Icon name={entry.item.icon} />
                 </span>
               </Show>
 
-              <Show when={typeof item.label === 'string'} fallback={item.label}>
+              <Show when={typeof entry.item.label === 'string'} fallback={entry.item.label}>
                 <span
                   data-slot="label"
-                  style={merged.styles?.label}
+                  style={local.styles?.label}
                   class={cn('truncate', local.classes?.label)}
                 >
-                  {item.label}
+                  {entry.item.label}
                 </span>
               </Show>
-            </KobalteTabs.Trigger>
+            </button>
           )}
         </For>
-      </KobalteTabs.List>
+      </div>
 
-      <For each={local.items}>
-        {(item, index) => (
-          <KobalteTabs.Content
+      <For each={items()}>
+        {(entry) => (
+          <div
+            id={`${id()}-panel-${entry.value}`}
+            role="tabpanel"
             data-slot="content"
-            style={merged.styles?.content}
-            value={normalizeItemValue(item, index())}
-            class={cn('outline-none w-full', local.classes?.content, item.class)}
+            data-selected={resolvedValue() === entry.value ? '' : undefined}
+            style={local.styles?.content}
+            aria-labelledby={`${id()}-tab-${entry.value}`}
+            hidden={resolvedValue() !== entry.value}
+            class={cn('outline-none w-full', local.classes?.content, entry.item.class)}
           >
-            {item.content}
-          </KobalteTabs.Content>
+            {entry.item.content}
+          </div>
         )}
       </For>
-    </KobalteTabs.Root>
+    </div>
   )
 }

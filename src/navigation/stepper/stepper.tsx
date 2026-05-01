@@ -1,4 +1,3 @@
-import * as KobalteTabs from '@kobalte/core/tabs'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
@@ -277,7 +276,9 @@ export function Stepper(props: StepperProps): JSX.Element {
 
     return (
       <>
-        <KobalteTabs.List
+        <div
+          role="tablist"
+          aria-orientation={local.orientation}
           data-slot="header"
           style={local.styles?.header}
           class={stepperHeaderVariants({ orientation: local.orientation }, local.classes?.header)}
@@ -311,24 +312,29 @@ export function Stepper(props: StepperProps): JSX.Element {
                       local.classes?.container,
                     )}
                   >
-                    <KobalteTabs.Trigger
-                      data-slot="trigger"
-                      style={local.styles?.trigger}
-                      data-state={state()}
-                      data-clickable={local.clickable ? '' : undefined}
-                      value={entry.value}
-                      ref={(el: HTMLElement) => {
-                        const listener: EventListener = (event) => {
-                          handleTriggerKeyDown(event as KeyboardEvent, entry.index)
+                     <button
+                       id={`${id()}-trigger-${entry.value}`}
+                       type="button"
+                       role="tab"
+                       data-slot="trigger"
+                       style={local.styles?.trigger}
+                       data-state={state()}
+                       data-clickable={local.clickable ? '' : undefined}
+                       ref={(el: HTMLElement) => {
+                         const listener: EventListener = (event) => {
+                           handleTriggerKeyDown(event as KeyboardEvent, entry.index)
                         }
 
                         el.addEventListener('keydown', listener, true)
                         onCleanup(() => el.removeEventListener('keydown', listener, true))
-                      }}
-                      disabled={disabled()}
-                      aria-labelledby={
-                        entry.item.title ? `${idPrefix()}-step-${entry.index}-title` : undefined
-                      }
+                       }}
+                       disabled={disabled()}
+                       tabIndex={resolvedValue() === entry.value ? 0 : -1}
+                       aria-selected={resolvedValue() === entry.value}
+                       aria-controls={`${id()}-content-${entry.value}`}
+                       aria-labelledby={
+                         entry.item.title ? `${idPrefix()}-step-${entry.index}-title` : undefined
+                       }
                       aria-describedby={
                         entry.item.description
                           ? `${idPrefix()}-step-${entry.index}-description`
@@ -338,12 +344,19 @@ export function Stepper(props: StepperProps): JSX.Element {
                         {
                           size: local.size,
                           state: state(),
-                        },
-                        local.classes?.trigger,
-                      )}
-                    >
-                      <Icon name={entry.item.icon || (() => entry.index + 1)} />
-                    </KobalteTabs.Trigger>
+                         },
+                         local.classes?.trigger,
+                       )}
+                       onClick={() => {
+                         if (!local.clickable) {
+                           return
+                         }
+
+                         setSelectedValue(entry.value)
+                       }}
+                     >
+                       <Icon slotName="icon" name={entry.item.icon || (() => entry.index + 1)} />
+                     </button>
 
                     <Show when={entry.index < normalizedItems().length - 1}>
                       <div
@@ -398,19 +411,23 @@ export function Stepper(props: StepperProps): JSX.Element {
               )
             }}
           </For>
-        </KobalteTabs.List>
+        </div>
 
         <For each={normalizedItems()}>
           {(entry) => (
             <Show when={entry.item.content}>
-              <KobalteTabs.Content
+              <div
+                id={`${id()}-content-${entry.value}`}
+                role="tabpanel"
                 data-slot="content"
+                data-selected={resolvedValue() === entry.value ? '' : undefined}
                 style={local.styles?.content}
-                value={entry.value}
+                hidden={resolvedValue() !== entry.value}
+                aria-labelledby={`${id()}-trigger-${entry.value}`}
                 class={cn('w-full', entry.item.class, local.classes?.content)}
               >
                 {entry.item.content}
-              </KobalteTabs.Content>
+              </div>
             </Show>
           )}
         </For>
@@ -419,25 +436,15 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <KobalteTabs.Root
+    <div
       data-slot="root"
       style={local.styles?.root}
       id={id()}
-      activationMode={local.activationMode}
-      orientation={local.orientation}
-      disabled={local.disabled}
-      value={resolvedValue()}
-      onChange={(value) => {
-        if (!local.clickable) {
-          return
-        }
-
-        setSelectedValue(value)
-      }}
+      data-orientation={local.orientation}
       class={stepperRootVariants({ orientation: local.orientation }, local.classes?.root)}
       {...rest}
     >
       <StepperBody />
-    </KobalteTabs.Root>
+    </div>
   )
 }

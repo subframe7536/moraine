@@ -1,4 +1,4 @@
-import { createMediaQuery } from '@kobalte/utils'
+import { createMediaQuery } from '../../shared/create-media-query'
 import type { JSX, Component, Accessor } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
 
