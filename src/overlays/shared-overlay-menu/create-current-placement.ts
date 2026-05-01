@@ -10,7 +10,7 @@ interface CreateCurrentPlacementProps {
 }
 
 export function createCurrentPlacement(props: CreateCurrentPlacementProps) {
-  const [currentPlacement, setCurrentPlacement] = createSignal<string>()
+  const [currentPlacement, setCurrentPlacement] = createSignal<string | undefined>(undefined)
 
   const resolvedSide = createMemo<OverlayMenuSide>(() =>
     resolveOverlayMenuSide(currentPlacement() ?? props.fallbackPlacement()),

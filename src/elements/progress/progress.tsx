@@ -20,6 +20,11 @@ type ProgressValueLabelDetails = {
   max: number
 }
 
+type ProgressRootProps = Omit<
+  JSX.HTMLAttributes<HTMLDivElement>,
+  'aria-valuemax' | 'aria-valuemin' | 'aria-valuenow' | 'aria-valuetext'
+>
+
 export namespace ProgressT {
   export interface StatusRenderContext {
     /**
@@ -47,7 +52,7 @@ export namespace ProgressT {
   export type Variant = ProgressVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = JSX.HTMLAttributes<HTMLDivElement>
+  export type Extend = ProgressRootProps
 
   export interface Item {}
   /**
@@ -327,7 +332,7 @@ export function Progress(props: ProgressProps): JSX.Element {
         },
         local.classes?.root,
       )}
-      {...(rest as Record<string, unknown>)}
+      {...rest}
     >
       <ProgressContent />
     </KobalteProgress.Root>

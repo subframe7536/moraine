@@ -1,6 +1,6 @@
 import * as KobalteCollapsible from '@kobalte/core/collapsible'
 import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import { Show, splitProps } from 'solid-js'
 
 import { createControllableSignal } from '../../shared/create-controllable-signal'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
@@ -96,21 +96,17 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     onChange: local.onOpenChange,
   })
 
-  const dataset = createMemo<Record<string, string | undefined>>(() => ({
-    'data-expanded': open() ? '' : undefined,
-    'data-closed': !open() ? '' : undefined,
-    'data-disabled': local.disabled ? '' : undefined,
-  }))
-
   return (
     <KobalteCollapsible.Root
       open={open()}
       disabled={local.disabled}
       onOpenChange={setOpen}
       data-slot="root"
+      data-expanded={open() ? '' : undefined}
+      data-closed={!open() ? '' : undefined}
+      data-disabled={local.disabled ? '' : undefined}
       style={local.styles?.root}
       class={cn(local.classes?.root)}
-      {...dataset()}
       {...rest}
     >
       <Show when={local.trigger}>

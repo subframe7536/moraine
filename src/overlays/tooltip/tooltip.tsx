@@ -35,6 +35,9 @@ const TooltipRootWithPlacement = KobalteTooltip.Root as unknown as (
     onCurrentPlacementChange?: TooltipPlacementChangeHandler
   },
 ) => JSX.Element
+// Kobalte's Tooltip root forwards unknown popper props to Popper.Root, but the
+// public root type omits this callback. Keep the bridge local until the full
+// primitive layer replaces the upstream root typing entirely.
 
 export namespace TooltipT {
   export type Slot = 'content' | 'trigger' | 'text' | 'kbds' | 'kbd'

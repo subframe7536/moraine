@@ -559,7 +559,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         },
         local.classes?.root,
       )}
-      {...(rest as Record<string, unknown>)}
+      {...rest}
     >
       <Show
         when={local.dropzone}

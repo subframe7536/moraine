@@ -34,6 +34,9 @@ const PopoverRootWithPlacement = KobaltePopover.Root as unknown as (
     onCurrentPlacementChange?: PopoverPlacementChangeHandler
   },
 ) => JSX.Element
+// Kobalte's Popover root forwards unknown popper props to Popper.Root, but the
+// public root type omits this callback. Keep the bridge local until the full
+// primitive layer replaces the upstream root typing entirely.
 
 export namespace PopoverT {
   export type Slot = 'trigger' | 'content' | 'body'

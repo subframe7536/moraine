@@ -8,6 +8,8 @@ export interface CreateControllableSignalProps<T> {
 }
 
 export function createControllableSignal<T>(props: CreateControllableSignalProps<T>) {
+  // Avoid subscribing the initial uncontrolled value to reactive callers. The
+  // default should only seed local state once, like a standard uncontrolled prop.
   const [uncontrolledValue, setUncontrolledValue] = createSignal<T | undefined>(
     untrack(() => props.defaultValue?.()),
   )
