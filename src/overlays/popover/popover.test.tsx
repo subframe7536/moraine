@@ -1,35 +1,11 @@
-import type * as KPopper from '@kobalte/core/popper'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Popover } from './popover'
 import type { PopoverProps } from './popover'
 
-let getMockPlacement: () => string = () => 'bottom'
-let setMockPlacement: (value: string) => void = () => undefined
-
-vi.mock('@kobalte/core/popper', async () => {
-  const actual = await vi.importActual<typeof KPopper>('@kobalte/core/popper')
-
-  return {
-    ...actual,
-    usePopperContext: () => ({
-      currentPlacement: () => getMockPlacement(),
-      contentRef: () => undefined,
-      setPositionerRef: () => undefined,
-      setArrowRef: () => undefined,
-    }),
-  }
-})
-
 describe('Popover', () => {
-  beforeEach(() => {
-    const [placement, setPlacement] = createSignal('bottom')
-    getMockPlacement = placement
-    setMockPlacement = setPlacement
-  })
-
   test('supports click mode and renders content', () => {
     render(() => (
       <Popover open content="Popover content">
@@ -73,8 +49,6 @@ describe('Popover', () => {
     ['bottom-start', 'mt-$kb-popper-content-overflow-padding'],
     ['left-start', 'mr-$kb-popper-content-overflow-padding'],
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
-    setMockPlacement(placement)
-
     render(() => (
       <Popover open placement={placement} content="Placement content">
         <button type="button">Trigger</button>
@@ -258,15 +232,13 @@ describe('Popover', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('uses runtime placement to resolve side-aware animation classes', () => {
-    const [version, setVersion] = createSignal(0)
+  test('uses reactive placement props to resolve side-aware animation classes', () => {
+    const [placement, setPlacement] = createSignal<'bottom' | 'right'>('bottom')
 
     // oxlint-disable-next-line subf/solid-reactivity
     render(() => {
-      version()
-
       return (
-        <Popover open placement="bottom" content="Popover content">
+        <Popover open placement={placement()} content="Popover content">
           <button type="button">Trigger</button>
         </Popover>
       )
@@ -278,8 +250,7 @@ describe('Popover', () => {
     expect(initialContent?.className).toContain('animate-popover-side-bottom')
     expect(initialContent?.className).not.toContain('animate-popover-side-right')
 
-    setMockPlacement('right')
-    setVersion(1)
+    setPlacement('right')
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-popover-in')

@@ -1,9 +1,10 @@
 import * as KobalteTabs from '@kobalte/core/tabs'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, onCleanup } from 'solid-js'
+import { For, Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import { createControllableSignal } from '../../shared/create-controllable-signal'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
@@ -21,6 +22,8 @@ import {
 } from './stepper.class'
 
 type StepperState = 'inactive' | 'active' | 'completed'
+type StepperOrientation = 'horizontal' | 'vertical'
+type StepperActivationMode = 'automatic' | 'manual'
 
 export namespace StepperT {
   export type Value = string
@@ -41,7 +44,13 @@ export namespace StepperT {
   export type Variant = StepperVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteTabs.TabsRootProps
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement> & {
+    value?: Value
+    defaultValue?: Value
+    onChange?: (value: Value) => void
+    orientation?: StepperOrientation
+    activationMode?: StepperActivationMode
+  }
 
   /**
    * An individual step in the stepper.
@@ -144,21 +153,48 @@ export function Stepper(props: StepperProps): JSX.Element {
     },
     props,
   )
+  const [local, rest] = splitProps(merged, [
+    'id',
+    'value',
+    'defaultValue',
+    'onChange',
+    'orientation',
+    'activationMode',
+    'size',
+    'items',
+    'linear',
+    'disabled',
+    'clickable',
+    'classes',
+    'styles',
+  ])
 
-  const id = useId(() => merged.id, 'stepper')
+  const id = useId(() => local.id, 'stepper')
 
   const normalizedItems = createMemo<NormalizedStepperItem[]>(() =>
-    (merged.items ?? []).map((item, index) => ({
+    (local.items ?? []).map((item, index) => ({
       item,
       index,
       value: item.value ?? String(index),
     })),
   )
 
+  const getFallbackValue = createMemo(() => {
+    const items = normalizedItems()
+    const firstEnabled = items.find((entry) => !entry.item.disabled)
+    return firstEnabled?.value ?? items[0]?.value
+  })
+
+  const [selectedValue, setSelectedValue] = createControllableSignal<StepperT.Value>({
+    value: () => local.value,
+    defaultValue: () => local.defaultValue ?? getFallbackValue(),
+    onChange: local.onChange,
+  })
+
   const resolvedValue = createMemo(() => {
-    const value = merged.value
+    const value = selectedValue()
     if (value === undefined) {
-      return undefined
+      return getFallbackValue()
     }
     const items = normalizedItems()
     if (items.length === 0) {
@@ -169,17 +205,12 @@ export function Stepper(props: StepperProps): JSX.Element {
       return value
     }
 
-    const firstEnabled = items.find((entry) => !entry.item.disabled)
-    return firstEnabled?.value ?? items[0]?.value
+    return getFallbackValue()
   })
 
   function StepperBody(): JSX.Element {
-    const tabsContext = KobalteTabs.useTabsContext()
-
-    const currentValue = createMemo(() => tabsContext.listState().selectedKey())
-
     const currentIndex = createMemo(() => {
-      const value = currentValue()
+      const value = resolvedValue()
       return normalizedItems().findIndex((item) => item.value === value)
     })
 
@@ -195,24 +226,24 @@ export function Stepper(props: StepperProps): JSX.Element {
       return 'inactive'
     }
 
-    function isItemDisabled(entry: NormalizedStepperItem): boolean {
-      if (merged.disabled || entry.item.disabled) {
-        return true
-      }
-
-      const activeIndex = currentIndex()
-
-      if (!merged.clickable) {
-        if (activeIndex < 0) {
-          return false
+      function isItemDisabled(entry: NormalizedStepperItem): boolean {
+        if (local.disabled || entry.item.disabled) {
+          return true
         }
+
+        const activeIndex = currentIndex()
+
+        if (!local.clickable) {
+          if (activeIndex < 0) {
+            return false
+          }
 
         return entry.index !== activeIndex
       }
 
-      if (!merged.linear) {
-        return false
-      }
+        if (!local.linear) {
+          return false
+        }
 
       if (activeIndex < 0) {
         return false
@@ -229,7 +260,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       }
 
       const isBoundaryKey =
-        merged.orientation === 'vertical'
+        local.orientation === 'vertical'
           ? (event.key === 'ArrowDown' && index === lastIndex) ||
             (event.key === 'ArrowUp' && index === 0)
           : (event.key === 'ArrowRight' && index === lastIndex) ||
@@ -248,43 +279,43 @@ export function Stepper(props: StepperProps): JSX.Element {
       <>
         <KobalteTabs.List
           data-slot="header"
-          style={merged.styles?.header}
-          class={stepperHeaderVariants({ orientation: merged.orientation }, merged.classes?.header)}
+          style={local.styles?.header}
+          class={stepperHeaderVariants({ orientation: local.orientation }, local.classes?.header)}
         >
           <For each={normalizedItems()}>
             {(entry) => {
               const state = createMemo(() => getItemState(entry.index))
               const disabled = createMemo(() => isItemDisabled(entry))
-              const idPrefix = createMemo(() => tabsContext.generateContentId(entry.value))
+              const idPrefix = createMemo(() => `${id()}-content-${entry.value}`)
 
               return (
                 <div
                   data-slot="item"
-                  style={merged.styles?.item}
+                  style={local.styles?.item}
                   data-state={state()}
                   data-disabled={disabled() ? '' : undefined}
                   class={stepperItemVariants(
                     {
-                      orientation: merged.orientation,
-                      size: merged.size,
+                      orientation: local.orientation,
+                      size: local.size,
                     },
-                    merged.classes?.item,
+                    local.classes?.item,
                     entry.item.class,
                   )}
                 >
                   <div
                     data-slot="container"
-                    style={merged.styles?.container}
+                    style={local.styles?.container}
                     class={stepperContainerVariants(
-                      { orientation: merged.orientation },
-                      merged.classes?.container,
+                      { orientation: local.orientation },
+                      local.classes?.container,
                     )}
                   >
                     <KobalteTabs.Trigger
                       data-slot="trigger"
-                      style={merged.styles?.trigger}
+                      style={local.styles?.trigger}
                       data-state={state()}
-                      data-clickable={merged.clickable ? '' : undefined}
+                      data-clickable={local.clickable ? '' : undefined}
                       value={entry.value}
                       ref={(el: HTMLElement) => {
                         const listener: EventListener = (event) => {
@@ -305,10 +336,10 @@ export function Stepper(props: StepperProps): JSX.Element {
                       }
                       class={stepperTriggerVariants(
                         {
-                          size: merged.size,
+                          size: local.size,
                           state: state(),
                         },
-                        merged.classes?.trigger,
+                        local.classes?.trigger,
                       )}
                     >
                       <Icon name={entry.item.icon || (() => entry.index + 1)} />
@@ -317,14 +348,14 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <Show when={entry.index < normalizedItems().length - 1}>
                       <div
                         data-slot="separator"
-                        style={merged.styles?.separator}
+                        style={local.styles?.separator}
                         data-state={state()}
                         data-disabled={disabled() ? '' : undefined}
                         class={stepperSeparatorVariants(
                           {
-                            orientation: merged.orientation,
+                            orientation: local.orientation,
                           },
-                          merged.classes?.separator,
+                          local.classes?.separator,
                         )}
                       />
                     </Show>
@@ -332,18 +363,18 @@ export function Stepper(props: StepperProps): JSX.Element {
 
                   <div
                     data-slot="wrapper"
-                    style={merged.styles?.wrapper}
+                    style={local.styles?.wrapper}
                     class={stepperWrapperVariants(
-                      { orientation: merged.orientation },
-                      merged.classes?.wrapper,
+                      { orientation: local.orientation },
+                      local.classes?.wrapper,
                     )}
                   >
                     <Show when={entry.item.title}>
                       <div
                         data-slot="title"
-                        style={merged.styles?.title}
+                        style={local.styles?.title}
                         id={`${idPrefix()}-step-${entry.index}-title`}
-                        class={stepperTitleVariants({ size: merged.size }, merged.classes?.title)}
+                        class={stepperTitleVariants({ size: local.size }, local.classes?.title)}
                       >
                         {entry.item.title}
                       </div>
@@ -352,11 +383,11 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <Show when={entry.item.description}>
                       <div
                         data-slot="description"
-                        style={merged.styles?.description}
+                        style={local.styles?.description}
                         id={`${idPrefix()}-step-${entry.index}-description`}
                         class={stepperDescriptionVariants(
-                          { size: merged.size },
-                          merged.classes?.description,
+                          { size: local.size },
+                          local.classes?.description,
                         )}
                       >
                         {entry.item.description}
@@ -374,9 +405,9 @@ export function Stepper(props: StepperProps): JSX.Element {
             <Show when={entry.item.content}>
               <KobalteTabs.Content
                 data-slot="content"
-                style={merged.styles?.content}
+                style={local.styles?.content}
                 value={entry.value}
-                class={cn('w-full', entry.item.class, merged.classes?.content)}
+                class={cn('w-full', entry.item.class, local.classes?.content)}
               >
                 {entry.item.content}
               </KobalteTabs.Content>
@@ -390,15 +421,21 @@ export function Stepper(props: StepperProps): JSX.Element {
   return (
     <KobalteTabs.Root
       data-slot="root"
-      style={merged.styles?.root}
+      style={local.styles?.root}
       id={id()}
-      activationMode={merged.activationMode}
-      orientation={merged.orientation}
-      disabled={merged.disabled}
+      activationMode={local.activationMode}
+      orientation={local.orientation}
+      disabled={local.disabled}
       value={resolvedValue()}
-      defaultValue={merged.defaultValue}
-      onChange={(e) => merged.clickable && merged.onChange?.(e)}
-      class={stepperRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      onChange={(value) => {
+        if (!local.clickable) {
+          return
+        }
+
+        setSelectedValue(value)
+      }}
+      class={stepperRootVariants({ orientation: local.orientation }, local.classes?.root)}
+      {...rest}
     >
       <StepperBody />
     </KobalteTabs.Root>

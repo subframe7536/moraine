@@ -1,7 +1,8 @@
 import * as KobalteCollapsible from '@kobalte/core/collapsible'
 import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
+import { Show, createMemo, splitProps } from 'solid-js'
 
+import { createControllableSignal } from '../../shared/create-controllable-signal'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
@@ -20,7 +21,7 @@ export namespace CollapsibleT {
   export type Variant = never
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteCollapsible.CollapsibleRootProps
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement>
 
   export interface Item {}
   /**
@@ -78,28 +79,50 @@ export interface CollapsibleProps extends CollapsibleT.Props {}
 
 /** Expandable content section with animated open/close transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['classes', 'styles', 'children', 'trigger'])
+  const [local, rest] = splitProps(props, [
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'classes',
+    'styles',
+    'children',
+    'trigger',
+  ])
+
+  const [open, setOpen] = createControllableSignal<boolean>({
+    value: () => local.open,
+    defaultValue: () => local.defaultOpen ?? false,
+    onChange: local.onOpenChange,
+  })
+
+  const dataset = createMemo<Record<string, string | undefined>>(() => ({
+    'data-expanded': open() ? '' : undefined,
+    'data-closed': !open() ? '' : undefined,
+    'data-disabled': local.disabled ? '' : undefined,
+  }))
 
   return (
     <KobalteCollapsible.Root
+      open={open()}
+      disabled={local.disabled}
+      onOpenChange={setOpen}
       data-slot="root"
       style={local.styles?.root}
       class={cn(local.classes?.root)}
+      {...dataset()}
       {...rest}
     >
       <Show when={local.trigger}>
-        {(render) => {
-          const context = KobalteCollapsible.useCollapsibleContext()
-          return (
-            <KobalteCollapsible.Trigger
-              data-slot="trigger"
-              style={local.styles?.trigger}
-              class={cn('cursor-pointer', local.classes?.trigger)}
-            >
-              {render()({ open: context.isOpen() })}
-            </KobalteCollapsible.Trigger>
-          )
-        }}
+        {(render) => (
+          <KobalteCollapsible.Trigger
+            data-slot="trigger"
+            style={local.styles?.trigger}
+            class={cn('cursor-pointer', local.classes?.trigger)}
+          >
+            {render()({ open: Boolean(open()) })}
+          </KobalteCollapsible.Trigger>
+        )}
       </Show>
 
       <KobalteCollapsible.Content

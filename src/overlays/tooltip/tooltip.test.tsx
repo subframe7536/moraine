@@ -1,35 +1,11 @@
-import type * as KPopper from '@kobalte/core/popper'
 import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { Tooltip } from './tooltip'
 import type { TooltipProps } from './tooltip'
 
-let getMockPlacement: () => string = () => 'top'
-let setMockPlacement: (value: string) => void = () => undefined
-
-vi.mock('@kobalte/core/popper', async () => {
-  const actual = await vi.importActual<typeof KPopper>('@kobalte/core/popper')
-
-  return {
-    ...actual,
-    usePopperContext: () => ({
-      currentPlacement: () => getMockPlacement(),
-      contentRef: () => undefined,
-      setPositionerRef: () => undefined,
-      setArrowRef: () => undefined,
-    }),
-  }
-})
-
 describe('Tooltip', () => {
-  beforeEach(() => {
-    const [placement, setPlacement] = createSignal('top')
-    getMockPlacement = placement
-    setMockPlacement = setPlacement
-  })
-
   test('renders text content when open is controlled', () => {
     render(() => (
       <Tooltip open text="Tooltip content">
@@ -117,15 +93,13 @@ describe('Tooltip', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('uses runtime placement to resolve side-aware animation classes', () => {
-    const [version, setVersion] = createSignal(0)
+  test('uses reactive placement props to resolve side-aware animation classes', () => {
+    const [placement, setPlacement] = createSignal<'top' | 'bottom'>('top')
 
     // oxlint-disable-next-line subf/solid-reactivity
     render(() => {
-      version()
-
       return (
-        <Tooltip open side="top" text="Tooltip content">
+        <Tooltip open placement={placement()} text="Tooltip content">
           <button type="button">Trigger</button>
         </Tooltip>
       )
@@ -137,8 +111,7 @@ describe('Tooltip', () => {
     expect(initialContent?.className).toContain('animate-tooltip-side-top')
     expect(initialContent?.className).not.toContain('animate-tooltip-side-bottom')
 
-    setMockPlacement('bottom')
-    setVersion(1)
+    setPlacement('bottom')
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-tooltip-in')

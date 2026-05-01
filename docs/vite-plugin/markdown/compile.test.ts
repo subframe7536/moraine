@@ -71,7 +71,7 @@ name: Variants
     expect(code).toContain('"label":"Notes","level":4')
   })
 
-  test('injects api toc entries from compile-time docs when docs-api-reference widget exists', () => {
+  test('does not inject api toc entries when compile-time docs are unavailable', () => {
     const markdown = `
 ## Variants
 
@@ -84,10 +84,9 @@ name: Variants
     })
     expect(code).not.toContain('"id":"input"')
     expect(code).toContain('"id":"variants"')
-    expect(code).toContain('"id":"api-ref"')
-    expect(code).toContain('"id":"api-props"')
-    expect(code).toContain('"label":"Props"')
-    expect((code.match(/"id":"api-ref","label":"API Reference","level":1/g) ?? []).length).toBe(1)
+    expect(code).not.toContain('"id":"api-ref"')
+    expect(code).not.toContain('"id":"api-props"')
+    expect(code).not.toContain('"label":"Props"')
   })
 
   test('does not inject api toc entries without docs-api-reference widget', () => {
@@ -107,7 +106,7 @@ name: Variants
     expect(code).not.toContain('"id":"api-inherited"')
   })
 
-  test('injects upstreamHref for kobalte-based component pages', () => {
+  test('does not inject upstreamHref without extracted api doc metadata', () => {
     const markdown = `
 ## Variants
 `
@@ -116,7 +115,7 @@ name: Variants
       projectRoot: process.cwd(),
     })
 
-    expect(code).toContain('upstreamHref: "https://kobalte.dev/docs/core/components/button"')
+    expect(code).not.toContain('upstreamHref:')
   })
 
   test('does not inject upstreamHref for non-kobalte component pages', () => {

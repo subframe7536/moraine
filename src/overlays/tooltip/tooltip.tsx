@@ -1,23 +1,47 @@
-import { usePopperContext } from '@kobalte/core/popper'
 import * as KobalteTooltip from '@kobalte/core/tooltip'
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
-import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
-import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
+import { createCurrentPlacement } from '../shared-overlay-menu/create-current-placement'
+import type { OverlayMenuPlacement, OverlayMenuSide } from '../shared-overlay-menu/utils'
 
 import { tooltipContentVariants } from './tooltip.class'
 import type { TooltipVariantProps } from './tooltip.class'
+
+type TooltipPlacementChangeHandler = (placement: string) => void
+
+type TooltipRootProps = JSX.HTMLAttributes<HTMLDivElement> & {
+  id?: string
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  disabled?: boolean
+  triggerOnFocusOnly?: boolean
+  openDelay?: number
+  closeDelay?: number
+  skipDelayDuration?: number
+  ignoreSafeArea?: boolean
+  forceMount?: boolean
+  placement?: OverlayMenuPlacement
+  gutter?: number
+  onCurrentPlacementChange?: TooltipPlacementChangeHandler
+}
+
+const TooltipRootWithPlacement = KobalteTooltip.Root as unknown as (
+  props: KobalteTooltip.TooltipRootProps & {
+    onCurrentPlacementChange?: TooltipPlacementChangeHandler
+  },
+) => JSX.Element
 
 export namespace TooltipT {
   export type Slot = 'content' | 'trigger' | 'text' | 'kbds' | 'kbd'
   export type Variant = TooltipVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteTooltip.TooltipRootProps
+  export type Extend = TooltipRootProps
 
   export interface Item {}
 
@@ -72,30 +96,20 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     'styles',
     'children',
     'placement',
+    'onCurrentPlacementChange',
   ])
+  const placement = createCurrentPlacement({
+    fallbackPlacement: () => (local.placement ?? local.side ?? 'top') as OverlayMenuPlacement,
+    onChange: local.onCurrentPlacementChange,
+  })
 
   function Content(): JSX.Element {
-    const popperContext = usePopperContext()
-    const resolvedSide = createMemo<OverlayMenuSide>(() => {
-      const runtimePlacement = popperContext.currentPlacement()
-
-      if (runtimePlacement) {
-        return resolveOverlayMenuSide(runtimePlacement)
-      }
-
-      if (local.side) {
-        return local.side
-      }
-
-      return resolveOverlayMenuSide(local.placement)
-    })
-
     return (
       <KobalteTooltip.Content
         data-slot="content"
         style={local.styles?.content}
         class={tooltipContentVariants(
-          { side: resolvedSide(), invert: local.invert },
+          { side: placement.resolvedSide() as OverlayMenuSide, invert: local.invert },
           local.classes?.content,
         )}
       >
@@ -123,7 +137,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   return (
-    <KobalteTooltip.Root overflowPadding={4} placement={resolveOverlayMenuSide()} {...rest}>
+    <TooltipRootWithPlacement
+      overflowPadding={4}
+      placement={local.placement}
+      onCurrentPlacementChange={placement.onCurrentPlacementChange}
+      {...rest}
+    >
       <KobalteTooltip.Trigger
         as="span"
         tabIndex={-1}
@@ -137,6 +156,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       <KobalteTooltip.Portal>
         <Content />
       </KobalteTooltip.Portal>
-    </KobalteTooltip.Root>
+    </TooltipRootWithPlacement>
   )
 }

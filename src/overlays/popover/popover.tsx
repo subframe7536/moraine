@@ -1,24 +1,46 @@
 import * as KobaltePopover from '@kobalte/core/popover'
-import { usePopperContext } from '@kobalte/core/popper'
 import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
+import { Show, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
-import { resolveOverlayMenuSide } from '../shared-overlay-menu/utils'
+import { createCurrentPlacement } from '../shared-overlay-menu/create-current-placement'
 import type { OverlayMenuSide } from '../shared-overlay-menu/utils'
+import type { OverlayMenuPlacement } from '../shared-overlay-menu/utils'
 
 import { popoverContentVariants } from './popover.class'
 import type { PopoverContentVariantProps } from './popover.class'
 
 type PopoverMode = 'click' | 'hover'
+type PopoverPlacementChangeHandler = (placement: string) => void
+
+type PopoverRootProps = JSX.HTMLAttributes<HTMLDivElement> & {
+  id?: string
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  placement?: OverlayMenuPlacement
+  gutter?: number
+  sameWidth?: boolean
+  modal?: boolean
+  preventScroll?: boolean
+  forceMount?: boolean
+  overflowPadding?: number
+  onCurrentPlacementChange?: PopoverPlacementChangeHandler
+}
+
+const PopoverRootWithPlacement = KobaltePopover.Root as unknown as (
+  props: KobaltePopover.PopoverRootProps & {
+    onCurrentPlacementChange?: PopoverPlacementChangeHandler
+  },
+) => JSX.Element
 
 export namespace PopoverT {
   export type Slot = 'trigger' | 'content' | 'body'
   export type Variant = PopoverContentVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobaltePopover.PopoverRootProps
+  export type Extend = PopoverRootProps
 
   export interface Item {}
 
@@ -99,6 +121,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     'closeDelay',
     'dismissible',
     'onClosePrevent',
+    'onCurrentPlacementChange',
     'content',
     'classes',
     'styles',
@@ -111,6 +134,10 @@ export function Popover(props: PopoverProps): JSX.Element {
   let closeTimer: ReturnType<typeof setTimeout> | undefined
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
+  const placement = createCurrentPlacement({
+    fallbackPlacement: () => local.placement,
+    onChange: local.onCurrentPlacementChange,
+  })
 
   onCleanup(() => {
     clearTimeout(resetTimeout)
@@ -119,22 +146,11 @@ export function Popover(props: PopoverProps): JSX.Element {
   })
 
   function Content(): JSX.Element {
-    const popperContext = usePopperContext()
-    const resolvedSide = createMemo<PopoverSide>(() => {
-      const runtimePlacement = popperContext.currentPlacement()
-
-      if (runtimePlacement) {
-        return resolveOverlayMenuSide(runtimePlacement)
-      }
-
-      return resolveOverlayMenuSide(local.placement)
-    })
-
     return (
       <KobaltePopover.Content
         data-slot="content"
         style={local.styles?.content}
-        class={popoverContentVariants({ side: resolvedSide() }, local.classes?.content)}
+        class={popoverContentVariants({ side: placement.resolvedSide() as PopoverSide }, local.classes?.content)}
         onPointerDownOutside={(event) => {
           if (local.dismissible) {
             return
@@ -182,9 +198,10 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   return (
-    <KobaltePopover.Root
+    <PopoverRootWithPlacement
       placement={local.placement}
       overflowPadding={4}
+      onCurrentPlacementChange={placement.onCurrentPlacementChange}
       open={
         local.mode === 'hover' ? (local.open !== undefined ? local.open : hoverOpen()) : local.open
       }
@@ -228,6 +245,6 @@ export function Popover(props: PopoverProps): JSX.Element {
       <KobaltePopover.Portal>
         <Content />
       </KobaltePopover.Portal>
-    </KobaltePopover.Root>
+    </PopoverRootWithPlacement>
   )
 }

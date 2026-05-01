@@ -1,6 +1,6 @@
 import * as KobalteFileField from '@kobalte/core/file-field'
 import type { FileError, FileRejection } from '@kobalte/core/file-field'
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -62,7 +62,7 @@ export namespace FileUploadT {
   export type Variant = FileUploadVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteFileField.FileFieldRootProps
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement>
 
   export interface Item {}
 
@@ -293,7 +293,6 @@ function constrainSingleFile(accepted: File[]): {
 export function FileUpload(props: FileUploadProps): JSX.Element {
   const merged = mergeProps(
     {
-      as: 'div' as ValidComponent,
       accept: '*',
       multiple: false,
       dropzone: true,
@@ -418,8 +417,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   }
 
   function FileRemoveButton(props: { file: File; index: number }): JSX.Element {
-    const fileFieldContext = KobalteFileField.useFileFieldContext()
-
     return (
       <button
         type="button"
@@ -434,7 +431,6 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         )}
         disabled={field.disabled()}
         onClick={() => {
-          fileFieldContext.removeFile(props.file)
           removeFileAt(props.index)
         }}
       >
@@ -563,7 +559,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         },
         local.classes?.root,
       )}
-      {...rest}
+      {...(rest as Record<string, unknown>)}
     >
       <Show
         when={local.dropzone}

@@ -14,6 +14,12 @@ import {
   progressStepsVariants,
 } from './progress.class'
 
+type ProgressValueLabelDetails = {
+  value: number
+  min: number
+  max: number
+}
+
 export namespace ProgressT {
   export interface StatusRenderContext {
     /**
@@ -41,7 +47,7 @@ export namespace ProgressT {
   export type Variant = ProgressVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
-  export type Extend = KobalteProgress.ProgressRootProps
+  export type Extend = JSX.HTMLAttributes<HTMLDivElement>
 
   export interface Item {}
   /**
@@ -69,7 +75,7 @@ export namespace ProgressT {
     /**
      * Callback to get a localized label for the current value.
      */
-    getValueLabel?: KobalteProgress.ProgressRootProps['getValueLabel']
+    getValueLabel?: (details: ProgressValueLabelDetails) => string
 
     /**
      * Custom render function for the status label.
@@ -153,70 +159,68 @@ export function Progress(props: ProgressProps): JSX.Element {
     return value
   })
 
-  function ProgressContent(): JSX.Element {
-    const context = KobalteProgress.useProgressContext()
-    const percent = createMemo<number | undefined>(() => {
-      if (isIndeterminate()) {
-        return undefined
-      }
-
-      const ratio = context.valuePercent()
-      if (!Number.isFinite(ratio)) {
-        return 0
-      }
-
-      const bounded = Math.min(Math.max(ratio, 0), 1)
-      return Math.round(bounded * 100)
-    })
-
-    const statusStyle = createMemo<JSX.CSSProperties>(() => {
-      const currentPercent = Math.max(percent() ?? 0, 0)
-      if (local.orientation === 'vertical') {
-        return { height: `${100 - currentPercent}%` }
-      }
-
-      return { width: `${currentPercent}%` }
-    })
-
-    const indicatorStyle = createMemo<JSX.CSSProperties | undefined>(() => {
-      const currentPercent = percent()
-      if (currentPercent === undefined) {
-        return undefined
-      }
-
-      const distance = 100 - currentPercent
-      if (local.orientation === 'vertical') {
-        return {
-          transform: `translateY(${distance}%)`,
-        }
-      }
-
-      return {
-        transform: `translateX(-${distance}%)`,
-      }
-    })
-
-    function stepState(index: number): ProgressT.StepRenderContext['state'] {
-      const value = context.value()
-      const activeIndex = Number.isFinite(value) ? Math.round(value) : 0
-      const isActive = !isIndeterminate() && index === activeIndex
-      const lastIndex = steps().length - 1
-
-      if (isActive && index === 0) {
-        return 'first'
-      }
-
-      if (isActive && index === lastIndex) {
-        return 'last'
-      }
-
-      if (isActive) {
-        return 'active'
-      }
-
-      return 'other'
+  const boundedValue = createMemo(() => Math.min(Math.max(kobalteValue(), 0), kobalteMax()))
+  const percent = createMemo<number | undefined>(() => {
+    if (isIndeterminate()) {
+      return undefined
     }
 
+    const max = kobalteMax()
+    if (!Number.isFinite(max) || max <= 0) {
+      return 0
+    }
+
+    return Math.round((boundedValue() / max) * 100)
+  })
+
+  const statusStyle = createMemo<JSX.CSSProperties>(() => {
+    const currentPercent = Math.max(percent() ?? 0, 0)
+    if (local.orientation === 'vertical') {
+      return { height: `${100 - currentPercent}%` }
+    }
+
+    return { width: `${currentPercent}%` }
+  })
+
+  const indicatorStyle = createMemo<JSX.CSSProperties | undefined>(() => {
+    const currentPercent = percent()
+    if (currentPercent === undefined) {
+      return undefined
+    }
+
+    const distance = 100 - currentPercent
+    if (local.orientation === 'vertical') {
+      return {
+        transform: `translateY(${distance}%)`,
+      }
+    }
+
+    return {
+      transform: `translateX(-${distance}%)`,
+    }
+  })
+
+  function stepState(index: number): ProgressT.StepRenderContext['state'] {
+    const activeIndex = Number.isFinite(boundedValue()) ? Math.round(boundedValue()) : 0
+    const isActive = !isIndeterminate() && index === activeIndex
+    const lastIndex = steps().length - 1
+
+    if (isActive && index === 0) {
+      return 'first'
+    }
+
+    if (isActive && index === lastIndex) {
+      return 'last'
+    }
+
+    if (isActive) {
+      return 'active'
+    }
+
+    return 'other'
+  }
+
+  function ProgressContent(): JSX.Element {
     return (
       <>
         <Show when={!isIndeterminate() && (local.status || local.renderStatus)}>
@@ -323,7 +327,7 @@ export function Progress(props: ProgressProps): JSX.Element {
         },
         local.classes?.root,
       )}
-      {...rest}
+      {...(rest as Record<string, unknown>)}
     >
       <ProgressContent />
     </KobalteProgress.Root>
