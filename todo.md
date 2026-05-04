@@ -1,6 +1,6 @@
 # Current
 
-- [ ] slider value should infer from value property and become generic
+- [x] slider value should infer from value property and become generic
 - [ ] remove button's icon-* size variants, create a <IconButtonInner> component with size variants for internal use without loading logic, expose <IconButton> with loading logic (using <IconButtonInner> inside)
 
 # V1
