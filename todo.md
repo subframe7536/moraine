@@ -2,7 +2,7 @@
 
 Kobalte is an unstyled headless component library for SolidJS used extensively throughout Moraine.
 Inlining each Kobalte package gives full control over behavior and accessibility, allows fixing
-known upstream bugs, and eliminates dead code from unused Kobalte internals. Once all packages are
+known upstream bugs, and eliminates dead code from unused Kobalte internals. Also, it can make it easior to migrate to solid 2. Once all packages are
 replaced, `@kobalte/core` and `@kobalte/utils` can be dropped from dependencies entirely.
 
 ## Existing Bugs
@@ -21,6 +21,8 @@ To inline a Kobalte package:
 3. Fix any known bugs listed in "Existing Bugs" for the affected component
 4. Ensure all accessibility attributes (ARIA roles, keyboard navigation, focus management) are preserved
 5. Once all usages of a package are replaced, remove it from `package.json`
+6. migrate all tests of relative components
+7. make copied components non headless and fuse it into target components, eliminate createContext usage without breaking anything if possible, refactor and organize component structure better fitting a standalone lib with resuable components and useful hooks
 
 ### Simple
 
@@ -77,8 +79,8 @@ Floating/positioned overlays with portals, focus traps, and complex pointer/keyb
 
 # Current
 
-- [x] slider value should infer from value property and become generic
 - [ ] remove button's icon-* size variants, create a <IconButtonInner> component with size variants for internal use without loading logic, expose <IconButton> with loading logic (using <IconButtonInner> inside)
+- [ ] refactor to solid 2
 
 # V1
 
