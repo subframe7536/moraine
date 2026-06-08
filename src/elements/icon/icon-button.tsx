@@ -3,11 +3,11 @@ import { splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
+import { cn } from '../../shared/utils'
 
-import { Icon } from './icon'
 import type { IconT } from './icon'
-import { iconButtonVariants, iconVariants } from './icon-button.class'
 import type { IconButtonVariantProps } from './icon-button.class'
+import { IconButtonInner } from './icon-button-inner'
 
 export namespace IconButtonT {
   export type Slot = 'root' | 'icon'
@@ -79,24 +79,20 @@ export function IconButton(props: IconButtonProps): JSX.Element {
   })
 
   return (
-    <button
-      data-slot="root"
-      type="button"
-      class={iconButtonVariants({ size: local.size }, local.classes?.root)}
-      style={local.styles?.root}
+    <IconButtonInner
+      {...rest}
+      name={isLoading() ? (local.loadingIcon ?? 'icon-loading') : local.name}
+      size={local.size}
+      classes={{
+        root: local.classes?.root,
+        icon: cn(isLoading() && 'effect-loading', local.classes?.icon),
+      }}
+      styles={local.styles}
       aria-busy={isLoading() || undefined}
       data-loading={isLoading() ? '' : undefined}
       disabled={isLoading() || local.disabled}
       onClick={onClick}
-      {...rest}
       aria-label={isLoading() ? 'Loading' : rest['aria-label']}
-    >
-      <Icon
-        data-loading={isLoading() ? '' : undefined}
-        name={isLoading() ? (local.loadingIcon ?? 'icon-loading') : local.name}
-        class={iconVariants({ size: local.size }, local.classes?.icon)}
-        style={local.styles?.icon}
-      />
-    </button>
+    />
   )
 }

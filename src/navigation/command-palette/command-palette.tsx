@@ -10,8 +10,9 @@ import {
   onMount,
 } from 'solid-js'
 
-import { Icon, IconButton } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import { Kbd } from '../../elements/kbd'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -435,25 +436,27 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         <Show
           when={history().length > 0}
           fallback={
-            <IconButton
-              name={merged.searchIcon}
+            <IconButtonInner
+              name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.searchIcon}
               data-slot="search"
               tabIndex={-1}
               styles={{ root: merged.styles?.search }}
-              loading={merged.loading}
-              loadingIcon={merged.loadingIcon}
+              aria-busy={merged.loading || undefined}
+              data-loading={merged.loading ? '' : undefined}
+              disabled={merged.loading || undefined}
               classes={{
                 root: ['text-muted-foreground size-5 pointer-events-none', merged.classes?.search],
               }}
             />
           }
         >
-          <IconButton
-            name={merged.backIcon}
-            loading={merged.loading}
-            loadingIcon={merged.loadingIcon}
+          <IconButtonInner
+            name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.backIcon}
             data-slot="back"
             styles={{ root: merged.styles?.back }}
+            aria-busy={merged.loading || undefined}
+            data-loading={merged.loading ? '' : undefined}
+            disabled={merged.loading || undefined}
             classes={{
               root: [
                 'text-muted-foreground outline-none hover:text-foreground',
@@ -484,7 +487,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         />
 
         <Show when={merged.close}>
-          <IconButton
+          <IconButtonInner
             name={merged.closeIcon}
             data-slot="close"
             styles={{ root: merged.styles?.close }}

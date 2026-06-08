@@ -3,8 +3,9 @@ import { For, Show, createMemo, createSignal } from 'solid-js'
 
 import { Badge } from '../../elements/badge'
 import type { BadgeProps } from '../../elements/badge'
-import { Icon, IconButton } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { cn } from '../../shared/utils'
@@ -535,6 +536,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         const isClearAction = createMemo(() =>
           Boolean(props.allowClear && selectedOptions().length > 0),
         )
+        const isActionLoading = createMemo(() => Boolean(props.loading && !isClearAction()))
 
         return (
           <div
@@ -648,21 +650,23 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               />
             </div>
 
-            <IconButton
+            <IconButtonInner
               name={
-                isClearAction()
+                isActionLoading()
+                  ? (props.loadingIcon ?? 'icon-loading')
+                  : isClearAction()
                   ? (props.closeIcon ?? 'icon-close')
                   : (props.trailingIcon ?? 'icon-chevron-down')
               }
-              loading={props.loading && !isClearAction()}
-              loadingIcon={props.loadingIcon}
               data-slot={isClearAction() ? 'clear' : 'trigger'}
               aria-label={isClearAction() ? 'Clear selection' : 'Open dropdown menu'}
+              aria-busy={isActionLoading() || undefined}
+              data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
               classes={{
                 root: [
                   'me-2 transition-colors hover:bg-muted/40',
-                  props.loading && !isClearAction() ? 'cursor-wait' : 'cursor-pointer',
+                  isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
                   props.classes?.trigger,
                   isClearAction() ? props.classes?.clear : undefined,
                 ],

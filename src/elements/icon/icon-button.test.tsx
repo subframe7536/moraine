@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
 import { IconButton } from './icon-button'
+import { IconButtonInner } from './icon-button-inner'
 
 function createDeferred() {
   let resolve: (() => void) | undefined
@@ -104,5 +105,22 @@ describe('IconButton', () => {
       expect(icon()?.className).toContain('i-lucide:copy')
       expect(icon()?.className).toContain('data-loading:effect-loading')
     })
+  })
+})
+
+describe('IconButtonInner', () => {
+  test('renders size variants without loading behavior', () => {
+    const screen = render(() => (
+      <IconButtonInner name="i-lucide:settings" size="lg" aria-label="Settings" />
+    ))
+
+    const button = screen.getByRole('button', { name: 'Settings' })
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(button.className).toContain('rounded-lg')
+    expect(button.hasAttribute('data-loading')).toBe(false)
+    expect(button.hasAttribute('aria-busy')).toBe(false)
+    expect(icon?.className).toContain('size-5')
+    expect(icon?.className).toContain('i-lucide:settings')
   })
 })

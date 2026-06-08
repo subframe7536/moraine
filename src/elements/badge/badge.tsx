@@ -3,16 +3,18 @@ import { Show, createMemo, mergeProps } from 'solid-js'
 
 import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
 import { cn } from '../../shared/utils'
-import { Icon, IconButton } from '../icon'
-import type { IconButtonProps, IconT } from '../icon'
+import { Icon } from '../icon'
+import { IconButtonInner } from '../icon/icon-button-inner'
+import type { IconButtonInnerProps } from '../icon/icon-button-inner'
+import type { IconT } from '../icon'
 
 import type { BadgeVariantProps } from './badge.class'
 import { badgeVariants } from './badge.class'
 
 export namespace BadgeT {
   export interface TrailingButtonProps extends Omit<
-    IconButtonProps,
-    'children' | 'name' | 'onClick' | 'size' | 'loading' | 'loadingIcon' | 'type'
+    IconButtonInnerProps,
+    'children' | 'iconProps' | 'iconSlotName' | 'name' | 'onClick' | 'size' | 'slotName' | 'type'
   > {}
 
   export type Slot = 'root' | 'leading' | 'label' | 'trailing'
@@ -134,7 +136,7 @@ export function Badge(props: BadgeProps): JSX.Element {
               />
             }
           >
-            <IconButton
+            <IconButtonInner
               name={trailing()}
               size={merged.size}
               data-slot="trailing"
