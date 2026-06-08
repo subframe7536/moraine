@@ -5,6 +5,7 @@ import uno from '@subf/unocss/vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
+import unocfg from './unocss.config'
 import { docsPlugin, siteMetaPlugin } from './vite-plugin'
 
 export default defineConfig({
@@ -22,7 +23,7 @@ export default defineConfig({
       twitterCard: 'summary_large_image',
     }),
     docsPlugin(),
-    uno('./unocss.config.ts'),
+    uno(unocfg),
     solid(),
   ],
   resolve: {
