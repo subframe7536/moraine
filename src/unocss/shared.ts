@@ -932,8 +932,26 @@ export function runTransform(code: MagicString, id: string, factory: Replacement
   applyReplacements(code, source, replacements)
 }
 
+// reference from `npm:ci-info`
+const isCI = !!(
+  process.env.CI !== 'false' && // Bypass all checks if CI env is explicitly set to 'false'
+  (process.env.BUILD_ID || // Jenkins, Cloudbees
+    process.env.BUILD_NUMBER || // Jenkins, TeamCity
+    process.env.CI || // Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, CodeShip, dsari, Cloudflare Pages/Workers
+    process.env.CI_APP_ID || // Appflow
+    process.env.CI_BUILD_ID || // Appflow
+    process.env.CI_BUILD_NUMBER || // Appflow
+    process.env.CI_NAME || // Codeship and others
+    process.env.CONTINUOUS_INTEGRATION || // Travis CI, Cirrus CI
+    process.env.RUN_ID || // TaskCluster, dsari
+    exports.name ||
+    false)
+)
 let inVSC: boolean | undefined = undefined
 export function isInVSCode() {
+  if (isCI) {
+    return false
+  }
   if (inVSC === undefined) {
     inVSC = typeof process !== 'undefined' && process.stdout && !!process.env.VSCODE_CWD
   }

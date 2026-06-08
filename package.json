@@ -49,6 +49,7 @@
     "docs": "bun run build && bun run docs:dev",
     "docs:dev": "vite serve docs",
     "docs:build": "bun run build && vite build docs",
+    "docs:preview": "bun run docs:build && vite preview docs",
     "test": "vitest --run",
     "test:dev": "vitest",
     "lint": "oxlint --fix",

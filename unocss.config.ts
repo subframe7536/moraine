@@ -16,7 +16,7 @@ export default defineConfig<PresetWind4Theme>({
       scale: 1.2,
     }),
     presetMoraine({
-      // enableComponentLayer: true,
+      enableComponentLayer: true,
     }),
     presetCompletion(),
   ],
