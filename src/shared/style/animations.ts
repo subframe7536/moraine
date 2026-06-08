@@ -2,11 +2,15 @@ type KeyframeStop = Record<string, string>
 type KeyframeFrames = Record<string, KeyframeStop>
 
 const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
-const MORAINE_ANIM_DUR_VAR = 'var(--mo-anim-duration,150ms)'
+const MORAINE_ANIM_DUR_VAR_ENTER = 'var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms))'
+const MORAINE_ANIM_DUR_VAR_EXIT = 'var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms))'
 
-function getAnimType(name: string): 'moraine' | 'looping' | 'default' {
-  if (name === 'mo-enter' || name === 'mo-exit') {
-    return 'moraine'
+function getAnimType(name: string): 'moraine-enter' | 'moraine-exit' | 'looping' | 'default' {
+  if (name === 'mo-enter') {
+    return 'moraine-enter'
+  }
+  if (name === 'mo-exit') {
+    return 'moraine-exit'
   }
   if (LOOPING_PREFIXES.some((p) => name.startsWith(p))) {
     return 'looping'
@@ -78,7 +82,19 @@ export function getMoraineAnimDurations(): Record<string, string> {
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => {
       const type = getAnimType(name)
-      return [name, type === 'moraine' ? MORAINE_ANIM_DUR_VAR : type === 'looping' ? '2s' : '150ms']
+      let duration = '150ms'
+      switch (type) {
+        case 'moraine-enter':
+          duration = MORAINE_ANIM_DUR_VAR_ENTER
+          break
+        case 'moraine-exit':
+          duration = MORAINE_ANIM_DUR_VAR_EXIT
+          break
+        case 'looping':
+          duration = '2s'
+          break
+      }
+      return [name, duration]
     }),
   )
 }
