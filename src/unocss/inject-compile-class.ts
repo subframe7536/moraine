@@ -1,6 +1,6 @@
 import type { SourceCodeTransformer } from '@unocss/core'
 
-import { isInVSCode, normalizeId, runTransform } from './shared'
+import { normalizeId, runTransform } from './shared'
 
 export function injectCompileClassTrigger(value: string, trigger: string): string {
   const trimmed = value.trim()
@@ -31,9 +31,6 @@ export function transformerInjectCompileClass(
     enforce: 'pre',
     idFilter: idFilter ? (id) => idFilter(normalizeId(id)) : undefined,
     async transform(code, id, context) {
-      if (isInVSCode()) {
-        return
-      }
       const normalizedId = normalizeId(id)
 
       beforeTransform?.(code, normalizedId, context)

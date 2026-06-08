@@ -1,6 +1,6 @@
 import type { SourceCodeTransformer } from '@unocss/core'
 
-import { isInVSCode, normalizeId, runTransform } from './shared'
+import { normalizeId, runTransform } from './shared'
 
 const blockList = new Set(['peer', 'group'])
 
@@ -41,10 +41,6 @@ export function transformerInjectPrefix(
     enforce: 'pre',
     idFilter: idFilter ? (id) => idFilter(normalizeId(id)) : undefined,
     async transform(code, id, context) {
-      if (isInVSCode()) {
-        return
-      }
-
       const normalizedId = normalizeId(id)
 
       beforeTransform?.(code, normalizedId, context)
