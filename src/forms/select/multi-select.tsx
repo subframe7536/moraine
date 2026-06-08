@@ -655,8 +655,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 isActionLoading()
                   ? (props.loadingIcon ?? 'icon-loading')
                   : isClearAction()
-                  ? (props.closeIcon ?? 'icon-close')
-                  : (props.trailingIcon ?? 'icon-chevron-down')
+                    ? (props.closeIcon ?? 'icon-close')
+                    : (props.trailingIcon ?? 'icon-chevron-down')
               }
               data-slot={isClearAction() ? 'clear' : 'trigger'}
               aria-label={isClearAction() ? 'Clear selection' : 'Open dropdown menu'}

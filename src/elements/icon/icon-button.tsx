@@ -6,8 +6,8 @@ import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { cn } from '../../shared/utils'
 
 import type { IconT } from './icon'
-import type { IconButtonVariantProps } from './icon-button.class'
 import { IconButtonInner } from './icon-button-inner'
+import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonT {
   export type Slot = 'root' | 'icon'

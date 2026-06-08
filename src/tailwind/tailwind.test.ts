@@ -210,12 +210,16 @@ describe('shadows', () => {
 describe('animations', () => {
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
-    expect(css).toContain('animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms)) ease-in-out 1')
+    expect(css).toContain(
+      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms)) ease-in-out 1',
+    )
   })
 
   test('animate-mo-exit uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-exit'])
-    expect(css).toContain('animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) ease-in-out 1')
+    expect(css).toContain(
+      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) ease-in-out 1',
+    )
   })
 
   test('mo-enter keyframe uses CSS variable transforms', async () => {
