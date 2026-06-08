@@ -22,7 +22,7 @@ export default defineConfig({
       twitterCard: 'summary_large_image',
     }),
     docsPlugin(),
-    uno({ inspector: false }),
+    uno('./unocss.config.ts'),
     solid(),
   ],
   resolve: {

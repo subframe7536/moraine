@@ -1,9 +1,17 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import { createGenerator, presetIcons, presetWind4 } from '@subf/unocss'
 import MagicString from 'magic-string'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { presetMoraine, resolvePresetThemeOptions } from './theme'
+
+vi.mock('./shared', async () => {
+  const actual = await vi.importActual('./shared')
+  return {
+    ...actual,
+    isInVSCode: () => false,
+  }
+})
 
 async function applyPreTransformers(
   source: string,
