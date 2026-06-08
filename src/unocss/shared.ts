@@ -944,7 +944,6 @@ const isCI = !!(
     process.env.CI_NAME || // Codeship and others
     process.env.CONTINUOUS_INTEGRATION || // Travis CI, Cirrus CI
     process.env.RUN_ID || // TaskCluster, dsari
-    exports.name ||
     false)
 )
 let inVSC: boolean | undefined = undefined

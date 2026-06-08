@@ -41,7 +41,11 @@ export default defineConfig<PresetWind4Theme>({
       enableComponentLayer: {
         strategy: 'prefix',
         idFilter(id: string) {
-          return id.includes('/src/') && (id.endsWith('.class.ts') || id.endsWith('.tsx'))
+          // Match both source files and built library (for CF Pages compatibility)
+          return (
+            (id.includes('/src/') || id.includes('/dist/') || id.includes('node_modules/moraine'))
+            && (id.endsWith('.class.ts') || id.endsWith('.tsx') || id.endsWith('.jsx'))
+          )
         },
         beforeTransform(code, id, ctx) {
           transformer.transform(code, id, ctx)
@@ -63,7 +67,8 @@ export default defineConfig<PresetWind4Theme>({
         './**/*.class.ts',
         '../src/**/*.tsx',
         '../src/**/*.class.ts',
-        'node_modules/**/*.*',
+        '../dist/**/*.jsx',
+        'node_modules/moraine/dist/**/*.jsx',
       ],
     },
   },
