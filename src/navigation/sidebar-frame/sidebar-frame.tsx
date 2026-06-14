@@ -293,6 +293,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
         Sidebar={() => (
           <div
             data-slot="sidebar"
+            data-mobile={context.isMobile() ? '' : undefined}
+            data-side={context.side}
             style={merged.styles?.sidebar}
             class={sidebarFrameSidebarVariants(
               { variant: merged.variant, side: merged.side, isMobile: resolvedIsMobile() },
