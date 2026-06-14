@@ -41,6 +41,7 @@ describe('SidebarFrame', () => {
 
     expect(screen.container.querySelector('[data-slot="layout"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
 
   test('supports renderFrame override', () => {

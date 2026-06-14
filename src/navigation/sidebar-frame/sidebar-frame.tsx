@@ -286,7 +286,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     <div
       data-slot="root"
       style={merged.styles?.root}
-      class={cn('h-full min-h-0 overflow-hidden', merged.classes?.root)}
+      class={cn('h-screen min-h-0 overflow-hidden', merged.classes?.root)}
     >
       <merged.renderFrame
         {...context}
@@ -337,7 +337,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-slot="main"
             style={merged.styles?.main}
             class={cn(
-              'h-full min-h-0 overflow-y-auto',
+              'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
               merged.variant === 'inset' && 'b-1 b-border rounded-2xl bg-background shadow-xs',
             )}
             onScroll={(event) => {

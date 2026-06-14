@@ -32,7 +32,10 @@ function App() {
       <DocsShell
         sidebar={(ctx) => (
           <div class="flex flex-col h-full min-h-0">
-            <SidebarHeader onClose={ctx.isMobile() ? () => ctx.setSidebarOpen(false) : undefined} />
+            <SidebarHeader
+              onClose={ctx.isMobile() ? () => ctx.setSidebarOpen(false) : undefined}
+              isMobile={ctx.isMobile()}
+            />
             <Sidebar
               pages={pages}
               activePage={page}

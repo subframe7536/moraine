@@ -26,6 +26,7 @@ export interface SidebarProps {
 }
 
 export interface SidebarHeaderProps {
+  isMobile?: boolean
   onClose?: () => void
 }
 
@@ -110,7 +111,12 @@ export const Sidebar = (props: SidebarProps) => {
 
 export const SidebarHeader = (props: SidebarHeaderProps) => {
   return (
-    <div class="px-4 b-(b border) flex shrink-0 h-13 items-center justify-between">
+    <div
+      class={cn(
+        'px-4 flex shrink-0 h-13 items-center justify-between',
+        props.isMobile ? 'mt-1' : 'b-(b border)',
+      )}
+    >
       <div class="flex gap-2.5 min-w-0 items-center">
         <img src="/favicon.svg" alt="icon" class="size-7" />
         <p class="text-lg font-semibold truncate">
