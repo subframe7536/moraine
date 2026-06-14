@@ -43,8 +43,10 @@ export default defineConfig<PresetWind4Theme>({
         idFilter(id: string) {
           // Match both source files and built library (for CF Pages compatibility)
           return (
-            (id.includes('/src/') || id.includes('/dist/') || id.includes('node_modules/moraine'))
-            && (id.endsWith('.class.ts') || id.endsWith('.tsx') || id.endsWith('.jsx'))
+            (id.includes('/src/') ||
+              id.includes('/dist/') ||
+              id.includes('node_modules/moraine')) &&
+            (id.endsWith('.class.ts') || id.endsWith('.tsx') || id.endsWith('.jsx'))
           )
         },
         beforeTransform(code, id, ctx) {
