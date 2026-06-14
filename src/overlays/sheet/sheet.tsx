@@ -239,7 +239,7 @@ export function Sheet(props: SheetProps): JSX.Element {
               style={merged.styles?.body}
               class={cn(
                 'flex-1 overflow-auto',
-                merged.header || hasDefaultHeader() ? 'px-4 pb-4 pt-0' : 'p-4',
+                (merged.header || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
                 merged.classes?.body,
               )}
             >
