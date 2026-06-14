@@ -20,43 +20,40 @@ export const sidebarFrameDesktopLayoutVariants = cva('flex h-full min-h-0', {
   },
 })
 
-export const sidebarFrameSidebarVariants = cva(
-  'flex flex-col h-full min-h-0 w-[clamp(14rem,20vw,20rem)]',
-  {
-    variants: {
-      side: {
-        left: '',
-        right: '',
-      },
-      isMobile: {
-        true: '',
-        false: '',
-      },
-      variant: {
-        default: '',
-        floating: 'b-1 b-border rounded-2xl bg-background shadow-sm overflow-hidden',
-        inset: '',
-      },
+export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
+  variants: {
+    side: {
+      left: '',
+      right: '',
     },
-    compoundVariants: [
-      {
-        variant: 'default',
-        isMobile: false,
-        side: 'left',
-        class: 'b-r b-border',
-      },
-      {
-        variant: 'default',
-        isMobile: false,
-        side: 'right',
-        class: 'b-l b-border',
-      },
-    ],
-    defaultVariants: {
-      side: 'left',
-      variant: 'default',
+    isMobile: {
+      true: '',
+      false: 'w-[clamp(14rem,20vw,20rem)]',
+    },
+    variant: {
+      default: '',
+      floating: 'b-1 b-border rounded-2xl bg-background shadow-sm overflow-hidden',
+      inset: '',
     },
   },
-)
+  compoundVariants: [
+    {
+      variant: 'default',
+      isMobile: false,
+      side: 'left',
+      class: 'b-r b-border',
+    },
+    {
+      variant: 'default',
+      isMobile: false,
+      side: 'right',
+      class: 'b-l b-border',
+    },
+  ],
+  defaultVariants: {
+    side: 'left',
+    variant: 'default',
+  },
+})
 
 export type SidebarFrameVariantProps = VariantProps<typeof sidebarFrameDesktopLayoutVariants>

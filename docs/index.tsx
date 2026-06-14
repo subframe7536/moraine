@@ -30,21 +30,21 @@ function App() {
   return (
     <>
       <DocsShell
+        sidebarHeader={(ctx) => (
+          <SidebarHeader
+            onClose={ctx.isMobile() ? () => ctx.setSidebarOpen(false) : undefined}
+            isMobile={ctx.isMobile()}
+          />
+        )}
         sidebar={(ctx) => (
-          <div class="flex flex-col h-full min-h-0">
-            <SidebarHeader
-              onClose={ctx.isMobile() ? () => ctx.setSidebarOpen(false) : undefined}
-              isMobile={ctx.isMobile()}
-            />
-            <Sidebar
-              pages={pages}
-              activePage={page}
-              setActivePage={(key) => {
-                navigate(key)
-                ctx.setSidebarOpen(false)
-              }}
-            />
-          </div>
+          <Sidebar
+            pages={pages}
+            activePage={page}
+            setActivePage={(key) => {
+              navigate(key)
+              ctx.setSidebarOpen(false)
+            }}
+          />
         )}
         main={(ctx) => (
           <>

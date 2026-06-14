@@ -11,6 +11,7 @@ export interface DocsShellRenderContext {
 }
 
 export interface DocsShellProps {
+  sidebarHeader: (context: DocsShellRenderContext) => JSX.Element
   sidebar: (context: DocsShellRenderContext) => JSX.Element
   main: (context: DocsShellRenderContext) => JSX.Element
 }
@@ -18,6 +19,15 @@ export interface DocsShellProps {
 export function DocsShell(props: DocsShellProps) {
   return (
     <SidebarFrame
+      renderSidebarHeader={(ctx) =>
+        props.sidebarHeader({
+          isMobile: ctx.isMobile,
+          sidebarOpen: ctx.isOpen,
+          setSidebarOpen: ctx.setOpen,
+          toggleSidebar: ctx.toggle,
+          scrolled: ctx.scrolled,
+        })
+      }
       renderSidebarBody={(ctx) =>
         props.sidebar({
           isMobile: ctx.isMobile,

@@ -18,7 +18,7 @@ export namespace SidebarFrameT {
   /**
    * Render context exposed to sidebar/main render functions.
    */
-  export interface Context {
+  export interface Context extends Variant {
     /**
      * Whether current viewport is treated as mobile.
      */
@@ -39,14 +39,6 @@ export namespace SidebarFrameT {
      * Toggle sidebar open state.
      */
     toggle: () => void
-    /**
-     * Resolved visual variant.
-     */
-    variant: Accessor<Variant>
-    /**
-     * Resolved sidebar side.
-     */
-    side: Accessor<Side>
   }
 
   /**
@@ -56,11 +48,11 @@ export namespace SidebarFrameT {
     /**
      * Processed sidebar block component.
      */
-    Sidebar: Component
+    sidebar: Component
     /**
      * Processed main block component.
      */
-    Main: Component
+    main: Component
   }
 
   /**
@@ -76,8 +68,7 @@ export namespace SidebarFrameT {
    */
   export type Slot = 'root' | 'sidebar' | 'sidebarHeader' | 'sidebarBody' | 'sidebarFooter' | 'main'
 
-  export type Variant = NonNullable<SidebarFrameVariantProps['variant']>
-  export type Side = NonNullable<SidebarFrameVariantProps['side']>
+  export type Variant = SidebarFrameVariantProps
   export type Classes = SlotClasses<Slot>
   export type Styles = SlotStyles<Slot>
   export type Extend = never
@@ -85,16 +76,6 @@ export namespace SidebarFrameT {
   export interface Item {}
 
   export interface Base {
-    /**
-     * The variant of the sidebar frame.
-     * @default 'default'
-     */
-    variant?: Variant
-    /**
-     * The side of the sidebar.
-     * @default 'left'
-     */
-    side?: Side
     /**
      * Controlled mobile mode state.
      * When omitted, mobile state is resolved from `matchMedia`.
@@ -131,7 +112,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export interface Props extends BaseProps<Base, never, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
 }
 
 /**
@@ -143,15 +124,15 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
   return (
     <>
       <Sheet
-        side={ctx.side()}
+        side={ctx.side}
         open={ctx.isOpen()}
         onOpenChange={ctx.setOpen}
         close={false}
-        body={<ctx.Sidebar />}
+        body={<ctx.sidebar />}
       >
         <span class="hidden" aria-hidden="true" />
       </Sheet>
-      <ctx.Main />
+      <ctx.main />
     </>
   )
 }
@@ -166,10 +147,10 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
       fallback={
         <div
           data-slot="layout"
-          class={sidebarFrameDesktopLayoutVariants({ variant: ctx.variant(), side: ctx.side() })}
+          class={sidebarFrameDesktopLayoutVariants({ variant: ctx.variant, side: ctx.side })}
         >
-          <ctx.Sidebar />
-          <ctx.Main />
+          <ctx.sidebar />
+          <ctx.main />
         </div>
       }
     >
@@ -200,23 +181,23 @@ export function SidebarFrameSheetResizableRender(
         <Resizable
           orientation="horizontal"
           panels={
-            ctx.side() === 'left'
+            ctx.side === 'left'
               ? [
                   {
-                    content: <ctx.Sidebar />,
+                    content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },
                   {
-                    content: <ctx.Main />,
+                    content: <ctx.main />,
                   },
                 ]
               : [
                   {
-                    content: <ctx.Main />,
+                    content: <ctx.main />,
                   },
                   {
-                    content: <ctx.Sidebar />,
+                    content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },
@@ -240,8 +221,8 @@ export function SidebarFrameSheetResizableRender(
 export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const merged = mergeProps(
     {
-      variant: 'default' as SidebarFrameT.Variant,
-      side: 'left' as SidebarFrameT.Side,
+      variant: 'default' as SidebarFrameT.Variant['variant'],
+      side: 'left' as SidebarFrameT.Variant['side'],
       scrollThreshold: 60,
       renderFrame: SidebarFrameSheetOnlyRender,
     },
@@ -278,8 +259,12 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     isOpen,
     setOpen,
     toggle: () => setOpen((prev) => !prev),
-    variant: () => merged.variant,
-    side: () => merged.side,
+    get variant() {
+      return merged.variant
+    },
+    get side() {
+      return merged.side
+    },
   }
 
   return (
@@ -290,7 +275,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     >
       <merged.renderFrame
         {...context}
-        Sidebar={() => (
+        sidebar={() => (
           <div
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
@@ -334,7 +319,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             </Show>
           </div>
         )}
-        Main={() => (
+        main={() => (
           <div
             data-slot="main"
             style={merged.styles?.main}
