@@ -8,6 +8,12 @@
 - [x] Expose hooks in [utils](./src/utils) as `/utils` endpoint and add documentation for them.
 - [x] Convert `<namespace>.Slot` from string to object with jsdoc to better document their meaning and available attributes.
 - [x] Reuse [resolveRenderProp](./src/shared/render-props.ts) in all components that support render props.
+- [x] sidebarframe
+  - [x] "HeaderFooterSlots" become "Header and Footer Slots", update missing footer in example, make sidebar scrollable
+  - [x] update "Slot Structure", remove layout slot
+  - [x] fix variants
+    - [x] all variants examples' main area should be larger than sidebar area
+    - [x] floating's sidebar and inset's main 's bottom is overlapped
 - [ ] View transitions support for documentation pages.
 - [ ] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
 - [ ] Option to strip builtin classes

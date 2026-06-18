@@ -8,6 +8,12 @@ const TASKS = [
   'Polish accessibility labels',
   'Publish changelog',
   'Sync design tokens',
+  'Audit keyboard behavior',
+  'Update migration notes',
+  'Confirm package exports',
+  'Refresh visual snapshots',
+  'Prepare release branch',
+  'Verify mobile layout',
 ]
 
 export function HeaderFooterSlots() {
@@ -22,7 +28,7 @@ export function HeaderFooterSlots() {
           </div>
         )}
         renderSidebarBody={() => (
-          <div class="p-2 h-full overflow-y-auto">
+          <div class="p-2">
             <div class="flex flex-col gap-1">
               <For each={TASKS}>
                 {(task) => (
@@ -38,7 +44,8 @@ export function HeaderFooterSlots() {
           </div>
         )}
         renderSidebarFooter={() => (
-          <div class="p-2 b-t b-border bg-background/80">
+          <div class="p-2 b-t b-border bg-background/80 flex gap-2 items-center justify-between">
+            <span class="text-xs text-muted-foreground">12 tasks</span>
             <Button size="sm" variant="ghost">
               Footer Action
             </Button>

@@ -14,12 +14,11 @@ Root frame containing a sidebar with optional header/footer and a scrollable mai
 
 ```text
 root
-└── layout
-    ├── sidebar
-    │   ├── sidebarHeader (optional)
-    │   ├── sidebarBody
-    │   └── sidebarFooter (optional)
-    └── main
+├── sidebar
+│   ├── sidebarHeader (optional)
+│   ├── sidebarBody
+│   └── sidebarFooter (optional)
+└── main
 ```
 
 ## Examples
@@ -64,7 +63,7 @@ Force mobile mode and open the sidebar sheet from main content via `ctx.toggle`.
 name: ForcedMobile
 :::
 
-### HeaderFooterSlots
+### Header and Footer Slots
 
 Use optional `renderSidebarHeader` and `renderSidebarFooter` while keeping body as the scroll region.
 

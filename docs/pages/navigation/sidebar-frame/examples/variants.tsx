@@ -3,21 +3,23 @@ import { For } from 'solid-js'
 
 export function Variants() {
   return (
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 max-w-3xl w-full">
       <For each={['default', 'floating', 'inset'] as const}>
         {(variant) => (
-          <div class="b-1 b-border rounded-xl h-64 overflow-hidden">
+          <div class="b-1 b-border rounded-xl h-72 overflow-hidden">
             <SidebarFrame
               isMobile={false}
               variant={variant}
               renderSidebarHeader={() => <div class="text-xs p-3">{variant}</div>}
               renderSidebarBody={() => (
-                <div class="text-sm text-muted-foreground p-2 h-full overflow-y-auto">
-                  Sidebar content
-                </div>
+                <div class="text-sm text-muted-foreground p-2">Sidebar content</div>
               )}
               renderMain={() => (
-                <div class="text-sm text-foreground p-3 h-full">Main content area</div>
+                <div class="p-4 h-full">
+                  <div class="text-sm text-foreground p-4 b-1 b-border rounded-lg b-dashed bg-muted/20 h-full">
+                    Main content area
+                  </div>
+                </div>
               )}
             />
           </div>

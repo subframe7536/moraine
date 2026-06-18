@@ -39,6 +39,8 @@ describe('SidebarFrame', () => {
   test('uses SheetOnly as default frame and does not render resizable on desktop', () => {
     const screen = render(() => <SidebarFrame {...createBaseProps()} />)
 
+    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('h-screen')
+    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('max-h-full')
     expect(screen.container.querySelector('[data-slot="layout"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
