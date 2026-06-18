@@ -266,9 +266,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           style={local.styles?.label}
           class={cn('min-w-0 truncate', local.classes?.label)}
         >
-          {resolveRenderProp(local.children, () => ({
-            loading: isLoading(),
-          }))}
+          {resolveRenderProp(local.children, {
+            get loading() {
+              return isLoading()
+            },
+          })}
         </span>
       </Show>
 

@@ -78,6 +78,33 @@ describe('Modal', () => {
     expect(trigger?.getAttribute('tabindex')).toBe('-1')
   })
 
+  test('renders function content and closes through modal content context', async () => {
+    const onOpenChange = vi.fn()
+
+    render(() => (
+      <Modal
+        defaultOpen
+        onOpenChange={onOpenChange}
+        trigger={<button type="button">Open modal</button>}
+        content={({ close }) => (
+          <button type="button" data-testid="content-close" onClick={close}>
+            Close from content
+          </button>
+        )}
+      />
+    ))
+
+    expect(document.body.querySelector('[data-testid="content-close"]')).not.toBeNull()
+
+    await fireEvent.click(document.body.querySelector('[data-testid="content-close"]')!)
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
   test('renders custom header slot and overrides default title/description section', () => {
     render(() => (
       <Dialog

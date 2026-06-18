@@ -674,10 +674,14 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
         onSubmit={onSubmit}
         {...rest}
       >
-        {resolveRenderProp<FormT.RenderProps>(local.children, () => ({
-          errors: formState.errors,
-          loading: formState.loading,
-        }))}
+        {resolveRenderProp<FormT.RenderProps>(local.children, {
+          get errors() {
+            return formState.errors
+          },
+          get loading() {
+            return formState.loading
+          },
+        })}
       </form>
     </FormProvider>
   )

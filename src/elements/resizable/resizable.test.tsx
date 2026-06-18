@@ -128,6 +128,24 @@ describe('Resizable', () => {
     expect(handles[0]?.getAttribute('role')).toBe('separator')
   })
 
+  test('keeps built-in handle content and hidden handle behavior stable', () => {
+    const builtIn = render(() => (
+      <Resizable renderHandle panels={[{ content: 'Left' }, { content: 'Right' }]} />
+    ))
+
+    expect(builtIn.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
+    expect(builtIn.container.querySelectorAll('[data-slot="handle"]')).toHaveLength(1)
+    expect(builtIn.container.querySelector('[data-slot="handle"]')?.textContent).toBe('')
+    builtIn.unmount()
+
+    const hidden = render(() => (
+      <Resizable renderHandle={false} panels={[{ content: 'Left' }, { content: 'Right' }]} />
+    ))
+
+    expect(hidden.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
+    expect(hidden.container.querySelector('[data-slot="handle"]')).toBeNull()
+  })
+
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
       <Resizable orientation="vertical" panels={[{ content: 'Top' }, { content: 'Bottom' }]} />

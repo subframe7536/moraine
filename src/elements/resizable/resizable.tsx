@@ -10,6 +10,8 @@ import {
   onMount,
 } from 'solid-js'
 
+import type { MaybeRenderProp } from '../../shared/render-prop'
+import { resolveRenderProp } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
@@ -125,7 +127,7 @@ export namespace ResizableT {
      * - `(state) => JSX.Element`: render dynamic content by handle state.
      * @default true
      */
-    renderHandle?: boolean | JSX.Element | ((state: HandleState) => JSX.Element)
+    renderHandle?: boolean | MaybeRenderProp<HandleState>
 
     /**
      * Handle interaction behavior.
@@ -780,29 +782,36 @@ export function Resizable(props: ResizableProps): JSX.Element {
             toggleHandleCollapse(index)
           }
 
-          const handleState = createMemo<ResizableT.HandleState>(() => ({
-            orientation: orientation(),
-            disabled: handleRenderDisabled(),
-            action: local.handleAction,
-            active: bindings.active(),
-            dragging: bindings.dragging(),
-            canCollapse: collapseState().canCollapse,
-            collapsed: collapseState().collapsed,
-          }))
-
           const handleContent = createMemo(() => {
             const renderHandle = local.renderHandle
-            const state = handleState()
 
             if (renderHandle === true) {
               return null
             }
 
-            if (typeof renderHandle === 'function') {
-              return renderHandle(state)
-            }
-
-            return renderHandle
+            return resolveRenderProp<ResizableT.HandleState>(renderHandle, {
+              get orientation() {
+                return orientation()
+              },
+              get disabled() {
+                return handleRenderDisabled()
+              },
+              get action() {
+                return local.handleAction
+              },
+              get active() {
+                return bindings.active()
+              },
+              get dragging() {
+                return bindings.dragging()
+              },
+              get canCollapse() {
+                return collapseState().canCollapse
+              },
+              get collapsed() {
+                return collapseState().collapsed
+              },
+            })
           })
 
           const isTransitioning = createMemo(() => transitioningPanelIndexes().includes(index))

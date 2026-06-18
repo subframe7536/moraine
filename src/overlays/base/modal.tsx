@@ -2,6 +2,8 @@ import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
+import type { MaybeRenderProp } from '../../shared/render-prop'
+import { resolveRenderProp } from '../../shared/render-prop'
 import type { SlotClasses, SlotStyles } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
@@ -37,7 +39,7 @@ export interface ModalProps {
   /** Trigger content rendered inside the opener wrapper. */
   trigger?: JSX.Element
   /** Modal content rendered inside the content surface. */
-  content?: JSX.Element | ((context: ModalContentContext) => JSX.Element)
+  content?: MaybeRenderProp<ModalContentContext>
   /** Slot-based class overrides for the trigger, overlay, and content elements. */
   classes?: SlotClasses<ModalSlot>
   /** Slot-based style overrides for the trigger, overlay, and content elements. */
@@ -82,13 +84,9 @@ export function Modal(props: ModalProps): JSX.Element {
   }
 
   const resolvedContent = createMemo(() =>
-    typeof props.content === 'function'
-      ? props.content({
-          close: () => {
-            updateOpen(false)
-          },
-        })
-      : props.content,
+    resolveRenderProp(props.content, {
+      close: () => updateOpen(false),
+    }),
   )
 
   const overlayPresence = useTransitionPresence({

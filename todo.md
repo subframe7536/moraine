@@ -7,7 +7,7 @@
 - [x] In docs, API Reference 's Attributes section header should become a select in mobile view.
 - [x] Expose hooks in [utils](./src/utils) as `/utils` endpoint and add documentation for them.
 - [x] Convert `<namespace>.Slot` from string to object with jsdoc to better document their meaning and available attributes.
-- [ ] Reuse [resolveRenderProp](./src/utils/resolveRenderProp.ts) in all components that support render props.
+- [x] Reuse [resolveRenderProp](./src/shared/render-props.ts) in all components that support render props.
 - [ ] View transitions support for documentation pages.
 - [ ] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
 - [ ] Option to strip builtin classes

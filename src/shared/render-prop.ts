@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 /**
  * A type that can be either a JSX element or a function that returns a JSX element given some props.
@@ -11,7 +11,7 @@ export type MaybeRenderProp<TProps> = JSX.Element | ((props: TProps) => JSX.Elem
  */
 export function resolveRenderProp<TProps>(
   value: MaybeRenderProp<TProps> | undefined,
-  propsInput: Accessor<TProps>,
+  propsInput: TProps,
 ): JSX.Element {
   if (typeof value !== 'function') {
     return value as JSX.Element
@@ -21,5 +21,5 @@ export function resolveRenderProp<TProps>(
     return (value as () => JSX.Element)()
   }
 
-  return value(propsInput())
+  return value(propsInput)
 }

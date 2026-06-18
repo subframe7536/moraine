@@ -404,11 +404,11 @@ export function FormField(props: FormFieldProps): JSX.Element {
               : cn(local.classes?.container)
           }
         >
-          {resolveRenderProp<FormFieldT.RenderContext>(local.children, () => ({
+          {resolveRenderProp<FormFieldT.RenderContext>(local.children, {
             get error() {
               return resolvedError()
             },
-          }))}
+          })}
 
           <Show
             when={local.error !== false && shouldShowError()}
