@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -9,18 +9,34 @@ import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
 export namespace AccordionT {
-  export type Slot =
-    | 'root'
-    | 'item'
-    | 'header'
-    | 'trigger'
-    | 'leading'
-    | 'label'
-    | 'trailing'
-    | 'content'
+  export interface Slot<T = unknown> {
+    /** Container that owns the accordion item collection and shared state attributes. */
+    root?: T
+
+    /** Wrapper for one accordion entry, including its header trigger and collapsible panel. */
+    item?: T
+
+    /** Heading row that contains the interactive trigger for an item. */
+    header?: T
+
+    /** Button users activate to expand or collapse an item. */
+    trigger?: T
+
+    /** Optional icon or visual placed before the item label. */
+    leading?: T
+
+    /** Text label displayed inside the item trigger. */
+    label?: T
+
+    /** Optional icon placed after the label, commonly used for the disclosure indicator. */
+    trailing?: T
+
+    /** Panel that contains the item content when expanded. */
+    content?: T
+  }
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {
@@ -120,7 +136,7 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

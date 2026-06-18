@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
@@ -17,10 +17,22 @@ export namespace BadgeT {
     'children' | 'iconProps' | 'iconSlotName' | 'name' | 'onClick' | 'size' | 'slotName' | 'type'
   > {}
 
-  export type Slot = 'root' | 'leading' | 'label' | 'trailing'
+  export interface Slot<T = unknown> {
+    /** Inline badge container that carries the variant, size, and interactive state. */
+    root?: T
+
+    /** Optional icon displayed before the badge label. */
+    leading?: T
+
+    /** Badge text or children content between the optional visuals. */
+    label?: T
+
+    /** Optional trailing icon or dismiss button displayed after the label. */
+    trailing?: T
+  }
   export type Variant = BadgeVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -63,7 +75,7 @@ export namespace BadgeT {
   /**
    * Props for the Badge component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

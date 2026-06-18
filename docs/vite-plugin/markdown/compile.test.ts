@@ -117,6 +117,33 @@ name: Variants
     expect(code).toContain('"ariaAttributes":[{"name":"aria-disabled"')
   })
 
+  test('passes slot descriptions to api attributes sections', () => {
+    const markdown = `
+:::docs-header
+apiDocOverride:
+  component:
+    key: custom
+    name: Custom
+    category: Form
+    polymorphic: false
+  slots:
+    - name: root
+      description: Root wrapper element.
+  props:
+    own: []
+    inherited: []
+:::
+
+:::docs-api-reference
+:::
+`
+
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
+
+    expect(code).toContain('"id":"attributes"')
+    expect(code).toContain('"slots":[{"name":"root","description":"Root wrapper element."')
+  })
+
   test('keeps slots section for select and multi-select docs pages', () => {
     const selectCode = compileMarkdownPage(
       `

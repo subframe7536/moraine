@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, mergeProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -16,10 +16,10 @@ import type {
 } from '../base/menu'
 
 export namespace DropdownMenuT {
-  export type Slot = OverlayMenuSharedSlots
+  export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
   export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = OverlayMenuRootProps<Item>
 
   export interface Item extends OverlayMenuSharedItem<Item> {}
@@ -37,7 +37,7 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

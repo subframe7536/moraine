@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, createEffect, createMemo, createSignal, mergeProps, onMount } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useId, cn } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -35,12 +35,24 @@ import {
 export namespace SliderT {
   export type Value = number | number[]
 
-  export type Slot = 'root' | 'track' | 'range' | 'thumb'
+  export interface Slot<T = unknown> {
+    /** Slider container that owns track, range, thumbs, and labels. */
+    root?: T
+
+    /** Background rail representing the full slider range. */
+    track?: T
+
+    /** Filled segment between the start of the range and active thumb values. */
+    range?: T
+
+    /** Draggable handle for one slider value. */
+    thumb?: T
+  }
 
   export type Variant = SliderVariantProps
 
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -111,7 +123,13 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export interface Props<TValue = Value> extends BaseProps<Base<TValue>, Variant, Extend, Slot> {}
+  export interface Props<TValue = Value> extends BaseProps<
+    Base<TValue>,
+    Variant,
+    Extend,
+    Classes,
+    Styles
+  > {}
 }
 
 /**

@@ -69,7 +69,7 @@ const labelRender: SelectProps['labelRender'] = (option) =>
 
 ### Slot types
 
-`XxxT.Slot` is a union of valid slot names used by the `classes` and `styles` props, giving you autocomplete and type safety when overriding per-slot styles.
+`XxxT.Slot` is an object whose keys are valid slot names used by the `classes` and `styles` props. Each key can carry JSDoc describing the slot and its styling attributes.
 
 ```tsx
 import type { CardT } from 'moraine'
@@ -83,16 +83,16 @@ const overrides: CardT.Classes = {
 
 Each `XxxT` namespace may expose the following members depending on the component:
 
-| Member    | Description                                        |
-| --------- | -------------------------------------------------- |
-| `Slot`    | Union of slot names used by `classes` and `styles` |
-| `Variant` | Variant options for visual/style customization     |
-| `Item`    | Data model for list items or option objects        |
-| `Value`   | Domain type of the component's controlled value    |
-| `Classes` | Typed map from slot name to CSS class string       |
-| `Styles`  | Typed map from slot name to inline style object    |
-| `Base`    | Component-specific business props (internal)       |
-| `Props`   | Final public props shape (same as `XxxProps`)      |
+| Member    | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `Slot`    | Object keyed by slot names used by `classes` and `styles` |
+| `Variant` | Variant options for visual/style customization            |
+| `Item`    | Data model for list items or option objects               |
+| `Value`   | Domain type of the component's controlled value           |
+| `Classes` | Typed map from slot name to CSS class string              |
+| `Styles`  | Typed map from slot name to inline style object           |
+| `Base`    | Component-specific business props (internal)              |
+| `Props`   | Final public props shape (same as `XxxProps`)             |
 
 ## Tips
 

@@ -73,6 +73,11 @@ interface TocApiDocShape {
   items?: unknown
 }
 
+interface TocSlotDoc {
+  name: string
+  description?: string
+}
+
 interface ApiAttributeDoc {
   name: string
   required: false
@@ -82,6 +87,7 @@ interface ApiAttributeDoc {
 
 interface SourceSlotReference {
   name: string
+  description?: string
   cssVariables: ApiAttributeDoc[]
   dataAttributes: ApiAttributeDoc[]
   ariaAttributes: ApiAttributeDoc[]
@@ -456,7 +462,7 @@ function renderApiReferenceDescriptions(
       ...renderDescriptionField(section, markdown),
       props: renderPropDescriptions(section.props, markdown),
       slots: section.slots?.map((slot) => ({
-        ...slot,
+        ...renderDescriptionField(slot, markdown),
         cssVariables: renderPropDescriptions(slot.cssVariables, markdown),
         dataAttributes: renderPropDescriptions(slot.dataAttributes, markdown),
         ariaAttributes: renderPropDescriptions(slot.ariaAttributes, markdown),
@@ -623,9 +629,10 @@ function createCssVariableDoc(name: string): ApiAttributeDoc {
   }
 }
 
-function createEmptySlotReference(name: string): SourceSlotReference {
+function createEmptySlotReference(slot: TocSlotDoc): SourceSlotReference {
   return {
-    name,
+    name: slot.name,
+    description: slot.description,
     cssVariables: [],
     dataAttributes: [],
     ariaAttributes: [],
@@ -804,15 +811,45 @@ function extractSourceAttributeReference(
   }
 }
 
+function normalizeTocSlotDoc(value: unknown): TocSlotDoc | null {
+  if (typeof value === 'string' && value.length > 0) {
+    return { name: value }
+  }
+
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+
+  const record = value as Record<string, unknown>
+  if (typeof record.name !== 'string' || record.name.length === 0) {
+    return null
+  }
+
+  return {
+    name: record.name,
+    description: typeof record.description === 'string' ? record.description : undefined,
+  }
+}
+
 function createSlotReferenceDocs(
-  slotNames: unknown[],
+  slots: unknown[],
   sourceAttributes: SourceAttributeReference,
 ): SourceSlotReference[] {
   const sourceSlotByName = new Map(sourceAttributes.slots.map((slot) => [slot.name, slot]))
 
-  return slotNames
-    .filter((slotName): slotName is string => typeof slotName === 'string' && slotName.length > 0)
-    .map((slotName) => sourceSlotByName.get(slotName) ?? createEmptySlotReference(slotName))
+  return slots
+    .map(normalizeTocSlotDoc)
+    .filter((slot): slot is TocSlotDoc => Boolean(slot))
+    .map((slot) => {
+      const sourceSlot = sourceSlotByName.get(slot.name)
+      const slotReference = sourceSlot ?? createEmptySlotReference(slot)
+
+      if (slot.description || sourceSlot?.description) {
+        slotReference.description = slot.description ?? sourceSlot?.description
+      }
+
+      return slotReference
+    })
 }
 
 function asTocApiDoc(value: unknown): TocApiDocShape | null {

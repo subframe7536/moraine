@@ -3,7 +3,7 @@ import { For, Show, createMemo, mergeProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { cn, useId } from '../../shared/utils'
@@ -26,22 +26,46 @@ type StepperState = 'inactive' | 'active' | 'completed'
 export namespace StepperT {
   export type Value = string
 
-  export type Slot =
-    | 'root'
-    | 'header'
-    | 'item'
-    | 'container'
-    | 'trigger'
-    | 'indicator'
-    | 'icon'
-    | 'separator'
-    | 'wrapper'
-    | 'title'
-    | 'description'
-    | 'content'
+  export interface Slot<T = unknown> {
+    /** Stepper container that owns orientation, step state, and panel rendering. */
+    root?: T
+
+    /** Step navigation header that contains all step triggers. */
+    header?: T
+
+    /** Wrapper for one step trigger. */
+    item?: T
+
+    /** Text column inside a step trigger. */
+    container?: T
+
+    /** Interactive step control users activate to select a step. */
+    trigger?: T
+
+    /** Step marker that communicates index, active state, or completion. */
+    indicator?: T
+
+    /** Icon rendered inside a completed or custom step indicator. */
+    icon?: T
+
+    /** Connector line between adjacent steps. */
+    separator?: T
+
+    /** Inner layout wrapper for a single step trigger. */
+    wrapper?: T
+
+    /** Primary title text for a step. */
+    title?: T
+
+    /** Supporting description for a step. */
+    description?: T
+
+    /** Panel rendered for the active step content. */
+    content?: T
+  }
   export type Variant = StepperVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   /**
@@ -150,7 +174,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

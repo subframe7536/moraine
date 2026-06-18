@@ -29,9 +29,14 @@ export interface ItemDoc {
   description?: string
 }
 
+export interface SlotDoc {
+  name: string
+  description?: string
+}
+
 export interface ComponentDoc {
   component: ComponentIndexEntry
-  slots: string[]
+  slots: SlotDoc[]
   props: {
     own: PropDoc[]
     inherited: InheritedGroupDoc[]

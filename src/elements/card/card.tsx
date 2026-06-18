@@ -1,14 +1,35 @@
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace CardT {
-  export type Slot = 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
+  export interface Slot<T = unknown> {
+    /** Card container that frames the header, body, and footer regions. */
+    root?: T
+
+    /** Top region for title, description, custom header content, and actions. */
+    header?: T
+
+    /** Primary heading rendered in the card header. */
+    title?: T
+
+    /** Supporting text rendered below the card title. */
+    description?: T
+
+    /** Header action region, typically used for buttons or menus. */
+    action?: T
+
+    /** Main content region for the card children. */
+    body?: T
+
+    /** Bottom region for secondary actions or summary content. */
+    footer?: T
+  }
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -56,7 +77,7 @@ export namespace CardT {
   /**
    * Props for the Card component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

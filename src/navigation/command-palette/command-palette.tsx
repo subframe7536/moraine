@@ -14,7 +14,7 @@ import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import { Kbd } from '../../elements/kbd'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace CommandPaletteT {
@@ -43,32 +43,76 @@ export namespace CommandPaletteT {
     onSelect?: () => void
   }
 
-  export type Slot =
-    | 'root'
-    | 'inputWrapper'
-    | 'input'
-    | 'listbox'
-    | 'footer'
-    | 'group'
-    | 'label'
-    | 'item'
-    | 'itemLeading'
-    | 'itemWrapper'
-    | 'itemLabel'
-    | 'itemLabelBase'
-    | 'itemLabelPrefix'
-    | 'itemLabelSuffix'
-    | 'itemDescription'
-    | 'itemTrailing'
-    | 'itemTrailingKbds'
-    | 'itemTrailingKbd'
-    | 'search'
-    | 'back'
-    | 'close'
-    | 'empty'
+  export interface Slot<T = unknown> {
+    /** Command palette container that owns search, navigation stack, and option list. */
+    root?: T
+
+    /** Search row that groups input, search icon, and navigation controls. */
+    inputWrapper?: T
+
+    /** Search input used to filter commands. */
+    input?: T
+
+    /** Scrollable command list that owns option and active-descendant semantics. */
+    listbox?: T
+
+    /** Bottom region for keyboard hints or custom footer content. */
+    footer?: T
+
+    /** Section wrapper for a group of command items. */
+    group?: T
+
+    /** Group heading text. */
+    label?: T
+
+    /** Command row that can be highlighted, selected, or disabled. */
+    item?: T
+
+    /** Leading icon or visual for a command row. */
+    itemLeading?: T
+
+    /** Text column that groups command label and description. */
+    itemWrapper?: T
+
+    /** Primary text for a command item. */
+    itemLabel?: T
+
+    /** Base text region for an item label before prefix or suffix decoration. */
+    itemLabelBase?: T
+
+    /** Prefix text rendered before the main item label. */
+    itemLabelPrefix?: T
+
+    /** Suffix text rendered after the main item label. */
+    itemLabelSuffix?: T
+
+    /** Supporting text for a command item. */
+    itemDescription?: T
+
+    /** Trailing region for shortcuts, submenu indicators, or custom item metadata. */
+    itemTrailing?: T
+
+    /** Container for keyboard shortcut hints at the end of a command row. */
+    itemTrailingKbds?: T
+
+    /** Individual keyboard key hint in a command row. */
+    itemTrailingKbd?: T
+
+    /** Search icon or loading indicator displayed in the input row. */
+    search?: T
+
+    /** Button that returns from a nested command group. */
+    back?: T
+
+    /** Button that dismisses the command palette. */
+    close?: T
+
+    /** Message shown when no command items match the search. */
+    empty?: T
+  }
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {
@@ -148,7 +192,7 @@ export namespace CommandPaletteT {
     footer?: JSX.Element
   }
 
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 export interface CommandPaletteProps extends CommandPaletteT.Props {}

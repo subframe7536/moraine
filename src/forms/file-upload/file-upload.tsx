@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -47,24 +47,50 @@ interface FileRejection {
 export namespace FileUploadT {
   export type Value = File | File[] | null
 
-  export type Slot =
-    | 'root'
-    | 'control'
-    | 'wrapper'
-    | 'icon'
-    | 'label'
-    | 'description'
-    | 'files'
-    | 'file'
-    | 'filePreview'
-    | 'fileMeta'
-    | 'fileName'
-    | 'fileSize'
-    | 'fileRemove'
+  export interface Slot<T = unknown> {
+    /** Upload component container that owns dropzone, file input, and file list. */
+    root?: T
+
+    /** Dropzone and picker control users interact with to select files. */
+    control?: T
+
+    /** Inner control layout for icon, label, and description. */
+    wrapper?: T
+
+    /** Upload or status icon shown inside the control. */
+    icon?: T
+
+    /** Primary instruction text for the upload control. */
+    label?: T
+
+    /** Supporting upload requirements or helper text. */
+    description?: T
+
+    /** List region that displays selected files and upload progress. */
+    files?: T
+
+    /** Row for one selected file, including preview, metadata, and remove action. */
+    file?: T
+
+    /** Preview or file-type icon area for a selected file. */
+    filePreview?: T
+
+    /** Text region for file name, size, and validation state. */
+    fileMeta?: T
+
+    /** Display name for a selected file. */
+    fileName?: T
+
+    /** File size text for a selected file. */
+    fileSize?: T
+
+    /** Button used to remove a selected file from the list. */
+    fileRemove?: T
+  }
 
   export type Variant = FileUploadVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -180,7 +206,7 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

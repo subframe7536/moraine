@@ -2,16 +2,19 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
-  export type Slot = 'icon'
+  export interface Slot<T = unknown> {
+    /** Rendered icon glyph, JSX icon node, or icon render function output. */
+    icon?: T
+  }
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -59,7 +62,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

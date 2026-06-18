@@ -36,7 +36,7 @@ describe('writeJsonFiles', () => {
               category: 'General',
               polymorphic: false,
             },
-            slots: ['root'],
+            slots: [{ name: 'root', description: 'Root wrapper.' }],
             props: { own: [], inherited: [] },
             items: {
               description: 'Items for demo.',

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 
 import { Kbd } from '../../elements/kbd'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Popper, resolveOverlayMenuSide } from '../base'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base'
@@ -11,10 +11,25 @@ import { tooltipContentVariants } from './tooltip.class'
 import type { TooltipVariantProps } from './tooltip.class'
 
 export namespace TooltipT {
-  export type Slot = 'content' | 'trigger' | 'text' | 'kbds' | 'kbd'
+  export interface Slot<T = unknown> {
+    /** Tooltip bubble positioned next to its trigger. */
+    content?: T
+
+    /** Element that receives hover or focus interactions for the tooltip. */
+    trigger?: T
+
+    /** Primary text region inside the tooltip bubble. */
+    text?: T
+
+    /** Container for shortcut hints displayed beside tooltip text. */
+    kbds?: T
+
+    /** Individual keyboard key hint inside the tooltip. */
+    kbd?: T
+  }
   export type Variant = TooltipVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = Pick<
     PopperProps,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
@@ -57,7 +72,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

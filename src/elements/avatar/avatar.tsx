@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
@@ -20,18 +20,34 @@ import {
 type Status = 'idle' | 'loading' | 'loaded' | 'error'
 
 export namespace AvatarT {
-  export type Slot =
-    | 'root'
-    | 'image'
-    | 'fallback'
-    | 'fallbackIcon'
-    | 'badge'
-    | 'group'
-    | 'groupItem'
-    | 'groupCount'
+  export interface Slot<T = unknown> {
+    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
+    root?: T
+
+    /** Loaded avatar image rendered inside the frame. */
+    image?: T
+
+    /** Text fallback shown while the image is unavailable or failed. */
+    fallback?: T
+
+    /** Icon fallback shown when no image or text fallback is available. */
+    fallbackIcon?: T
+
+    /** Status or indicator badge anchored to the avatar frame. */
+    badge?: T
+
+    /** Container that lays out multiple avatars as an overlapping group. */
+    group?: T
+
+    /** Individual avatar wrapper used when rendering grouped avatars. */
+    groupItem?: T
+
+    /** Count indicator shown when a group has more avatars than the visible limit. */
+    groupCount?: T
+  }
   export type Variant = AvatarVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {
@@ -90,7 +106,7 @@ export namespace AvatarT {
   /**
    * Props for the Avatar component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

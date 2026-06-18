@@ -48,6 +48,7 @@ describe('DocsApiReference', () => {
               slots: [
                 {
                   name: 'root',
+                  description: 'Root wrapper element.',
                   cssVariables: [
                     {
                       name: '--command-palette-height',
@@ -83,7 +84,12 @@ describe('DocsApiReference', () => {
     expect(screen.getByText('Attributes')).toBeDefined()
     expect(screen.getByRole('tab', { name: 'root' })).toBeDefined()
     expect(screen.getByRole('tab', { name: 'empty' })).toBeDefined()
-    expect(screen.getByText('CSS Variable')).toBeDefined()
+    expect(screen.getByText('2 attributes')).toBeDefined()
+    expect(screen.getByText('Root wrapper element.')).toBeDefined()
+    expect(screen.getByText('CSS Variables')).toBeDefined()
+    expect(screen.getByText('Data Attributes')).toBeDefined()
+    expect(screen.getByText('--command-palette-height')).toBeDefined()
+    expect(screen.getByText('data-open')).toBeDefined()
     expect(screen.queryByText('Type')).toBeNull()
     expect(screen.queryByText('Default')).toBeNull()
 
@@ -134,7 +140,8 @@ describe('DocsApiReference', () => {
 
     const select = screen.getByRole('combobox')
     expect(select.textContent).toContain('root')
-    expect(screen.getByText('CSS Variable')).toBeDefined()
+    expect(screen.getByText('CSS Variables')).toBeDefined()
+    expect(screen.getByText('1 attribute')).toBeDefined()
 
     await fireEvent.click(select)
     await fireEvent.click(document.body.querySelectorAll('[data-slot="item"]')[1]!)

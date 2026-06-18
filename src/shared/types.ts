@@ -1,17 +1,23 @@
 import type { ClassValue } from 'cls-variant'
 import type { JSX } from 'solid-js'
 
-export type SlotClasses<TSlot extends string> = Partial<Record<TSlot, ClassValue>>
+export type SlotClassValue = ClassValue
 
-export type SlotStyles<TSlot extends string> = Partial<Record<TSlot, JSX.CSSProperties>>
+export type SlotStyleValue = JSX.CSSProperties
 
-export type BaseProps<
-  B,
-  V,
-  E,
-  TSlot extends string,
-  ExtraOmitKeys extends PropertyKey = never,
-> = B &
+export type SlotClasses<TSlot> = [TSlot] extends [string]
+  ? Partial<Record<TSlot, ClassValue>>
+  : {
+      [K in Extract<keyof TSlot, string>]?: ClassValue
+    }
+
+export type SlotStyles<TSlot> = [TSlot] extends [string]
+  ? Partial<Record<TSlot, JSX.CSSProperties>>
+  : {
+      [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
+    }
+
+export type BaseProps<B, V, E, TClasses, TStyles, ExtraOmitKeys extends PropertyKey = never> = B &
   ([V] extends [never] ? {} : V) &
   ([E] extends [never]
     ? {}
@@ -25,6 +31,6 @@ export type BaseProps<
         | 'styles'
         | Extract<ExtraOmitKeys, keyof E>
       >) & {
-    classes?: SlotClasses<TSlot>
-    styles?: SlotStyles<TSlot>
+    classes?: TClasses
+    styles?: TStyles
   }

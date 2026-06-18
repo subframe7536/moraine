@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, onMount } from 'solid-js'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -28,19 +28,35 @@ import {
 } from './checkbox.class'
 
 export namespace CheckboxT {
-  export type Slot =
-    | 'root'
-    | 'container'
-    | 'control'
-    | 'indicator'
-    | 'icon'
-    | 'wrapper'
-    | 'label'
-    | 'description'
+  export interface Slot<T = unknown> {
+    /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
+    root?: T
+
+    /** Text column that groups label and description. */
+    container?: T
+
+    /** Visible checkbox control users recognize as the toggle target. */
+    control?: T
+
+    /** Visual checked or indeterminate state layer inside the control. */
+    indicator?: T
+
+    /** Check or indeterminate icon rendered for the current state. */
+    icon?: T
+
+    /** Inner layout wrapper used by card and list checkbox variants. */
+    wrapper?: T
+
+    /** Primary checkbox label text. */
+    label?: T
+
+    /** Supporting text associated with the checkbox. */
+    description?: T
+  }
 
   export type Variant = CheckboxVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -131,7 +147,8 @@ export namespace CheckboxT {
     Base<TTrue, TFalse>,
     Variant,
     Extend,
-    Slot,
+    Classes,
+    Styles,
     'ref' | 'indeterminate'
   > {}
 }

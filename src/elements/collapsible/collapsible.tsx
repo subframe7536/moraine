@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -17,10 +17,19 @@ export namespace CollapsibleT {
     open: boolean
   }
 
-  export type Slot = 'root' | 'trigger' | 'content'
+  export interface Slot<T = unknown> {
+    /** Container that owns the trigger and expandable content state. */
+    root?: T
+
+    /** Button users activate to toggle the content visibility. */
+    trigger?: T
+
+    /** Region that is mounted for the expanded collapsible content. */
+    content?: T
+  }
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -75,7 +84,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

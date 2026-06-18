@@ -3,7 +3,7 @@ import { Show } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import type {
   FormDisableOption,
@@ -33,8 +33,27 @@ export namespace SelectT {
   export type Value = string | number
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type ControlSlot = 'control' | 'input' | 'leading' | 'trigger'
-  export type OptionSlot = 'empty' | 'itemLabel' | 'itemDescription' | 'itemTrailing'
+  export interface ControlSlot<T = unknown> {
+    /** Closed select control that displays the current value and opens the popup. */
+    control?: T
+    /** Search input or value text field inside the control. */
+    input?: T
+    /** Icon shown before the select input or value. */
+    leading?: T
+    /** Button region that toggles the select popup. */
+    trigger?: T
+  }
+
+  export interface OptionSlot<T = unknown> {
+    /** Message shown when filtering leaves no selectable options. */
+    empty?: T
+    /** Primary label text inside an option row. */
+    itemLabel?: T
+    /** Supporting description text inside an option row. */
+    itemDescription?: T
+    /** Trailing region inside an option row, usually for selection state or custom content. */
+    itemTrailing?: T
+  }
 
   export interface EmptyRenderContext<TItem extends Value = Value> {
     /** Current input/search text. */
@@ -47,10 +66,10 @@ export namespace SelectT {
     close: () => void
   }
 
-  export type Slot = BaseSelectT.Slot | ControlSlot | OptionSlot
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
   export type Variant = SelectControlVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend<TItem extends Value = Value> = Omit<
     BaseSelectT.Base<Item<TItem>>,
     | 'children'
@@ -106,7 +125,8 @@ export namespace SelectT {
     Base<TItem>,
     Variant,
     Extend<TItem>,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 

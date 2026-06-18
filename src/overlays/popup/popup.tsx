@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { Modal } from '../base/modal'
 import type { ModalProps } from '../base/modal'
 
@@ -9,10 +9,19 @@ import { popupContentVariants, popupOverlayVariants } from './popup.class'
 import type { PopupVariantProps } from './popup.class'
 
 export namespace PopupT {
-  export type Slot = 'trigger' | 'overlay' | 'content'
+  export interface Slot<T = unknown> {
+    /** Element users activate to open the popup. */
+    trigger?: T
+
+    /** Optional backdrop layer rendered behind popup content. */
+    overlay?: T
+
+    /** Positioned popup content panel. */
+    content?: T
+  }
   export type Variant = PopupVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = Pick<
     ModalProps,
     | 'id'
@@ -52,7 +61,7 @@ export namespace PopupT {
   /**
    * Props for the Popup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

@@ -3,7 +3,7 @@ import { Show, createEffect, createMemo, mergeProps, on, onMount } from 'solid-j
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -41,12 +41,24 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 export namespace TextareaT {
   export type Value = string | number | undefined
 
-  export type Slot = 'root' | 'header' | 'input' | 'footer'
+  export interface Slot<T = unknown> {
+    /** Textarea wrapper that owns header, textarea, footer, and autoresize state. */
+    root?: T
+
+    /** Optional content rendered above the textarea. */
+    header?: T
+
+    /** Native textarea control used for multi-line text entry. */
+    input?: T
+
+    /** Optional content rendered below the textarea. */
+    footer?: T
+  }
 
   export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'autoresize'>
 
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -158,7 +170,7 @@ export namespace TextareaT {
    */
   export interface Props<
     M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, Extend, Slot> {}
+  > extends BaseProps<Base<M>, Variant, Extend, Classes, Styles> {}
 }
 
 /**

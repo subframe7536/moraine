@@ -53,7 +53,12 @@ declare namespace DemoT {
     /** Label text. */
     label?: string
   }
-  type Slot = 'root' | 'item'
+  interface Slot {
+    /** Root wrapper. */
+    root: {}
+    /** Item row. */
+    item: {}
+  }
 }
 
 interface DemoProps {
@@ -70,7 +75,10 @@ declare function Demo(props: DemoProps): JSX.Element
 
 declare namespace EmptyT {
   interface Item {}
-  type Slot = 'root'
+  interface Slot {
+    /** Root wrapper. */
+    root: {}
+  }
 }
 
 interface EmptyProps {
@@ -91,7 +99,10 @@ declare function Empty(props: EmptyProps): JSX.Element
     )
 
     const demoDoc = data.componentDocs.get('demo')
-    expect(demoDoc?.slots).toEqual(['root', 'item'])
+    expect(demoDoc?.slots).toEqual([
+      { name: 'root', description: 'Root wrapper.' },
+      { name: 'item', description: 'Item row.' },
+    ])
     expect(demoDoc?.item?.description).toBe('Items for demo.')
     expect(demoDoc?.item?.props).toEqual([
       {
@@ -111,7 +122,7 @@ declare function Empty(props: EmptyProps): JSX.Element
     expect(demoDoc?.props.own.find((prop) => prop.name === 'mode')?.defaultValue).toBe('a')
 
     const emptyDoc = data.componentDocs.get('empty')
-    expect(emptyDoc?.slots).toEqual(['root'])
+    expect(emptyDoc?.slots).toEqual([{ name: 'root', description: 'Root wrapper.' }])
     expect(emptyDoc?.item).toBeUndefined()
 
     await rm(projectRoot, { recursive: true, force: true })

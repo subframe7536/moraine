@@ -13,7 +13,7 @@ import {
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { cn, useId } from '../../shared/utils'
@@ -28,18 +28,34 @@ import {
 import type { TabsVariantProps } from './tabs.class'
 
 export namespace TabsT {
-  export type Slot =
-    | 'root'
-    | 'list'
-    | 'indicator'
-    | 'trigger'
-    | 'leading'
-    | 'label'
-    | 'trailing'
-    | 'content'
+  export interface Slot<T = unknown> {
+    /** Tabs container that owns tab selection and panel rendering. */
+    root?: T
+
+    /** Tablist that contains all tab triggers and the selection indicator. */
+    list?: T
+
+    /** Moving indicator aligned with the active tab trigger. */
+    indicator?: T
+
+    /** Tab button users activate to select a panel. */
+    trigger?: T
+
+    /** Optional icon rendered before a tab label. */
+    leading?: T
+
+    /** Text or custom label rendered inside a tab trigger. */
+    label?: T
+
+    /** Optional trailing content rendered after a tab label. */
+    trailing?: T
+
+    /** Tab panel rendered for the selected item. */
+    content?: T
+  }
   export type Variant = TabsVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   /**
@@ -136,7 +152,7 @@ export namespace TabsT {
   /**
    * Props for the Tabs component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

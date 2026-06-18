@@ -1,17 +1,23 @@
 import type { JSX } from 'solid-js'
 import { For, Match, Show, Switch } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import type { KbdVariantProps } from './kbd.class'
 import { kbdItemVariants } from './kbd.class'
 
 export namespace KbdT {
-  export type Slot = 'root' | 'item'
+  export interface Slot<T = unknown> {
+    /** Keyboard shortcut container that groups one or more key tokens. */
+    root?: T
+
+    /** Individual key token inside the shortcut sequence. */
+    item?: T
+  }
   export type Variant = KbdVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -38,7 +44,7 @@ export namespace KbdT {
   /**
    * Props for the Kbd component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

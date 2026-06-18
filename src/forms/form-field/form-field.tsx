@@ -11,7 +11,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormContext } from '../form/form-context'
 import { pathStartsWith, pathToKey, toFieldPath } from '../form/form-path'
@@ -36,20 +36,38 @@ export namespace FormFieldT {
     error?: boolean | string | JSX.Element
   }
 
-  export type Slot =
-    | 'root'
-    | 'wrapper'
-    | 'labelWrapper'
-    | 'label'
-    | 'container'
-    | 'description'
-    | 'error'
-    | 'hint'
-    | 'help'
+  export interface Slot<T = unknown> {
+    /** Field wrapper that links label, control, description, and messages. */
+    root?: T
+
+    /** Inner wrapper that arranges label, control, helper text, and messages. */
+    wrapper?: T
+
+    /** Row that groups the field label and optional hint. */
+    labelWrapper?: T
+
+    /** Accessible field label associated with the control. */
+    label?: T
+
+    /** Region that contains the wrapped form control. */
+    container?: T
+
+    /** Helper text associated with the control. */
+    description?: T
+
+    /** Validation error message region for the field. */
+    error?: T
+
+    /** Short hint rendered beside the field label. */
+    hint?: T
+
+    /** Additional guidance rendered below the control. */
+    help?: T
+  }
 
   export type Variant = FormFieldVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -124,7 +142,7 @@ export namespace FormFieldT {
   /**
    * Props for the FormField component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

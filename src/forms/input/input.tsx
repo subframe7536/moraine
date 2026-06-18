@@ -5,7 +5,7 @@ import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
@@ -27,12 +27,24 @@ import {
 export namespace InputT {
   export type Value = string | number | undefined
 
-  export type Slot = 'root' | 'input' | 'leading' | 'trailing'
+  export interface Slot<T = unknown> {
+    /** Input wrapper that positions icons, loading state, and the native input. */
+    root?: T
+
+    /** Native text input element. */
+    input?: T
+
+    /** Icon or loading indicator rendered before the input value. */
+    leading?: T
+
+    /** Icon or loading indicator rendered after the input value. */
+    trailing?: T
+  }
 
   export type Variant = InputVariantProps
 
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -144,7 +156,7 @@ export namespace InputT {
    */
   export interface Props<
     M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, Extend, Slot> {}
+  > extends BaseProps<Base<M>, Variant, Extend, Classes, Styles> {}
 }
 
 /**

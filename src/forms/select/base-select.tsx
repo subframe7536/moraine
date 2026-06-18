@@ -8,7 +8,7 @@ import {
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
 } from '../../overlays/base/menu'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { cn, useId } from '../../shared/utils'
@@ -80,11 +80,29 @@ export namespace BaseSelectT {
     setInputValue: (value: string) => void
   }
 
-  export type Slot = 'root' | 'content' | 'listbox' | 'item' | 'group' | 'label'
+  export interface Slot<T = unknown> {
+    /** Select root that owns open state, value display, and popup positioning. */
+    root?: T
+
+    /** Popup panel that contains search input, options, groups, and empty state. */
+    content?: T
+
+    /** ARIA listbox that contains selectable options. */
+    listbox?: T
+
+    /** Selectable option row inside the listbox. */
+    item?: T
+
+    /** Option group wrapper inside the listbox. */
+    group?: T
+
+    /** Group label or option label text, depending on context. */
+    label?: T
+  }
 
   export type Variant = SelectControlVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Base<TItem extends Item>
@@ -177,7 +195,8 @@ export namespace BaseSelectT {
     Base<TItem>,
     Variant,
     Extend,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 
@@ -230,7 +249,9 @@ function matchesFilter<TOption extends { key: string }>(
 }
 
 function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
-  const highlightedItem = listbox?.querySelector<HTMLElement>('[data-slot="item"][data-highlighted]')
+  const highlightedItem = listbox?.querySelector<HTMLElement>(
+    '[data-slot="item"][data-highlighted]',
+  )
 
   highlightedItem?.scrollIntoView?.({ block: 'nearest' })
 }

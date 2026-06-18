@@ -4,7 +4,7 @@ import { For, Show, createMemo, mergeProps } from 'solid-js'
 import { Button } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 import { breadcrumbListVariants } from './breadcrumb.class'
@@ -36,10 +36,31 @@ export namespace BreadcrumbT {
     disabled: boolean
   }
 
-  export type Slot = 'root' | 'list' | 'item' | 'link' | 'leading' | 'label' | 'separator'
+  export interface Slot<T = unknown> {
+    /** Navigation container for the breadcrumb trail. */
+    root?: T
+
+    /** Ordered list that contains breadcrumb items and separators. */
+    list?: T
+
+    /** Wrapper for one breadcrumb entry. */
+    item?: T
+
+    /** Clickable breadcrumb target for navigable entries. */
+    link?: T
+
+    /** Optional icon rendered before a breadcrumb label. */
+    leading?: T
+
+    /** Breadcrumb item label text. */
+    label?: T
+
+    /** Visual divider between breadcrumb entries. */
+    separator?: T
+  }
   export type Variant = BreadcrumbVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   /**
@@ -128,7 +149,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

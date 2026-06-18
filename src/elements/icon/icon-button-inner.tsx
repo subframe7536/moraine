@@ -1,7 +1,7 @@
 import type { ComponentProps, JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import { Icon } from './icon'
 import type { IconT } from './icon'
@@ -9,10 +9,16 @@ import { iconButtonVariants, iconVariants } from './icon-button.class'
 import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonInnerT {
-  export type Slot = 'root' | 'icon'
+  export interface Slot<T = unknown> {
+    /** Internal icon-only button shell used by composed components. */
+    root?: T
+
+    /** Icon glyph rendered inside the internal button shell. */
+    icon?: T
+  }
   export type Variant = IconButtonVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = ComponentProps<'button'>
 
   export interface Item {}
@@ -36,7 +42,7 @@ export namespace IconButtonInnerT {
     iconSlotName?: string
   }
 
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 export interface IconButtonInnerProps extends IconButtonInnerT.Props {}

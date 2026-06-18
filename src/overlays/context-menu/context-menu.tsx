@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, mergeProps, onCleanup, onMount, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -15,10 +15,10 @@ import type {
 } from '../base/menu'
 
 export namespace ContextMenuT {
-  export type Slot = OverlayMenuSharedSlots
+  export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
   export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = OverlayMenuRootProps<Item>
 
   export interface Item extends OverlayMenuSharedItem<Item> {}
@@ -36,7 +36,7 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

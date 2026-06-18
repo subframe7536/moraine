@@ -14,7 +14,7 @@ import type { ButtonT } from '../../elements/button'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
@@ -146,12 +146,24 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export namespace InputNumberT {
-  export type Slot = 'root' | 'input' | 'increment' | 'decrement'
+  export interface Slot<T = unknown> {
+    /** Number input wrapper that owns the input and step controls. */
+    root?: T
+
+    /** Native number input element. */
+    input?: T
+
+    /** Button that increases the current numeric value. */
+    increment?: T
+
+    /** Button that decreases the current numeric value. */
+    decrement?: T
+  }
 
   export type Variant = InputNumberVariantProps
 
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -331,7 +343,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

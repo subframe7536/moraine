@@ -4,7 +4,7 @@ import { Show, createMemo, mergeProps } from 'solid-js'
 import { Card } from '../../elements/card'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { Modal } from '../base/modal'
 import type { ModalProps } from '../base/modal'
@@ -14,21 +14,41 @@ import { dialogCardVariants } from './dialog.class'
 import type { DialogCardVariantProps } from './dialog.class'
 
 export namespace DialogT {
-  export type Slot =
-    | 'trigger'
-    | 'overlay'
-    | 'content'
-    | 'header'
-    | 'wrapper'
-    | 'title'
-    | 'description'
-    | 'close'
-    | 'body'
-    | 'footer'
+  export interface Slot<T = unknown> {
+    /** Element users activate to open the dialog. */
+    trigger?: T
+
+    /** Backdrop layer rendered behind the dialog panel. */
+    overlay?: T
+
+    /** Dialog panel containing header, body, footer, and close control. */
+    content?: T
+
+    /** Top region for dialog title and description. */
+    header?: T
+
+    /** Inner card wrapper that arranges dialog header, body, and footer. */
+    wrapper?: T
+
+    /** Accessible title for the dialog. */
+    title?: T
+
+    /** Supporting text associated with the dialog title. */
+    description?: T
+
+    /** Button that dismisses the dialog. */
+    close?: T
+
+    /** Main dialog content region. */
+    body?: T
+
+    /** Bottom region for dialog actions. */
+    footer?: T
+  }
 
   export type Variant = DialogCardVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = Pick<
     ModalProps,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
@@ -108,7 +128,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

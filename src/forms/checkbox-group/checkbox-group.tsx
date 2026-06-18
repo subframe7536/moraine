@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, onMount } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
 import { cn, useId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
@@ -23,22 +23,44 @@ import {
 } from './checkbox-group.class'
 
 export namespace CheckboxGroupT {
-  export type Slot =
-    | 'root'
-    | 'fieldset'
-    | 'legend'
-    | 'item'
-    | 'container'
-    | 'control'
-    | 'indicator'
-    | 'icon'
-    | 'wrapper'
-    | 'label'
-    | 'description'
+  export interface Slot<T = unknown> {
+    /** Group container that owns checkbox collection state and layout. */
+    root?: T
+
+    /** Fieldset element that groups checkbox options for accessibility. */
+    fieldset?: T
+
+    /** Legend text that labels the checkbox group. */
+    legend?: T
+
+    /** Wrapper for one checkbox option in the group. */
+    item?: T
+
+    /** Text column for an option label and description. */
+    container?: T
+
+    /** Visible checkbox control for an individual option. */
+    control?: T
+
+    /** Visual checked or indeterminate state layer for an option. */
+    indicator?: T
+
+    /** Check or indeterminate icon rendered for an option state. */
+    icon?: T
+
+    /** Inner layout wrapper used by grouped checkbox variants. */
+    wrapper?: T
+
+    /** Primary label text for an option. */
+    label?: T
+
+    /** Supporting description for an option. */
+    description?: T
+  }
 
   export type Variant = CheckboxGroupVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item<TTrue = boolean, TFalse = boolean> {
@@ -120,7 +142,8 @@ export namespace CheckboxGroupT {
     Base<TTrue, TFalse>,
     Variant,
     Extend,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 

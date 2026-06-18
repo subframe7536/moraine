@@ -3,7 +3,7 @@ import { For, Show, createMemo, mergeProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { cn, useId } from '../../shared/utils'
@@ -27,21 +27,41 @@ import {
 } from './radio-group.class'
 
 export namespace RadioGroupT {
-  export type Slot =
-    | 'root'
-    | 'fieldset'
-    | 'legend'
-    | 'item'
-    | 'container'
-    | 'control'
-    | 'indicator'
-    | 'wrapper'
-    | 'label'
-    | 'description'
+  export interface Slot<T = unknown> {
+    /** Radio group container that owns selection state and layout. */
+    root?: T
+
+    /** Fieldset element that groups radio options for accessibility. */
+    fieldset?: T
+
+    /** Legend text that labels the radio group. */
+    legend?: T
+
+    /** Wrapper for one radio option. */
+    item?: T
+
+    /** Text column for an option label and description. */
+    container?: T
+
+    /** Visible radio control for an individual option. */
+    control?: T
+
+    /** Selected-state layer inside an option control. */
+    indicator?: T
+
+    /** Inner layout wrapper used by grouped radio variants. */
+    wrapper?: T
+
+    /** Primary label text for an option. */
+    label?: T
+
+    /** Supporting description for an option. */
+    description?: T
+  }
 
   export type Variant = RadioGroupVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   /**
@@ -104,7 +124,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

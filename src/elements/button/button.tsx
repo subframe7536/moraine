@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import type { MaybeRenderProp } from '../../shared/render-prop'
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
@@ -14,10 +14,25 @@ import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
 
 export namespace ButtonT {
-  export type Slot = 'root' | 'loading' | 'leading' | 'label' | 'trailing'
+  export interface Slot<T = unknown> {
+    /** Interactive button element, or the polymorphic element provided through `as`. */
+    root?: T
+
+    /** Loading icon shown while the button is busy. */
+    loading?: T
+
+    /** Icon region before the button label. */
+    leading?: T
+
+    /** Button content region after render-prop resolution. */
+    label?: T
+
+    /** Icon region after the button label. */
+    trailing?: T
+  }
   export type Variant = ButtonVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend<T extends ValidComponent = 'button'> = ComponentProps<T> & { as?: T }
 
   export interface Item {}
@@ -71,7 +86,13 @@ export namespace ButtonT {
   /**
    * Props for the Button component.
    */
-  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base, Variant, Extend<T>, Slot>
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<
+    Base,
+    Variant,
+    Extend<T>,
+    Classes,
+    Styles
+  >
 }
 
 /**

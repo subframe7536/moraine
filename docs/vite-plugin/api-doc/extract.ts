@@ -12,6 +12,7 @@ import type {
   InheritedGroupDoc,
   ItemDoc,
   PropDoc,
+  SlotDoc,
 } from './types'
 
 function categoryFromSourcePath(sourcePath: string | undefined): string {
@@ -263,54 +264,125 @@ function getLiteralStringText(node: ts.Expression): string | undefined {
   return undefined
 }
 
-function extractSlotNames(node: ts.ModuleDeclaration, checker: ts.TypeChecker): string[] {
+function extractSlotDocs(node: ts.ModuleDeclaration, checker: ts.TypeChecker): SlotDoc[] {
   const body = node.body
   if (!body || !ts.isModuleBlock(body)) {
     return []
   }
 
   for (const statement of body.statements) {
-    if (!ts.isTypeAliasDeclaration(statement) || statement.name.text !== 'Slot') {
-      continue
+    if (ts.isInterfaceDeclaration(statement) && statement.name.text === 'Slot') {
+      const docs = extractSlotDocsFromInterface(statement, checker)
+
+      if (docs.length > 0) {
+        return docs
+      }
     }
 
-    const names = extractSlotNamesFromTypeNode(statement.type, checker)
-    if (names.length > 0) {
-      return names
+    if (ts.isTypeAliasDeclaration(statement) && statement.name.text === 'Slot') {
+      const docs = extractSlotDocsFromTypeNode(statement.type, checker)
+
+      if (docs.length > 0) {
+        return docs
+      }
     }
   }
 
   return []
 }
 
-function extractSlotNamesFromTypeNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): string[] {
+function extractSlotDocsFromInterface(
+  node: ts.InterfaceDeclaration,
+  checker: ts.TypeChecker,
+): SlotDoc[] {
+  const docs = node.members
+    .filter(ts.isPropertySignature)
+    .map((member) => createSlotDocFromProperty(member, checker))
+    .filter((doc): doc is SlotDoc => Boolean(doc))
+
+  const inheritedDocs = node.heritageClauses?.flatMap((clause) =>
+    clause.types.flatMap((typeNode) =>
+      extractSlotDocsFromType(checker.getTypeAtLocation(typeNode), checker),
+    ),
+  )
+
+  return uniqueSlotDocs([...(inheritedDocs ?? []), ...docs])
+}
+
+function createSlotDocFromProperty(
+  member: ts.PropertySignature,
+  checker: ts.TypeChecker,
+): SlotDoc | undefined {
+  const name =
+    ts.isIdentifier(member.name) || ts.isStringLiteral(member.name) ? member.name.text : undefined
+
+  if (!name) {
+    return undefined
+  }
+
+  const symbol = checker.getSymbolAtLocation(member.name)
+  const description = displayText(symbol?.getDocumentationComment(checker)).trim() || undefined
+
+  return {
+    name,
+    ...(description ? { description } : {}),
+  }
+}
+
+function extractSlotDocsFromTypeNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): SlotDoc[] {
   if (ts.isUnionTypeNode(typeNode)) {
-    return uniqueStrings(
-      typeNode.types.flatMap((node) => extractSlotNamesFromTypeNode(node, checker)),
+    return uniqueSlotDocs(
+      typeNode.types.flatMap((node) => extractSlotDocsFromTypeNode(node, checker)),
     )
   }
 
   if (ts.isLiteralTypeNode(typeNode)) {
     const name = getLiteralStringText(typeNode.literal)
-    return name ? [name] : []
+    return name ? [{ name }] : []
   }
 
   // Resolve aliases and namespace references such as `BaseSelectT.Slot`.
-  return extractStringLiteralsFromType(checker.getTypeFromTypeNode(typeNode))
+  return extractSlotDocsFromType(checker.getTypeFromTypeNode(typeNode), checker)
 }
 
-function extractStringLiteralsFromType(type: ts.Type): string[] {
+function extractSlotDocsFromType(type: ts.Type, checker: ts.TypeChecker): SlotDoc[] {
   if (type.isStringLiteral()) {
-    return [type.value]
+    return [{ name: type.value }]
   }
   if (type.isUnion()) {
-    return uniqueStrings(type.types.flatMap(extractStringLiteralsFromType))
+    return uniqueSlotDocs(type.types.flatMap((item) => extractSlotDocsFromType(item, checker)))
   }
+
+  const properties = checker.getPropertiesOfType(type)
+  if (properties.length > 0) {
+    return uniqueSlotDocs(
+      properties.map((symbol) => {
+        const description = displayText(symbol.getDocumentationComment(checker)).trim() || undefined
+        const doc: SlotDoc = {
+          name: symbol.getName(),
+        }
+
+        if (description) {
+          doc.description = description
+        }
+
+        return doc
+      }),
+    )
+  }
+
   return []
 }
 
-function uniqueStrings(values: string[]): string[] {
-  return [...new Set(values)]
+function uniqueSlotDocs(values: SlotDoc[]): SlotDoc[] {
+  const docs = new Map<string, SlotDoc>()
+
+  for (const value of values) {
+    const existing = docs.get(value.name)
+    docs.set(value.name, existing?.description ? existing : value)
+  }
+
+  return [...docs.values()]
 }
 
 function extractItemsAliasPropDocs(
@@ -478,7 +550,7 @@ export function shouldIncludeInheritedGroup(from: string): boolean {
 }
 
 interface ComponentMetadata {
-  slots: Map<string, string[]>
+  slots: Map<string, SlotDoc[]>
   items: Map<string, ItemDoc>
 }
 
@@ -486,15 +558,15 @@ function collectNamespaceMetadata(
   sourceFile: ts.SourceFile,
   checker: ts.TypeChecker,
 ): ComponentMetadata {
-  const slots = new Map<string, string[]>()
+  const slots = new Map<string, SlotDoc[]>()
   const items = new Map<string, ItemDoc>()
 
   const visit = (node: ts.Node) => {
     if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
       const componentName = node.name.text.slice(0, -1)
-      const slotNames = extractSlotNames(node, checker)
-      if (slotNames.length > 0) {
-        slots.set(componentName, slotNames)
+      const slotDocs = extractSlotDocs(node, checker)
+      if (slotDocs.length > 0) {
+        slots.set(componentName, slotDocs)
       }
 
       const itemsDoc = extractItemsDoc(node, sourceFile, checker)

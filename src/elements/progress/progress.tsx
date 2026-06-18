@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { ProgressVariantProps } from './progress.class'
 import {
@@ -36,10 +36,28 @@ export namespace ProgressT {
     state: 'active' | 'first' | 'last' | 'other'
   }
 
-  export type Slot = 'root' | 'status' | 'track' | 'indicator' | 'steps' | 'step'
+  export interface Slot<T = unknown> {
+    /** Progress container that owns track, indicator, labels, and step markers. */
+    root?: T
+
+    /** Text region that displays the current progress status. */
+    status?: T
+
+    /** Background rail that represents the full progress range. */
+    track?: T
+
+    /** Filled bar that represents the current progress value. */
+    indicator?: T
+
+    /** Wrapper for step labels when progress is driven by named steps. */
+    steps?: T
+
+    /** Individual step label or marker rendered along the progress scale. */
+    step?: T
+  }
   export type Variant = ProgressVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -85,7 +103,8 @@ export namespace ProgressT {
     Base,
     Variant,
     Extend,
-    Slot,
+    Classes,
+    Styles,
     'indeterminate' | 'minValue' | 'maxValue'
   > {}
 }

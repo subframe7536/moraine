@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 import { createStore, produce, reconcile } from 'solid-js/store'
 
 import { resolveRenderProp } from '../../shared/render-prop'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import type {
@@ -53,11 +53,14 @@ export namespace FormT {
     loading: boolean
   }
 
-  export type Slot = 'root'
+  export interface Slot<T = unknown> {
+    /** Form element that owns validation, submission, and field context. */
+    root?: T
+  }
 
   export type Variant = never
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -132,7 +135,8 @@ export namespace FormT {
     Base<TState>,
     Variant,
     Extend,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 

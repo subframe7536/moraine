@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { Modal } from '../base/modal'
 import type { ModalProps } from '../base/modal'
@@ -11,22 +11,44 @@ import { sheetContentVariants } from './sheet.class'
 import type { SheetVariantProps } from './sheet.class'
 
 export namespace SheetT {
-  export type Slot =
-    | 'trigger'
-    | 'overlay'
-    | 'content'
-    | 'header'
-    | 'wrapper'
-    | 'title'
-    | 'description'
-    | 'actions'
-    | 'close'
-    | 'body'
-    | 'footer'
+  export interface Slot<T = unknown> {
+    /** Element users activate to open the sheet. */
+    trigger?: T
+
+    /** Backdrop layer rendered behind the sheet panel. */
+    overlay?: T
+
+    /** Slide-in panel containing header, body, footer, and close control. */
+    content?: T
+
+    /** Top region for sheet title and description. */
+    header?: T
+
+    /** Inner wrapper that arranges sheet header, body, footer, and actions. */
+    wrapper?: T
+
+    /** Accessible title for the sheet. */
+    title?: T
+
+    /** Supporting text associated with the sheet title. */
+    description?: T
+
+    /** Header action region, usually paired with the close control. */
+    actions?: T
+
+    /** Button that dismisses the sheet. */
+    close?: T
+
+    /** Main sheet content region. */
+    body?: T
+
+    /** Bottom region for sheet actions. */
+    footer?: T
+  }
 
   export type Variant = SheetVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = Pick<
     ModalProps,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
@@ -89,7 +111,7 @@ export namespace SheetT {
   /**
    * Props for the Sheet component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

@@ -10,7 +10,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
 import {
@@ -52,10 +52,25 @@ export namespace ResizableT {
     collapsed: boolean
   }
 
-  export type Slot = 'root' | 'panel' | 'divider' | 'handle' | 'crossTarget'
+  export interface Slot<T = unknown> {
+    /** Layout container that owns resizable panels and handles. */
+    root?: T
+
+    /** Content pane whose size is controlled by adjacent resize handles. */
+    panel?: T
+
+    /** Visual separator between adjacent panels. */
+    divider?: T
+
+    /** Interactive target users drag or focus to resize panels. */
+    handle?: T
+
+    /** Extra hit target used when nested handles meet across axes. */
+    crossTarget?: T
+  }
   export type Variant = ResizableVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item extends ResizablePanelItem {}
@@ -136,7 +151,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

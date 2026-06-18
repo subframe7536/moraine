@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, createSignal, mergeProps, on } from 'so
 import { Resizable } from '../../elements/resizable'
 import type { ResizableT } from '../../elements/resizable'
 import { Sheet } from '../../overlays/sheet'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { cn } from '../../shared/utils'
 
@@ -66,11 +66,29 @@ export namespace SidebarFrameT {
   /**
    * Slot keys for classes/styles overrides.
    */
-  export type Slot = 'root' | 'sidebar' | 'sidebarHeader' | 'sidebarBody' | 'sidebarFooter' | 'main'
+  export interface Slot<T = unknown> {
+    /** Frame container that coordinates sidebar and main content layout. */
+    root?: T
+
+    /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */
+    sidebar?: T
+
+    /** Optional header region at the top of the sidebar. */
+    sidebarHeader?: T
+
+    /** Main sidebar content region. */
+    sidebarBody?: T
+
+    /** Optional footer region at the bottom of the sidebar. */
+    sidebarFooter?: T
+
+    /** Primary content region beside or beneath the sidebar. */
+    main?: T
+  }
 
   export type Variant = SidebarFrameVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -112,7 +130,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

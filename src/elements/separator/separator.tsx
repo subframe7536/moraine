@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, mergeProps } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { SeparatorVariantProps } from './separator.class'
 import {
@@ -11,10 +11,19 @@ import {
 } from './separator.class'
 
 export namespace SeparatorT {
-  export type Slot = 'root' | 'border' | 'container'
+  export interface Slot<T = unknown> {
+    /** Separator line container, including optional label content. */
+    root?: T
+
+    /** Visual line segment rendered around optional separator content. */
+    border?: T
+
+    /** Optional label or custom content rendered within the separator line. */
+    container?: T
+  }
   export type Variant = SeparatorVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -42,7 +51,7 @@ export namespace SeparatorT {
   /**
    * Props for the Separator component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**

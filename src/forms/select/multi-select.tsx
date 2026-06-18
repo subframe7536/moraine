@@ -6,7 +6,7 @@ import type { BadgeProps } from '../../elements/badge'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { cn } from '../../shared/utils'
 import type {
@@ -38,17 +38,37 @@ export namespace MultiSelectT {
   export type Value = string | number
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type ControlSlot =
-    | 'control'
-    | 'input'
-    | 'leading'
-    | 'trigger'
-    | 'clear'
-    | 'tagsContainer'
-    | 'tag'
-    | 'tagRemove'
-    | 'tagOverflow'
-  export type OptionSlot = 'empty' | 'itemLabel' | 'itemDescription' | 'itemTrailing'
+  export interface ControlSlot<T = unknown> {
+    /** Multi-select control that displays selected tags and opens the popup. */
+    control?: T
+    /** Search input used to filter or add selections. */
+    input?: T
+    /** Icon shown before the selected tags and search input. */
+    leading?: T
+    /** Button region that toggles the multi-select popup. */
+    trigger?: T
+    /** Button used to clear all selected values. */
+    clear?: T
+    /** Wrapper that lays out selected value tags inside the control. */
+    tagsContainer?: T
+    /** Badge representing one selected value. */
+    tag?: T
+    /** Button used to remove one selected value. */
+    tagRemove?: T
+    /** Counter shown when selected tags exceed the visible limit. */
+    tagOverflow?: T
+  }
+
+  export interface OptionSlot<T = unknown> {
+    /** Message shown when filtering leaves no selectable options. */
+    empty?: T
+    /** Primary label text inside an option row. */
+    itemLabel?: T
+    /** Supporting description text inside an option row. */
+    itemDescription?: T
+    /** Trailing region inside an option row, usually for selection state or custom content. */
+    itemTrailing?: T
+  }
 
   export interface EmptyRenderContext<TItem extends Value = Value> {
     /** Current input/search text. */
@@ -65,11 +85,11 @@ export namespace MultiSelectT {
     close: () => void
   }
 
-  export type Slot = BaseSelectT.Slot | ControlSlot | OptionSlot
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
 
   export type Variant = SelectControlVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend<TItem extends Value = Value> = Omit<
     BaseSelectT.Base<Item<TItem>>,
     | 'children'
@@ -143,7 +163,8 @@ export namespace MultiSelectT {
     Base<TItem>,
     Variant,
     Extend<TItem>,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 

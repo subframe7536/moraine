@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, onMount } from 'solid-js'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -25,19 +25,35 @@ import {
 } from './switch.class'
 
 export namespace SwitchT {
-  export type Slot =
-    | 'root'
-    | 'container'
-    | 'track'
-    | 'thumb'
-    | 'icon'
-    | 'wrapper'
-    | 'label'
-    | 'description'
+  export interface Slot<T = unknown> {
+    /** Switch wrapper that coordinates input, track, thumb, and text content. */
+    root?: T
+
+    /** Text column that groups label and description. */
+    container?: T
+
+    /** Visible switch track that shows checked and unchecked state. */
+    track?: T
+
+    /** Movable knob inside the switch track. */
+    thumb?: T
+
+    /** Checked, unchecked, or loading icon rendered inside the thumb. */
+    icon?: T
+
+    /** Inner layout wrapper used by switch list and card variants. */
+    wrapper?: T
+
+    /** Primary switch label text. */
+    label?: T
+
+    /** Supporting text associated with the switch. */
+    description?: T
+  }
 
   export type Variant = SwitchVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = never
 
   export interface Item {}
@@ -125,7 +141,8 @@ export namespace SwitchT {
     Base<TTrue, TFalse>,
     Variant,
     Extend,
-    Slot
+    Classes,
+    Styles
   > {}
 }
 

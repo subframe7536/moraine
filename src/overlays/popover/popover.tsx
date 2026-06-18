@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup } from 'solid-js'
 
-import type { BaseProps, SlotClasses, SlotStyles } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 import { Popper, resolveOverlayMenuSide } from '../base'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base'
@@ -12,10 +12,19 @@ import type { PopoverContentVariantProps } from './popover.class'
 type PopoverMode = 'click' | 'hover'
 
 export namespace PopoverT {
-  export type Slot = 'trigger' | 'content' | 'body'
+  export interface Slot<T = unknown> {
+    /** Element users activate to open the popover. */
+    trigger?: T
+
+    /** Positioned popover panel anchored to the trigger. */
+    content?: T
+
+    /** Content body rendered inside the popover panel. */
+    body?: T
+  }
   export type Variant = PopoverContentVariantProps
-  export type Classes = SlotClasses<Slot>
-  export type Styles = SlotStyles<Slot>
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
   export type Extend = Pick<
     PopperProps,
     | 'id'
@@ -68,7 +77,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Slot> {}
+  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
 }
 
 /**
