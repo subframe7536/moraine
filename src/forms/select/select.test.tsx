@@ -565,6 +565,27 @@ describe('Select - keyboard and ARIA', () => {
     expect(highlighted?.getAttribute('aria-setsize')).toBe('4')
   })
 
+  test('scrolls the highlighted item into view when opened with an existing selection', async () => {
+    const scrollIntoView = vi.fn()
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+
+    HTMLElement.prototype.scrollIntoView = scrollIntoView
+
+    try {
+      const screen = render(() => <Select options={FRUITS} value="banana" placeholder="Pick" />)
+      const input = screen.getByRole('combobox') as HTMLElement
+
+      await fireEvent.click(input)
+
+      await waitFor(() => {
+        expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+        expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' })
+      })
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
+  })
+
   test('does not prevent Tab when menu is closed', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
     const input = screen.getByRole('combobox') as HTMLInputElement

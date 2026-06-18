@@ -229,6 +229,12 @@ function matchesFilter<TOption extends { key: string }>(
   return (SELECT_FILTER_STRATEGIES[filter] ?? SELECT_FILTER_STRATEGIES.contains)(text, input)
 }
 
+function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
+  const highlightedItem = listbox?.querySelector<HTMLElement>('[data-slot="item"][data-highlighted]')
+
+  highlightedItem?.scrollIntoView?.({ block: 'nearest' })
+}
+
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   highlightedKey: Accessor<string | undefined>
   isOpen: Accessor<boolean>
@@ -400,6 +406,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   let controlRef: HTMLDivElement | undefined
   let comboboxRef: HTMLElement | undefined
+  let listboxRef: HTMLDivElement | undefined
   let hasReachedScrollBottom = false
 
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
@@ -713,6 +720,16 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     positionerElement,
   })
 
+  createEffect(() => {
+    if (!isOpen() || !highlightedKey() || !contentElement() || !listboxRef) {
+      return
+    }
+
+    queueMicrotask(() => {
+      scrollHighlightedItemIntoView(listboxRef)
+    })
+  })
+
   function handleListboxScroll(event: Event): void {
     const target = event.currentTarget as HTMLElement | null
     if (!target) {
@@ -828,6 +845,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               <div
                 id={listboxId()}
                 role="listbox"
+                ref={(element) => {
+                  listboxRef = element
+                }}
                 data-slot="listbox"
                 style={merged.styles?.listbox}
                 class={cn(
