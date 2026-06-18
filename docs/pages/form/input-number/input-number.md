@@ -74,7 +74,7 @@ name: Disabled
 
 ### Long Press
 
-Press and hold increment or decrement to continuously step the value.
+Press and hold increment or decrement to continuously step the value. Set `holdRepeat={false}` to disable the repeat behavior.
 
 :::example
 name: LongPress

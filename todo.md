@@ -3,7 +3,7 @@
 ## Fix
 
 - [x] Auto scroll to the active item in the select component
-- [ ] InputNumber long press behavior should provide a option to disable
+- [x] InputNumber long press behavior should provide a option to toggle, enabled by default.
 - [ ] In docs, API Reference 's Attributes section header should become a select in mobile view.
 - [ ] Expose hooks in [utils](./src/utils) as `/utils` endpoint and add documentation for them.
 - [ ] Convert `<namespace>.Slot` from string to object with jsdoc to better document their meaning and available attributes.
