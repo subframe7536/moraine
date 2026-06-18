@@ -1,8 +1,9 @@
 import type { JSX } from 'solid-js'
-import { createMemo, For, Show } from 'solid-js'
+import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Tabs, cn } from '../../src'
+import { Badge, Select, Tabs, cn } from '../../src'
+import { createMediaQuery } from '../../src/shared/use-media-query'
 import type { PropDoc } from '../vite-plugin/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
@@ -198,6 +199,23 @@ export function HeadingWithAnchor(props: {
 }
 
 function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.Element {
+  const isMobile = createMediaQuery('(max-width: 767px)', false)
+  const slotOptions = createMemo(() => sectionProps.section.slots ?? [])
+  const firstSlotName = createMemo(() => slotOptions()[0]?.name)
+  const [selectedSlotName, setSelectedSlotName] = createSignal<string | undefined>()
+  const activeSlotName = createMemo(() => {
+    const candidate = selectedSlotName()
+
+    if (candidate && slotOptions().some((slot) => slot.name === candidate)) {
+      return candidate
+    }
+
+    return firstSlotName()
+  })
+  const activeSlot = createMemo(() =>
+    slotOptions().find((slot) => slot.name === activeSlotName()),
+  )
+
   return (
     <>
       <HeadingWithAnchor id={sectionProps.section.id} level={3}>
@@ -217,20 +235,51 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
       <Show
         when={!sectionProps.section.slots?.length}
         fallback={
-          <Tabs
-            defaultValue={sectionProps.section.slots?.[0]?.name}
-            orientation="vertical"
-            variant="pill"
-            size="md"
-            classes={{
-              root: 'mt-6 flex-col gap-4 md:flex-row md:items-start md:gap-5',
-            }}
-            items={(sectionProps.section.slots ?? []).map((slot) => ({
-              label: slot.name,
-              value: slot.name,
-              content: <SlotReferencePanel sectionId={sectionProps.section.id} slot={slot} />,
-            }))}
-          />
+          <Show
+            when={isMobile()}
+            fallback={
+              <Tabs
+                value={activeSlotName()}
+                onChange={setSelectedSlotName}
+                orientation="vertical"
+                variant="pill"
+                size="md"
+                classes={{
+                  root: 'mt-6 flex-col gap-4 md:flex-row md:items-start md:gap-5',
+                }}
+                items={slotOptions().map((slot) => ({
+                  label: slot.name,
+                  value: slot.name,
+                  content: <SlotReferencePanel sectionId={sectionProps.section.id} slot={slot} />,
+                }))}
+              />
+            }
+          >
+            <div class="mt-4 space-y-4">
+              <Select
+                options={slotOptions().map((slot) => ({ label: slot.name, value: slot.name }))}
+                value={activeSlotName() ?? null}
+                size="sm"
+                placeholder={sectionProps.section.heading}
+                classes={{
+                  root: 'w-fit max-w-full',
+                  control: '!w-fit max-w-full',
+                  input: 'flex-none w-auto whitespace-nowrap',
+                }}
+                onChange={(value) => {
+                  if (value !== null) {
+                    setSelectedSlotName(String(value))
+                  }
+                }}
+              />
+
+              <Show when={activeSlot()}>
+                {(slot) => (
+                  <SlotReferencePanel sectionId={sectionProps.section.id} slot={slot()} />
+                )}
+              </Show>
+            </div>
+          </Show>
         }
       >
         <Show
