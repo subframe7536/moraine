@@ -37,7 +37,8 @@
     "./tw3.css": "./dist/tw3.css",
     "./icon.css": "./dist/icon.css",
     "./unocss": "./dist/unocss.mjs",
-    "./tailwind": "./dist/tailwind.mjs"
+    "./tailwind": "./dist/tailwind.mjs",
+    "./utils": "./dist/utils.mjs"
   },
   "publishConfig": {
     "access": "public",

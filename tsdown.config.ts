@@ -75,6 +75,7 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
+      utils: './src/utils.ts',
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
     },
@@ -95,7 +96,9 @@ export default defineConfig([
     },
   },
   {
-    entry: ['./src/index.ts'],
+    entry: {
+      index: './src/index.ts',
+    },
     platform: 'neutral',
     plugins: [
       unocss({
@@ -138,6 +141,7 @@ export default defineConfig([
         exports['./icon.css'] = './dist/icon.css'
         exports['./unocss'] = './dist/unocss.mjs'
         exports['./tailwind'] = './dist/tailwind.mjs'
+        exports['./utils'] = './dist/utils.mjs'
         return exports
       },
     },

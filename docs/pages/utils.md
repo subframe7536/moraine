@@ -1,0 +1,114 @@
+# Utils
+
+Public helper hooks and low-level utilities for building custom Moraine-based primitives.
+
+- Top-level styling helpers such as `cn`, `cva`, and `extendCN` continue to be exported from `moraine`.
+
+## Usage
+
+Import shared helpers from the dedicated subpath:
+
+```tsx
+import {
+  createContextProvider,
+  createMediaQuery,
+  useControllableValue,
+  useDisclosureState,
+  useEventListener,
+  useEventListenerMap,
+  useId,
+  useLoadingAutoClick,
+  useSelectableCollectionNavigation,
+  useTransitionPresence,
+} from 'moraine/utils'
+```
+
+## `useControllableValue`
+
+Bridge controlled and uncontrolled state with a single accessor/setter pair.
+
+```tsx
+const [value, setValue] = useControllableValue({
+  value: () => props.value,
+  defaultValue: () => props.defaultValue,
+})
+```
+
+## `useDisclosureState`
+
+Track open-state metadata for collapsible content, including `data-*` attrs and measured content height.
+
+```tsx
+const disclosure = useDisclosureState({
+  open: () => open(),
+  disabled: () => props.disabled ?? false,
+})
+```
+
+## `useTransitionPresence`
+
+Keep an element mounted until its exit animation or transition finishes.
+
+```tsx
+const presence = useTransitionPresence({
+  open: () => open(),
+  mode: () => 'both',
+})
+```
+
+## `useSelectableCollectionNavigation`
+
+Add keyboard navigation for tabs, radio groups, listboxes, and similar selectable collections.
+
+```tsx
+const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+  items: () => items(),
+  getValue: (item) => item.value,
+  onSelect: (value) => setSelected(value),
+})
+```
+
+## `createMediaQuery`
+
+Create a reactive boolean accessor from a media query.
+
+```tsx
+const isMobile = createMediaQuery('(max-width: 768px)', false)
+```
+
+## `useId`
+
+Create a stable accessor for explicit or generated element IDs.
+
+```tsx
+const id = useId(() => props.id, 'dialog')
+```
+
+## `useEventListener` and `useEventListenerMap`
+
+Attach event listeners with automatic cleanup when the owner scope is disposed.
+
+```tsx
+useEventListener(window, 'keydown', (event) => {
+  if (event.key === 'Escape') close()
+})
+```
+
+## `useLoadingAutoClick`
+
+Wrap async click handlers and derive a loading state automatically while the returned promise is pending.
+
+```tsx
+const { isLoading, onClick } = useLoadingAutoClick({
+  loadingAuto: () => true,
+  onClick: () => props.onSubmit,
+})
+```
+
+## `createContextProvider`
+
+Create a typed Solid context provider and matching consumer hook with optional fallback support.
+
+```tsx
+const [DialogProvider, useDialogContext] = createContextProvider<DialogContextValue>('Dialog')
+```
