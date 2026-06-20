@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -209,7 +209,7 @@ describe('Accordion', () => {
     expect(contentOne.getAttribute('aria-labelledby')).toBe(triggerOne.id)
   })
 
-  test('omits aria-controls when content is unmounted and keeps it during exit animation', async () => {
+  test('omits aria-controls while closed, including during exit animation', async () => {
     const screen = render(() => <Accordion id="settings" items={BASE_ITEMS} />)
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -226,7 +226,8 @@ describe('Accordion', () => {
     await fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(triggerOne.getAttribute('aria-controls')).toBe('settings-one-content')
+    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    expect(contentOne.getAttribute('data-closed')).toBe('')
 
     await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })
 
@@ -384,7 +385,12 @@ describe('Accordion', () => {
 
         return (
           <>
-            <Accordion id="settings" items={BASE_ITEMS} value={openValue()} onChange={setOpenValue} />
+            <Accordion
+              id="settings"
+              items={BASE_ITEMS}
+              value={openValue()}
+              onChange={setOpenValue}
+            />
             <span data-testid="open-value">{openValue()[0] ?? 'none'}</span>
           </>
         )
@@ -402,22 +408,53 @@ describe('Accordion', () => {
       const contentOne = screen.getByRole('region', { name: 'One' })
 
       expect(screen.getByTestId('open-value').textContent).toBe('one')
-      expect(contentOne.getAttribute('data-expanded')).toBe('')
-      expect(contentOne.className).toContain('transition-[height]')
-      expect(contentOne.className).not.toContain('animate-accordion-down')
-      expect(contentOne.getAttribute('style')).toContain(
-        '--mo-collapsible-content-height: 48px',
-      )
+      await waitFor(() => {
+        expect(contentOne.getAttribute('data-expanded')).toBe('')
+        expect(contentOne.className).toContain('transition-[height]')
+        expect(contentOne.className).not.toContain('animate-accordion-down')
+        expect(contentOne.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
+      })
 
       await fireEvent.click(triggerOne)
       await Promise.resolve()
 
       expect(screen.getByTestId('open-value').textContent).toBe('none')
       expect(contentOne.getAttribute('data-closed')).toBe('')
+      expect(contentOne.hasAttribute('data-collapsed')).toBe(false)
 
       await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })
 
       expect(screen.queryByRole('region', { name: 'One' })).toBeNull()
+    } finally {
+      scrollHeight.mockRestore()
+    }
+  })
+
+  test('expands the next same-height item without a delayed collapsed frame', async () => {
+    const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(48)
+
+    try {
+      const screen = render(() => (
+        <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} />
+      ))
+
+      const triggerTwo = screen.getByRole('button', { name: 'Two' })
+
+      await waitFor(() => {
+        expect(screen.getByRole('region', { name: 'One' }).getAttribute('style')).toContain(
+          '--mo-collapsible-content-height: 48px',
+        )
+      })
+
+      await fireEvent.click(triggerTwo)
+      await Promise.resolve()
+
+      const contentOne = screen.getByRole('region', { name: 'One' })
+      const contentTwo = screen.getByRole('region', { name: 'Two' })
+
+      expect(contentOne.getAttribute('data-closed')).toBe('')
+      expect(contentTwo.getAttribute('data-expanded')).toBe('')
+      expect(contentTwo.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
     } finally {
       scrollHeight.mockRestore()
     }
@@ -434,8 +471,9 @@ describe('Accordion', () => {
     await fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(triggerOne.getAttribute('aria-controls')).toBe('settings-one-content')
+    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
     expect(contentOne.getAttribute('data-closed')).toBe('')
+    expect(screen.container.querySelector('[data-collapsed]')).toBeNull()
     expect(screen.getByText('Content one')).not.toBeNull()
 
     await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })

@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, mergeProps, untrack } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { cn, useId } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
@@ -278,17 +279,57 @@ export function Accordion(props: AccordionProps): JSX.Element {
       <For each={normalizedItems()}>
         {(entry) => {
           const expanded = createMemo(() => resolvedSelectedValues().includes(entry.value))
-          const { contentHeight, dataAttrs, setContentElement } = useDisclosureState({
-            open: expanded,
+          const [contentExpanded, setContentExpanded] = createSignal(untrack(expanded))
+          const itemDataAttrs = createMemo(() => ({
+            'data-closed': expanded() ? undefined : '',
+            'data-disabled': entry.disabled ? '' : undefined,
+            'data-expanded': expanded() ? '' : undefined,
+          }))
+          const {
+            contentHeight,
+            dataAttrs: contentDataAttrs,
+            setContentElement,
+          } = useDisclosureState({
+            open: contentExpanded,
             disabled: () => entry.disabled,
+          })
+          const contentPresence = useTransitionPresence({
+            open: expanded,
+            mode: 'transition',
           })
           const triggerId = createMemo(() => getTriggerId(entry.value))
           const contentId = createMemo(() => getContentId(entry.value))
+          let contentElement: HTMLDivElement | undefined
+
+          function openContentElement(): void {
+            if (!contentElement || contentExpanded()) {
+              return
+            }
+
+            void contentElement.offsetHeight
+
+            if (expanded()) {
+              setContentExpanded(true)
+            }
+          }
+
+          createEffect(() => {
+            if (!expanded()) {
+              setContentExpanded(false)
+              return
+            }
+
+            openContentElement()
+          })
+
+          createEffect(() => {
+            if (!contentPresence.present() && merged.unmountOnHide) {
+              contentElement = undefined
+            }
+          })
 
           function onTriggerClick(event: MouseEvent): void {
-            const { defaultPrevented } = callHandler(event, undefined)
-
-            if (!defaultPrevented && !entry.disabled) {
+            if (!event.defaultPrevented && !entry.disabled) {
               toggleValue(entry.value)
             }
           }
@@ -325,19 +366,19 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 'not-last:border-(b b-border) data-disabled:effect-dis',
                 merged.classes?.item,
               )}
-              {...dataAttrs()}
+              {...itemDataAttrs()}
             >
               <div
                 data-slot="header"
                 role="heading"
                 style={merged.styles?.header}
                 class={cn('flex', merged.classes?.header)}
-                {...dataAttrs()}
+                {...itemDataAttrs()}
               >
                 <button
                   id={triggerId()}
                   type="button"
-                  aria-controls={!merged.unmountOnHide || expanded() ? contentId() : undefined}
+                  aria-controls={expanded() ? contentId() : undefined}
                   aria-expanded={expanded()}
                   disabled={entry.disabled}
                   data-slot="trigger"
@@ -348,7 +389,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   )}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
-                  {...dataAttrs()}
+                  {...itemDataAttrs()}
                 >
                   <Show when={entry.item.leading}>
                     <Icon
@@ -383,29 +424,33 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 </button>
               </div>
 
-              <Show when={!merged.unmountOnHide || expanded()}>
+              <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
                 <div
+                  ref={(element) => {
+                    contentElement = element
+                    setContentElement(element)
+                    contentPresence.setElement(element)
+
+                    if (expanded() && !contentExpanded()) {
+                      openContentElement()
+                    }
+                  }}
                   id={contentId()}
                   role="region"
                   aria-labelledby={triggerId()}
-                  class="text-sm overflow-hidden data-closed:animate-accordion-up data-expanded:animate-accordion-down"
-                  {...dataAttrs()}
+                  data-slot="content"
+                  style={{
+                    '--mo-collapsible-content-height': `${contentHeight()}px`,
+                    ...(merged.styles?.content as JSX.CSSProperties | undefined),
+                  }}
+                  class={cn(
+                    'text-sm h-$mo-collapsible-content-height transition-[height] overflow-hidden data-closed:h-0',
+                    merged.classes?.content,
+                  )}
+                  {...contentDataAttrs()}
                 >
                   <Show when={entry.item.content}>
-                    <div
-                      ref={setContentElement}
-                      data-slot="content"
-                      style={{
-                        '--mo-collapsible-content-height': `${contentHeight()}px`,
-                        ...(merged.styles?.content as JSX.CSSProperties | undefined),
-                      }}
-                      class={cn(
-                        'style-accordion-content pb-2.5 h-$mo-collapsible-content-height',
-                        merged.classes?.content,
-                      )}
-                    >
-                      {entry.item.content}
-                    </div>
+                    <div class="style-accordion-content pb-2.5">{entry.item.content}</div>
                   </Show>
                 </div>
               </Show>
