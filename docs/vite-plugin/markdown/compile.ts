@@ -327,13 +327,15 @@ function createMarkdown(
       ? defaultFenceRule(tokens, idx, options, env, self)
       : self.renderToken(tokens, idx, options)
     // Plain fallback: `<pre>` with no attributes.
-    const plainReplaced = output.replace(/^<pre>/, `<pre class="docs-pre">`)
+    const plainReplaced = output.replace(/^<pre>/, `<pre class="docs-pre" tabindex="-1">`)
     if (plainReplaced !== output) {
       return plainReplaced
     }
     // Shiki output: `<pre class="shiki ...">` — wrap in a styled container so it
     // gets the same rounded border and font-size as ShikiCodeBlock.
-    const preWithPadding = output.replace(/(<pre\s[^>]*class=")/, `$1text-sm m-0 p-4 `)
+    const preWithPadding = output
+      .replace(/(<pre\s[^>]*class=")/, `$1text-sm m-0 p-4 `)
+      .replace(/^<pre/, '<pre tabindex="-1"')
     return `<div class="docs-code-block"><div class="docs-code-block-inner">${preWithPadding}</div></div>`
   }
 

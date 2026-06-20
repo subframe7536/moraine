@@ -24,8 +24,8 @@ Use `bun` for all package management and script execution.
 
 ### Testing
 
-- `bun run test` - Run all tests using Vitest (watch mode by default).
-- `bun run test --run` - Run tests once (CI mode).
+- `bun run test` - Run all tests in once.
+- `bun run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
 - `bun run test <test-file>` - Run a single test file (e.g., `bun run test button.test.tsx`).
 - **Note:** Tests use `jsdom` environment.
 

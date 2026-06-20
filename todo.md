@@ -15,7 +15,7 @@
     - [x] all variants examples' main area should be larger than sidebar area
     - [x] floating's sidebar and inset's main 's bottom is overlapped
 - [x] Add fake progress animation for documentation pages switching
-- [ ] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
+- [x] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
 
 ## Components
 

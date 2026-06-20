@@ -29,7 +29,12 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
                 class="text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 aria-current:text-primary hover:text-foreground"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
-                  {entry.label}
+                  <Show
+                    when={entry.label.startsWith('`') && entry.label.endsWith('`')}
+                    fallback={entry.label}
+                  >
+                    <code class="docs-inline-code">{entry.label.slice(1, -1)}</code>
+                  </Show>
                 </span>
               </a>
             )}

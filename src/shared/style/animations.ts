@@ -2,8 +2,10 @@ type KeyframeStop = Record<string, string>
 type KeyframeFrames = Record<string, KeyframeStop>
 
 const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
-const MORAINE_ANIM_DUR_VAR_ENTER = 'var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms))'
-const MORAINE_ANIM_DUR_VAR_EXIT = 'var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms))'
+const MORAINE_ANIM_DUR_VAR_ENTER = 'var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))'
+const MORAINE_ANIM_DUR_VAR_EXIT = 'var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))'
+const MORAINE_EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
+const MORAINE_EASE_IN = 'cubic-bezier(0.7, 0, 0.84, 0)'
 
 function getAnimType(name: string): 'moraine-enter' | 'moraine-exit' | 'looping' | 'default' {
   if (name === 'mo-enter') {
@@ -82,7 +84,7 @@ export function getMoraineAnimDurations(): Record<string, string> {
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => {
       const type = getAnimType(name)
-      let duration = '150ms'
+      let duration = '200ms'
       switch (type) {
         case 'moraine-enter':
           duration = MORAINE_ANIM_DUR_VAR_ENTER
@@ -101,7 +103,25 @@ export function getMoraineAnimDurations(): Record<string, string> {
 
 /** Generate animation timing functions for all keyframes. */
 export function getMoraineAnimTimingFns(): Record<string, string> {
-  return Object.fromEntries(Object.keys(MORAINE_KEYFRAMES).map((name) => [name, 'ease-in-out']))
+  return Object.fromEntries(
+    Object.keys(MORAINE_KEYFRAMES).map((name) => {
+      const type = getAnimType(name)
+      let timing = MORAINE_EASE_OUT
+      switch (type) {
+        case 'moraine-exit':
+          timing = MORAINE_EASE_IN
+          break
+        case 'looping':
+          timing = 'ease-in-out'
+          break
+        default:
+          if (name.endsWith('-up')) {
+            timing = MORAINE_EASE_IN
+          }
+      }
+      return [name, timing]
+    }),
+  )
 }
 
 /** Generate animation iteration counts for all keyframes. */

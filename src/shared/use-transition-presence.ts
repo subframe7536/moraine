@@ -7,7 +7,7 @@ export type TransitionPresenceMotion = 'animation' | 'transition' | 'both' | 'no
 
 export interface UseTransitionPresenceOptions {
   open: Accessor<boolean>
-  mode?: Accessor<TransitionPresenceMotion>
+  mode?: TransitionPresenceMotion
 }
 
 export interface TransitionPresenceState {
@@ -51,7 +51,7 @@ export function useTransitionPresence(
       return
     }
 
-    const mode = options.mode?.() ?? 'animation'
+    const mode = options.mode ?? 'both'
 
     if (mode === 'none') {
       setPresent(false)

@@ -92,7 +92,7 @@ export function Card(props: CardProps): JSX.Element {
       data-slot="root"
       style={props.styles?.root}
       class={cn(
-        'text-card-foreground b-1 b-border rounded-2xl bg-card flex flex-col shadow-xs/5 relative not-dark:bg-clip-padding',
+        'text-card-foreground surface-border rounded-2xl bg-card flex flex-col shadow-xs/5 relative not-dark:bg-clip-padding',
         props.classes?.root,
       )}
     >

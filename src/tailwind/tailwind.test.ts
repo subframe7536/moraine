@@ -211,14 +211,14 @@ describe('animations', () => {
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toContain(
-      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms)) ease-in-out 1',
+      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
   })
 
   test('animate-mo-exit uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-exit'])
     expect(css).toContain(
-      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) ease-in-out 1',
+      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
   })
 
@@ -244,13 +244,13 @@ describe('animations', () => {
     const css = await compileCSS(['animate-accordion-down'])
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('var(--mo-collapsible-content-height)')
-    expect(css).toContain('animation: accordion-down 150ms ease-in-out 1')
+    expect(css).toContain('animation: accordion-down 200ms cubic-bezier(0.16, 1, 0.3, 1) 1')
   })
 
   test('accordion-up animation resolves', async () => {
     const css = await compileCSS(['animate-accordion-up'])
     expect(css).toContain('@keyframes accordion-up')
-    expect(css).toContain('animation: accordion-up 150ms ease-in-out 1')
+    expect(css).toContain('animation: accordion-up 200ms cubic-bezier(0.7, 0, 0.84, 0) 1')
   })
 
   test('looping animations use infinite count and 2s duration', async () => {

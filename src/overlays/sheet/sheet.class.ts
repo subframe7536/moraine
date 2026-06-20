@@ -18,7 +18,7 @@ export const sheetContentVariants = cva(
         left: 'border-r border-border h-full w-3/4 animate-sheet-side-left inset-y-0 left-0 sm:max-w-sm',
       },
       inset: {
-        true: 'sm:(m-4 b-1 b-border rounded-2xl)',
+        true: 'sm:(m-4 border border-border rounded-2xl)',
         false: 'rounded-none',
       },
     },

@@ -1,6 +1,6 @@
 export const INPUT_VARIANT = {
-  outline: 'b-(1 input) bg-transparent',
-  subtle: 'b-(1 input) bg-input/30',
+  outline: 'border border-input bg-transparent',
+  subtle: 'border border-input bg-input/30',
   ghost: 'hover:bg-muted/50 focus-within:bg-muted/50',
   none: 'focus-within:ring-0',
 } as const

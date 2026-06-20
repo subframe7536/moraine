@@ -10,7 +10,7 @@ describe('Card', () => {
     const screen = render(() => <Card />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('b-1')
+    expect(root?.className).toContain('surface-border')
     expect(root?.className).toContain('bg-card')
     expect(root?.className).toContain('shadow-xs/5')
   })

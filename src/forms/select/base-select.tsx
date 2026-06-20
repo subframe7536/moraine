@@ -437,7 +437,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const contentPresence = useTransitionPresence({
     open: isOpen,
-    mode: () => 'both',
   })
 
   createEffect(

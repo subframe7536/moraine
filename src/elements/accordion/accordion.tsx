@@ -321,7 +321,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
             <div
               data-slot="item"
               style={merged.styles?.item}
-              class={cn('not-last:b-(b b-border) data-disabled:effect-dis', merged.classes?.item)}
+              class={cn(
+                'not-last:border-(b b-border) data-disabled:effect-dis',
+                merged.classes?.item,
+              )}
               {...dataAttrs()}
             >
               <div
@@ -340,7 +343,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   data-slot="trigger"
                   style={merged.styles?.trigger}
                   class={cn(
-                    'group text-sm font-medium py-2.5 text-left outline-none b-1 b-transparent rounded-lg flex flex-1 gap-1.5 min-w-0 w-full transition items-center justify-between relative focus-visible:effect-fv-border disabled:effect-dis hover:underline',
+                    'group text-sm font-medium py-2.5 text-left outline-none border border-transparent rounded-lg flex flex-1 gap-1.5 min-w-0 w-full transition items-center justify-between relative focus-visible:effect-fv-border disabled:effect-dis hover:underline',
                     merged.classes?.trigger,
                   )}
                   onClick={onTriggerClick}

@@ -343,7 +343,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             style={merged.styles?.main}
             class={cn(
               'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
-              merged.variant === 'inset' && 'b-1 b-border rounded-2xl bg-background shadow-xs',
+              merged.variant === 'inset' && 'surface-border rounded-2xl bg-background shadow-xs',
             )}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))

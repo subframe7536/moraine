@@ -814,7 +814,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     const [autoFocusStrategy, setAutoFocusStrategy] = createSignal<OverlayMenuFocusStrategy>('none')
     const contentPresence = useTransitionPresence({
       open: isOpen,
-      mode: () => 'both',
     })
     let openTimeoutId = 0
     let submenuLayerState: OverlayMenuLayerState | undefined
@@ -1151,7 +1150,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
                         data-slot="separator"
                         role="separator"
                         style={props.styles?.separator}
-                        class={cn('mx--1 my-1 b-t-(1 foreground/15)', props.classes?.separator)}
+                        class={cn(
+                          'mx--1 my-1 border-t border-foreground/15',
+                          props.classes?.separator,
+                        )}
                       />
                     </Match>
 
@@ -1194,7 +1196,6 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   const contentId = createMemo(() => `${rootId()}-content`)
   const contentPresence = useTransitionPresence({
     open: () => merged.open,
-    mode: () => 'both',
   })
   const branches = new Set<HTMLElement>()
   const [restoreFocusOnClose, setRestoreFocusOnClose] = createSignal(false)

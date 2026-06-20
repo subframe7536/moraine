@@ -32,7 +32,7 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
     },
     variant: {
       default: '',
-      floating: 'b-1 b-border rounded-2xl bg-background shadow-sm overflow-hidden',
+      floating: 'surface-border rounded-2xl bg-background shadow-sm overflow-hidden',
       inset: '',
     },
   },
@@ -41,13 +41,13 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
       variant: 'default',
       isMobile: false,
       side: 'left',
-      class: 'b-r b-border',
+      class: 'border-r border-border',
     },
     {
       variant: 'default',
       isMobile: false,
       side: 'right',
-      class: 'b-l b-border',
+      class: 'border-l border-border',
     },
   ],
   defaultVariants: {

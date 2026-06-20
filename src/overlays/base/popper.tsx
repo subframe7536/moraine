@@ -161,7 +161,6 @@ export function Popper(props: PopperProps): JSX.Element {
   )
   const contentPresence = useTransitionPresence({
     open: () => Boolean((isOpen() || merged.forceMount) && !merged.disabled),
-    mode: () => 'both',
   })
 
   let cleanupAutoUpdate: (() => void) | undefined

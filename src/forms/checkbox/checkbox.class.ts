@@ -17,7 +17,7 @@ export const checkboxRootVariants = cva('flex items-start relative data-disabled
   },
   variants: {
     variant: {
-      card: 'b-1 b-border rounded-lg data-checked:b-primary',
+      card: 'surface-border rounded-lg data-checked:border-primary',
       list: '',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,
@@ -43,7 +43,7 @@ export const checkboxContainerVariants = cva('flex items-center', {
 })
 
 export const checkboxBaseVariants = cva(
-  'outline-none b-(1 input) rounded-sm bg-background inline-flex transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-checked:border-primary data-invalid:effect-invalid dark:bg-input/30',
+  'outline-none border border-input rounded-sm bg-background inline-flex transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-checked:border-primary data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',

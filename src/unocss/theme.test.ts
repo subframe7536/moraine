@@ -164,10 +164,10 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-popover-in')
     expect(css).toContain('.animate-popover-side-left')
     expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms)) ease-in-out 1',
+      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
     expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) ease-in-out 1',
+      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
     expect(css).toContain('--mo-enter-opacity:0')
     expect(css).toContain('--mo-enter-scale:0.9')
@@ -223,10 +223,10 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-sheet-out')
     expect(css).toContain('.animate-sheet-side-right')
     expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,100ms)) ease-in-out 1',
+      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
     expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) ease-in-out 1',
+      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
     expect(css).toContain('--mo-enter-translate-x:2.5rem')
     expect(css).toContain('--mo-exit-translate-x:2.5rem')

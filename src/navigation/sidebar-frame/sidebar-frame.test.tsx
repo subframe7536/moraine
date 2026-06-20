@@ -117,8 +117,12 @@ describe('SidebarFrame', () => {
     const leftScreen = render(() => <SidebarFrame {...createBaseProps()} side="left" />)
     const rightScreen = render(() => <SidebarFrame {...createBaseProps()} side="right" />)
 
-    expect(leftScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('b-r')
-    expect(rightScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('b-l')
+    expect(leftScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+      'border-r',
+    )
+    expect(rightScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+      'border-l',
+    )
   })
 
   test('supports ctx.toggle to open mobile sheet', async () => {

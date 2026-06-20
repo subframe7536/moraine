@@ -14,7 +14,7 @@ export const tooltipContentVariants = cva(
       },
       invert: {
         true: 'text-background bg-foreground',
-        false: 'text-foreground surface-border bg-background shadow-sm',
+        false: 'text-foreground surface-overlay bg-background shadow-sm',
       },
     },
     defaultVariants: {

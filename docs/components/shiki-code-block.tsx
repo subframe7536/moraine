@@ -127,7 +127,6 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
               onClick={() => copyCode(html())}
             />
 
-            {/* eslint-disable-next-line solid/no-innerhtml -- shiki HTML generated at build time */}
             <div
               class="transition-[height] duration-300 ease-in-out relative overflow-hidden"
               style={{ height: viewportHeight() }}
@@ -142,7 +141,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
                   isExpandable() && !isExpanded() ? 'overflow-hidden' : 'overflow-auto',
                 )}
                 // oxlint-disable-next-line subf/solid-no-innerhtml
-                innerHTML={html()}
+                innerHTML={html().replace(/^<pre/, '<pre tabindex="-1"')}
               />
 
               <Show when={isExpandable() && !isExpanded()}>

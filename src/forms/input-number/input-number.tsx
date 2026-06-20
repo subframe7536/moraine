@@ -753,7 +753,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             orientation: resolvedOrientation(),
           },
           'select-none touch-none',
-          isBorderless() && 'b-transparent',
+          isBorderless() && 'border-transparent',
           merged.variant === 'none' && 'hover:bg-transparent',
           merged.classes?.[kind],
         ),

@@ -91,11 +91,9 @@ export function Modal(props: ModalProps): JSX.Element {
 
   const overlayPresence = useTransitionPresence({
     open: () => Boolean(open() && props.overlay),
-    mode: () => 'both',
   })
   const contentPresence = useTransitionPresence({
     open: () => Boolean(open() && resolvedContent()),
-    mode: () => 'both',
   })
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
 
