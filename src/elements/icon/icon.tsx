@@ -2,7 +2,6 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { BaseProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {

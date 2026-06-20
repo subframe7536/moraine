@@ -1,4 +1,4 @@
-import { Button, Collapsible, Icon, IconButton } from '@src'
+import { Button, Collapsible, Icon } from '@src'
 
 export function Stateful() {
   return (

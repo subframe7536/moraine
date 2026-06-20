@@ -50,9 +50,9 @@ describe('Collapsible', () => {
     ).toBe(true)
 
     const trigger = screen.getByTestId('trigger-control')
-    const content = screen.container.querySelector('[data-slot="content"]')
+    const contentWrapper = screen.container.querySelector('[data-slot="content-wrapper"]')
 
-    expect(trigger?.getAttribute('aria-controls')).toBe(content?.getAttribute('id'))
+    expect(trigger?.getAttribute('aria-controls')).toBe(contentWrapper?.getAttribute('id'))
   })
 
   test('children render function receives open=true/false', async () => {
@@ -212,9 +212,11 @@ describe('Collapsible', () => {
     await fireEvent.click(trigger)
     await Promise.resolve()
 
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement
+    const contentWrapper = screen.container.querySelector(
+      '[data-slot="content-wrapper"]',
+    ) as HTMLElement
 
-    expect(trigger.getAttribute('aria-controls')).toBe(content.id)
+    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
 
     await fireEvent.click(trigger)
     await Promise.resolve()
@@ -225,9 +227,11 @@ describe('Collapsible', () => {
   test('transition defaults to false and closed content unmounts immediately', async () => {
     const screen = renderCollapsible({ defaultOpen: true })
     const trigger = screen.getByTestId('trigger-control')
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement
+    const contentWrapper = screen.container.querySelector(
+      '[data-slot="content-wrapper"]',
+    ) as HTMLElement
 
-    expect(content.className).not.toContain('transition-[height]')
+    expect(contentWrapper.className).not.toContain('transition-[height]')
 
     await fireEvent.click(trigger)
     await Promise.resolve()
@@ -238,18 +242,20 @@ describe('Collapsible', () => {
   test('transition=true keeps content mounted until close transition ends', async () => {
     const screen = renderCollapsible({ defaultOpen: true, transition: true })
     const trigger = screen.getByTestId('trigger-control')
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement
+    const contentWrapper = screen.container.querySelector(
+      '[data-slot="content-wrapper"]',
+    ) as HTMLElement
 
-    expect(content.className).toContain('transition-[height]')
+    expect(contentWrapper.className).toContain('transition-[height]')
 
     await fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
-    expect(content.getAttribute('data-closed')).toBe('')
+    expect(contentWrapper.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
-    await fireEvent.transitionEnd(content, { propertyName: 'height' })
+    await fireEvent.transitionEnd(contentWrapper, { propertyName: 'height' })
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
