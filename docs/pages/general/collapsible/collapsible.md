@@ -9,46 +9,39 @@ import { Collapsible } from 'moraine'
 
 ## Slot Structure
 
-Single expandable section with an optional trigger slot.
+Single expandable section with a trigger slot.
 
 ```text
 root
-├── trigger (optional)
-└── content
+├── trigger
+└── content-wrapper
+    └── content
 ```
 
 ## Examples
 
-### Uncontrolled
+### Uncontrolled and Transition
 
-Default closed panel using trigger render context.
+FAQ pattern with optional height transition. Spacing belongs inside the content so the wrapper can collapse without layout shifts.
 
 :::example
 name: Uncontrolled
 :::
 
-### Controlled
+### Controlled and Disabled
 
-External state controls the panel open status.
+External state controls a billing panel and can temporarily disable the trigger while an operation is locked.
 
 :::example
 name: Controlled
 :::
 
-### Disabled + Force Mount
+### Stateful Trigger
 
-Disabled trigger and force-mount content behavior.
-
-:::example
-name: DisabledForceMount
-:::
-
-### Compact Trigger Composition
-
-Use compact trigger UI for dense list and settings surfaces.
+Compose a compact row where only the icon button toggles detail content.
 
 :::example
-name: CompactTriggerComposition
+name: Stateful
 :::
 
 :::docs-api-reference

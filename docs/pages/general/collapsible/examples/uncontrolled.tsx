@@ -1,26 +1,43 @@
-import { Collapsible } from '@src'
+import { Card, Collapsible, Icon, Switch } from '@src'
+import { createSignal } from 'solid-js'
 
 export function Uncontrolled() {
+  const [transition, setTransition] = createSignal(true)
+
   return (
-    <Collapsible
-      defaultOpen={false}
-      classes={{
-        root: 'w-xl rounded-lg b-(1 border) bg-muted',
-        trigger: 'w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between',
-        content: 'px-4 pb-4 text-sm text-foreground',
-      }}
-      trigger={(props) => (
-        <>
-          <span>Release notes</span>
-          <span
-            class={`text-muted-foreground transition-transform ${props.open ? 'rotate-180' : ''}`}
+    <div class="max-w-xs w-full space-y-3">
+      <Switch label="Transition" checked={transition()} onChange={setTransition} />
+
+      <div class="h-40">
+        <Card
+          classes={{
+            root: 'py-3 rounded-lg',
+            body: 'px-3 mb-0',
+          }}
+        >
+          <Collapsible
+            transition={transition()}
+            renderTrigger={(context) => (
+              <button
+                {...context.triggerProps}
+                class="text-sm flex w-full cursor-pointer items-center justify-between"
+              >
+                <span>How do I reset my password?</span>
+                <Icon
+                  name="i-lucide-chevron-down"
+                  aria-hidden="true"
+                  class={`text-muted-foreground shrink-0 size-4 transition-transform ${context.isOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+            )}
           >
-            <span class="i-lucide-chevron-down" />
-          </span>
-        </>
-      )}
-    >
-      <p>Version 0.1 includes Tabs, Pagination, Breadcrumb, and Form primitives.</p>
-    </Collapsible>
+            <div class="text-sm text-muted-foreground pt-3">
+              You can reset your password from Account settings. We send a verification link to the
+              primary email on the workspace.
+            </div>
+          </Collapsible>
+        </Card>
+      </div>
+    </div>
   )
 }

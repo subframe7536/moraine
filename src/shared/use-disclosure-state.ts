@@ -16,17 +16,28 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
   const [contentHeight, setContentHeight] = createSignal(0)
   let contentEl: HTMLDivElement | undefined
 
+  function measureContentHeight(element = contentEl): void {
+    if (!element || element !== contentEl) {
+      return
+    }
+
+    setContentHeight(element.scrollHeight)
+  }
+
+  function queueContentHeightMeasurement(element = contentEl): void {
+    queueMicrotask(() => measureContentHeight(element))
+  }
+
   createEffect(() => {
     options.open()
 
-    if (contentEl) {
-      setContentHeight(contentEl.scrollHeight)
-    }
+    queueContentHeightMeasurement()
   })
 
   function setContentElement(element: HTMLDivElement): void {
     contentEl = element
-    setContentHeight(element.scrollHeight)
+    measureContentHeight(element)
+    queueContentHeightMeasurement(element)
   }
 
   return {

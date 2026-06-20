@@ -9,11 +9,7 @@ import { Icon } from 'moraine'
 
 ## Slot Structure
 
-Single icon element with no nested slots.
-
-```text
-icon
-```
+Icon element with no slot.
 
 ## Examples
 

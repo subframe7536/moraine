@@ -2,19 +2,16 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
-  export interface Slot<T = unknown> {
-    /** Rendered icon glyph, JSX icon node, or icon render function output. */
-    icon?: T
-  }
+  export interface Slot<_T = unknown> {}
   export type Variant = never
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
   export type Extend = never
 
   export interface Item {}
@@ -62,7 +59,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends Base {}
 }
 
 /**
@@ -80,8 +77,8 @@ export function Icon(props: IconProps): JSX.Element {
     }
     return {
       'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-      ...(local.style as any),
-    } as JSX.CSSProperties
+      ...local.style,
+    }
   })
 
   return (

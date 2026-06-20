@@ -1,20 +1,69 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { cn, useId } from '../../shared/utils'
 
 export namespace CollapsibleT {
+  export interface TriggerProps {
+    /** Stable id used by the content `aria-labelledby` relationship. */
+    id: string
+
+    /** Native button type. */
+    type: 'button'
+
+    /** Content id while the collapsible is open. */
+    'aria-controls'?: string
+
+    /** Whether the controlled content is open. */
+    'aria-expanded': boolean
+
+    /** Whether the trigger is disabled. */
+    disabled: boolean
+
+    /** Present while the collapsible is closed. */
+    'data-closed'?: string
+
+    /** Present while the collapsible is disabled. */
+    'data-disabled'?: string
+
+    /** Present while the collapsible is open. */
+    'data-expanded'?: string
+
+    /** Click handler that toggles the content. */
+    onClick: (event: MouseEvent) => void
+  }
+
   /**
    * Props passed to the trigger render function.
    */
-  export interface RenderContext {
+  export interface RenderTriggerContext {
     /**
      * Whether the collapsible is open.
      */
-    open: boolean
+    isOpen: boolean
+
+    /**
+     * Whether the collapsible is disabled.
+     */
+    disabled: boolean
+
+    /** Opens the collapsible content. */
+    open: VoidFunction
+
+    /** Closes the collapsible content. */
+    close: VoidFunction
+
+    /** Toggles the collapsible content. */
+    toggle: VoidFunction
+
+    /**
+     * Button props for the element that should toggle the content.
+     */
+    triggerProps: TriggerProps
   }
 
   export interface Slot<T = unknown> {
@@ -65,15 +114,17 @@ export namespace CollapsibleT {
     disabled?: boolean
 
     /**
-     * Whether to force mount the content.
+     * Whether to keep content mounted until its height transition completes.
      * @default false
      */
-    forceMount?: boolean
+    transition?: boolean
 
     /**
-     * Custom trigger render function.
+     * Custom trigger content or render function.
+     * - When component has no prop, the whole component will be wrapped with `<button>`
+     * - When component has props, uncontrolled state must be setup manually via `CollapsibleT.RenderTriggerContext`
      */
-    trigger?: (props: RenderContext) => JSX.Element
+    renderTrigger: JSX.Element | Component<RenderTriggerContext>
 
     /**
      * Content to render inside the collapsible.
@@ -92,7 +143,7 @@ export namespace CollapsibleT {
  */
 export interface CollapsibleProps extends CollapsibleT.Props {}
 
-/** Expandable content section with animated open/close transitions. */
+/** Expandable content section with optional height transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
   const rootId = useId(() => props.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
@@ -106,6 +157,13 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     open: resolvedOpen,
     disabled: () => Boolean(props.disabled),
   })
+  const contentPresence = useTransitionPresence({
+    open: resolvedOpen,
+    mode: 'transition',
+  })
+  const shouldRenderContent = createMemo(
+    () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
+  )
 
   function setOpen(nextOpen: boolean): void {
     if (disabled() || nextOpen === resolvedOpen()) {
@@ -113,16 +171,56 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     }
 
     setControlledOpen(nextOpen)
-
     props.onOpenChange?.(nextOpen)
   }
 
-  function onTriggerClick(event: MouseEvent): void {
-    const { defaultPrevented } = callHandler(event, undefined)
+  function toggleContent(): void {
+    setOpen(!resolvedOpen())
+  }
 
-    if (!defaultPrevented) {
-      setOpen(!open())
+  function onTriggerClick(event: MouseEvent): void {
+    if (!event.defaultPrevented) {
+      toggleContent()
     }
+  }
+
+  const triggerProps: CollapsibleT.TriggerProps = {
+    get id() {
+      return triggerId()
+    },
+    type: 'button',
+    get 'aria-controls'() {
+      return resolvedOpen() ? contentId() : undefined
+    },
+    get 'aria-expanded'() {
+      return resolvedOpen()
+    },
+    get disabled() {
+      return disabled()
+    },
+    get 'data-closed'() {
+      return dataAttrs()['data-closed']
+    },
+    get 'data-disabled'() {
+      return dataAttrs()['data-disabled']
+    },
+    get 'data-expanded'() {
+      return dataAttrs()['data-expanded']
+    },
+    onClick: onTriggerClick,
+  }
+
+  const triggerContext: CollapsibleT.RenderTriggerContext = {
+    get isOpen() {
+      return resolvedOpen()
+    },
+    get disabled() {
+      return disabled()
+    },
+    open: () => setOpen(true),
+    close: () => setOpen(false),
+    toggle: toggleContent,
+    triggerProps,
   }
 
   return (
@@ -133,44 +231,52 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       class={cn(props.classes?.root)}
       {...dataAttrs()}
     >
-      <Show when={props.trigger}>
-        {(render) => {
-          return (
+      <Show
+        when={typeof props.renderTrigger === 'function' && props.renderTrigger.length > 0}
+        fallback={
+          <Show when={props.renderTrigger}>
             <button
-              id={triggerId()}
-              type="button"
-              aria-controls={contentId()}
-              aria-expanded={resolvedOpen()}
-              disabled={disabled()}
+              {...triggerProps}
               data-slot="trigger"
               style={props.styles?.trigger}
-              class={cn('cursor-pointer', props.classes?.trigger)}
-              onClick={onTriggerClick}
-              {...dataAttrs()}
+              class={cn('w-full cursor-pointer', props.classes?.trigger)}
             >
-              {render()({ open: resolvedOpen() })}
+              {props.renderTrigger as JSX.Element}
             </button>
-          )
-        }}
+          </Show>
+        }
+      >
+        <div
+          data-slot="trigger"
+          style={props.styles?.trigger}
+          class={cn(props.classes?.trigger)}
+          {...dataAttrs()}
+        >
+          {(props.renderTrigger as Component<CollapsibleT.RenderTriggerContext>)(triggerContext)}
+        </div>
       </Show>
 
-      <Show when={props.forceMount || resolvedOpen()}>
+      <Show when={shouldRenderContent()}>
         <div
-          ref={setContentElement}
+          ref={(element) => {
+            setContentElement(element)
+            contentPresence.setElement(element)
+          }}
           id={contentId()}
           aria-labelledby={triggerId()}
-          data-slot="content"
+          data-slot="content-wrapper"
           style={{
             '--mo-collapsible-content-height': `${contentHeight()}px`,
-            ...(props.styles?.content as JSX.CSSProperties | undefined),
           }}
           class={cn(
-            'h-$mo-collapsible-content-height transition-[height] overflow-hidden data-closed:h-0',
-            props.classes?.content,
+            'h-$mo-collapsible-content-height overflow-hidden data-closed:h-0',
+            props.transition && 'transition-[height]',
           )}
           {...dataAttrs()}
         >
-          {props.children}
+          <div data-slot="content" style={props.styles?.content} class={cn(props.classes?.content)}>
+            {props.children}
+          </div>
         </div>
       </Show>
     </div>
