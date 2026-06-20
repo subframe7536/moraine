@@ -18,7 +18,10 @@ function App() {
   const fallbackPage = pageKeys[0]
 
   const { theme, updateTheme } = useTheme()
-  const { page, navigate } = useRouting(pageKeys, fallbackPage)
+  const { page, navigate, navigationPending, navigationProgress } = useRouting(
+    pageKeys,
+    fallbackPage,
+  )
   const [paletteOpen, setPaletteOpen] = createSignal(false)
 
   const ActiveExample = createMemo(
@@ -72,10 +75,26 @@ function App() {
               }
             />
             <Show
+              keyed
               when={ActiveExample()}
               fallback={<div class="text-sm text-muted-foreground p-6">Example not found.</div>}
             >
-              <Dynamic component={ActiveExample()!} />
+              {(ActiveExampleComponent) => <Dynamic component={ActiveExampleComponent} />}
+            </Show>
+            <Show when={navigationPending() || navigationProgress() > 0}>
+              <div
+                class="bg-transparent h-0.5 pointer-events-none inset-x-0 top-0 fixed z-50"
+                aria-hidden="true"
+                data-docs-progress=""
+              >
+                <div
+                  class="bg-primary h-full shadow-[0_0_14px_var(--primary)] transition-([width,opacity] duration-200) motion-reduce:transition-none"
+                  style={{
+                    width: `${navigationProgress()}%`,
+                    opacity: navigationPending() ? 1 : 0,
+                  }}
+                />
+              </div>
             </Show>
           </>
         )}

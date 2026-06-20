@@ -41,7 +41,7 @@ export const DocsHeader = (props: DocsHeaderProps) => {
 
   return (
     <Show when={component() || props.componentKey}>
-      <header class="text-foreground mt-8">
+      <header class="text-foreground mt-3">
         <div class="flex flex-wrap gap-2 items-center">
           <Show when={component()?.category || props.category}>
             <span class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
@@ -55,7 +55,7 @@ export const DocsHeader = (props: DocsHeaderProps) => {
 
         <Show when={pageTitle()}>
           <div class="mt-3 flex flex-wrap gap-2.5 items-center">
-            <div class="text-2xl font-semibold capitalize sm:text-3xl">{pageTitle()}</div>
+            <div class="text-2xl font-bold capitalize sm:text-3xl">{pageTitle()}</div>
             <Show when={status()}>
               {(nextStatus) => (
                 <Badge

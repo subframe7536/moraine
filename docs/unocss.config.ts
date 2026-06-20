@@ -60,6 +60,24 @@ export default defineConfig<PresetWind4Theme>({
       sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
       mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     },
+    animation: {
+      keyframes: {
+        'docs-page-slide-up': '{ from { opacity: 0; transform: translateY(8px); } }',
+        'docs-page-fade-in': '{ from { opacity: 0; } }',
+      },
+      timingFns: {
+        'docs-page-slide-up': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'docs-page-fade-in': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      durations: {
+        'docs-page-slide-up': '220ms',
+        'docs-page-fade-in': '120ms',
+      },
+      counts: {
+        'docs-page-slide-up': '1',
+        'docs-page-fade-in': '1',
+      },
+    },
   },
   content: {
     pipeline: {

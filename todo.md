@@ -14,9 +14,8 @@
   - [x] fix variants
     - [x] all variants examples' main area should be larger than sidebar area
     - [x] floating's sidebar and inset's main 's bottom is overlapped
-- [ ] View transitions support for documentation pages.
+- [x] Add fake progress animation for documentation pages switching
 - [ ] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
-- [ ] Option to strip builtin classes
 
 ## Components
 
