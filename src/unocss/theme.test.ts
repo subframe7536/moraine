@@ -238,6 +238,28 @@ describe('presetTheme component layer', () => {
     expect(css).not.toContain('.animate-sheet-out-to-right{')
   })
 
+  test('provides transition utilities backed by shared animation tokens', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(
+      new Set(['transition-mo-enter', 'transition-mo-exit']),
+      { preflights: false },
+    )
+
+    expect(css).toContain('.transition-mo-enter')
+    expect(css).toContain(
+      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))',
+    )
+    expect(css).toContain('transition-timing-function:cubic-bezier(0.16,1,0.3,1)')
+    expect(css).toContain('.transition-mo-exit')
+    expect(css).toContain(
+      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))',
+    )
+    expect(css).toContain('transition-timing-function:cubic-bezier(0.7,0,0.84,0)')
+  })
+
   test('removes carousel inverse utilities while keeping base carousel utilities', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine()],

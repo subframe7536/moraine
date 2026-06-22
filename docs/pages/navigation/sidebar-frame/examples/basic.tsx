@@ -1,4 +1,4 @@
-import { SidebarFrame } from '@src'
+import { Button, Icon, SidebarFrame } from '@src'
 import { For } from 'solid-js'
 
 const PAGES = [
@@ -16,10 +16,10 @@ const PAGES = [
 
 export function Basic() {
   return (
-    <div class="b-1 b-border rounded-xl h-72 overflow-hidden">
+    <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
-        renderSidebarHeader={() => <div class="text-sm font-semibold p-3">Documentation</div>}
+        renderSidebarHeader={() => <div class="text-sm font-semibold p-4">Documentation</div>}
         renderSidebarBody={() => (
           <div class="p-2 h-full overflow-y-auto">
             <div class="flex flex-col gap-1">
@@ -36,13 +36,19 @@ export function Basic() {
             </div>
           </div>
         )}
-        renderMain={() => (
-          <div class="p-4 h-full">
-            <h3 class="text-base font-semibold">Getting Started</h3>
-            <p class="text-sm text-muted-foreground mt-2">
-              Use SidebarFrame to compose sidebar and content in one place.
+        renderMain={(ctx) => (
+          <>
+            <div class="flex flex-row items-center">
+              <Button variant="ghost" classes={{ root: 'm-2' }} onClick={() => ctx.toggle()}>
+                <Icon name="i-lucide-sidebar" />
+              </Button>
+              <h3 class="text-base font-semibold">Getting Started</h3>
+            </div>
+            <p class="text-muted-foreground px-4">
+              Use <code class="docs-inline-code">SidebarFrame</code> component to compose sidebar
+              and content in one place.
             </p>
-          </div>
+          </>
         )}
       />
     </div>

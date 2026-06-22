@@ -259,6 +259,36 @@ describe('animations', () => {
     expect(css).toContain('animation: swing 2s ease-in-out infinite')
     expect(css).toContain('animation: elastic 2s ease-in-out infinite')
   })
+
+  test('transition utilities use shared animation tokens', async () => {
+    const css = await compileCSS(['transition-mo-enter', 'transition-mo-exit'])
+    expect(css).toContain('.transition-mo-enter')
+    expect(css).toContain(
+      'transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))',
+    )
+    expect(css).toContain('transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1)')
+    expect(css).toContain('.transition-mo-exit')
+    expect(css).toContain(
+      'transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))',
+    )
+    expect(css).toContain('transition-timing-function: cubic-bezier(0.7, 0, 0.84, 0)')
+  })
+
+  test('sidebar frame width utilities set CSS variable', async () => {
+    const css = await compileCSS([
+      'var-sidebar-frame-default',
+      'var-sidebar-frame-md',
+      'var-sidebar-frame-[18rem]',
+      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
+    ])
+
+    expect(css).toContain('--mo-sidebar-frame-sidebar-width: clamp(14rem,20vw,20rem)')
+    expect(css).toContain('--mo-sidebar-frame-sidebar-width: 16rem')
+    expect(css).toContain('--mo-sidebar-frame-sidebar-width: 18rem')
+    expect(css).toContain(
+      'width: var(--mo-sidebar-frame-sidebar-width,clamp(14rem, 20vw, 20rem))',
+    )
+  })
 })
 
 // ─── Icon Utilities ──────────────────────────────────────────────────

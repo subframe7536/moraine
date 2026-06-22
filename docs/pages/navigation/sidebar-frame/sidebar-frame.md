@@ -25,7 +25,7 @@ root
 
 ### Basic
 
-Desktop fixed layout with a simple header/body/main composition.
+Desktop fixed layout with a simple header/body/main composition. Use `--sidebar-width` to control sidebar width
 
 :::example
 name: Basic

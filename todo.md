@@ -16,6 +16,7 @@
     - [x] floating's sidebar and inset's main 's bottom is overlapped
 - [x] Add fake progress animation for documentation pages switching
 - [x] Sync border & ring styles across all components from zaidan/shadcn for consistency, polish transition / animation based on https://transitions.dev
+- [x] change default `renderFrame` for sidebarframe: add transition on desktop, e.g.
 
 ## Components
 

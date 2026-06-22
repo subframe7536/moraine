@@ -45,7 +45,9 @@ function App() {
             activePage={page}
             setActivePage={(key) => {
               navigate(key)
-              ctx.setSidebarOpen(false)
+              if (ctx.isMobile()) {
+                ctx.setSidebarOpen(false)
+              }
             }}
           />
         )}

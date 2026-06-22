@@ -2,8 +2,8 @@ import { SidebarFrame } from '@src'
 
 export function Sides() {
   return (
-    <div class="gap-3 grid md:grid-cols-2">
-      <div class="b-1 b-border rounded-xl h-64 overflow-hidden">
+    <div class="gap-3 grid w-full md:grid-cols-2">
+      <div class="b-1 b-border rounded-xl h-64 w-full overflow-hidden">
         <SidebarFrame
           isMobile={false}
           side="left"
@@ -14,7 +14,7 @@ export function Sides() {
           renderMain={() => <div class="text-sm p-3 h-full">Main panel</div>}
         />
       </div>
-      <div class="b-1 b-border rounded-xl h-64 overflow-hidden">
+      <div class="b-1 b-border rounded-xl h-64 w-full overflow-hidden">
         <SidebarFrame
           isMobile={false}
           side="right"

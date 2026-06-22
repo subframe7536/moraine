@@ -44,3 +44,7 @@ export const MORAINE_COLORS = {
   input: 'var(--input)',
   ring: 'var(--ring)',
 } as const
+
+export const MORAINE_WIDTH = {
+  sidebar: 'var(--sidebar-width,clamp(14rem,25%,20rem))',
+}

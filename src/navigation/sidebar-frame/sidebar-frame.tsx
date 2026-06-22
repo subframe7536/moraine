@@ -1,5 +1,6 @@
+import type { ClassValue } from 'cls-variant'
 import type { JSX, Component, Accessor } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, mergeProps, on, untrack } from 'solid-js'
 
 import { Resizable } from '../../elements/resizable'
 import type { ResizableT } from '../../elements/resizable'
@@ -48,11 +49,11 @@ export namespace SidebarFrameT {
     /**
      * Processed sidebar block component.
      */
-    sidebar: Component
+    sidebar: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
     /**
      * Processed main block component.
      */
-    main: Component
+    main: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
   }
 
   /**
@@ -156,7 +157,7 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
 }
 
 /**
- * Default frame renderer: mobile uses `Sheet`, desktop uses static split layout.
+ * Default frame renderer: mobile uses `Sheet`, desktop uses animated split layout.
  */
 export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JSX.Element {
   return (
@@ -167,7 +168,17 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
           data-slot="layout"
           class={sidebarFrameDesktopLayoutVariants({ variant: ctx.variant, side: ctx.side })}
         >
-          <ctx.sidebar />
+          <ctx.sidebar
+            classes={[
+              'transition-mo-enter min-h-0 transition-[width,opacity,transform] overflow-hidden motion-reduce:transition-none',
+              ctx.isOpen()
+                ? 'opacity-100 translate-x-0'
+                : [
+                    'opacity-0 w-0 pointer-events-none',
+                    ctx.side === 'left' ? '-translate-x-2' : 'translate-x-2',
+                  ],
+            ]}
+          />
           <ctx.main />
         </div>
       }
@@ -266,9 +277,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const resolvedIsMobile = createMemo(() => merged.isMobile ?? internalIsMobile())
 
   createEffect(() => {
-    if (!resolvedIsMobile()) {
-      setOpen(false)
-    }
+    const isMobile = resolvedIsMobile()
+    untrack(() => setOpen(!isMobile))
   })
 
   const context: SidebarFrameT.Context = {
@@ -293,14 +303,20 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     >
       <merged.renderFrame
         {...context}
-        sidebar={() => (
+        sidebar={(props) => (
           <div
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
             data-side={context.side}
-            style={merged.styles?.sidebar}
+            aria-hidden={resolvedIsMobile() || !isOpen()}
+            {...props}
+            style={{
+              ...props.styles,
+              ...merged.styles?.sidebar,
+            }}
             class={sidebarFrameSidebarVariants(
               { variant: merged.variant, side: merged.side, isMobile: resolvedIsMobile() },
+              props.classes,
               merged.classes?.sidebar,
             )}
           >
@@ -337,13 +353,19 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             </Show>
           </div>
         )}
-        main={() => (
+        main={(props) => (
           <div
             data-slot="main"
-            style={merged.styles?.main}
+            {...props}
+            style={{
+              ...props.styles,
+              ...merged.styles?.main,
+            }}
             class={cn(
               'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
               merged.variant === 'inset' && 'surface-border rounded-2xl bg-background shadow-xs',
+              props.classes,
+              merged.classes?.main,
             )}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))

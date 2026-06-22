@@ -1,13 +1,23 @@
 import type { Preset, SourceCodeTransformer } from '@unocss/core'
 
 import {
+  MORAINE_ANIM_DUR_VAR_ENTER,
+  MORAINE_ANIM_DUR_VAR_EXIT,
+  MORAINE_EASE_IN,
+  MORAINE_EASE_OUT,
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
 } from '../shared/style/animations'
 import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
-import { MORAINE_COLORS, MORAINE_FONT, MORAINE_RADIUS, MORAINE_SHADOW } from '../shared/style/theme'
+import {
+  MORAINE_COLORS,
+  MORAINE_FONT,
+  MORAINE_RADIUS,
+  MORAINE_SHADOW,
+  MORAINE_WIDTH,
+} from '../shared/style/theme'
 
 import { transformerInjectCompileClass } from './inject-compile-class'
 import { transformerInjectPrefix } from './inject-prefix'
@@ -132,6 +142,18 @@ const SEMANTIC_ANIMATION_SHORTCUTS: Record<string, string> = {
   ...createSemanticAnimationShortcuts('tooltip', SEMANTIC_ANIMATION_CONFIGS.tooltip),
   ...createSemanticAnimationShortcuts('sheet', SEMANTIC_ANIMATION_CONFIGS.sheet),
 }
+
+const TRANSITION_ANIMATION_SHORTCUTS: Record<string, string> = {
+  'transition-mo-enter': [
+    `[transition-duration:${MORAINE_ANIM_DUR_VAR_ENTER}]`,
+    `[transition-timing-function:${MORAINE_EASE_OUT.replaceAll(' ', '')}]`,
+  ].join(' '),
+  'transition-mo-exit': [
+    `[transition-duration:${MORAINE_ANIM_DUR_VAR_EXIT}]`,
+    `[transition-timing-function:${MORAINE_EASE_IN.replaceAll(' ', '')}]`,
+  ].join(' '),
+}
+
 interface ResolvedPresetThemeOptions {
   wind3: boolean
   icons: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
@@ -254,8 +276,13 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
   }
 
   const themeSpacing = normalized.wind3
-    ? { borderRadius: MORAINE_RADIUS, boxShadow: MORAINE_SHADOW, fontFamily: MORAINE_FONT }
-    : { radius: MORAINE_RADIUS, shadow: MORAINE_SHADOW, font: MORAINE_FONT }
+    ? {
+        borderRadius: MORAINE_RADIUS,
+        boxShadow: MORAINE_SHADOW,
+        fontFamily: MORAINE_FONT,
+        width: MORAINE_WIDTH,
+      }
+    : { radius: MORAINE_RADIUS, shadow: MORAINE_SHADOW, font: MORAINE_FONT, spacing: MORAINE_WIDTH }
 
   return {
     name: 'preset-theme-moraine',
@@ -299,6 +326,9 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
       ['rm-side-b', '[&>[data-slot=sidebar]]:border-0!'],
       ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
+        ([name, value]) => [name, value] as [string, string],
+      ),
+      ...Object.entries(TRANSITION_ANIMATION_SHORTCUTS).map(
         ([name, value]) => [name, value] as [string, string],
       ),
       ...DEFAULT_ICON_SHORTCUTS,

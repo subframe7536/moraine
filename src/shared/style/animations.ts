@@ -2,10 +2,12 @@ type KeyframeStop = Record<string, string>
 type KeyframeFrames = Record<string, KeyframeStop>
 
 const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
-const MORAINE_ANIM_DUR_VAR_ENTER = 'var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))'
-const MORAINE_ANIM_DUR_VAR_EXIT = 'var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))'
-const MORAINE_EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
-const MORAINE_EASE_IN = 'cubic-bezier(0.7, 0, 0.84, 0)'
+export const MORAINE_ANIM_DUR_VAR_ENTER =
+  'var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))'
+export const MORAINE_ANIM_DUR_VAR_EXIT =
+  'var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))'
+export const MORAINE_EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
+export const MORAINE_EASE_IN = 'cubic-bezier(0.7, 0, 0.84, 0)'
 
 function getAnimType(name: string): 'moraine-enter' | 'moraine-exit' | 'looping' | 'default' {
   if (name === 'mo-enter') {

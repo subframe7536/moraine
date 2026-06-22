@@ -43,7 +43,42 @@ describe('SidebarFrame', () => {
     expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('max-h-full')
     expect(screen.container.querySelector('[data-slot="layout"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="sidebarWrapper"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+      'transition-[width,opacity,transform]',
+    )
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+      'transition-mo-enter',
+    )
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
+    )
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
+  })
+
+  test('toggles desktop sidebar width in the default frame', async () => {
+    const screen = render(() => (
+      <SidebarFrame
+        {...createBaseProps()}
+        renderMain={(ctx) => (
+          <button type="button" onClick={ctx.toggle}>
+            toggle desktop
+          </button>
+        )}
+      />
+    ))
+    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
+
+    expect(sidebar.className).toContain('opacity-100')
+    expect(sidebar.className).toContain(
+      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
+    )
+
+    await fireEvent.click(screen.getByText('toggle desktop'))
+
+    expect(sidebar.className).toContain('opacity-0')
+    expect(sidebar.className).toContain('w-0')
+    expect(sidebar.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('supports renderFrame override', () => {

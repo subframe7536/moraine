@@ -28,7 +28,7 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
     },
     isMobile: {
       true: '',
-      false: 'w-[clamp(14rem,20vw,20rem)]',
+      false: 'w-sidebar',
     },
     variant: {
       default: '',

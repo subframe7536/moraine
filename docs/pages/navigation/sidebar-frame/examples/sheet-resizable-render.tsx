@@ -7,7 +7,7 @@ export function SheetResizableRender() {
   const [collapsed, setCollapsed] = createSignal(false)
 
   return (
-    <div class="b-1 b-border rounded-xl h-72 w-xl overflow-hidden">
+    <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
         renderFrame={(ctx) => (

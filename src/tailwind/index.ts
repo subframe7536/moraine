@@ -1,6 +1,10 @@
 import plugin from 'tailwindcss/plugin'
 
 import {
+  MORAINE_ANIM_DUR_VAR_ENTER,
+  MORAINE_ANIM_DUR_VAR_EXIT,
+  MORAINE_EASE_IN,
+  MORAINE_EASE_OUT,
   MORAINE_KEYFRAMES,
   buildTailwindAnimations,
   getMoraineAnimCounts,
@@ -8,7 +12,13 @@ import {
   getMoraineAnimTimingFns,
 } from '../shared/style/animations'
 import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
-import { MORAINE_COLORS, MORAINE_FONT, MORAINE_RADIUS, MORAINE_SHADOW } from '../shared/style/theme'
+import {
+  MORAINE_COLORS,
+  MORAINE_FONT,
+  MORAINE_RADIUS,
+  MORAINE_SHADOW,
+  MORAINE_WIDTH,
+} from '../shared/style/theme'
 
 export interface MorainePluginOptions {
   /**
@@ -29,11 +39,26 @@ function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
 }
 
+function buildTransitionAnimationUtilities(): Record<string, Record<string, string>> {
+  return {
+    '.transition-mo-enter': {
+      'transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
+      'transition-timing-function': MORAINE_EASE_OUT,
+    },
+    '.transition-mo-exit': {
+      'transition-duration': MORAINE_ANIM_DUR_VAR_EXIT,
+      'transition-timing-function': MORAINE_EASE_IN,
+    },
+  }
+}
+
 type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plugin>
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
     ({ addUtilities, matchVariant }) => {
+      addUtilities(buildTransitionAnimationUtilities())
+
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities() as any)
       }
@@ -79,6 +104,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           boxShadow: MORAINE_SHADOW,
           fontFamily: MORAINE_FONT,
           colors: MORAINE_COLORS,
+          spacing: MORAINE_WIDTH,
           keyframes: MORAINE_KEYFRAMES,
           animation: buildTailwindAnimations(),
           transitionDuration: getMoraineAnimDurations(),

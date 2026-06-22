@@ -18,7 +18,7 @@ const TASKS = [
 
 export function HeaderFooterSlots() {
   return (
-    <div class="b-1 b-border rounded-xl h-72 overflow-hidden">
+    <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
         renderSidebarHeader={() => (
