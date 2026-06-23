@@ -1,0 +1,69 @@
+{
+  "component": {
+    "key": "separator",
+    "name": "Separator",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Visual divider with configurable orientation, style, and optional label content.",
+    "sourcePath": "src/elements/separator/separator.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Separator line container, including optional label content."
+    },
+    {
+      "name": "border",
+      "description": "Visual line segment rendered around optional separator content."
+    },
+    {
+      "name": "container",
+      "description": "Optional label or custom content rendered within the separator line."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Additional content to render inside the separator (usually between two borders)."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SeparatorT.Classes | undefined"
+      },
+      {
+        "name": "decorative",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the separator is decorative (hidden from assistive technologies).",
+        "defaultValue": "false"
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "The orientation of the separator.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SeparatorT.Styles | undefined"
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"solid\" | \"dashed\" | \"dotted\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

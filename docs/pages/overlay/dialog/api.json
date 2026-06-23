@@ -1,0 +1,180 @@
+{
+  "component": {
+    "key": "dialog",
+    "name": "Dialog",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control.",
+    "sourcePath": "src/overlays/dialog/dialog.tsx"
+  },
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Element users activate to open the dialog."
+    },
+    {
+      "name": "overlay",
+      "description": "Backdrop layer rendered behind the dialog panel."
+    },
+    {
+      "name": "content",
+      "description": "Dialog panel containing header, body, footer, and close control."
+    },
+    {
+      "name": "header",
+      "description": "Top region for dialog title and description."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner card wrapper that arranges dialog header, body, and footer."
+    },
+    {
+      "name": "title",
+      "description": "Accessible title for the dialog."
+    },
+    {
+      "name": "description",
+      "description": "Supporting text associated with the dialog title."
+    },
+    {
+      "name": "close",
+      "description": "Button that dismisses the dialog."
+    },
+    {
+      "name": "body",
+      "description": "Main dialog content region."
+    },
+    {
+      "name": "footer",
+      "description": "Bottom region for dialog actions."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "body",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the body slot."
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render inside the dialog trigger slot."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "DialogT.Classes | undefined",
+        "description": "Slot-based class overrides."
+      },
+      {
+        "name": "close",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show a close button.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "closeIcon",
+        "required": false,
+        "type": "string | number | boolean | Node | JSX.ArrayElement | (string & {}) | Component<Omit<IconProps, \"name\">> | null | undefined",
+        "description": "Icon name or custom content for the close button.",
+        "defaultValue": "icon-close"
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary description displayed below the title."
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
+      },
+      {
+        "name": "footer",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the footer slot."
+      },
+      {
+        "name": "fullscreen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the dialog should take up the full viewport.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "header",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the header slot."
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
+      },
+      {
+        "name": "layout",
+        "required": false,
+        "type": "\"default\" | \"scrollable\" | \"fullscreen\" | undefined"
+      },
+      {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "overlay",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render the overlay element."
+      },
+      {
+        "name": "scrollable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the dialog content body should be scrollable.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "DialogT.Styles | undefined",
+        "description": "Slot-based style overrides."
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Primary title displayed in the dialog header."
+      }
+    ],
+    "inherited": []
+  }
+}

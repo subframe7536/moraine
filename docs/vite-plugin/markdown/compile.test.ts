@@ -4,6 +4,10 @@ import { describe, expect, test } from 'vitest'
 
 import { compileMarkdownPage } from './compile'
 
+const API_REFERENCE_HEADING = `<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>`
+
 describe('compileMarkdownPage', () => {
   test('compiles mdx frontmatter metadata into runtime page input', () => {
     const markdown = `---
@@ -22,13 +26,15 @@ description: "Button docs"
     expect(code).toContain('"component":"Button"')
   })
 
-  test('compiles mdx examples with inferred source imports', () => {
+  test('compiles explicit mdx example imports without generated example maps', () => {
     const markdown = `
+import { DemoButtonVariants } from './variants?example'
+
 ## Variants
 
 Use button variants.
 
-<Example name="Variants" />
+<DemoButtonVariants />
 `
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx', {
@@ -36,10 +42,11 @@ Use button variants.
     })
 
     expect(code).toContain("from '../../../components/markdown'")
-    expect(code).toContain('componentKey: "button"')
-    expect(code).toContain('ExampleComponent0')
-    expect(code).toContain("from './examples/variants.tsx'")
-    expect(code).toContain('?example-source&name=Variants')
+    expect(code).toContain('from "./variants?example"')
+    expect(code).toContain('DemoButtonVariants')
+    expect(code).not.toContain('ExampleComponent0')
+    expect(code).not.toContain('?example-source&name=Variants')
+    expect(code).not.toContain('examples')
     expect(code).toContain('Content: MDXContent')
     expect(code).toContain('id: "variants"')
     expect(code).toContain('href: "#variants"')
@@ -71,7 +78,23 @@ Use button variants.
 
   test('injects api toc entries from compile-time docs when DocsApiReference exists', () => {
     const markdown = `
+<DocsHeader apiDocOverride={{
+  component: {
+    key: 'input',
+    name: 'Input',
+    category: 'Form',
+    polymorphic: false
+  },
+  slots: [{ name: 'root' }],
+  props: {
+    own: [{ name: 'value', required: false, type: 'string' }],
+    inherited: []
+  }
+}} />
+
 ## Variants
+
+${API_REFERENCE_HEADING}
 
 <DocsApiReference />
 `
@@ -88,8 +111,12 @@ Use button variants.
     expect(code).not.toContain('"id":"api-data-attributes"')
     expect(code).toContain('"label":"Attributes"')
     expect(code).toContain('"label":"Props"')
-    expect(code).toContain('"name":"aria-disabled"')
     expect((code.match(/"id":"api-ref","label":"API Reference","level":1/g) ?? []).length).toBe(1)
+    expect(code).toContain('import __docsRawApiDoc from "./api.json"')
+    expect(code).toContain('DocsHeader as __DocsHeader')
+    expect(code).toContain('DocsApiReference as __DocsApiReference')
+    expect(code).not.toContain('return Markdown({ componentKey:')
+    expect(code).not.toContain('apiReference:')
   })
 
   test('renders api slots as titled sections with slot-specific metadata tables', () => {
@@ -98,19 +125,27 @@ Use button variants.
 `
 
     const code = compileMarkdownPage(
-      markdown,
+      `
+<DocsHeader apiDocOverride={{
+  component: {
+    key: 'command-palette',
+    name: 'CommandPalette',
+    category: 'Navigation',
+    polymorphic: false
+  },
+  slots: [{ name: 'root' }, { name: 'item' }],
+  props: { own: [], inherited: [] }
+}} />
+
+${markdown}
+`,
       '/tmp/docs/pages/navigation/command-palette/command-palette.mdx',
-      {
-        projectRoot: process.cwd(),
-      },
     )
 
     expect(code).toContain('"id":"attributes"')
-    expect(code).toContain('"slots":[{"name":"root"')
-    expect(code).toContain('"name":"item"')
-    expect(code).toContain('"dataAttributes":[{"name":"data-disabled"')
-    expect(code).toContain('"name":"data-highlighted"')
-    expect(code).toContain('"ariaAttributes":[{"name":"aria-disabled"')
+    expect(code).toContain('"slots": [{')
+    expect(code).toContain('"name": "root"')
+    expect(code).toContain('"name": "item"')
   })
 
   test('passes static DocsHeader apiDocOverride to api attributes sections', () => {
@@ -132,7 +167,8 @@ Use button variants.
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.mdx')
 
     expect(code).toContain('"id":"attributes"')
-    expect(code).toContain('"slots":[{"name":"root","description":"Root wrapper element."')
+    expect(code).toContain('"name": "root"')
+    expect(code).toContain('"description": "Root wrapper element."')
   })
 
   test('injects conditional api toc entries for slots/items/inherited', () => {
@@ -154,6 +190,8 @@ Use button variants.
 
 ## Demo
 
+${API_REFERENCE_HEADING}
+
 <DocsApiReference />
 `
 
@@ -166,22 +204,14 @@ Use button variants.
     expect(code).not.toContain('"id":"api-props"')
   })
 
-  test('uses explicit source override when provided', () => {
+  test('rejects removed Example component syntax', () => {
     const markdown = `
 <Example name="Variants" source="./examples/button-variants.tsx" />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx')
-    expect(code).toContain("from './examples/button-variants.tsx'")
-  })
-
-  test('uses page-key examples directory for group-level mdx pages', () => {
-    const markdown = `
-<Example name="Variants" />
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button.mdx')
-    expect(code).toContain("from './button/examples/variants.tsx'")
+    expect(() =>
+      compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx'),
+    ).toThrow('<Example /> is no longer supported')
   })
 
   test('supports standalone mdx widget components', () => {
@@ -191,7 +221,7 @@ Use button variants.
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.mdx')
     expect(code).toContain("from '../components/markdown'")
-    expect(code).not.toContain('componentKey:')
+    expect(code).not.toContain('return Markdown({ componentKey:')
     expect(code).toContain('const { IntroCards } = props.components || {};')
     expect(code).toContain('return _jsx(IntroCards, {});')
   })

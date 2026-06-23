@@ -1,0 +1,303 @@
+{
+  "component": {
+    "key": "dropdown-menu",
+    "name": "DropdownMenu",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Triggered action menu anchored to its child content.",
+    "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx"
+  },
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Element users activate to open the menu."
+    },
+    {
+      "name": "overlay",
+      "description": "Optional backdrop rendered behind modal menu content."
+    },
+    {
+      "name": "content",
+      "description": "Positioned menu panel that contains groups, items, and submenus."
+    },
+    {
+      "name": "group",
+      "description": "Section wrapper for related menu items."
+    },
+    {
+      "name": "label",
+      "description": "Heading text for a menu group."
+    },
+    {
+      "name": "separator",
+      "description": "Non-interactive divider between menu sections."
+    },
+    {
+      "name": "item",
+      "description": "Action row inside menu content, including checkbox and radio items."
+    },
+    {
+      "name": "itemLeading",
+      "description": "Leading icon or visual shown for a menu item."
+    },
+    {
+      "name": "itemWrapper",
+      "description": "Text column that groups menu item label and description."
+    },
+    {
+      "name": "itemLabel",
+      "description": "Primary text for a menu item."
+    },
+    {
+      "name": "itemDescription",
+      "description": "Supporting text for a menu item."
+    },
+    {
+      "name": "itemTrailing",
+      "description": "Trailing region for shortcuts, submenu arrows, or selection indicators."
+    },
+    {
+      "name": "itemKbds",
+      "description": "Container for keyboard shortcut hints at the end of a menu item."
+    },
+    {
+      "name": "itemIndicator",
+      "description": "Checked or selected-state indicator for checkbox and radio menu items."
+    },
+    {
+      "name": "itemSub",
+      "description": "Indicator shown when a menu item opens a submenu."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "checkedIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon used for checked checkbox items.",
+        "defaultValue": "icon-check"
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Trigger content used to open the dropdown menu."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "DropdownMenuT.Classes | undefined"
+      },
+      {
+        "name": "contentBottom",
+        "required": false,
+        "type": "OverlayMenuContentSlot | undefined",
+        "description": "Content rendered after the resolved item groups."
+      },
+      {
+        "name": "contentTop",
+        "required": false,
+        "type": "OverlayMenuContentSlot | undefined",
+        "description": "Content rendered before the resolved item groups."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when the component is uncontrolled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether trigger interactions should be ignored.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "gutter",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Gap between the anchor and the content.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique base id used to derive trigger and content ids."
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((context: OverlayMenuSharedItemRenderContext<DropdownMenuT.Item>) => JSX.Element) | undefined",
+        "description": "Custom renderer for individual items."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "DropdownMenuT.Item[] | undefined",
+        "description": "Items rendered in the menu body."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the menu requests an open state change."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state of the menu."
+      },
+      {
+        "name": "overflowPadding",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Padding applied to the overflow area when calculating the menu's position.",
+        "defaultValue": "4"
+      },
+      {
+        "name": "placement",
+        "required": false,
+        "type": "OverlayMenuPlacement | undefined",
+        "description": "Preferred content placement relative to the trigger or anchor point."
+      },
+      {
+        "name": "preventScroll",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether body scroll should be locked while the menu is open.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "DropdownMenuT.Styles | undefined"
+      },
+      {
+        "name": "submenuIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon used for submenu trigger items.",
+        "defaultValue": "icon-chevron-right"
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "checked",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled checked state for checkbox and radio items."
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "Item[] | undefined",
+        "description": "Nested menu items for creating submenus."
+      },
+      {
+        "name": "color",
+        "required": false,
+        "type": "NonNullable<\"default\" | \"destructive\" | undefined> | undefined",
+        "description": "Color theme variant for the menu item."
+      },
+      {
+        "name": "defaultChecked",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial checked state for uncontrolled checkbox and radio items."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state for submenus."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary description text displayed below the label."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is non-interactive.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "group",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Radio group identifier. Radio items with the same group are mutually exclusive."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name or custom element to display at the start of the item."
+      },
+      {
+        "name": "kbds",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Array of keyboard shortcuts to display as keys."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Primary label text or element."
+      },
+      {
+        "name": "onCheckedChange",
+        "required": false,
+        "type": "((checked: boolean) => void) | undefined",
+        "description": "Event handler called when a checkbox item's state changes."
+      },
+      {
+        "name": "onSelect",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Event handler called when the item is activated."
+      },
+      {
+        "name": "onValueChange",
+        "required": false,
+        "type": "((value: string) => void) | undefined",
+        "description": "Event handler called when a radio item is selected."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state for submenus."
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "OverlayMenuItemType | undefined",
+        "description": "The type of menu item to render.",
+        "defaultValue": "item"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Radio item value reported by onValueChange and used for grouped selection."
+      }
+    ]
+  }
+}

@@ -82,6 +82,7 @@ describe('DocsApiReference', () => {
 
     expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical')
     expect(screen.getByText('Attributes')).toBeDefined()
+    expect(screen.queryByRole('heading', { name: 'API Reference' })).toBeNull()
     expect(screen.getByRole('tab', { name: 'root' })).toBeDefined()
     expect(screen.getByRole('tab', { name: 'empty' })).toBeDefined()
     expect(screen.getByText('2 attributes')).toBeDefined()

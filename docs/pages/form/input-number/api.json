@@ -1,0 +1,281 @@
+{
+  "component": {
+    "key": "input-number",
+    "name": "InputNumber",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
+    "sourcePath": "src/forms/input-number/input-number.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Number input wrapper that owns the input and step controls."
+    },
+    {
+      "name": "input",
+      "description": "Native number input element."
+    },
+    {
+      "name": "increment",
+      "description": "Button that increases the current numeric value."
+    },
+    {
+      "name": "decrement",
+      "description": "Button that decreases the current numeric value."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "autofocus",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to automatically focus the input on mount.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "autofocusDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay in milliseconds before focusing the input.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "InputNumberT.Classes | undefined"
+      },
+      {
+        "name": "decrement",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show the decrement button.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "decrementDisabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the decrement button is disabled."
+      },
+      {
+        "name": "decrementIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon for the decrement button.",
+        "defaultValue": "orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Default displayed value for uncontrolled usage."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "holdRepeat",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether press-and-hold should trigger repeated value changes.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "increment",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show the increment button.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "incrementDisabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the increment button is disabled."
+      },
+      {
+        "name": "incrementIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon for the increment button.",
+        "defaultValue": "orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus"
+      },
+      {
+        "name": "largeStep",
+        "required": false,
+        "type": "number | undefined",
+        "description": "The step size used for PageUp/PageDown.",
+        "defaultValue": "step * 10"
+      },
+      {
+        "name": "locale",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Locale for number formatting and parsing.\nUses browser default if not specified."
+      },
+      {
+        "name": "maxValue",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum allowed numeric value."
+      },
+      {
+        "name": "minValue",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Minimum allowed numeric value."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onBlur",
+        "required": false,
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
+        "description": "Callback when the input loses focus."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: string) => void) | undefined",
+        "description": "Callback when the formatted string value changes."
+      },
+      {
+        "name": "onDecrementClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent, JSX.EventHandler<HTMLButtonElement, MouseEvent>> | undefined",
+        "description": "Callback when the decrement button is clicked."
+      },
+      {
+        "name": "onFocus",
+        "required": false,
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
+        "description": "Callback when the input gains focus."
+      },
+      {
+        "name": "onIncrementClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent, JSX.EventHandler<HTMLButtonElement, MouseEvent>> | undefined",
+        "description": "Callback when the increment button is clicked."
+      },
+      {
+        "name": "onRawValueChange",
+        "required": false,
+        "type": "((value: number) => void) | undefined",
+        "description": "Callback when the numeric value changes."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "InputNumberOrientation | undefined",
+        "description": "The orientation of the control buttons.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "placeholder",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Placeholder text for the input."
+      },
+      {
+        "name": "rawValue",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Controlled numeric value. Takes precedence over `value`."
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "repeatDelayMs",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay in milliseconds before repeated value changes start.",
+        "defaultValue": "500"
+      },
+      {
+        "name": "repeatIntervalMs",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Interval in milliseconds between repeated value changes.",
+        "defaultValue": "80"
+      },
+      {
+        "name": "repeatPointerTypes",
+        "required": false,
+        "type": "\"all\" | PointerType | undefined",
+        "description": "Pointer types that can trigger press-and-hold repeat.",
+        "defaultValue": "all"
+      },
+      {
+        "name": "repeatThrottleMs",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Minimum elapsed time in milliseconds between repeat triggers.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "step",
+        "required": false,
+        "type": "number | undefined",
+        "description": "The increment/decrement step size.",
+        "defaultValue": "1"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "InputNumberT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Controlled displayed value."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+      },
+      {
+        "name": "wheel",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether mouse wheel changes the value while the input is focused.",
+        "defaultValue": "false"
+      }
+    ],
+    "inherited": []
+  }
+}

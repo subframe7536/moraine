@@ -1,0 +1,112 @@
+{
+  "component": {
+    "key": "popup",
+    "name": "Popup",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Low-level overlay primitive providing portal, overlay backdrop, and content positioning.",
+    "sourcePath": "src/overlays/popup/popup.tsx"
+  },
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Element users activate to open the popup."
+    },
+    {
+      "name": "overlay",
+      "description": "Optional backdrop layer rendered behind popup content."
+    },
+    {
+      "name": "content",
+      "description": "Positioned popup content panel."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Element that triggers the popup or additional content."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "PopupT.Classes | undefined"
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "MaybeRenderProp<ModalContentContext>",
+        "description": "Modal content rendered inside the content surface."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
+      },
+      {
+        "name": "fullscreen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the popup should cover the entire viewport.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
+      },
+      {
+        "name": "layout",
+        "required": false,
+        "type": "\"default\" | \"scrollable\" | \"fullscreen\" | undefined"
+      },
+      {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "overlay",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render the overlay element."
+      },
+      {
+        "name": "scrollable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to allow scrolling within the popup.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "PopupT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

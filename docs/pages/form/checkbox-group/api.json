@@ -1,0 +1,213 @@
+{
+  "component": {
+    "key": "checkbox-group",
+    "name": "CheckboxGroup",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Multi-select checkbox group with card, list, and table layout variants.",
+    "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Group container that owns checkbox collection state and layout."
+    },
+    {
+      "name": "fieldset",
+      "description": "Fieldset element that groups checkbox options for accessibility."
+    },
+    {
+      "name": "legend",
+      "description": "Legend text that labels the checkbox group."
+    },
+    {
+      "name": "item",
+      "description": "Wrapper for one checkbox option in the group."
+    },
+    {
+      "name": "container",
+      "description": "Text column for an option label and description."
+    },
+    {
+      "name": "control",
+      "description": "Visible checkbox control for an individual option."
+    },
+    {
+      "name": "indicator",
+      "description": "Visual checked or indeterminate state layer for an option."
+    },
+    {
+      "name": "icon",
+      "description": "Check or indeterminate icon rendered for an option state."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner layout wrapper used by grouped checkbox variants."
+    },
+    {
+      "name": "label",
+      "description": "Primary label text for an option."
+    },
+    {
+      "name": "description",
+      "description": "Supporting description for an option."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "checkedIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Default checked icon for all items."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "CheckboxGroupT.Classes | undefined"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "The default value of the input (uncontrolled)."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "indeterminateIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Default indeterminate icon for all items."
+      },
+      {
+        "name": "indicator",
+        "required": false,
+        "type": "\"hidden\" | \"start\" | \"end\" | undefined",
+        "description": "Default indicator position for all items."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "(string | CheckboxGroupT.Item<TTrue, TFalse>)[] | undefined",
+        "description": "Array of items to render in the group."
+      },
+      {
+        "name": "legend",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Legend for the checkbox group."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: string[]) => void) | undefined",
+        "description": "Callback when the selected values change."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "CheckboxGroupT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "The current value of the input (controlled)."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"list\" | \"table\" | \"card\" | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "checkedIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Custom checked icon for this item."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Description for the group item."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is disabled."
+      },
+      {
+        "name": "indeterminate",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is indeterminate."
+      },
+      {
+        "name": "indeterminateIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Custom indeterminate icon for this item."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label for the group item."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Value of the group item."
+      }
+    ]
+  }
+}

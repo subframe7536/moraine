@@ -1,0 +1,90 @@
+{
+  "component": {
+    "key": "badge",
+    "name": "Badge",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Compact label component with leading/trailing icon slots and variant styles.",
+    "sourcePath": "src/elements/badge/badge.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Inline badge container that carries the variant, size, and interactive state."
+    },
+    {
+      "name": "leading",
+      "description": "Optional icon displayed before the badge label."
+    },
+    {
+      "name": "label",
+      "description": "Badge text or children content between the optional visuals."
+    },
+    {
+      "name": "trailing",
+      "description": "Optional trailing icon or dismiss button displayed after the label."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Children of the badge."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "BadgeT.Classes | undefined"
+      },
+      {
+        "name": "leading",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading icon name."
+      },
+      {
+        "name": "onTrailingClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent, JSX.EventHandler<HTMLButtonElement, MouseEvent>> | undefined",
+        "description": "Callback when the trailing icon/button is clicked."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Data slot for styling.",
+        "defaultValue": "root"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "BadgeT.Styles | undefined"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible title for the badge."
+      },
+      {
+        "name": "trailing",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Trailing icon name."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"outline\" | \"solid\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

@@ -1,0 +1,47 @@
+import { DemoPopupDefaultContainer } from './default-container?example'
+import { DemoPopupDismissControl } from './dismiss-control?example'
+import { DemoPopupScrollableOverlayMode } from './scrollable-overlay-mode?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Popup } from 'moraine'
+```
+
+## Slot Structure
+
+Wrapper trigger with an optional backdrop and a floating content portal.
+
+```text
+trigger
+├── overlay (optional)
+└── content (portal)
+```
+
+## Examples
+
+### Default Container
+
+Popup provides only container + overlay. Content styling is fully custom.
+
+<DemoPopupDefaultContainer />
+
+### Dismiss Control
+
+Block outside dismiss and count prevent-close attempts.
+
+<DemoPopupDismissControl />
+
+### Scrollable Overlay Mode
+
+Scrollable overlay keeps content in flow while preserving the backdrop.
+
+<DemoPopupScrollableOverlayMode />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

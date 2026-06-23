@@ -357,12 +357,6 @@ describe('Input', () => {
     expect(root?.style.width).toBe('200px')
   })
 
-  test('rejects as in type contract', () => {
-    // @ts-expect-error as has been removed from Input props
-    const props: InputProps = { as: 'section' }
-    expect(props).toBeDefined()
-  })
-
   test('rejects removed icon class slot in type contract', () => {
     // @ts-expect-error leadingIcon slot class has been removed from Input props
     const props: InputProps = { classes: { leadingIcon: 'x' } }

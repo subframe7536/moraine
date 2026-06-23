@@ -61,7 +61,7 @@ export function docsPlugin(options: DocsPluginOptions = {}): Plugin {
         id: DOCS_TRANSFORM_FILTER,
       },
       handler(code, id) {
-        return transformHandler(code, id)
+        return transformHandler.call(this, code, id)
       },
     },
   }

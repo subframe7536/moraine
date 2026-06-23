@@ -1,14 +1,11 @@
-import { parseSync } from 'oxc-parser'
-
 import type { DocsHighlightLang } from '../core/shiki'
+
+import type { ParseExampleCode, ProgramNode, StatementNode } from './ast'
 
 interface ComponentDeclaration {
   name: string
   sourceText: string
 }
-
-type ProgramNode = ReturnType<typeof parseSync>['program']
-type StatementNode = ProgramNode['body'][number]
 
 interface QueryResult {
   name: string
@@ -128,8 +125,12 @@ function resolveDefaultExportSource(
   return null
 }
 
-export function resolveExampleComponentSource(code: string, name: string): string | null {
-  const { program } = parseSync('example.tsx', code, { lang: 'tsx', sourceType: 'module' })
+export function resolveExampleComponentSource(
+  code: string,
+  name: string,
+  parseExampleCode: ParseExampleCode,
+): string | null {
+  const program = parseExampleCode(code)
   const byName = new Map<string, string>()
 
   for (const statement of program.body) {
@@ -147,6 +148,7 @@ export function resolveExampleComponentSource(code: string, name: string): strin
 export function transformExampleSourceModule(
   code: string,
   id: string,
+  parseExampleCode: ParseExampleCode,
   toHtml: (src: string, lang: Extract<DocsHighlightLang, 'tsx' | 'bash'>) => string,
 ): string | null {
   const query = parseExampleSourceQuery(id)
@@ -154,7 +156,7 @@ export function transformExampleSourceModule(
     return null
   }
 
-  const sourceText = resolveExampleComponentSource(code, query.name)
+  const sourceText = resolveExampleComponentSource(code, query.name, parseExampleCode)
   if (!sourceText) {
     console.warn(`[example-source] component "${query.name}" not found in ${id}`)
     return 'export default ""\n'

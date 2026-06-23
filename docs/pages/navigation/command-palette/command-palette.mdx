@@ -1,0 +1,93 @@
+import { DemoCommandPaletteUsage } from './usage?example'
+import { DemoCommandPaletteBasic } from './basic?example'
+import { DemoCommandPaletteCustomEmptyState } from './custom-empty-state?example'
+import { DemoCommandPaletteLoading } from './loading?example'
+import { DemoCommandPaletteWithCloseButton } from './with-close-button?example'
+import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { CommandPalette } from 'moraine'
+```
+
+## Slot Structure
+
+Search input and results list with grouped items and optional footer.
+
+### Input area
+
+```text
+root
+└── inputWrapper
+    ├── search (IconButton, optional)
+    ├── back (IconButton, optional)
+    ├── input
+    └── close (IconButton, optional)
+```
+
+### Results
+
+```text
+root
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLeading (Icon, optional)
+│   │   ├── itemWrapper
+│   │   │   ├── itemLabel (optional)
+│   │   │   │   ├── itemLabelPrefix (optional)
+│   │   │   │   ├── itemLabelBase
+│   │   │   │   └── itemLabelSuffix (optional)
+│   │   │   └── itemDescription (optional)
+│   │   └── itemTrailing (Icon or Kbd, optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+├── empty (optional, no matches)
+└── footer (optional)
+```
+
+## Examples
+
+### Usage
+
+Click the button or press ⌘K to open the command palette.
+
+<DemoCommandPaletteUsage />
+
+### Basic
+
+Groups of items with icons, kbds, and descriptions.
+
+<DemoCommandPaletteBasic />
+
+### Custom Empty State
+
+Override the default 'No results.' message.
+
+<DemoCommandPaletteCustomEmptyState />
+
+### Loading
+
+Search icon becomes a spinner while loading.
+
+<DemoCommandPaletteLoading />
+
+### With Close Button
+
+A close button in the input trailing slot.
+
+<DemoCommandPaletteWithCloseButton />
+
+### Sub-Navigation
+
+Items with children drill into a sub-group. Press Backspace or the back button to return.
+
+<DemoCommandPaletteSubNavigation />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

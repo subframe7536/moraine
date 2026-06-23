@@ -1,0 +1,53 @@
+{
+  "component": {
+    "key": "icon",
+    "name": "Icon",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
+    "sourcePath": "src/elements/icon/icon.tsx"
+  },
+  "slots": [],
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Additional CSS class."
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Icon size. Numbers are interpreted as px."
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Data slot for styling.",
+        "defaultValue": "icon"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined",
+        "description": "Custom style overrides."
+      }
+    ],
+    "inherited": []
+  }
+}

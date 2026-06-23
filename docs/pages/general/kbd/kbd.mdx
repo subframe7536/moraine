@@ -1,0 +1,54 @@
+import { DemoKbdVariants } from './variants?example'
+import { DemoKbdSizes } from './sizes?example'
+import { DemoKbdShortcutComposition } from './shortcut-composition?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Kbd } from 'moraine'
+```
+
+## Slot Structure
+
+Keyboard shortcut display with different structures for single vs. multiple keys.
+
+### Single key
+
+```text
+kbd
+```
+
+### Multiple keys
+
+```text
+kbds
+└── kbd (×n)
+```
+
+## Examples
+
+### Variants
+
+Outline, default, and invert visual modes.
+
+<DemoKbdVariants />
+
+### Sizes
+
+Keycap sizes from xs to xl.
+
+<DemoKbdSizes />
+
+### Shortcut Composition
+
+Inline command palette hints.
+
+<DemoKbdShortcutComposition />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

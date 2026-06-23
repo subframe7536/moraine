@@ -1,0 +1,59 @@
+import { DemoCheckboxVariants } from './variants?example'
+import { DemoCheckboxSizes } from './sizes?example'
+import { DemoCheckboxIndeterminateCustomIcons } from './indeterminate-custom-icons?example'
+import { DemoCheckboxCustomTrueFalseValues } from './custom-true-false-values?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Checkbox } from 'moraine'
+```
+
+## Slot Structure
+
+Checkbox indicator with optional label and description.
+
+```text
+root
+├── container
+│   ├── input
+│   └── control
+│       └── indicator (optional)
+└── wrapper (optional)
+    ├── label (optional)
+    └── description (optional)
+```
+
+## Examples
+
+### Variants
+
+List and card variants with start/end/hidden indicator positions.
+
+<DemoCheckboxVariants />
+
+### Sizes
+
+Scale from xs to xl with unified label spacing.
+
+<DemoCheckboxSizes />
+
+### Indeterminate + Custom Icons
+
+Custom checked/indeterminate icons with controlled indeterminate transition.
+
+<DemoCheckboxIndeterminateCustomIcons />
+
+### Custom True/False Values
+
+Map checked state to domain values instead of boolean.
+
+<DemoCheckboxCustomTrueFalseValues />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

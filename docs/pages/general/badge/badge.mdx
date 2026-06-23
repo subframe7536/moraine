@@ -1,0 +1,55 @@
+import { DemoBadgeVariants } from './variants?example'
+import { DemoBadgeSizes } from './sizes?example'
+import { DemoBadgeStatusAndMetadata } from './status-and-metadata?example'
+import { DemoBadgeDismissibleTags } from './dismissible-tags?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Badge } from 'moraine'
+```
+
+## Slot Structure
+
+Compact label with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon or IconButton, optional)
+```
+
+## Examples
+
+### Variants
+
+Default, outline, and solid styles.
+
+<DemoBadgeVariants />
+
+### Sizes
+
+Size scale with leading and trailing icons.
+
+<DemoBadgeSizes />
+
+### Status and Metadata
+
+Common badge content for pills, counters, and status labels.
+
+<DemoBadgeStatusAndMetadata />
+
+### Dismissible tags
+
+Clickable trailing icons support removable tag UIs like Select multi-value chips.
+
+<DemoBadgeDismissibleTags />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

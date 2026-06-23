@@ -1,0 +1,58 @@
+import { DemoTabsVariants } from './variants?example'
+import { DemoTabsSizes } from './sizes?example'
+import { DemoTabsOrientations } from './orientations?example'
+import { DemoTabsControlledDisabledItems } from './controlled-disabled-items?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Tabs } from 'moraine'
+```
+
+## Slot Structure
+
+Tab list with triggers and associated content panels.
+
+```text
+root
+├── list
+│   ├── indicator (optional)
+│   └── trigger (×n)
+│       ├── leading (Icon, optional)
+│       └── label (optional)
+└── content (×n)
+```
+
+## Examples
+
+### Variants
+
+Pill and link visual variants for the tab list.
+
+<DemoTabsVariants />
+
+### Sizes
+
+Trigger size scale from xs to xl.
+
+<DemoTabsSizes />
+
+### Orientations
+
+Horizontal and vertical orientation with the same items contract.
+
+<DemoTabsOrientations />
+
+### Controlled + Disabled Items
+
+Controlled value with disabled tab options and external navigation controls.
+
+<DemoTabsControlledDisabledItems />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

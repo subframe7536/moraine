@@ -1,0 +1,88 @@
+import { DemoInputNumberVariants } from './variants?example'
+import { DemoInputNumberSizes } from './sizes?example'
+import { DemoInputNumberOrientations } from './orientations?example'
+import { DemoInputNumberControlled } from './controlled?example'
+import { DemoInputNumberDisabled } from './disabled?example'
+import { DemoInputNumberLongPress } from './long-press?example'
+import { DemoInputNumberMinMaxStep } from './min-max-step?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { InputNumber } from 'moraine'
+```
+
+## Slot Structure
+
+Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
+
+### Horizontal
+
+```text
+root
+├── decrement (optional)
+├── input
+└── increment (optional)
+```
+
+### Vertical
+
+```text
+root
+├── input
+└── controls
+    ├── increment (optional)
+    └── decrement (optional)
+```
+
+## Examples
+
+### Variants
+
+Visual style variants for the input shell.
+
+<DemoInputNumberVariants />
+
+### Sizes
+
+Size scale from `xs` to `xl` for input height and control rail sizing.
+
+<DemoInputNumberSizes />
+
+### Orientations
+
+Horizontal (default) and vertical button layouts.
+
+<DemoInputNumberOrientations />
+
+### Controlled
+
+Value bound to a signal with live readout.
+
+<DemoInputNumberControlled />
+
+### Disabled
+
+Non-interactive disabled state.
+
+<DemoInputNumberDisabled />
+
+### Long Press
+
+Press and hold increment or decrement to continuously step the value. Set `holdRepeat={false}` to disable the repeat behavior.
+
+<DemoInputNumberLongPress />
+
+### Min / Max / Step
+
+Constrained ranges and custom step increments.
+
+<DemoInputNumberMinMaxStep />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

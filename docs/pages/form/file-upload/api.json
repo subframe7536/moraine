@@ -1,0 +1,238 @@
+{
+  "component": {
+    "key": "file-upload",
+    "name": "FileUpload",
+    "category": "forms",
+    "polymorphic": true,
+    "description": "Drag-and-drop file upload component with progress tracking and file list management.",
+    "sourcePath": "src/forms/file-upload/file-upload.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Upload component container that owns dropzone, file input, and file list."
+    },
+    {
+      "name": "control",
+      "description": "Dropzone and picker control users interact with to select files."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner control layout for icon, label, and description."
+    },
+    {
+      "name": "icon",
+      "description": "Upload or status icon shown inside the control."
+    },
+    {
+      "name": "label",
+      "description": "Primary instruction text for the upload control."
+    },
+    {
+      "name": "description",
+      "description": "Supporting upload requirements or helper text."
+    },
+    {
+      "name": "files",
+      "description": "List region that displays selected files and upload progress."
+    },
+    {
+      "name": "file",
+      "description": "Row for one selected file, including preview, metadata, and remove action."
+    },
+    {
+      "name": "filePreview",
+      "description": "Preview or file-type icon area for a selected file."
+    },
+    {
+      "name": "fileMeta",
+      "description": "Text region for file name, size, and validation state."
+    },
+    {
+      "name": "fileName",
+      "description": "Display name for a selected file."
+    },
+    {
+      "name": "fileSize",
+      "description": "File size text for a selected file."
+    },
+    {
+      "name": "fileRemove",
+      "description": "Button used to remove a selected file from the list."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "accept",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accepted file types (e.g., \".jpg,.png\", \"image/*\").",
+        "defaultValue": "*"
+      },
+      {
+        "name": "as",
+        "required": false,
+        "type": "ValidComponent | undefined",
+        "description": "The HTML element or component to render as.",
+        "defaultValue": "div"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "FileUploadT.Classes | undefined"
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Description text for the upload area."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "dropzone",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to enable drag and drop.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "fileIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to show for individual files when no preview is available.",
+        "defaultValue": "icon-file"
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to show in the upload area.",
+        "defaultValue": "icon-upload"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label for the upload area."
+      },
+      {
+        "name": "maxFiles",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum number of files allowed."
+      },
+      {
+        "name": "maxSize",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum accepted file size in bytes."
+      },
+      {
+        "name": "minSize",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Minimum accepted file size in bytes."
+      },
+      {
+        "name": "multiple",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether multiple files can be uploaded.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLElement, MouseEvent, JSX.EventHandler<HTMLElement, MouseEvent>> | undefined",
+        "description": "Click handler for the upload control."
+      },
+      {
+        "name": "onDragLeave",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent, JSX.EventHandler<HTMLElement, DragEvent>> | undefined",
+        "description": "Drag-leave handler for the upload dropzone."
+      },
+      {
+        "name": "onDragOver",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent, JSX.EventHandler<HTMLElement, DragEvent>> | undefined",
+        "description": "Drag-over handler for the upload dropzone."
+      },
+      {
+        "name": "onDrop",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent, JSX.EventHandler<HTMLElement, DragEvent>> | undefined",
+        "description": "Drop handler for the upload dropzone."
+      },
+      {
+        "name": "onFileReject",
+        "required": false,
+        "type": "((files: FileRejection[]) => void) | undefined",
+        "description": "Callback when files are rejected (e.g., due to type or count)."
+      },
+      {
+        "name": "onKeyDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent, JSX.EventHandler<HTMLElement, KeyboardEvent>> | undefined",
+        "description": "Keyboard handler for the upload control."
+      },
+      {
+        "name": "onValueChange",
+        "required": false,
+        "type": "((value: FileUploadT.Value) => void) | undefined",
+        "description": "Callback when the selected files change."
+      },
+      {
+        "name": "preview",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show file previews.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "FileUploadT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

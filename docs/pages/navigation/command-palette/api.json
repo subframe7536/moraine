@@ -1,0 +1,244 @@
+{
+  "component": {
+    "key": "command-palette",
+    "name": "CommandPalette",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.",
+    "sourcePath": "src/navigation/command-palette/command-palette.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Command palette container that owns search, navigation stack, and option list."
+    },
+    {
+      "name": "inputWrapper",
+      "description": "Search row that groups input, search icon, and navigation controls."
+    },
+    {
+      "name": "input",
+      "description": "Search input used to filter commands."
+    },
+    {
+      "name": "listbox",
+      "description": "Scrollable command list that owns option and active-descendant semantics."
+    },
+    {
+      "name": "footer",
+      "description": "Bottom region for keyboard hints or custom footer content."
+    },
+    {
+      "name": "group",
+      "description": "Section wrapper for a group of command items."
+    },
+    {
+      "name": "label",
+      "description": "Group heading text."
+    },
+    {
+      "name": "item",
+      "description": "Command row that can be highlighted, selected, or disabled."
+    },
+    {
+      "name": "itemLeading",
+      "description": "Leading icon or visual for a command row."
+    },
+    {
+      "name": "itemWrapper",
+      "description": "Text column that groups command label and description."
+    },
+    {
+      "name": "itemLabel",
+      "description": "Primary text for a command item."
+    },
+    {
+      "name": "itemLabelBase",
+      "description": "Base text region for an item label before prefix or suffix decoration."
+    },
+    {
+      "name": "itemLabelPrefix",
+      "description": "Prefix text rendered before the main item label."
+    },
+    {
+      "name": "itemLabelSuffix",
+      "description": "Suffix text rendered after the main item label."
+    },
+    {
+      "name": "itemDescription",
+      "description": "Supporting text for a command item."
+    },
+    {
+      "name": "itemTrailing",
+      "description": "Trailing region for shortcuts, submenu indicators, or custom item metadata."
+    },
+    {
+      "name": "itemTrailingKbds",
+      "description": "Container for keyboard shortcut hints at the end of a command row."
+    },
+    {
+      "name": "itemTrailingKbd",
+      "description": "Individual keyboard key hint in a command row."
+    },
+    {
+      "name": "search",
+      "description": "Search icon or loading indicator displayed in the input row."
+    },
+    {
+      "name": "back",
+      "description": "Button that returns from a nested command group."
+    },
+    {
+      "name": "close",
+      "description": "Button that dismisses the command palette."
+    },
+    {
+      "name": "empty",
+      "description": "Message shown when no command items match the search."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "autofocus",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to focus the search input automatically on mount.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "backIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the group navigation back button.",
+        "defaultValue": "icon-arrow-left"
+      },
+      {
+        "name": "childIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for items with sub-groups.",
+        "defaultValue": "icon-chevron-right"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "CommandPaletteT.Classes | undefined"
+      },
+      {
+        "name": "close",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show a close button in the header.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "closeIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the palette close button.",
+        "defaultValue": "icon-close"
+      },
+      {
+        "name": "empty",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Elements to show when no items match the search.",
+        "defaultValue": "No results."
+      },
+      {
+        "name": "footer",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render at bottom of the palette."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "CommandPaletteT.Item[] | undefined",
+        "description": "Command groups to display initially.",
+        "defaultValue": "[]"
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the palette is in a loading state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the loading state.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "onClose",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Callback triggered when the close button is clicked."
+      },
+      {
+        "name": "onSearchTermChange",
+        "required": false,
+        "type": "((term: string) => void) | undefined",
+        "description": "Callback triggered when the search term changes."
+      },
+      {
+        "name": "placeholder",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Placeholder text for the search input.",
+        "defaultValue": "Search..."
+      },
+      {
+        "name": "searchIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the search indicator.",
+        "defaultValue": "icon-search"
+      },
+      {
+        "name": "searchMaxLength",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum allowed length for the search text."
+      },
+      {
+        "name": "searchTerm",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Controlled search term."
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "CommandPaletteT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "SubItem[] | undefined",
+        "description": "Items belonging to this group."
+      },
+      {
+        "name": "id",
+        "required": true,
+        "type": "string",
+        "description": "Unique identifier for the group."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Display name for the group header."
+      }
+    ]
+  }
+}

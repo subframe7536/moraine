@@ -1,0 +1,195 @@
+{
+  "component": {
+    "key": "stepper",
+    "name": "Stepper",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "Tab-structured step navigation with configurable orientation and separator layout.",
+    "sourcePath": "src/navigation/stepper/stepper.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Stepper container that owns orientation, step state, and panel rendering."
+    },
+    {
+      "name": "header",
+      "description": "Step navigation header that contains all step triggers."
+    },
+    {
+      "name": "item",
+      "description": "Wrapper for one step trigger."
+    },
+    {
+      "name": "container",
+      "description": "Text column inside a step trigger."
+    },
+    {
+      "name": "trigger",
+      "description": "Interactive step control users activate to select a step."
+    },
+    {
+      "name": "indicator",
+      "description": "Step marker that communicates index, active state, or completion."
+    },
+    {
+      "name": "icon",
+      "description": "Icon rendered inside a completed or custom step indicator."
+    },
+    {
+      "name": "separator",
+      "description": "Connector line between adjacent steps."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner layout wrapper for a single step trigger."
+    },
+    {
+      "name": "title",
+      "description": "Primary title text for a step."
+    },
+    {
+      "name": "description",
+      "description": "Supporting description for a step."
+    },
+    {
+      "name": "content",
+      "description": "Panel rendered for the active step content."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "activationMode",
+        "required": false,
+        "type": "\"manual\" | \"automatic\" | undefined",
+        "description": "Whether keyboard activation happens immediately or only after confirmation.",
+        "defaultValue": "automatic"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "StepperT.Classes | undefined"
+      },
+      {
+        "name": "clickable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether steps are clickable for navigation.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Default active step value for uncontrolled usage."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the entire stepper is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the stepper root element."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "StepperT.Item[] | undefined",
+        "description": "Array of steps to display."
+      },
+      {
+        "name": "linear",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to enforce linear navigation (must complete steps in order).",
+        "defaultValue": "true"
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: StepperT.Value) => void) | undefined",
+        "description": "Callback when the active step changes."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "The orientation of the stepper.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "StepperT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Controlled active step value."
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Additional class name for the step item."
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to display when the step is active."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary description of the step."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the step is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to display in the step indicator.",
+        "defaultValue": "index + 1"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Title of the step."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique value for the step.",
+        "defaultValue": "index of the item"
+      }
+    ],
+    "description": "An individual step in the stepper."
+  }
+}

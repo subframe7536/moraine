@@ -1,0 +1,69 @@
+import { DemoButtonVariants } from './variants?example'
+import { DemoButtonSizes } from './sizes?example'
+import { DemoButtonLoadingStates } from './loading-states?example'
+import { DemoButtonLoadingPlacement } from './loading-placement?example'
+import { DemoButtonIconButtons } from './icon-buttons?example'
+import { DemoButtonPolymorphic } from './polymorphic?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Button } from 'moraine'
+```
+
+## Slot Structure
+
+Trigger element with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon, optional)
+```
+
+## Examples
+
+### Variants
+
+Visual variants from the Moraine button class contract.
+
+<DemoButtonVariants />
+
+### Sizes
+
+Text button sizes with a leading icon to preview spacing.
+
+<DemoButtonSizes />
+
+### Loading States
+
+Controlled loading and async auto-loading from click handlers.
+
+<DemoButtonLoadingStates />
+
+#### Loading Placement
+
+When loading, the icon replaces `leading` first. If no `leading` is set, it replaces `trailing`.
+
+<DemoButtonLoadingPlacement />
+
+### Icon Buttons
+
+Icon-only sizes and variants.
+
+<DemoButtonIconButtons />
+
+### Polymorphic
+
+Anchor rendering support via the polymorphic as prop.
+
+<DemoButtonPolymorphic />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

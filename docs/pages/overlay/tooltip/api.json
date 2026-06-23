@@ -1,0 +1,124 @@
+{
+  "component": {
+    "key": "tooltip",
+    "name": "Tooltip",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Hover-triggered informational overlay anchored to a trigger element.",
+    "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+  },
+  "slots": [
+    {
+      "name": "content",
+      "description": "Tooltip bubble positioned next to its trigger."
+    },
+    {
+      "name": "trigger",
+      "description": "Element that receives hover or focus interactions for the tooltip."
+    },
+    {
+      "name": "text",
+      "description": "Primary text region inside the tooltip bubble."
+    },
+    {
+      "name": "kbds",
+      "description": "Container for shortcut hints displayed beside tooltip text."
+    },
+    {
+      "name": "kbd",
+      "description": "Individual keyboard key hint inside the tooltip."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "The reference element that triggers the tooltip."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "TooltipT.Classes | undefined"
+      },
+      {
+        "name": "closeDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay before closing after leaving trigger or content.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "forceMount",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined"
+      },
+      {
+        "name": "invert",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "kbds",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Keyboard shortcuts to display next to the text."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined"
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "openDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay before opening on hover or focus.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "placement",
+        "required": false,
+        "type": "Placement | undefined"
+      },
+      {
+        "name": "side",
+        "required": false,
+        "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "TooltipT.Styles | undefined"
+      },
+      {
+        "name": "text",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Primary text content or element to display."
+      }
+    ],
+    "inherited": []
+  }
+}

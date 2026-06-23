@@ -461,16 +461,11 @@ interface DocsApiReferenceProps {
 
 export const DocsApiReference = (props: DocsApiReferenceProps) => {
   return (
-    <>
-      <HeadingWithAnchor id="api-ref" level={2}>
-        API Reference
-      </HeadingWithAnchor>
-      <Show when={(props.model?.sections?.length ?? 0) > 0}>
-        <For each={props.model?.sections ?? []}>
-          {(section) => <SectionTableBlock section={section} />}
-        </For>
-      </Show>
-    </>
+    <Show when={(props.model?.sections?.length ?? 0) > 0}>
+      <For each={props.model?.sections ?? []}>
+        {(section) => <SectionTableBlock section={section} />}
+      </For>
+    </Show>
   )
 }
 

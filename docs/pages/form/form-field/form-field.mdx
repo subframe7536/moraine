@@ -1,0 +1,81 @@
+import { DemoFormFieldBasic } from './basic?example'
+import { DemoFormFieldWithValidation } from './with-validation?example'
+import { DemoFormFieldHorizontalLayout } from './horizontal-layout?example'
+import { DemoFormFieldSizes } from './sizes?example'
+import { DemoFormFieldManualError } from './manual-error?example'
+import { DemoFormFieldRenderContext } from './render-context?example'
+import { DemoFormFieldNestedPath } from './nested-path?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { FormField } from 'moraine'
+```
+
+## Slot Structure
+
+Label, description, and hint area above a control slot with validation feedback.
+
+```text
+root
+├── wrapper
+│   ├── labelWrapper (optional)
+│   │   ├── label
+│   │   └── hint (optional)
+│   └── description (optional)
+└── {children}
+    ├── help (optional)
+    └── error (optional)
+```
+
+## Examples
+
+### Basic
+
+Label, hint, description, and help text with a single control.
+
+<DemoFormFieldBasic />
+
+### With Validation
+
+Bind to `Form` state and show validation feedback.
+
+<DemoFormFieldWithValidation />
+
+### Horizontal Layout
+
+Use `orientation="horizontal"` for form-like row layouts.
+
+<DemoFormFieldHorizontalLayout />
+
+### Sizes
+
+Preview the field typography scale from xs to xl.
+
+<DemoFormFieldSizes />
+
+### Manual Error
+
+Force error state with a custom error message.
+
+<DemoFormFieldManualError />
+
+### Render Context
+
+Use render-function children to react to `error` state.
+
+<DemoFormFieldRenderContext />
+
+### Nested Path
+
+Use array path names for nested form fields.
+
+<DemoFormFieldNestedPath />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

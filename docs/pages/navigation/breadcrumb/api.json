@@ -1,0 +1,152 @@
+{
+  "component": {
+    "key": "breadcrumb",
+    "name": "Breadcrumb",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "Breadcrumb navigation trail with separator icons and optional wrapping.",
+    "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Navigation container for the breadcrumb trail."
+    },
+    {
+      "name": "list",
+      "description": "Ordered list that contains breadcrumb items and separators."
+    },
+    {
+      "name": "item",
+      "description": "Wrapper for one breadcrumb entry."
+    },
+    {
+      "name": "link",
+      "description": "Clickable breadcrumb target for navigable entries."
+    },
+    {
+      "name": "leading",
+      "description": "Optional icon rendered before a breadcrumb label."
+    },
+    {
+      "name": "label",
+      "description": "Breadcrumb item label text."
+    },
+    {
+      "name": "separator",
+      "description": "Visual divider between breadcrumb entries."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessibility label for the navigation element.",
+        "defaultValue": "Breadcrumbs"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "BreadcrumbT.Classes | undefined"
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((context: BreadcrumbT.ItemRenderContext) => ValidComponent) | undefined",
+        "description": "Custom renderer for individual breadcrumb items."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "BreadcrumbT.Item[] | undefined",
+        "description": "Array of breadcrumb items to display."
+      },
+      {
+        "name": "separator",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the separator between items.",
+        "defaultValue": "icon-chevron-right"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined",
+        "description": "Size of the breadcrumb items and icons.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "BreadcrumbT.Styles | undefined"
+      },
+      {
+        "name": "wrap",
+        "required": false,
+        "type": "boolean | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "active",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is the current active page."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is disabled."
+      },
+      {
+        "name": "href",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The destination URL for this item."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to display next to the label."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label to display for the breadcrumb item."
+      },
+      {
+        "name": "onClick",
+        "required": false,
+        "type": "JSX.EventHandler<HTMLAnchorElement, MouseEvent> | undefined",
+        "description": "Callback when the item is clicked."
+      },
+      {
+        "name": "rel",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Relationship of the linked URL to the current document."
+      },
+      {
+        "name": "target",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Where to display the linked URL."
+      },
+      {
+        "name": "to",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The destination URL for this item."
+      }
+    ],
+    "description": "An individual item in the breadcrumb trail."
+  }
+}

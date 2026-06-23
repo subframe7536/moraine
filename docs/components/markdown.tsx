@@ -4,7 +4,6 @@ import { Dynamic } from 'solid-js/web'
 import type { OnThisPageEntry } from '../hooks/use-table-of-contents'
 import type { ItemDoc, SlotDoc } from '../vite-plugin/api-doc/types'
 
-import type { DocsApiReferenceModel } from './docs-api-reference'
 import { createDocsMdxComponents } from './mdx-components'
 import { OnThisPage } from './on-this-page'
 
@@ -40,11 +39,6 @@ export interface ExamplePageApiDoc {
   items?: ItemDoc
 }
 
-export interface DocsMdxExample {
-  component: Component
-  code?: string
-}
-
 export interface DocsMdxCodeTabItem {
   label: string
   value: string
@@ -56,12 +50,8 @@ export interface DocsMdxContentProps {
 }
 
 export interface RenderExampleMarkdownPageInput {
-  componentKey?: string
-  apiDoc?: ExamplePageApiDoc
-  apiReference?: DocsApiReferenceModel
   onThisPageEntries?: OnThisPageEntry[]
   Content: Component<DocsMdxContentProps>
-  examples: Record<string, DocsMdxExample>
   codeTabs: Record<string, DocsMdxCodeTabItem[]>
 }
 

@@ -1,0 +1,71 @@
+import { DemoDropdownMenuSizes } from './sizes?example'
+import { DemoDropdownMenuAccountTeam } from './account-team?example'
+import { DemoDropdownMenuEditorViewOptions } from './editor-view-options?example'
+import { DemoDropdownMenuProjectReleaseActions } from './project-release-actions?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { DropdownMenu } from 'moraine'
+```
+
+## Slot Structure
+
+Wrapper trigger with a floating menu portal containing grouped items.
+
+### Menu
+
+```text
+trigger
+└── content (portal)
+    └── group (×n)
+        ├── label (optional)
+        ├── separator (optional)
+        └── item (×n)
+```
+
+### Item internals
+
+```text
+item
+├── itemLeading (optional)
+├── itemWrapper
+│   ├── itemLabel (optional)
+│   └── itemDescription (optional)
+└── itemTrailing
+    └── itemIndicator (optional, checkbox items)
+```
+
+## Examples
+
+### Sizes
+
+Menu item size scale from `sm` to `lg` for compact and roomy density.
+
+<DemoDropdownMenuSizes />
+
+### Account / Team
+
+An account dropdown with grouped actions, workspace switching, shortcut hints, and a destructive sign-out row.
+
+<DemoDropdownMenuAccountTeam />
+
+### Editor / View Options
+
+A workspace-style menu with recent files, nested submenus, checkbox toggles, and theme selection for keyboard and pointer testing.
+
+<DemoDropdownMenuEditorViewOptions />
+
+### Project / Release Actions
+
+A heavier project menu with move flows, release actions, mixed-content labels, and destructive project operations.
+
+<DemoDropdownMenuProjectReleaseActions />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

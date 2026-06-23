@@ -1,0 +1,52 @@
+import { DemoAccordionSingle } from './single?example'
+import { DemoAccordionMultiple } from './multiple?example'
+import { DemoAccordionDisabledCustomContent } from './disabled-custom-content?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Accordion } from 'moraine'
+```
+
+## Slot Structure
+
+Stacked item list where each item has a clickable header and collapsible content.
+
+```text
+root
+└── item (×n)
+    ├── header
+    │   └── trigger
+    │       ├── leading (Icon, optional)
+    │       ├── label (optional)
+    │       └── trailing (Icon, optional)
+    └── content (optional)
+```
+
+## Examples
+
+### Single
+
+Single-open mode with controlled state and icon leading/trailing slots.
+
+<DemoAccordionSingle />
+
+### Multiple
+
+Multiple-open mode with custom trailing icons.
+
+<DemoAccordionMultiple />
+
+### Disabled + Custom Content
+
+Mix disabled items with rich JSX content blocks.
+
+<DemoAccordionDisabledCustomContent />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

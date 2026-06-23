@@ -1,0 +1,63 @@
+{
+  "component": {
+    "key": "kbd",
+    "name": "Kbd",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Keyboard shortcut display component with configurable size and variant.",
+    "sourcePath": "src/elements/kbd/kbd.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Keyboard shortcut container that groups one or more key tokens."
+    },
+    {
+      "name": "item",
+      "description": "Individual key token inside the shortcut sequence."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "between",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Slot between kbds"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "KbdT.Classes | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "slotPrefix",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Prefix for data-slot attributes."
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "KbdT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Array of keys to display."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"outline\" | \"invert\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

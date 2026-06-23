@@ -1,0 +1,79 @@
+import { DemoFileUploadSingleUpload } from './single-upload?example'
+import { DemoFileUploadMultipleMaxFiles } from './multiple-max-files?example'
+import { DemoFileUploadSizes } from './sizes?example'
+import { DemoFileUploadTriggerModeNoDropzone } from './trigger-mode-no-dropzone?example'
+import { DemoFileUploadFormIntegration } from './form-integration?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { FileUpload } from 'moraine'
+```
+
+## Slot Structure
+
+Upload control and optional file preview list.
+
+### Upload area
+
+```text
+root
+└── control (dropzone or trigger button)
+    └── wrapper
+        ├── icon (Icon)
+        ├── label (optional)
+        └── description (optional)
+```
+
+### File preview list
+
+```text
+root
+└── files
+    └── file (×n)
+        ├── filePreview
+        ├── fileMeta
+        │   ├── fileName
+        │   └── fileSize
+        └── fileRemove
+```
+
+## Examples
+
+### Single Upload
+
+Basic single-file mode with a live readout from onValueChange.
+
+<DemoFileUploadSingleUpload />
+
+### Multiple + Max Files
+
+Append files across selections, reject overflow, and show selected names.
+
+<DemoFileUploadMultipleMaxFiles />
+
+### Sizes
+
+Size scale from `xs` to `xl` for trigger height, spacing, and file list density.
+
+<DemoFileUploadSizes />
+
+### Trigger Mode (No Dropzone)
+
+Use button-style trigger behavior by disabling dropzone interaction.
+
+<DemoFileUploadTriggerModeNoDropzone />
+
+### Form Integration
+
+Submit to validate a required attachment with Form + FormField.
+
+<DemoFileUploadFormIntegration />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

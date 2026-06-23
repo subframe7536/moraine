@@ -10,7 +10,7 @@ import YAML from 'yaml'
 
 import { loadComponentApiDoc } from '../api-doc/load'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
-import { toKebabCase, toPosixPath, toSingleQuoted } from '../core/strings'
+import { toKebabCase, toSingleQuoted } from '../core/strings'
 
 import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from './descriptions'
 import {
@@ -51,13 +51,6 @@ const DEFAULT_TABLE_TD_CLASS = 'px-3 py-2'
 
 const BLOCK_DESCRIPTION_PATTERN = /```|(^|\n)\s*>|\n\s*\n|(^|\n)\s*(?:[-*+]|\d+\.)\s+/m
 
-interface ExampleImport {
-  componentAlias: string
-  codeAlias: string
-  sourcePath: string
-  exportName: string
-}
-
 interface CodeTabItemLiteral {
   label: string
   value: string
@@ -70,16 +63,11 @@ interface OnThisPageEntryLiteral {
   level: number
 }
 
-interface ScannedExample {
-  name: string
-  source: string
-}
-
 interface ScannedMdxPage {
-  examples: ScannedExample[]
   codeTabsPackages: string[]
   docsHeaderProps: Record<string, unknown> | null
   hasDocsApiReference: boolean
+  hasDocsApiReferenceHeading: boolean
 }
 
 interface TocInheritedGroup {
@@ -1053,10 +1041,10 @@ function walkMdast(node: unknown, visit: (node: Record<string, unknown>) => void
 
 function scanMdxPage(source: string, id: string): ScannedMdxPage {
   const tree = mdxToMdast(source, { features: DOCS_MDX_FEATURES })
-  const examples: ScannedExample[] = []
   const codeTabsPackages: string[] = []
   let docsHeaderProps: Record<string, unknown> | null = null
   let hasDocsApiReference = false
+  let hasDocsApiReferenceHeading = false
 
   walkMdast(tree, (node) => {
     if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') {
@@ -1079,20 +1067,15 @@ function scanMdxPage(source: string, id: string): ScannedMdxPage {
       return
     }
 
-    if (node.name === 'Example') {
-      const name = props.name
-      if (typeof name !== 'string' || !name.trim()) {
-        throw new Error(`[docs-mdx] <Example /> requires a static "name" string in ${id}`)
-      }
-      const sourcePath = props.source
-      examples.push({
-        name: name.trim(),
-        source:
-          typeof sourcePath === 'string' && sourcePath.trim()
-            ? toPosixPath(sourcePath.trim())
-            : createDefaultExampleSource(id, name.trim()),
-      })
+    if (node.name === 'HeadingWithAnchor' && props.id === 'api-ref') {
+      hasDocsApiReferenceHeading = true
       return
+    }
+
+    if (node.name === 'Example') {
+      throw new Error(
+        `[docs-mdx] <Example /> is no longer supported in ${id}. Import demos with "?example" and render the Demo component instead.`,
+      )
     }
 
     if (node.name === 'CodeTabs') {
@@ -1105,25 +1088,11 @@ function scanMdxPage(source: string, id: string): ScannedMdxPage {
   })
 
   return {
-    examples,
     codeTabsPackages: [...new Set(codeTabsPackages)],
     docsHeaderProps,
     hasDocsApiReference,
+    hasDocsApiReferenceHeading,
   }
-}
-
-function createDefaultExampleSource(id: string, exampleName: string): string {
-  const page = resolveDocsPageContext(id)
-  const pageBaseName = path.basename(page.relativePath, '.mdx')
-  const parentDirectory = path.basename(path.dirname(page.relativePath))
-  const relativeDirectory = toPosixPath(path.dirname(page.relativePath))
-  const isGroupLevelPage = Boolean(page.group) && relativeDirectory === page.group
-  const examplesPrefix =
-    parentDirectory === pageBaseName && !isGroupLevelPage
-      ? './examples'
-      : `./${pageBaseName}/examples`
-
-  return `${examplesPrefix}/${toKebabCase(exampleName)}.tsx`
 }
 
 function parseFrontmatterData(raw: string | null | undefined, id: string): FrontmatterData {
@@ -1257,6 +1226,93 @@ function stripMdxDefaultExport(code: string): string {
   return code.replace(/\n?export default MDXContent;\s*/, '\n')
 }
 
+function injectMdxEsm(source: string, esmCode: string): string {
+  if (!esmCode) {
+    return source
+  }
+
+  const frontmatterMatch = source.match(/^---\r?\n[\s\S]*?\r?\n---\s*(?:\r?\n|$)/)
+  if (!frontmatterMatch) {
+    return `${esmCode}\n\n${source}`
+  }
+
+  return `${frontmatterMatch[0]}${esmCode}\n\n${source.slice(frontmatterMatch[0].length)}`
+}
+
+function createImplicitMdxEsm(options: {
+  id: string
+  pageKey: string
+  docsRoot: string
+  hasApiJson: boolean
+  hasDocsHeader: boolean
+  hasDocsApiReference: boolean
+  apiDoc: unknown
+  apiReferenceModel: unknown
+}): string {
+  const imports: string[] = []
+  const declarations: string[] = []
+
+  if (options.hasApiJson) {
+    imports.push("import __docsRawApiDoc from './api.json'")
+  }
+
+  if (options.hasDocsHeader) {
+    imports.push(
+      `import { DocsHeader as __DocsHeader } from ${toSingleQuoted(
+        toImportPath(options.id, path.join(options.docsRoot, 'components/docs-header')),
+      )}`,
+    )
+  }
+
+  if (options.hasDocsApiReference) {
+    imports.push(
+      `import { DocsApiReference as __DocsApiReference, HeadingWithAnchor } from ${toSingleQuoted(
+        toImportPath(options.id, path.join(options.docsRoot, 'components/docs-api-reference')),
+      )}`,
+    )
+  }
+
+  if (options.apiDoc) {
+    declarations.push(
+      `export const __docsApiDoc = ${
+        options.hasApiJson ? 'Object.assign({}, __docsRawApiDoc, ' : ''
+      }${JSON.stringify(options.apiDoc)}${options.hasApiJson ? ')' : ''}`,
+    )
+  }
+
+  if (options.apiReferenceModel) {
+    declarations.push(
+      `export const __docsApiReferenceModel = ${JSON.stringify(options.apiReferenceModel)}`,
+    )
+  }
+
+  if (options.hasDocsHeader) {
+    declarations.push(
+      [
+        'export function DocsHeader(props) {',
+        `  return <__DocsHeader componentKey={${JSON.stringify(options.pageKey)}}${
+          options.apiDoc ? ' apiDoc={__docsApiDoc}' : ''
+        } {...props} />`,
+        '}',
+      ].join('\n'),
+    )
+  }
+
+  if (options.hasDocsApiReference) {
+    declarations.push(
+      [
+        'export function DocsApiReference(props) {',
+        `  return <__DocsApiReference${
+          options.apiReferenceModel ? ' model={__docsApiReferenceModel}' : ''
+        } {...props} />`,
+        '}',
+      ].join('\n'),
+    )
+  }
+
+  return [...imports, '', ...declarations].filter(Boolean).join('\n')
+}
+
 export function extractDocsHeaderProps(source: string, id: string): Record<string, unknown> | null {
   try {
     return scanMdxPage(source, id).docsHeaderProps
@@ -1274,47 +1330,12 @@ export function compileMarkdownPage(
   const page = resolveDocsPageContext(idWithoutQuery)
   const scannedPage = scanMdxPage(markdownSource, idWithoutQuery)
   const onThisPageEntries: OnThisPageEntryLiteral[] = []
-  const mdxResult = assertSyncResult(
-    mdxToJs(markdownSource, {
-      jsxImportSource: 'solid-js/h',
-      elementAttributeNameCase: 'html',
-      stylePropertyNameCase: 'css',
-      features: DOCS_MDX_FEATURES,
-      fileURL: pathToFileURL(idWithoutQuery),
-      data: {} satisfies Data,
-      mdastPlugins: [createDocsCodePlugin(options.highlightCode)],
-      hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
-    }),
-  )
-  const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
   const widgetApiDocOverride = asStaticApiDocOverride(
     scannedPage.docsHeaderProps?.apiDocOverride,
     idWithoutQuery,
   )
   const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
   const importLines = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
-  const exampleImports: ExampleImport[] = scannedPage.examples.map((example, index) => ({
-    componentAlias: `ExampleComponent${index}`,
-    codeAlias: `ExampleCode${index}`,
-    sourcePath: example.source,
-    exportName: example.name,
-  }))
-
-  for (const importSpec of exampleImports) {
-    importLines.push(
-      importSpec.exportName === 'default'
-        ? `import ${importSpec.componentAlias} from ${toSingleQuoted(importSpec.sourcePath)}`
-        : `import { ${importSpec.exportName} as ${importSpec.componentAlias} } from ${toSingleQuoted(
-            importSpec.sourcePath,
-          )}`,
-    )
-
-    importLines.push(
-      `import ${importSpec.codeAlias} from ${toSingleQuoted(
-        `${importSpec.sourcePath}?example-source&name=${encodeURIComponent(importSpec.exportName)}`,
-      )}`,
-    )
-  }
 
   const loadedApiDoc = options.projectRoot
     ? loadComponentApiDoc(options.projectRoot, page.pageKey)
@@ -1326,7 +1347,6 @@ export function compileMarkdownPage(
       : (loadedApiDoc ?? widgetApiDocOverride)
   const tocApiDoc = asTocApiDoc(mergedApiDoc)
   const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, options.highlightCode)
-  const shouldExposeComponentKey = Boolean(mergedApiDoc)
   const sourceAttributes = extractSourceAttributeReference(
     options.projectRoot,
     tocApiDoc?.component.sourcePath,
@@ -1341,12 +1361,40 @@ export function compileMarkdownPage(
     options.highlightCode,
   )
 
+  const implicitMdxEsm = createImplicitMdxEsm({
+    id: idWithoutQuery,
+    pageKey: page.pageKey,
+    docsRoot: page.docsRoot,
+    hasApiJson: Boolean(loadedApiDoc),
+    hasDocsHeader: Boolean(scannedPage.docsHeaderProps),
+    hasDocsApiReference: scannedPage.hasDocsApiReference,
+    apiDoc: renderedApiDoc,
+    apiReferenceModel: renderedApiReferenceModel,
+  })
+  const mdxSource = injectMdxEsm(markdownSource, implicitMdxEsm)
+  const mdxResult = assertSyncResult(
+    mdxToJs(mdxSource, {
+      jsxImportSource: 'solid-js/h',
+      elementAttributeNameCase: 'html',
+      stylePropertyNameCase: 'css',
+      features: DOCS_MDX_FEATURES,
+      fileURL: pathToFileURL(idWithoutQuery),
+      data: {} satisfies Data,
+      mdastPlugins: [createDocsCodePlugin(options.highlightCode)],
+      hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
+    }),
+  )
+  const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
+
   if (scannedPage.hasDocsApiReference && renderedApiReferenceModel) {
-    onThisPageEntries.push({
-      id: 'api-ref',
-      label: 'API Reference',
-      level: 1,
-    })
+    if (scannedPage.hasDocsApiReferenceHeading) {
+      onThisPageEntries.push({
+        id: 'api-ref',
+        label: 'API Reference',
+        level: 1,
+      })
+    }
+
     for (const section of renderedApiReferenceModel.sections) {
       onThisPageEntries.push({
         id: section.id,
@@ -1356,18 +1404,6 @@ export function compileMarkdownPage(
     }
   }
 
-  const examplesLiteral = Object.fromEntries(
-    exampleImports.map((example) => [
-      example.exportName,
-      {
-        component: `__COMPONENT_${example.componentAlias}__`,
-        code: `__CODE_${example.codeAlias}__`,
-      },
-    ]),
-  )
-  const examplesCode = JSON.stringify(examplesLiteral)
-    .replaceAll(/"__COMPONENT_(ExampleComponent\d+)__"/g, '$1')
-    .replaceAll(/"__CODE_(ExampleCode\d+)__"/g, '$1')
   const codeTabsCode = JSON.stringify(
     Object.fromEntries(
       scannedPage.codeTabsPackages.map((packageName) => [
@@ -1378,15 +1414,11 @@ export function compileMarkdownPage(
   )
 
   const configFields = [
-    shouldExposeComponentKey ? `componentKey: ${JSON.stringify(page.pageKey)}` : '',
     Object.keys(parsedFrontmatter).length > 0
       ? `frontmatter: ${JSON.stringify(parsedFrontmatter)}`
       : '',
-    renderedApiDoc ? `apiDoc: ${JSON.stringify(renderedApiDoc)}` : '',
-    renderedApiReferenceModel ? `apiReference: ${JSON.stringify(renderedApiReferenceModel)}` : '',
     `onThisPageEntries: ${JSON.stringify(onThisPageEntries)}`,
     'Content: MDXContent',
-    'examples',
     'codeTabs',
   ].filter(Boolean)
 
@@ -1394,15 +1426,11 @@ export function compileMarkdownPage(
     ...importLines,
     '',
     stripMdxDefaultExport(mdxResult.code),
-    `const examples = ${examplesCode}`,
     `const codeTabs = ${codeTabsCode}`,
     '',
     'export default function MarkdownPage() {',
     `  return Markdown({ ${configFields.join(', ')} })`,
     '}',
     '',
-  ]
-    .join('\n')
-    .replaceAll(/"__COMPONENT_(ExampleComponent\d+)__"/g, '$1')
-    .replaceAll(/"__CODE_(ExampleCode\d+)__"/g, '$1')
+  ].join('\n')
 }

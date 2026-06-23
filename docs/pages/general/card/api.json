@@ -1,0 +1,98 @@
+{
+  "component": {
+    "key": "card",
+    "name": "Card",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Structured content container with optional header, body, footer, and action slots.",
+    "sourcePath": "src/elements/card/card.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Card container that frames the header, body, and footer regions."
+    },
+    {
+      "name": "header",
+      "description": "Top region for title, description, custom header content, and actions."
+    },
+    {
+      "name": "title",
+      "description": "Primary heading rendered in the card header."
+    },
+    {
+      "name": "description",
+      "description": "Supporting text rendered below the card title."
+    },
+    {
+      "name": "action",
+      "description": "Header action region, typically used for buttons or menus."
+    },
+    {
+      "name": "body",
+      "description": "Main content region for the card children."
+    },
+    {
+      "name": "footer",
+      "description": "Bottom region for secondary actions or summary content."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "action",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render in the action slot (usually a button in the header)."
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Children of the card."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "CardT.Classes | undefined"
+      },
+      {
+        "name": "compact",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to use a compact layout.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Description of the card."
+      },
+      {
+        "name": "footer",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render in the footer slot."
+      },
+      {
+        "name": "header",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render in the header slot, overrides title/description."
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "CardT.Styles | undefined"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Title of the card."
+      }
+    ],
+    "inherited": []
+  }
+}

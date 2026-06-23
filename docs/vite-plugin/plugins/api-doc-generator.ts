@@ -9,5 +9,5 @@ export async function runApiDocGeneration(projectRoot: string): Promise<void> {
     return
   }
 
-  await writeJsonFiles(path.join(projectRoot, 'docs/api-doc'), result)
+  await writeJsonFiles(path.join(projectRoot, 'docs/pages'), result)
 }

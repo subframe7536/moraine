@@ -1,0 +1,93 @@
+import { DemoSelectSingleSelect } from './single-select?example'
+import { DemoSelectVariants } from './variants?example'
+import { DemoSelectSizes } from './sizes?example'
+import { DemoSelectDisabled } from './disabled?example'
+import { DemoSelectSearchable } from './searchable?example'
+import { DemoSelectGroupedOptions } from './grouped-options?example'
+import { DemoSelectInfiniteScroll } from './infinite-scroll?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Select } from 'moraine'
+```
+
+## Slot Structure
+
+Trigger control and a floating listbox with grouped options.
+
+### Control
+
+```text
+control
+├── leading (Icon, optional)
+├── input
+├── clear (IconButton, optional)
+└── trigger (IconButton)
+```
+
+### Listbox
+
+```text
+content (portal)
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLabel
+│   │   ├── itemDescription (optional)
+│   │   └── itemTrailing (optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+└── empty (optional, no matches)
+```
+
+## Examples
+
+### Single Select
+
+Basic single selection with controlled value.
+
+<DemoSelectSingleSelect />
+
+### Variants
+
+Visual style variants.
+
+<DemoSelectVariants />
+
+### Sizes
+
+From xs to xl.
+
+<DemoSelectSizes />
+
+### Disabled
+
+Non-interactive state.
+
+<DemoSelectDisabled />
+
+### Searchable
+
+Type to filter options.
+
+<DemoSelectSearchable />
+
+### Grouped Options
+
+Options organized in sections.
+
+<DemoSelectGroupedOptions />
+
+### Infinite Scroll
+
+Scroll to the bottom to load more options.
+
+<DemoSelectInfiniteScroll />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

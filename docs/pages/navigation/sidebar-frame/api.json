@@ -1,0 +1,105 @@
+{
+  "component": {
+    "key": "sidebar-frame",
+    "name": "SidebarFrame",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
+    "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Frame container that coordinates sidebar and main content layout."
+    },
+    {
+      "name": "sidebar",
+      "description": "Sidebar region rendered inline on desktop or inside a sheet on mobile."
+    },
+    {
+      "name": "sidebarHeader",
+      "description": "Optional header region at the top of the sidebar."
+    },
+    {
+      "name": "sidebarBody",
+      "description": "Main sidebar content region."
+    },
+    {
+      "name": "sidebarFooter",
+      "description": "Optional footer region at the bottom of the sidebar."
+    },
+    {
+      "name": "main",
+      "description": "Primary content region beside or beneath the sidebar."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SidebarFrameT.Classes | undefined"
+      },
+      {
+        "name": "isMobile",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled mobile mode state.\nWhen omitted, mobile state is resolved from `matchMedia`."
+      },
+      {
+        "name": "renderFrame",
+        "required": false,
+        "type": "SidebarFrameT.RenderFrame | undefined",
+        "description": "Optional frame renderer used to compose sidebar/main layout.",
+        "defaultValue": "SidebarFrameSheetOnlyRender"
+      },
+      {
+        "name": "renderMain",
+        "required": true,
+        "type": "SidebarFrameT.RenderFn",
+        "description": "Render function for main content section."
+      },
+      {
+        "name": "renderSidebarBody",
+        "required": true,
+        "type": "SidebarFrameT.RenderFn",
+        "description": "Render function for sidebar body section."
+      },
+      {
+        "name": "renderSidebarFooter",
+        "required": false,
+        "type": "SidebarFrameT.RenderFn | undefined",
+        "description": "Optional render function for sidebar footer section."
+      },
+      {
+        "name": "renderSidebarHeader",
+        "required": false,
+        "type": "SidebarFrameT.RenderFn | undefined",
+        "description": "Optional render function for sidebar header section."
+      },
+      {
+        "name": "scrollThreshold",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Scroll threshold for `scrolled` state.",
+        "defaultValue": "60"
+      },
+      {
+        "name": "side",
+        "required": false,
+        "type": "\"left\" | \"right\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SidebarFrameT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"floating\" | \"inset\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

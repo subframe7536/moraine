@@ -1,0 +1,62 @@
+import { DemoSliderControlledSingle } from './controlled-single?example'
+import { DemoSliderSizes } from './sizes?example'
+import { DemoSliderOrientations } from './orientations?example'
+import { DemoSliderRangeSlider } from './range-slider?example'
+import { DemoSliderFormIntegration } from './form-integration?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Slider } from 'moraine'
+```
+
+## Slot Structure
+
+Track with a fill range and one or more draggable thumb handles.
+
+```text
+root
+├── track
+│   └── range
+└── thumb (×n)
+```
+
+## Examples
+
+### Controlled Single
+
+Input phase updates with onValueChange and commit phase updates with onChange.
+
+<DemoSliderControlledSingle />
+
+### Sizes
+
+Track and thumb sizing from xs to xl.
+
+<DemoSliderSizes />
+
+### Orientations
+
+Horizontal default layout and vertical layout with fixed container height.
+
+<DemoSliderOrientations />
+
+### Range Slider
+
+Two thumbs with controlled array value, optional minimum gap, and configurable thumb crossing.
+
+<DemoSliderRangeSlider />
+
+### Form Integration
+
+Submit to validate required minimum value through Form + FormField.
+
+<DemoSliderFormIntegration />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

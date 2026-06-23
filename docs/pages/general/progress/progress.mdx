@@ -1,0 +1,64 @@
+import { DemoProgressSizes } from './sizes?example'
+import { DemoProgressOrientations } from './orientations?example'
+import { DemoProgressDeterminate } from './determinate?example'
+import { DemoProgressAnimations } from './animations?example'
+import { DemoProgressStepMode } from './step-mode?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Progress } from 'moraine'
+```
+
+## Slot Structure
+
+Track with a fill indicator, optional status text, and step labels.
+
+```text
+root
+├── status (optional, determinate only)
+├── track
+│   └── indicator
+└── steps (optional, step mode)
+    └── step (×n)
+```
+
+## Examples
+
+### Sizes
+
+Size scale from `xs` to `xl`.
+
+<DemoProgressSizes />
+
+### Orientations
+
+Horizontal and vertical layouts with consistent value rendering.
+
+<DemoProgressOrientations />
+
+### Determinate
+
+Standard progress bar with status text and custom status renderer.
+
+<DemoProgressDeterminate />
+
+### Animations
+
+Indeterminate animation variants: `carousel`, `reverse`, `swing`, and `elastic`.
+
+<DemoProgressAnimations />
+
+### Step Mode
+
+String-array max renders named steps.
+
+<DemoProgressStepMode />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

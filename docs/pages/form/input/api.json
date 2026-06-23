@@ -1,0 +1,206 @@
+{
+  "component": {
+    "key": "input",
+    "name": "Input",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
+    "sourcePath": "src/forms/input/input.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Input wrapper that positions icons, loading state, and the native input."
+    },
+    {
+      "name": "input",
+      "description": "Native text input element."
+    },
+    {
+      "name": "leading",
+      "description": "Icon or loading indicator rendered before the input value."
+    },
+    {
+      "name": "trailing",
+      "description": "Icon or loading indicator rendered after the input value."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "autocomplete",
+        "required": false,
+        "type": "JSX.HTMLAutocomplete | undefined",
+        "description": "The autocomplete attribute for the input.",
+        "defaultValue": "off"
+      },
+      {
+        "name": "autofocus",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input should automatically receive focus on mount.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "autofocusDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "The delay in milliseconds before automatically focusing the input.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Additional content to render inside the input container."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "InputT.Classes | undefined"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "InputT.Value",
+        "description": "The default value of the input (uncontrolled)."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "leading",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading icon name."
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is in a loading state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "The icon to show when the input is in a loading state.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "maxLength",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "The maximum number of characters allowed in the input."
+      },
+      {
+        "name": "modelModifiers",
+        "required": false,
+        "type": "M | undefined",
+        "description": "Modifiers for the input value (e.g., trim, lazy, number)."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onBlur",
+        "required": false,
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
+        "description": "Event handler for the blur event."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: ModifierValue<M>) => void) | undefined",
+        "description": "Callback when the input value change is committed."
+      },
+      {
+        "name": "onFocus",
+        "required": false,
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
+        "description": "Event handler for the focus event."
+      },
+      {
+        "name": "onInput",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLInputElement, InputEvent, JSX.EventHandler<HTMLInputElement, InputEvent>> | undefined",
+        "description": "Event handler for the input event."
+      },
+      {
+        "name": "onValueChange",
+        "required": false,
+        "type": "((value: ModifierValue<M>) => void) | undefined",
+        "description": "Callback when the input value changes during input."
+      },
+      {
+        "name": "placeholder",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The placeholder text for the input."
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "InputT.Styles | undefined"
+      },
+      {
+        "name": "trailing",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Trailing icon name."
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"number\" | (string & {}) | \"hidden\" | \"checkbox\" | \"radio\" | \"color\" | \"search\" | \"email\" | \"tel\" | \"text\" | \"url\" | \"date\" | \"time\" | \"button\" | \"image\" | \"submit\" | \"reset\" | \"datetime-local\" | \"file\" | \"month\" | \"password\" | \"range\" | \"week\" | undefined",
+        "description": "The type of the input element.",
+        "defaultValue": "text"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "InputT.Value",
+        "description": "The current value of the input (controlled)."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

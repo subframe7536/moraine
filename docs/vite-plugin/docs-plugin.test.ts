@@ -4,9 +4,17 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
+import { parseSync } from 'vite'
 import { describe, expect, test } from 'vitest'
 
 import { docsPlugin } from './docs-plugin'
+import { EXAMPLE_PARSE_OPTIONS } from './examples/ast'
+
+const TRANSFORM_CONTEXT = {
+  parse(code: string) {
+    return parseSync('example.tsx', code, EXAMPLE_PARSE_OPTIONS).program
+  },
+}
 
 const D_MTS_SAMPLE = `
 declare namespace ButtonT {
@@ -27,20 +35,22 @@ async function createTempProject(): Promise<string> {
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
-  await mkdir(path.join(projectRoot, 'docs/pages/general/button/examples'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'docs/pages/general/button'), { recursive: true })
 
   await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
   await writeFile(
     path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     `
+import { DemoButtonBasicExample } from './basic-example?example'
+
 ## Button
 
-<Example name="BasicExample" />
+<DemoButtonBasicExample />
 `,
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'docs/pages/general/button/examples/basic-example.tsx'),
+    path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx'),
     'export const BasicExample = () => <button>Basic</button>\n',
     'utf8',
   )
@@ -85,9 +95,12 @@ describe('docsPlugin', () => {
     }
 
     const apiDocJson = JSON.parse(
-      await readFile(path.join(projectRoot, 'docs/api-doc/index.json'), 'utf8'),
+      await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
     ) as { components: Array<{ key: string }> }
     expect(apiDocJson.components.map((component) => component.key)).toContain('button')
+    expect(
+      await readFile(path.join(projectRoot, 'docs/pages/general/button/api.json'), 'utf8'),
+    ).toContain('"button"')
 
     const resolvedApiId =
       typeof resolveId === 'function'
@@ -112,22 +125,47 @@ describe('docsPlugin', () => {
     expect(pagesModule).toContain('export const exampleMap')
     expect(pagesModule).toContain("'button'")
 
-    const markdownModule = await transform?.handler(
-      `
+    await expect(() =>
+      Promise.resolve(
+        transform?.handler.call(
+          TRANSFORM_CONTEXT,
+          `
 ## Button
 
 <Example name="BasicExample" />
 `,
+          path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
+        ),
+      ),
+    ).rejects.toThrow('<Example /> is no longer supported')
+
+    const explicitMarkdownModule = await transform?.handler.call(
+      TRANSFORM_CONTEXT,
+      `
+import { DemoButtonBasicExample } from './basic-example?example'
+
+## Button
+
+<DemoButtonBasicExample />
+`,
       path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     )
-    expect(markdownModule).toContain('componentKey: "button"')
-    expect(markdownModule).toContain('?example-source&name=BasicExample')
+    expect(explicitMarkdownModule).toContain('from "./basic-example?example"')
 
-    const sourceModule = await transform?.handler(
+    const exampleModule = await transform?.handler.call(
+      TRANSFORM_CONTEXT,
+      'export const BasicExample = () => <button>Basic</button>\n',
+      path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
+    )
+    expect(exampleModule).toContain('export const DemoButtonBasicExample')
+    expect(exampleModule).toContain('?example-source&name=BasicExample')
+
+    const sourceModule = await transform?.handler.call(
+      TRANSFORM_CONTEXT,
       'export const BasicExample = () => <button>Basic</button>\n',
       path.join(
         projectRoot,
-        'docs/pages/general/button/examples/basic-example.tsx?example-source&name=BasicExample',
+        'docs/pages/general/button/basic-example.tsx?example-source&name=BasicExample',
       ),
     )
     expect(sourceModule).toContain('export default')

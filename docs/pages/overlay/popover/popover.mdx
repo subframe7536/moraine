@@ -1,0 +1,47 @@
+import { DemoPopoverPlacements } from './placements?example'
+import { DemoPopoverHoverMode } from './hover-mode?example'
+import { DemoPopoverDismissControl } from './dismiss-control?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Popover } from 'moraine'
+```
+
+## Slot Structure
+
+Wrapper trigger with a floating content portal containing the body.
+
+```text
+trigger
+└── content (portal)
+    └── body
+```
+
+## Examples
+
+### Placements
+
+Click trigger with four placement variants.
+
+<DemoPopoverPlacements />
+
+### Hover Mode
+
+Hover-based popover using open and close delays.
+
+<DemoPopoverHoverMode />
+
+### Dismiss Control
+
+Prevent closing on outside interaction and Escape key.
+
+<DemoPopoverDismissControl />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

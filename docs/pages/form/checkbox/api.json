@@ -1,0 +1,193 @@
+{
+  "component": {
+    "key": "checkbox",
+    "name": "Checkbox",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Single checkbox control with card and list variants and custom true/false values.",
+    "sourcePath": "src/forms/checkbox/checkbox.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Labelable checkbox wrapper that coordinates input, indicator, and text content."
+    },
+    {
+      "name": "container",
+      "description": "Text column that groups label and description."
+    },
+    {
+      "name": "control",
+      "description": "Visible checkbox control users recognize as the toggle target."
+    },
+    {
+      "name": "indicator",
+      "description": "Visual checked or indeterminate state layer inside the control."
+    },
+    {
+      "name": "icon",
+      "description": "Check or indeterminate icon rendered for the current state."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner layout wrapper used by card and list checkbox variants."
+    },
+    {
+      "name": "label",
+      "description": "Primary checkbox label text."
+    },
+    {
+      "name": "description",
+      "description": "Supporting text associated with the checkbox."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "checked",
+        "required": false,
+        "type": "\"indeterminate\" | TTrue | TFalse | undefined",
+        "description": "Whether the checkbox is checked (controlled)."
+      },
+      {
+        "name": "checkedIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to show when checked.",
+        "defaultValue": "icon-check"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "CheckboxT.Classes | undefined"
+      },
+      {
+        "name": "defaultChecked",
+        "required": false,
+        "type": "boolean | \"indeterminate\" | undefined",
+        "description": "Whether the checkbox is checked by default (uncontrolled).",
+        "defaultValue": "false"
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Description text for the checkbox."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "falseValue",
+        "required": false,
+        "type": "TFalse | undefined",
+        "description": "Value to use when the checkbox is unchecked.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "formFieldBind",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to bind the checkbox value to the parent FormField.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "indeterminate",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the checkbox is in an indeterminate state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "indeterminateIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to show when indeterminate.",
+        "defaultValue": "icon-minus"
+      },
+      {
+        "name": "indicator",
+        "required": false,
+        "type": "\"hidden\" | \"start\" | \"end\" | undefined"
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label for the checkbox."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: TTrue | TFalse) => void) | undefined",
+        "description": "Callback when the checked state changes."
+      },
+      {
+        "name": "onPointerDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLDivElement, PointerEvent, JSX.EventHandler<HTMLDivElement, PointerEvent>> | undefined",
+        "description": "Pointer down handler for the checkbox root container."
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "CheckboxT.Styles | undefined"
+      },
+      {
+        "name": "trueValue",
+        "required": false,
+        "type": "TTrue | undefined",
+        "description": "Value to use when the checkbox is checked.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Native value submitted when the checkbox is checked.",
+        "defaultValue": "on"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"list\" | \"card\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

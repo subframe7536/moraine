@@ -1,0 +1,59 @@
+import { DemoSwitchBasicControlled } from './basic-controlled?example'
+import { DemoSwitchVariants } from './variants?example'
+import { DemoSwitchSizes } from './sizes?example'
+import { DemoSwitchCustomTrueFalseValues } from './custom-true-false-values?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Switch } from 'moraine'
+```
+
+## Slot Structure
+
+Toggle track with thumb and optional label area.
+
+```text
+root
+├── container
+│   ├── input
+│   └── track
+│       └── thumb
+└── wrapper (optional)
+    ├── label (optional)
+    └── description (optional)
+```
+
+## Examples
+
+### Basic + Controlled
+
+Uncontrolled and controlled switch with icon slots.
+
+<DemoSwitchBasicControlled />
+
+### Variants
+
+Loading, disabled, and explicit icon combinations.
+
+<DemoSwitchVariants />
+
+### Sizes
+
+Switch size scale from xs to xl.
+
+<DemoSwitchSizes />
+
+### Custom True/False Values
+
+Map checked state to domain values instead of boolean.
+
+<DemoSwitchCustomTrueFalseValues />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

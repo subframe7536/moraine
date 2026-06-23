@@ -1,0 +1,129 @@
+{
+  "component": {
+    "key": "avatar",
+    "name": "Avatar",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Circular user or entity avatar with fallback initials and optional indicator.",
+    "sourcePath": "src/elements/avatar/avatar.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Avatar frame that controls size, shape, image, fallback, and badge placement."
+    },
+    {
+      "name": "image",
+      "description": "Loaded avatar image rendered inside the frame."
+    },
+    {
+      "name": "fallback",
+      "description": "Text fallback shown while the image is unavailable or failed."
+    },
+    {
+      "name": "fallbackIcon",
+      "description": "Icon fallback shown when no image or text fallback is available."
+    },
+    {
+      "name": "badge",
+      "description": "Status or indicator badge anchored to the avatar frame."
+    },
+    {
+      "name": "group",
+      "description": "Container that lays out multiple avatars as an overlapping group."
+    },
+    {
+      "name": "groupItem",
+      "description": "Individual avatar wrapper used when rendering grouped avatars."
+    },
+    {
+      "name": "groupCount",
+      "description": "Count indicator shown when a group has more avatars than the visible limit."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "badgePosition",
+        "required": false,
+        "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "AvatarT.Classes | undefined"
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "AvatarT.Item[] | undefined",
+        "description": "Array of items to render in a group.",
+        "defaultValue": "[]"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Maximum number of avatars to show when in a group."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "AvatarT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "alt",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible alt text for the avatar."
+      },
+      {
+        "name": "badgePosition",
+        "required": false,
+        "type": "NonNullable<\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined> | undefined",
+        "description": "Position of the badge.",
+        "defaultValue": "bottom-right"
+      },
+      {
+        "name": "fallback",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name to show as fallback."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the badge."
+      },
+      {
+        "name": "onStatusChange",
+        "required": false,
+        "type": "((status: Status) => void) | undefined",
+        "description": "Callback when the loading status of the avatar changes."
+      },
+      {
+        "name": "src",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Source URL for the avatar image."
+      },
+      {
+        "name": "text",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Initial text to show if image fails or is missing."
+      }
+    ]
+  }
+}

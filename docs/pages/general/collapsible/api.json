@@ -1,0 +1,90 @@
+{
+  "component": {
+    "key": "collapsible",
+    "name": "Collapsible",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Expandable content section with optional height transitions.",
+    "sourcePath": "src/elements/collapsible/collapsible.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Container that owns the trigger and expandable content state."
+    },
+    {
+      "name": "trigger",
+      "description": "Button users activate to toggle the content visibility."
+    },
+    {
+      "name": "content",
+      "description": "Region that is mounted for the expanded collapsible content."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render inside the collapsible."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "CollapsibleT.Classes | undefined"
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the collapsible is open by default (uncontrolled).",
+        "defaultValue": "false"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the collapsible is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the collapsible root element."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Callback when the open state changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the collapsible is open (controlled)."
+      },
+      {
+        "name": "renderTrigger",
+        "required": false,
+        "type": "JSX.Element | Component<CollapsibleT.RenderTriggerContext>",
+        "description": "Custom trigger content or render function.\n- When component has no prop, the whole component will be wrapped with `<button>`\n- When component has props, uncontrolled state must be setup manually via `CollapsibleT.RenderTriggerContext`"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "CollapsibleT.Styles | undefined"
+      },
+      {
+        "name": "transition",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to keep content mounted until its height transition completes.",
+        "defaultValue": "false"
+      }
+    ],
+    "inherited": []
+  }
+}

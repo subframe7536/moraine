@@ -1,0 +1,59 @@
+import { DemoPaginationVariants } from './variants?example'
+import { DemoPaginationSizes } from './sizes?example'
+import { DemoPaginationControlled } from './controlled?example'
+import { DemoPaginationMinimal } from './minimal?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Pagination } from 'moraine'
+```
+
+## Slot Structure
+
+Page controls with previous, next, and numbered page link buttons.
+
+```text
+root
+└── list
+    ├── item (prev)
+    │   └── prev (Button)
+    ├── item (×n, page links)
+    │   └── link (Button)
+    └── item (next)
+        └── next (Button)
+```
+
+## Examples
+
+### Variants
+
+Render controls as links and override variant pairing when needed.
+
+<DemoPaginationVariants />
+
+### Sizes
+
+Size scale from `xs` to `xl` for page links and previous/next controls.
+
+<DemoPaginationSizes />
+
+### Controlled
+
+Default ghost + outline controls with external page state management.
+
+<DemoPaginationControlled />
+
+### Minimal
+
+Hide prev/next controls and show only page buttons.
+
+<DemoPaginationMinimal />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

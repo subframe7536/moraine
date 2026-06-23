@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -9,10 +9,13 @@ import type { GenerationResult } from './types'
 import { writeJsonFiles } from './write'
 
 describe('writeJsonFiles', () => {
-  test('writes index/components and removes stale component files', async () => {
-    const outDir = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-'))
-    const stalePath = path.join(outDir, 'components', 'stale.json')
-    await mkdir(path.dirname(stalePath), { recursive: true })
+  test('writes colocated index/api files and removes stale page api files', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-'))
+    const pagesRoot = path.join(projectRoot, 'docs/pages')
+    const pageDir = path.join(pagesRoot, 'general/demo')
+    const stalePath = path.join(pageDir, 'api.json')
+    await mkdir(pageDir, { recursive: true })
+    await writeFile(path.join(pageDir, 'demo.mdx'), '<DocsHeader />', 'utf8')
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
     const result: GenerationResult = {
@@ -47,38 +50,59 @@ describe('writeJsonFiles', () => {
       ]),
     }
 
-    await writeJsonFiles(outDir, result)
+    await writeJsonFiles(pagesRoot, result)
 
-    expect(existsSync(stalePath)).toBe(false)
-    expect(JSON.parse(await readFile(path.join(outDir, 'index.json'), 'utf8'))).toEqual(
+    expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual(
       result.indexDoc,
     )
-    expect(
-      JSON.parse(await readFile(path.join(outDir, 'components', 'demo.json'), 'utf8')),
-    ).toEqual(result.componentDocs.get('demo'))
+    expect(JSON.parse(await readFile(stalePath, 'utf8'))).toEqual(result.componentDocs.get('demo'))
+    expect(existsSync(path.join(projectRoot, 'docs/api-doc'))).toBe(false)
 
-    await rm(outDir, { recursive: true, force: true })
+    await rm(projectRoot, { recursive: true, force: true })
   })
 
-  test('clears stale component files even when no components are generated', async () => {
-    const outDir = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-empty-'))
-    const stalePath = path.join(outDir, 'components', 'stale.json')
-    await mkdir(path.dirname(stalePath), { recursive: true })
+  test('skips docs without matching pages and writes filtered index', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-empty-'))
+    const pagesRoot = path.join(projectRoot, 'docs/pages')
+    const pageDir = path.join(pagesRoot, 'general/demo')
+    const stalePath = path.join(pageDir, 'api.json')
+    await mkdir(pageDir, { recursive: true })
+    await writeFile(path.join(pageDir, 'demo.mdx'), '<DocsHeader />', 'utf8')
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
-    await writeJsonFiles(outDir, {
-      indexDoc: { components: [] },
-      componentDocs: new Map(),
+    await writeJsonFiles(pagesRoot, {
+      indexDoc: {
+        components: [
+          {
+            key: 'missing',
+            name: 'Missing',
+            category: 'General',
+            polymorphic: false,
+          },
+        ],
+      },
+      componentDocs: new Map([
+        [
+          'missing',
+          {
+            component: {
+              key: 'missing',
+              name: 'Missing',
+              category: 'General',
+              polymorphic: false,
+            },
+            slots: [],
+            props: { own: [], inherited: [] },
+          },
+        ],
+      ]),
     })
 
-    const componentDir = path.join(outDir, 'components')
-    expect(existsSync(componentDir)).toBe(true)
-    expect(await readdir(componentDir)).toEqual([])
     expect(existsSync(stalePath)).toBe(false)
-    expect(JSON.parse(await readFile(path.join(outDir, 'index.json'), 'utf8'))).toEqual({
+    expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual({
       components: [],
     })
 
-    await rm(outDir, { recursive: true, force: true })
+    await rm(projectRoot, { recursive: true, force: true })
   })
 })

@@ -1,6 +1,7 @@
-import { Button, IconButton, cn } from '@src'
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
+
+import { Button, IconButton, cn } from '../../src'
 
 const COPY_SUCCESS_TIMEOUT_MS = 3000
 const COLLAPSED_HEIGHT_PX = 150
@@ -53,7 +54,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
   let contentRef: HTMLDivElement | undefined
 
   const updateExpandable = () => {
-    if (!contentRef) {
+    if (!isSource() || !contentRef) {
       setIsExpandable(false)
       return
     }
@@ -63,6 +64,10 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
   }
 
   const viewportHeight = () => {
+    if (!isSource()) {
+      return undefined
+    }
+
     if (!hasMeasured()) {
       return `${COLLAPSED_HEIGHT_PX}px`
     }
@@ -148,7 +153,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
                 <div class="pointer-events-none inset-0 top-2 absolute from-background to-transparent bg-gradient-to-t" />
               </Show>
 
-              <Show when={isExpandable() && !isExpanded()}>
+              <Show when={isSource() && isExpandable() && !isExpanded()}>
                 <Button
                   variant="outline"
                   aria-label="Expand code"

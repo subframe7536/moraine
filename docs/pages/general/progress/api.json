@@ -1,0 +1,105 @@
+{
+  "component": {
+    "key": "progress",
+    "name": "Progress",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Determinate or indeterminate progress indicator with optional step labels.",
+    "sourcePath": "src/elements/progress/progress.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Progress container that owns track, indicator, labels, and step markers."
+    },
+    {
+      "name": "status",
+      "description": "Text region that displays the current progress status."
+    },
+    {
+      "name": "track",
+      "description": "Background rail that represents the full progress range."
+    },
+    {
+      "name": "indicator",
+      "description": "Filled bar that represents the current progress value."
+    },
+    {
+      "name": "steps",
+      "description": "Wrapper for step labels when progress is driven by named steps."
+    },
+    {
+      "name": "step",
+      "description": "Individual step label or marker rendered along the progress scale."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "animation",
+        "required": false,
+        "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ProgressT.Classes | undefined"
+      },
+      {
+        "name": "getValueLabel",
+        "required": false,
+        "type": "((params: { value: number; min: number; max: number; }) => string) | undefined",
+        "description": "Callback to get a localized label for the current value."
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "number | string[] | undefined",
+        "description": "The maximum value of the progress bar, or an array of step labels.",
+        "defaultValue": "100"
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "renderStatus",
+        "required": false,
+        "type": "((context: ProgressT.StatusRenderContext) => JSX.Element) | undefined",
+        "description": "Custom render function for the status label."
+      },
+      {
+        "name": "renderStep",
+        "required": false,
+        "type": "((context: ProgressT.StepRenderContext) => JSX.Element) | undefined",
+        "description": "Custom render function for each step when `max` is an array."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "status",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show the status label.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ProgressT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "number | null | undefined",
+        "description": "The current value of the progress bar. If null/undefined, it is indeterminate.",
+        "defaultValue": "null"
+      }
+    ],
+    "inherited": []
+  }
+}

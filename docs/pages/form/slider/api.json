@@ -1,0 +1,154 @@
+{
+  "component": {
+    "key": "slider",
+    "name": "Slider",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Range slider component with single or multi-thumb support and step markers.",
+    "sourcePath": "src/forms/slider/slider.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Slider container that owns track, range, thumbs, and labels."
+    },
+    {
+      "name": "track",
+      "description": "Background rail representing the full slider range."
+    },
+    {
+      "name": "range",
+      "description": "Filled segment between the start of the range and active thumb values."
+    },
+    {
+      "name": "thumb",
+      "description": "Draggable handle for one slider value."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "allowThumbCrossing",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether dragging can continue across another thumb when there is no minimum gap.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SliderT.Classes | undefined"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "TValue | undefined",
+        "description": "The default value of the input (uncontrolled)."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "inverted",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to invert the slider axis.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum value of the slider.",
+        "defaultValue": "100"
+      },
+      {
+        "name": "min",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Minimum value of the slider.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "minStepsBetweenThumbs",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Minimum steps required between thumbs in a multi-thumb slider.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: TValue) => void) | undefined",
+        "description": "Callback when the slider selection change is committed."
+      },
+      {
+        "name": "onValueChange",
+        "required": false,
+        "type": "((value: TValue) => void) | undefined",
+        "description": "Callback when the slider selection changes during interaction."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Orientation of the slider.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "step",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Step increment between values.",
+        "defaultValue": "1"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SliderT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "TValue | undefined",
+        "description": "The current value of the input (controlled)."
+      }
+    ],
+    "inherited": []
+  }
+}

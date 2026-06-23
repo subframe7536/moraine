@@ -1,0 +1,107 @@
+{
+  "component": {
+    "key": "button",
+    "name": "Button",
+    "category": "elements",
+    "polymorphic": true,
+    "description": "Button component with polymorphic `as` support and loading state.",
+    "sourcePath": "src/elements/button/button.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Interactive button element, or the polymorphic element provided through `as`."
+    },
+    {
+      "name": "loading",
+      "description": "Loading icon shown while the button is busy."
+    },
+    {
+      "name": "leading",
+      "description": "Icon region before the button label."
+    },
+    {
+      "name": "label",
+      "description": "Button content region after render-prop resolution."
+    },
+    {
+      "name": "trailing",
+      "description": "Icon region after the button label."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "as",
+        "required": false,
+        "type": "\"button\" | undefined"
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "MaybeRenderProp<{ loading: boolean; }>",
+        "description": "Children of the button. Supports render function form."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ButtonT.Classes | undefined"
+      },
+      {
+        "name": "leading",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading visual content, usually an icon."
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled loading state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingAuto",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Auto toggles loading while async click handlers are pending.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Optional icon shown when `loading` is active.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Root `data-slot` name"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ButtonT.Styles | undefined"
+      },
+      {
+        "name": "trailing",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Trailing visual content, usually an icon."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

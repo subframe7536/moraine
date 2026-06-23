@@ -1,0 +1,191 @@
+{
+  "component": {
+    "key": "pagination",
+    "name": "Pagination",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "Page navigation component with configurable sibling count and edge display.",
+    "sourcePath": "src/navigation/pagination/pagination.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Navigation container for page controls."
+    },
+    {
+      "name": "list",
+      "description": "Wrapper that lays out page, ellipsis, previous, and next controls."
+    },
+    {
+      "name": "item",
+      "description": "Individual page control or ellipsis item."
+    },
+    {
+      "name": "link",
+      "description": "Clickable page navigation control."
+    },
+    {
+      "name": "prev",
+      "description": "Control that navigates to the previous page."
+    },
+    {
+      "name": "next",
+      "description": "Control that navigates to the next page."
+    },
+    {
+      "name": "ellipsis",
+      "description": "Non-interactive marker for skipped page ranges."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "activeVariant",
+        "required": false,
+        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "description": "Visual variant for the active page button.",
+        "defaultValue": "outline"
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessibility label for the navigation element.",
+        "defaultValue": "Pagination"
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "PaginationT.Classes | undefined",
+        "description": "Slot-based class overrides."
+      },
+      {
+        "name": "controlVariant",
+        "required": false,
+        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "description": "Visual variant for the previous/next control buttons.",
+        "defaultValue": "ghost"
+      },
+      {
+        "name": "defaultPage",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Initial page number when uncontrolled.",
+        "defaultValue": "1"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the pagination is disabled."
+      },
+      {
+        "name": "ellipsisIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the ellipsis indicator.",
+        "defaultValue": "icon-ellipsis"
+      },
+      {
+        "name": "itemsPerPage",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Number of items to display per page.",
+        "defaultValue": "10"
+      },
+      {
+        "name": "nextIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the next button.",
+        "defaultValue": "icon-chevron-right"
+      },
+      {
+        "name": "nextText",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Text to display in the next button."
+      },
+      {
+        "name": "onPageChange",
+        "required": false,
+        "type": "((page: number) => void) | undefined",
+        "description": "Callback triggered when the page changes."
+      },
+      {
+        "name": "page",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Controlled current page number (1-indexed)."
+      },
+      {
+        "name": "prevIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the previous button.",
+        "defaultValue": "icon-chevron-left"
+      },
+      {
+        "name": "prevText",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Text to display in the previous button."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "\"separator\" | \"checkbox\" | \"radio\" | \"group\" | \"none\" | \"search\" | \"list\" | \"link\" | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | \"alert\" | \"alertdialog\" | \"application\" | \"article\" | \"banner\" | \"button\" | \"cell\" | \"columnheader\" | \"combobox\" | \"complementary\" | \"contentinfo\" | \"definition\" | \"directory\" | \"document\" | \"feed\" | \"figure\" | \"form\" | \"gridcell\" | \"heading\" | \"img\" | \"listitem\" | \"log\" | \"main\" | \"marquee\" | \"math\" | \"menubar\" | \"menuitem\" | \"menuitemcheckbox\" | \"menuitemradio\" | \"meter\" | \"navigation\" | \"note\" | \"option\" | \"presentation\" | \"progressbar\" | \"radiogroup\" | \"region\" | \"row\" | \"rowgroup\" | \"rowheader\" | \"scrollbar\" | \"searchbox\" | \"slider\" | \"spinbutton\" | \"status\" | \"switch\" | \"tab\" | \"table\" | \"tablist\" | \"tabpanel\" | \"term\" | \"textbox\" | \"timer\" | \"toolbar\" | \"tooltip\" | \"treegrid\" | \"treeitem\" | undefined",
+        "description": "ARIA role for the navigation element.",
+        "defaultValue": "navigation"
+      },
+      {
+        "name": "showControls",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show previous and next control buttons.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "siblingCount",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Number of page buttons to show on either side of the current page.",
+        "defaultValue": "2"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "FormFieldSize | undefined",
+        "description": "Size of the pagination buttons.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "PaginationT.Styles | undefined",
+        "description": "Slot-based style overrides."
+      },
+      {
+        "name": "to",
+        "required": false,
+        "type": "((page: number) => string | undefined) | undefined",
+        "description": "Function to generate a destination URL for a given page number.\nIf provided, pagination items will render as anchor tags."
+      },
+      {
+        "name": "total",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Total number of items across all pages.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "description": "Visual variant for the page buttons.",
+        "defaultValue": "ghost"
+      }
+    ],
+    "inherited": []
+  }
+}

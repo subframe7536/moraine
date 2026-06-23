@@ -1,0 +1,56 @@
+import { DemoTooltipPlacements } from './placements?example'
+import { DemoTooltipTriggerTypes } from './trigger-types?example'
+import { DemoTooltipKeyboardShortcuts } from './keyboard-shortcuts?example'
+import { DemoTooltipTextOnlyVsShortcutsOnly } from './text-only-vs-shortcuts-only?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Tooltip } from 'moraine'
+```
+
+## Slot Structure
+
+Wrapper trigger with a floating content portal containing text and optional keyboard hints.
+
+```text
+trigger
+└── content (portal)
+    ├── text (optional)
+    └── kbds (optional)
+        └── kbd (×n)
+```
+
+## Examples
+
+### Placements
+
+Tooltip positioned on each side.
+
+<DemoTooltipPlacements />
+
+### Trigger Types
+
+Tooltip on buttons and inline text.
+
+<DemoTooltipTriggerTypes />
+
+### Keyboard Shortcuts
+
+Display keyboard shortcut hints alongside tooltip text.
+
+<DemoTooltipKeyboardShortcuts />
+
+### Text Only vs Shortcuts Only
+
+Content variations.
+
+<DemoTooltipTextOnlyVsShortcutsOnly />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

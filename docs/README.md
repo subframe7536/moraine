@@ -14,7 +14,7 @@ The docs app is a Vite + SolidJS application with two docs-specific plugins:
 1. Generate component API JSON from `dist/index.d.mts`.
 2. Scan `docs/pages/**/*.mdx` and expose `virtual:example-pages`.
 3. Compile MDX pages into Solid modules.
-4. Resolve `?example-source&name=...` imports into highlighted source HTML.
+4. Resolve `?example` demo imports and `?example-source&name=...` highlighted source modules.
 
 At runtime, `docs/index.tsx` loads `virtual:example-pages`, builds sidebar navigation, and lazy-renders the active page.
 
@@ -25,51 +25,39 @@ At runtime, `docs/index.tsx` loads `virtual:example-pages`, builds sidebar navig
 Each component page is now self-contained:
 
 ```text
-docs/pages/<group>/<page>.mdx
-docs/pages/<group>/<page>/examples/*.tsx
+docs/pages/<group>/<page>/<page>.mdx
+docs/pages/<group>/<page>/*.tsx
+docs/pages/<group>/<page>/api.json
 ```
 
 Examples:
 
-- `docs/pages/general/button.mdx`
-- `docs/pages/general/button/examples/variants.tsx`
-- `docs/pages/overlay/toast.mdx`
-- `docs/pages/overlay/toast/examples/basic-toasts.tsx`
+- `docs/pages/general/button/button.mdx`
+- `docs/pages/general/button/variants.tsx`
+- `docs/pages/overlay/toast/toast.mdx`
+- `docs/pages/overlay/toast/basic-toasts.tsx`
 
 Root-level pages (for example `docs/pages/introduction.mdx`) are also supported.
 
 ### Key and Group Derivation
 
-- `key` is derived from the MDX filename.
-- Component pages usually use `docs/pages/<group>/<page>.mdx`; page-local examples stay in `docs/pages/<group>/<page>/examples`.
-- Nested pages such as `button/button.mdx` are still supported for compatibility.
+- `key` is derived from the MDX filename, with `button/button.mdx` resolving to `button`.
+- Component pages use `docs/pages/<group>/<page>/<page>.mdx`; page-local demos stay beside the page file.
 - `group` is derived from the first directory segment under `docs/pages`.
 
 The shared page-path logic lives in `docs/vite-plugin/core/paths.ts` and is reused by markdown compilation, page scanning, and API doc lookup.
 
 ## MDX Components
 
-### `<Example />`
+### Demo imports
 
 ```mdx
-<Example name="Variants" />
+import { DemoButtonVariants } from './variants?example'
+
+<DemoButtonVariants />
 ```
 
-Props:
-
-- `name` (required): exported component name from the example module.
-- `source` (optional): module path relative to the MDX file.
-
-If `source` is omitted, it defaults to:
-
-```text
-./examples/<kebab-case(name)>.tsx
-```
-
-Examples:
-
-- `name: LoadingStates` -> `./examples/loading-states.tsx`
-- `name: PromiseScopedInstances` -> `./examples/promise-scoped-instances.tsx`
+Demo imports must use the explicit `?example` suffix. The Vite plugin wraps the imported demo component with the shared preview/source UI and derives highlighted source from the original demo export.
 
 ### Runtime widgets
 
@@ -88,6 +76,10 @@ Component pages should explicitly include:
 and:
 
 ```mdx
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
 <DocsApiReference />
 ```
 
@@ -108,8 +100,8 @@ MDX compilation lives in `docs/vite-plugin/markdown/compile.ts`.
 `docs/components/markdown.tsx` renders the Sätteri-compiled MDX component with a docs component map:
 
 - Markdown elements -> Solid JSX with injected docs typography classes
-- `<Example />` -> live preview plus highlighted source
-- `<DocsApiReference />` -> compile-time API reference model
+- `?example` imports -> live preview plus highlighted source
+- `<DocsHeader />` / `<DocsApiReference />` -> implicit MDX imports backed by page-local `api.json`
 - MDX widget components -> dynamic docs runtime components
 - Code-tabs segment -> install-command tabs with build-time highlighted code
 
@@ -120,16 +112,13 @@ Header and API rendering are provided by explicit widgets in page markdown.
 
 `docsPlugin()` generates:
 
-- `docs/api-doc/index.json`
-- `docs/api-doc/components/*.json`
+- `docs/pages/_api-index.json`
+- `docs/pages/<group>/<page>/api.json`
 
-The MDX compiler derives `componentKey` from page path and loads matching API docs at build time.
-It injects:
-
-- `apiDoc` for the derived component key
-- merged `apiDoc` when `<DocsHeader />` provides `apiDocOverride`
-
-`componentKey` is only exposed to runtime when there is API doc data to render.
+The MDX compiler derives `componentKey` from page path and prepends implicit MDX imports for
+`DocsHeader`, `DocsApiReference`, `HeadingWithAnchor`, and page-local `./api.json` when the page
+uses those widgets. `apiDocOverride` on `<DocsHeader />` still merges with the generated API JSON
+before the header and reference model are rendered.
 
 The implementation is split across:
 
@@ -155,10 +144,10 @@ Public API doc types live in `docs/vite-plugin/api-doc/types.ts`.
 
 - UnoCSS is configured in `docs/unocss.config.ts`.
 - Sätteri HAST plugins inject docs prose classes into rendered MDX elements.
-- Example and widget blocks render as Solid components through the MDX component map.
+- Demo and widget blocks render as Solid components.
 
 ## Directory Responsibilities
 
-- `docs/pages/`: MDX pages and their page-local `examples/`
+- `docs/pages/`: MDX pages, colocated demos, and colocated API JSON
 - `docs/components/`: docs runtime UI and page composition
 - `docs/vite-plugin/`: build-time docs compiler, API doc extraction, and virtual modules

@@ -1,0 +1,127 @@
+{
+  "component": {
+    "key": "popover",
+    "name": "Popover",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Click-triggered floating content panel anchored to a trigger element.",
+    "sourcePath": "src/overlays/popover/popover.tsx"
+  },
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Element users activate to open the popover."
+    },
+    {
+      "name": "content",
+      "description": "Positioned popover panel anchored to the trigger."
+    },
+    {
+      "name": "body",
+      "description": "Content body rendered inside the popover panel."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "The reference element that triggers the popover."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "PopoverT.Classes | undefined"
+      },
+      {
+        "name": "closeDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay in milliseconds before closing in hover mode.",
+        "defaultValue": "100"
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render inside the popover body."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "forceMount",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined"
+      },
+      {
+        "name": "modal",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "mode",
+        "required": false,
+        "type": "PopoverMode | undefined",
+        "description": "Interaction mode for triggering the popover.",
+        "defaultValue": "click"
+      },
+      {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined"
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined"
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "openDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay in milliseconds before opening in hover mode.",
+        "defaultValue": "100"
+      },
+      {
+        "name": "placement",
+        "required": false,
+        "type": "Placement | undefined"
+      },
+      {
+        "name": "preventScroll",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "side",
+        "required": false,
+        "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "PopoverT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

@@ -1,0 +1,57 @@
+import { DemoSeparatorSizes } from './sizes?example'
+import { DemoSeparatorTypes } from './types?example'
+import { DemoSeparatorWithContentVertical } from './with-content-vertical?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Separator } from 'moraine'
+```
+
+## Slot Structure
+
+Horizontal or vertical rule with an optional content label in the center.
+
+### Without content
+
+```text
+root
+└── border
+```
+
+### With content
+
+```text
+root
+├── border
+├── container
+└── border
+```
+
+## Examples
+
+### Sizes
+
+Border thickness variants.
+
+<DemoSeparatorSizes />
+
+### Types
+
+Solid, dashed, and dotted divider styles.
+
+<DemoSeparatorTypes />
+
+### With Content + Vertical
+
+Inline content and vertical separators in flexible layouts.
+
+<DemoSeparatorWithContentVertical />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

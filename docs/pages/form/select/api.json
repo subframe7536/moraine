@@ -1,0 +1,335 @@
+{
+  "component": {
+    "key": "select",
+    "name": "Select",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Dropdown select component with search and custom item rendering.",
+    "sourcePath": "src/forms/select/select.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Select root that owns open state, value display, and popup positioning."
+    },
+    {
+      "name": "content",
+      "description": "Popup panel that contains search input, options, groups, and empty state."
+    },
+    {
+      "name": "listbox",
+      "description": "ARIA listbox that contains selectable options."
+    },
+    {
+      "name": "item",
+      "description": "Selectable option row inside the listbox."
+    },
+    {
+      "name": "group",
+      "description": "Option group wrapper inside the listbox."
+    },
+    {
+      "name": "label",
+      "description": "Group label or option label text, depending on context."
+    },
+    {
+      "name": "control",
+      "description": "Closed select control that displays the current value and opens the popup."
+    },
+    {
+      "name": "input",
+      "description": "Search input or value text field inside the control."
+    },
+    {
+      "name": "leading",
+      "description": "Icon shown before the select input or value."
+    },
+    {
+      "name": "trigger",
+      "description": "Button region that toggles the select popup."
+    },
+    {
+      "name": "empty",
+      "description": "Message shown when filtering leaves no selectable options."
+    },
+    {
+      "name": "itemLabel",
+      "description": "Primary label text inside an option row."
+    },
+    {
+      "name": "itemDescription",
+      "description": "Supporting description text inside an option row."
+    },
+    {
+      "name": "itemTrailing",
+      "description": "Trailing region inside an option row, usually for selection state or custom content."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SelectT.Classes | undefined"
+      },
+      {
+        "name": "closeIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon kept for API compatibility; Select has no clear action."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "defaultSearchValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Default search value.",
+        "defaultValue": ""
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "TItem | null | undefined",
+        "description": "The default value of the input (uncontrolled)."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "emptyRender",
+        "required": false,
+        "type": "string | ((context: SelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
+        "description": "Custom renderer for the empty state when current filtered result has no matches."
+      },
+      {
+        "name": "filterOption",
+        "required": false,
+        "type": "boolean | \"startsWith\" | \"endsWith\" | \"contains\" | ((inputValue: string, option: SelectT.Item<TItem>) => boolean) | undefined",
+        "description": "Filter function or boolean. `false` disables filtering.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "gutter",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Gap (px) between the control and popup content.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "labelRender",
+        "required": false,
+        "type": "((option: SelectT.Item<TItem>) => JSX.Element) | undefined",
+        "description": "Custom renderer for the option label text."
+      },
+      {
+        "name": "leadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown before the input/value area."
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the select is in a loading state."
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown during loading state.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: NoInfer<TItem | null>) => void) | undefined",
+        "description": "Called when the selection changes."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the popup open state changes."
+      },
+      {
+        "name": "onScrollBottom",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios. Make sure to set `overflowPadding` and `scrollBottomThreshold` appropriately to ensure the callback is triggered at the right time."
+      },
+      {
+        "name": "onSearch",
+        "required": false,
+        "type": "((value: string) => void) | undefined",
+        "description": "Called when the search input changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "optionRender",
+        "required": false,
+        "type": "((option: (SelectT.Item<TItem> & BaseSelectT.OptionRenderState) | null) => JSX.Element) | undefined",
+        "description": "Custom renderer for each option in the dropdown. Passes `null` for empty state."
+      },
+      {
+        "name": "options",
+        "required": false,
+        "type": "SelectT.Item<TItem>[] | undefined",
+        "description": "Available options."
+      },
+      {
+        "name": "overflowPadding",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Padding (px) used when calculating popup overflow and viewport collision.",
+        "defaultValue": "4"
+      },
+      {
+        "name": "placeholder",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Placeholder text shown when no value is selected.",
+        "defaultValue": ""
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "scrollBottomThreshold",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Distance (px) from the bottom at which onScrollBottom fires.",
+        "defaultValue": "20"
+      },
+      {
+        "name": "search",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "searchMaxLength",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum search text length applied on final commit."
+      },
+      {
+        "name": "searchValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Controlled search value."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SelectT.Styles | undefined"
+      },
+      {
+        "name": "trailingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon for the dropdown trigger.",
+        "defaultValue": "icon-chevron-down"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "TItem | null | undefined",
+        "description": "The current value of the input (controlled)."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+      },
+      {
+        "name": "virtualized",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Enables virtualized-like aria metadata on options."
+      }
+    ],
+    "inherited": []
+  },
+  "item": {
+    "props": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "Omit<BaseSelectT.Item<Val>, \"children\">[] | undefined",
+        "description": "One-layer child options for grouped select."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "string | JSX.Element",
+        "description": "Description shown below the label."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the option is disabled."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown next to the label."
+      },
+      {
+        "name": "key",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Text key used for filtering and matching; set this when `label` is not a string."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | JSX.Element",
+        "description": "Label to display for the option, or the option group title."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "Val | undefined",
+        "description": "Value of the option."
+      }
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+import { DemoAvatarSingleAvatar } from './single-avatar?example'
+import { DemoAvatarSizes } from './sizes?example'
+import { DemoAvatarFallbackModes } from './fallback-modes?example'
+import { DemoAvatarBadgePositions } from './badge-positions?example'
+import { DemoAvatarMergedGroupMode } from './merged-group-mode?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Avatar } from 'moraine'
+```
+
+## Slot Structure
+
+Single avatar with image fallback, or a group of avatars with an overflow counter.
+
+### Single avatar
+
+```text
+root
+├── image
+├── fallback
+│   └── fallbackIcon (Icon, optional)
+└── badge (optional)
+```
+
+### Group avatar
+
+```text
+group
+├── groupCount (optional, overflow count)
+└── groupItem (×n)
+    ├── image
+    ├── fallback
+    │   └── fallbackIcon (Icon, optional)
+    └── badge (optional)
+```
+
+## Examples
+
+### Single Avatar
+
+Fallback first, then image crossfades in after preload.
+
+<DemoAvatarSingleAvatar />
+
+### Sizes
+
+Scale from `xs` to `xl` for single and grouped avatar contexts.
+
+<DemoAvatarSizes />
+
+### Fallback Modes
+
+Text, initials-from-alt and fallback icon.
+
+<DemoAvatarFallbackModes />
+
+### Badge Positions
+
+Top/bottom + left/right corner badge.
+
+<DemoAvatarBadgePositions />
+
+### Merged Group Mode
+
+Use the same Avatar component with items.
+
+<DemoAvatarMergedGroupMode />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

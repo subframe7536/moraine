@@ -1,0 +1,68 @@
+import { DemoStepperSizes } from './sizes?example'
+import { DemoStepperControlledNonLinear } from './controlled-non-linear?example'
+import { DemoStepperClickableVsReadOnly } from './clickable-vs-read-only?example'
+import { DemoStepperLinearCheckout } from './linear-checkout?example'
+import { DemoStepperVertical } from './vertical?example'
+
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Stepper } from 'moraine'
+```
+
+## Slot Structure
+
+Header with step items and optional per-step content panels.
+
+```text
+root
+├── header
+│   └── item (×n)
+│       ├── container
+│       │   ├── trigger
+│       │   └── separator (optional, between items)
+│       └── wrapper (optional)
+│           ├── title (optional)
+│           └── description (optional)
+└── content (×n, optional)
+```
+
+## Examples
+
+### Sizes
+
+Preview the Stepper across all supported sizes using the default linear, non-clickable tab navigation.
+
+<DemoStepperSizes />
+
+### Controlled + Non-linear
+
+Manage the active step externally and allow jumping to any step.
+
+<DemoStepperControlledNonLinear />
+
+### Clickable vs Non-Clickable
+
+Compare the default non-clickable mode with explicit click-enabled navigation.
+
+<DemoStepperClickableVsReadOnly />
+
+### Linear Checkout
+
+Enable clicking while still only allowing the next available step to be selected.
+
+<DemoStepperLinearCheckout />
+
+### Vertical
+
+Render the tab-structured step navigation vertically.
+
+<DemoStepperVertical />
+
+<HeadingWithAnchor id="api-ref" level={2}>
+  API Reference
+</HeadingWithAnchor>
+
+<DocsApiReference />

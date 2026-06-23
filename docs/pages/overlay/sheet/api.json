@@ -1,0 +1,179 @@
+{
+  "component": {
+    "key": "sheet",
+    "name": "Sheet",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Slide-in panel overlay from any screen edge with header, body, and footer slots.",
+    "sourcePath": "src/overlays/sheet/sheet.tsx"
+  },
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Element users activate to open the sheet."
+    },
+    {
+      "name": "overlay",
+      "description": "Backdrop layer rendered behind the sheet panel."
+    },
+    {
+      "name": "content",
+      "description": "Slide-in panel containing header, body, footer, and close control."
+    },
+    {
+      "name": "header",
+      "description": "Top region for sheet title and description."
+    },
+    {
+      "name": "wrapper",
+      "description": "Inner wrapper that arranges sheet header, body, footer, and actions."
+    },
+    {
+      "name": "title",
+      "description": "Accessible title for the sheet."
+    },
+    {
+      "name": "description",
+      "description": "Supporting text associated with the sheet title."
+    },
+    {
+      "name": "actions",
+      "description": "Header action region, usually paired with the close control."
+    },
+    {
+      "name": "close",
+      "description": "Button that dismisses the sheet."
+    },
+    {
+      "name": "body",
+      "description": "Main sheet content region."
+    },
+    {
+      "name": "footer",
+      "description": "Bottom region for sheet actions."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "actions",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Additional action elements to render in the header."
+      },
+      {
+        "name": "body",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the scrollable body slot."
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Trigger element that opens the sheet."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SheetT.Classes | undefined"
+      },
+      {
+        "name": "close",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Whether to show a close button, or a custom element to use as one.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary description displayed below the title."
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
+      },
+      {
+        "name": "footer",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the footer slot."
+      },
+      {
+        "name": "header",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom element to render in the header slot."
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
+      },
+      {
+        "name": "inset",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "overlay",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render the overlay element."
+      },
+      {
+        "name": "side",
+        "required": false,
+        "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SheetT.Styles | undefined"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Primary title displayed in the sheet header."
+      },
+      {
+        "name": "transition",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to enable transition animations.",
+        "defaultValue": "true"
+      }
+    ],
+    "inherited": []
+  }
+}
