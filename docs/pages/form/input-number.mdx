@@ -1,0 +1,76 @@
+<DocsHeader />
+
+## Import
+
+```tsx
+import { InputNumber } from 'moraine'
+```
+
+## Slot Structure
+
+Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
+
+### Horizontal
+
+```text
+root
+├── decrement (optional)
+├── input
+└── increment (optional)
+```
+
+### Vertical
+
+```text
+root
+├── input
+└── controls
+    ├── increment (optional)
+    └── decrement (optional)
+```
+
+## Examples
+
+### Variants
+
+Visual style variants for the input shell.
+
+<Example name="Variants" />
+
+### Sizes
+
+Size scale from `xs` to `xl` for input height and control rail sizing.
+
+<Example name="Sizes" />
+
+### Orientations
+
+Horizontal (default) and vertical button layouts.
+
+<Example name="Orientations" />
+
+### Controlled
+
+Value bound to a signal with live readout.
+
+<Example name="Controlled" />
+
+### Disabled
+
+Non-interactive disabled state.
+
+<Example name="Disabled" />
+
+### Long Press
+
+Press and hold increment or decrement to continuously step the value. Set `holdRepeat={false}` to disable the repeat behavior.
+
+<Example name="LongPress" />
+
+### Min / Max / Step
+
+Constrained ranges and custom step increments.
+
+<Example name="MinMaxStep" />
+
+<DocsApiReference />

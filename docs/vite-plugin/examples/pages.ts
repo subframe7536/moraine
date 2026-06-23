@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { loadApiDocIndex } from '../api-doc/load'
 import { resolveDocsPageContext } from '../core/paths'
 import { toSingleQuoted, toTitleCaseFromKey } from '../core/strings'
-import { parseSegments } from '../markdown/directives'
+import { extractDocsHeaderProps } from '../markdown/compile'
 
 export type ExamplePageStatus = 'new' | 'update' | 'unreleased'
 
@@ -13,8 +13,6 @@ const EXAMPLE_PAGE_STATUS_ALIASES = new Map<string, ExamplePageStatus>([
   ['unreleased', 'unreleased'],
   ['unrelease', 'unreleased'],
 ])
-
-const DOCS_HEADER_ALIAS_MAP = new Map<string, string>([['header', 'docs-header']])
 
 export interface ExamplePageEntry {
   key: string
@@ -45,7 +43,7 @@ async function collectMarkdownFiles(dir: string): Promise<string[]> {
       continue
     }
 
-    if (entry.isFile() && entry.name.endsWith('.md')) {
+    if (entry.isFile() && entry.name.endsWith('.mdx')) {
       files.push(fullPath)
     }
   }
@@ -76,20 +74,11 @@ function normalizeExamplePageStatus(value: unknown): ExamplePageStatus | undefin
 
 function extractExamplePageStatus(markdown: string, id: string): ExamplePageStatus | undefined {
   try {
-    const segments = parseSegments(markdown, id, { directiveAliases: DOCS_HEADER_ALIAS_MAP })
-
-    for (const segment of segments) {
-      if (segment.type !== 'docs-header') {
-        continue
-      }
-
-      return normalizeExamplePageStatus(segment.props?.status)
-    }
+    const props = extractDocsHeaderProps(markdown, id)
+    return normalizeExamplePageStatus(props?.status)
   } catch {
     return undefined
   }
-
-  return undefined
 }
 
 export function buildExamplePageEntries(

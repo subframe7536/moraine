@@ -1,0 +1,60 @@
+<DocsHeader status="new" />
+
+## Import
+
+```tsx
+import { SidebarFrame, SidebarFrameSheetResizableRender } from 'moraine'
+```
+
+## Slot Structure
+
+Root frame containing a sidebar with optional header/footer and a scrollable main area.
+
+```text
+root
+├── sidebar
+│   ├── sidebarHeader (optional)
+│   ├── sidebarBody
+│   └── sidebarFooter (optional)
+└── main
+```
+
+## Examples
+
+### Basic
+
+Desktop fixed layout with a simple header/body/main composition. Use `--sidebar-width` to control sidebar width
+
+<Example name="Basic" />
+
+### Variants
+
+Compare `default`, `floating`, and `inset` visual variants with the same content.
+
+<Example name="Variants" />
+
+### Sides
+
+Compare `side="left"` and `side="right"` desktop layouts.
+
+<Example name="Sides" />
+
+### SheetResizableRender
+
+Use `SidebarFrameSheetResizableRender` with external collapse button, `collapsibleMin`, and icon handle.
+
+<Example name="SheetResizableRender" />
+
+### ForcedMobile
+
+Force mobile mode and open the sidebar sheet from main content via `ctx.toggle`.
+
+<Example name="ForcedMobile" />
+
+### Header and Footer Slots
+
+Use optional `renderSidebarHeader` and `renderSidebarFooter` while keeping body as the scroll region.
+
+<Example name="HeaderFooterSlots" />
+
+<DocsApiReference />

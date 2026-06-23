@@ -1,0 +1,81 @@
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Select } from 'moraine'
+```
+
+## Slot Structure
+
+Trigger control and a floating listbox with grouped options.
+
+### Control
+
+```text
+control
+├── leading (Icon, optional)
+├── input
+├── clear (IconButton, optional)
+└── trigger (IconButton)
+```
+
+### Listbox
+
+```text
+content (portal)
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLabel
+│   │   ├── itemDescription (optional)
+│   │   └── itemTrailing (optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+└── empty (optional, no matches)
+```
+
+## Examples
+
+### Single Select
+
+Basic single selection with controlled value.
+
+<Example name="SingleSelect" />
+
+### Variants
+
+Visual style variants.
+
+<Example name="Variants" />
+
+### Sizes
+
+From xs to xl.
+
+<Example name="Sizes" />
+
+### Disabled
+
+Non-interactive state.
+
+<Example name="Disabled" />
+
+### Searchable
+
+Type to filter options.
+
+<Example name="Searchable" />
+
+### Grouped Options
+
+Options organized in sections.
+
+<Example name="GroupedOptions" />
+
+### Infinite Scroll
+
+Scroll to the bottom to load more options.
+
+<Example name="InfiniteScroll" />
+
+<DocsApiReference />

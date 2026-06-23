@@ -1,23 +1,24 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
-import MarkdownIt from 'markdown-it'
+import { defineHastPlugin, defineMdastPlugin, markdownToHtml, mdxToJs, mdxToMdast } from 'satteri'
+import type { Data, HastNode } from 'satteri'
 import ts from 'typescript'
 import { mergeConfig } from 'vite'
+import YAML from 'yaml'
 
 import { loadComponentApiDoc } from '../api-doc/load'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
-import { toKebabCase, toSingleQuoted } from '../core/strings'
+import { toKebabCase, toPosixPath, toSingleQuoted } from '../core/strings'
 
 import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from './descriptions'
-import { parseSegments } from './directives'
-import { parseFrontmatter } from './frontmatter'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from './shared'
-import type { CompileMarkdownOptions, MarkdownHighlightLang, ParsedSegment } from './types'
+import type { CompileMarkdownOptions, FrontmatterData, MarkdownHighlightLang } from './types'
 
 const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
   bash: 'bash',
@@ -36,17 +37,25 @@ const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
   javascript: 'javascript',
 }
 
+const DOCS_MDX_FEATURES = {
+  gfm: true,
+  frontmatter: true,
+  smartPunctuation: true,
+}
+
+const DEFAULT_TABLE_THEAD_TR_CLASS =
+  'text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase'
+const DEFAULT_TABLE_TBODY_TR_CLASS = 'b-t b-border hover:bg-muted/50'
+const DEFAULT_TABLE_TH_CLASS = 'font-medium px-3 py-2'
+const DEFAULT_TABLE_TD_CLASS = 'px-3 py-2'
+
+const BLOCK_DESCRIPTION_PATTERN = /```|(^|\n)\s*>|\n\s*\n|(^|\n)\s*(?:[-*+]|\d+\.)\s+/m
+
 interface ExampleImport {
   componentAlias: string
   codeAlias: string
   sourcePath: string
   exportName: string
-}
-
-interface SegmentLiteral {
-  code: string
-  importSpec?: ExampleImport
-  onThisPageEntries?: OnThisPageEntryLiteral[]
 }
 
 interface CodeTabItemLiteral {
@@ -59,6 +68,18 @@ interface OnThisPageEntryLiteral {
   id: string
   label: string
   level: number
+}
+
+interface ScannedExample {
+  name: string
+  source: string
+}
+
+interface ScannedMdxPage {
+  examples: ScannedExample[]
+  codeTabsPackages: string[]
+  docsHeaderProps: Record<string, unknown> | null
+  hasDocsApiReference: boolean
 }
 
 interface TocInheritedGroup {
@@ -99,8 +120,8 @@ interface SourceAttributeReference {
   slots: SourceSlotReference[]
 }
 
-function normalizeMarkdownLang(value: string): MarkdownHighlightLang | null {
-  const key = value.trim().toLowerCase()
+function normalizeMarkdownLang(value: string | null | undefined): MarkdownHighlightLang | null {
+  const key = value?.trim().toLowerCase() ?? ''
   if (!key) {
     return null
   }
@@ -109,372 +130,6 @@ function normalizeMarkdownLang(value: string): MarkdownHighlightLang | null {
 
 function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
-}
-
-function createMarkdown(
-  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
-): MarkdownIt {
-  const markdown = new MarkdownIt({
-    html: false,
-    linkify: true,
-    typographer: true,
-    highlight(source, info) {
-      if (!highlightCode) {
-        return ''
-      }
-
-      const langToken = info.trim().split(/\s+/g)[0] ?? ''
-      const lang = normalizeMarkdownLang(langToken)
-      if (!lang) {
-        return ''
-      }
-
-      return highlightCode(source, lang) ?? ''
-    },
-  })
-
-  const headingSlugCounter = new Map<string, number>()
-
-  const createHeadingSlug = (headingText: string) => {
-    const baseSlug = toAnchorSlug(headingText)
-    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
-    const nextCount = currentCount + 1
-    headingSlugCounter.set(baseSlug, nextCount)
-    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
-  }
-
-  const defaultHeadingOpenRule = markdown.renderer.rules.heading_open
-  markdown.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]!
-    const inlineToken = tokens[idx + 1]
-    const headingText = inlineToken?.type === 'inline' ? inlineToken.content : ''
-    const slug = createHeadingSlug(headingText)
-    const level = Number.parseInt(token.tag.replace('h', ''), 10)
-    const onThisPageEntries =
-      typeof env === 'object' && env !== null && 'onThisPageEntries' in env
-        ? (env as { onThisPageEntries?: OnThisPageEntryLiteral[] }).onThisPageEntries
-        : undefined
-    if (
-      Array.isArray(onThisPageEntries) &&
-      Number.isFinite(level) &&
-      level >= 2 &&
-      level <= 5 &&
-      headingText.trim()
-    ) {
-      onThisPageEntries.push({
-        id: slug,
-        label: headingText.trim(),
-        level: level - 1,
-      })
-    }
-
-    token.attrSet('id', slug)
-    token.attrJoin('class', MARKDOWN_ANCHOR_HEADING_CLASS)
-    token.attrJoin('class', `docs-h${level}`)
-    token.meta = { ...token.meta, anchorSlug: slug }
-
-    if (defaultHeadingOpenRule) {
-      return defaultHeadingOpenRule(tokens, idx, options, env, self)
-    }
-    return self.renderToken(tokens, idx, options)
-  }
-
-  const defaultHeadingCloseRule = markdown.renderer.rules.heading_close
-  markdown.renderer.rules.heading_close = (tokens, idx, options, env, self) => {
-    const openToken = tokens[idx - 2]
-    const anchorSlug =
-      typeof openToken?.meta?.anchorSlug === 'string' ? openToken.meta.anchorSlug : ''
-    const anchorHtml = anchorSlug
-      ? `<a class="${MARKDOWN_ANCHOR_LINK_CLASS}" href="#${anchorSlug}" aria-label="${DOCS_HEADING_ANCHOR_ARIA_LABEL}">#</a>`
-      : ''
-
-    if (defaultHeadingCloseRule) {
-      return `${anchorHtml}${defaultHeadingCloseRule(tokens, idx, options, env, self)}`
-    }
-
-    return `${anchorHtml}${self.renderToken(tokens, idx, options)}`
-  }
-
-  // Match our markdown-it table output to the custom PropsTable look.
-  // (Rounded wrapper, header typography, row borders/hover.)
-  const defaultTableOpenRule = markdown.renderer.rules.table_open
-  markdown.renderer.rules.table_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]!
-    token.attrSet('class', 'text-sm m-0 w-full border-collapse')
-
-    const openHtml = defaultTableOpenRule
-      ? defaultTableOpenRule(tokens, idx, options, env, self)
-      : self.renderToken(tokens, idx, options)
-
-    return `<div class="my-6 b-1 b-border rounded-lg overflow-x-auto">${openHtml}`
-  }
-
-  const defaultTableCloseRule = markdown.renderer.rules.table_close
-  markdown.renderer.rules.table_close = (tokens, idx, options, env, self) => {
-    const closeHtml = defaultTableCloseRule
-      ? defaultTableCloseRule(tokens, idx, options, env, self)
-      : self.renderToken(tokens, idx, options)
-
-    return `${closeHtml}</div>`
-  }
-
-  const DEFAULT_TABLE_THEAD_TR_CLASS =
-    'text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase'
-  const DEFAULT_TABLE_TBODY_TR_CLASS = 'b-t b-border hover:bg-muted/50'
-  const DEFAULT_TABLE_TH_CLASS = 'font-medium px-3 py-2'
-  const DEFAULT_TABLE_TD_CLASS = 'px-3 py-2'
-
-  const isInsideThead = (allTokens: Array<{ type?: string }>, trOpenIdx: number) => {
-    for (let i = trOpenIdx - 1; i >= 0; i -= 1) {
-      const type = allTokens[i]?.type
-      if (type === 'thead_open') {
-        return true
-      }
-      if (type === 'tbody_open') {
-        return false
-      }
-      if (type === 'table_open') {
-        return false
-      }
-    }
-    return false
-  }
-
-  const defaultTrOpenRule = markdown.renderer.rules.tr_open
-  markdown.renderer.rules.tr_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]!
-    const useThead = isInsideThead(tokens, idx)
-    token.attrJoin('class', useThead ? DEFAULT_TABLE_THEAD_TR_CLASS : DEFAULT_TABLE_TBODY_TR_CLASS)
-
-    if (defaultTrOpenRule) {
-      return defaultTrOpenRule(tokens, idx, options, env, self)
-    }
-    return self.renderToken(tokens, idx, options)
-  }
-
-  const defaultThOpenRule = markdown.renderer.rules.th_open
-  markdown.renderer.rules.th_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]!
-    token.attrJoin('class', DEFAULT_TABLE_TH_CLASS)
-    if (defaultThOpenRule) {
-      return defaultThOpenRule(tokens, idx, options, env, self)
-    }
-    return self.renderToken(tokens, idx, options)
-  }
-
-  const defaultTdOpenRule = markdown.renderer.rules.td_open
-  markdown.renderer.rules.td_open = (tokens, idx, options, env, self) => {
-    const token = tokens[idx]!
-    token.attrJoin('class', DEFAULT_TABLE_TD_CLASS)
-    if (defaultTdOpenRule) {
-      return defaultTdOpenRule(tokens, idx, options, env, self)
-    }
-    return self.renderToken(tokens, idx, options)
-  }
-
-  // --- Docs prose shortcut class injection ---
-  // Widget <section> elements (rendered as SolidJS JSX) never go through
-  // this pipeline, so they are automatically excluded from these styles.
-
-  markdown.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-p')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-ul')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.ordered_list_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-ol')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-li')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-a')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.code_inline = (tokens, idx) => {
-    const token = tokens[idx]!
-    return `<code class="docs-inline-code">${markdown.utils.escapeHtml(token.content)}</code>`
-  }
-
-  markdown.renderer.rules.blockquote_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-blockquote')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.strong_open = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-strong')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  markdown.renderer.rules.hr = (tokens, idx, options, env, self) => {
-    tokens[idx]!.attrJoin('class', 'docs-hr')
-    return self.renderToken(tokens, idx, options)
-  }
-
-  const defaultFenceRule = markdown.renderer.rules.fence
-  markdown.renderer.rules.fence = (tokens, idx, options, env, self) => {
-    const output = defaultFenceRule
-      ? defaultFenceRule(tokens, idx, options, env, self)
-      : self.renderToken(tokens, idx, options)
-    // Plain fallback: `<pre>` with no attributes.
-    const plainReplaced = output.replace(/^<pre>/, `<pre class="docs-pre" tabindex="-1">`)
-    if (plainReplaced !== output) {
-      return plainReplaced
-    }
-    // Shiki output: `<pre class="shiki ...">` — wrap in a styled container so it
-    // gets the same rounded border and font-size as ShikiCodeBlock.
-    const preWithPadding = output
-      .replace(/(<pre\s[^>]*class=")/, `$1text-sm m-0 p-4 `)
-      .replace(/^<pre/, '<pre tabindex="-1"')
-    return `<div class="docs-code-block"><div class="docs-code-block-inner">${preWithPadding}</div></div>`
-  }
-
-  return markdown
-}
-
-const BLOCK_DESCRIPTION_PATTERN = /```|(^|\n)\s*>|\n\s*\n|(^|\n)\s*(?:[-*+]|\d+\.)\s+/m
-
-function renderDescriptionMarkdown(value: string, markdown: MarkdownIt): string {
-  const text = value.trim()
-  if (!text) {
-    return ''
-  }
-
-  return BLOCK_DESCRIPTION_PATTERN.test(text)
-    ? markdown.render(text).trim()
-    : markdown.renderInline(text)
-}
-
-function asObjectRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null
-  }
-  return value as Record<string, unknown>
-}
-
-function renderDescriptionField<T extends Record<string, unknown>>(
-  input: T,
-  markdown: MarkdownIt,
-): T {
-  if (typeof input.description !== 'string') {
-    return input
-  }
-
-  return {
-    ...input,
-    description: renderDescriptionMarkdown(input.description, markdown),
-  }
-}
-
-function renderPropDescriptions(props: unknown, markdown: MarkdownIt): unknown[] {
-  if (!Array.isArray(props)) {
-    return []
-  }
-
-  return props.map((prop) => {
-    const record = asObjectRecord(prop)
-    return record ? renderDescriptionField(record, markdown) : prop
-  })
-}
-
-function renderItemsDescriptions(items: unknown, markdown: MarkdownIt): unknown {
-  const record = asObjectRecord(items)
-  if (!record) {
-    return items
-  }
-
-  return {
-    ...renderDescriptionField(record, markdown),
-    props: renderPropDescriptions(record.props, markdown),
-  }
-}
-
-function renderApiDocDescriptions(apiDoc: unknown, markdown: MarkdownIt): unknown {
-  const record = asObjectRecord(apiDoc)
-  if (!record) {
-    return apiDoc
-  }
-
-  const component = asObjectRecord(record.component)
-  const props = asObjectRecord(record.props)
-
-  const own = renderPropDescriptions(props?.own, markdown)
-  const inherited = Array.isArray(props?.inherited)
-    ? props!.inherited
-        .map((group) => {
-          const groupRecord = asObjectRecord(group)
-          if (!groupRecord || typeof groupRecord.from !== 'string') {
-            return null
-          }
-          groupRecord.props = renderPropDescriptions(groupRecord.props, markdown)
-          return groupRecord
-        })
-        .filter(Boolean)
-    : []
-
-  return {
-    ...record,
-    component: component ? renderDescriptionField(component, markdown) : record.component,
-    props: {
-      ...props,
-      own,
-      inherited,
-    },
-    items: renderItemsDescriptions(record.items, markdown),
-  }
-}
-
-function renderApiReferenceDescriptions(
-  model: {
-    sections: Array<{
-      id: string
-      heading: string
-      description?: string
-      nameColumn?: string
-      badges?: string[]
-      props: unknown[]
-      slots?: Array<{
-        name: string
-        cssVariables: unknown[]
-        dataAttributes: unknown[]
-        ariaAttributes: unknown[]
-      }>
-      groups?: Array<{ description: string; props: unknown[] }>
-    }>
-  } | null,
-  markdown: MarkdownIt,
-) {
-  if (!model) {
-    return model
-  }
-
-  return {
-    ...model,
-    sections: model.sections.map((section) => ({
-      ...renderDescriptionField(section, markdown),
-      props: renderPropDescriptions(section.props, markdown),
-      slots: section.slots?.map((slot) => ({
-        ...renderDescriptionField(slot, markdown),
-        cssVariables: renderPropDescriptions(slot.cssVariables, markdown),
-        dataAttributes: renderPropDescriptions(slot.dataAttributes, markdown),
-        ariaAttributes: renderPropDescriptions(slot.ariaAttributes, markdown),
-      })),
-      groups: section.groups?.map((group) => ({
-        ...renderDescriptionField(group, markdown),
-        props: renderPropDescriptions(group.props, markdown),
-      })),
-    })),
-  }
 }
 
 function escapeHtml(value: string): string {
@@ -503,6 +158,374 @@ function createCodeTabsItems(
     value: command.value,
     html: highlightCode?.(command.source, 'bash') ?? createPlainCodeBlockHtml(command.source),
   }))
+}
+
+function getNodeProperties(node: HastNode): Record<string, unknown> {
+  if (node.type !== 'element') {
+    return {}
+  }
+  return (node.properties ?? {}) as Record<string, unknown>
+}
+
+function getClassValue(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string').join(' ')
+  }
+  return ''
+}
+
+function appendClass(node: HastNode, className: string): string {
+  const current = getClassValue(getNodeProperties(node).class)
+  return current ? `${current} ${className}` : className
+}
+
+function createDocsHastPlugin(onThisPageEntries?: OnThisPageEntryLiteral[]) {
+  const headingSlugCounter = new Map<string, number>()
+
+  const createHeadingSlug = (headingText: string) => {
+    const baseSlug = toAnchorSlug(headingText)
+    const currentCount = headingSlugCounter.get(baseSlug) ?? 0
+    const nextCount = currentCount + 1
+    headingSlugCounter.set(baseSlug, nextCount)
+    return nextCount === 1 ? baseSlug : `${baseSlug}-${nextCount}`
+  }
+
+  return defineHastPlugin({
+    name: 'moraine-docs-hast',
+    element: [
+      {
+        filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+        visit(node, ctx) {
+          const level = Number.parseInt(node.tagName.replace('h', ''), 10)
+          const headingText = ctx.textContent(node).trim()
+          const slug = createHeadingSlug(headingText)
+
+          ctx.setProperty(node, 'id', slug)
+          ctx.setProperty(
+            node,
+            'class',
+            appendClass(node, `${MARKDOWN_ANCHOR_HEADING_CLASS} docs-h${level}`),
+          )
+
+          if (level >= 2 && level <= 5 && headingText) {
+            onThisPageEntries?.push({
+              id: slug,
+              label: headingText,
+              level: level - 1,
+            })
+          }
+
+          ctx.appendChild(node, {
+            type: 'element',
+            tagName: 'a',
+            properties: {
+              class: MARKDOWN_ANCHOR_LINK_CLASS,
+              href: `#${slug}`,
+              'aria-label': DOCS_HEADING_ANCHOR_ARIA_LABEL,
+            },
+            children: [{ type: 'text', value: '#' }],
+          })
+        },
+      },
+      {
+        filter: ['p'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-p'))
+        },
+      },
+      {
+        filter: ['ul'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-ul'))
+        },
+      },
+      {
+        filter: ['ol'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-ol'))
+        },
+      },
+      {
+        filter: ['li'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-li'))
+        },
+      },
+      {
+        filter: ['a'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-a'))
+        },
+      },
+      {
+        filter: ['code'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-inline-code'))
+        },
+      },
+      {
+        filter: ['blockquote'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-blockquote'))
+        },
+      },
+      {
+        filter: ['strong'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-strong'))
+        },
+      },
+      {
+        filter: ['hr'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'docs-hr'))
+        },
+      },
+      {
+        filter: ['table'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, 'text-sm m-0 w-full border-collapse'))
+          ctx.wrapNode(node, {
+            type: 'element',
+            tagName: 'div',
+            properties: {
+              class: 'my-6 b-1 b-border rounded-lg overflow-x-auto',
+            },
+            children: [],
+          })
+        },
+      },
+      {
+        filter: ['tr'],
+        visit(node, ctx) {
+          const parent = ctx.parent(node)
+          const isThead =
+            parent?.type === 'element' && 'tagName' in parent && parent.tagName === 'thead'
+          ctx.setProperty(
+            node,
+            'class',
+            appendClass(
+              node,
+              isThead ? DEFAULT_TABLE_THEAD_TR_CLASS : DEFAULT_TABLE_TBODY_TR_CLASS,
+            ),
+          )
+        },
+      },
+      {
+        filter: ['th'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, DEFAULT_TABLE_TH_CLASS))
+        },
+      },
+      {
+        filter: ['td'],
+        visit(node, ctx) {
+          ctx.setProperty(node, 'class', appendClass(node, DEFAULT_TABLE_TD_CLASS))
+        },
+      },
+    ],
+  })
+}
+
+function createDocsCodePlugin(
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+) {
+  return defineMdastPlugin({
+    name: 'moraine-docs-code',
+    code(node) {
+      const lang = normalizeMarkdownLang(node.lang)
+      const html = lang ? (highlightCode?.(node.value, lang) ?? null) : null
+      return {
+        type: 'mdxJsxFlowElement',
+        name: 'ShikiCodeBlock',
+        attributes: [
+          {
+            type: 'mdxJsxAttribute',
+            name: 'html',
+            value: {
+              type: 'mdxJsxAttributeValueExpression',
+              value: JSON.stringify(html ?? createPlainCodeBlockHtml(node.value)),
+            },
+          },
+        ],
+        children: [],
+      }
+    },
+  })
+}
+
+function assertSyncResult<T>(result: T | Promise<T>): T {
+  if (result instanceof Promise) {
+    throw new TypeError('[docs-mdx] async Satteri plugins are not supported in docs compile')
+  }
+  return result
+}
+
+function renderMarkdownHtml(
+  source: string,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): string {
+  const result = assertSyncResult(
+    markdownToHtml(source, {
+      features: DOCS_MDX_FEATURES,
+      mdastPlugins: [createDocsCodePlugin(highlightCode)],
+      hastPlugins: [createDocsHastPlugin()],
+    }),
+  )
+  return result.html
+}
+
+function stripParagraphWrapper(html: string): string {
+  const trimmed = html.trim()
+  const match = trimmed.match(/^<p class="docs-p">([\s\S]*)<\/p>$/)
+  return match?.[1] ?? trimmed
+}
+
+function renderDescriptionMarkdown(
+  value: string,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): string {
+  const text = value.trim()
+  if (!text) {
+    return ''
+  }
+
+  const html = renderMarkdownHtml(text, highlightCode)
+  return BLOCK_DESCRIPTION_PATTERN.test(text) ? html.trim() : stripParagraphWrapper(html)
+}
+
+function asObjectRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+  return value as Record<string, unknown>
+}
+
+function renderDescriptionField<T extends Record<string, unknown>>(
+  input: T,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): T {
+  if (typeof input.description !== 'string') {
+    return input
+  }
+
+  return {
+    ...input,
+    description: renderDescriptionMarkdown(input.description, highlightCode),
+  }
+}
+
+function renderPropDescriptions(
+  props: unknown,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): unknown[] {
+  if (!Array.isArray(props)) {
+    return []
+  }
+
+  return props.map((prop) => {
+    const record = asObjectRecord(prop)
+    return record ? renderDescriptionField(record, highlightCode) : prop
+  })
+}
+
+function renderItemsDescriptions(
+  items: unknown,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): unknown {
+  const record = asObjectRecord(items)
+  if (!record) {
+    return items
+  }
+
+  return {
+    ...renderDescriptionField(record, highlightCode),
+    props: renderPropDescriptions(record.props, highlightCode),
+  }
+}
+
+function renderApiDocDescriptions(
+  apiDoc: unknown,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+): unknown {
+  const record = asObjectRecord(apiDoc)
+  if (!record) {
+    return apiDoc
+  }
+
+  const component = asObjectRecord(record.component)
+  const props = asObjectRecord(record.props)
+
+  const own = renderPropDescriptions(props?.own, highlightCode)
+  const inherited = Array.isArray(props?.inherited)
+    ? props!.inherited
+        .map((group) => {
+          const groupRecord = asObjectRecord(group)
+          if (!groupRecord || typeof groupRecord.from !== 'string') {
+            return null
+          }
+          groupRecord.props = renderPropDescriptions(groupRecord.props, highlightCode)
+          return groupRecord
+        })
+        .filter(Boolean)
+    : []
+
+  return {
+    ...record,
+    component: component ? renderDescriptionField(component, highlightCode) : record.component,
+    props: {
+      ...props,
+      own,
+      inherited,
+    },
+    items: renderItemsDescriptions(record.items, highlightCode),
+  }
+}
+
+function renderApiReferenceDescriptions(
+  model: {
+    sections: Array<{
+      id: string
+      heading: string
+      description?: string
+      nameColumn?: string
+      badges?: string[]
+      props: unknown[]
+      slots?: Array<{
+        name: string
+        cssVariables: unknown[]
+        dataAttributes: unknown[]
+        ariaAttributes: unknown[]
+      }>
+      groups?: Array<{ description: string; props: unknown[] }>
+    }>
+  } | null,
+  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+) {
+  if (!model) {
+    return model
+  }
+
+  return {
+    ...model,
+    sections: model.sections.map((section) => ({
+      ...renderDescriptionField(section, highlightCode),
+      props: renderPropDescriptions(section.props, highlightCode),
+      slots: section.slots?.map((slot) => ({
+        ...renderDescriptionField(slot, highlightCode),
+        cssVariables: renderPropDescriptions(slot.cssVariables, highlightCode),
+        dataAttributes: renderPropDescriptions(slot.dataAttributes, highlightCode),
+        ariaAttributes: renderPropDescriptions(slot.ariaAttributes, highlightCode),
+      })),
+      groups: section.groups?.map((group) => ({
+        ...renderDescriptionField(group, highlightCode),
+        props: renderPropDescriptions(group.props, highlightCode),
+      })),
+    })),
+  }
 }
 
 function getJsxAttributeName(name: ts.JsxAttributeName): string | null {
@@ -900,161 +923,247 @@ function asTocApiDoc(value: unknown): TocApiDocShape | null {
   }
 }
 
-function extractHeaderApiDocOverride(segments: ParsedSegment[]): Record<string, unknown> | null {
-  for (const segment of segments) {
-    if (segment.type !== 'docs-header') {
-      continue
-    }
-
-    if (!segment.props) {
-      return null
-    }
-
-    const apiDocOverride = segment.props.apiDocOverride
-    if (!apiDocOverride || typeof apiDocOverride !== 'object' || Array.isArray(apiDocOverride)) {
-      return null
-    }
-
-    return apiDocOverride as Record<string, unknown>
+function evaluateStaticExpression(source: string, id: string, propName: string): unknown {
+  const sourceFile = ts.createSourceFile(
+    id,
+    `const value = (${source});`,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  )
+  const statement = sourceFile.statements[0]
+  if (
+    !statement ||
+    !ts.isVariableStatement(statement) ||
+    !statement.declarationList.declarations[0]?.initializer
+  ) {
+    throw new Error(`[docs-mdx] ${propName} must be a static JSON-compatible expression in ${id}`)
   }
 
-  return null
-}
-
-function buildSegmentLiterals(
-  segments: ParsedSegment[],
-  renderMarkdown: (source: string) => { html: string; onThisPageEntries: OnThisPageEntryLiteral[] },
-  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
-): SegmentLiteral[] {
-  let exampleIndex = 0
-
-  return segments.map((segment) => {
-    if (segment.type === 'markdown') {
-      const renderedMarkdown = renderMarkdown(segment.text)
-      return {
-        code: `{ type: 'markdown', html: ${JSON.stringify(renderedMarkdown.html.trim())} }`,
-        onThisPageEntries: renderedMarkdown.onThisPageEntries,
-      }
-    }
-
+  const read = (node: ts.Expression): unknown => {
     if (
-      segment.type === 'docs-header' ||
-      segment.type === 'docs-api-reference' ||
-      segment.type === 'intro-cards' ||
-      segment.type === 'intro-components' ||
-      segment.type === 'toast-hosts'
+      ts.isParenthesizedExpression(node) ||
+      ts.isAsExpression(node) ||
+      ts.isSatisfiesExpression(node)
     ) {
-      return {
-        code: `{ type: ${JSON.stringify(segment.type)}${
-          segment.props ? `, props: ${JSON.stringify(segment.props)}` : ''
-        } }`,
+      return read(node.expression)
+    }
+    if (ts.isStringLiteralLike(node)) {
+      return node.text
+    }
+    if (ts.isNumericLiteral(node)) {
+      return Number(node.text)
+    }
+    if (node.kind === ts.SyntaxKind.TrueKeyword) {
+      return true
+    }
+    if (node.kind === ts.SyntaxKind.FalseKeyword) {
+      return false
+    }
+    if (node.kind === ts.SyntaxKind.NullKeyword) {
+      return null
+    }
+    if (ts.isPrefixUnaryExpression(node) && ts.isNumericLiteral(node.operand)) {
+      const value = Number(node.operand.text)
+      return node.operator === ts.SyntaxKind.MinusToken ? -value : value
+    }
+    if (ts.isArrayLiteralExpression(node)) {
+      return node.elements.map((element) => {
+        if (!ts.isExpression(element)) {
+          throw new Error(`[docs-mdx] ${propName} arrays must contain static expressions in ${id}`)
+        }
+        return read(element)
+      })
+    }
+    if (ts.isObjectLiteralExpression(node)) {
+      const result: Record<string, unknown> = {}
+      for (const property of node.properties) {
+        if (!ts.isPropertyAssignment(property)) {
+          throw new Error(
+            `[docs-mdx] ${propName} objects must use static property assignments in ${id}`,
+          )
+        }
+        const name = property.name
+        const key = ts.isIdentifier(name) || ts.isStringLiteralLike(name) ? name.text : null
+        if (!key || !ts.isExpression(property.initializer)) {
+          throw new Error(`[docs-mdx] ${propName} object keys must be static in ${id}`)
+        }
+        result[key] = read(property.initializer)
       }
+      return result
     }
-
-    if (segment.type === 'code-tabs') {
-      return {
-        code: `{ type: 'code-tabs', items: ${JSON.stringify(
-          createCodeTabsItems(segment.packageName, highlightCode),
-        )} }`,
-      }
-    }
-
-    const componentAlias = `ExampleComponent${exampleIndex}`
-    const codeAlias = `ExampleCode${exampleIndex}`
-    exampleIndex += 1
-
-    const sourcePath = segment.source
-
-    return {
-      code: `{ type: 'example', component: ${componentAlias}, code: ${codeAlias} }`,
-      importSpec: {
-        componentAlias,
-        codeAlias,
-        sourcePath,
-        exportName: segment.name,
-      },
-    }
-  })
-}
-
-export function compileMarkdownPage(
-  markdownSource: string,
-  id: string,
-  options: CompileMarkdownOptions = {},
-): string {
-  const idWithoutQuery = id.split('?')[0] ?? id
-  const page = resolveDocsPageContext(idWithoutQuery)
-  const parsedFrontmatter = parseFrontmatter(markdownSource, idWithoutQuery)
-  const segments = parseSegments(parsedFrontmatter.content, idWithoutQuery, {
-    directiveAliases: options.directiveAliases,
-  })
-  const widgetApiDocOverride = extractHeaderApiDocOverride(segments)
-  const markdown = createMarkdown(options.highlightCode)
-  const hasDocsApiReferenceWidget = segments.some(
-    (segment) => segment.type === 'docs-api-reference',
-  )
-  const segmentLiterals = buildSegmentLiterals(
-    segments,
-    (source) => {
-      const onThisPageEntries: OnThisPageEntryLiteral[] = []
-      return {
-        html: markdown.render(source, { onThisPageEntries }),
-        onThisPageEntries,
-      }
-    },
-    options.highlightCode,
-  )
-  const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
-
-  const importLines = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
-  const segmentCodes: string[] = []
-
-  for (const literal of segmentLiterals) {
-    if (!literal.importSpec) {
-      segmentCodes.push(literal.code)
-      continue
-    }
-
-    importLines.push(
-      literal.importSpec.exportName === 'default'
-        ? `import ${literal.importSpec.componentAlias} from ${toSingleQuoted(literal.importSpec.sourcePath)}`
-        : `import { ${literal.importSpec.exportName} as ${literal.importSpec.componentAlias} } from ${toSingleQuoted(
-            literal.importSpec.sourcePath,
-          )}`,
-    )
-
-    importLines.push(
-      `import ${literal.importSpec.codeAlias} from ${toSingleQuoted(
-        `${literal.importSpec.sourcePath}?example-source&name=${encodeURIComponent(
-          literal.importSpec.exportName,
-        )}`,
-      )}`,
-    )
-
-    segmentCodes.push(literal.code)
+    throw new Error(`[docs-mdx] ${propName} must be a static JSON-compatible expression in ${id}`)
   }
 
-  const loadedApiDoc = options.projectRoot
-    ? loadComponentApiDoc(options.projectRoot, page.pageKey)
-    : null
+  return read(statement.declarationList.declarations[0].initializer)
+}
 
-  const mergedApiDoc =
-    widgetApiDocOverride && loadedApiDoc
-      ? mergeConfig(loadedApiDoc, widgetApiDocOverride)
-      : (loadedApiDoc ?? widgetApiDocOverride)
-  const tocApiDoc = asTocApiDoc(mergedApiDoc)
-  const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, markdown)
+function getMdxAttributeValue(attribute: unknown, id: string): { name: string; value: unknown } {
+  const record = asObjectRecord(attribute)
+  if (!record || record.type !== 'mdxJsxAttribute' || typeof record.name !== 'string') {
+    throw new Error(`[docs-mdx] unsupported MDX attribute in ${id}`)
+  }
 
-  const shouldExposeComponentKey = Boolean(mergedApiDoc)
-  const onThisPageEntries: OnThisPageEntryLiteral[] = []
+  if (!('value' in record) || record.value === null || record.value === undefined) {
+    return { name: record.name, value: true }
+  }
+
+  if (typeof record.value === 'string') {
+    return { name: record.name, value: record.value }
+  }
+
+  const expression = asObjectRecord(record.value)
+  if (
+    expression?.type === 'mdxJsxAttributeValueExpression' &&
+    typeof expression.value === 'string'
+  ) {
+    return {
+      name: record.name,
+      value: evaluateStaticExpression(expression.value, id, record.name),
+    }
+  }
+
+  throw new Error(`[docs-mdx] unsupported value for "${record.name}" in ${id}`)
+}
+
+function getStaticMdxAttributes(node: Record<string, unknown>, id: string) {
+  const props: Record<string, unknown> = {}
+  const attributes = Array.isArray(node.attributes) ? node.attributes : []
+  for (const attribute of attributes) {
+    const { name, value } = getMdxAttributeValue(attribute, id)
+    props[name] = value
+  }
+  return props
+}
+
+function walkMdast(node: unknown, visit: (node: Record<string, unknown>) => void) {
+  const record = asObjectRecord(node)
+  if (!record) {
+    return
+  }
+
+  visit(record)
+
+  if (Array.isArray(record.children)) {
+    for (const child of record.children) {
+      walkMdast(child, visit)
+    }
+  }
+}
+
+function scanMdxPage(source: string, id: string): ScannedMdxPage {
+  const tree = mdxToMdast(source, { features: DOCS_MDX_FEATURES })
+  const examples: ScannedExample[] = []
+  const codeTabsPackages: string[] = []
+  let docsHeaderProps: Record<string, unknown> | null = null
+  let hasDocsApiReference = false
+
+  walkMdast(tree, (node) => {
+    if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') {
+      return
+    }
+
+    if (typeof node.name !== 'string') {
+      return
+    }
+
+    const props = getStaticMdxAttributes(node, id)
+
+    if (node.name === 'DocsHeader') {
+      docsHeaderProps ??= props
+      return
+    }
+
+    if (node.name === 'DocsApiReference') {
+      hasDocsApiReference = true
+      return
+    }
+
+    if (node.name === 'Example') {
+      const name = props.name
+      if (typeof name !== 'string' || !name.trim()) {
+        throw new Error(`[docs-mdx] <Example /> requires a static "name" string in ${id}`)
+      }
+      const sourcePath = props.source
+      examples.push({
+        name: name.trim(),
+        source:
+          typeof sourcePath === 'string' && sourcePath.trim()
+            ? toPosixPath(sourcePath.trim())
+            : createDefaultExampleSource(id, name.trim()),
+      })
+      return
+    }
+
+    if (node.name === 'CodeTabs') {
+      const packageName = props.package
+      if (typeof packageName !== 'string' || !packageName.trim()) {
+        throw new Error(`[docs-mdx] <CodeTabs /> requires a static "package" string in ${id}`)
+      }
+      codeTabsPackages.push(packageName.trim())
+    }
+  })
+
+  return {
+    examples,
+    codeTabsPackages: [...new Set(codeTabsPackages)],
+    docsHeaderProps,
+    hasDocsApiReference,
+  }
+}
+
+function createDefaultExampleSource(id: string, exampleName: string): string {
+  const page = resolveDocsPageContext(id)
+  const pageBaseName = path.basename(page.relativePath, '.mdx')
+  const parentDirectory = path.basename(path.dirname(page.relativePath))
+  const relativeDirectory = toPosixPath(path.dirname(page.relativePath))
+  const isGroupLevelPage = Boolean(page.group) && relativeDirectory === page.group
+  const examplesPrefix =
+    parentDirectory === pageBaseName && !isGroupLevelPage
+      ? './examples'
+      : `./${pageBaseName}/examples`
+
+  return `${examplesPrefix}/${toKebabCase(exampleName)}.tsx`
+}
+
+function parseFrontmatterData(raw: string | null | undefined, id: string): FrontmatterData {
+  if (!raw?.trim()) {
+    return {}
+  }
+
+  let parsed: unknown
+  try {
+    parsed = YAML.parse(raw)
+  } catch (error) {
+    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: ${String(error)}`)
+  }
+
+  if (parsed && (typeof parsed !== 'object' || Array.isArray(parsed))) {
+    throw new Error(`[docs-mdx] frontmatter must be an object in ${id}`)
+  }
+
+  return (parsed ?? {}) as FrontmatterData
+}
+
+function asStaticApiDocOverride(value: unknown, id: string): Record<string, unknown> | null {
+  if (value === undefined || value === null) {
+    return null
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`[docs-mdx] apiDocOverride must be a static object in ${id}`)
+  }
+  return value as Record<string, unknown>
+}
+
+function createApiReferenceModel(
+  tocApiDoc: TocApiDocShape | null,
+  hasDocsApiReferenceWidget: boolean,
+  sourceAttributes: SourceAttributeReference,
+) {
   const hasMainSlots = Boolean(tocApiDoc?.slots.length)
   const hasMainProps = Boolean(tocApiDoc?.props.own.length)
   const hasMainItems = Boolean(tocApiDoc?.items)
   const hasMainInherited = Boolean(tocApiDoc?.props.inherited.length)
-  const sourceAttributes = extractSourceAttributeReference(
-    options.projectRoot,
-    tocApiDoc?.component.sourcePath,
-  )
   const hasMainAria = sourceAttributes.aria.length > 0
   const hasMainDataAttributes = sourceAttributes.data.length > 0
   const hasGlobalAria = !hasMainSlots && hasMainAria
@@ -1067,91 +1176,172 @@ export function compileMarkdownPage(
     hasGlobalAria ||
     hasGlobalDataAttributes
 
-  const apiReferenceModel =
-    tocApiDoc && hasDocsApiReferenceWidget && hasMainApiReference
-      ? (() => {
-          const sections: Array<{
-            id: string
-            heading: string
-            description?: string
-            nameColumn?: string
-            badges?: string[]
-            props: unknown[]
-            slots?: SourceSlotReference[]
-            groups?: Array<{ description: string; props: unknown[] }>
-          }> = []
-
-          if (hasMainSlots) {
-            sections.push({
-              id: 'attributes',
-              heading: 'Attributes',
-              slots: createSlotReferenceDocs(tocApiDoc.slots, sourceAttributes),
-              props: [],
-            })
-          }
-
-          if (hasMainProps) {
-            sections.push({
-              id: 'api-props',
-              heading: 'Props',
-              props: tocApiDoc.props.own,
-            })
-          }
-
-          if (hasMainItems) {
-            const itemsDoc = tocApiDoc.items as
-              | { description?: string; props?: unknown[] }
-              | undefined
-            sections.push({
-              id: 'api-items',
-              heading: 'Items',
-              description: itemsDoc?.description,
-              props: itemsDoc?.props ?? [],
-            })
-          }
-
-          if (hasGlobalAria) {
-            sections.push({
-              id: 'api-aria',
-              heading: 'ARIA',
-              description: 'Accessibility attributes and roles emitted by the component markup.',
-              nameColumn: 'Attribute',
-              props: sourceAttributes.aria,
-            })
-          }
-
-          if (hasGlobalDataAttributes) {
-            sections.push({
-              id: 'api-data-attributes',
-              heading: 'Data Attributes',
-              description: 'State and slot attributes exposed for styling hooks and selectors.',
-              nameColumn: 'Attribute',
-              props: sourceAttributes.data,
-            })
-          }
-
-          if (hasMainInherited) {
-            sections.push({
-              id: 'api-inherited',
-              heading: 'Inherited',
-              props: [],
-              groups: tocApiDoc.props.inherited.map((group) => ({
-                description: `From ${group.from}`,
-                props: group.props,
-              })),
-            })
-          }
-
-          return { sections }
-        })()
-      : null
-  const renderedApiReferenceModel = renderApiReferenceDescriptions(apiReferenceModel, markdown)
-  for (const segment of segmentLiterals) {
-    if (segment.onThisPageEntries) {
-      onThisPageEntries.push(...segment.onThisPageEntries)
-    }
+  if (!tocApiDoc || !hasDocsApiReferenceWidget || !hasMainApiReference) {
+    return null
   }
-  if (hasDocsApiReferenceWidget && renderedApiReferenceModel) {
+
+  const sections: Array<{
+    id: string
+    heading: string
+    description?: string
+    nameColumn?: string
+    badges?: string[]
+    props: unknown[]
+    slots?: SourceSlotReference[]
+    groups?: Array<{ description: string; props: unknown[] }>
+  }> = []
+
+  if (hasMainSlots) {
+    sections.push({
+      id: 'attributes',
+      heading: 'Attributes',
+      slots: createSlotReferenceDocs(tocApiDoc.slots, sourceAttributes),
+      props: [],
+    })
+  }
+
+  if (hasMainProps) {
+    sections.push({
+      id: 'api-props',
+      heading: 'Props',
+      props: tocApiDoc.props.own,
+    })
+  }
+
+  if (hasMainItems) {
+    const itemsDoc = tocApiDoc.items as { description?: string; props?: unknown[] } | undefined
+    sections.push({
+      id: 'api-items',
+      heading: 'Items',
+      description: itemsDoc?.description,
+      props: itemsDoc?.props ?? [],
+    })
+  }
+
+  if (hasGlobalAria) {
+    sections.push({
+      id: 'api-aria',
+      heading: 'ARIA',
+      description: 'Accessibility attributes and roles emitted by the component markup.',
+      nameColumn: 'Attribute',
+      props: sourceAttributes.aria,
+    })
+  }
+
+  if (hasGlobalDataAttributes) {
+    sections.push({
+      id: 'api-data-attributes',
+      heading: 'Data Attributes',
+      description: 'State and slot attributes exposed for styling hooks and selectors.',
+      nameColumn: 'Attribute',
+      props: sourceAttributes.data,
+    })
+  }
+
+  if (hasMainInherited) {
+    sections.push({
+      id: 'api-inherited',
+      heading: 'Inherited',
+      props: [],
+      groups: tocApiDoc.props.inherited.map((group) => ({
+        description: `From ${group.from}`,
+        props: group.props,
+      })),
+    })
+  }
+
+  return { sections }
+}
+
+function stripMdxDefaultExport(code: string): string {
+  return code.replace(/\n?export default MDXContent;\s*/, '\n')
+}
+
+export function extractDocsHeaderProps(source: string, id: string): Record<string, unknown> | null {
+  try {
+    return scanMdxPage(source, id).docsHeaderProps
+  } catch {
+    return null
+  }
+}
+
+export function compileMarkdownPage(
+  markdownSource: string,
+  id: string,
+  options: CompileMarkdownOptions = {},
+): string {
+  const idWithoutQuery = id.split('?')[0] ?? id
+  const page = resolveDocsPageContext(idWithoutQuery)
+  const scannedPage = scanMdxPage(markdownSource, idWithoutQuery)
+  const onThisPageEntries: OnThisPageEntryLiteral[] = []
+  const mdxResult = assertSyncResult(
+    mdxToJs(markdownSource, {
+      jsxImportSource: 'solid-js/h',
+      elementAttributeNameCase: 'html',
+      stylePropertyNameCase: 'css',
+      features: DOCS_MDX_FEATURES,
+      fileURL: pathToFileURL(idWithoutQuery),
+      data: {} satisfies Data,
+      mdastPlugins: [createDocsCodePlugin(options.highlightCode)],
+      hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
+    }),
+  )
+  const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
+  const widgetApiDocOverride = asStaticApiDocOverride(
+    scannedPage.docsHeaderProps?.apiDocOverride,
+    idWithoutQuery,
+  )
+  const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
+  const importLines = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
+  const exampleImports: ExampleImport[] = scannedPage.examples.map((example, index) => ({
+    componentAlias: `ExampleComponent${index}`,
+    codeAlias: `ExampleCode${index}`,
+    sourcePath: example.source,
+    exportName: example.name,
+  }))
+
+  for (const importSpec of exampleImports) {
+    importLines.push(
+      importSpec.exportName === 'default'
+        ? `import ${importSpec.componentAlias} from ${toSingleQuoted(importSpec.sourcePath)}`
+        : `import { ${importSpec.exportName} as ${importSpec.componentAlias} } from ${toSingleQuoted(
+            importSpec.sourcePath,
+          )}`,
+    )
+
+    importLines.push(
+      `import ${importSpec.codeAlias} from ${toSingleQuoted(
+        `${importSpec.sourcePath}?example-source&name=${encodeURIComponent(importSpec.exportName)}`,
+      )}`,
+    )
+  }
+
+  const loadedApiDoc = options.projectRoot
+    ? loadComponentApiDoc(options.projectRoot, page.pageKey)
+    : null
+
+  const mergedApiDoc =
+    widgetApiDocOverride && loadedApiDoc
+      ? mergeConfig(loadedApiDoc, widgetApiDocOverride)
+      : (loadedApiDoc ?? widgetApiDocOverride)
+  const tocApiDoc = asTocApiDoc(mergedApiDoc)
+  const renderedApiDoc = renderApiDocDescriptions(mergedApiDoc, options.highlightCode)
+  const shouldExposeComponentKey = Boolean(mergedApiDoc)
+  const sourceAttributes = extractSourceAttributeReference(
+    options.projectRoot,
+    tocApiDoc?.component.sourcePath,
+  )
+  const apiReferenceModel = createApiReferenceModel(
+    tocApiDoc,
+    scannedPage.hasDocsApiReference,
+    sourceAttributes,
+  )
+  const renderedApiReferenceModel = renderApiReferenceDescriptions(
+    apiReferenceModel,
+    options.highlightCode,
+  )
+
+  if (scannedPage.hasDocsApiReference && renderedApiReferenceModel) {
     onThisPageEntries.push({
       id: 'api-ref',
       label: 'API Reference',
@@ -1165,25 +1355,54 @@ export function compileMarkdownPage(
       })
     }
   }
+
+  const examplesLiteral = Object.fromEntries(
+    exampleImports.map((example) => [
+      example.exportName,
+      {
+        component: `__COMPONENT_${example.componentAlias}__`,
+        code: `__CODE_${example.codeAlias}__`,
+      },
+    ]),
+  )
+  const examplesCode = JSON.stringify(examplesLiteral)
+    .replaceAll(/"__COMPONENT_(ExampleComponent\d+)__"/g, '$1')
+    .replaceAll(/"__CODE_(ExampleCode\d+)__"/g, '$1')
+  const codeTabsCode = JSON.stringify(
+    Object.fromEntries(
+      scannedPage.codeTabsPackages.map((packageName) => [
+        packageName,
+        createCodeTabsItems(packageName, options.highlightCode),
+      ]),
+    ),
+  )
+
   const configFields = [
     shouldExposeComponentKey ? `componentKey: ${JSON.stringify(page.pageKey)}` : '',
-    Object.keys(parsedFrontmatter.data).length > 0
-      ? `frontmatter: ${JSON.stringify(parsedFrontmatter.data)}`
+    Object.keys(parsedFrontmatter).length > 0
+      ? `frontmatter: ${JSON.stringify(parsedFrontmatter)}`
       : '',
     renderedApiDoc ? `apiDoc: ${JSON.stringify(renderedApiDoc)}` : '',
     renderedApiReferenceModel ? `apiReference: ${JSON.stringify(renderedApiReferenceModel)}` : '',
     `onThisPageEntries: ${JSON.stringify(onThisPageEntries)}`,
-    'segments',
+    'Content: MDXContent',
+    'examples',
+    'codeTabs',
   ].filter(Boolean)
 
   return [
     ...importLines,
     '',
-    `const segments = [${segmentCodes.join(', ')}]`,
+    stripMdxDefaultExport(mdxResult.code),
+    `const examples = ${examplesCode}`,
+    `const codeTabs = ${codeTabsCode}`,
     '',
     'export default function MarkdownPage() {',
     `  return Markdown({ ${configFields.join(', ')} })`,
     '}',
     '',
-  ].join('\n')
+  ]
+    .join('\n')
+    .replaceAll(/"__COMPONENT_(ExampleComponent\d+)__"/g, '$1')
+    .replaceAll(/"__CODE_(ExampleCode\d+)__"/g, '$1')
 }

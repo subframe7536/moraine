@@ -1,0 +1,67 @@
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Avatar } from 'moraine'
+```
+
+## Slot Structure
+
+Single avatar with image fallback, or a group of avatars with an overflow counter.
+
+### Single avatar
+
+```text
+root
+├── image
+├── fallback
+│   └── fallbackIcon (Icon, optional)
+└── badge (optional)
+```
+
+### Group avatar
+
+```text
+group
+├── groupCount (optional, overflow count)
+└── groupItem (×n)
+    ├── image
+    ├── fallback
+    │   └── fallbackIcon (Icon, optional)
+    └── badge (optional)
+```
+
+## Examples
+
+### Single Avatar
+
+Fallback first, then image crossfades in after preload.
+
+<Example name="SingleAvatar" />
+
+### Sizes
+
+Scale from `xs` to `xl` for single and grouped avatar contexts.
+
+<Example name="Sizes" />
+
+### Fallback Modes
+
+Text, initials-from-alt and fallback icon.
+
+<Example name="FallbackModes" />
+
+### Badge Positions
+
+Top/bottom + left/right corner badge.
+
+<Example name="BadgePositions" />
+
+### Merged Group Mode
+
+Use the same Avatar component with items.
+
+<Example name="MergedGroupMode" />
+
+<DocsApiReference />

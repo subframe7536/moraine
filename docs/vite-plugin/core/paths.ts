@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { toPosixPath } from './strings'
 
-export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.md$/
+export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
 
 export interface DocsPageContext {
   absolutePath: string
@@ -15,7 +15,7 @@ export interface DocsPageContext {
 }
 
 function derivePageKey(relativePath: string): string {
-  const fileBaseName = path.basename(relativePath, '.md')
+  const fileBaseName = path.basename(relativePath, '.mdx')
   const parentDirectory = path.basename(path.dirname(relativePath))
   return parentDirectory === fileBaseName ? parentDirectory : fileBaseName
 }

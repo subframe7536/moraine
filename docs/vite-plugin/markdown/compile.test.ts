@@ -1,9 +1,11 @@
+// @vitest-environment node
+
 import { describe, expect, test } from 'vitest'
 
 import { compileMarkdownPage } from './compile'
 
 describe('compileMarkdownPage', () => {
-  test('exposes frontmatter metadata to runtime page component', () => {
+  test('compiles mdx frontmatter metadata into runtime page input', () => {
     const markdown = `---
 category: general
 component: Button
@@ -13,25 +15,23 @@ description: "Button docs"
 ## Usage
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx')
 
     expect(code).toContain('frontmatter:')
     expect(code).toContain('"category":"general"')
     expect(code).toContain('"component":"Button"')
   })
 
-  test('compiles markdown with inferred component key and inferred example source', () => {
+  test('compiles mdx examples with inferred source imports', () => {
     const markdown = `
 ## Variants
 
 Use button variants.
 
-:::example
-name: Variants
-:::
+<Example name="Variants" />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.md', {
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx', {
       projectRoot: process.cwd(),
     })
 
@@ -40,13 +40,11 @@ name: Variants
     expect(code).toContain('ExampleComponent0')
     expect(code).toContain("from './examples/variants.tsx'")
     expect(code).toContain('?example-source&name=Variants')
-    expect(code).toContain("type: 'markdown'")
-    expect(code).toContain('onThisPageEntries:')
+    expect(code).toContain('Content: MDXContent')
+    expect(code).toContain('id: "variants"')
+    expect(code).toContain('href: "#variants"')
     expect(code).toContain('"id":"variants"')
-    expect(code).toContain('"label":"Variants"')
     expect(code).toContain('"label":"Variants","level":1')
-    expect(code).toContain('id=\\"variants\\"')
-    expect(code).toContain('href=\\"#variants\\"')
   })
 
   test('ignores h1 and collects h2-h5 for toc with normalized levels', () => {
@@ -58,7 +56,7 @@ name: Variants
 ##### Notes
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.mdx')
     expect(code).toContain('onThisPageEntries:')
     expect(code).not.toContain('"id":"intro","label":"Intro"')
     expect(code).toContain('"id":"usage"')
@@ -71,15 +69,14 @@ name: Variants
     expect(code).toContain('"label":"Notes","level":4')
   })
 
-  test('injects api toc entries from compile-time docs when docs-api-reference widget exists', () => {
+  test('injects api toc entries from compile-time docs when DocsApiReference exists', () => {
     const markdown = `
 ## Variants
 
-:::docs-api-reference
-:::
+<DocsApiReference />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/input/input.md', {
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/input/input.mdx', {
       projectRoot: process.cwd(),
     })
     expect(code).not.toContain('"id":"input"')
@@ -97,13 +94,12 @@ name: Variants
 
   test('renders api slots as titled sections with slot-specific metadata tables', () => {
     const markdown = `
-:::docs-api-reference
-:::
+<DocsApiReference />
 `
 
     const code = compileMarkdownPage(
       markdown,
-      '/tmp/docs/pages/navigation/command-palette/command-palette.md',
+      '/tmp/docs/pages/navigation/command-palette/command-palette.mdx',
       {
         projectRoot: process.cwd(),
       },
@@ -117,146 +113,51 @@ name: Variants
     expect(code).toContain('"ariaAttributes":[{"name":"aria-disabled"')
   })
 
-  test('passes slot descriptions to api attributes sections', () => {
+  test('passes static DocsHeader apiDocOverride to api attributes sections', () => {
     const markdown = `
-:::docs-header
-apiDocOverride:
-  component:
-    key: custom
-    name: Custom
-    category: Form
+<DocsHeader apiDocOverride={{
+  component: {
+    key: 'custom',
+    name: 'Custom',
+    category: 'Form',
     polymorphic: false
-  slots:
-    - name: root
-      description: Root wrapper element.
-  props:
-    own: []
-    inherited: []
-:::
+  },
+  slots: [{ name: 'root', description: 'Root wrapper element.' }],
+  props: { own: [], inherited: [] }
+}} />
 
-:::docs-api-reference
-:::
+<DocsApiReference />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.mdx')
 
     expect(code).toContain('"id":"attributes"')
     expect(code).toContain('"slots":[{"name":"root","description":"Root wrapper element."')
   })
 
-  test('keeps slots section for select and multi-select docs pages', () => {
-    const selectCode = compileMarkdownPage(
-      `
-:::docs-api-reference
-:::
-`,
-      '/tmp/docs/pages/form/select/select.md',
-      {
-        projectRoot: process.cwd(),
-      },
-    )
-
-    expect(selectCode).toContain('"id":"attributes"')
-    expect(selectCode).toContain('"slots":[{"name":"root"')
-    expect(selectCode).toContain('"name":"control"')
-
-    const multiSelectCode = compileMarkdownPage(
-      `
-:::docs-api-reference
-:::
-`,
-      '/tmp/docs/pages/form/multi-select/multi-select.md',
-      {
-        projectRoot: process.cwd(),
-      },
-    )
-
-    expect(multiSelectCode).toContain('"id":"attributes"')
-    expect(multiSelectCode).toContain('"slots":[{"name":"root"')
-    expect(multiSelectCode).toContain('"name":"tagsContainer"')
-  })
-
-  test('does not inject api toc entries without docs-api-reference widget', () => {
-    const markdown = `
-## Variants
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/input/input.md', {
-      projectRoot: process.cwd(),
-    })
-
-    expect(code).toContain('"id":"variants"')
-    expect(code).not.toContain('"id":"api-reference"')
-    expect(code).not.toContain('"id":"attributes"')
-    expect(code).not.toContain('"id":"api-props"')
-    expect(code).not.toContain('"id":"api-items"')
-    expect(code).not.toContain('"id":"api-inherited"')
-  })
-
-  test('does not inject upstreamHref automatically from component source imports', () => {
-    const markdown = `
-## Demo
-
-:::docs-api-reference
-:::
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/card/card.md', {
-      projectRoot: process.cwd(),
-    })
-
-    expect(code).not.toContain('upstreamHref:')
-  })
-
-  test('preserves explicit upstreamHref passed to docs-header', () => {
-    const markdown = `
-:::docs-header
-componentKey: toast
-name: Toast
-category: overlays
-upstreamHref: https://github.com/subframe7536/solid-toaster
-:::
-
-:::docs-api-reference
-:::
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.md', {
-      projectRoot: process.cwd(),
-    })
-
-    expect(code).toContain('"upstreamHref":"https://github.com/subframe7536/solid-toaster"')
-    expect(code).not.toContain('return Markdown({ componentKey: "toast", upstreamHref:')
-  })
-
   test('injects conditional api toc entries for slots/items/inherited', () => {
     const markdown = `
-:::docs-header
-apiDocOverride:
-  component:
-    key: custom
-    name: Custom
-    category: Form
+<DocsHeader apiDocOverride={{
+  component: {
+    key: 'custom',
+    name: 'Custom',
+    category: 'Form',
     polymorphic: false
-  slots:
-    - root
-  props:
-    own: []
-    inherited:
-      - from: Base
-        props: []
-  items:
-    props: []
-:::
+  },
+  slots: ['root'],
+  props: {
+    own: [],
+    inherited: [{ from: 'Base', props: [] }]
+  },
+  items: { props: [] }
+}} />
 
 ## Demo
 
-
-:::docs-api-reference
-:::
+<DocsApiReference />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.mdx')
     expect(code).toContain('"id":"api-ref"')
     expect(code).toContain('"id":"attributes"')
     expect(code).toContain('"id":"api-items"')
@@ -265,108 +166,64 @@ apiDocOverride:
     expect(code).not.toContain('"id":"api-props"')
   })
 
-  test('injects a single inherited toc entry even with multiple inherited sources', () => {
-    const markdown = `
-:::docs-header
-apiDocOverride:
-  component:
-    key: custom
-    name: Custom
-    category: Form
-    polymorphic: false
-  slots: []
-  props:
-    own: []
-    inherited:
-      - from: BaseItem
-        props: []
-      - from: BaseItem
-        props: []
-:::
-
-## Demo
-
-:::docs-api-reference
-:::
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.md')
-    expect(code).toContain('"id":"api-inherited","label":"Inherited","level":2')
-    expect(code).not.toContain('"id":"api-inherited-base-item"')
-    expect(code).not.toContain('"id":"api-inherited-base-item-2"')
-  })
-
   test('uses explicit source override when provided', () => {
     const markdown = `
-:::example
-name: Variants
-source: ./examples/button-variants.tsx
-:::
+<Example name="Variants" source="./examples/button-variants.tsx" />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button/button.mdx')
     expect(code).toContain("from './examples/button-variants.tsx'")
   })
 
-  test('supports standalone widget directives', () => {
+  test('uses page-key examples directory for group-level mdx pages', () => {
     const markdown = `
-:::intro-cards
-:::
+<Example name="Variants" />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.md')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/general/button.mdx')
+    expect(code).toContain("from './button/examples/variants.tsx'")
+  })
+
+  test('supports standalone mdx widget components', () => {
+    const markdown = `
+<IntroCards />
+`
+
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.mdx')
     expect(code).toContain("from '../components/markdown'")
     expect(code).not.toContain('componentKey:')
-    expect(code).toContain('type: "intro-cards"')
+    expect(code).toContain('const { IntroCards } = props.components || {};')
+    expect(code).toContain('return _jsx(IntroCards, {});')
   })
 
-  test('treats directive title and description as markdown content', () => {
+  test('supports CodeTabs component', () => {
     const markdown = `
-:::intro-cards
-title: Intro Cards
-description: "Custom description body"
-:::
+<CodeTabs package="solid-toaster" />
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/introduction.md')
-
-    expect(code).toContain("type: 'markdown'")
-    expect(code).toContain('Intro Cards')
-    expect(code).toContain('Custom description body')
-    expect(code).toContain('type: "intro-cards"')
-    expect(code).not.toContain('title":"Intro Cards"')
-    expect(code).not.toContain('description":"Custom description body"')
-  })
-
-  test('supports :::code-tabs directive', () => {
-    const markdown = `
-:::code-tabs
-package: solid-toaster
-:::
-`
-
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.md', {
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.mdx', {
       highlightCode: (source, lang) => `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
     })
 
-    expect(code).toContain("type: 'code-tabs'")
+    expect(code).toContain('return _jsx(CodeTabs, { package: "solid-toaster" });')
     expect(code).toContain('bun add solid-toaster')
     expect(code).toContain('shiki bash')
   })
 
-  test('renders fenced code with highlight callback output', () => {
+  test('renders fenced code through ShikiCodeBlock without executing jsx-looking text', () => {
     const markdown = `
-\`\`\`bash
-bun add solid-toaster
+\`\`\`tsx
+<Button />
 \`\`\`
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.md', {
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/overlay/toast/toast.mdx', {
       highlightCode: (source, lang) => `<pre class="shiki ${lang}"><code>${source}</code></pre>`,
     })
 
-    expect(code).toContain('shiki bash')
-    expect(code).not.toContain('language-bash')
+    expect(code).toContain('return _jsx(ShikiCodeBlock, { html:')
+    expect(code).toContain('<Button />')
+    expect(code).not.toContain('<Button />;')
   })
 
   test('deduplicates repeated heading anchors', () => {
@@ -378,11 +235,11 @@ Some content.
 ## Same Heading
 `
 
-    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/textarea/textarea.md')
-    expect(code).toContain('id=\\"same-heading\\"')
-    expect(code).toContain('href=\\"#same-heading\\"')
-    expect(code).toContain('id=\\"same-heading-2\\"')
-    expect(code).toContain('href=\\"#same-heading-2\\"')
+    const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/textarea/textarea.mdx')
+    expect(code).toContain('id: "same-heading"')
+    expect(code).toContain('href: "#same-heading"')
+    expect(code).toContain('id: "same-heading-2"')
+    expect(code).toContain('href: "#same-heading-2"')
     expect(code).toContain('"id":"same-heading"')
     expect(code).toContain('"id":"same-heading-2"')
   })

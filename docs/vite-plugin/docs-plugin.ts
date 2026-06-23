@@ -11,7 +11,6 @@ import {
   loadDocsVirtualModule,
   resolveDocsVirtualId,
 } from './plugins/virtual-modules'
-import { createDocsPluginRegistry } from './registry'
 
 const VIRTUAL_ID_FILTER = new RegExp(
   `${exactRegex(VIRTUAL_API_DOC).source}|${exactRegex(VIRTUAL_EXAMPLE_PAGES).source}`,
@@ -23,9 +22,8 @@ export interface DocsPluginOptions {
 }
 
 export function docsPlugin(options: DocsPluginOptions = {}): Plugin {
-  const registry = createDocsPluginRegistry()
   let projectRoot = ''
-  const transformHandler = createDocsTransformHandler(() => projectRoot, registry)
+  const transformHandler = createDocsTransformHandler(() => projectRoot)
 
   return {
     name: 'moraine-docs',

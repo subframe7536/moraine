@@ -1,0 +1,40 @@
+<DocsHeader />
+
+## Import
+
+```tsx
+import { Collapsible } from 'moraine'
+```
+
+## Slot Structure
+
+Single expandable section with a trigger slot.
+
+```text
+root
+├── trigger
+└── content-wrapper
+    └── content
+```
+
+## Examples
+
+### Uncontrolled and Transition
+
+FAQ pattern with optional height transition. Spacing belongs inside the content so the wrapper can collapse without layout shifts.
+
+<Example name="Uncontrolled" />
+
+### Controlled and Disabled
+
+External state controls a billing panel and can temporarily disable the trigger while an operation is locked.
+
+<Example name="Controlled" />
+
+### Stateful Trigger
+
+Compose a compact row where only the icon button toggles detail content.
+
+<Example name="Stateful" />
+
+<DocsApiReference />

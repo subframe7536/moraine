@@ -83,7 +83,7 @@ export default defineConfig<PresetWind4Theme>({
     pipeline: {
       include: [
         './**/*.tsx',
-        './**/*.md',
+        './**/*.mdx',
         './**/*.class.ts',
         '../src/**/*.tsx',
         '../src/**/*.class.ts',

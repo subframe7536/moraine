@@ -285,9 +285,7 @@ describe('animations', () => {
     expect(css).toContain('--mo-sidebar-frame-sidebar-width: clamp(14rem,20vw,20rem)')
     expect(css).toContain('--mo-sidebar-frame-sidebar-width: 16rem')
     expect(css).toContain('--mo-sidebar-frame-sidebar-width: 18rem')
-    expect(css).toContain(
-      'width: var(--mo-sidebar-frame-sidebar-width,clamp(14rem, 20vw, 20rem))',
-    )
+    expect(css).toContain('width: var(--mo-sidebar-frame-sidebar-width,clamp(14rem, 20vw, 20rem))')
   })
 })
 

@@ -16,14 +16,13 @@
         "@subf/config": "^0.2.1",
         "@subf/unocss": "^0.2.0",
         "@types/bun": "^1.3.14",
-        "@types/markdown-it": "^14.1.2",
         "bumpp": "^11.1.0",
         "jsdom": "^29.1.1",
-        "markdown-it": "^14.2.0",
         "oxc-parser": "^0.135.0",
         "oxfmt": "^0.54.0",
         "oxlint": "^1.69.0",
         "rolldown-plugin-unocss": "^0.1.0",
+        "satteri": "^0.9.1",
         "shiki": "^4.2.0",
         "solid-toaster": "^0.1.5",
         "tailwindcss": "^4.3.1",
@@ -98,6 +97,16 @@
     "@babel/types": ["@babel/types@7.29.7", "https://registry.npmmirror.com/@babel/types/-/types-7.29.7.tgz", { "dependencies": { "@babel/helper-string-parser": "^7.29.7", "@babel/helper-validator-identifier": "^7.29.7" } }, "sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA=="],
 
     "@bramus/specificity": ["@bramus/specificity@2.4.2", "https://registry.npmmirror.com/@bramus/specificity/-/specificity-2.4.2.tgz", { "dependencies": { "css-tree": "^3.0.0" }, "bin": { "specificity": "bin/cli.js" } }, "sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw=="],
+
+    "@bruits/satteri-darwin-arm64": ["@bruits/satteri-darwin-arm64@0.9.1", "https://registry.npmmirror.com/@bruits/satteri-darwin-arm64/-/satteri-darwin-arm64-0.9.1.tgz", { "os": "darwin", "cpu": "arm64" }, "sha512-NE4qC2sRd0+R+oPMsKcUikIvWTGpAV16fSXNBoMSW7nK7Pd9e/ZGB7M8knep83pFmGmOb/5NbGKiVIh3oLbljw=="],
+
+    "@bruits/satteri-darwin-x64": ["@bruits/satteri-darwin-x64@0.9.1", "https://registry.npmmirror.com/@bruits/satteri-darwin-x64/-/satteri-darwin-x64-0.9.1.tgz", { "os": "darwin", "cpu": "x64" }, "sha512-Am8z5nX0L/sJR/n7np+5rMVP434MOBe3zlU+IO8fXbv2UaPNRCrEQPMS6lyxCj7dZHQI2AynSJw3v4fgQE8xSQ=="],
+
+    "@bruits/satteri-linux-x64-gnu": ["@bruits/satteri-linux-x64-gnu@0.9.1", "https://registry.npmmirror.com/@bruits/satteri-linux-x64-gnu/-/satteri-linux-x64-gnu-0.9.1.tgz", { "os": "linux", "cpu": "x64" }, "sha512-Bivw60+SIfmlaU9wEZ39HAcyPh1xU9TvOrz4KJgc+ziRStQs4EzYoWW4Eh9aSdiol+xV0vjEWYuA79aF3dr7kg=="],
+
+    "@bruits/satteri-wasm32-wasi": ["@bruits/satteri-wasm32-wasi@0.9.1", "https://registry.npmmirror.com/@bruits/satteri-wasm32-wasi/-/satteri-wasm32-wasi-0.9.1.tgz", { "dependencies": { "@emnapi/core": "1.9.1", "@emnapi/runtime": "1.9.1", "@napi-rs/wasm-runtime": "^1.1.5" }, "cpu": "none" }, "sha512-lEFk5ebh5SxRquA5RJisEoMoDmOiSnS10PGgXgXeVlWgF8KWKI9D3hSzVqNjEg/qKOjHcNdjIfyx/03Wrl6J3g=="],
+
+    "@bruits/satteri-win32-x64-msvc": ["@bruits/satteri-win32-x64-msvc@0.9.1", "https://registry.npmmirror.com/@bruits/satteri-win32-x64-msvc/-/satteri-win32-x64-msvc-0.9.1.tgz", { "os": "win32", "cpu": "x64" }, "sha512-YBhm8yARopswAPeTih11BzMxWVQFD5CI9Yryp6HWepi6F/CeMycqxv18DXrj9U2fDDlbVGwT2IiEM2UPBjIPDQ=="],
 
     "@csstools/color-helpers": ["@csstools/color-helpers@6.0.2", "https://registry.npmmirror.com/@csstools/color-helpers/-/color-helpers-6.0.2.tgz", {}, "sha512-LMGQLS9EuADloEFkcTBR3BwV/CGHV7zyDxVRtVDTwdI2Ca4it0CCVTT9wCkxSgokjE5Ho41hEPgb8OEUwoXr6Q=="],
 
@@ -349,17 +358,13 @@
 
     "@types/estree": ["@types/estree@1.0.9", "https://registry.npmmirror.com/@types/estree/-/estree-1.0.9.tgz", {}, "sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg=="],
 
+    "@types/estree-jsx": ["@types/estree-jsx@1.0.5", "https://registry.npmmirror.com/@types/estree-jsx/-/estree-jsx-1.0.5.tgz", { "dependencies": { "@types/estree": "*" } }, "sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg=="],
+
     "@types/hast": ["@types/hast@3.0.4", "https://registry.npmmirror.com/@types/hast/-/hast-3.0.4.tgz", { "dependencies": { "@types/unist": "*" } }, "sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ=="],
 
     "@types/jsesc": ["@types/jsesc@2.5.1", "https://registry.npmmirror.com/@types/jsesc/-/jsesc-2.5.1.tgz", {}, "sha512-9VN+6yxLOPLOav+7PwjZbxiID2bVaeq0ED4qSQmdQTdjnXJSaCVKTR58t15oqH1H5t8Ng2ZX1SabJVoN9Q34bw=="],
 
-    "@types/linkify-it": ["@types/linkify-it@5.0.0", "https://registry.npmmirror.com/@types/linkify-it/-/linkify-it-5.0.0.tgz", {}, "sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q=="],
-
-    "@types/markdown-it": ["@types/markdown-it@14.1.2", "https://registry.npmmirror.com/@types/markdown-it/-/markdown-it-14.1.2.tgz", { "dependencies": { "@types/linkify-it": "^5", "@types/mdurl": "^2" } }, "sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog=="],
-
     "@types/mdast": ["@types/mdast@4.0.4", "https://registry.npmmirror.com/@types/mdast/-/mdast-4.0.4.tgz", { "dependencies": { "@types/unist": "*" } }, "sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA=="],
-
-    "@types/mdurl": ["@types/mdurl@2.0.0", "https://registry.npmmirror.com/@types/mdurl/-/mdurl-2.0.0.tgz", {}, "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg=="],
 
     "@types/node": ["@types/node@25.9.3", "https://registry.npmmirror.com/@types/node/-/node-25.9.3.tgz", { "dependencies": { "undici-types": ">=7.24.0 <7.24.7" } }, "sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg=="],
 
@@ -410,8 +415,6 @@
     "ansi-styles": ["ansi-styles@5.2.0", "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-5.2.0.tgz", {}, "sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA=="],
 
     "ansis": ["ansis@4.3.1", "https://registry.npmmirror.com/ansis/-/ansis-4.3.1.tgz", {}, "sha512-BJ8/l4R5LRE7hW9WdSuGYrLSHi2ynxeFpDFbH0K/CgNeY/tyhk+vO6TYxXC5r5CpUhNVX310xzPsN/H9lCdfOA=="],
-
-    "argparse": ["argparse@2.0.1", "https://registry.npmmirror.com/argparse/-/argparse-2.0.1.tgz", {}, "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="],
 
     "args-tokenizer": ["args-tokenizer@0.3.0", "https://registry.npmmirror.com/args-tokenizer/-/args-tokenizer-0.3.0.tgz", {}, "sha512-xXAd7G2Mll5W8uo37GETpQ2VrE84M181Z7ugHFGQnJZ50M2mbOv0osSZ9VsSgPfJQ+LVG0prSi0th+ELMsno7Q=="],
 
@@ -487,7 +490,7 @@
 
     "empathic": ["empathic@2.0.1", "https://registry.npmmirror.com/empathic/-/empathic-2.0.1.tgz", {}, "sha512-YGRs8knHhKHVShLkFET/rWAU8kmHbOV5LwN938RHI0pljAJ1Gf6SzXsSmRaEzcXTtOOmVqJ5+WtQPL5uigY50Q=="],
 
-    "entities": ["entities@4.5.0", "https://registry.npmmirror.com/entities/-/entities-4.5.0.tgz", {}, "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="],
+    "entities": ["entities@8.0.0", "https://registry.npmmirror.com/entities/-/entities-8.0.0.tgz", {}, "sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA=="],
 
     "es-module-lexer": ["es-module-lexer@2.1.0", "https://registry.npmmirror.com/es-module-lexer/-/es-module-lexer-2.1.0.tgz", {}, "sha512-n27zTYMjYu1aj4MjCWzSP7G9r75utsaoc8m61weK+W8JMBGGQybd43GstCXZ3WNmSFtGT9wi59qQTW6mhTR5LQ=="],
 
@@ -561,21 +564,15 @@
 
     "lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.32.0", "https://registry.npmmirror.com/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.32.0.tgz", { "os": "win32", "cpu": "x64" }, "sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q=="],
 
-    "linkify-it": ["linkify-it@5.0.1", "https://registry.npmmirror.com/linkify-it/-/linkify-it-5.0.1.tgz", { "dependencies": { "uc.micro": "^2.0.0" } }, "sha512-wVoTjP4Q6R0NW5hiZkVJaFZPWgtXfoGF+6LucL3/FtiNjmcHhYjEr5f1Kqjirc1nBW07J/ZuRFumqr2oqccEWg=="],
-
     "lru-cache": ["lru-cache@11.5.1", "https://registry.npmmirror.com/lru-cache/-/lru-cache-11.5.1.tgz", {}, "sha512-RPimw/7aMdv2oqRrxKwvZXcPfwBrn/JZ2xYcY9Hus/6LaS3VOAKVWKWgNLCFSiOm1ESXinjsDlidVU7JlnCN2A=="],
 
     "lz-string": ["lz-string@1.5.0", "https://registry.npmmirror.com/lz-string/-/lz-string-1.5.0.tgz", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 
     "magic-string": ["magic-string@0.30.21", "https://registry.npmmirror.com/magic-string/-/magic-string-0.30.21.tgz", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
 
-    "markdown-it": ["markdown-it@14.2.0", "https://registry.npmmirror.com/markdown-it/-/markdown-it-14.2.0.tgz", { "dependencies": { "argparse": "^2.0.1", "entities": "^4.4.0", "linkify-it": "^5.0.1", "mdurl": "^2.0.0", "punycode.js": "^2.3.1", "uc.micro": "^2.1.0" }, "bin": { "markdown-it": "bin/markdown-it.mjs" } }, "sha512-1TGiQiJVRQ3NPmZH6sx5Cfnmg6GQm9jvC1ch4TK511NjSJvjzKLzn5pPfZRNZkRPZP0HqCioSndqH8v2nRaWVQ=="],
-
     "mdast-util-to-hast": ["mdast-util-to-hast@13.2.1", "https://registry.npmmirror.com/mdast-util-to-hast/-/mdast-util-to-hast-13.2.1.tgz", { "dependencies": { "@types/hast": "^3.0.0", "@types/mdast": "^4.0.0", "@ungap/structured-clone": "^1.0.0", "devlop": "^1.0.0", "micromark-util-sanitize-uri": "^2.0.0", "trim-lines": "^3.0.0", "unist-util-position": "^5.0.0", "unist-util-visit": "^5.0.0", "vfile": "^6.0.0" } }, "sha512-cctsq2wp5vTsLIcaymblUriiTcZd0CwWtCbLvrOzYCDZoWyMNV8sZ7krj09FSnsiJi3WVsHLM4k6Dq/yaPyCXA=="],
 
     "mdn-data": ["mdn-data@2.27.1", "https://registry.npmmirror.com/mdn-data/-/mdn-data-2.27.1.tgz", {}, "sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ=="],
-
-    "mdurl": ["mdurl@2.0.0", "https://registry.npmmirror.com/mdurl/-/mdurl-2.0.0.tgz", {}, "sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w=="],
 
     "merge-anything": ["merge-anything@5.1.7", "https://registry.npmmirror.com/merge-anything/-/merge-anything-5.1.7.tgz", { "dependencies": { "is-what": "^4.1.8" } }, "sha512-eRtbOb1N5iyH0tkQDAoQ4Ipsp/5qSR79Dzrz8hEPxRX10RWWR/iQXdoKmBSRCThY1Fh5EhISDtpSc93fpxUniQ=="],
 
@@ -629,8 +626,6 @@
 
     "punycode": ["punycode@2.3.1", "https://registry.npmmirror.com/punycode/-/punycode-2.3.1.tgz", {}, "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg=="],
 
-    "punycode.js": ["punycode.js@2.3.1", "https://registry.npmmirror.com/punycode.js/-/punycode.js-2.3.1.tgz", {}, "sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA=="],
-
     "quansync": ["quansync@1.0.0", "https://registry.npmmirror.com/quansync/-/quansync-1.0.0.tgz", {}, "sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA=="],
 
     "react-is": ["react-is@17.0.2", "https://registry.npmmirror.com/react-is/-/react-is-17.0.2.tgz", {}, "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="],
@@ -650,6 +645,8 @@
     "rolldown-plugin-dts": ["rolldown-plugin-dts@0.25.2", "https://registry.npmmirror.com/rolldown-plugin-dts/-/rolldown-plugin-dts-0.25.2.tgz", { "dependencies": { "@babel/generator": "8.0.0-rc.6", "@babel/helper-validator-identifier": "8.0.0-rc.6", "@babel/parser": "8.0.0-rc.6", "ast-kit": "^3.0.0-beta.1", "birpc": "^4.0.0", "dts-resolver": "^3.0.0", "get-tsconfig": "5.0.0-beta.5", "obug": "^2.1.1" }, "peerDependencies": { "@ts-macro/tsc": "^0.3.6", "@typescript/native-preview": ">=7.0.0-dev.20260325.1", "rolldown": "^1.0.0", "typescript": "^5.0.0 || ^6.0.0", "vue-tsc": "~3.2.0" }, "optionalPeers": ["@ts-macro/tsc", "@typescript/native-preview", "typescript", "vue-tsc"] }, "sha512-nMhN/R+vmR8GM45ZW1FWMSjRTSDDn/6w4GTf8RNrEFCBdl8B1kySWrU1ixPtbwzXoRlcO+R/S88VgXuJQwfdDg=="],
 
     "rolldown-plugin-unocss": ["rolldown-plugin-unocss@0.1.0", "https://registry.npmmirror.com/rolldown-plugin-unocss/-/rolldown-plugin-unocss-0.1.0.tgz", { "peerDependencies": { "@unocss/config": "*", "@unocss/core": "*", "magic-string": "*" } }, "sha512-x6McKByIFtVnL+HAtRzP3LW+vPcR/1R5x1mrLGPavC5Zy9lckGO0sSJzjDie8Jx8IKXji1zZKJwmtXEnfYknIw=="],
+
+    "satteri": ["satteri@0.9.1", "https://registry.npmmirror.com/satteri/-/satteri-0.9.1.tgz", { "dependencies": { "@types/estree-jsx": "^1.0.5", "@types/hast": "^3.0.4", "@types/mdast": "^4.0.4", "@types/unist": "^3.0.3" }, "optionalDependencies": { "@bruits/satteri-darwin-arm64": "0.9.1", "@bruits/satteri-darwin-x64": "0.9.1", "@bruits/satteri-linux-x64-gnu": "0.9.1", "@bruits/satteri-wasm32-wasi": "0.9.1", "@bruits/satteri-win32-x64-msvc": "0.9.1" } }, "sha512-0oIBjwDxWvz8ePRSBxv8vEdZ0GI25/UcSq11y4651tJztUAmZlIdPjFx8luqBAM22g8YKVr5R17KaaZ2kIfLrw=="],
 
     "saxes": ["saxes@6.0.0", "https://registry.npmmirror.com/saxes/-/saxes-6.0.0.tgz", { "dependencies": { "xmlchars": "^2.2.0" } }, "sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA=="],
 
@@ -712,8 +709,6 @@
     "tslib": ["tslib@2.8.1", "https://registry.npmmirror.com/tslib/-/tslib-2.8.1.tgz", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
     "typescript": ["typescript@6.0.3", "https://registry.npmmirror.com/typescript/-/typescript-6.0.3.tgz", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
-
-    "uc.micro": ["uc.micro@2.1.0", "https://registry.npmmirror.com/uc.micro/-/uc.micro-2.1.0.tgz", {}, "sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A=="],
 
     "ufo": ["ufo@1.6.4", "https://registry.npmmirror.com/ufo/-/ufo-1.6.4.tgz", {}, "sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA=="],
 
@@ -799,6 +794,10 @@
 
     "@babel/types/@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.29.7", "https://registry.npmmirror.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz", {}, "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg=="],
 
+    "@bruits/satteri-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.9.1", "https://registry.npmmirror.com/@emnapi/core/-/core-1.9.1.tgz", { "dependencies": { "@emnapi/wasi-threads": "1.2.0", "tslib": "^2.4.0" } }, "sha512-mukuNALVsoix/w1BJwFzwXBN/dHeejQtuVzcDsfOEsdpCumXb/E9j8w11h5S54tT1xhifGfbbSm/ICrObRb3KA=="],
+
+    "@bruits/satteri-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.9.1", "https://registry.npmmirror.com/@emnapi/runtime/-/runtime-1.9.1.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA=="],
+
     "@rolldown/binding-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.11.0", "https://registry.npmmirror.com/@emnapi/core/-/core-1.11.0.tgz", { "dependencies": { "@emnapi/wasi-threads": "1.2.2", "tslib": "^2.4.0" } }, "sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q=="],
 
     "@rolldown/binding-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.11.0", "https://registry.npmmirror.com/@emnapi/runtime/-/runtime-1.11.0.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-55coeOFKHv1ywEcUXJtWU5f+Jr/W5tZDvZig8DLKSwUN1JpROQ4rk/SNOQiFWmaR/VKF4zuFyW1B8JduOSv6Pg=="],
@@ -811,8 +810,6 @@
 
     "babel-plugin-jsx-dom-expressions/parse5": ["parse5@7.3.0", "https://registry.npmmirror.com/parse5/-/parse5-7.3.0.tgz", { "dependencies": { "entities": "^6.0.0" } }, "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw=="],
 
-    "parse5/entities": ["entities@8.0.0", "https://registry.npmmirror.com/entities/-/entities-8.0.0.tgz", {}, "sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA=="],
-
     "solid-refresh/@babel/generator": ["@babel/generator@7.29.7", "https://registry.npmmirror.com/@babel/generator/-/generator-7.29.7.tgz", { "dependencies": { "@babel/parser": "^7.29.7", "@babel/types": "^7.29.7", "@jridgewell/gen-mapping": "^0.3.12", "@jridgewell/trace-mapping": "^0.3.28", "jsesc": "^3.0.2" } }, "sha512-DkXD5OJQaAQIdZ1bt3UZdEnHAn9Imd3IVBdX03UFe+ony9Ojw5pzr9YVKGDY1jt+Gcn/FnGkNf8r+Vj5NOJWtQ=="],
 
     "vite/rolldown": ["rolldown@1.0.3", "https://registry.npmmirror.com/rolldown/-/rolldown-1.0.3.tgz", { "dependencies": { "@oxc-project/types": "=0.133.0", "@rolldown/pluginutils": "^1.0.0" }, "optionalDependencies": { "@rolldown/binding-android-arm64": "1.0.3", "@rolldown/binding-darwin-arm64": "1.0.3", "@rolldown/binding-darwin-x64": "1.0.3", "@rolldown/binding-freebsd-x64": "1.0.3", "@rolldown/binding-linux-arm-gnueabihf": "1.0.3", "@rolldown/binding-linux-arm64-gnu": "1.0.3", "@rolldown/binding-linux-arm64-musl": "1.0.3", "@rolldown/binding-linux-ppc64-gnu": "1.0.3", "@rolldown/binding-linux-s390x-gnu": "1.0.3", "@rolldown/binding-linux-x64-gnu": "1.0.3", "@rolldown/binding-linux-x64-musl": "1.0.3", "@rolldown/binding-openharmony-arm64": "1.0.3", "@rolldown/binding-wasm32-wasi": "1.0.3", "@rolldown/binding-win32-arm64-msvc": "1.0.3", "@rolldown/binding-win32-x64-msvc": "1.0.3" }, "bin": { "rolldown": "./bin/cli.mjs" } }, "sha512-i00lAJ2ks1BYr7rjNjKC7BcqAS7nVfiT3QX1SI5aY+AFHblCmaUf9OE9dbdzDvW6dJxbi2ZCZiy9v3CcwOiX3g=="],
@@ -820,6 +817,8 @@
     "@babel/generator/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@8.0.0-rc.6", "https://registry.npmmirror.com/@babel/helper-string-parser/-/helper-string-parser-8.0.0-rc.6.tgz", {}, "sha512-BCkFy+zN6kXQed3YOT7aJl93NfDSzQc3pBfsvTVPs9gU9X3V0aefEF5kwBT0E+mDWH9QgKaZstYUQN9VdQZT4g=="],
 
     "@babel/parser/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@8.0.0-rc.6", "https://registry.npmmirror.com/@babel/helper-string-parser/-/helper-string-parser-8.0.0-rc.6.tgz", {}, "sha512-BCkFy+zN6kXQed3YOT7aJl93NfDSzQc3pBfsvTVPs9gU9X3V0aefEF5kwBT0E+mDWH9QgKaZstYUQN9VdQZT4g=="],
+
+    "@bruits/satteri-wasm32-wasi/@emnapi/core/@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.2.0", "https://registry.npmmirror.com/@emnapi/wasi-threads/-/wasi-threads-1.2.0.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg=="],
 
     "@rolldown/binding-wasm32-wasi/@emnapi/core/@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.2.2", "https://registry.npmmirror.com/@emnapi/wasi-threads/-/wasi-threads-1.2.2.tgz", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA=="],
 

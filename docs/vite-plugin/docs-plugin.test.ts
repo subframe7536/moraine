@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -29,13 +31,11 @@ async function seedDocsProject(projectRoot: string): Promise<void> {
 
   await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
   await writeFile(
-    path.join(projectRoot, 'docs/pages/general/button/button.md'),
+    path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     `
 ## Button
 
-:::example
-name: BasicExample
-:::
+<Example name="BasicExample" />
 `,
     'utf8',
   )
@@ -116,11 +116,9 @@ describe('docsPlugin', () => {
       `
 ## Button
 
-:::example
-name: BasicExample
-:::
+<Example name="BasicExample" />
 `,
-      path.join(projectRoot, 'docs/pages/general/button/button.md'),
+      path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     )
     expect(markdownModule).toContain('componentKey: "button"')
     expect(markdownModule).toContain('?example-source&name=BasicExample')

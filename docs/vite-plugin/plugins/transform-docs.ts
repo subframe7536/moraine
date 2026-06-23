@@ -4,7 +4,6 @@ import { DOCS_PAGE_FILE_RE } from '../core/paths'
 import { DOCS_HIGHLIGHT_THEMES, getDocsHighlighter } from '../core/shiki'
 import { transformExampleSourceModule } from '../examples/source'
 import { compileMarkdownPage } from '../markdown/compile'
-import type { DocsPluginRegistry } from '../registry'
 
 function isExampleSourceRequest(id: string): boolean {
   return id.includes('?example-source')
@@ -14,12 +13,9 @@ function isDocsPageRequest(id: string): boolean {
   return DOCS_PAGE_FILE_RE.test(normalizePath(id))
 }
 
-export const DOCS_TRANSFORM_FILTER = /(?:\?example-source(?:&|$)|[\\/]docs[\\/]pages[\\/].*\.md$)/
+export const DOCS_TRANSFORM_FILTER = /(?:\?example-source(?:&|$)|[\\/]docs[\\/]pages[\\/].*\.mdx$)/
 
-export function createDocsTransformHandler(
-  projectRootProvider: () => string,
-  registry: DocsPluginRegistry,
-) {
+export function createDocsTransformHandler(projectRootProvider: () => string) {
   const highlighterPromise = getDocsHighlighter()
 
   return async (code: string, id: string): Promise<string | null> => {
@@ -43,7 +39,6 @@ export function createDocsTransformHandler(
 
     return compileMarkdownPage(code, idWithoutQuery, {
       projectRoot: projectRootProvider(),
-      directiveAliases: registry.directiveAliases,
       highlightCode: (source, lang) =>
         highlighter.codeToHtml(source, { lang, themes: DOCS_HIGHLIGHT_THEMES }),
     })
