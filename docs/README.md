@@ -6,10 +6,10 @@ The docs app is a Vite + SolidJS application using `solid-file-router` for file-
 
 - `docs/build/plugin.ts` owns docs-specific build work.
 - `buildStart` regenerates component API JSON from `dist/index.d.mts`.
-- `docs/build/routes.ts` scans `docs/pages/**/*.mdx` and writes `docs/.generated/pages`.
-- `solid-file-router` scans `docs/.generated/pages`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
+- `docs/build/routes.ts` scans `docs/pages/**/*.mdx` and exposes a `solid-file-router` `routeSource`.
+- `solid-file-router` loads virtual route modules from the docs route source, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 
-Generated route files are ignored by git and should not be edited by hand.
+Generated route types are ignored by git and should not be edited by hand.
 
 ## Routing
 
@@ -43,6 +43,6 @@ Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed
 `docs/vite.config.ts` configures:
 
 - `solid({ ssr: true })`
-- `fileRouter({ pagesDir: '.generated/pages', ssg: { serverEntry: 'entry-server.tsx', id: 'app' } })`
+- `fileRouter({ routeSource: createDocsRouteSource(projectRoot), ssg: { serverEntry: 'entry-server.tsx', id: 'app' } })`
 
 `bun run docs:build` emits the prerendered site under `docs/dist/client`.

@@ -6,7 +6,6 @@ import type { Plugin } from 'vite'
 import { loadApiDocIndex } from './api-doc/load'
 import { runApiDocGeneration } from './plugins/api-doc-generator'
 import { createDocsTransformHandler, DOCS_TRANSFORM_FILTER } from './plugins/transform-docs'
-import { writeGeneratedRoutes } from './routes'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
@@ -17,22 +16,27 @@ export interface DocsBuildPluginOptions {
   projectRoot?: string
 }
 
+const API_DOC_GENERATION_BY_PROJECT = new Map<string, Promise<void>>()
+
 export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
   let projectRoot = ''
   const transformHandler = createDocsTransformHandler(() => projectRoot)
+  const ensureApiDocs = async () => {
+    let promise = API_DOC_GENERATION_BY_PROJECT.get(projectRoot)
+    if (!promise) {
+      promise = runApiDocGeneration(projectRoot)
+      API_DOC_GENERATION_BY_PROJECT.set(projectRoot, promise)
+    }
+    await promise
+  }
 
   return {
     name: 'moraine-docs-build',
     enforce: 'pre',
 
-    configResolved(config) {
+    async configResolved(config) {
       projectRoot = options.projectRoot ?? path.resolve(config.root, '..')
-      writeGeneratedRoutes(projectRoot)
-    },
-
-    async buildStart() {
-      await runApiDocGeneration(projectRoot)
-      writeGeneratedRoutes(projectRoot)
+      await ensureApiDocs()
     },
 
     resolveId: {

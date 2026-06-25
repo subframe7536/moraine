@@ -1,5 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+
+import type {
+  RouteSourceEntry,
+  RouteSourceLoadContext,
+  RouteSourceProvider,
+} from 'solid-file-router/plugin'
 
 import { loadApiDocIndex } from './api-doc/load'
 import { resolveDocsPageContext, toImportPath } from './core/paths'
@@ -29,6 +35,8 @@ const STATUS_ALIASES = new Map<string, DocsRouteStatus>([
 ])
 
 const ROOT_ROUTE_KEY = 'introduction'
+const APP_ROUTE_ID = 'routes/_app.tsx'
+const NOT_FOUND_ROUTE_ID = '404.tsx'
 
 function toTitleCaseFromKey(key: string): string {
   return key
@@ -126,7 +134,9 @@ export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
       return {
         info,
         sourcePath,
-        routePath: isRoot ? 'index.tsx' : path.join(page.group ? `(${page.group})` : '', `${key}.tsx`),
+        routePath: isRoot
+          ? 'index.tsx'
+          : path.join(page.group ? `(${page.group})` : '', `${key}.tsx`),
       }
     })
     .sort(compareRoutes)
@@ -136,8 +146,16 @@ function serializeRouteInfo(info: DocsRouteInfo): string {
   return JSON.stringify(info, null, 2)
 }
 
-function routeModuleCode(entry: DocsRouteEntry, outputPath: string): string {
-  const importPath = toImportPath(outputPath, entry.sourcePath)
+function toRouteId(entry: DocsRouteEntry): string {
+  return entry.info.key === ROOT_ROUTE_KEY ? '/' : `/${entry.info.key}`
+}
+
+function toRouteSourcePath(projectRoot: string, sourcePath: string): string {
+  return toImportPath(path.join(projectRoot, 'docs/index.tsx'), sourcePath).replace(/^\.\//, '')
+}
+
+function routeModuleCode(entry: DocsRouteEntry, context: RouteSourceLoadContext): string {
+  const importPath = toImportPath(context.moduleId, entry.sourcePath)
   return [
     "import { Suspense, lazy } from 'solid-js'",
     "import { createRoute } from 'solid-file-router'",
@@ -164,53 +182,74 @@ function routeModuleCode(entry: DocsRouteEntry, outputPath: string): string {
   ].join('\n')
 }
 
-export function writeGeneratedRoutes(projectRoot: string): DocsRouteEntry[] {
+function appRouteModuleCode(context: RouteSourceLoadContext): string {
+  const importPath = toImportPath(context.moduleId, context.sourcePath).replace(/\.tsx$/, '')
+  return [
+    "import { createRoute } from 'solid-file-router'",
+    `import { DocsAppLayout } from '${importPath}'`,
+    '',
+    'export default createRoute({',
+    '  component: (props) => <DocsAppLayout>{props.children}</DocsAppLayout>,',
+    '})',
+    '',
+  ].join('\n')
+}
+
+function notFoundRouteModuleCode(context: RouteSourceLoadContext): string {
+  const importPath = toImportPath(context.moduleId, context.sourcePath).replace(/\.tsx$/, '')
+  return [
+    "import { createRoute } from 'solid-file-router'",
+    `import { DocsNotFound } from '${importPath}'`,
+    '',
+    'export default createRoute({',
+    '  component: () => <DocsNotFound />,',
+    '})',
+    '',
+  ].join('\n')
+}
+
+export function createDocsRouteSource(projectRoot: string): RouteSourceProvider {
   const docsRoot = path.join(projectRoot, 'docs')
-  const generatedPagesRoot = path.join(docsRoot, '.generated/pages')
-  const routes = scanDocsRoutes(projectRoot)
 
-  rmSync(generatedPagesRoot, { recursive: true, force: true })
-  mkdirSync(generatedPagesRoot, { recursive: true })
+  return {
+    scan: () => [
+      {
+        routeId: APP_ROUTE_ID,
+        routePath: '_app.tsx',
+        sourcePath: 'components/docs-app-layout.tsx',
+      },
+      ...scanDocsRoutes(projectRoot).map<RouteSourceEntry>((route) => ({
+        routeId: toRouteId(route),
+        routePath: route.routePath,
+        sourcePath: toRouteSourcePath(projectRoot, route.sourcePath),
+      })),
+      {
+        routeId: NOT_FOUND_ROUTE_ID,
+        routePath: '404.tsx',
+        sourcePath: 'components/docs-not-found.tsx',
+      },
+    ],
+    load(context) {
+      if (context.routeId === `/${APP_ROUTE_ID}`) {
+        return appRouteModuleCode(context)
+      }
+      if (context.routePath === NOT_FOUND_ROUTE_ID) {
+        return notFoundRouteModuleCode(context)
+      }
 
-  writeFileSync(
-    path.join(generatedPagesRoot, '_app.tsx'),
-    [
-      "import { createRoute } from 'solid-file-router'",
-      "import { DocsAppLayout } from '../../components/docs-app-layout'",
-      '',
-      'export default createRoute({',
-      '  component: (props) => <DocsAppLayout>{props.children}</DocsAppLayout>,',
-      '})',
-      '',
-    ].join('\n'),
-    'utf8',
-  )
-
-  writeFileSync(
-    path.join(generatedPagesRoot, '404.tsx'),
-    [
-      "import { createRoute } from 'solid-file-router'",
-      "import { DocsNotFound } from '../../components/docs-not-found'",
-      '',
-      'export default createRoute({',
-      '  component: () => <DocsNotFound />,',
-      '})',
-      '',
-    ].join('\n'),
-    'utf8',
-  )
-
-  for (const route of routes) {
-    const outputPath = path.join(generatedPagesRoot, route.routePath)
-    mkdirSync(path.dirname(outputPath), { recursive: true })
-    writeFileSync(outputPath, routeModuleCode(route, outputPath), 'utf8')
+      const sourcePath = path.normalize(context.sourcePath)
+      const route = scanDocsRoutes(projectRoot).find(
+        (entry) => path.normalize(entry.sourcePath) === sourcePath,
+      )
+      if (!route) {
+        return null
+      }
+      return routeModuleCode(route, context)
+    },
+    watchFiles: [path.relative(docsRoot, path.join(projectRoot, 'docs/pages'))],
   }
-
-  return routes
 }
 
 export function getDocsPrerenderRoutes(projectRoot: string): string[] {
-  return writeGeneratedRoutes(projectRoot).map((route) =>
-    route.info.key === ROOT_ROUTE_KEY ? '/' : `/${route.info.key}`,
-  )
+  return scanDocsRoutes(projectRoot).map((route) => toRouteId(route))
 }

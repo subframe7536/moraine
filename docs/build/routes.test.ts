@@ -1,12 +1,12 @@
 // @vitest-environment node
 
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { getDocsPrerenderRoutes, scanDocsRoutes, writeGeneratedRoutes } from './routes'
+import { createDocsRouteSource, getDocsPrerenderRoutes, scanDocsRoutes } from './routes'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
@@ -66,7 +66,7 @@ describe('docs route generation', () => {
     }
   })
 
-  test('writes generated routes and returns prerender paths', async () => {
+  test('creates a virtual route source and returns prerender paths without generated files', async () => {
     const projectRoot = await createTempProject()
 
     try {
@@ -74,23 +74,69 @@ describe('docs route generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', '# Intro\n')
       await writeProjectFile(projectRoot, 'docs/pages/general/button/button.mdx', '# Button\n')
 
-      const routes = writeGeneratedRoutes(projectRoot)
-      expect(routes.map((route) => route.info.key)).toEqual(['introduction', 'button'])
+      const routeSource = createDocsRouteSource(projectRoot)
+      const routes =
+        typeof routeSource.scan === 'function'
+          ? await routeSource.scan({} as never, path.join(projectRoot, 'docs'))
+          : []
+      expect(routes).toMatchObject([
+        {
+          routeId: 'routes/_app.tsx',
+          routePath: '_app.tsx',
+          sourcePath: 'components/docs-app-layout.tsx',
+        },
+        {
+          routeId: '/',
+          routePath: 'index.tsx',
+          sourcePath: 'pages/introduction.mdx',
+        },
+        {
+          routeId: '/button',
+          routePath: path.join('(general)', 'button.tsx'),
+          sourcePath: 'pages/general/button/button.mdx',
+        },
+        {
+          routeId: '404.tsx',
+          routePath: '404.tsx',
+          sourcePath: 'components/docs-not-found.tsx',
+        },
+      ])
 
-      const appRoute = await readFile(
-        path.join(projectRoot, 'docs/.generated/pages/_app.tsx'),
-        'utf8',
-      )
-      const buttonRoute = await readFile(
-        path.join(projectRoot, 'docs/.generated/pages/(general)/button.tsx'),
-        'utf8',
-      )
+      const appRoute = await routeSource.load({
+        routeId: '/routes/_app.tsx',
+        routePath: '_app.tsx',
+        sourcePath: path.join(projectRoot, 'docs/components/docs-app-layout.tsx'),
+        moduleId: path.join(
+          projectRoot,
+          'docs/components/docs-app-layout.tsx.solid-file-router.tsx',
+        ),
+      })
+      const buttonRoute = await routeSource.load({
+        routeId: '/button',
+        routePath: path.join('(general)', 'button.tsx'),
+        sourcePath: path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
+        moduleId: path.join(
+          projectRoot,
+          'docs/pages/general/button/button.mdx.solid-file-router.tsx',
+        ),
+      })
+      const notFoundRoute = await routeSource.load({
+        routeId: '/404.tsx',
+        routePath: '404.tsx',
+        sourcePath: path.join(projectRoot, 'docs/components/docs-not-found.tsx'),
+        moduleId: path.join(
+          projectRoot,
+          'docs/components/docs-not-found.tsx.solid-file-router.tsx',
+        ),
+      })
 
       expect(appRoute).toContain('DocsAppLayout')
       expect(buttonRoute).toContain("import { Suspense, lazy } from 'solid-js'")
-      expect(buttonRoute).toContain("key\": \"button")
+      expect(buttonRoute).toContain('key": "button')
       expect(buttonRoute).toContain('import.meta.env.SSR')
+      expect(notFoundRoute).toContain('DocsNotFound')
       expect(getDocsPrerenderRoutes(projectRoot)).toEqual(['/', '/button'])
+      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

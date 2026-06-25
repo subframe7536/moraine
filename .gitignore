@@ -8,4 +8,5 @@ kobalte
 *.local.*
 docs/api-doc
 docs/.generated
+docs/routes.d.ts
 package-lock.json

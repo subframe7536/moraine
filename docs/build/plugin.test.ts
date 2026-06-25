@@ -1,14 +1,14 @@
 // @vitest-environment node
 
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { parseSync } from 'vite'
 import { describe, expect, test } from 'vitest'
 
-import { docsBuildPlugin } from './plugin'
 import { EXAMPLE_PARSE_OPTIONS } from './examples/ast'
+import { docsBuildPlugin } from './plugin'
 
 const TRANSFORM_CONTEXT = {
   parse(code: string) {
@@ -59,15 +59,15 @@ import { DemoButtonBasicExample } from './basic-example?example'
 }
 
 describe('docsBuildPlugin', () => {
-  test('generates api docs, generated routes, virtual api data and transforms content', async () => {
+  test('generates api docs, virtual api data and transforms content', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
 
     try {
       const plugin = docsBuildPlugin({ projectRoot })
       const configResolved = plugin.configResolved as
-        | ((config: { root: string }) => void)
-        | { handler: (config: { root: string }) => void }
+        | ((config: { root: string }) => Promise<void> | void)
+        | { handler: (config: { root: string }) => Promise<void> | void }
         | undefined
       const buildStart = plugin.buildStart as
         | (() => Promise<void> | void)
@@ -79,16 +79,24 @@ describe('docsBuildPlugin', () => {
         | undefined
       const load = plugin.load as
         | ((id: string) => Promise<string | null | undefined> | string | null | undefined)
-        | { handler: (id: string) => Promise<string | null | undefined> | string | null | undefined }
+        | {
+            handler: (id: string) => Promise<string | null | undefined> | string | null | undefined
+          }
         | undefined
       const transform = plugin.transform as
-        | { handler: (code: string, id: string, options?: { ssr?: boolean }) => Promise<string | null> | string | null }
+        | {
+            handler: (
+              code: string,
+              id: string,
+              options?: { ssr?: boolean },
+            ) => Promise<string | null> | string | null
+          }
         | undefined
 
       if (typeof configResolved === 'function') {
-        configResolved({ root: path.join(projectRoot, 'docs') })
+        await configResolved({ root: path.join(projectRoot, 'docs') })
       } else {
-        configResolved?.handler({ root: path.join(projectRoot, 'docs') })
+        await configResolved?.handler({ root: path.join(projectRoot, 'docs') })
       }
 
       if (typeof buildStart === 'function') {
@@ -105,13 +113,7 @@ describe('docsBuildPlugin', () => {
         await readFile(path.join(projectRoot, 'docs/pages/general/button/api.json'), 'utf8'),
       ).toContain('"button"')
 
-      const generatedRoute = await readFile(
-        path.join(projectRoot, 'docs/.generated/pages/(general)/button.tsx'),
-        'utf8',
-      )
-      expect(generatedRoute).toContain("key\": \"button")
-      expect(generatedRoute).toContain("status\": \"new")
-      expect(generatedRoute).toContain('import.meta.env.SSR')
+      await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
 
       const resolvedApiId =
         typeof resolveId === 'function'

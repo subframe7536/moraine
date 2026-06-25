@@ -36,13 +36,18 @@ export function getDocsPages(): DocsPageEntry[] {
         return null
       }
 
-      return {
+      const page: DocsPageEntry = {
         key: info.key,
         label: info.title,
-        ...(info.group ? { group: info.group } : {}),
-        ...(info.status ? { status: info.status } : {}),
         path: info.key === ROOT_PAGE_KEY ? '/' : path,
       }
+      if (info.group) {
+        page.group = info.group
+      }
+      if (info.status) {
+        page.status = info.status
+      }
+      return page
     })
     .filter((page): page is DocsPageEntry => Boolean(page))
     .sort((left, right) => {

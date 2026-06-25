@@ -6,8 +6,13 @@ import { fileRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
+import {
+  createDocsRouteSource,
+  docsBuildPlugin,
+  getDocsPrerenderRoutes,
+  siteMetaPlugin,
+} from './build'
 import unocfg from './unocss.config'
-import { docsBuildPlugin, getDocsPrerenderRoutes, siteMetaPlugin } from './build'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
@@ -30,8 +35,8 @@ export default defineConfig({
     uno(unocfg),
     solid({ ssr: true }),
     fileRouter({
-      pagesDir: '.generated/pages',
-      output: '.generated/routes.d.ts',
+      routeSource: createDocsRouteSource(projectRoot),
+      output: 'routes.d.ts',
       ssg: {
         serverEntry: 'entry-server.tsx',
         id: 'app',
