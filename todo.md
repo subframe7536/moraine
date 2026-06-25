@@ -3,6 +3,7 @@
 ## Fix
 
 - [ ] reference from base-ui/ , refactor file structure, use explicit import instead of auto importing example component, optimize doc structure
+- [ ] reference from https://ink-ui.com , add primary/secondary/background/*-{active,hover,focus} color tokens
 
 ## Components
 
