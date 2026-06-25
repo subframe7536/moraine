@@ -3,7 +3,7 @@
 Inspired by Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component library with atomic class styling.
 
 > [!important]
-> **Status: pre-alpha.** Breaking changes are allowed before `v1.0.0`.
+> **Status: Beta.** Breaking changes are allowed between minors before `v1.0.0`. Use at your own risk.
 
 ## Documention
 
@@ -14,12 +14,14 @@ Full guide and examples: https://ui.subf.dev
 1. Install `moraine` in a Solid project
 
 ```bash
-bun add moraine solid-js unocss
+bun add moraine solid-js
 ```
 
 2. Setup Styles
 
-[`@subf/unocss`](https://github.com/subframe7536/unocss) as example here. You can also use the full `unocss` if desired, or Tailwind CSS with the experimental Moraine plugin.
+UnoCSS as example here ([`@subf/unocss`](https://github.com/subframe7536/unocss) is a custom subset collection made by me).
+
+Also, Tailwind CSS is supported with the experimental Moraine plugin.
 
 ```ts
 // unocss.config.ts
@@ -31,7 +33,7 @@ export default defineConfig({
 })
 ```
 
-1. Now you can import components directly from `moraine`.
+3. Now you can import components directly from `moraine`.
 
 ```tsx
 import { Button, Input } from 'moraine'
@@ -61,7 +63,7 @@ bun run test
 # Start docs development server
 bun run docs
 
-# Run linting and type checking
+# Run format, lint and type check
 bun run qa
 ```
 
