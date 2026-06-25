@@ -114,6 +114,7 @@ export function transformExampleModule(
   code: string,
   id: string,
   parseExampleCode: ParseExampleCode,
+  options: { ssr?: boolean } = {},
 ): string | null {
   if (!isExampleRequest(id)) {
     return null
@@ -135,10 +136,10 @@ export function transformExampleModule(
     .join(', ')
   const importLines = [
     `import { createDocsDemo } from ${toSingleQuoted(runtimePath)}`,
-    componentImportNames
+    componentImportNames && !options.ssr
       ? `import { ${componentImportNames} } from ${toSingleQuoted(sourceImportPath)}`
       : '',
-    defaultExport ? `import __DefaultExample from ${toSingleQuoted(sourceImportPath)}` : '',
+    defaultExport && !options.ssr ? `import __DefaultExample from ${toSingleQuoted(sourceImportPath)}` : '',
   ].filter(Boolean)
   const exportLines: string[] = []
 
@@ -151,7 +152,7 @@ export function transformExampleModule(
       )}`,
     )
     exportLines.push(
-      `export const ${demoName} = createDocsDemo(__${item.importedName}, ${sourceAlias})`,
+      `export const ${demoName} = createDocsDemo(${options.ssr ? '() => null' : `__${item.importedName}`}, ${sourceAlias})`,
     )
   }
 
@@ -161,7 +162,9 @@ export function transformExampleModule(
     importLines.push(
       `import __${demoName}Source from ${toSingleQuoted(`${sourceImportPath}?example-source&name=default`)}`,
     )
-    exportLines.push(`export default createDocsDemo(__DefaultExample, __${demoName}Source)`)
+    exportLines.push(
+      `export default createDocsDemo(${options.ssr ? '() => null' : '__DefaultExample'}, __${demoName}Source)`,
+    )
   }
 
   return [...importLines, '', ...exportLines, ''].join('\n')

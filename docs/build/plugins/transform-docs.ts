@@ -34,6 +34,7 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
     this: DocsTransformContext,
     code: string,
     id: string,
+    options?: { ssr?: boolean },
   ): Promise<string | null> {
     if (!isExampleRequest(id) && !isExampleSourceRequest(id) && !isDocsPageRequest(id)) {
       return null
@@ -49,7 +50,7 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
       return sourceModule
     }
 
-    const exampleModule = transformExampleModule(code, id, parseExampleCode)
+    const exampleModule = transformExampleModule(code, id, parseExampleCode, { ssr: options?.ssr })
     if (exampleModule) {
       return exampleModule
     }

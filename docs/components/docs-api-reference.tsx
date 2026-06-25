@@ -4,12 +4,12 @@ import { Dynamic } from 'solid-js/web'
 
 import { Badge, Select, Tabs, cn } from '../../src'
 import { createMediaQuery } from '../../src/shared/use-media-query'
-import type { PropDoc } from '../vite-plugin/api-doc/types'
+import type { PropDoc } from '../build/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from '../vite-plugin/markdown/shared'
+} from '../build/markdown/shared'
 
 export interface PropsTableProps {
   sections: PropsTableSection[]

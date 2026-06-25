@@ -1,28 +1,19 @@
 # Docs Architecture
 
-This document describes the current docs architecture after the MDX migration.
+The docs app is a Vite + SolidJS application using `solid-file-router` for file-based routing and SSG prerendering.
 
-## Overview
+## Build Pipeline
 
-The docs app is a Vite + SolidJS application with two docs-specific plugins:
+- `docs/build/plugin.ts` owns docs-specific build work.
+- `buildStart` regenerates component API JSON from `dist/index.d.mts`.
+- `docs/build/routes.ts` scans `docs/pages/**/*.mdx` and writes `docs/.generated/pages`.
+- `solid-file-router` scans `docs/.generated/pages`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 
-- `docsPlugin()` handles docs content.
-- `siteMetaPlugin()` handles static page metadata.
+Generated route files are ignored by git and should not be edited by hand.
 
-`docsPlugin()` owns the full docs content pipeline:
+## Routing
 
-1. Generate component API JSON from `dist/index.d.mts`.
-2. Scan `docs/pages/**/*.mdx` and expose `virtual:example-pages`.
-3. Compile MDX pages into Solid modules.
-4. Resolve `?example` demo imports and `?example-source&name=...` highlighted source modules.
-
-At runtime, `docs/index.tsx` loads `virtual:example-pages`, builds sidebar navigation, and lazy-renders the active page.
-
-## Content Layout
-
-### Page-Local Structure
-
-Each component page is now self-contained:
+Source content stays colocated:
 
 ```text
 docs/pages/<group>/<page>/<page>.mdx
@@ -30,124 +21,28 @@ docs/pages/<group>/<page>/*.tsx
 docs/pages/<group>/<page>/api.json
 ```
 
-Examples:
+Generated routes use pathless groups to keep short URLs:
 
-- `docs/pages/general/button/button.mdx`
-- `docs/pages/general/button/variants.tsx`
-- `docs/pages/overlay/toast/toast.mdx`
-- `docs/pages/overlay/toast/basic-toasts.tsx`
-
-Root-level pages (for example `docs/pages/introduction.mdx`) are also supported.
-
-### Key and Group Derivation
-
-- `key` is derived from the MDX filename, with `button/button.mdx` resolving to `button`.
-- Component pages use `docs/pages/<group>/<page>/<page>.mdx`; page-local demos stay beside the page file.
-- `group` is derived from the first directory segment under `docs/pages`.
-
-The shared page-path logic lives in `docs/vite-plugin/core/paths.ts` and is reused by markdown compilation, page scanning, and API doc lookup.
-
-## MDX Components
-
-### Demo imports
-
-```mdx
-import { DemoButtonVariants } from './variants?example'
-
-<DemoButtonVariants />
+```text
+docs/pages/general/button/button.mdx -> /button
+docs/pages/form/input/input.mdx -> /input
+docs/pages/introduction.mdx -> /
 ```
 
-Demo imports must use the explicit `?example` suffix. The Vite plugin wraps the imported demo component with the shared preview/source UI and derives highlighted source from the original demo export.
+Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed by the sidebar and command palette.
 
-### Runtime widgets
+## MDX And Examples
 
-```mdx
-<IntroCards />
-```
+- MDX compilation lives in `docs/build/markdown/compile.ts`.
+- Demo imports still use `?example`.
+- Example modules are wrapped by `docs/build/examples/module.ts`.
+- During SSR, demo wrappers avoid importing browser-only demo modules; the client loads the interactive examples.
 
-Widgets are provided through the MDX component map.
+## SSG
 
-Component pages should explicitly include:
+`docs/vite.config.ts` configures:
 
-```mdx
-<DocsHeader />
-```
+- `solid({ ssr: true })`
+- `fileRouter({ pagesDir: '.generated/pages', ssg: { serverEntry: 'entry-server.tsx', id: 'app' } })`
 
-and:
-
-```mdx
-<HeadingWithAnchor id="api-ref" level={2}>
-  API Reference
-</HeadingWithAnchor>
-
-<DocsApiReference />
-```
-
-### `<CodeTabs />`
-
-```mdx
-<CodeTabs package="moraine" />
-```
-
-Props:
-
-- `package` (required): package name used to generate install commands for bun/pnpm/npm.
-
-MDX compilation lives in `docs/vite-plugin/markdown/compile.ts`.
-
-## Runtime Rendering Model
-
-`docs/components/markdown.tsx` renders the Sätteri-compiled MDX component with a docs component map:
-
-- Markdown elements -> Solid JSX with injected docs typography classes
-- `?example` imports -> live preview plus highlighted source
-- `<DocsHeader />` / `<DocsApiReference />` -> implicit MDX imports backed by page-local `api.json`
-- MDX widget components -> dynamic docs runtime components
-- Code-tabs segment -> install-command tabs with build-time highlighted code
-
-Page shell and On This Page layout are provided by `docs/components/markdown.tsx`.
-Header and API rendering are provided by explicit widgets in page markdown.
-
-## API Docs Integration
-
-`docsPlugin()` generates:
-
-- `docs/pages/_api-index.json`
-- `docs/pages/<group>/<page>/api.json`
-
-The MDX compiler derives `componentKey` from page path and prepends implicit MDX imports for
-`DocsHeader`, `DocsApiReference`, `HeadingWithAnchor`, and page-local `./api.json` when the page
-uses those widgets. `apiDocOverride` on `<DocsHeader />` still merges with the generated API JSON
-before the header and reference model are rendered.
-
-The implementation is split across:
-
-- `docs/vite-plugin/api-doc/extract.ts`
-- `docs/vite-plugin/api-doc/load.ts`
-- `docs/vite-plugin/api-doc/write.ts`
-
-Public API doc types live in `docs/vite-plugin/api-doc/types.ts`.
-
-## Vite Plugin Layout
-
-`docs/vite-plugin/` is organized by responsibility:
-
-- `docs-plugin.ts`: single docs content plugin entry
-- `site-meta.ts`: metadata tags for `transformIndexHtml`
-- `core/`: shared path, string, and Shiki helpers
-- `api-doc/`: extraction, loading, writing, and types
-- `markdown/`: Sätteri MDX compilation, frontmatter parsing, and page metadata
-- `examples/`: page scanning and example source extraction
-- `virtual.d.ts`: virtual module declarations
-
-## Styling and Typography
-
-- UnoCSS is configured in `docs/unocss.config.ts`.
-- Sätteri HAST plugins inject docs prose classes into rendered MDX elements.
-- Demo and widget blocks render as Solid components.
-
-## Directory Responsibilities
-
-- `docs/pages/`: MDX pages, colocated demos, and colocated API JSON
-- `docs/components/`: docs runtime UI and page composition
-- `docs/vite-plugin/`: build-time docs compiler, API doc extraction, and virtual modules
+`bun run docs:build` emits the prerendered site under `docs/dist/client`.

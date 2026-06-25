@@ -2,7 +2,7 @@ import type { Component } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { OnThisPageEntry } from '../hooks/use-table-of-contents'
-import type { ItemDoc, SlotDoc } from '../vite-plugin/api-doc/types'
+import type { ItemDoc, SlotDoc } from '../build/api-doc/types'
 
 import { createDocsMdxComponents } from './mdx-components'
 import { OnThisPage } from './on-this-page'

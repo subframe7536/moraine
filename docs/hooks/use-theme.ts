@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 
 export type ThemeMode = 'light' | 'dark'
 
@@ -10,6 +10,10 @@ function getInitialTheme(): ThemeMode {
 }
 
 function applyTheme(theme: ThemeMode): void {
+  if (typeof document === 'undefined') {
+    return
+  }
+
   const isDark = theme === 'dark'
   const root = document.documentElement
   root.classList.toggle('dark', isDark)
@@ -19,7 +23,8 @@ function applyTheme(theme: ThemeMode): void {
 export function useTheme() {
   const initialTheme = getInitialTheme()
   const [theme, setTheme] = createSignal<ThemeMode>(initialTheme)
-  applyTheme(initialTheme)
+
+  onMount(() => applyTheme(initialTheme))
 
   const updateTheme = (nextTheme: ThemeMode) => {
     const run = () => {
@@ -27,7 +32,10 @@ export function useTheme() {
       applyTheme(nextTheme)
     }
 
-    if (typeof document.startViewTransition === 'function') {
+    if (
+      typeof document !== 'undefined' &&
+      typeof document.startViewTransition === 'function'
+    ) {
       document.startViewTransition(run)
       return
     }

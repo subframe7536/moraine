@@ -7,4 +7,5 @@ kobalte
 .worktrees
 *.local.*
 docs/api-doc
+docs/.generated
 package-lock.json
