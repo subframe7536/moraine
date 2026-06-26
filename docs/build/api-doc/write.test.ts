@@ -15,7 +15,9 @@ describe('writeJsonFiles', () => {
     const pageDir = path.join(pagesRoot, 'general/demo')
     const stalePath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
-    await writeFile(path.join(pageDir, 'demo.mdx'), '<DocsHeader />', 'utf8')
+    await mkdir(path.join(projectRoot, 'src'), { recursive: true })
+    await writeFile(path.join(projectRoot, 'src/demo.tsx'), '<div data-slot="root" />', 'utf8')
+    await writeFile(path.join(pageDir, 'demo.mdx'), '---\nheader: true\n---\n', 'utf8')
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
     const result: GenerationResult = {
@@ -38,6 +40,7 @@ describe('writeJsonFiles', () => {
               name: 'Demo',
               category: 'General',
               polymorphic: false,
+              sourcePath: 'src/demo.tsx',
             },
             slots: [{ name: 'root', description: 'Root wrapper.' }],
             props: { own: [], inherited: [] },
@@ -55,9 +58,16 @@ describe('writeJsonFiles', () => {
     expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual(
       result.indexDoc,
     )
-    expect(JSON.parse(await readFile(stalePath, 'utf8'))).toEqual(result.componentDocs.get('demo'))
-    expect(existsSync(path.join(projectRoot, 'docs/api-doc'))).toBe(false)
-
+    expect(JSON.parse(await readFile(stalePath, 'utf8'))).toEqual({
+      ...result.componentDocs.get('demo'),
+      attributes: {
+        aria: [],
+        data: [
+          { name: 'data-slot', required: false, type: 'string', description: expect.any(String) },
+        ],
+        slots: [{ name: 'root', cssVariables: [], dataAttributes: [], ariaAttributes: [] }],
+      },
+    })
     await rm(projectRoot, { recursive: true, force: true })
   })
 
@@ -67,7 +77,7 @@ describe('writeJsonFiles', () => {
     const pageDir = path.join(pagesRoot, 'general/demo')
     const stalePath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
-    await writeFile(path.join(pageDir, 'demo.mdx'), '<DocsHeader />', 'utf8')
+    await writeFile(path.join(pageDir, 'demo.mdx'), '---\nheader: true\n---\n', 'utf8')
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
     await writeJsonFiles(pagesRoot, {

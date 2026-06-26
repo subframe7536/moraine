@@ -5,6 +5,8 @@ import { resolveDocsPageContext } from '../core/paths'
 
 import type { ComponentDoc, IndexDoc } from './types'
 
+const apiDocIndexCache = new Map<string, IndexDoc | null>()
+
 function collectMarkdownFiles(dir: string): string[] {
   const files: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -20,11 +22,26 @@ function collectMarkdownFiles(dir: string): string[] {
   return files
 }
 
+export function clearApiDocCache(projectRoot?: string): void {
+  if (projectRoot) {
+    apiDocIndexCache.delete(projectRoot)
+    return
+  }
+  apiDocIndexCache.clear()
+}
+
 export function loadApiDocIndex(projectRoot: string): IndexDoc | null {
+  if (apiDocIndexCache.has(projectRoot)) {
+    return apiDocIndexCache.get(projectRoot) ?? null
+  }
+
   try {
     const jsonPath = path.join(projectRoot, 'docs/pages/_api-index.json')
-    return JSON.parse(readFileSync(jsonPath, 'utf8')) as IndexDoc
+    const indexDoc = JSON.parse(readFileSync(jsonPath, 'utf8')) as IndexDoc
+    apiDocIndexCache.set(projectRoot, indexDoc)
+    return indexDoc
   } catch {
+    apiDocIndexCache.set(projectRoot, null)
     return null
   }
 }

@@ -37,7 +37,7 @@ describe('docs route generation', () => {
       await writeProjectFile(
         projectRoot,
         'docs/pages/general/button/button.mdx',
-        '<DocsHeader status="new" />\n',
+        '---\nstatus: new\n---\n',
       )
       await writeProjectFile(projectRoot, 'docs/pages/form/input/input.mdx', '# Input\n')
 
@@ -137,6 +137,35 @@ describe('docs route generation', () => {
       expect(notFoundRoute).toContain('DocsNotFound')
       expect(getDocsPrerenderRoutes(projectRoot)).toEqual(['/', '/button'])
       await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('reuses scanned routes when loading generated modules', async () => {
+    const projectRoot = await createTempProject()
+
+    try {
+      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
+      await writeProjectFile(projectRoot, 'docs/pages/general/button/button.mdx', '# Button\n')
+
+      const routeSource = createDocsRouteSource(projectRoot)
+      if (typeof routeSource.scan === 'function') {
+        await routeSource.scan({} as never, path.join(projectRoot, 'docs'))
+      }
+      await rm(path.join(projectRoot, 'docs/pages/general/button/button.mdx'), { force: true })
+
+      const buttonRoute = await routeSource.load({
+        routeId: '/button',
+        routePath: path.join('(general)', 'button.tsx'),
+        sourcePath: path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
+        moduleId: path.join(
+          projectRoot,
+          'docs/pages/general/button/button.mdx.solid-file-router.tsx',
+        ),
+      })
+
+      expect(buttonRoute).toContain('key": "button')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

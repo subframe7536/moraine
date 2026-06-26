@@ -11,7 +11,7 @@ export interface DocsDemoBlockProps {
 
 export function DocsDemoBlock(props: DocsDemoBlockProps) {
   return (
-    <section class="mb-6 mt-4 b-1 b-border rounded-2xl bg-background shadow-sm overflow-hidden">
+    <section class="mb-6 mt-4 border border-border/80 rounded-lg bg-background shadow-xs overflow-hidden">
       <div class="p-6 flex items-center justify-center">
         <Dynamic component={props.component} />
       </div>
@@ -20,7 +20,6 @@ export function DocsDemoBlock(props: DocsDemoBlockProps) {
           <ShikiCodeBlock
             variant="source"
             html={source()}
-            class="border-t border-border bg-muted/70"
           />
         )}
       </Show>

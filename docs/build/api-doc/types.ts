@@ -34,6 +34,26 @@ export interface SlotDoc {
   description?: string
 }
 
+export interface ApiAttributeDoc {
+  name: string
+  required: false
+  type: string
+  description: string
+}
+
+export interface SlotAttributeDoc {
+  name: string
+  cssVariables: ApiAttributeDoc[]
+  dataAttributes: ApiAttributeDoc[]
+  ariaAttributes: ApiAttributeDoc[]
+}
+
+export interface ComponentAttributeDoc {
+  aria: ApiAttributeDoc[]
+  data: ApiAttributeDoc[]
+  slots: SlotAttributeDoc[]
+}
+
 export interface ComponentDoc {
   component: ComponentIndexEntry
   slots: SlotDoc[]
@@ -42,6 +62,7 @@ export interface ComponentDoc {
     inherited: InheritedGroupDoc[]
   }
   item?: ItemDoc
+  attributes?: ComponentAttributeDoc
 }
 
 export interface GenerationResult {

@@ -33,7 +33,7 @@ export default defineConfig({
     }),
     docsBuildPlugin({ projectRoot }),
     uno(unocfg),
-    solid({ ssr: true }),
+    solid({ ssr: true, extensions: ['.mdx'] }),
     fileRouter({
       routeSource: createDocsRouteSource(projectRoot),
       output: 'routes.d.ts',

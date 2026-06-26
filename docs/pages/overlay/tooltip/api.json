@@ -120,5 +120,339 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-checked",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-controls",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the controlled element while the related content is mounted."
+      },
+      {
+        "name": "aria-describedby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References descriptive text associated with the control."
+      },
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-expanded",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates whether the controlled content is expanded."
+      },
+      {
+        "name": "aria-haspopup",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-modal",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Identifies modal content that traps interaction outside the dialog."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-expanded",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-highlighted",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is highlighted by pointer or keyboard navigation."
+      },
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-placement",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "content",
+        "cssVariables": [
+          {
+            "name": "--mo-popper-content-transform-origin",
+            "required": false,
+            "type": "string",
+            "description": "CSS custom property exposed by this slot."
+          }
+        ],
+        "dataAttributes": [
+          {
+            "name": "data-placement",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "aria-modal",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Identifies modal content that traps interaction outside the dialog."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "group",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-expanded",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-highlighted",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-checked",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-controls",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the controlled element while the related content is mounted."
+          },
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-expanded",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates whether the controlled content is expanded."
+          },
+          {
+            "name": "aria-haspopup",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "itemDescription",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemIndicator",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabel",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLeading",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemTrailing",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemWrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "overlay",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "positioner",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "separator",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "text",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "trigger",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-controls",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the controlled element while the related content is mounted."
+          },
+          {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
+            "name": "aria-expanded",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates whether the controlled content is expanded."
+          }
+        ]
+      }
+    ]
   }
 }

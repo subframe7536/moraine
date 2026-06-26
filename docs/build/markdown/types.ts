@@ -10,10 +10,15 @@ export interface FrontmatterExampleRef {
 export interface FrontmatterData {
   category?: string
   component?: string
+  componentKey?: string
   description?: string
+  header?: boolean
   keywords?: string[]
+  name?: string
   related?: string[]
   examples?: FrontmatterExampleRef[]
+  status?: 'new' | 'update' | 'unreleased'
+  upstreamHref?: string
 }
 
 export interface CompileMarkdownOptions {

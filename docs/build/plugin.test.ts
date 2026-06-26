@@ -41,9 +41,12 @@ async function seedDocsProject(projectRoot: string): Promise<void> {
   await writeFile(
     path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     `
-import { DemoButtonBasicExample } from './basic-example?example'
+---
+header: true
+status: new
+---
 
-<DocsHeader status="new" />
+import { DemoButtonBasicExample } from './basic-example?example'
 
 ## Button
 
@@ -125,20 +128,6 @@ describe('docsBuildPlugin', () => {
           : await load?.handler(resolvedApiId as string)
       expect(apiModule).toContain('export default')
       expect(apiModule).toContain('"button"')
-
-      await expect(() =>
-        Promise.resolve(
-          transform?.handler.call(
-            TRANSFORM_CONTEXT,
-            `
-## Button
-
-<Example name="BasicExample" />
-`,
-            path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
-          ),
-        ),
-      ).rejects.toThrow('<Example /> is no longer supported')
 
       const exampleModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,

@@ -6,7 +6,7 @@ import { EXAMPLE_PARSE_OPTIONS } from '../examples/ast'
 import type { ProgramNode } from '../examples/ast'
 import { transformExampleModule } from '../examples/module'
 import { transformExampleSourceModule } from '../examples/source'
-import { compileMarkdownPage } from '../markdown/compile'
+import { compileMarkdownPage } from '../markdown/page'
 
 interface DocsTransformContext {
   parse: (input: string, options?: typeof EXAMPLE_PARSE_OPTIONS) => ProgramNode

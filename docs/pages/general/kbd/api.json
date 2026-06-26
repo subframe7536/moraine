@@ -59,5 +59,17 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": []
   }
 }

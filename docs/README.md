@@ -33,7 +33,9 @@ Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed
 
 ## MDX And Examples
 
-- MDX compilation lives in `docs/build/markdown/compile.ts`.
+- MDX page module generation lives in `docs/build/markdown/page.ts`.
+- Component docs pages use frontmatter for docs header rendering.
+- Component API reference sections render automatically from colocated `api.json`.
 - Demo imports still use `?example`.
 - Example modules are wrapped by `docs/build/examples/module.ts`.
 - During SSR, demo wrappers avoid importing browser-only demo modules; the client loads the interactive examples.

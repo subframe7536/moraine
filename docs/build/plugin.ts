@@ -4,7 +4,7 @@ import { exactRegex } from '@rolldown/pluginutils'
 import type { Plugin } from 'vite'
 
 import { loadApiDocIndex } from './api-doc/load'
-import { runApiDocGeneration } from './plugins/api-doc-generator'
+import { ensureApiDocGeneration } from './plugins/api-doc-generator'
 import { createDocsTransformHandler, DOCS_TRANSFORM_FILTER } from './plugins/transform-docs'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
@@ -24,7 +24,9 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
   const ensureApiDocs = async () => {
     let promise = API_DOC_GENERATION_BY_PROJECT.get(projectRoot)
     if (!promise) {
-      promise = runApiDocGeneration(projectRoot)
+      promise = ensureApiDocGeneration(projectRoot).finally(() => {
+        API_DOC_GENERATION_BY_PROJECT.delete(projectRoot)
+      })
       API_DOC_GENERATION_BY_PROJECT.set(projectRoot, promise)
     }
     await promise

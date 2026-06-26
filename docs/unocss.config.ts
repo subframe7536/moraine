@@ -21,10 +21,14 @@ const markdownShortCuts = {
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border my-6',
   'docs-inline-code':
-    'mx-[0.1rem] px-[0.3rem] py-0 bg-muted border border-border rounded-[0.35rem] text-sm font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
-  'docs-pre': 'b-1 b-border rounded-lg bg-muted overflow-x-auto text-sm my-4 p-5',
-  'docs-code-block': 'b-1 b-border rounded-lg overflow-hidden my-4 bg-muted/80',
-  'docs-code-block-inner': 'text-xs leading-relaxed overflow-x-auto font-mono',
+    'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border border-border/80 rounded-md text-sm font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
+  'docs-pre': 'docs-code-block p-4',
+  'docs-code-block':
+    'relative my-4 overflow-hidden rounded-lg border border-border/80 bg-muted/55 text-sm',
+  'docs-code-block-source':
+    'relative my-0 overflow-hidden rounded-b-lg rounded-t-none border-t border-border/80 bg-muted/55 text-sm',
+  'docs-code-block-inner':
+    'text-sm leading-relaxed bg-transparent overflow-x-auto font-mono [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,
@@ -145,6 +149,14 @@ export default defineConfig<PresetWind4Theme>({
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   --tracking-normal: -0.015em;
   --spacing: 0.25rem;
+}
+
+.docs-code-block pre,
+.docs-code-block-source pre {
+  margin: 0;
+  min-width: max-content;
+  padding: 1rem;
+  background: transparent !important;
 }
 
 .dark {

@@ -1,9 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { writeFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
 
 import { resolveDocsPageContext } from '../core/paths'
 
+import { extractSourceAttributeReference } from './attributes'
+import { clearApiDocCache } from './load'
 import type { GenerationResult } from './types'
 
 function collectFiles(dir: string, predicate: (file: string) => boolean): string[] {
@@ -43,6 +45,7 @@ async function removeStaleApiJson(pagesRoot: string): Promise<void> {
 }
 
 export async function writeJsonFiles(pagesRoot: string, result: GenerationResult): Promise<void> {
+  const projectRoot = path.dirname(path.dirname(pagesRoot))
   const pageDirectoryByKey = getPageDirectoryByKey(pagesRoot)
   const apiIndexDoc = {
     components: result.indexDoc.components.filter((component) =>
@@ -51,7 +54,6 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
   }
 
   mkdirSync(pagesRoot, { recursive: true })
-  rmSync(path.join(path.dirname(pagesRoot), 'api-doc'), { recursive: true, force: true })
   await removeStaleApiJson(pagesRoot)
   await writeFile(
     path.join(pagesRoot, '_api-index.json'),
@@ -65,9 +67,16 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
       console.warn(`[api-doc] No docs page found for "${key}", skipping colocated api.json`)
       return []
     }
-    return [writeFile(path.join(pageDirectory, 'api.json'), JSON.stringify(doc, null, 2), 'utf8')]
+    const completeDoc = {
+      ...doc,
+      attributes: extractSourceAttributeReference(projectRoot, doc.component.sourcePath),
+    }
+    return [
+      writeFile(path.join(pageDirectory, 'api.json'), JSON.stringify(completeDoc, null, 2), 'utf8'),
+    ]
   })
   await Promise.all(writes)
+  clearApiDocCache(projectRoot)
 
   console.log(`[api-doc] Generated ${writes.length} colocated component api docs to ${pagesRoot}`)
 }

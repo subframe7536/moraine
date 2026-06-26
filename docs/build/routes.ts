@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { closeSync, existsSync, openSync, readdirSync, readSync } from 'node:fs'
 import path from 'node:path'
 
 import type {
@@ -9,7 +9,7 @@ import type {
 
 import { loadApiDocIndex } from './api-doc/load'
 import { resolveDocsPageContext, toImportPath } from './core/paths'
-import { extractDocsHeaderProps } from './markdown/compile'
+import { readFrontmatterData } from './markdown/frontmatter'
 
 export type DocsRouteStatus = 'new' | 'update' | 'unreleased'
 
@@ -37,6 +37,7 @@ const STATUS_ALIASES = new Map<string, DocsRouteStatus>([
 const ROOT_ROUTE_KEY = 'introduction'
 const APP_ROUTE_ID = 'routes/_app.tsx'
 const NOT_FOUND_ROUTE_ID = '404.tsx'
+const FRONTMATTER_READ_BYTES = 4096
 
 function toTitleCaseFromKey(key: string): string {
   return key
@@ -78,10 +79,20 @@ function normalizeStatus(value: unknown): DocsRouteStatus | undefined {
   return STATUS_ALIASES.get(value.trim().toLowerCase())
 }
 
+function readFrontmatterPrefix(sourcePath: string): string {
+  const descriptor = openSync(sourcePath, 'r')
+  try {
+    const buffer = Buffer.alloc(FRONTMATTER_READ_BYTES)
+    const bytesRead = readSync(descriptor, buffer, 0, buffer.length, 0)
+    return buffer.toString('utf8', 0, bytesRead)
+  } finally {
+    closeSync(descriptor)
+  }
+}
+
 function readRouteStatus(sourcePath: string): DocsRouteStatus | undefined {
   try {
-    const markdown = readFileSync(sourcePath, 'utf8')
-    return normalizeStatus(extractDocsHeaderProps(markdown, sourcePath)?.status)
+    return normalizeStatus(readFrontmatterData(readFrontmatterPrefix(sourcePath), sourcePath).status)
   } catch {
     return undefined
   }
@@ -210,25 +221,34 @@ function notFoundRouteModuleCode(context: RouteSourceLoadContext): string {
 
 export function createDocsRouteSource(projectRoot: string): RouteSourceProvider {
   const docsRoot = path.join(projectRoot, 'docs')
+  let cachedRoutes: DocsRouteEntry[] | null = null
+
+  const getRoutes = () => {
+    cachedRoutes ??= scanDocsRoutes(projectRoot)
+    return cachedRoutes
+  }
 
   return {
-    scan: () => [
-      {
-        routeId: APP_ROUTE_ID,
-        routePath: '_app.tsx',
-        sourcePath: 'components/docs-app-layout.tsx',
-      },
-      ...scanDocsRoutes(projectRoot).map<RouteSourceEntry>((route) => ({
-        routeId: toRouteId(route),
-        routePath: route.routePath,
-        sourcePath: toRouteSourcePath(projectRoot, route.sourcePath),
-      })),
-      {
-        routeId: NOT_FOUND_ROUTE_ID,
-        routePath: '404.tsx',
-        sourcePath: 'components/docs-not-found.tsx',
-      },
-    ],
+    scan: () => {
+      cachedRoutes = scanDocsRoutes(projectRoot)
+      return [
+        {
+          routeId: APP_ROUTE_ID,
+          routePath: '_app.tsx',
+          sourcePath: 'components/docs-app-layout.tsx',
+        },
+        ...cachedRoutes.map<RouteSourceEntry>((route) => ({
+          routeId: toRouteId(route),
+          routePath: route.routePath,
+          sourcePath: toRouteSourcePath(projectRoot, route.sourcePath),
+        })),
+        {
+          routeId: NOT_FOUND_ROUTE_ID,
+          routePath: '404.tsx',
+          sourcePath: 'components/docs-not-found.tsx',
+        },
+      ]
+    },
     load(context) {
       if (context.routeId === `/${APP_ROUTE_ID}`) {
         return appRouteModuleCode(context)
@@ -238,7 +258,7 @@ export function createDocsRouteSource(projectRoot: string): RouteSourceProvider 
       }
 
       const sourcePath = path.normalize(context.sourcePath)
-      const route = scanDocsRoutes(projectRoot).find(
+      const route = getRoutes().find(
         (entry) => path.normalize(entry.sourcePath) === sourcePath,
       )
       if (!route) {
