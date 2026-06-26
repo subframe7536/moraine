@@ -4,9 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { compileMarkdownPage } from './compile'
 
-const API_REFERENCE_HEADING = `<HeadingWithAnchor id="api-ref" level={2}>
-  API Reference
-</HeadingWithAnchor>`
+const API_REFERENCE_HEADING = `## API Reference`
 
 describe('compileMarkdownPage', () => {
   test('compiles mdx frontmatter metadata into runtime page input', () => {
@@ -104,14 +102,16 @@ ${API_REFERENCE_HEADING}
     })
     expect(code).not.toContain('"id":"input"')
     expect(code).toContain('"id":"variants"')
-    expect(code).toContain('"id":"api-ref"')
+    expect(code).toContain('"id":"api-reference"')
     expect(code).toContain('"id":"attributes"')
     expect(code).toContain('"id":"api-props"')
     expect(code).not.toContain('"id":"api-aria"')
     expect(code).not.toContain('"id":"api-data-attributes"')
     expect(code).toContain('"label":"Attributes"')
     expect(code).toContain('"label":"Props"')
-    expect((code.match(/"id":"api-ref","label":"API Reference","level":1/g) ?? []).length).toBe(1)
+    expect(
+      (code.match(/"id":"api-reference","label":"API Reference","level":1/g) ?? []).length,
+    ).toBe(1)
     expect(code).toContain('import __docsRawApiDoc from "./api.json"')
     expect(code).toContain('DocsHeader as __DocsHeader')
     expect(code).toContain('DocsApiReference as __DocsApiReference')
@@ -196,7 +196,7 @@ ${API_REFERENCE_HEADING}
 `
 
     const code = compileMarkdownPage(markdown, '/tmp/docs/pages/form/custom/custom.mdx')
-    expect(code).toContain('"id":"api-ref"')
+    expect(code).toContain('"id":"api-reference"')
     expect(code).toContain('"id":"attributes"')
     expect(code).toContain('"id":"api-items"')
     expect(code).toContain('"id":"api-inherited"')

@@ -67,7 +67,6 @@ interface ScannedMdxPage {
   codeTabsPackages: string[]
   docsHeaderProps: Record<string, unknown> | null
   hasDocsApiReference: boolean
-  hasDocsApiReferenceHeading: boolean
 }
 
 interface TocInheritedGroup {
@@ -1044,7 +1043,6 @@ function scanMdxPage(source: string, id: string): ScannedMdxPage {
   const codeTabsPackages: string[] = []
   let docsHeaderProps: Record<string, unknown> | null = null
   let hasDocsApiReference = false
-  let hasDocsApiReferenceHeading = false
 
   walkMdast(tree, (node) => {
     if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') {
@@ -1068,7 +1066,6 @@ function scanMdxPage(source: string, id: string): ScannedMdxPage {
     }
 
     if (node.name === 'HeadingWithAnchor' && props.id === 'api-ref') {
-      hasDocsApiReferenceHeading = true
       return
     }
 
@@ -1091,7 +1088,6 @@ function scanMdxPage(source: string, id: string): ScannedMdxPage {
     codeTabsPackages: [...new Set(codeTabsPackages)],
     docsHeaderProps,
     hasDocsApiReference,
-    hasDocsApiReferenceHeading,
   }
 }
 
@@ -1387,14 +1383,6 @@ export function compileMarkdownPage(
   const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
 
   if (scannedPage.hasDocsApiReference && renderedApiReferenceModel) {
-    if (scannedPage.hasDocsApiReferenceHeading) {
-      onThisPageEntries.push({
-        id: 'api-ref',
-        label: 'API Reference',
-        level: 1,
-      })
-    }
-
     for (const section of renderedApiReferenceModel.sections) {
       onThisPageEntries.push({
         id: section.id,

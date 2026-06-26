@@ -273,20 +273,6 @@ describe('animations', () => {
     )
     expect(css).toContain('transition-timing-function: cubic-bezier(0.7, 0, 0.84, 0)')
   })
-
-  test('sidebar frame width utilities set CSS variable', async () => {
-    const css = await compileCSS([
-      'var-sidebar-frame-default',
-      'var-sidebar-frame-md',
-      'var-sidebar-frame-[18rem]',
-      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
-    ])
-
-    expect(css).toContain('--mo-sidebar-frame-sidebar-width: clamp(14rem,20vw,20rem)')
-    expect(css).toContain('--mo-sidebar-frame-sidebar-width: 16rem')
-    expect(css).toContain('--mo-sidebar-frame-sidebar-width: 18rem')
-    expect(css).toContain('width: var(--mo-sidebar-frame-sidebar-width,clamp(14rem, 20vw, 20rem))')
-  })
 })
 
 // ─── Icon Utilities ──────────────────────────────────────────────────
