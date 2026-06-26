@@ -23,12 +23,11 @@ const markdownShortCuts = {
   'docs-inline-code':
     'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border border-border/80 rounded-md text-sm font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
   'docs-pre': 'docs-code-block p-4',
-  'docs-code-block':
-    'relative my-4 overflow-hidden rounded-lg border border-border/80 bg-muted/55 text-sm',
+  'docs-code-block': 'relative my-4 overflow-hidden rounded-lg border border-border/80 text-sm',
   'docs-code-block-source':
-    'relative my-0 overflow-hidden rounded-b-lg rounded-t-none border-t border-border/80 bg-muted/55 text-sm',
+    'relative my-0 overflow-hidden rounded-b-lg rounded-t-none border-t border-border/80 text-sm',
   'docs-code-block-inner':
-    'text-sm leading-relaxed bg-transparent overflow-x-auto font-mono [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    'text-sm leading-relaxed bg-muted/55 overflow-x-auto font-mono [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,
@@ -42,6 +41,7 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetMoraine({
+      globalStyles: true,
       enableComponentLayer: {
         strategy: 'prefix',
         idFilter(id: string) {
@@ -206,6 +206,19 @@ export default defineConfig<PresetWind4Theme>({
   --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
   --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
 }
       `,
     },

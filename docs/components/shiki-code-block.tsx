@@ -109,7 +109,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
       <Show
         when={props.html}
         fallback={
-          <pre class="text-sm leading-relaxed m-0 p-4 bg-transparent overflow-x-auto">
+          <pre class="text-sm leading-relaxed m-0 p-4 bg-muted/55 overflow-x-auto">
             <code class="font-mono">{props.children}</code>
           </pre>
         }
