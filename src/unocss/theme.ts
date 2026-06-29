@@ -172,24 +172,46 @@ interface ResolvedPresetThemeOptions {
 let compileClassTransformerPromise: Promise<SourceCodeTransformer> | undefined
 
 async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
-  try {
-    compileClassTransformerPromise ??= import('@unocss/transformer-compile-class').then(
-      ({ default: transformerCompileClass }) =>
-        transformerCompileClass({
-          trigger: MORAINE_HASH_TRIGGER,
-          classPrefix: MORAINE_HASH_CLASS_PREFIX,
-          layer: MORAINE_COMPONENT_LAYER,
-        }),
-    )
+  if (compileClassTransformerPromise) {
+    return compileClassTransformerPromise
+  }
 
-    return await compileClassTransformerPromise
-  } catch (error) {
-    compileClassTransformerPromise = undefined
+  const tryLoad = async (): Promise<SourceCodeTransformer> => {
+    const transformerCompileClassOptions = {
+      trigger: MORAINE_HASH_TRIGGER,
+      classPrefix: MORAINE_HASH_CLASS_PREFIX,
+      layer: MORAINE_COMPONENT_LAYER,
+    }
+    // 1. Try @subf/unocss (named export)
+    try {
+      const { transformerCompileClass } = await import('@subf/unocss')
+      return transformerCompileClass(transformerCompileClassOptions)
+    } catch {}
+
+    // 2. Try unocss (named export)
+    try {
+      // @ts-expect-error - unocss may not be installed
+      const { transformerCompileClass } = await import('unocss')
+      return transformerCompileClass(transformerCompileClassOptions)
+    } catch {}
+
+    // 3. Try @unocss/transformer-compile-class (default export)
+    try {
+      const mod = await import('@unocss/transformer-compile-class')
+      return mod.default(transformerCompileClassOptions)
+    } catch {}
 
     throw new Error(
       '[preset-moraine] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
-      { cause: error },
     )
+  }
+
+  compileClassTransformerPromise = tryLoad()
+  try {
+    return await compileClassTransformerPromise
+  } catch (error) {
+    compileClassTransformerPromise = undefined
+    throw error
   }
 }
 
