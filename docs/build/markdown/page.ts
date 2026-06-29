@@ -8,10 +8,10 @@ import type { Data } from 'satteri'
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
 import { createPlainCodeBlockHtml, toSingleQuoted } from '../core/strings'
 
+import { createMdxCodeTabsPlugin } from './code-tabs'
 import { parseFrontmatterData } from './frontmatter'
 import { createDocsCodePlugin, createDocsHastPlugin, DOCS_MDX_FEATURES } from './plugins'
 import type { OnThisPageEntryLiteral } from './plugins'
-import { createMdxPageScanPlugin } from './scan'
 import type { CompileMarkdownOptions, MarkdownHighlightLang } from './types'
 
 interface CodeTabItemLiteral {
@@ -57,7 +57,7 @@ export function compileMarkdownPage(
 ): string {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
-  const scanPlugin = createMdxPageScanPlugin(idWithoutQuery)
+  const scanPlugin = createMdxCodeTabsPlugin(idWithoutQuery)
   const onThisPageEntries: OnThisPageEntryLiteral[] = []
   const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
   const imports = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]

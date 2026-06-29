@@ -38,7 +38,7 @@ function getStringAttribute(
   throw new Error(`[docs-mdx] <CodeTabs /> requires a static "${name}" string in ${id}`)
 }
 
-export function createMdxPageScanPlugin(id: string): MdxPageScanPlugin {
+export function createMdxCodeTabsPlugin(id: string): MdxPageScanPlugin {
   const codeTabsPackages = new Set<string>()
 
   const visitJsxNode = (node: unknown) => {
@@ -56,7 +56,7 @@ export function createMdxPageScanPlugin(id: string): MdxPageScanPlugin {
 
   return {
     plugin: defineMdastPlugin({
-      name: 'moraine-docs-scan',
+      name: 'moraine-code-tabs',
       mdxJsxFlowElement: visitJsxNode,
       mdxJsxTextElement: visitJsxNode,
     }),
