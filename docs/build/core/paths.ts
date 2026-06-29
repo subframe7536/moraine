@@ -1,3 +1,4 @@
+import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
 import { toPosixPath } from './strings'
@@ -42,6 +43,35 @@ export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
     group: group === '.' ? undefined : group,
     runtimeImportPath: `./pages/${relativePath}`,
   }
+}
+
+export function collectFiles(dir: string, predicate: (file: string) => boolean): string[] {
+  if (!existsSync(dir)) {
+    return []
+  }
+
+  const files: string[] = []
+  const entries = readdirSync(dir, { withFileTypes: true }).sort((left, right) =>
+    left.name.localeCompare(right.name),
+  )
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...collectFiles(fullPath, predicate))
+      continue
+    }
+
+    if (entry.isFile() && predicate(fullPath)) {
+      files.push(fullPath)
+    }
+  }
+
+  return files
+}
+
+export function collectMarkdownFiles(dir: string): string[] {
+  return collectFiles(dir, (file) => file.endsWith('.mdx'))
 }
 
 export function toImportPath(fromFile: string, toFile: string): string {

@@ -1,9 +1,12 @@
-import { mdxToMdast } from 'satteri'
-
-import { DOCS_MDX_FEATURES } from './plugins'
+import { defineMdastPlugin } from 'satteri'
 
 interface ScannedMdxPage {
   codeTabsPackages: string[]
+}
+
+interface MdxPageScanPlugin {
+  plugin: ReturnType<typeof defineMdastPlugin>
+  result: () => ScannedMdxPage
 }
 
 function asObjectRecord(value: unknown): Record<string, unknown> | null {
@@ -24,56 +27,41 @@ function getStringAttribute(
     return null
   }
 
-  const record = asObjectRecord(attribute)
-  if (!record || record.type !== 'mdxJsxAttribute' || typeof record.name !== 'string') {
+  if (attribute.type !== 'mdxJsxAttribute' || typeof attribute.name !== 'string') {
     throw new Error(`[docs-mdx] unsupported JSX attribute in ${id}`)
   }
 
-  if (typeof record.value === 'string') {
-    return record.value
+  if (typeof attribute.value === 'string') {
+    return attribute.value
   }
 
   throw new Error(`[docs-mdx] <CodeTabs /> requires a static "${name}" string in ${id}`)
 }
 
-function walkMdast(node: unknown, visit: (node: Record<string, unknown>) => void) {
-  const record = asObjectRecord(node)
-  if (!record) {
-    return
-  }
+export function createMdxPageScanPlugin(id: string): MdxPageScanPlugin {
+  const codeTabsPackages = new Set<string>()
 
-  visit(record)
-
-  if (Array.isArray(record.children)) {
-    for (const child of record.children) {
-      walkMdast(child, visit)
-    }
-  }
-}
-
-export function scanMdxPage(source: string, id: string): ScannedMdxPage {
-  const tree = mdxToMdast(source, { features: DOCS_MDX_FEATURES })
-  const codeTabsPackages: string[] = []
-
-  walkMdast(tree, (node) => {
-    if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') {
+  const visitJsxNode = (node: unknown) => {
+    const record = asObjectRecord(node)
+    if (!record || record.name !== 'CodeTabs') {
       return
     }
 
-    if (typeof node.name !== 'string') {
-      return
+    const packageName = getStringAttribute(record, 'package', id)?.trim()
+    if (!packageName) {
+      throw new Error(`[docs-mdx] <CodeTabs /> requires a static "package" string in ${id}`)
     }
-
-    if (node.name === 'CodeTabs') {
-      const packageName = getStringAttribute(node, 'package', id)?.trim()
-      if (!packageName) {
-        throw new Error(`[docs-mdx] <CodeTabs /> requires a static "package" string in ${id}`)
-      }
-      codeTabsPackages.push(packageName)
-    }
-  })
+    codeTabsPackages.add(packageName)
+  }
 
   return {
-    codeTabsPackages: [...new Set(codeTabsPackages)],
+    plugin: defineMdastPlugin({
+      name: 'moraine-docs-scan',
+      mdxJsxFlowElement: visitJsxNode,
+      mdxJsxTextElement: visitJsxNode,
+    }),
+    result: () => ({
+      codeTabsPackages: [...codeTabsPackages],
+    }),
   }
 }

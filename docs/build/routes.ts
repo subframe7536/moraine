@@ -1,4 +1,4 @@
-import { closeSync, existsSync, openSync, readdirSync, readSync } from 'node:fs'
+import { closeSync, openSync, readSync } from 'node:fs'
 import path from 'node:path'
 
 import type {
@@ -8,7 +8,8 @@ import type {
 } from 'solid-file-router/plugin'
 
 import { loadApiDocIndex } from './api-doc/load'
-import { resolveDocsPageContext, toImportPath } from './core/paths'
+import { collectMarkdownFiles, resolveDocsPageContext, toImportPath } from './core/paths'
+import { toTitleCaseFromKey } from './core/strings'
 import { readFrontmatterData } from './markdown/frontmatter'
 
 export type DocsRouteStatus = 'new' | 'update' | 'unreleased'
@@ -39,39 +40,6 @@ const APP_ROUTE_ID = 'routes/_app.tsx'
 const NOT_FOUND_ROUTE_ID = '404.tsx'
 const FRONTMATTER_READ_BYTES = 4096
 
-function toTitleCaseFromKey(key: string): string {
-  return key
-    .split('-')
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}
-
-function collectMarkdownFiles(dir: string): string[] {
-  if (!existsSync(dir)) {
-    return []
-  }
-
-  const files: string[] = []
-  const entries = readdirSync(dir, { withFileTypes: true }).sort((left, right) =>
-    left.name.localeCompare(right.name),
-  )
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...collectMarkdownFiles(fullPath))
-      continue
-    }
-
-    if (entry.isFile() && entry.name.endsWith('.mdx')) {
-      files.push(fullPath)
-    }
-  }
-
-  return files
-}
-
 function normalizeStatus(value: unknown): DocsRouteStatus | undefined {
   if (typeof value !== 'string') {
     return undefined
@@ -92,7 +60,9 @@ function readFrontmatterPrefix(sourcePath: string): string {
 
 function readRouteStatus(sourcePath: string): DocsRouteStatus | undefined {
   try {
-    return normalizeStatus(readFrontmatterData(readFrontmatterPrefix(sourcePath), sourcePath).status)
+    return normalizeStatus(
+      readFrontmatterData(readFrontmatterPrefix(sourcePath), sourcePath).status,
+    )
   } catch {
     return undefined
   }
@@ -258,9 +228,7 @@ export function createDocsRouteSource(projectRoot: string): RouteSourceProvider 
       }
 
       const sourcePath = path.normalize(context.sourcePath)
-      const route = getRoutes().find(
-        (entry) => path.normalize(entry.sourcePath) === sourcePath,
-      )
+      const route = getRoutes().find((entry) => path.normalize(entry.sourcePath) === sourcePath)
       if (!route) {
         return null
       }
