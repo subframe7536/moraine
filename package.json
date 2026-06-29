@@ -56,7 +56,7 @@
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
     "oxc": "oxlint --fix && oxfmt",
-    "qa": "bun run --parallel oxc typecheck",
+    "qa": "bun run oxc && bun run typecheck",
     "release": "bun run test && bun run qa && bumpp --all",
     "prepublishOnly": "bun run build"
   },
@@ -65,6 +65,8 @@
     "cls-variant": "^1.2.0"
   },
   "devDependencies": {
+    "@expressive-code/plugin-collapsible-sections": "^0.42.0",
+    "@expressive-code/plugin-line-numbers": "^0.42.0",
     "@iconify-json/lucide": "^1.2.112",
     "@iconify/tailwind": "1.2.0",
     "@rolldown/pluginutils": "*",
@@ -73,12 +75,14 @@
     "@subf/config": "^0.2.1",
     "@subf/unocss": "^0.2.0",
     "@types/bun": "^1.3.14",
+    "@unocss/transformer-compile-class": "66.7.2",
     "bumpp": "^11.1.0",
     "jsdom": "^29.1.1",
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0",
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.9.2",
+    "satteri-expressive-code": "^0.1.16",
     "shiki": "^4.2.0",
     "solid-file-router": "^0.6.0",
     "solid-toaster": "^0.1.5",
@@ -89,7 +93,8 @@
     "vite": "^8.0.16",
     "vite-plugin-solid": "^2.11.12",
     "vitest": "^4.1.8",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "hast-util-to-html": "^9.0.5"
   },
   "peerDependencies": {
     "@iconify/tailwind": "1.2.0",

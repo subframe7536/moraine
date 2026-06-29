@@ -8,8 +8,6 @@ import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from './shared'
-import type { MarkdownHighlightLang } from './types'
-
 export interface OnThisPageEntryLiteral {
   id: string
   label: string
@@ -22,36 +20,11 @@ export const DOCS_MDX_FEATURES = {
   smartPunctuation: true,
 }
 
-const MARKDOWN_LANG_ALIASES: Record<string, MarkdownHighlightLang> = {
-  bash: 'bash',
-  sh: 'bash',
-  shell: 'bash',
-  zsh: 'bash',
-  console: 'bash',
-  tsx: 'tsx',
-  ts: 'tsx',
-  typescript: 'tsx',
-  jsx: 'tsx',
-  css: 'css',
-  js: 'javascript',
-  cjs: 'javascript',
-  mjs: 'javascript',
-  javascript: 'javascript',
-}
-
 const DEFAULT_TABLE_THEAD_TR_CLASS =
   'text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase'
 const DEFAULT_TABLE_TBODY_TR_CLASS = 'b-t b-border hover:bg-muted/50'
 const DEFAULT_TABLE_TH_CLASS = 'font-medium px-3 py-2'
 const DEFAULT_TABLE_TD_CLASS = 'px-3 py-2'
-
-function normalizeMarkdownLang(value: string | null | undefined): MarkdownHighlightLang | null {
-  const key = value?.trim().toLowerCase() ?? ''
-  if (!key) {
-    return null
-  }
-  return MARKDOWN_LANG_ALIASES[key] ?? null
-}
 
 function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
@@ -228,13 +201,12 @@ export function createDocsHastPlugin(onThisPageEntries?: OnThisPageEntryLiteral[
 }
 
 export function createDocsCodePlugin(
-  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null,
+  highlightCode?: (source: string, lang: string) => Promise<string>,
 ) {
   return defineMdastPlugin({
     name: 'moraine-docs-code',
-    code(node) {
-      const lang = normalizeMarkdownLang(node.lang)
-      const html = lang ? (highlightCode?.(node.value, lang) ?? null) : null
+    async code(node) {
+      const html = await highlightCode?.(node.value, node.lang ?? 'text')
       return {
         type: 'mdxJsxFlowElement',
         name: 'ShikiCodeBlock',

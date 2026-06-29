@@ -19,8 +19,8 @@ async function createTempPage(): Promise<{ projectRoot: string; pagePath: string
 }
 
 describe('compileMarkdownPage', () => {
-  test('compiles mdx to JSX and passes frontmatter to Markdown runtime', () => {
-    const code = compileMarkdownPage(
+  test('compiles mdx to JSX and passes frontmatter to Markdown runtime', async () => {
+    const code = await compileMarkdownPage(
       `---
 header: true
 status: new
@@ -50,7 +50,7 @@ status: new
         '{"component":{"key":"button"}}',
       )
 
-      const code = compileMarkdownPage(
+      const code = await compileMarkdownPage(
         `---
 header: true
 ---
@@ -66,8 +66,8 @@ header: true
     }
   })
 
-  test('collects CodeTabs packages only', () => {
-    const code = compileMarkdownPage(
+  test('collects CodeTabs packages only', async () => {
+    const code = await compileMarkdownPage(
       '<CodeTabs package="moraine" />',
       '/tmp/docs/pages/introduction.mdx',
     )

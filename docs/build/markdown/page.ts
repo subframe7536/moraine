@@ -9,6 +9,7 @@ import { resolveDocsPageContext, toImportPath } from '../core/paths'
 import { createPlainCodeBlockHtml, toSingleQuoted } from '../core/strings'
 
 import { createMdxCodeTabsPlugin } from './code-tabs'
+import { renderDocsCodeBlock } from './expressive-code'
 import { parseFrontmatterData } from './frontmatter'
 import { createDocsCodePlugin, createDocsHastPlugin, DOCS_MDX_FEATURES } from './plugins'
 import type { OnThisPageEntryLiteral } from './plugins'
@@ -35,13 +36,6 @@ function createCodeTabsItems(
   }))
 }
 
-function assertSyncResult<T>(result: T | Promise<T>): T {
-  if (result instanceof Promise) {
-    throw new TypeError('[docs-mdx] async Satteri plugins are not supported in docs compile')
-  }
-  return result
-}
-
 function stripMdxDefaultExport(code: string): string {
   return code.replace(/\n?export default MDXContent;\s*/, '\n')
 }
@@ -50,11 +44,11 @@ function hasColocatedApiJson(id: string): boolean {
   return existsSync(path.join(path.dirname(id), 'api.json'))
 }
 
-export function compileMarkdownPage(
+export async function compileMarkdownPage(
   markdownSource: string,
   id: string,
   options: CompileMarkdownOptions = {},
-): string {
+): Promise<string> {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
   const scanPlugin = createMdxCodeTabsPlugin(idWithoutQuery)
@@ -67,18 +61,16 @@ export function compileMarkdownPage(
     imports.push("import __docsRawApiDoc from './api.json'")
   }
 
-  const mdxResult = assertSyncResult(
-    mdxToJs(markdownSource, {
-      jsx: true,
-      elementAttributeNameCase: 'html',
-      stylePropertyNameCase: 'css',
-      features: DOCS_MDX_FEATURES,
-      fileURL: pathToFileURL(idWithoutQuery),
-      data: {} satisfies Data,
-      mdastPlugins: [scanPlugin.plugin, createDocsCodePlugin(options.highlightCode)],
-      hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
-    }),
-  )
+  const mdxResult = await mdxToJs(markdownSource, {
+    jsx: true,
+    elementAttributeNameCase: 'html',
+    stylePropertyNameCase: 'css',
+    features: DOCS_MDX_FEATURES,
+    fileURL: pathToFileURL(idWithoutQuery),
+    data: {} satisfies Data,
+    mdastPlugins: [scanPlugin.plugin, createDocsCodePlugin(renderDocsCodeBlock)],
+    hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
+  })
   const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
 
   const codeTabsCode = JSON.stringify(
