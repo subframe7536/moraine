@@ -166,5 +166,212 @@
       }
     ],
     "description": "An individual tab in the tabs component."
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-controls",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the controlled element while the related content is mounted."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-orientation",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Communicates horizontal or vertical orientation."
+      },
+      {
+        "name": "aria-selected",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates the currently selected option or tab."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-highlighted",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is highlighted by pointer or keyboard navigation."
+      },
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-selected",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is selected."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "content",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-selected",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is selected."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "indicator",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "leading",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "list",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-orientation",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Communicates horizontal or vertical orientation."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "trigger",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-highlighted",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          },
+          {
+            "name": "data-selected",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is selected."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-controls",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the controlled element while the related content is mounted."
+          },
+          {
+            "name": "aria-selected",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates the currently selected option or tab."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      }
+    ]
   }
 }

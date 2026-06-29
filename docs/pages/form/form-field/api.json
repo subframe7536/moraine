@@ -144,5 +144,79 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [
+      {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "description",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "error",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "help",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "hint",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "labelWrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "wrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

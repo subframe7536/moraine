@@ -2,11 +2,20 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
+import { fileRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
+import {
+  createDocsRouteSource,
+  docsBuildPlugin,
+  getDocsPrerenderRoutes,
+  siteMetaPlugin,
+} from './build'
 import unocfg from './unocss.config'
-import { docsPlugin, siteMetaPlugin } from './vite-plugin'
+
+const docsRoot = fileURLToPath(new URL('.', import.meta.url))
+const projectRoot = path.resolve(docsRoot, '..')
 
 export default defineConfig({
   plugins: [
@@ -22,13 +31,30 @@ export default defineConfig({
       imageHeight: 630,
       twitterCard: 'summary_large_image',
     }),
-    docsPlugin(),
+    docsBuildPlugin({ projectRoot }),
     uno(unocfg),
-    solid(),
+    solid({ ssr: true, extensions: ['.mdx'] }),
+    fileRouter({
+      routeSource: createDocsRouteSource(projectRoot),
+      output: 'routes.d.ts',
+      ssg: {
+        serverEntry: 'entry-server.tsx',
+        id: 'app',
+        routes: () => getDocsPrerenderRoutes(projectRoot),
+        concurrency: 4,
+      },
+      infoDts: {
+        key: 'string',
+        title: 'string',
+        group: 'string',
+        status: "'new' | 'update' | 'unreleased'",
+        api: 'string',
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@src': path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../src'),
+      '@src': path.resolve(docsRoot, '../src'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },

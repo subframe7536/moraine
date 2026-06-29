@@ -101,5 +101,490 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-controls",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the controlled element while the related content is mounted."
+      },
+      {
+        "name": "aria-describedby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References descriptive text associated with the control."
+      },
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-modal",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Identifies modal content that traps interaction outside the dialog."
+      },
+      {
+        "name": "aria-orientation",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Communicates horizontal or vertical orientation."
+      },
+      {
+        "name": "aria-valuemax",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the maximum value for range-like controls."
+      },
+      {
+        "name": "aria-valuemin",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the minimum value for range-like controls."
+      },
+      {
+        "name": "aria-valuenow",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the current numeric value for range-like controls."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-active",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is active."
+      },
+      {
+        "name": "data-collapsed",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-cross",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-dragging",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present while the related thumb or handle is being dragged."
+      },
+      {
+        "name": "data-expanded",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-mobile",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-resizable-handle-end-target",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-resizable-handle-start-target",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-resizable-root",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-resizing",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-side",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the resolved floating content side."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-transitioning",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "actions",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "body",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "close",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "content",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "aria-modal",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Identifies modal content that traps interaction outside the dialog."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "cross-target",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-resizable-handle-end-target",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-resizable-handle-start-target",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "description",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "divider",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-active",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is active."
+          },
+          {
+            "name": "data-cross",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-dragging",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present while the related thumb or handle is being dragged."
+          },
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-controls",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the controlled element while the related content is mounted."
+          },
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-orientation",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Communicates horizontal or vertical orientation."
+          },
+          {
+            "name": "aria-valuemax",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the maximum value for range-like controls."
+          },
+          {
+            "name": "aria-valuemin",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the minimum value for range-like controls."
+          },
+          {
+            "name": "aria-valuenow",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the current numeric value for range-like controls."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "footer",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "handle",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "header",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "layout",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "main",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "overlay",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "panel",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-collapsed",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-expanded",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          },
+          {
+            "name": "data-resizing",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-transitioning",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          },
+          {
+            "name": "data-resizable-root",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "sidebar",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-mobile",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-side",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the resolved floating content side."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "sidebarBody",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "sidebarFooter",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "sidebarHeader",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "title",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "trigger",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "wrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

@@ -52,6 +52,10 @@ export interface ComponentLayerOptions extends Partial<
 }
 
 export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 'beforeTransform'> {
+  /**
+   * Controls whether to inject global styles for CSS variables and base styles.
+   */
+  globalStyles?: boolean
   wind3?: boolean
   icons?: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
   enableComponentLayer?: boolean | ComponentLayerOptions
@@ -156,6 +160,7 @@ const TRANSITION_ANIMATION_SHORTCUTS: Record<string, string> = {
 
 interface ResolvedPresetThemeOptions {
   wind3: boolean
+  globalStyles: boolean
   icons: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
   enableComponentLayer: boolean
   strategy: ComponentLayerStrategy
@@ -216,6 +221,7 @@ export function resolvePresetThemeOptions(
     utilityPrefix: layerOpts?.utilityPrefix ?? DEFAULT_COMPONENT_UTILITY_PREFIX,
     idFilter: layerOpts?.idFilter ?? ((id: string) => id.includes('node_modules/moraine/')),
     beforeTransform: layerOpts?.beforeTransform ?? options?.beforeTransform,
+    globalStyles: options?.globalStyles ?? true,
   }
 }
 
@@ -370,6 +376,19 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
           '--s-size': `${num}px`,
         }),
       ],
+    ],
+    preflights: [
+      {
+        getCSS: () =>
+          normalized.globalStyles
+            ? `
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+`
+            : '',
+      },
     ],
   }
 }

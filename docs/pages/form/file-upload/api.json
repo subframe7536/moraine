@@ -234,5 +234,210 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-dragging",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present while the related thumb or handle is being dragged."
+      },
+      {
+        "name": "data-invalid",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field has a validation error."
+      },
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "control",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-dragging",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present while the related thumb or handle is being dragged."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "description",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "file",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fileMeta",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fileName",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "filePreview",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fileRemove",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "files",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fileSize",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "icon",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "wrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

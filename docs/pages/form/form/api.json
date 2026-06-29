@@ -97,5 +97,17 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      }
+    ],
+    "slots": []
   }
 }

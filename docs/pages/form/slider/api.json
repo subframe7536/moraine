@@ -150,5 +150,211 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-orientation",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Communicates horizontal or vertical orientation."
+      },
+      {
+        "name": "aria-readonly",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control value cannot be changed by the user."
+      },
+      {
+        "name": "aria-required",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that user input is required."
+      },
+      {
+        "name": "aria-valuemax",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the maximum value for range-like controls."
+      },
+      {
+        "name": "aria-valuemin",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the minimum value for range-like controls."
+      },
+      {
+        "name": "aria-valuenow",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Defines the current numeric value for range-like controls."
+      },
+      {
+        "name": "aria-valuetext",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides human-readable text for the current value."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-dragging",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present while the related thumb or handle is being dragged."
+      },
+      {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "range",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "thumb",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-dragging",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present while the related thumb or handle is being dragged."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          },
+          {
+            "name": "aria-orientation",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Communicates horizontal or vertical orientation."
+          },
+          {
+            "name": "aria-readonly",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control value cannot be changed by the user."
+          },
+          {
+            "name": "aria-required",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that user input is required."
+          },
+          {
+            "name": "aria-valuemax",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the maximum value for range-like controls."
+          },
+          {
+            "name": "aria-valuemin",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the minimum value for range-like controls."
+          },
+          {
+            "name": "aria-valuenow",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Defines the current numeric value for range-like controls."
+          },
+          {
+            "name": "aria-valuetext",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides human-readable text for the current value."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "track",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

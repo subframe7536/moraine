@@ -125,5 +125,85 @@
         "description": "Initial text to show if image fails or is missing."
       }
     ]
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-status",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores async loading, loaded, or error status."
+      }
+    ],
+    "slots": [
+      {
+        "name": "badge",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fallback",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fallbackIcon",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "group",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "groupCount",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "image",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

@@ -240,5 +240,261 @@
         "description": "Display name for the group header."
       }
     ]
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-highlighted",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is highlighted by pointer or keyboard navigation."
+      },
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "back",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-loading",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component is loading."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-busy",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "close",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "empty",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "footer",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "group",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "input",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "inputWrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-highlighted",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "itemDescription",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabel",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabelBase",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabelPrefix",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabelSuffix",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLeading",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemTrailing",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemWrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "listbox",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "search",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-loading",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component is loading."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-busy",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          }
+        ]
+      }
+    ]
   }
 }

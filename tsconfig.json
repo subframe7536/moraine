@@ -8,8 +8,8 @@
       "@src": ["./src/index.ts"],
       "@src/*": ["./src/*"]
     },
-    "types": ["vite/client", "@testing-library/dom", "node"]
+    "types": ["vite/client", "solid-file-router/client", "@testing-library/dom", "node"]
   },
   "include": ["src", "test", "docs"],
-  "exclude": ["**/dist", "**/node_modules"]
+  "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts"]
 }

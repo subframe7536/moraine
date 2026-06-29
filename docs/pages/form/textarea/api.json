@@ -207,5 +207,80 @@
       }
     ],
     "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-readonly",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control value cannot be changed by the user."
+      },
+      {
+        "name": "aria-required",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that user input is required."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "footer",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "header",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "input",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-readonly",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control value cannot be changed by the user."
+          },
+          {
+            "name": "aria-required",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that user input is required."
+          }
+        ]
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

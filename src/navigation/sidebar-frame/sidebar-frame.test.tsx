@@ -51,7 +51,7 @@ describe('SidebarFrame', () => {
       'transition-mo-enter',
     )
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
+      'w-sidebar',
     )
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
@@ -70,9 +70,7 @@ describe('SidebarFrame', () => {
     const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
 
     expect(sidebar.className).toContain('opacity-100')
-    expect(sidebar.className).toContain(
-      'w-[var(--mo-sidebar-frame-sidebar-width,clamp(14rem,20vw,20rem))]',
-    )
+    expect(sidebar.className).toContain('w-sidebar')
 
     await fireEvent.click(screen.getByText('toggle desktop'))
 

@@ -103,18 +103,13 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
 
   return (
     <div
-      class={cn(
-        isSource()
-          ? 'group b-(1 border) rounded-xl bg-muted/40 relative overflow-hidden'
-          : 'relative',
-        props.class,
-      )}
+      class={cn(isSource() ? 'group docs-code-block-source' : 'docs-code-block', props.class)}
       style={props.style}
     >
       <Show
         when={props.html}
         fallback={
-          <pre class="text-sm leading-relaxed m-0 p-4 bg-transparent overflow-x-auto">
+          <pre class="text-sm leading-relaxed m-0 p-4 bg-muted/55 overflow-x-auto">
             <code class="font-mono">{props.children}</code>
           </pre>
         }
@@ -142,7 +137,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
                   updateExpandable()
                 }}
                 class={cn(
-                  'text-sm leading-relaxed bg-muted/70 h-full transition-height duration-300 ease-in-out [scrollbar-width:none] [&_code]:font-mono [&_pre]:(m-0 p-4 min-w-max) [&::-webkit-scrollbar]:hidden',
+                  'docs-code-block-inner h-full transition-height duration-300 ease-in-out [&_code]:font-mono',
                   isExpandable() && !isExpanded() ? 'overflow-hidden' : 'overflow-auto',
                 )}
                 // oxlint-disable-next-line subf/solid-no-innerhtml

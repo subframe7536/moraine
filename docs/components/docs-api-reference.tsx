@@ -4,12 +4,12 @@ import { Dynamic } from 'solid-js/web'
 
 import { Badge, Select, Tabs, cn } from '../../src'
 import { createMediaQuery } from '../../src/shared/use-media-query'
-import type { PropDoc } from '../vite-plugin/api-doc/types'
+import type { ComponentDoc, PropDoc, SlotAttributeDoc, SlotDoc } from '../build/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from '../vite-plugin/markdown/shared'
+} from '../build/markdown/shared'
 
 export interface PropsTableProps {
   sections: PropsTableSection[]
@@ -73,6 +73,131 @@ function getAttributeGroupTone(kind: AttributeGroupKind): string {
   }
 
   return 'text-primary bg-primary/10 border-primary/20'
+}
+
+function createEmptySlotReference(slot: SlotDoc): SlotReferenceDoc {
+  return {
+    name: slot.name,
+    description: slot.description,
+    cssVariables: [],
+    dataAttributes: [],
+    ariaAttributes: [],
+  }
+}
+
+function mergeSlotReference(slot: SlotDoc, attributes?: SlotAttributeDoc): SlotReferenceDoc {
+  const reference = attributes
+    ? {
+        name: attributes.name,
+        cssVariables: attributes.cssVariables,
+        dataAttributes: attributes.dataAttributes,
+        ariaAttributes: attributes.ariaAttributes,
+      }
+    : createEmptySlotReference(slot)
+
+  return {
+    ...reference,
+    description: slot.description,
+  }
+}
+
+function createSlotReferenceDocs(apiDoc: ComponentDoc): SlotReferenceDoc[] {
+  const sourceSlotByName = new Map(
+    (apiDoc.attributes?.slots ?? []).map((slot) => [slot.name, slot] as const),
+  )
+
+  return apiDoc.slots.map((slot) => mergeSlotReference(slot, sourceSlotByName.get(slot.name)))
+}
+
+export function createDocsApiReferenceModel(
+  apiDoc: ComponentDoc | undefined,
+): DocsApiReferenceModel {
+  const sections: PropsTableSection[] = []
+  const ownProps = apiDoc?.props.own ?? []
+  const inheritedProps = apiDoc?.props.inherited ?? []
+  const itemDoc = apiDoc?.item
+  const hasSlots = Boolean(apiDoc?.slots.length)
+  const hasGlobalAria = !hasSlots && Boolean(apiDoc?.attributes?.aria.length)
+  const hasGlobalDataAttributes = !hasSlots && Boolean(apiDoc?.attributes?.data.length)
+
+  if (!apiDoc) {
+    return { sections }
+  }
+
+  if (hasSlots) {
+    sections.push({
+      id: 'attributes',
+      heading: 'Attributes',
+      slots: createSlotReferenceDocs(apiDoc),
+      props: [],
+    })
+  }
+
+  if (ownProps.length > 0) {
+    sections.push({
+      id: 'api-props',
+      heading: 'Props',
+      props: ownProps,
+    })
+  }
+
+  if (itemDoc) {
+    sections.push({
+      id: 'api-items',
+      heading: 'Items',
+      description: itemDoc.description,
+      props: itemDoc.props,
+    })
+  }
+
+  if (hasGlobalAria) {
+    sections.push({
+      id: 'api-aria',
+      heading: 'ARIA',
+      description: 'Accessibility attributes and roles emitted by the component markup.',
+      nameColumn: 'Attribute',
+      props: apiDoc.attributes?.aria ?? [],
+    })
+  }
+
+  if (hasGlobalDataAttributes) {
+    sections.push({
+      id: 'api-data-attributes',
+      heading: 'Data Attributes',
+      description: 'State and slot attributes exposed for styling hooks and selectors.',
+      nameColumn: 'Attribute',
+      props: apiDoc.attributes?.data ?? [],
+    })
+  }
+
+  if (inheritedProps.length > 0) {
+    sections.push({
+      id: 'api-inherited',
+      heading: 'Inherited',
+      props: [],
+      groups: inheritedProps.map((group) => ({
+        description: `From ${group.from}`,
+        props: group.props,
+      })),
+    })
+  }
+
+  return { sections }
+}
+
+export function getDocsApiReferenceTocEntries(apiDoc: ComponentDoc | undefined) {
+  const sections = createDocsApiReferenceModel(apiDoc).sections
+  if (sections.length === 0) {
+    return []
+  }
+  return [
+    { id: 'api-reference', label: 'API Reference', level: 1 },
+    ...sections.map((section) => ({
+      id: section.id,
+      label: section.heading,
+      level: 2,
+    })),
+  ]
 }
 
 function PropRows(tableProps: {
@@ -456,15 +581,18 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
 }
 
 interface DocsApiReferenceProps {
-  model?: DocsApiReferenceModel
+  apiDoc?: ComponentDoc
 }
 
 export const DocsApiReference = (props: DocsApiReferenceProps) => {
+  const model = createMemo(() => createDocsApiReferenceModel(props.apiDoc))
+
   return (
-    <Show when={(props.model?.sections?.length ?? 0) > 0}>
-      <For each={props.model?.sections ?? []}>
-        {(section) => <SectionTableBlock section={section} />}
-      </For>
+    <Show when={model().sections.length > 0}>
+      <HeadingWithAnchor id="api-reference" level={2}>
+        API Reference
+      </HeadingWithAnchor>
+      <For each={model().sections}>{(section) => <SectionTableBlock section={section} />}</For>
     </Show>
   )
 }

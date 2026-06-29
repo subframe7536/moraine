@@ -177,5 +177,178 @@
       }
     ],
     "description": "A radio item object."
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-orientation",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Communicates horizontal or vertical orientation."
+      },
+      {
+        "name": "aria-readonly",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control value cannot be changed by the user."
+      },
+      {
+        "name": "aria-required",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that user input is required."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "container",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "control",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "description",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fieldset",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          }
+        ]
+      },
+      {
+        "name": "indicator",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "input",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-readonly",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control value cannot be changed by the user."
+          },
+          {
+            "name": "aria-required",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that user input is required."
+          }
+        ]
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "legend",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-orientation",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Communicates horizontal or vertical orientation."
+          },
+          {
+            "name": "aria-readonly",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control value cannot be changed by the user."
+          },
+          {
+            "name": "aria-required",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that user input is required."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "wrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }
