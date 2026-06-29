@@ -1,35 +1,16 @@
-import { existsSync, mkdirSync, readdirSync } from 'node:fs'
+import { mkdirSync } from 'node:fs'
 import { writeFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
 
-import { resolveDocsPageContext } from '../core/paths'
+import { collectFiles, collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
 
 import { extractSourceAttributeReference } from './attributes'
 import { clearApiDocCache } from './load'
 import type { GenerationResult } from './types'
 
-function collectFiles(dir: string, predicate: (file: string) => boolean): string[] {
-  if (!existsSync(dir)) {
-    return []
-  }
-
-  const files: string[] = []
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...collectFiles(fullPath, predicate))
-      continue
-    }
-    if (entry.isFile() && predicate(fullPath)) {
-      files.push(fullPath)
-    }
-  }
-  return files
-}
-
 function getPageDirectoryByKey(pagesRoot: string): Map<string, string> {
   const pageDirectories = new Map<string, string>()
-  for (const file of collectFiles(pagesRoot, (item) => item.endsWith('.mdx'))) {
+  for (const file of collectMarkdownFiles(pagesRoot)) {
     const page = resolveDocsPageContext(file)
     pageDirectories.set(page.pageKey, path.dirname(file))
   }

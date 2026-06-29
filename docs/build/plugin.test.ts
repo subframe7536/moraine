@@ -4,7 +4,8 @@ import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { parseSync } from 'vite'
+import { createServer, parseSync } from 'vite'
+import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'
 
 import { EXAMPLE_PARSE_OPTIONS } from './examples/ast'
@@ -36,8 +37,14 @@ async function createTempProject(): Promise<string> {
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/general/button'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'docs/components'), { recursive: true })
 
   await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
+  await writeFile(
+    path.join(projectRoot, 'docs/components/docs-demo-block.tsx'),
+    'export function createDocsDemo(component, source) { return { component, source } }\n',
+    'utf8',
+  )
   await writeFile(
     path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     `
@@ -146,6 +153,34 @@ describe('docsBuildPlugin', () => {
       expect(ssrExampleModule).toContain('createDocsDemo(() => null')
       expect(ssrExampleModule).not.toContain('import { BasicExample as __BasicExample }')
     } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+  test('runs transforms through a real Vite dev server', async () => {
+    const projectRoot = await createTempProject()
+    await seedDocsProject(projectRoot)
+    let server: ViteDevServer | undefined
+
+    try {
+      server = await createServer({
+        root: path.join(projectRoot, 'docs'),
+        configFile: false,
+        logLevel: 'silent',
+        appType: 'custom',
+        server: { middlewareMode: true },
+        plugins: [docsBuildPlugin({ projectRoot })],
+      })
+
+      const apiModule = await server.pluginContainer.load('\0moraine-api-doc')
+      expect(String(apiModule)).toContain('"button"')
+
+      const exampleModule = await server.transformRequest(
+        path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
+      )
+      expect(exampleModule?.code).toContain('export const DemoButtonBasicExample')
+      expect(exampleModule?.code).toContain('?example-source&name=BasicExample')
+    } finally {
+      await server?.close()
       await rm(projectRoot, { recursive: true, force: true })
     }
   })

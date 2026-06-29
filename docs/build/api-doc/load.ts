@@ -1,26 +1,11 @@
-import { readdirSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { resolveDocsPageContext } from '../core/paths'
+import { collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
 
 import type { ComponentDoc, IndexDoc } from './types'
 
 const apiDocIndexCache = new Map<string, IndexDoc | null>()
-
-function collectMarkdownFiles(dir: string): string[] {
-  const files: string[] = []
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...collectMarkdownFiles(fullPath))
-      continue
-    }
-    if (entry.isFile() && entry.name.endsWith('.mdx')) {
-      files.push(fullPath)
-    }
-  }
-  return files
-}
 
 export function clearApiDocCache(projectRoot?: string): void {
   if (projectRoot) {

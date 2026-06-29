@@ -1,7 +1,7 @@
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode } from 'satteri'
 
-import { toKebabCase } from '../core/strings'
+import { createPlainCodeBlockHtml, toKebabCase } from '../core/strings'
 
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
@@ -55,19 +55,6 @@ function normalizeMarkdownLang(value: string | null | undefined): MarkdownHighli
 
 function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-}
-
-function createPlainCodeBlockHtml(source: string): string {
-  return `<pre><code>${escapeHtml(source)}</code></pre>`
 }
 
 function getNodeProperties(node: HastNode): Record<string, unknown> {

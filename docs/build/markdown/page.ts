@@ -6,31 +6,18 @@ import { mdxToJs } from 'satteri'
 import type { Data } from 'satteri'
 
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
-import { toSingleQuoted } from '../core/strings'
+import { createPlainCodeBlockHtml, toSingleQuoted } from '../core/strings'
 
 import { parseFrontmatterData } from './frontmatter'
 import { createDocsCodePlugin, createDocsHastPlugin, DOCS_MDX_FEATURES } from './plugins'
 import type { OnThisPageEntryLiteral } from './plugins'
-import { scanMdxPage } from './scan'
+import { createMdxPageScanPlugin } from './scan'
 import type { CompileMarkdownOptions, MarkdownHighlightLang } from './types'
 
 interface CodeTabItemLiteral {
   label: string
   value: string
   html: string
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-}
-
-function createPlainCodeBlockHtml(source: string): string {
-  return `<pre><code>${escapeHtml(source)}</code></pre>`
 }
 
 function createCodeTabsItems(
@@ -70,7 +57,7 @@ export function compileMarkdownPage(
 ): string {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
-  const scannedPage = scanMdxPage(markdownSource, idWithoutQuery)
+  const scanPlugin = createMdxPageScanPlugin(idWithoutQuery)
   const onThisPageEntries: OnThisPageEntryLiteral[] = []
   const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
   const imports = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
@@ -88,7 +75,7 @@ export function compileMarkdownPage(
       features: DOCS_MDX_FEATURES,
       fileURL: pathToFileURL(idWithoutQuery),
       data: {} satisfies Data,
-      mdastPlugins: [createDocsCodePlugin(options.highlightCode)],
+      mdastPlugins: [scanPlugin.plugin, createDocsCodePlugin(options.highlightCode)],
       hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
     }),
   )
@@ -96,10 +83,12 @@ export function compileMarkdownPage(
 
   const codeTabsCode = JSON.stringify(
     Object.fromEntries(
-      scannedPage.codeTabsPackages.map((packageName) => [
-        packageName,
-        createCodeTabsItems(packageName, options.highlightCode),
-      ]),
+      scanPlugin
+        .result()
+        .codeTabsPackages.map((packageName) => [
+          packageName,
+          createCodeTabsItems(packageName, options.highlightCode),
+        ]),
     ),
   )
   const frontmatterCode = JSON.stringify(parsedFrontmatter)
