@@ -358,6 +358,9 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
+    expect(thumbs[0]?.className).not.toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -391,6 +394,9 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
+    expect(thumbs[0]?.className).not.toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -402,6 +408,9 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('40')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).not.toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -442,6 +451,7 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
+    expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -724,10 +734,16 @@ describe('Slider', () => {
     const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
 
     const track = screen.container.querySelector('[data-slot="track"]')
+    const range = screen.container.querySelector('[data-slot="range"]')
     const divider = screen.container.querySelector('[data-slot="divider"]')
+    const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
     expect(track?.className).toContain('var-slider-7')
+    expect(track?.className).toContain('before:rounded-md')
+    expect(range?.className).toContain('rounded-md')
     expect(divider?.className).toContain('w-px')
+    expect(thumb?.className).toContain('bg-primary-foreground')
+    expect(thumb?.className).toContain('w-1.5')
   })
 
   describe('commit semantics', () => {
