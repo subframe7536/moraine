@@ -125,12 +125,12 @@ function resolveDefaultExportSource(
   return null
 }
 
-export function resolveExampleComponentSource(
+export async function resolveExampleComponentSource(
   code: string,
   name: string,
   parseExampleCode: ParseExampleCode,
-): string | null {
-  const program = parseExampleCode(code)
+): Promise<string | null> {
+  const program = await parseExampleCode(code)
   const byName = new Map<string, string>()
 
   for (const statement of program.body) {
@@ -145,18 +145,18 @@ export function resolveExampleComponentSource(
     : (byName.get(name) ?? null)
 }
 
-export function transformExampleSourceModule(
+export async function transformExampleSourceModule(
   code: string,
   id: string,
   parseExampleCode: ParseExampleCode,
   toHtml: (src: string, lang: Extract<DocsHighlightLang, 'tsx' | 'bash'>) => string,
-): string | null {
+): Promise<string | null> {
   const query = parseExampleSourceQuery(id)
   if (!query) {
     return null
   }
 
-  const sourceText = resolveExampleComponentSource(code, query.name, parseExampleCode)
+  const sourceText = await resolveExampleComponentSource(code, query.name, parseExampleCode)
   if (!sourceText) {
     console.warn(`[example-source] component "${query.name}" not found in ${id}`)
     return 'export default ""\n'

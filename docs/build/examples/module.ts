@@ -110,12 +110,12 @@ function getNamedExports(program: ProgramNode): ExampleExport[] {
   return exports
 }
 
-export function transformExampleModule(
+export async function transformExampleModule(
   code: string,
   id: string,
   parseExampleCode: ParseExampleCode,
   options: { ssr?: boolean } = {},
-): string | null {
+): Promise<string | null> {
   if (!isExampleRequest(id)) {
     return null
   }
@@ -127,7 +127,7 @@ export function transformExampleModule(
     sourcePath,
     path.join(example.docsRoot, 'components/docs-demo-block'),
   )
-  const program = parseExampleCode(code)
+  const program = await parseExampleCode(code)
   const namedExports = getNamedExports(program)
   const defaultExport = namedExports.find((item) => item.exportedName === 'default')
   const nonDefaultExports = namedExports.filter((item) => item.exportedName !== 'default')
@@ -139,7 +139,9 @@ export function transformExampleModule(
     componentImportNames && !options.ssr
       ? `import { ${componentImportNames} } from ${toSingleQuoted(sourceImportPath)}`
       : '',
-    defaultExport && !options.ssr ? `import __DefaultExample from ${toSingleQuoted(sourceImportPath)}` : '',
+    defaultExport && !options.ssr
+      ? `import __DefaultExample from ${toSingleQuoted(sourceImportPath)}`
+      : '',
   ].filter(Boolean)
   const exportLines: string[] = []
 
