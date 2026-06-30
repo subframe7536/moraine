@@ -728,9 +728,12 @@ describe('Slider', () => {
 
     expect(dividers).toHaveLength(4)
     expect((dividers[0] as HTMLElement).style.left).toBe('20%')
+    expect(dividers[0]?.className).toContain('h-full')
+    expect(dividers[0]?.className).toContain('w-px')
+    expect(dividers[0]?.className).toContain('z-0')
   })
 
-  test('uses line dividers and thicker track for bold variant', () => {
+  test('uses a solid track and inset marker shape for bold variant', () => {
     const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
 
     const track = screen.container.querySelector('[data-slot="track"]')
@@ -738,12 +741,51 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('var-slider-7')
-    expect(track?.className).toContain('before:rounded-md')
-    expect(range?.className).toContain('rounded-md')
+    expect(track?.className).toContain('var-slider-16')
+    expect(track?.className).toContain('before:(inset-0 rounded)')
+    expect(range?.className).toContain('rounded')
+    expect(range?.className).toContain('z-10')
     expect(divider?.className).toContain('w-px')
+    expect(divider?.className).toContain('z-0')
+    expect(divider?.className).not.toContain('opacity-0')
     expect(thumb?.className).toContain('bg-primary-foreground')
-    expect(thumb?.className).toContain('w-1.5')
+    expect(thumb?.className).toContain('z-20')
+    expect(thumb?.className).not.toContain('cursor-pointer')
+    expect(thumb?.className).toContain('focus-visible:outline-primary-foreground')
+    expect(thumb?.className).toContain('rounded-sm')
+    expect(thumb?.className).toContain('h-2.5')
+    expect(thumb?.className).toContain('w-1')
+    expect(thumb?.className).toContain('-translate-x-1/2')
+    expect(thumb?.className).not.toContain('hover:effect-fv')
+  })
+
+  test('centers bold range thumbs on their target values', () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
+    const thumbs = getThumbs(screen.container)
+
+    expect(thumbs[0]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[1]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[0]?.className).not.toContain('translate-x-1 -translate-y-1/2')
+    expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
+  })
+
+  test('clears pointer focus from bold thumb while keeping keyboard focus styling', async () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={40} />)
+    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement
+    mockPointerCapture(thumb)
+
+    thumb.focus()
+
+    expect(document.activeElement).toBe(thumb)
+    expect(thumb.className).toContain('focus-visible:outline-primary-foreground')
+
+    await fireEvent.pointerDown(thumb, {
+      button: 0,
+      clientX: 0,
+      pointerId: 1,
+    })
+
+    expect(document.activeElement).not.toBe(thumb)
   })
 
   describe('commit semantics', () => {

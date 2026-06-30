@@ -9,7 +9,7 @@ export function Variants() {
       </div>
       <div class="space-y-2">
         <label class="text-xs text-muted-foreground block uppercase">Bold with divider</label>
-        <Slider divider variant="bold" min={0} max={100} step={10} defaultValue={60} />
+        <Slider divider variant="bold" min={0} max={100} step={10} defaultValue={30} />
       </div>
     </div>
   )

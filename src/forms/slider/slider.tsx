@@ -471,7 +471,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     }
 
     startInteraction(index, event)
-    ;(event.currentTarget as HTMLDivElement).focus()
+    const target = event.currentTarget as HTMLDivElement
+    if (merged.variant === 'bold') {
+      target.blur()
+      return
+    }
+
+    target.focus()
   }
 
   function onThumbPointerMove(event: PointerEvent): void {
@@ -751,7 +757,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                   size: field.size(),
                   variant: merged.variant,
                 },
-                (!dragging() || activeThumbIndexState() === thumbIndex) && 'hover:effect-fv',
+                merged.variant !== 'bold' &&
+                  (!dragging() || activeThumbIndexState() === thumbIndex) &&
+                  'hover:effect-fv',
                 merged.classes?.thumb,
               ),
             )}

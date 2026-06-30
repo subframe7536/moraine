@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -31,7 +31,7 @@ declare function Button(props: ButtonProps): JSX.Element
 `
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'moraine-docs-build-plugin-'))
+  return mkdtemp(path.join(await realpath(tmpdir()), 'moraine-docs-build-plugin-'))
 }
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
@@ -175,7 +175,7 @@ describe('docsBuildPlugin', () => {
       expect(String(apiModule)).toContain('"button"')
 
       const exampleModule = await server.transformRequest(
-        path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
+        '/pages/general/button/basic-example.tsx?example',
       )
       expect(exampleModule?.code).toContain('export const DemoButtonBasicExample')
       expect(exampleModule?.code).toContain('?example-source&name=BasicExample')

@@ -190,8 +190,8 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
 
     // 2. Try unocss (named export)
     try {
-      // @ts-expect-error - unocss may not be installed
-      const { transformerCompileClass } = await import('unocss')
+      const unocssPackage = 'unocss'
+      const { transformerCompileClass } = await import(unocssPackage)
       return transformerCompileClass(transformerCompileClassOptions)
     } catch {}
 
