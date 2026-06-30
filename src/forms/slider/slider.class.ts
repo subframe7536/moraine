@@ -169,7 +169,7 @@ export const sliderThumbVariants = cva(
       variant: {
         default:
           'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10)',
-        bold: 'outline-(3 primary solid) rounded-sm bg-primary-foreground focus-visible:outline-primary-foreground data-dragging:z-10',
+        bold: 'outline-(3 primary solid) rounded-sm bg-primary-foreground focus-visible:bg-border data-dragging:z-10',
       },
     },
     compoundVariants: [
