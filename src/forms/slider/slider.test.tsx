@@ -334,6 +334,46 @@ describe('Slider', () => {
     expect(typeof onChange.mock.calls[0]?.[0]).toBe('number')
   })
 
+  test('uses continuous pointer values when step is omitted', async () => {
+    const onValueChange = vi.fn()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Slider defaultValue={0} onValueChange={onValueChange} onChange={onChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const input = getInputs(screen.container)[0]
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+
+    await fireEvent.pointerDown(thumb, {
+      button: 0,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+    })
+    await fireEvent.pointerMove(thumb, {
+      pointerId: 1,
+      clientX: 25,
+      clientY: 0,
+    })
+
+    expect(thumb.style.left).toBe('25%')
+    expect(thumb.getAttribute('aria-valuenow')).toBe('25')
+    expect(input?.step).toBe('any')
+    expect(onValueChange).toHaveBeenLastCalledWith(25)
+
+    await fireEvent.pointerUp(thumb, {
+      pointerId: 1,
+      clientX: 25,
+      clientY: 0,
+    })
+
+    expect(thumb.style.left).toBe('25%')
+    expect(onChange).toHaveBeenLastCalledWith(25)
+  })
+
   test('range uncontrolled emits number[] for input and commit phases', async () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
@@ -405,7 +445,7 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
-    expect(thumbs[0]?.className).not.toContain('hover:effect-fv')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
     expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
@@ -441,7 +481,7 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).not.toContain('hover:effect-fv')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
     expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
@@ -456,7 +496,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
     expect(thumbs[0]?.className).toContain('hover:effect-fv')
-    expect(thumbs[1]?.className).not.toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
