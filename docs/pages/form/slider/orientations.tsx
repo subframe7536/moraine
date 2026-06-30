@@ -5,15 +5,18 @@ export function Orientations() {
   const [horizontalValue, setHorizontalValue] = createSignal(45)
   const [verticalValue, setVerticalValue] = createSignal(45)
   const [inverted, setInverted] = createSignal(false)
+  const [isBold, setIsBold] = createSignal(false)
 
   return (
     <div class="max-w-xl space-y-4">
       <Switch label="Invert direction" checked={inverted()} onChange={setInverted} />
+      <Switch label="Bold variant" checked={isBold()} onChange={setIsBold} />
       <div class="gap-8 grid items-start sm:grid-cols-2">
         <div class="w-50 space-y-2">
           <label class="text-xs text-muted-foreground block">Horizontal: {horizontalValue()}</label>
           <Slider
             inverted={inverted()}
+            variant={isBold() ? 'bold' : undefined}
             value={horizontalValue()}
             onValueChange={setHorizontalValue}
           />
@@ -24,6 +27,7 @@ export function Orientations() {
             <Slider
               orientation="vertical"
               inverted={inverted()}
+              variant={isBold() ? 'bold' : undefined}
               value={verticalValue()}
               onValueChange={setVerticalValue}
             />

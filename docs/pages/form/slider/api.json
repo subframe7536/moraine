@@ -72,9 +72,7 @@
       {
         "name": "inverted",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to invert the slider axis.",
-        "defaultValue": "false"
+        "type": "boolean | undefined"
       },
       {
         "name": "max",
@@ -118,9 +116,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "Orientation of the slider.",
-        "defaultValue": "horizontal"
+        "type": "\"horizontal\" | \"vertical\" | undefined"
       },
       {
         "name": "readOnly",
@@ -145,8 +141,7 @@
         "name": "step",
         "required": false,
         "type": "number | undefined",
-        "description": "Step increment between values.",
-        "defaultValue": "1"
+        "description": "Step increment between values.\nWhen omitted, pointer movement is continuous."
       },
       {
         "name": "styles",

@@ -118,7 +118,7 @@ describe('Slider', () => {
     expect(horizontalTrack?.className).toContain('h-$s-size')
     expect(horizontalTrack?.className).toContain('var-slider-3')
     expect(verticalTrack?.className).toContain('w-$s-size')
-    expect(verticalTrack?.className).toContain('var-slider-6')
+    expect(verticalTrack?.className).toContain('var-slider-7')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -828,7 +828,7 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('var-slider-16')
+    expect(track?.className).toContain('var-slider-18')
     expect(track?.className).toContain('before:(inset-0 rounded)')
     expect(range?.className).toContain('rounded')
     expect(range?.className).toContain('z-10')
@@ -840,7 +840,7 @@ describe('Slider', () => {
     expect(thumb?.className).not.toContain('cursor-pointer')
     expect(thumb?.className).toContain('focus-visible:outline-primary-foreground')
     expect(thumb?.className).toContain('rounded-sm')
-    expect(thumb?.className).toContain('h-2.5')
+    expect(thumb?.className).toContain('h-3')
     expect(thumb?.className).toContain('w-1')
     expect(thumb?.className).toContain('-translate-x-1/2')
     expect(thumb?.className).not.toContain('hover:effect-fv')

@@ -47,8 +47,8 @@ export const sliderTrackVariants = cva(
         xl: '',
       },
       variant: {
-        default: '',
-        bold: '',
+        default: 'before:rounded-full',
+        bold: 'before:(rounded inset-0)',
       },
       orientation: {
         horizontal: 'h-$s-size w-full',
@@ -59,32 +59,22 @@ export const sliderTrackVariants = cva(
       {
         orientation: 'horizontal',
         variant: 'default',
-        class: 'before:(inset-x-0.5 inset-y-0 rounded-full)',
+        class: 'before:(inset-x-0.5 inset-y-0)',
       },
       {
         orientation: 'vertical',
         variant: 'default',
-        class: 'before:(inset-x-0 inset-y-0.5 rounded-full)',
-      },
-      {
-        orientation: 'horizontal',
-        variant: 'bold',
-        class: 'before:(inset-0 rounded)',
-      },
-      {
-        orientation: 'vertical',
-        variant: 'bold',
-        class: 'before:(inset-0 rounded)',
+        class: 'before:(inset-x-0 inset-y-0.5)',
       },
       { size: 'xs', variant: 'default', class: 'var-slider-3' },
       { size: 'sm', variant: 'default', class: 'var-slider-4' },
-      { size: 'md', variant: 'default', class: 'var-slider-4' },
-      { size: 'lg', variant: 'default', class: 'var-slider-5' },
-      { size: 'xl', variant: 'default', class: 'var-slider-6' },
-      { size: 'xs', variant: 'bold', class: 'var-slider-12' },
-      { size: 'sm', variant: 'bold', class: 'var-slider-14' },
-      { size: 'md', variant: 'bold', class: 'var-slider-16' },
-      { size: 'lg', variant: 'bold', class: 'var-slider-18' },
+      { size: 'md', variant: 'default', class: 'var-slider-5' },
+      { size: 'lg', variant: 'default', class: 'var-slider-6' },
+      { size: 'xl', variant: 'default', class: 'var-slider-7' },
+      { size: 'xs', variant: 'bold', class: 'var-slider-14' },
+      { size: 'sm', variant: 'bold', class: 'var-slider-16' },
+      { size: 'md', variant: 'bold', class: 'var-slider-18' },
+      { size: 'lg', variant: 'bold', class: 'var-slider-19' },
       { size: 'xl', variant: 'bold', class: 'var-slider-20' },
     ],
   },
@@ -132,16 +122,11 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-10', {
 export const sliderDividerVariants = cva('bg-background pointer-events-none absolute z-0', {
   defaultVariants: {
     orientation: 'horizontal',
-    variant: 'default',
   },
   variants: {
     orientation: {
       horizontal: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
       vertical: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
-    },
-    variant: {
-      default: '',
-      bold: '',
     },
   },
   compoundVariants: [
@@ -189,15 +174,15 @@ export const sliderThumbVariants = cva(
     },
     compoundVariants: [
       { size: 'xs', variant: 'default', class: 'size-3' },
-      { size: 'sm', variant: 'default', class: 'size-3.5' },
-      { size: 'md', variant: 'default', class: 'size-4' },
-      { size: 'lg', variant: 'default', class: 'size-4.5' },
-      { size: 'xl', variant: 'default', class: 'size-5' },
-      { size: 'xs', variant: 'bold', class: 'h-1.5 w-0.75' },
-      { size: 'sm', variant: 'bold', class: 'h-2 w-1' },
-      { size: 'md', variant: 'bold', class: 'h-2.5 w-1' },
-      { size: 'lg', variant: 'bold', class: 'h-3 w-1.25' },
-      { size: 'xl', variant: 'bold', class: 'h-3.5 w-1.5' },
+      { size: 'sm', variant: 'default', class: 'size-3' },
+      { size: 'md', variant: 'default', class: 'size-3.5' },
+      { size: 'lg', variant: 'default', class: 'size-3.5' },
+      { size: 'xl', variant: 'default', class: 'size-4' },
+      { size: 'xs', variant: 'bold', class: 'h-2 w-1' },
+      { size: 'sm', variant: 'bold', class: 'h-2.5 w-1' },
+      { size: 'md', variant: 'bold', class: 'h-3 w-1' },
+      { size: 'lg', variant: 'bold', class: 'h-3.25 w-1' },
+      { size: 'xl', variant: 'bold', class: 'h-3.5 w-1' },
       {
         orientation: 'horizontal',
         inverted: false,
@@ -250,4 +235,4 @@ export const sliderThumbVariants = cva(
   },
 )
 
-export type SliderVariantProps = VariantProps<typeof sliderRootVariants>
+export type SliderVariantProps = VariantProps<typeof sliderThumbVariants>

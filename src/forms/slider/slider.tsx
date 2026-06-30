@@ -108,18 +108,6 @@ export namespace SliderT {
     allowThumbCrossing?: boolean
 
     /**
-     * Orientation of the slider.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Whether to invert the slider axis.
-     * @default false
-     */
-    inverted?: boolean
-
-    /**
      * Callback when the slider selection changes during interaction.
      */
     onValueChange?: (value: TValue) => void
@@ -746,7 +734,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 sliderDividerVariants(
                   {
                     orientation: merged.orientation,
-                    variant: merged.variant,
                   },
                   merged.classes?.divider,
                 ),
