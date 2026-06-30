@@ -3,13 +3,13 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal } from 'solid-js'
 
 import { Button } from '../../src'
+import { useTheme } from '../hooks/use-theme'
 
 import { ContentHeader } from './content-header'
 import { DocsCommandPalette, DocsSearchTrigger } from './docs-command-palette'
-import { DocsShell } from './docs-shell'
 import { getDocsPages } from './docs-route'
+import { DocsShell } from './docs-shell'
 import { Sidebar, SidebarHeader } from './sidebar'
-import { useTheme } from '../hooks/use-theme'
 
 export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()

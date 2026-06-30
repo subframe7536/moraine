@@ -711,6 +711,25 @@ describe('Slider', () => {
     expect(thumb?.style.width).toBe('200px')
   })
 
+  test('renders step dividers when enabled', () => {
+    const screen = render(() => <Slider divider min={0} max={10} step={2} />)
+
+    const dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+
+    expect(dividers).toHaveLength(4)
+    expect((dividers[0] as HTMLElement).style.left).toBe('20%')
+  })
+
+  test('uses line dividers and thicker track for bold variant', () => {
+    const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
+
+    const track = screen.container.querySelector('[data-slot="track"]')
+    const divider = screen.container.querySelector('[data-slot="divider"]')
+
+    expect(track?.className).toContain('var-slider-7')
+    expect(divider?.className).toContain('w-px')
+  })
+
   describe('commit semantics', () => {
     test('keyboard changes commit on keyup without requiring blur', async () => {
       const onValueChange = vi.fn()

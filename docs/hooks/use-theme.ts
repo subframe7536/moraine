@@ -32,10 +32,7 @@ export function useTheme() {
       applyTheme(nextTheme)
     }
 
-    if (
-      typeof document !== 'undefined' &&
-      typeof document.startViewTransition === 'function'
-    ) {
+    if (typeof document !== 'undefined' && typeof document.startViewTransition === 'function') {
       document.startViewTransition(run)
       return
     }
