@@ -164,7 +164,7 @@ describe('Slider', () => {
     expect(track?.className).toContain('bg-input')
     expect(thumb?.className).toContain('absolute')
     expect(thumb?.style.translate).toBe('')
-    expect(thumb?.className).toContain('translate-y-1/2')
+    expect(thumb?.className).toContain('-translate-y-1/2')
     expect(thumb?.className).toContain('scale-120')
     expect(thumb?.className).toContain('cursor-pointer')
     expect(thumb?.className).toContain('hover:effect-fv')
@@ -182,7 +182,7 @@ describe('Slider', () => {
     await fireEvent.focus(verticalThumb as HTMLElement)
     await fireEvent.keyDown(verticalThumb as HTMLElement, { key: 'ArrowDown' })
 
-    expect(verticalChange).toHaveBeenLastCalledWith(46)
+    expect(verticalChange).toHaveBeenLastCalledWith(44)
 
     const invertedChange = vi.fn()
     const invertedScreen = render(() => (
@@ -193,7 +193,54 @@ describe('Slider', () => {
     await fireEvent.focus(invertedThumb as HTMLElement)
     await fireEvent.keyDown(invertedThumb as HTMLElement, { key: 'ArrowDown' })
 
-    expect(invertedChange).toHaveBeenLastCalledWith(44)
+    expect(invertedChange).toHaveBeenLastCalledWith(46)
+  })
+
+  test('vertical max thumb stays centered on the top edge', () => {
+    const screen = render(() => <Slider orientation="vertical" defaultValue={100} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    expect(thumb.style.bottom).toBe('100%')
+    expect(thumb.className).toContain('translate-y-1/2')
+    expect(thumb.className).not.toContain('-translate-y-1/2')
+  })
+
+  test('vertical pointer values increase from bottom to top by default', async () => {
+    const verticalChange = vi.fn()
+    const verticalScreen = render(() => (
+      <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
+    ))
+    const verticalTrack = verticalScreen.container.querySelector(
+      '[data-slot="track"]',
+    ) as HTMLElement
+    mockPointerCapture(verticalTrack)
+    mockTrackRect(verticalTrack)
+
+    await fireEvent.pointerDown(verticalTrack, {
+      button: 0,
+      clientY: 0,
+      pointerId: 1,
+    })
+
+    expect(verticalChange).toHaveBeenLastCalledWith(100)
+
+    const invertedChange = vi.fn()
+    const invertedScreen = render(() => (
+      <Slider orientation="vertical" inverted defaultValue={45} onValueChange={invertedChange} />
+    ))
+    const invertedTrack = invertedScreen.container.querySelector(
+      '[data-slot="track"]',
+    ) as HTMLElement
+    mockPointerCapture(invertedTrack)
+    mockTrackRect(invertedTrack)
+
+    await fireEvent.pointerDown(invertedTrack, {
+      button: 0,
+      clientY: 0,
+      pointerId: 1,
+    })
+
+    expect(invertedChange).toHaveBeenLastCalledWith(0)
   })
 
   test('horizontal arrow keys follow RTL direction', async () => {
@@ -728,7 +775,7 @@ describe('Slider', () => {
 
     expect(dividers).toHaveLength(4)
     expect((dividers[0] as HTMLElement).style.left).toBe('20%')
-    expect(dividers[0]?.className).toContain('h-full')
+    expect(dividers[0]?.className).toContain('h-1/2')
     expect(dividers[0]?.className).toContain('w-px')
     expect(dividers[0]?.className).toContain('z-0')
   })

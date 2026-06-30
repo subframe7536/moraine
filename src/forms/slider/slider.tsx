@@ -311,8 +311,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     let output: [number, number] =
       orientation === 'vertical'
         ? merged.inverted
-          ? [merged.max!, merged.min!]
-          : [merged.min!, merged.max!]
+          ? [merged.min!, merged.max!]
+          : [merged.max!, merged.min!]
         : merged.inverted
           ? [merged.max!, merged.min!]
           : [merged.min!, merged.max!]
@@ -553,9 +553,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       direction = -1
     } else if (merged.orientation === 'vertical') {
       if (key === 'ArrowDown' || key === 'Down') {
-        direction = merged.inverted ? -1 : 1
-      } else if (key === 'ArrowUp' || key === 'Up') {
         direction = merged.inverted ? 1 : -1
+      } else if (key === 'ArrowUp' || key === 'Up') {
+        direction = merged.inverted ? -1 : 1
       } else if (isIncrementKey) {
         direction = isLTR() ? 1 : -1
       } else if (isDecrementKey) {
@@ -749,19 +749,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               ...thumbStyles()[thumbIndex],
               ...merged.styles?.thumb,
             }}
-            class={cn(
-              sliderThumbVariants(
-                {
-                  inverted: Boolean(merged.inverted),
-                  orientation: merged.orientation,
-                  size: field.size(),
-                  variant: merged.variant,
-                },
-                merged.variant !== 'bold' &&
-                  (!dragging() || activeThumbIndexState() === thumbIndex) &&
-                  'hover:effect-fv',
-                merged.classes?.thumb,
-              ),
+            class={sliderThumbVariants(
+              {
+                inverted: Boolean(merged.inverted),
+                orientation: merged.orientation,
+                size: field.size(),
+                variant: merged.variant,
+              },
+              merged.classes?.thumb,
             )}
             aria-valuemin={getThumbMinValue(currentValues(), thumbIndex)}
             aria-valuenow={currentValues()[thumbIndex] ?? merged.min!}

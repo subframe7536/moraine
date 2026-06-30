@@ -183,7 +183,7 @@ export const sliderThumbVariants = cva(
       },
       variant: {
         default:
-          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10)',
+          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10)',
         bold: 'outline-(3 primary solid) rounded-sm bg-primary-foreground focus-visible:outline-primary-foreground data-dragging:z-10',
       },
     },
@@ -214,13 +214,13 @@ export const sliderThumbVariants = cva(
         orientation: 'vertical',
         inverted: false,
         variant: 'default',
-        class: '-translate-y-1/2',
+        class: 'translate-y-1/2',
       },
       {
         orientation: 'vertical',
         inverted: true,
         variant: 'default',
-        class: 'translate-y-1/2',
+        class: '-translate-y-1/2',
       },
       {
         orientation: 'horizontal',
@@ -238,13 +238,13 @@ export const sliderThumbVariants = cva(
         orientation: 'vertical',
         inverted: false,
         variant: 'bold',
-        class: 'left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90',
+        class: 'left-1/2 -translate-x-1/2 translate-y-1/2 rotate-90',
       },
       {
         orientation: 'vertical',
         inverted: true,
         variant: 'bold',
-        class: 'left-1/2 -translate-x-1/2 translate-y-1/2 rotate-90',
+        class: 'left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-90',
       },
     ],
   },
