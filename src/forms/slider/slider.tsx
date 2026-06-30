@@ -749,6 +749,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                   orientation: merged.orientation,
                   size: field.size(),
                 },
+                (!dragging() || activeThumbIndexState() === thumbIndex) && 'hover:effect-fv',
                 merged.classes?.thumb,
               ),
             )}
