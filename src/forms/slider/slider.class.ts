@@ -113,7 +113,7 @@ export const sliderDividerVariants = cva('bg-background pointer-events-none abso
 })
 
 export const sliderThumbVariants = cva(
-  'outline-none surface-border rounded-full bg-background shrink-0 block cursor-pointer select-none shadow-xs/5 transition-[box-shadow,transform] absolute touch-none focus-visible:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10) not-dark:bg-clip-padding',
+  'outline-none surface-border rounded-full bg-background shrink-0 block cursor-pointer select-none shadow-xs/5 transition-[box-shadow,transform] absolute touch-none focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10) not-dark:bg-clip-padding',
   {
     defaultVariants: {
       orientation: 'horizontal',
