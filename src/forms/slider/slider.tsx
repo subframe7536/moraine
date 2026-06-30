@@ -15,6 +15,7 @@ import type {
 
 import type { SliderVariantProps } from './slider.class'
 import {
+  sliderDividerVariants,
   sliderRangeVariants,
   sliderRootVariants,
   sliderThumbVariants,
@@ -44,6 +45,9 @@ export namespace SliderT {
 
     /** Filled segment between the start of the range and active thumb values. */
     range?: T
+
+    /** Visual marker for one slider step. */
+    divider?: T
 
     /** Draggable handle for one slider value. */
     thumb?: T
@@ -81,7 +85,7 @@ export namespace SliderT {
 
     /**
      * Step increment between values.
-     * @default 1
+     * When omitted, pointer movement is continuous.
      */
     step?: number
 
@@ -92,22 +96,16 @@ export namespace SliderT {
     minStepsBetweenThumbs?: number
 
     /**
+     * Whether to show visual step dividers on the track.
+     * @default false
+     */
+    divider?: boolean
+
+    /**
      * Whether dragging can continue across another thumb when there is no minimum gap.
      * @default true
      */
     allowThumbCrossing?: boolean
-
-    /**
-     * Orientation of the slider.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Whether to invert the slider axis.
-     * @default false
-     */
-    inverted?: boolean
 
     /**
      * Callback when the slider selection changes during interaction.
@@ -145,7 +143,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     {
       min: 0,
       max: 100,
-      step: 1,
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
@@ -159,10 +156,22 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   const getControlledValues = () => normalizeSliderValues(merged.value, merged.min!)
 
   const [dragging, setDragging] = createSignal(false)
+  const definedStep = createMemo(() =>
+    typeof merged.step === 'number' && merged.step > 0 ? merged.step : undefined,
+  )
+  const keyboardStep = createMemo(() => {
+    const range = merged.max! - merged.min!
+    return definedStep() ?? (range > 0 ? range / 100 : 1)
+  })
   const pageSize = createMemo(() => {
     let calcPageSize = (merged.max! - merged.min!) / 10
-    calcPageSize = snapValueToStep(calcPageSize, 0, calcPageSize + merged.step!, merged.step!)
-    return Math.max(calcPageSize, merged.step!)
+    const step = definedStep()
+    if (!step) {
+      return calcPageSize
+    }
+
+    calcPageSize = snapValueToStep(calcPageSize, 0, calcPageSize + step, step)
+    return Math.max(calcPageSize, step)
   })
   const [thumbRefs, setThumbRefs] = createSignal<Array<HTMLDivElement | undefined>>([])
   const [trackElement, setTrackElementState] = createSignal<HTMLDivElement | undefined>(undefined)
@@ -217,6 +226,24 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       [startEdge]: `${getValuePercent(value) * 100}%`,
     }))
   })
+  const dividerIndexes = createMemo(() => {
+    const step = definedStep()
+    if (!merged.divider || !step || merged.max! <= merged.min!) {
+      return []
+    }
+
+    const dividerCount = Math.floor((merged.max! - merged.min!) / step)
+    return Array.from({ length: Math.max(dividerCount - 1, 0) }, (_, index) => index + 1)
+  })
+  const getDividerStyle = (index: number): JSX.CSSProperties => {
+    const { startEdge } = getSliderEdges()
+    const value = merged.min! + keyboardStep() * index
+
+    return {
+      [startEdge]: `${getValuePercent(value) * 100}%`,
+      ...merged.styles?.divider,
+    }
+  }
   const rangeStyle = createMemo<JSX.CSSProperties>(() => {
     const percentages = currentValues().map((value) => getValuePercent(value) * 100)
     const offsetStart = currentValues().length > 1 ? Math.min(...percentages) : 0
@@ -259,14 +286,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   }
 
   function getThumbMinValue(values: number[], index: number): number {
-    const thumbGap = merged.minStepsBetweenThumbs! * merged.step!
+    const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
     return index === 0
       ? merged.min!
       : clamp((values[index - 1] ?? merged.min!) + thumbGap, merged.min!, merged.max!)
   }
 
   function getThumbMaxValue(values: number[], index: number): number {
-    const thumbGap = merged.minStepsBetweenThumbs! * merged.step!
+    const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
     return index === values.length - 1
       ? merged.max!
       : clamp((values[index + 1] ?? merged.max!) - thumbGap, merged.min!, merged.max!)
@@ -284,8 +311,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     let output: [number, number] =
       orientation === 'vertical'
         ? merged.inverted
-          ? [merged.max!, merged.min!]
-          : [merged.min!, merged.max!]
+          ? [merged.min!, merged.max!]
+          : [merged.max!, merged.min!]
         : merged.inverted
           ? [merged.max!, merged.min!]
           : [merged.min!, merged.max!]
@@ -335,40 +362,54 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     pendingValues = undefined
   }
 
-  function applyThumbValue(index: number, candidateValue: number): number | undefined {
-    if (isActionDisabled()) {
-      return undefined
-    }
-
-    const values = interactionValues()
+  function getResolvedThumbValues(
+    values: number[],
+    index: number,
+    candidateValue: number,
+  ): { nextIndex: number; nextValues: number[] } | undefined {
     const allowsThumbCrossing = merged.allowThumbCrossing && merged.minStepsBetweenThumbs === 0
-    const snappedValue = snapValueToStep(
-      candidateValue,
-      allowsThumbCrossing ? merged.min! : getThumbMinValue(values, index),
-      allowsThumbCrossing ? merged.max! : getThumbMaxValue(values, index),
-      merged.step!,
-    )
+    const minValue = allowsThumbCrossing ? merged.min! : getThumbMinValue(values, index)
+    const maxValue = allowsThumbCrossing ? merged.max! : getThumbMaxValue(values, index)
+    const step = definedStep()
+    const nextValue = step
+      ? snapValueToStep(candidateValue, minValue, maxValue, step)
+      : clamp(candidateValue, minValue, maxValue)
 
     let nextValues: number[]
     let nextIndex = index
 
     if (allowsThumbCrossing) {
-      const movedValue = moveSortedValue(values, snappedValue, index)
+      const movedValue = moveSortedValue(values, nextValue, index)
       nextValues = movedValue.nextValues
       nextIndex = movedValue.nextIndex
     } else {
       nextValues = [...values]
-      nextValues[index] = snappedValue
+      nextValues[index] = nextValue
 
       if (
         !hasMinStepsBetweenValues(
-          getNextSortedValues(values, snappedValue, index),
-          merged.minStepsBetweenThumbs! * merged.step!,
+          getNextSortedValues(values, nextValue, index),
+          merged.minStepsBetweenThumbs! * keyboardStep(),
         )
       ) {
         return undefined
       }
     }
+
+    return { nextIndex, nextValues }
+  }
+
+  function applyThumbValue(index: number, candidateValue: number): number | undefined {
+    if (isActionDisabled()) {
+      return undefined
+    }
+
+    const resolvedValues = getResolvedThumbValues(interactionValues(), index, candidateValue)
+    if (!resolvedValues) {
+      return undefined
+    }
+
+    const { nextIndex, nextValues } = resolvedValues
 
     pendingValues = nextValues
     setDisplayValues(nextValues)
@@ -381,11 +422,22 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     return nextIndex
   }
 
+  function focusThumb(index: number): void {
+    const thumb = thumbRefs()[index]
+    if (!thumb || document.activeElement === thumb) {
+      return
+    }
+
+    suppressNextBlurCommit = true
+    thumb.focus()
+  }
+
   function moveThumb(index: number, pointerValue: number): void {
     const nextIndex = applyThumbValue(index, pointerValue)
 
     if (nextIndex !== undefined && nextIndex !== index) {
       setActiveThumbIndex(nextIndex)
+      focusThumb(nextIndex)
     }
   }
 
@@ -433,7 +485,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     }
 
     startInteraction(index, event)
-    ;(event.currentTarget as HTMLDivElement).focus()
+    const target = event.currentTarget as HTMLDivElement
+    if (merged.variant === 'bold') {
+      target.blur()
+      return
+    }
+
+    target.focus()
   }
 
   function onThumbPointerMove(event: PointerEvent): void {
@@ -509,9 +567,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       direction = -1
     } else if (merged.orientation === 'vertical') {
       if (key === 'ArrowDown' || key === 'Down') {
-        direction = merged.inverted ? -1 : 1
-      } else if (key === 'ArrowUp' || key === 'Up') {
         direction = merged.inverted ? 1 : -1
+      } else if (key === 'ArrowUp' || key === 'Up') {
+        direction = merged.inverted ? -1 : 1
       } else if (isIncrementKey) {
         direction = isLTR() ? 1 : -1
       } else if (isDecrementKey) {
@@ -523,7 +581,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       direction = isLTR() ? -1 : 1
     }
 
-    const stepSize = isPageUp || isPageDown || event.shiftKey ? pageSize() : merged.step!
+    const stepSize = isPageUp || isPageDown || event.shiftKey ? pageSize() : keyboardStep()
 
     const oldValue = interactionValues()[index] ?? merged.min!
     const candidateValue = oldValue + direction * stepSize
@@ -536,8 +594,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       if (!atGlobalBoundary) {
         const adjacentIndex = direction > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
-          suppressNextBlurCommit = true
-          thumbRefs()[adjacentIndex]?.focus()
+          focusThumb(adjacentIndex)
         }
       }
     }
@@ -622,6 +679,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         {
           size: field.size(),
           orientation: merged.orientation,
+          variant: merged.variant,
         },
         field.disabled() && 'effect-dis',
         merged.classes?.root,
@@ -639,6 +697,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {
               size: field.size(),
               orientation: merged.orientation,
+              variant: merged.variant,
             },
             merged.classes?.track,
           ),
@@ -658,11 +717,30 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             sliderRangeVariants(
               {
                 orientation: merged.orientation,
+                variant: merged.variant,
               },
               merged.classes?.range,
             ),
           )}
         />
+
+        <For each={dividerIndexes()}>
+          {(dividerIndex) => (
+            <div
+              data-slot="divider"
+              data-orientation={merged.orientation}
+              style={getDividerStyle(dividerIndex)}
+              class={cn(
+                sliderDividerVariants(
+                  {
+                    orientation: merged.orientation,
+                  },
+                  merged.classes?.divider,
+                ),
+              )}
+            />
+          )}
+        </For>
       </div>
 
       <For each={Array.from({ length: currentValues().length }, (_, index) => index)}>
@@ -684,15 +762,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               ...thumbStyles()[thumbIndex],
               ...merged.styles?.thumb,
             }}
-            class={cn(
-              sliderThumbVariants(
-                {
-                  inverted: Boolean(merged.inverted),
-                  orientation: merged.orientation,
-                  size: field.size(),
-                },
-                merged.classes?.thumb,
-              ),
+            class={sliderThumbVariants(
+              {
+                inverted: Boolean(merged.inverted),
+                orientation: merged.orientation,
+                size: field.size(),
+                variant: merged.variant,
+              },
+              merged.classes?.thumb,
             )}
             aria-valuemin={getThumbMinValue(currentValues(), thumbIndex)}
             aria-valuenow={currentValues()[thumbIndex] ?? merged.min!}
@@ -729,7 +806,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               name={field.name()}
               min={getThumbMinValue(currentValues(), thumbIndex)}
               max={getThumbMaxValue(currentValues(), thumbIndex)}
-              step={merged.step!}
+              step={definedStep() ?? 'any'}
               value={currentValues()[thumbIndex] ?? merged.min!}
               required={merged.required}
               disabled={field.disabled()}

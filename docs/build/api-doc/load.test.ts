@@ -27,7 +27,9 @@ async function writeIndex(projectRoot: string, key: string): Promise<void> {
 
 afterEach(async () => {
   clearApiDocCache()
-  await Promise.all(tempProjects.splice(0).map((root) => rm(root, { recursive: true, force: true })))
+  await Promise.all(
+    tempProjects.splice(0).map((root) => rm(root, { recursive: true, force: true })),
+  )
 })
 
 describe('loadApiDocIndex', () => {

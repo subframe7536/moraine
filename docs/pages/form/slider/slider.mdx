@@ -4,6 +4,8 @@ header: true
 
 import { DemoSliderControlledSingle } from './controlled-single?example'
 import { DemoSliderSizes } from './sizes?example'
+import { DemoSliderVariants } from './variants?example'
+import { DemoSliderDisabled } from './disabled?example'
 import { DemoSliderOrientations } from './orientations?example'
 import { DemoSliderRangeSlider } from './range-slider?example'
 import { DemoSliderFormIntegration } from './form-integration?example'
@@ -21,7 +23,8 @@ Track with a fill range and one or more draggable thumb handles.
 ```text
 root
 ├── track
-│   └── range
+│   ├── range
+│   └── divider (optional ×n)
 └── thumb (×n)
 ```
 
@@ -39,7 +42,19 @@ Track and thumb sizing from xs to xl.
 
 <DemoSliderSizes />
 
-### Orientations
+### Variants
+
+Default and bold variants with visual step dividers.
+
+<DemoSliderVariants />
+
+### Disabled
+
+Disabled sliders keep values visible while preventing interaction.
+
+<DemoSliderDisabled />
+
+### Orientations and Invert
 
 Horizontal default layout and vertical layout with fixed container height.
 

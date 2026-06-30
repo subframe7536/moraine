@@ -118,7 +118,7 @@ describe('Slider', () => {
     expect(horizontalTrack?.className).toContain('h-$s-size')
     expect(horizontalTrack?.className).toContain('var-slider-3')
     expect(verticalTrack?.className).toContain('w-$s-size')
-    expect(verticalTrack?.className).toContain('var-slider-6')
+    expect(verticalTrack?.className).toContain('var-slider-7')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -164,7 +164,7 @@ describe('Slider', () => {
     expect(track?.className).toContain('bg-input')
     expect(thumb?.className).toContain('absolute')
     expect(thumb?.style.translate).toBe('')
-    expect(thumb?.className).toContain('translate-y-1/2')
+    expect(thumb?.className).toContain('-translate-y-1/2')
     expect(thumb?.className).toContain('scale-120')
     expect(thumb?.className).toContain('cursor-pointer')
     expect(thumb?.className).toContain('hover:effect-fv')
@@ -182,7 +182,7 @@ describe('Slider', () => {
     await fireEvent.focus(verticalThumb as HTMLElement)
     await fireEvent.keyDown(verticalThumb as HTMLElement, { key: 'ArrowDown' })
 
-    expect(verticalChange).toHaveBeenLastCalledWith(46)
+    expect(verticalChange).toHaveBeenLastCalledWith(44)
 
     const invertedChange = vi.fn()
     const invertedScreen = render(() => (
@@ -193,7 +193,54 @@ describe('Slider', () => {
     await fireEvent.focus(invertedThumb as HTMLElement)
     await fireEvent.keyDown(invertedThumb as HTMLElement, { key: 'ArrowDown' })
 
-    expect(invertedChange).toHaveBeenLastCalledWith(44)
+    expect(invertedChange).toHaveBeenLastCalledWith(46)
+  })
+
+  test('vertical max thumb stays centered on the top edge', () => {
+    const screen = render(() => <Slider orientation="vertical" defaultValue={100} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    expect(thumb.style.bottom).toBe('100%')
+    expect(thumb.className).toContain('translate-y-1/2')
+    expect(thumb.className).not.toContain('-translate-y-1/2')
+  })
+
+  test('vertical pointer values increase from bottom to top by default', async () => {
+    const verticalChange = vi.fn()
+    const verticalScreen = render(() => (
+      <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
+    ))
+    const verticalTrack = verticalScreen.container.querySelector(
+      '[data-slot="track"]',
+    ) as HTMLElement
+    mockPointerCapture(verticalTrack)
+    mockTrackRect(verticalTrack)
+
+    await fireEvent.pointerDown(verticalTrack, {
+      button: 0,
+      clientY: 0,
+      pointerId: 1,
+    })
+
+    expect(verticalChange).toHaveBeenLastCalledWith(100)
+
+    const invertedChange = vi.fn()
+    const invertedScreen = render(() => (
+      <Slider orientation="vertical" inverted defaultValue={45} onValueChange={invertedChange} />
+    ))
+    const invertedTrack = invertedScreen.container.querySelector(
+      '[data-slot="track"]',
+    ) as HTMLElement
+    mockPointerCapture(invertedTrack)
+    mockTrackRect(invertedTrack)
+
+    await fireEvent.pointerDown(invertedTrack, {
+      button: 0,
+      clientY: 0,
+      pointerId: 1,
+    })
+
+    expect(invertedChange).toHaveBeenLastCalledWith(0)
   })
 
   test('horizontal arrow keys follow RTL direction', async () => {
@@ -287,6 +334,46 @@ describe('Slider', () => {
     expect(typeof onChange.mock.calls[0]?.[0]).toBe('number')
   })
 
+  test('uses continuous pointer values when step is omitted', async () => {
+    const onValueChange = vi.fn()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Slider defaultValue={0} onValueChange={onValueChange} onChange={onChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const input = getInputs(screen.container)[0]
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+
+    await fireEvent.pointerDown(thumb, {
+      button: 0,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+    })
+    await fireEvent.pointerMove(thumb, {
+      pointerId: 1,
+      clientX: 25,
+      clientY: 0,
+    })
+
+    expect(thumb.style.left).toBe('25%')
+    expect(thumb.getAttribute('aria-valuenow')).toBe('25')
+    expect(input?.step).toBe('any')
+    expect(onValueChange).toHaveBeenLastCalledWith(25)
+
+    await fireEvent.pointerUp(thumb, {
+      pointerId: 1,
+      clientX: 25,
+      clientY: 0,
+    })
+
+    expect(thumb.style.left).toBe('25%')
+    expect(onChange).toHaveBeenLastCalledWith(25)
+  })
+
   test('range uncontrolled emits number[] for input and commit phases', async () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
@@ -358,6 +445,9 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -391,6 +481,9 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -402,6 +495,9 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('40')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -442,6 +538,7 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
+    expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
@@ -709,6 +806,73 @@ describe('Slider', () => {
 
     expect(root?.style.width).toBe('200px')
     expect(thumb?.style.width).toBe('200px')
+  })
+
+  test('renders step dividers when enabled', () => {
+    const screen = render(() => <Slider divider min={0} max={10} step={2} />)
+
+    const dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+
+    expect(dividers).toHaveLength(4)
+    expect((dividers[0] as HTMLElement).style.left).toBe('20%')
+    expect(dividers[0]?.className).toContain('h-1/2')
+    expect(dividers[0]?.className).toContain('w-px')
+    expect(dividers[0]?.className).toContain('z-0')
+  })
+
+  test('uses a solid track and inset marker shape for bold variant', () => {
+    const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
+
+    const track = screen.container.querySelector('[data-slot="track"]')
+    const range = screen.container.querySelector('[data-slot="range"]')
+    const divider = screen.container.querySelector('[data-slot="divider"]')
+    const thumb = screen.container.querySelector('[data-slot="thumb"]')
+
+    expect(track?.className).toContain('var-slider-18')
+    expect(track?.className).toContain('before:(inset-0 rounded)')
+    expect(range?.className).toContain('rounded')
+    expect(range?.className).toContain('z-10')
+    expect(divider?.className).toContain('w-px')
+    expect(divider?.className).toContain('z-0')
+    expect(divider?.className).not.toContain('opacity-0')
+    expect(thumb?.className).toContain('bg-primary-foreground')
+    expect(thumb?.className).toContain('z-20')
+    expect(thumb?.className).not.toContain('cursor-pointer')
+    expect(thumb?.className).toContain('focus-visible:outline-primary-foreground')
+    expect(thumb?.className).toContain('rounded-sm')
+    expect(thumb?.className).toContain('h-3')
+    expect(thumb?.className).toContain('w-1')
+    expect(thumb?.className).toContain('-translate-x-1/2')
+    expect(thumb?.className).not.toContain('hover:effect-fv')
+  })
+
+  test('centers bold range thumbs on their target values', () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
+    const thumbs = getThumbs(screen.container)
+
+    expect(thumbs[0]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[1]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[0]?.className).not.toContain('translate-x-1 -translate-y-1/2')
+    expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
+  })
+
+  test('clears pointer focus from bold thumb while keeping keyboard focus styling', async () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={40} />)
+    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement
+    mockPointerCapture(thumb)
+
+    thumb.focus()
+
+    expect(document.activeElement).toBe(thumb)
+    expect(thumb.className).toContain('focus-visible:outline-primary-foreground')
+
+    await fireEvent.pointerDown(thumb, {
+      button: 0,
+      clientX: 0,
+      pointerId: 1,
+    })
+
+    expect(document.activeElement).not.toBe(thumb)
   })
 
   describe('commit semantics', () => {

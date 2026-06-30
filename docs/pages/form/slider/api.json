@@ -21,6 +21,10 @@
       "description": "Filled segment between the start of the range and active thumb values."
     },
     {
+      "name": "divider",
+      "description": "Visual marker for one slider step."
+    },
+    {
       "name": "thumb",
       "description": "Draggable handle for one slider value."
     }
@@ -53,6 +57,13 @@
         "defaultValue": "false"
       },
       {
+        "name": "divider",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show visual step dividers on the track.",
+        "defaultValue": "false"
+      },
+      {
         "name": "id",
         "required": false,
         "type": "string | undefined",
@@ -61,9 +72,7 @@
       {
         "name": "inverted",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to invert the slider axis.",
-        "defaultValue": "false"
+        "type": "boolean | undefined"
       },
       {
         "name": "max",
@@ -107,9 +116,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "Orientation of the slider.",
-        "defaultValue": "horizontal"
+        "type": "\"horizontal\" | \"vertical\" | undefined"
       },
       {
         "name": "readOnly",
@@ -134,8 +141,7 @@
         "name": "step",
         "required": false,
         "type": "number | undefined",
-        "description": "Step increment between values.",
-        "defaultValue": "1"
+        "description": "Step increment between values.\nWhen omitted, pointer movement is continuous."
       },
       {
         "name": "styles",
@@ -147,6 +153,11 @@
         "required": false,
         "type": "TValue | undefined",
         "description": "The current value of the input (controlled)."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"bold\" | undefined"
       }
     ],
     "inherited": []
@@ -235,6 +246,19 @@
       }
     ],
     "slots": [
+      {
+        "name": "divider",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": []
+      },
       {
         "name": "range",
         "cssVariables": [],

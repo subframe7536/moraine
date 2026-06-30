@@ -152,8 +152,8 @@ export function resolveSliderEdges(
 ): { startEdge: SliderEdge; endEdge: SliderEdge } {
   if (orientation === 'vertical') {
     return inverted
-      ? { startEdge: 'bottom', endEdge: 'top' }
-      : { startEdge: 'top', endEdge: 'bottom' }
+      ? { startEdge: 'top', endEdge: 'bottom' }
+      : { startEdge: 'bottom', endEdge: 'top' }
   }
 
   return isRtl === inverted
