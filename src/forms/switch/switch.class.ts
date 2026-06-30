@@ -20,11 +20,11 @@ export const switchTrackVariants = cva(
     },
     variants: {
       size: {
-        xs: 'w-7',
-        sm: 'w-8',
-        md: 'w-9',
-        lg: 'w-10',
-        xl: 'w-11',
+        xs: 'h-4 w-7',
+        sm: 'h-4.5 w-8',
+        md: 'h-5 w-9',
+        lg: 'h-5.5 w-10',
+        xl: 'h-6 w-11',
       },
     },
   },
