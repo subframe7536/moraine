@@ -408,22 +408,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     return nextIndex
   }
 
-  function focusThumb(index: number): void {
-    const thumb = thumbRefs()[index]
-    if (!thumb || document.activeElement === thumb) {
-      return
-    }
-
-    suppressNextBlurCommit = true
-    thumb.focus()
-  }
-
   function moveThumb(index: number, pointerValue: number): void {
     const nextIndex = applyThumbValue(index, pointerValue)
 
     if (nextIndex !== undefined && nextIndex !== index) {
       setActiveThumbIndex(nextIndex)
-      focusThumb(nextIndex)
     }
   }
 
@@ -574,7 +563,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       if (!atGlobalBoundary) {
         const adjacentIndex = direction > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
-          focusThumb(adjacentIndex)
+          suppressNextBlurCommit = true
+          thumbRefs()[adjacentIndex]?.focus()
         }
       }
     }
