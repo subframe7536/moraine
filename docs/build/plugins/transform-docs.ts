@@ -2,15 +2,10 @@ import { normalizePath } from 'vite'
 
 import { DOCS_PAGE_FILE_RE } from '../core/paths'
 import { DOCS_HIGHLIGHT_THEMES, getDocsHighlighter } from '../core/shiki'
-import { EXAMPLE_PARSE_OPTIONS } from '../examples/ast'
-import type { ProgramNode } from '../examples/ast'
+import { parseExampleCode } from '../examples/ast'
 import { transformExampleModule } from '../examples/module'
 import { transformExampleSourceModule } from '../examples/source'
 import { compileMarkdownPage } from '../markdown/page'
-
-interface DocsTransformContext {
-  parse: (input: string, options?: typeof EXAMPLE_PARSE_OPTIONS) => ProgramNode
-}
 
 function isExampleRequest(id: string): boolean {
   return id.includes('?example')
@@ -31,7 +26,6 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
   const highlighterPromise = getDocsHighlighter()
 
   return async function transformDocs(
-    this: DocsTransformContext,
     code: string,
     id: string,
     options?: { ssr?: boolean },
@@ -41,16 +35,19 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
     }
 
     const highlighter = await highlighterPromise
-    const parseExampleCode = (source: string) => this.parse(source, EXAMPLE_PARSE_OPTIONS)
-
-    const sourceModule = transformExampleSourceModule(code, id, parseExampleCode, (source, lang) =>
-      highlighter.codeToHtml(source, { lang, themes: DOCS_HIGHLIGHT_THEMES }),
+    const sourceModule = await transformExampleSourceModule(
+      code,
+      id,
+      parseExampleCode,
+      (source, lang) => highlighter.codeToHtml(source, { lang, themes: DOCS_HIGHLIGHT_THEMES }),
     )
     if (sourceModule) {
       return sourceModule
     }
 
-    const exampleModule = transformExampleModule(code, id, parseExampleCode, { ssr: options?.ssr })
+    const exampleModule = await transformExampleModule(code, id, parseExampleCode, {
+      ssr: options?.ssr,
+    })
     if (exampleModule) {
       return exampleModule
     }

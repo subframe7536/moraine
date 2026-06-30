@@ -1,50 +1,52 @@
-import { parseSync } from 'vite'
+import { parse } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
 import { EXAMPLE_PARSE_OPTIONS } from './ast'
 import { transformExampleModule } from './module'
 import { resolveExampleComponentSource, transformExampleSourceModule } from './source'
 
-function parseExampleCode(code: string) {
-  return parseSync('example.tsx', code, EXAMPLE_PARSE_OPTIONS).program
+async function parseExampleCode(code: string) {
+  return (await parse('example.tsx', code, EXAMPLE_PARSE_OPTIONS)).program
 }
 
 describe('resolveExampleComponentSource', () => {
-  test('extracts named arrow component declaration', () => {
+  test('extracts named arrow component declaration', async () => {
     const source = `
 export const BasicExample = () => <div>basic</div>
 `
 
-    expect(resolveExampleComponentSource(source, 'BasicExample', parseExampleCode)).toBe(
+    expect(await resolveExampleComponentSource(source, 'BasicExample', parseExampleCode)).toBe(
       'const BasicExample = () => <div>basic</div>',
     )
   })
 
-  test('extracts named function component declaration', () => {
+  test('extracts named function component declaration', async () => {
     const source = `
 function LoadingExample() {
   return <div>loading</div>
 }
 `
 
-    expect(resolveExampleComponentSource(source, 'LoadingExample', parseExampleCode))
+    expect(await resolveExampleComponentSource(source, 'LoadingExample', parseExampleCode))
       .toBe(`function LoadingExample() {
   return <div>loading</div>
 }`)
   })
 
-  test('returns null for missing component', () => {
+  test('returns null for missing component', async () => {
     const source = `
 export const BasicExample = () => <div>basic</div>
 `
 
-    expect(resolveExampleComponentSource(source, 'MissingExample', parseExampleCode)).toBeNull()
+    expect(
+      await resolveExampleComponentSource(source, 'MissingExample', parseExampleCode),
+    ).toBeNull()
   })
 })
 
 describe('transformExampleModule', () => {
-  test('wraps named exports with docs demo source imports', () => {
-    const transformed = transformExampleModule(
+  test('wraps named exports with docs demo source imports', async () => {
+    const transformed = await transformExampleModule(
       'export function Variants() { return <div /> }',
       '/tmp/docs/pages/general/button/variants.tsx?example',
       parseExampleCode,
@@ -59,8 +61,8 @@ describe('transformExampleModule', () => {
     )
   })
 
-  test('wraps default exports with default source imports', () => {
-    const transformed = transformExampleModule(
+  test('wraps default exports with default source imports', async () => {
+    const transformed = await transformExampleModule(
       'export default function Basic() { return <div /> }',
       '/tmp/docs/pages/general/button/basic.tsx?example',
       parseExampleCode,
@@ -77,13 +79,13 @@ describe('transformExampleModule', () => {
 })
 
 describe('transformExampleSourceModule', () => {
-  test('transforms ?example-source requests to highlighted html module', () => {
+  test('transforms ?example-source requests to highlighted html module', async () => {
     const source = `
 export const BasicExample = () => <div>basic</div>
 `
     const toHtml = vi.fn((value: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${value}</pre>`)
 
-    const transformed = transformExampleSourceModule(
+    const transformed = await transformExampleSourceModule(
       source,
       '/tmp/docs/examples/button/basic.tsx?example-source&name=BasicExample',
       parseExampleCode,
@@ -94,8 +96,8 @@ export const BasicExample = () => <div>basic</div>
     expect(toHtml).toHaveBeenCalledWith('const BasicExample = () => <div>basic</div>', 'tsx')
   })
 
-  test('ignores non source-query modules', () => {
-    const transformed = transformExampleSourceModule(
+  test('ignores non source-query modules', async () => {
+    const transformed = await transformExampleSourceModule(
       'export const BasicExample = () => <div>basic</div>',
       '/tmp/docs/examples/button/basic.tsx',
       parseExampleCode,
@@ -105,10 +107,10 @@ export const BasicExample = () => <div>basic</div>
     expect(transformed).toBeNull()
   })
 
-  test('returns empty html module when component does not exist', () => {
+  test('returns empty html module when component does not exist', async () => {
     const toHtml = vi.fn(() => '<pre>code</pre>')
 
-    const transformed = transformExampleSourceModule(
+    const transformed = await transformExampleSourceModule(
       'export const BasicExample = () => <div>basic</div>',
       '/tmp/docs/examples/button/basic.tsx?example-source&name=MissingExample',
       parseExampleCode,

@@ -4,42 +4,38 @@ import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { createServer, parseSync } from 'vite'
+import { createServer } from 'vite'
 import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'
 
-import { EXAMPLE_PARSE_OPTIONS } from './examples/ast'
 import { docsBuildPlugin } from './plugin'
-
-const TRANSFORM_CONTEXT = {
-  parse(code: string) {
-    return parseSync('example.tsx', code, EXAMPLE_PARSE_OPTIONS).program
-  },
-}
-
-const D_MTS_SAMPLE = `
-declare namespace ButtonT {
-  type Slot = 'root'
-}
-
-interface ButtonProps {
-  /** Button label. */
-  label: string
-}
-
-declare function Button(props: ButtonProps): JSX.Element
-`
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-build-plugin-'))
 }
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
-  await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'src/elements/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/general/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/components'), { recursive: true })
 
-  await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
+  await writeFile(
+    path.join(projectRoot, 'src/elements/button/button.tsx'),
+    `export namespace ButtonT {
+  export type Slot = 'root'
+}
+
+export interface ButtonProps {
+  /** Button label. */
+  label: string
+}
+
+export function Button(props: ButtonProps): JSX.Element {
+  return <button>{props.label}</button>
+}
+`,
+    'utf8',
+  )
   await writeFile(
     path.join(projectRoot, 'docs/components/docs-demo-block.tsx'),
     'export function createDocsDemo(component, source) { return { component, source } }\n',
@@ -137,7 +133,7 @@ describe('docsBuildPlugin', () => {
       expect(apiModule).toContain('"button"')
 
       const exampleModule = await transform?.handler.call(
-        TRANSFORM_CONTEXT,
+        undefined,
         'export const BasicExample = () => <button>Basic</button>\n',
         path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
       )
@@ -145,7 +141,7 @@ describe('docsBuildPlugin', () => {
       expect(exampleModule).toContain('?example-source&name=BasicExample')
 
       const ssrExampleModule = await transform?.handler.call(
-        TRANSFORM_CONTEXT,
+        undefined,
         'export const BasicExample = () => <button>Basic</button>\n',
         path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
         { ssr: true },
