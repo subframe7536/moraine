@@ -16,12 +16,7 @@ export function DocsDemoBlock(props: DocsDemoBlockProps) {
         <Dynamic component={props.component} />
       </div>
       <Show when={props.source}>
-        {(source) => (
-          <ShikiCodeBlock
-            variant="source"
-            html={source()}
-          />
-        )}
+        {(source) => <ShikiCodeBlock variant="source" html={source()} />}
       </Show>
     </section>
   )

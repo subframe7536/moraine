@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 import { For, createSignal, onMount } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 const TOASTER_STYLE = {
   '--normal-bg': 'var(--popover)',
@@ -24,8 +24,18 @@ export const ToastHosts = () => {
     <For each={Toaster() ? [Toaster()!] : []}>
       {(ToasterComponent) => (
         <>
-          <Dynamic component={ToasterComponent} preventDuplicate style={TOASTER_STYLE} visibleToasts={4} />
-          <Dynamic component={ToasterComponent} id="custom" position="bottom-left" style={TOASTER_STYLE} />
+          <Dynamic
+            component={ToasterComponent}
+            preventDuplicate
+            style={TOASTER_STYLE}
+            visibleToasts={4}
+          />
+          <Dynamic
+            component={ToasterComponent}
+            id="custom"
+            position="bottom-left"
+            style={TOASTER_STYLE}
+          />
         </>
       )}
     </For>

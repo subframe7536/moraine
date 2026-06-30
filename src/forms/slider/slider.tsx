@@ -15,6 +15,7 @@ import type {
 
 import type { SliderVariantProps } from './slider.class'
 import {
+  sliderDividerVariants,
   sliderRangeVariants,
   sliderRootVariants,
   sliderThumbVariants,
@@ -44,6 +45,9 @@ export namespace SliderT {
 
     /** Filled segment between the start of the range and active thumb values. */
     range?: T
+
+    /** Visual marker for one slider step. */
+    divider?: T
 
     /** Draggable handle for one slider value. */
     thumb?: T
@@ -90,6 +94,12 @@ export namespace SliderT {
      * @default 0
      */
     minStepsBetweenThumbs?: number
+
+    /**
+     * Whether to show visual step dividers on the track.
+     * @default false
+     */
+    divider?: boolean
 
     /**
      * Whether dragging can continue across another thumb when there is no minimum gap.
@@ -217,6 +227,23 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       [startEdge]: `${getValuePercent(value) * 100}%`,
     }))
   })
+  const dividerIndexes = createMemo(() => {
+    if (!merged.divider || merged.step! <= 0 || merged.max! <= merged.min!) {
+      return []
+    }
+
+    const dividerCount = Math.floor((merged.max! - merged.min!) / merged.step!)
+    return Array.from({ length: Math.max(dividerCount - 1, 0) }, (_, index) => index + 1)
+  })
+  const getDividerStyle = (index: number): JSX.CSSProperties => {
+    const { startEdge } = getSliderEdges()
+    const value = merged.min! + merged.step! * index
+
+    return {
+      [startEdge]: `${getValuePercent(value) * 100}%`,
+      ...merged.styles?.divider,
+    }
+  }
   const rangeStyle = createMemo<JSX.CSSProperties>(() => {
     const percentages = currentValues().map((value) => getValuePercent(value) * 100)
     const offsetStart = currentValues().length > 1 ? Math.min(...percentages) : 0
@@ -381,11 +408,22 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     return nextIndex
   }
 
+  function focusThumb(index: number): void {
+    const thumb = thumbRefs()[index]
+    if (!thumb || document.activeElement === thumb) {
+      return
+    }
+
+    suppressNextBlurCommit = true
+    thumb.focus()
+  }
+
   function moveThumb(index: number, pointerValue: number): void {
     const nextIndex = applyThumbValue(index, pointerValue)
 
     if (nextIndex !== undefined && nextIndex !== index) {
       setActiveThumbIndex(nextIndex)
+      focusThumb(nextIndex)
     }
   }
 
@@ -536,8 +574,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       if (!atGlobalBoundary) {
         const adjacentIndex = direction > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
-          suppressNextBlurCommit = true
-          thumbRefs()[adjacentIndex]?.focus()
+          focusThumb(adjacentIndex)
         }
       }
     }
@@ -622,6 +659,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         {
           size: field.size(),
           orientation: merged.orientation,
+          variant: merged.variant,
         },
         field.disabled() && 'effect-dis',
         merged.classes?.root,
@@ -639,6 +677,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {
               size: field.size(),
               orientation: merged.orientation,
+              variant: merged.variant,
             },
             merged.classes?.track,
           ),
@@ -658,11 +697,31 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             sliderRangeVariants(
               {
                 orientation: merged.orientation,
+                variant: merged.variant,
               },
               merged.classes?.range,
             ),
           )}
         />
+
+        <For each={dividerIndexes()}>
+          {(dividerIndex) => (
+            <div
+              data-slot="divider"
+              data-orientation={merged.orientation}
+              style={getDividerStyle(dividerIndex)}
+              class={cn(
+                sliderDividerVariants(
+                  {
+                    orientation: merged.orientation,
+                    variant: merged.variant,
+                  },
+                  merged.classes?.divider,
+                ),
+              )}
+            />
+          )}
+        </For>
       </div>
 
       <For each={Array.from({ length: currentValues().length }, (_, index) => index)}>
@@ -690,7 +749,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                   inverted: Boolean(merged.inverted),
                   orientation: merged.orientation,
                   size: field.size(),
+                  variant: merged.variant,
                 },
+                (!dragging() || activeThumbIndexState() === thumbIndex) && 'hover:effect-fv',
                 merged.classes?.thumb,
               ),
             )}
