@@ -16,11 +16,13 @@ describe('Switch', () => {
 
     const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
     const root = screen.container.querySelector('[data-slot="root"]')
+    const track = screen.container.querySelector('[data-slot="track"]')
 
     expect(switchInput).not.toBeNull()
     const input = screen.container.querySelector('[data-slot="input"]')
 
-    expect(root?.tagName).toBe('BUTTON')
+    expect(root?.tagName).toBe('DIV')
+    expect(track?.tagName).toBe('BUTTON')
     expect(input?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.getByText('Receive updates')).not.toBeNull()
   })
@@ -341,12 +343,14 @@ describe('Switch', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="input"]')
+    const track = screen.container.querySelector('[data-slot="track"]')
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
-    expect(root?.className).toContain('cursor-pointer')
+    expect(root?.className).toContain('flex flex-row')
+    expect(track?.className).toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
-    expect(root?.className).toContain('focus-visible:effect-fv-border')
-    expect(root?.className).toContain('w-11')
+    expect(track?.className).toContain('focus-visible:effect-fv-border')
+    expect(track?.className).toContain('w-11')
     expect(wrapper?.className).toContain('ms-3')
     expect(wrapper?.className).toContain('text-base')
   })

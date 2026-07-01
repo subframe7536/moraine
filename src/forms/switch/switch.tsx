@@ -17,12 +17,15 @@ import type {
 } from '../form-field/form-options'
 
 import type { SwitchVariantProps } from './switch.class'
-import { switchRootVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
+import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
     /** Switch wrapper that coordinates input, track, thumb, and text content. */
     root?: T
+
+    /** Visible switch track that shows checked and unchecked state. */
+    track?: T
 
     /** Movable knob inside the switch track. */
     thumb?: T
@@ -313,7 +316,12 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <>
+    <div
+      data-slot="root"
+      style={merged.styles?.root}
+      class={cn('flex flex-row', merged.classes?.root)}
+      {...dataAttrs()}
+    >
       <HiddenInput
         ref={(element) => {
           inputEl = element
@@ -349,7 +357,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         type="button"
         role="switch"
         disabled={field.disabled()}
-        data-slot="root"
+        data-slot="track"
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         aria-required={merged.required || undefined}
@@ -358,13 +366,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         aria-labelledby={merged.label ? labelId() : undefined}
         aria-describedby={merged.description ? descriptionId() : undefined}
         {...field.ariaAttrs()}
-        style={merged.styles?.root}
+        style={merged.styles?.track}
         class={cn(
-          switchRootVariants(
+          switchTrackVariants(
             {
               size: field.size(),
             },
-            merged.classes?.root,
+            merged.classes?.track,
           ),
           field.disabled() && 'effect-dis',
         )}
@@ -440,6 +448,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           </Show>
         </span>
       </Show>
-    </>
+    </div>
   )
 }

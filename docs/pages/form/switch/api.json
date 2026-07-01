@@ -13,6 +13,10 @@
       "description": "Switch wrapper that coordinates input, track, thumb, and text content."
     },
     {
+      "name": "track",
+      "description": "Visible switch track that shows checked and unchecked state."
+    },
+    {
       "name": "thumb",
       "description": "Movable knob inside the switch track."
     },
@@ -293,6 +297,18 @@
       {
         "name": "root",
         "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "thumb",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "track",
+        "cssVariables": [],
         "dataAttributes": [
           {
             "name": "data-invalid",
@@ -345,12 +361,6 @@
             "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
-      },
-      {
-        "name": "thumb",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
       },
       {
         "name": "wrapper",
