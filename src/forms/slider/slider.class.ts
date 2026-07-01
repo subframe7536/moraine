@@ -3,87 +3,62 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils'
 
 export const sliderRootVariants = cva(
-  'flex select-none relative touch-none data-disabled:effect-dis',
+  'flex select-none items-center relative touch-none data-disabled:effect-dis',
   {
     defaultVariants: {
-      size: 'md',
       orientation: 'horizontal',
-      variant: 'default',
     },
     variants: {
-      size: {
-        xs: 'gap-2',
-        sm: 'gap-2',
-        md: 'gap-2.5',
-        lg: 'gap-3',
-        xl: 'gap-3.5',
-      },
       orientation: {
-        horizontal: 'w-full items-center',
-        vertical: 'flex-col h-full min-h-44 items-center',
-      },
-      variant: {
-        default: '',
-        bold: '',
+        horizontal: 'w-full',
+        vertical: 'flex-col h-full',
       },
     },
   },
 )
 
-export const sliderTrackVariants = cva(
-  'grow select-none relative before:(bg-input content-empty absolute)',
-  {
-    defaultVariants: {
-      size: 'md',
-      orientation: 'horizontal',
-      variant: 'default',
-    },
-    variants: {
-      size: {
-        xs: '',
-        sm: '',
-        md: '',
-        lg: '',
-        xl: '',
-      },
-      variant: {
-        default: 'before:rounded-full',
-        bold: 'before:(rounded inset-0)',
-      },
-      orientation: {
-        horizontal: 'h-$s-size w-full',
-        vertical: 'h-full w-$s-size',
-      },
-    },
-    compoundVariants: [
-      {
-        orientation: 'horizontal',
-        variant: 'default',
-        class: 'before:(inset-x-0.5 inset-y-0)',
-      },
-      {
-        orientation: 'vertical',
-        variant: 'default',
-        class: 'before:(inset-x-0 inset-y-0.5)',
-      },
-      { size: 'xs', variant: 'default', class: 'var-slider-3' },
-      { size: 'sm', variant: 'default', class: 'var-slider-4' },
-      { size: 'md', variant: 'default', class: 'var-slider-5' },
-      { size: 'lg', variant: 'default', class: 'var-slider-6' },
-      { size: 'xl', variant: 'default', class: 'var-slider-7' },
-      { size: 'xs', variant: 'bold', class: 'var-slider-14' },
-      { size: 'sm', variant: 'bold', class: 'var-slider-16' },
-      { size: 'md', variant: 'bold', class: 'var-slider-18' },
-      { size: 'lg', variant: 'bold', class: 'var-slider-19' },
-      { size: 'xl', variant: 'bold', class: 'var-slider-20' },
-    ],
+export const sliderTrackVariants = cva('bg-input select-none relative', {
+  defaultVariants: {
+    size: 'md',
+    orientation: 'horizontal',
+    variant: 'default',
   },
-)
+  variants: {
+    size: {
+      xs: '',
+      sm: '',
+      md: '',
+      lg: '',
+      xl: '',
+    },
+    variant: {
+      default: 'rounded-full',
+      bold: 'rounded',
+    },
+    orientation: {
+      horizontal: 'h-$s-size w-full',
+      vertical: 'h-full w-$s-size',
+    },
+  },
+  compoundVariants: [
+    { size: 'xs', variant: 'default', class: 'var-slider-3' },
+    { size: 'sm', variant: 'default', class: 'var-slider-4' },
+    { size: 'md', variant: 'default', class: 'var-slider-5' },
+    { size: 'lg', variant: 'default', class: 'var-slider-6' },
+    { size: 'xl', variant: 'default', class: 'var-slider-7' },
+    { size: 'xs', variant: 'bold', class: 'var-slider-14' },
+    { size: 'sm', variant: 'bold', class: 'var-slider-16' },
+    { size: 'md', variant: 'bold', class: 'var-slider-18' },
+    { size: 'lg', variant: 'bold', class: 'var-slider-20' },
+    { size: 'xl', variant: 'bold', class: 'var-slider-22' },
+  ],
+})
 
-export const sliderRangeVariants = cva('bg-primary select-none absolute z-10', {
+export const sliderRangeVariants = cva('bg-primary select-none absolute z-2', {
   defaultVariants: {
     orientation: 'horizontal',
     variant: 'default',
+    inverted: false,
   },
   variants: {
     orientation: {
@@ -94,55 +69,80 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-10', {
       default: 'rounded-full',
       bold: '',
     },
+    inverted: {
+      true: '',
+      false: '',
+    },
   },
   compoundVariants: [
     {
       orientation: 'horizontal',
-      variant: 'default',
-      class: 'ms-0.5',
-    },
-    {
-      orientation: 'vertical',
-      variant: 'default',
-      class: 'mb-0.5',
-    },
-    {
-      orientation: 'horizontal',
       variant: 'bold',
+      inverted: false,
       class: 'rounded-l',
     },
     {
       orientation: 'vertical',
       variant: 'bold',
+      inverted: false,
       class: 'rounded-b',
+    },
+    {
+      orientation: 'horizontal',
+      variant: 'bold',
+      inverted: true,
+      class: 'rounded-r',
+    },
+    {
+      orientation: 'vertical',
+      variant: 'bold',
+      inverted: true,
+      class: 'rounded-t',
     },
   ],
 })
 
-export const sliderDividerVariants = cva('bg-background pointer-events-none absolute z-0', {
+export const sliderDividerVariants = cva('bg-background pointer-events-none absolute', {
   defaultVariants: {
     orientation: 'horizontal',
+    variant: 'default',
   },
   variants: {
     orientation: {
       horizontal: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
       vertical: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
     },
+    variant: {
+      default: '',
+      bold: '',
+    },
   },
   compoundVariants: [
     {
       orientation: 'horizontal',
+      variant: 'default',
+      class: 'h-full w-px',
+    },
+    {
+      orientation: 'vertical',
+      variant: 'default',
+      class: 'h-px w-full',
+    },
+    {
+      orientation: 'horizontal',
+      variant: 'bold',
       class: 'h-1/2 w-px',
     },
     {
       orientation: 'vertical',
+      variant: 'bold',
       class: 'h-px w-1/2',
     },
   ],
 })
 
 export const sliderThumbVariants = cva(
-  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-20 touch-none not-dark:bg-clip-padding',
+  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-3 touch-none not-dark:bg-clip-padding',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -168,8 +168,8 @@ export const sliderThumbVariants = cva(
       },
       variant: {
         default:
-          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:(scale-120 z-10)',
-        bold: 'outline-(3 primary solid) rounded-sm bg-primary-foreground focus-visible:bg-border data-dragging:z-10',
+          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:scale-120',
+        bold: 'outline-(3 primary solid) rounded-sm bg-primary-foreground focus-visible:bg-border',
       },
     },
     compoundVariants: [
@@ -181,8 +181,8 @@ export const sliderThumbVariants = cva(
       { size: 'xs', variant: 'bold', class: 'h-2 w-1' },
       { size: 'sm', variant: 'bold', class: 'h-2.5 w-1' },
       { size: 'md', variant: 'bold', class: 'h-3 w-1' },
-      { size: 'lg', variant: 'bold', class: 'h-3.25 w-1' },
-      { size: 'xl', variant: 'bold', class: 'h-3.5 w-1' },
+      { size: 'lg', variant: 'bold', class: 'h-3.5 w-1' },
+      { size: 'xl', variant: 'bold', class: 'h-4 w-1' },
       {
         orientation: 'horizontal',
         inverted: false,

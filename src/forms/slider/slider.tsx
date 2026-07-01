@@ -3,7 +3,7 @@ import { For, createEffect, createMemo, createSignal, mergeProps, onMount } from
 
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useId, cn } from '../../shared/utils'
+import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -96,7 +96,7 @@ export namespace SliderT {
     minStepsBetweenThumbs?: number
 
     /**
-     * Whether to show visual step dividers on the track.
+     * Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.
      * @default false
      */
     divider?: boolean
@@ -147,6 +147,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
       size: 'md' as const,
+      inverted: false,
     },
     props,
   )
@@ -208,17 +209,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   )
 
   const getSliderEdges = createMemo(() =>
-    resolveSliderEdges(merged.orientation, Boolean(merged.inverted), isRTL()),
+    resolveSliderEdges(merged.orientation, merged.inverted, isRTL()),
   )
   const isActionDisabled = createMemo(() => field.disabled() || merged.readOnly)
   const currentValues = createMemo(() => getControlledValues() ?? displayValues())
   const interactionValues = () => pendingValues ?? currentValues()
-  const dataAttrs = createMemo(() => ({
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-invalid': field.invalid() ? '' : undefined,
-    'data-readonly': merged.readOnly ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
-  }))
   const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
     const { startEdge } = getSliderEdges()
 
@@ -673,14 +668,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       role="group"
       data-slot="root"
       data-orientation={merged.orientation}
-      {...dataAttrs()}
+      data-disabled={field.disabled() ? '' : undefined}
+      data-invalid={field.invalid() ? '' : undefined}
+      data-readonly={merged.readOnly ? '' : undefined}
+      data-required={merged.required ? '' : undefined}
       style={merged.styles?.root}
       class={sliderRootVariants(
-        {
-          size: field.size(),
-          orientation: merged.orientation,
-          variant: merged.variant,
-        },
+        { orientation: merged.orientation },
         field.disabled() && 'effect-dis',
         merged.classes?.root,
       )}
@@ -692,15 +686,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         data-slot="track"
         data-orientation={merged.orientation}
         style={merged.styles?.track}
-        class={cn(
-          sliderTrackVariants(
-            {
-              size: field.size(),
-              orientation: merged.orientation,
-              variant: merged.variant,
-            },
-            merged.classes?.track,
-          ),
+        class={sliderTrackVariants(
+          {
+            size: field.size(),
+            orientation: merged.orientation,
+            variant: merged.variant,
+          },
+          merged.classes?.track,
         )}
         onPointerDown={onTrackPointerDown}
         onPointerMove={onTrackPointerMove}
@@ -713,14 +705,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             ...rangeStyle(),
             ...merged.styles?.range,
           }}
-          class={cn(
-            sliderRangeVariants(
-              {
-                orientation: merged.orientation,
-                variant: merged.variant,
-              },
-              merged.classes?.range,
-            ),
+          class={sliderRangeVariants(
+            {
+              orientation: merged.orientation,
+              variant: merged.variant,
+              inverted: merged.inverted,
+            },
+            merged.classes?.range,
           )}
         />
 
@@ -730,13 +721,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               data-slot="divider"
               data-orientation={merged.orientation}
               style={getDividerStyle(dividerIndex)}
-              class={cn(
-                sliderDividerVariants(
-                  {
-                    orientation: merged.orientation,
-                  },
-                  merged.classes?.divider,
-                ),
+              class={sliderDividerVariants(
+                {
+                  orientation: merged.orientation,
+                  variant: merged.variant,
+                },
+                merged.classes?.divider,
               )}
             />
           )}
@@ -755,7 +745,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             }}
             data-slot="thumb"
             data-dragging={dragging() && activeThumbIndexState() === thumbIndex ? '' : undefined}
-            {...dataAttrs()}
+            data-disabled={field.disabled() ? '' : undefined}
+            data-invalid={field.invalid() ? '' : undefined}
+            data-readonly={merged.readOnly ? '' : undefined}
+            data-required={merged.required ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
             style={{
@@ -764,7 +757,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             }}
             class={sliderThumbVariants(
               {
-                inverted: Boolean(merged.inverted),
+                inverted: merged.inverted,
                 orientation: merged.orientation,
                 size: field.size(),
                 variant: merged.variant,

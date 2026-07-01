@@ -17,11 +17,12 @@ const markdownShortCuts = {
   'docs-ol': 'list-decimal list-outside pl-5 mb-3 text-muted-foreground',
   'docs-li': 'leading-6',
   'docs-a': 'text-primary underline underline-offset-2 hover:text-primary/80',
-  'docs-blockquote': 'my-4 rounded-md bg-muted/60 b-1 b-border px-4 py-3 text-muted-foreground',
+  'docs-blockquote':
+    'my-4 rounded-md bg-secondary/60 b-1 b-input px-4 py-3 text-secondary-foreground [&>p]:m-0',
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border my-6',
   'docs-inline-code':
-    'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border border-border/80 rounded-md text-sm font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
+    'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border-2 border-border rounded-md text-sm text-destructive font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
   'docs-pre': 'docs-code-block p-4',
   'docs-code-block': 'relative my-4 overflow-hidden rounded-lg border border-border/80 text-sm',
   'docs-code-block-source':

@@ -60,7 +60,7 @@
         "name": "divider",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether to show visual step dividers on the track.",
+        "description": "Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.",
         "defaultValue": "false"
       },
       {
@@ -227,16 +227,40 @@
     ],
     "data": [
       {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
         "name": "data-dragging",
         "required": false,
         "type": "string | undefined",
         "description": "Present while the related thumb or handle is being dragged."
       },
       {
+        "name": "data-invalid",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field has a validation error."
+      },
+      {
         "name": "data-orientation",
         "required": false,
         "type": "string | undefined",
         "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
+      },
+      {
+        "name": "data-required",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is required."
       },
       {
         "name": "data-slot",
@@ -277,10 +301,34 @@
         "cssVariables": [],
         "dataAttributes": [
           {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          },
+          {
             "name": "data-orientation",
             "required": false,
             "type": "string | undefined",
             "description": "Stores the rendered orientation."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
           }
         ],
         "ariaAttributes": [
@@ -297,10 +345,34 @@
         "cssVariables": [],
         "dataAttributes": [
           {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
             "name": "data-dragging",
             "required": false,
             "type": "string | undefined",
             "description": "Present while the related thumb or handle is being dragged."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
           }
         ],
         "ariaAttributes": [
