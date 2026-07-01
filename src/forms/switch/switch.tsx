@@ -7,7 +7,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -58,7 +58,7 @@ export namespace SwitchT {
     /**
      * Pointer down handler for the switch root container.
      */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
+    onPointerDown?: JSX.EventHandler<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the switch is checked.
@@ -247,11 +247,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
-  const dataAttrs = createMemo(() => ({
-    'data-checked': checked() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
-  }))
 
   createEffect(() => {
     if (inputEl) {
@@ -299,8 +294,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     toggle()
   }
 
-  function onRootPointerDown(event: PointerEvent): void {
-    callHandler(event, merged.onPointerDown)
+  function onPointerDown(
+    event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
+  ): void {
+    merged.onPointerDown?.(event)
 
     if (document.activeElement === inputEl) {
       event.preventDefault()
@@ -320,7 +317,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       data-slot="root"
       style={merged.styles?.root}
       class={cn('flex flex-row', merged.classes?.root)}
-      {...dataAttrs()}
     >
       <HiddenInput
         ref={(element) => {
@@ -349,7 +345,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           onChange(event.currentTarget.checked)
           event.currentTarget.checked = Boolean(checked())
         }}
-        {...dataAttrs()}
       />
 
       <button
@@ -367,22 +362,25 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         aria-describedby={merged.description ? descriptionId() : undefined}
         {...field.ariaAttrs()}
         style={merged.styles?.track}
-        class={cn(
-          switchTrackVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.track,
-          ),
+        class={switchTrackVariants(
+          {
+            size: field.size(),
+          },
+          merged.classes?.track,
           field.disabled() && 'effect-dis',
         )}
-        onPointerDown={onRootPointerDown}
+        onPointerDown={onPointerDown}
         onClick={() => toggle()}
         onKeyDown={onRootKeyDown}
-        {...dataAttrs()}
+        data-checked={checked() ? '' : undefined}
+        data-disabled={field.disabled() ? '' : undefined}
+        data-readonly={readOnly() ? '' : undefined}
       >
         <span
           data-slot="thumb"
+          data-checked={checked() ? '' : undefined}
+          data-disabled={field.disabled() ? '' : undefined}
+          data-readonly={readOnly() ? '' : undefined}
           style={merged.styles?.thumb}
           class={switchThumbVariants(
             {
@@ -390,7 +388,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             },
             merged.classes?.thumb,
           )}
-          {...dataAttrs()}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (

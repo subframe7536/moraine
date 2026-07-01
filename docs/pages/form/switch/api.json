@@ -123,7 +123,7 @@
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent, JSX.EventHandler<HTMLButtonElement, PointerEvent>> | undefined",
+        "type": "JSX.EventHandler<HTMLButtonElement, PointerEvent> | undefined",
         "description": "Pointer down handler for the switch root container."
       },
       {
@@ -244,6 +244,12 @@
         "description": "Present when the item is checked or selected."
       },
       {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
         "name": "data-invalid",
         "required": false,
         "type": "string | undefined",
@@ -254,6 +260,12 @@
         "required": false,
         "type": "string | undefined",
         "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
       },
       {
         "name": "data-slot",
@@ -303,7 +315,26 @@
       {
         "name": "thumb",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          }
+        ],
         "ariaAttributes": []
       },
       {
@@ -311,10 +342,28 @@
         "cssVariables": [],
         "dataAttributes": [
           {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
             "name": "data-invalid",
             "required": false,
             "type": "string | undefined",
             "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
           }
         ],
         "ariaAttributes": [
