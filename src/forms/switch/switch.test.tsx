@@ -6,59 +6,66 @@ import { FormField } from '../form-field'
 
 import { Switch } from './switch'
 
+function expectSwitchChecked(element: Element, checked: boolean): void {
+  expect(element.getAttribute('aria-checked')).toBe(String(checked))
+}
+
 describe('Switch', () => {
   test('renders label and description with accessible switch input', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 
     const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
-    const label = screen.getByText('Email alerts')
+    const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(switchInput).not.toBeNull()
-    expect(label.getAttribute('for')).toBe(switchInput.getAttribute('id'))
+    const input = screen.container.querySelector('[data-slot="input"]')
+
+    expect(root?.tagName).toBe('BUTTON')
+    expect(input?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.getByText('Receive updates')).not.toBeNull()
   })
 
   test('supports uncontrolled toggle', async () => {
     const screen = render(() => <Switch label="Marketing" />)
-    const switchInput = screen.getByRole('switch', { name: 'Marketing' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Marketing' })
 
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
     await fireEvent.click(switchInput)
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
   })
 
   test('toggles with Space and Enter keys', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Keyboard' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
     await fireEvent.keyDown(switchInput, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(true)
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
 
     await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith(false)
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
   })
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch disabled label="Disabled" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Disabled' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Disabled' })
     const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
 
-    expect(switchInput.disabled).toBe(true)
+    expect(switchInput.getAttribute('aria-disabled')).toBe('true')
 
     await fireEvent.click(switchInput)
     await fireEvent.click(track)
     await fireEvent.keyDown(switchInput, { key: ' ' })
     await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -68,17 +75,19 @@ describe('Switch', () => {
     ))
 
     const switchInput = screen.getByRole('switch', { name: 'Newsletter' })
+    const input = screen.container.querySelector('[data-slot="input"]')
 
     expect(switchInput.getAttribute('id')).toBe('newsletter-switch')
-    expect(switchInput.getAttribute('name')).toBe('newsletter')
-    expect(switchInput.getAttribute('value')).toBe('yes')
-    expect(switchInput.getAttribute('required')).not.toBeNull()
+    expect(input?.getAttribute('id')).toBe('newsletter-switch-input')
+    expect(input?.getAttribute('name')).toBe('newsletter')
+    expect(input?.getAttribute('value')).toBe('yes')
+    expect(input?.getAttribute('required')).not.toBeNull()
   })
 
   test('keeps controlled state while emitting onChange', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch checked label="Controlled" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Controlled' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Controlled' })
 
     await fireEvent.click(switchInput)
 
@@ -86,26 +95,26 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledWith(false)
 
     await waitFor(() => {
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
     })
   })
 
   test('does not toggle a controlled readOnly switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch checked readOnly label="Readonly" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Readonly' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Readonly' })
 
     expect(switchInput.getAttribute('aria-readonly')).toBe('true')
 
     await fireEvent.click(switchInput)
 
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
 
     await fireEvent.keyDown(switchInput, { key: ' ' })
     await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -116,17 +125,17 @@ describe('Switch', () => {
     ))
     const switchInput = screen.getByRole('switch', {
       name: 'Readonly uncontrolled',
-    }) as HTMLInputElement
+    })
 
     await fireEvent.click(switchInput)
 
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
 
     await fireEvent.keyDown(switchInput, { key: ' ' })
     await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -135,9 +144,9 @@ describe('Switch', () => {
     const screen = render(() => (
       <Switch checked={1} trueValue={1} falseValue={0} label="Visibility" onChange={onChange} />
     ))
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
 
     await fireEvent.click(switchInput)
 
@@ -145,7 +154,7 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledWith(0)
 
     await waitFor(() => {
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
     })
   })
 
@@ -160,23 +169,23 @@ describe('Switch', () => {
       </Form>
     ))
 
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
     expect(state.visibility).toBe(1)
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
 
     await fireEvent.click(switchInput)
 
     await waitFor(() => {
       expect(state.visibility).toBe(0)
-      expect(switchInput.checked).toBe(false)
+      expectSwitchChecked(switchInput, false)
     })
 
     await fireEvent.click(switchInput)
 
     await waitFor(() => {
       expect(state.visibility).toBe(1)
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
     })
   })
 
@@ -191,11 +200,11 @@ describe('Switch', () => {
       </Form>
     ))
 
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
     await waitFor(() => {
       expect(state.visibility).toBe(1)
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
     })
   })
 
@@ -210,11 +219,11 @@ describe('Switch', () => {
       </Form>
     ))
 
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
     await waitFor(() => {
       expect(state.visibility).toBe(0)
-      expect(switchInput.checked).toBe(false)
+      expectSwitchChecked(switchInput, false)
     })
   })
 
@@ -229,11 +238,11 @@ describe('Switch', () => {
       </Form>
     ))
 
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
     await waitFor(() => {
       expect(state.visibility).toBe(1)
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
     })
   })
 
@@ -243,7 +252,7 @@ describe('Switch', () => {
     ))
 
     const switchInput = screen.getByRole('switch', { name: 'Loading' })
-    expect((switchInput as HTMLInputElement).disabled).toBe(true)
+    expect(switchInput.getAttribute('aria-disabled')).toBe('true')
     expect(screen.getByTestId('loading-icon').textContent).toBe('L')
   })
 
@@ -255,7 +264,7 @@ describe('Switch', () => {
         uncheckedIcon={<span data-testid="unchecked-icon">U</span>}
       />
     ))
-    const switchInput = screen.getByRole('switch', { name: 'Icon state' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Icon state' })
 
     expect(screen.getByTestId('unchecked-icon').textContent).toBe('U')
     await fireEvent.click(switchInput)
@@ -312,20 +321,20 @@ describe('Switch', () => {
     ))
 
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const switchInput = screen.getByRole('switch', { name: 'Enabled' }) as HTMLInputElement
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
 
-    expect(switchInput.checked).toBe(true)
+    expectSwitchChecked(switchInput, true)
     expect(new FormData(form).get('enabled')).toBe('yes')
 
     await fireEvent.click(switchInput)
 
-    expect(switchInput.checked).toBe(false)
+    expectSwitchChecked(switchInput, false)
     expect(new FormData(form).has('enabled')).toBe(false)
 
     form.reset()
 
     await waitFor(() => {
-      expect(switchInput.checked).toBe(true)
+      expectSwitchChecked(switchInput, true)
       expect(new FormData(form).get('enabled')).toBe('yes')
     })
   })

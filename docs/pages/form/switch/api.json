@@ -13,10 +13,6 @@
       "description": "Switch wrapper that coordinates input, track, thumb, and text content."
     },
     {
-      "name": "container",
-      "description": "Text column that groups label and description."
-    },
-    {
       "name": "track",
       "description": "Visible switch track that shows checked and unchecked state."
     },

@@ -17,20 +17,12 @@ import type {
 } from '../form-field/form-options'
 
 import type { SwitchVariantProps } from './switch.class'
-import {
-  switchTrackVariants,
-  switchContainerVariants,
-  switchThumbVariants,
-  switchWrapperVariants,
-} from './switch.class'
+import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
     /** Switch wrapper that coordinates input, track, thumb, and text content. */
     root?: T
-
-    /** Text column that groups label and description. */
-    container?: T
 
     /** Visible switch track that shows checked and unchecked state. */
     track?: T
@@ -66,7 +58,7 @@ export namespace SwitchT {
     /**
      * Pointer down handler for the switch root container.
      */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the switch is checked.
@@ -187,6 +179,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         ) ?? merged.falseValue,
     }),
   )
+  const labelId = createMemo(() => `${field.id()}-label`)
+  const descriptionId = createMemo(() => `${field.id()}-description`)
 
   let inputEl: HTMLInputElement | undefined
 
@@ -271,7 +265,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
 
     onChange(!checked())
-    inputEl?.focus()
   }
 
   onMount(() => {
@@ -297,7 +290,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     useEventListener(form, 'reset', onReset)
   })
 
-  function onInputKeyDown(event: KeyboardEvent): void {
+  function onRootKeyDown(event: KeyboardEvent): void {
     if (event.key !== ' ' && event.key !== 'Enter') {
       return
     }
@@ -323,65 +316,63 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      id={`${field.id()}-root`}
-      role="group"
-      data-slot="root"
-      style={merged.styles?.root}
-      class={cn(
-        'flex items-start relative',
-        field.disabled() && 'effect-dis',
-        merged.classes?.root,
-      )}
-      onPointerDown={onRootPointerDown}
-      {...dataAttrs()}
-    >
-      <div
-        data-slot="container"
-        style={merged.styles?.container}
-        class={switchContainerVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.container,
-        )}
-      >
-        <HiddenInput
-          ref={(element) => {
-            inputEl = element
-          }}
-          id={field.id()}
-          type="checkbox"
-          role="switch"
-          name={field.name()}
-          value={merged.value}
-          checked={Boolean(checked())}
-          required={merged.required}
-          disabled={field.disabled()}
-          readOnly={readOnly()}
-          aria-checked={Boolean(checked())}
-          aria-required={merged.required || undefined}
-          aria-disabled={field.disabled() || undefined}
-          aria-readonly={readOnly() || undefined}
-          class="peer"
-          data-slot="input"
-          onChange={(event) => {
-            event.stopPropagation()
+    <>
+      <HiddenInput
+        ref={(element) => {
+          inputEl = element
+        }}
+        id={`${field.id()}-input`}
+        type="checkbox"
+        name={field.name()}
+        value={merged.value}
+        checked={Boolean(checked())}
+        required={merged.required}
+        disabled={field.disabled()}
+        readOnly={readOnly()}
+        tabIndex={-1}
+        aria-hidden="true"
+        class="peer"
+        data-slot="input"
+        onChange={(event) => {
+          event.stopPropagation()
 
-            if (field.disabled() || readOnly()) {
-              event.currentTarget.checked = Boolean(checked())
-              return
-            }
-
-            onChange(event.currentTarget.checked)
+          if (field.disabled() || readOnly()) {
             event.currentTarget.checked = Boolean(checked())
-          }}
-          onKeyDown={onInputKeyDown}
-          {...dataAttrs()}
-          {...field.ariaAttrs()}
-        />
+            return
+          }
 
-        <div
+          onChange(event.currentTarget.checked)
+          event.currentTarget.checked = Boolean(checked())
+        }}
+        {...dataAttrs()}
+      />
+
+      <button
+        id={field.id()}
+        type="button"
+        role="switch"
+        disabled={field.disabled()}
+        data-slot="root"
+        aria-checked={Boolean(checked())}
+        aria-required={merged.required || undefined}
+        aria-disabled={field.disabled() || undefined}
+        aria-readonly={readOnly() || undefined}
+        aria-labelledby={merged.label ? labelId() : undefined}
+        aria-describedby={merged.description ? descriptionId() : undefined}
+        {...field.ariaAttrs()}
+        style={merged.styles?.root}
+        class={cn(
+          'group text-start flex items-start relative',
+          field.disabled() && 'effect-dis',
+          merged.classes?.root,
+        )}
+        onPointerDown={onRootPointerDown}
+        onClick={() => toggle()}
+        onKeyDown={onRootKeyDown}
+        {...dataAttrs()}
+      >
+        <span
+          aria-hidden="true"
           data-slot="track"
           style={merged.styles?.track}
           data-invalid={field.invalid() ? '' : undefined}
@@ -391,10 +382,9 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             },
             merged.classes?.track,
           )}
-          onClick={() => toggle()}
           {...dataAttrs()}
         >
-          <div
+          <span
             data-slot="thumb"
             style={merged.styles?.thumb}
             class={switchThumbVariants(
@@ -419,47 +409,48 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 />
               )}
             </Show>
-          </div>
-        </div>
-      </div>
+          </span>
+        </span>
 
-      <Show when={merged.label || merged.description}>
-        <div
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={switchWrapperVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.wrapper,
-          )}
-        >
-          <Show when={merged.label}>
-            <label
-              for={field.id()}
-              data-slot="label"
-              style={merged.styles?.label}
-              class={cn(
-                'text-foreground font-medium block cursor-pointer',
-                merged.required && "after:(text-destructive ms-0.5 content-['*'])",
-                merged.classes?.label,
-              )}
-            >
-              {merged.label}
-            </label>
-          </Show>
+        <Show when={merged.label || merged.description}>
+          <span
+            data-slot="wrapper"
+            style={merged.styles?.wrapper}
+            class={switchWrapperVariants(
+              {
+                size: field.size(),
+              },
+              merged.classes?.wrapper,
+            )}
+          >
+            <Show when={merged.label}>
+              <span
+                id={labelId()}
+                data-slot="label"
+                style={merged.styles?.label}
+                class={cn(
+                  'text-foreground font-medium block cursor-pointer',
+                  merged.required && "after:(text-destructive ms-0.5 content-['*'])",
+                  merged.classes?.label,
+                )}
+              >
+                {merged.label}
+              </span>
+            </Show>
 
-          <Show when={merged.description}>
-            <p
-              data-slot="description"
-              style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
-            >
-              {merged.description}
-            </p>
-          </Show>
-        </div>
-      </Show>
-    </div>
+            <Show when={merged.description}>
+              <span
+                id={descriptionId()}
+                data-slot="description"
+                style={merged.styles?.description}
+                class={cn('text-muted-foreground block', merged.classes?.description)}
+              >
+                {merged.description}
+              </span>
+            </Show>
+          </span>
+        </Show>
+      </button>
+    </>
   )
 }
