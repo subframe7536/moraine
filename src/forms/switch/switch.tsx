@@ -7,7 +7,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -17,20 +17,12 @@ import type {
 } from '../form-field/form-options'
 
 import type { SwitchVariantProps } from './switch.class'
-import {
-  switchTrackVariants,
-  switchContainerVariants,
-  switchThumbVariants,
-  switchWrapperVariants,
-} from './switch.class'
+import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
     /** Switch wrapper that coordinates input, track, thumb, and text content. */
     root?: T
-
-    /** Text column that groups label and description. */
-    container?: T
 
     /** Visible switch track that shows checked and unchecked state. */
     track?: T
@@ -66,7 +58,7 @@ export namespace SwitchT {
     /**
      * Pointer down handler for the switch root container.
      */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+    onPointerDown?: JSX.EventHandler<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the switch is checked.
@@ -187,6 +179,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         ) ?? merged.falseValue,
     }),
   )
+  const labelId = createMemo(() => `${field.id()}-label`)
+  const descriptionId = createMemo(() => `${field.id()}-description`)
 
   let inputEl: HTMLInputElement | undefined
 
@@ -253,11 +247,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
-  const dataAttrs = createMemo(() => ({
-    'data-checked': checked() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
-  }))
 
   createEffect(() => {
     if (inputEl) {
@@ -271,7 +260,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
 
     onChange(!checked())
-    inputEl?.focus()
   }
 
   onMount(() => {
@@ -297,7 +285,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     useEventListener(form, 'reset', onReset)
   })
 
-  function onInputKeyDown(event: KeyboardEvent): void {
+  function onRootKeyDown(event: KeyboardEvent): void {
     if (event.key !== ' ' && event.key !== 'Enter') {
       return
     }
@@ -306,8 +294,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     toggle()
   }
 
-  function onRootPointerDown(event: PointerEvent): void {
-    callHandler(event, merged.onPointerDown)
+  function onPointerDown(
+    event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
+  ): void {
+    merged.onPointerDown?.(event)
 
     if (document.activeElement === inputEl) {
       event.preventDefault()
@@ -324,107 +314,100 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   return (
     <div
-      id={`${field.id()}-root`}
-      role="group"
       data-slot="root"
       style={merged.styles?.root}
-      class={cn(
-        'flex items-start relative',
-        field.disabled() && 'effect-dis',
-        merged.classes?.root,
-      )}
-      onPointerDown={onRootPointerDown}
-      {...dataAttrs()}
+      class={cn('flex flex-row', merged.classes?.root)}
     >
-      <div
-        data-slot="container"
-        style={merged.styles?.container}
-        class={switchContainerVariants(
+      <HiddenInput
+        ref={(element) => {
+          inputEl = element
+        }}
+        id={`${field.id()}-input`}
+        type="checkbox"
+        name={field.name()}
+        value={merged.value}
+        checked={Boolean(checked())}
+        required={merged.required}
+        disabled={field.disabled()}
+        readOnly={readOnly()}
+        tabIndex={-1}
+        aria-hidden="true"
+        class="peer"
+        data-slot="input"
+        onChange={(event) => {
+          event.stopPropagation()
+
+          if (field.disabled() || readOnly()) {
+            event.currentTarget.checked = Boolean(checked())
+            return
+          }
+
+          onChange(event.currentTarget.checked)
+          event.currentTarget.checked = Boolean(checked())
+        }}
+      />
+
+      <button
+        id={field.id()}
+        type="button"
+        role="switch"
+        disabled={field.disabled()}
+        data-slot="track"
+        data-invalid={field.invalid() ? '' : undefined}
+        aria-checked={Boolean(checked())}
+        aria-required={merged.required || undefined}
+        aria-disabled={field.disabled() || undefined}
+        aria-readonly={readOnly() || undefined}
+        aria-labelledby={merged.label ? labelId() : undefined}
+        aria-describedby={merged.description ? descriptionId() : undefined}
+        {...field.ariaAttrs()}
+        style={merged.styles?.track}
+        class={switchTrackVariants(
           {
             size: field.size(),
           },
-          merged.classes?.container,
+          merged.classes?.track,
+          field.disabled() && 'effect-dis',
         )}
+        onPointerDown={onPointerDown}
+        onClick={() => toggle()}
+        onKeyDown={onRootKeyDown}
+        data-checked={checked() ? '' : undefined}
+        data-disabled={field.disabled() ? '' : undefined}
+        data-readonly={readOnly() ? '' : undefined}
       >
-        <HiddenInput
-          ref={(element) => {
-            inputEl = element
-          }}
-          id={field.id()}
-          type="checkbox"
-          role="switch"
-          name={field.name()}
-          value={merged.value}
-          checked={Boolean(checked())}
-          required={merged.required}
-          disabled={field.disabled()}
-          readOnly={readOnly()}
-          aria-checked={Boolean(checked())}
-          aria-required={merged.required || undefined}
-          aria-disabled={field.disabled() || undefined}
-          aria-readonly={readOnly() || undefined}
-          class="peer"
-          data-slot="input"
-          onChange={(event) => {
-            event.stopPropagation()
-
-            if (field.disabled() || readOnly()) {
-              event.currentTarget.checked = Boolean(checked())
-              return
-            }
-
-            onChange(event.currentTarget.checked)
-            event.currentTarget.checked = Boolean(checked())
-          }}
-          onKeyDown={onInputKeyDown}
-          {...dataAttrs()}
-          {...field.ariaAttrs()}
-        />
-
-        <div
-          data-slot="track"
-          style={merged.styles?.track}
-          data-invalid={field.invalid() ? '' : undefined}
-          class={switchTrackVariants(
+        <span
+          data-slot="thumb"
+          data-checked={checked() ? '' : undefined}
+          data-disabled={field.disabled() ? '' : undefined}
+          data-readonly={readOnly() ? '' : undefined}
+          style={merged.styles?.thumb}
+          class={switchThumbVariants(
             {
               size: field.size(),
             },
-            merged.classes?.track,
+            merged.classes?.thumb,
           )}
-          onClick={() => toggle()}
-          {...dataAttrs()}
         >
-          <div
-            data-slot="thumb"
-            style={merged.styles?.thumb}
-            class={switchThumbVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.thumb,
+          <Show when={resolvedIconName()} keyed>
+            {(iconName) => (
+              <Icon
+                name={iconName}
+                data-checked={!merged.loading && checked() ? '' : undefined}
+                data-unchecked={!merged.loading && !checked() ? '' : undefined}
+                data-loading={merged.loading ? '' : undefined}
+                class={cn(
+                  'text-primary size-10/12 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
+                  merged.classes?.icon,
+                )}
+              />
             )}
-            {...dataAttrs()}
-          >
-            <Show when={resolvedIconName()} keyed>
-              {(iconName) => (
-                <Icon
-                  name={iconName}
-                  data-checked={!merged.loading && checked() ? '' : undefined}
-                  data-unchecked={!merged.loading && !checked() ? '' : undefined}
-                  data-loading={merged.loading ? '' : undefined}
-                  class={cn(
-                    'text-primary size-10/12 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
-                    merged.classes?.icon,
-                  )}
-                />
-              )}
-            </Show>
-          </div>
-        </div>
-      </div>
+          </Show>
+        </span>
+      </button>
 
       <Show when={merged.label || merged.description}>
-        <div
+        <span
           data-slot="wrapper"
           style={merged.styles?.wrapper}
           class={switchWrapperVariants(
@@ -437,6 +420,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           <Show when={merged.label}>
             <label
               for={field.id()}
+              id={labelId()}
               data-slot="label"
               style={merged.styles?.label}
               class={cn(
@@ -450,15 +434,16 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           </Show>
 
           <Show when={merged.description}>
-            <p
+            <span
+              id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
+              class={cn('text-muted-foreground block', merged.classes?.description)}
             >
               {merged.description}
-            </p>
+            </span>
           </Show>
-        </div>
+        </span>
       </Show>
     </div>
   )

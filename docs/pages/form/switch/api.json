@@ -13,10 +13,6 @@
       "description": "Switch wrapper that coordinates input, track, thumb, and text content."
     },
     {
-      "name": "container",
-      "description": "Text column that groups label and description."
-    },
-    {
       "name": "track",
       "description": "Visible switch track that shows checked and unchecked state."
     },
@@ -127,7 +123,7 @@
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLDivElement, PointerEvent, JSX.EventHandler<HTMLDivElement, PointerEvent>> | undefined",
+        "type": "JSX.EventHandler<HTMLButtonElement, PointerEvent> | undefined",
         "description": "Pointer down handler for the switch root container."
       },
       {
@@ -192,6 +188,12 @@
         "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
+        "name": "aria-describedby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References descriptive text associated with the control."
+      },
+      {
         "name": "aria-disabled",
         "required": false,
         "type": "boolean | string | undefined",
@@ -208,6 +210,12 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
       },
       {
         "name": "aria-readonly",
@@ -236,6 +244,12 @@
         "description": "Present when the item is checked or selected."
       },
       {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
         "name": "data-invalid",
         "required": false,
         "type": "string | undefined",
@@ -246,6 +260,12 @@
         "required": false,
         "type": "string | undefined",
         "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
       },
       {
         "name": "data-slot",
@@ -262,12 +282,6 @@
     ],
     "slots": [
       {
-        "name": "container",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "description",
         "cssVariables": [],
         "dataAttributes": [],
@@ -279,16 +293,103 @@
         "dataAttributes": [],
         "ariaAttributes": [
           {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "thumb",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          }
+        ],
+        "ariaAttributes": []
+      },
+      {
+        "name": "track",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          }
+        ],
+        "ariaAttributes": [
+          {
             "name": "aria-checked",
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Accessibility attribute forwarded by the rendered component."
           },
           {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
             "name": "aria-disabled",
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
           },
           {
             "name": "aria-readonly",
@@ -309,44 +410,6 @@
             "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "thumb",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "track",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          }
-        ],
-        "ariaAttributes": []
       },
       {
         "name": "wrapper",
