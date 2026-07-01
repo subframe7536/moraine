@@ -17,15 +17,12 @@ import type {
 } from '../form-field/form-options'
 
 import type { SwitchVariantProps } from './switch.class'
-import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
+import { switchRootVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
     /** Switch wrapper that coordinates input, track, thumb, and text content. */
     root?: T
-
-    /** Visible switch track that shows checked and unchecked state. */
-    track?: T
 
     /** Movable knob inside the switch track. */
     thumb?: T
@@ -353,6 +350,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         role="switch"
         disabled={field.disabled()}
         data-slot="root"
+        data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         aria-required={merged.required || undefined}
         aria-disabled={field.disabled() || undefined}
@@ -362,9 +360,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         {...field.ariaAttrs()}
         style={merged.styles?.root}
         class={cn(
-          'group text-start flex items-start relative',
+          switchRootVariants(
+            {
+              size: field.size(),
+            },
+            merged.classes?.root,
+          ),
           field.disabled() && 'effect-dis',
-          merged.classes?.root,
         )}
         onPointerDown={onRootPointerDown}
         onClick={() => toggle()}
@@ -372,85 +374,72 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         {...dataAttrs()}
       >
         <span
-          aria-hidden="true"
-          data-slot="track"
-          style={merged.styles?.track}
-          data-invalid={field.invalid() ? '' : undefined}
-          class={switchTrackVariants(
+          data-slot="thumb"
+          style={merged.styles?.thumb}
+          class={switchThumbVariants(
             {
               size: field.size(),
             },
-            merged.classes?.track,
+            merged.classes?.thumb,
           )}
           {...dataAttrs()}
         >
-          <span
-            data-slot="thumb"
-            style={merged.styles?.thumb}
-            class={switchThumbVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.thumb,
-            )}
-            {...dataAttrs()}
-          >
-            <Show when={resolvedIconName()} keyed>
-              {(iconName) => (
-                <Icon
-                  name={iconName}
-                  data-checked={!merged.loading && checked() ? '' : undefined}
-                  data-unchecked={!merged.loading && !checked() ? '' : undefined}
-                  data-loading={merged.loading ? '' : undefined}
-                  class={cn(
-                    'text-primary size-10/12 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
-                    merged.classes?.icon,
-                  )}
-                />
-              )}
-            </Show>
-          </span>
-        </span>
-
-        <Show when={merged.label || merged.description}>
-          <span
-            data-slot="wrapper"
-            style={merged.styles?.wrapper}
-            class={switchWrapperVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.wrapper,
-            )}
-          >
-            <Show when={merged.label}>
-              <span
-                id={labelId()}
-                data-slot="label"
-                style={merged.styles?.label}
+          <Show when={resolvedIconName()} keyed>
+            {(iconName) => (
+              <Icon
+                name={iconName}
+                data-checked={!merged.loading && checked() ? '' : undefined}
+                data-unchecked={!merged.loading && !checked() ? '' : undefined}
+                data-loading={merged.loading ? '' : undefined}
                 class={cn(
-                  'text-foreground font-medium block cursor-pointer',
-                  merged.required && "after:(text-destructive ms-0.5 content-['*'])",
-                  merged.classes?.label,
+                  'text-primary size-10/12 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
+                  merged.classes?.icon,
                 )}
-              >
-                {merged.label}
-              </span>
-            </Show>
-
-            <Show when={merged.description}>
-              <span
-                id={descriptionId()}
-                data-slot="description"
-                style={merged.styles?.description}
-                class={cn('text-muted-foreground block', merged.classes?.description)}
-              >
-                {merged.description}
-              </span>
-            </Show>
-          </span>
-        </Show>
+              />
+            )}
+          </Show>
+        </span>
       </button>
+
+      <Show when={merged.label || merged.description}>
+        <span
+          data-slot="wrapper"
+          style={merged.styles?.wrapper}
+          class={switchWrapperVariants(
+            {
+              size: field.size(),
+            },
+            merged.classes?.wrapper,
+          )}
+        >
+          <Show when={merged.label}>
+            <label
+              for={field.id()}
+              id={labelId()}
+              data-slot="label"
+              style={merged.styles?.label}
+              class={cn(
+                'text-foreground font-medium block cursor-pointer',
+                merged.required && "after:(text-destructive ms-0.5 content-['*'])",
+                merged.classes?.label,
+              )}
+            >
+              {merged.label}
+            </label>
+          </Show>
+
+          <Show when={merged.description}>
+            <span
+              id={descriptionId()}
+              data-slot="description"
+              style={merged.styles?.description}
+              class={cn('text-muted-foreground block', merged.classes?.description)}
+            >
+              {merged.description}
+            </span>
+          </Show>
+        </span>
+      </Show>
     </>
   )
 }

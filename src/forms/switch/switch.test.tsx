@@ -56,12 +56,9 @@ describe('Switch', () => {
     const onChange = vi.fn()
     const screen = render(() => <Switch disabled label="Disabled" onChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Disabled' })
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
-
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
 
     await fireEvent.click(switchInput)
-    await fireEvent.click(track)
     await fireEvent.keyDown(switchInput, { key: ' ' })
     await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
@@ -344,13 +341,12 @@ describe('Switch', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="input"]')
-    const base = screen.container.querySelector('[data-slot="track"]')
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
-    expect(root?.className).not.toContain('cursor-pointer')
+    expect(root?.className).toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
-    expect(base?.className).toContain('peer-focus-visible:effect-fv-border')
-    expect(base?.className).toContain('w-11')
+    expect(root?.className).toContain('focus-visible:effect-fv-border')
+    expect(root?.className).toContain('w-11')
     expect(wrapper?.className).toContain('ms-3')
     expect(wrapper?.className).toContain('text-base')
   })

@@ -2,8 +2,8 @@ import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils'
 
-export const switchTrackVariants = cva(
-  'p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer transition-[color,box-shadow] items-center group-focus-visible:effect-fv-border peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/80 data-checked:bg-primary',
+export const switchRootVariants = cva(
+  'p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer transition-[color,box-shadow] items-center focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/80 data-checked:bg-primary',
   {
     defaultVariants: {
       size: 'md',
@@ -53,4 +53,4 @@ export const switchWrapperVariants = cva('', {
   },
 })
 
-export type SwitchVariantProps = VariantProps<typeof switchTrackVariants>
+export type SwitchVariantProps = VariantProps<typeof switchRootVariants>
