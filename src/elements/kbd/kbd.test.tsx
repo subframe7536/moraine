@@ -81,6 +81,28 @@ describe('Kbd', () => {
     expect(item?.style.width).toBe('200px')
   })
 
+  test('applies top-level class and style to single item shortcuts', () => {
+    const screen = render(() => <Kbd value={['K']} class="shortcut" style={{ width: '200px' }} />)
+    const item = screen.container.querySelector('[data-slot="kbd"]') as HTMLElement | null
+
+    expect(screen.container.querySelector('[data-slot="kbds"]')).toBeNull()
+    expect(item?.className).toContain('shortcut')
+    expect(item?.style.width).toBe('200px')
+  })
+
+  test('applies top-level class and style to multiple item wrapper', () => {
+    const screen = render(() => (
+      <Kbd value={['Ctrl', 'K']} class="shortcut" style={{ width: '200px' }} />
+    ))
+    const root = screen.container.querySelector('[data-slot="kbds"]') as HTMLElement | null
+    const item = screen.container.querySelector('[data-slot="kbd"]') as HTMLElement | null
+
+    expect(root?.className).toContain('shortcut')
+    expect(root?.style.width).toBe('200px')
+    expect(item?.className).not.toContain('shortcut')
+    expect(item?.style.width).toBe('')
+  })
+
   test('keeps explicit data-slot support for item slot', () => {
     const screen = render(() => <Kbd value={['K', 'S']} slotPrefix="item" />)
     const root = screen.container.querySelector('[data-slot="item-kbds"]')

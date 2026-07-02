@@ -10,7 +10,10 @@ import { kbdItemVariants } from './kbd.class'
 export namespace KbdT {
   export interface Slot<T = unknown> {
     /**
-     * Keyboard shortcut container that groups one or more key tokens.
+     * Wrapper around multiple key tokens.
+     *
+     * Single-value shortcuts render only the `item` slot, so top-level `class` and `style`
+     * are applied to that item instead.
      */
 
     root?: T
@@ -57,7 +60,12 @@ export interface KbdProps extends KbdT.Props {}
 
 /** Keyboard shortcut display component with configurable size and variant. */
 export function Kbd(props: KbdProps): JSX.Element {
-  const Inner = (innerProps: { val: string; append?: boolean }) => (
+  const Inner = (innerProps: {
+    val: string
+    append?: boolean
+    class?: SlotClassValue
+    style?: JSX.CSSProperties
+  }) => (
     <>
       <kbd
         data-slot={props.slotPrefix ? `${props.slotPrefix}-kbd` : 'kbd'}
@@ -67,8 +75,9 @@ export function Kbd(props: KbdProps): JSX.Element {
             variant: props.variant,
           },
           props.classes?.item,
+          innerProps.class,
         )}
-        style={props.styles?.item}
+        style={{ ...props.styles?.item, ...innerProps.style }}
       >
         {innerProps.val}
       </kbd>
@@ -78,7 +87,9 @@ export function Kbd(props: KbdProps): JSX.Element {
   return (
     <Show when={props.value}>
       <Switch>
-        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]!} />}</Match>
+        <Match when={props.value!.length === 1}>
+          {<Inner val={props.value![0]!} class={props.class} style={props.style} />}
+        </Match>
         <Match when={props.value!.length > 1}>
           <span
             data-slot={props.slotPrefix ? `${props.slotPrefix}-kbds` : 'kbds'}

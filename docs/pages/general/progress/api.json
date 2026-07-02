@@ -41,6 +41,12 @@
         "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "ProgressT.Classes | undefined"
@@ -86,6 +92,11 @@
         "type": "boolean | undefined",
         "description": "Whether to show the status label.",
         "defaultValue": "false"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

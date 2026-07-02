@@ -57,6 +57,12 @@
         "defaultValue": "icon-check"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "CheckboxT.Classes | undefined"
@@ -162,6 +168,11 @@
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

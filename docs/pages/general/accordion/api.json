@@ -44,6 +44,12 @@
   "props": {
     "own": [
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "AccordionT.Classes | undefined"
@@ -100,6 +106,11 @@
         "required": false,
         "type": "((value: string[]) => void) | undefined",
         "description": "Callback when the expanded item values change."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

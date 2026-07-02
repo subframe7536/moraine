@@ -39,6 +39,12 @@
         "defaultValue": "true"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "SliderT.Classes | undefined"
@@ -142,6 +148,11 @@
         "required": false,
         "type": "number | undefined",
         "description": "Step increment between values.\nWhen omitted, pointer movement is continuous."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

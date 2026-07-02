@@ -64,6 +64,12 @@
         "description": "Content to render inside the dialog trigger slot."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "DialogT.Classes | undefined",
@@ -161,6 +167,11 @@
         "type": "boolean | undefined",
         "description": "Whether the dialog content body should be scrollable.",
         "defaultValue": "false"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

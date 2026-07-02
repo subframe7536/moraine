@@ -36,6 +36,12 @@
   "props": {
     "own": [
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "SidebarFrameT.Classes | undefined"
@@ -88,6 +94,11 @@
         "name": "side",
         "required": false,
         "type": "\"left\" | \"right\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

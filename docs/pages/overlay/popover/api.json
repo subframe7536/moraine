@@ -30,6 +30,12 @@
         "description": "The reference element that triggers the popover."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "PopoverT.Classes | undefined"
@@ -115,6 +121,11 @@
         "name": "side",
         "required": false,
         "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

@@ -52,6 +52,12 @@
         "description": "Children of the card."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "CardT.Classes | undefined"
@@ -80,6 +86,11 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render in the header slot, overrides title/description."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

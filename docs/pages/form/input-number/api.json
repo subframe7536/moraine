@@ -42,6 +42,12 @@
         "defaultValue": "0"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "InputNumberT.Classes | undefined"
@@ -251,6 +257,11 @@
         "type": "number | undefined",
         "description": "The increment/decrement step size.",
         "defaultValue": "1"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",
