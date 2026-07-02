@@ -167,7 +167,7 @@ export default defineConfig<PresetWind4Theme>({
   --card-foreground: hsl(210 40% 98%);
   --popover: hsl(222.2 84% 4.9%);
   --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(217.2 71.2% 45.8%);
+  --primary: hsl(217.2 51.2% 55.8%);
   --primary-foreground: hsl(222.2 47.4% 96.2%);
   --secondary: hsl(217.2 46.6% 17.5%);
   --secondary-foreground: hsl(210 40% 90%);

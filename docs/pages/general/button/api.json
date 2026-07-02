@@ -34,7 +34,9 @@
       {
         "name": "as",
         "required": false,
-        "type": "\"button\" | undefined"
+        "type": "\"button\" | undefined",
+        "description": "Element or component to render as.",
+        "defaultValue": "button"
       },
       {
         "name": "children",
@@ -83,7 +85,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
       },
       {
         "name": "slotName",
@@ -110,7 +112,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
       }
     ],
     "inherited": []

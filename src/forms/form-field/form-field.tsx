@@ -1,13 +1,5 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { resolveRenderProp } from '../../shared/render-prop'
@@ -70,7 +62,6 @@ export namespace FormFieldT {
   export type Variant = FormFieldVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
   /**
@@ -144,7 +135,7 @@ export namespace FormFieldT {
   /**
    * Props for the FormField component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**
@@ -165,35 +156,14 @@ export function FormField(props: FormFieldProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged, [
-    'as',
-    'id',
-    'name',
-    'error',
-    'required',
-    'eagerValidation',
-    'validateOnInputDelay',
-    'label',
-    'description',
-    'hint',
-    'help',
-    'children',
-    'orientation',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
-
   const formContext = useFormContext()
 
-  const ariaId = useId(() => local.id, 'form-field')
+  const ariaId = useId(() => merged.id, 'form-field')
   const [registeredControls, setRegisteredControls] = createSignal<
     { id: () => string; bind: () => boolean; key: symbol }[]
   >([])
 
-  const fieldPath = createMemo(() => toFieldPath(local.name))
+  const fieldPath = createMemo(() => toFieldPath(merged.name))
 
   const registerControl: NonNullable<FormFieldContextOptions['registerControl']> = (entry) => {
     const key = Symbol('form-field-control')
@@ -223,19 +193,19 @@ export function FormField(props: FormFieldProps): JSX.Element {
     const controls = registeredControls()
 
     if (controls.length === 0) {
-      return local.id ?? ariaId()
+      return merged.id ?? ariaId()
     }
 
     return selectedControlId()
   })
 
   const resolvedError = createMemo(() => {
-    if (local.error === false) {
+    if (merged.error === false) {
       return false
     }
 
-    if (local.error !== undefined && local.error !== null) {
-      return local.error
+    if (merged.error !== undefined && merged.error !== null) {
+      return merged.error
     }
 
     if (!formContext) {
@@ -291,22 +261,22 @@ export function FormField(props: FormFieldProps): JSX.Element {
       return fieldPath()
     },
     get size() {
-      return local.size
+      return merged.size
     },
     get eagerValidation() {
-      return local.eagerValidation
+      return merged.eagerValidation
     },
     get validateOnInputDelay() {
-      return local.validateOnInputDelay
+      return merged.validateOnInputDelay
     },
     get hint() {
-      return local.hint
+      return merged.hint
     },
     get description() {
-      return local.description
+      return merged.description
     },
     get help() {
-      return local.help
+      return merged.help
     },
     get ariaId() {
       return ariaId()
@@ -334,30 +304,29 @@ export function FormField(props: FormFieldProps): JSX.Element {
   return (
     <FormFieldProvider value={fieldContextValue}>
       <Dynamic
-        component={local.as}
+        component={merged.as}
         data-slot="root"
         style={{ ...merged.styles?.root, ...merged.style }}
-        data-orientation={local.orientation}
+        data-orientation={merged.orientation}
         class={formFieldSizeVariants(
           {
-            size: local.size,
+            size: merged.size,
           },
-          local.orientation === 'horizontal' && 'flex items-baseline justify-between gap-2',
-          local.classes?.root,
-          local.class,
+          merged.orientation === 'horizontal' && 'flex items-baseline justify-between gap-2',
+          merged.classes?.root,
+          merged.class,
         )}
-        {...rest}
       >
         <div
           data-slot="wrapper"
           style={merged.styles?.wrapper}
-          class={cn(local.orientation === 'horizontal' && 'flex-1', local.classes?.wrapper)}
+          class={cn(merged.orientation === 'horizontal' && 'flex-1', merged.classes?.wrapper)}
         >
-          <Show when={local.label}>
+          <Show when={merged.label}>
             <div
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
-              class={cn('flex gap-1 items-center justify-between', local.classes?.labelWrapper)}
+              class={cn('flex gap-1 items-center justify-between', merged.classes?.labelWrapper)}
             >
               <label
                 for={resolvedLabelTargetId()}
@@ -365,68 +334,68 @@ export function FormField(props: FormFieldProps): JSX.Element {
                 style={merged.styles?.label}
                 class={formFieldLabelVariants(
                   {
-                    required: local.required,
+                    required: merged.required,
                   },
-                  local.classes?.label,
+                  merged.classes?.label,
                 )}
               >
-                {local.label}
+                {merged.label}
               </label>
 
-              <Show when={local.hint}>
+              <Show when={merged.hint}>
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
                   style={merged.styles?.hint}
-                  class={cn('text-muted-foreground ms-1', local.classes?.hint)}
+                  class={cn('text-muted-foreground ms-1', merged.classes?.hint)}
                 >
-                  {local.hint}
+                  {merged.hint}
                 </span>
               </Show>
             </div>
           </Show>
 
-          <Show when={local.description}>
+          <Show when={merged.description}>
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', local.classes?.description)}
+              class={cn('text-muted-foreground', merged.classes?.description)}
             >
-              {local.description}
+              {merged.description}
             </p>
           </Show>
         </div>
 
         <div
           class={
-            local.label || local.description
+            merged.label || merged.description
               ? formFieldContainerVariants(
                   {
-                    orientation: local.orientation,
+                    orientation: merged.orientation,
                   },
-                  local.classes?.container,
+                  merged.classes?.container,
                 )
-              : cn(local.classes?.container)
+              : cn(merged.classes?.container)
           }
         >
-          {resolveRenderProp<FormFieldT.RenderContext>(local.children, {
+          {resolveRenderProp<FormFieldT.RenderContext>(merged.children, {
             get error() {
               return resolvedError()
             },
           })}
 
           <Show
-            when={local.error !== false && shouldShowError()}
+            when={merged.error !== false && shouldShowError()}
             fallback={
-              <Show when={local.help}>
+              <Show when={merged.help}>
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
                   style={merged.styles?.help}
-                  class={cn('text-muted-foreground mt-2', local.classes?.help)}
+                  class={cn('text-muted-foreground mt-2', merged.classes?.help)}
                 >
-                  {local.help}
+                  {merged.help}
                 </div>
               </Show>
             }
@@ -435,7 +404,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
               id={`${ariaId()}-error`}
               data-slot="error"
               style={merged.styles?.error}
-              class={cn('text-destructive mt-2', local.classes?.error)}
+              class={cn('text-destructive mt-2', merged.classes?.error)}
             >
               {resolvedError() as JSX.Element}
             </div>

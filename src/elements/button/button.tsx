@@ -35,13 +35,37 @@ export namespace ButtonT {
   export type Variant = ButtonVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend<T extends ValidComponent = 'button'> = ComponentProps<T> & { as?: T }
 
   export interface Item {}
   /**
    * Base props for the Button component.
    */
-  export interface Base {
+  export type Base<T extends ValidComponent = 'button'> = Omit<
+    ComponentProps<T>,
+    | 'as'
+    | 'children'
+    | 'class'
+    | 'style'
+    | 'classes'
+    | 'styles'
+    | 'slotName'
+    | 'loading'
+    | 'loadingAuto'
+    | 'loadingIcon'
+    | 'leading'
+    | 'trailing'
+  > & {
+    /**
+     * Element or component to render as.
+     * @default 'button'
+     */
+    as?: T
+
+    /**
+     * Disabled state, including for non-button polymorphic roots.
+     */
+    disabled?: boolean
+
     /**
      * Root `data-slot` name
      */
@@ -88,13 +112,7 @@ export namespace ButtonT {
   /**
    * Props for the Button component.
    */
-  export type Props<T extends ValidComponent = 'button'> = BaseProps<
-    Base,
-    Variant,
-    Extend<T>,
-    Classes,
-    Styles
-  >
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base<T>, Variant, Slot>
 }
 
 /**

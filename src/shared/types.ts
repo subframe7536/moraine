@@ -17,26 +17,14 @@ export type SlotStyles<TSlot> = [TSlot] extends [string]
       [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
     }
 
-export type BaseProps<B, V, E, TClasses, TStyles, ExtraOmitKeys extends PropertyKey = never> = B &
-  ([V] extends [never] ? {} : V) &
-  ([E] extends [never]
-    ? {}
-    : Omit<
-        E,
-        | keyof (B & ([V] extends [never] ? {} : V))
-        | 'children'
-        | 'class'
-        | 'style'
-        | 'classes'
-        | 'styles'
-        | Extract<ExtraOmitKeys, keyof E>
-      >) & {
+export type BaseProps<Base, Variant, TSlot> = Base &
+  ([Variant] extends [never] ? {} : Variant) & {
     /** Class applied to the component root or trigger element. */
     class?: ClassValue
     /** Style applied to the component root or trigger element. */
     style?: JSX.CSSProperties
     /** Classes applied to the component slots. */
-    classes?: TClasses
+    classes?: SlotClasses<TSlot>
     /** Styles applied to the component slots. */
-    styles?: TStyles
+    styles?: SlotStyles<TSlot>
   }

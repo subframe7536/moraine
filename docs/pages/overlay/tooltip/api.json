@@ -111,7 +111,7 @@
       {
         "name": "side",
         "required": false,
-        "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+        "type": "\"top\" | \"right\" | \"bottom\" | \"left\" | undefined"
       },
       {
         "name": "style",

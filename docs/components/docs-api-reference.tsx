@@ -279,7 +279,7 @@ function AttributeRows(props: {
 }): JSX.Element {
   return (
     <section class="b-1 b-border rounded-lg bg-background overflow-hidden">
-      <div class="px-3 py-2 b-b b-border bg-muted/45 flex gap-3 items-center justify-between">
+      <div class="px-3 py-2 b-b b-border bg-muted/80 flex gap-3 items-center justify-between">
         <div class="flex gap-2 min-w-0 items-center">
           <span
             aria-hidden="true"
@@ -348,7 +348,7 @@ function SlotReferencePanel(props: { sectionId: string; slot: SlotReferenceDoc }
             Slot
           </span>
           <code class="text-lg text-foreground leading-none font-mono">{props.slot.name}</code>
-          <span class="text-xs text-muted-foreground font-medium px-1.5 py-0.5 b-1 b-border rounded-md bg-muted/45">
+          <span class="text-xs text-muted-foreground font-medium px-1.5 py-0.5 b-1 b-border rounded-md bg-muted/80">
             {formatAttributeCount(metadataCount())}
           </span>
         </div>
@@ -451,7 +451,7 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
           size="md"
           classes={{
             root: 'mt-5 b-1 b-border rounded-xl bg-muted/25 overflow-hidden gap-0 md:grid md:grid-cols-[14rem_minmax(0,1fr)]',
-            list: 'w-full h-full rounded-none bg-muted/45 p-2 md:border-r md:border-border items-stretch justify-start',
+            list: 'w-full h-full rounded-none bg-muted/80 p-2 md:border-r md:border-border items-stretch justify-start',
             indicator: 'hidden',
             trigger:
               'w-full justify-between text-xs rounded-md px-2.5 py-2 data-selected:(bg-background text-foreground shadow-xs) hover:bg-background/70',

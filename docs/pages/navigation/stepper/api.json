@@ -57,6 +57,56 @@
       "description": "Panel rendered for the active step content."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Additional class name for the step item."
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to display when the step is active."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary description of the step."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the step is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to display in the step indicator.",
+        "defaultValue": "index + 1"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Title of the step."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique value for the step.",
+        "defaultValue": "index of the item"
+      }
+    ],
+    "description": "An individual step in the stepper."
+  },
   "props": {
     "own": [
       {
@@ -132,7 +182,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
       },
       {
         "name": "style",
@@ -152,56 +202,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Additional class name for the step item."
-      },
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to display when the step is active."
-      },
-      {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Secondary description of the step."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the step is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "icon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon to display in the step indicator.",
-        "defaultValue": "index + 1"
-      },
-      {
-        "name": "title",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Title of the step."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique value for the step.",
-        "defaultValue": "index of the item"
-      }
-    ],
-    "description": "An individual step in the stepper."
   },
   "attributes": {
     "aria": [

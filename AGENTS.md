@@ -53,6 +53,8 @@ Use `bun` for all package management and script execution.
 ### Public Type Exports
 
 - Component public types must be declared in the component namespace: `<Component>T`.
+- Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
+- Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.
 - Top-level type export is only allowed for the component props type: `XxxProps` (must match the component name).
 - Do not export other top-level component types such as `*RenderProps`, `*SlotProps`, `*VariantProps`, `*Value`, `*Item`, `*Context`.
 - Prefer consuming component types as namespace members (for example, `SelectT.Option`, `FormT.SubmitEvent`).

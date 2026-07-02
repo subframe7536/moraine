@@ -42,7 +42,7 @@
       {
         "name": "activeVariant",
         "required": false,
-        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the active page button.",
         "defaultValue": "outline"
       },
@@ -68,7 +68,7 @@
       {
         "name": "controlVariant",
         "required": false,
-        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the previous/next control buttons.",
         "defaultValue": "ghost"
       },
@@ -140,7 +140,7 @@
       {
         "name": "role",
         "required": false,
-        "type": "\"separator\" | \"checkbox\" | \"radio\" | \"group\" | \"none\" | \"search\" | \"list\" | \"link\" | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | \"alert\" | \"alertdialog\" | \"application\" | \"article\" | \"banner\" | \"button\" | \"cell\" | \"columnheader\" | \"combobox\" | \"complementary\" | \"contentinfo\" | \"definition\" | \"directory\" | \"document\" | \"feed\" | \"figure\" | \"form\" | \"gridcell\" | \"heading\" | \"img\" | \"listitem\" | \"log\" | \"main\" | \"marquee\" | \"math\" | \"menubar\" | \"menuitem\" | \"menuitemcheckbox\" | \"menuitemradio\" | \"meter\" | \"navigation\" | \"note\" | \"option\" | \"presentation\" | \"progressbar\" | \"radiogroup\" | \"region\" | \"row\" | \"rowgroup\" | \"rowheader\" | \"scrollbar\" | \"searchbox\" | \"slider\" | \"spinbutton\" | \"status\" | \"switch\" | \"tab\" | \"table\" | \"tablist\" | \"tabpanel\" | \"term\" | \"textbox\" | \"timer\" | \"toolbar\" | \"tooltip\" | \"treegrid\" | \"treeitem\" | undefined",
+        "type": "\"none\" | \"search\" | \"list\" | \"link\" | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | \"alert\" | \"alertdialog\" | \"application\" | \"article\" | \"banner\" | \"button\" | \"cell\" | \"checkbox\" | \"columnheader\" | \"combobox\" | \"complementary\" | \"contentinfo\" | \"definition\" | \"directory\" | \"document\" | \"feed\" | \"figure\" | \"form\" | \"gridcell\" | \"group\" | \"heading\" | \"img\" | \"listitem\" | \"log\" | \"main\" | \"marquee\" | \"math\" | \"menubar\" | \"menuitem\" | \"menuitemcheckbox\" | \"menuitemradio\" | \"meter\" | \"navigation\" | \"note\" | \"option\" | \"presentation\" | \"progressbar\" | \"radio\" | \"radiogroup\" | \"region\" | \"row\" | \"rowgroup\" | \"rowheader\" | \"scrollbar\" | \"searchbox\" | \"separator\" | \"slider\" | \"spinbutton\" | \"status\" | \"switch\" | \"tab\" | \"table\" | \"tablist\" | \"tabpanel\" | \"term\" | \"textbox\" | \"timer\" | \"toolbar\" | \"tooltip\" | \"treegrid\" | \"treeitem\" | undefined",
         "description": "ARIA role for the navigation element.",
         "defaultValue": "navigation"
       },
@@ -192,7 +192,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the page buttons.",
         "defaultValue": "ghost"
       }
@@ -377,7 +377,20 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "status",

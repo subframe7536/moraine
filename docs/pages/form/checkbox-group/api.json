@@ -53,6 +53,52 @@
       "description": "Supporting description for an option."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "checkedIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Custom checked icon for this item."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Description for the group item."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is disabled."
+      },
+      {
+        "name": "indeterminate",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is indeterminate."
+      },
+      {
+        "name": "indeterminateIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Custom indeterminate icon for this item."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label for the group item."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Value of the group item."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -149,7 +195,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
       },
       {
         "name": "style",
@@ -174,52 +220,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "checkedIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Custom checked icon for this item."
-      },
-      {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Description for the group item."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the item is disabled."
-      },
-      {
-        "name": "indeterminate",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the item is indeterminate."
-      },
-      {
-        "name": "indeterminateIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Custom indeterminate icon for this item."
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Label for the group item."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Value of the group item."
-      }
-    ]
   },
   "attributes": {
     "aria": [

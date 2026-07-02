@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, createSignal, mergeProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
@@ -39,7 +39,6 @@ export namespace PaginationT {
   export type Variant = never
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -176,7 +175,7 @@ export namespace PaginationT {
   /**
    * Props for the Pagination component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**
@@ -223,45 +222,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
     props,
   )
 
-  const [local, rest] = splitProps(merged, [
-    'size',
-    'variant',
-    'activeVariant',
-    'controlVariant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'prevIcon',
-    'prevText',
-    'nextIcon',
-    'nextText',
-    'ellipsisIcon',
-    'page',
-    'defaultPage',
-    'onPageChange',
-    'itemsPerPage',
-    'total',
-    'siblingCount',
-    'showControls',
-    'disabled',
-    'to',
-  ])
-
-  const [internalPage, setInternalPage] = createSignal(local.defaultPage || 1)
+  const [internalPage, setInternalPage] = createSignal(merged.defaultPage || 1)
 
   const pageCount = createMemo(() => {
-    const safeItemsPerPage = Math.max(1, local.itemsPerPage || 1)
-    const safeTotal = Math.max(0, local.total || 0)
+    const safeItemsPerPage = Math.max(1, merged.itemsPerPage || 1)
+    const safeTotal = Math.max(0, merged.total || 0)
     return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
   })
 
-  const resolvedPage = createMemo(() => clampPage(local.page ?? internalPage(), pageCount()))
+  const resolvedPage = createMemo(() => clampPage(merged.page ?? internalPage(), pageCount()))
 
   const paginationItems = createMemo(() => {
     const page = resolvedPage()
     const count = pageCount()
-    const siblings = Math.max(0, local.siblingCount || 0)
+    const siblings = Math.max(0, merged.siblingCount || 0)
 
     if (siblings * 2 + 5 >= count) {
       return createRange(1, count)
@@ -282,7 +256,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   })
 
   const selectPage = (targetPage: number): void => {
-    if (local.disabled) {
+    if (merged.disabled) {
       return
     }
 
@@ -291,15 +265,15 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return
     }
 
-    if (local.page === undefined) {
+    if (merged.page === undefined) {
       setInternalPage(next)
     }
-    local.onPageChange?.(next)
+    merged.onPageChange?.(next)
   }
 
   const getControlProps = (target: number, isEdge: boolean, rel?: string) => {
-    const disabled = Boolean(local.disabled || isEdge)
-    const href = disabled ? undefined : local.to?.(target)
+    const disabled = Boolean(merged.disabled || isEdge)
+    const href = disabled ? undefined : merged.to?.(target)
     return href ? { as: 'a', href, rel } : { type: 'button', disabled }
   }
 
@@ -331,29 +305,30 @@ export function Pagination(props: PaginationProps): JSX.Element {
   return (
     <nav
       data-slot="root"
-      style={{ ...local.styles?.root, ...local.style }}
-      class={cn('w-full', local.classes?.root, local.class)}
-      {...rest}
+      aria-label={merged['aria-label']}
+      role={merged.role}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('w-full', merged.classes?.root, merged.class)}
     >
       <ul
         data-slot="list"
-        style={local.styles?.list}
-        class={cn('flex gap-1 items-center justify-center', local.classes?.list)}
+        style={merged.styles?.list}
+        class={cn('flex gap-1 items-center justify-center', merged.classes?.list)}
       >
-        <Show when={local.showControls}>
-          <li data-slot="item" style={local.styles?.item} class={cn(local.classes?.item)}>
+        <Show when={merged.showControls}>
+          <li data-slot="item" style={merged.styles?.item} class={cn(merged.classes?.item)}>
             <Button
               data-slot="prev"
-              style={local.styles?.prev}
-              variant={local.controlVariant}
-              size={getSize(local.size, local.prevText)}
+              style={merged.styles?.prev}
+              variant={merged.controlVariant}
+              size={getSize(merged.size, merged.prevText)}
               aria-label={getPrevLabel()}
-              class={local.classes?.prev}
+              class={merged.classes?.prev}
               onClick={() => selectPage(resolvedPage() - 1)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
-              leading={<Icon name={local.prevIcon} />}
+              leading={<Icon name={merged.prevIcon} />}
             >
-              {local.prevText}
+              {merged.prevText}
             </Button>
           </li>
         </Show>
@@ -364,30 +339,30 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="item"
-                style={local.styles?.item}
+                style={merged.styles?.item}
                 aria-hidden={item < 0 ? true : undefined}
-                class={cn(item < 0 && 'flex size-6 items-center', local.classes?.item)}
+                class={cn(item < 0 && 'flex size-6 items-center', merged.classes?.item)}
               >
                 <Show
                   when={item >= 0}
                   fallback={
                     <Icon
                       slotName="ellipsis"
-                      style={local.styles?.ellipsis}
-                      name={local.ellipsisIcon}
-                      class={cn(local.classes?.ellipsis)}
+                      style={merged.styles?.ellipsis}
+                      name={merged.ellipsisIcon}
+                      class={cn(merged.classes?.ellipsis)}
                     />
                   }
                 >
                   <Button
                     data-slot="link"
-                    style={local.styles?.link}
-                    variant={isActive() ? local.activeVariant : local.variant}
-                    size={getSize(local.size)}
+                    style={merged.styles?.link}
+                    variant={isActive() ? merged.activeVariant : merged.variant}
+                    size={getSize(merged.size)}
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    class={cn('outline-none', local.classes?.link)}
+                    class={cn('outline-none', merged.classes?.link)}
                     onClick={() => selectPage(item)}
                     {...getControlProps(item, false)}
                   >
@@ -399,20 +374,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
           }}
         </For>
 
-        <Show when={local.showControls}>
-          <li data-slot="item" style={local.styles?.item} class={cn(local.classes?.item)}>
+        <Show when={merged.showControls}>
+          <li data-slot="item" style={merged.styles?.item} class={cn(merged.classes?.item)}>
             <Button
               data-slot="next"
-              style={local.styles?.next}
-              variant={local.controlVariant}
-              size={getSize(local.size, local.nextText)}
+              style={merged.styles?.next}
+              variant={merged.controlVariant}
+              size={getSize(merged.size, merged.nextText)}
               aria-label={getNextLabel()}
-              class={local.classes?.next}
+              class={merged.classes?.next}
               onClick={() => selectPage(resolvedPage() + 1)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
-              trailing={<Icon name={local.nextIcon} />}
+              trailing={<Icon name={merged.nextIcon} />}
             >
-              {local.nextText}
+              {merged.nextText}
             </Button>
           </li>
         </Show>

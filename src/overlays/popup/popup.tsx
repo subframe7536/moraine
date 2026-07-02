@@ -23,7 +23,12 @@ export namespace PopupT {
   export type Variant = PopupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = Pick<
+  export interface Item {}
+
+  /**
+   * Base props for the Popup component.
+   */
+  export interface Base extends Pick<
     ModalProps,
     | 'id'
     | 'open'
@@ -33,14 +38,7 @@ export namespace PopupT {
     | 'dismissible'
     | 'onClosePrevent'
     | 'content'
-  >
-
-  export interface Item {}
-
-  /**
-   * Base props for the Popup component.
-   */
-  export interface Base {
+  > {
     /**
      * Whether to allow scrolling within the popup.
      * @default false
@@ -62,7 +60,7 @@ export namespace PopupT {
   /**
    * Props for the Popup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

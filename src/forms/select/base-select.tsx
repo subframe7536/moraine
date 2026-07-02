@@ -105,7 +105,6 @@ export namespace BaseSelectT {
   export type Variant = SelectControlVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Base<TItem extends Item>
     extends FormIdentityOptions, FormRequiredOption, FormDisableOption {
@@ -193,13 +192,7 @@ export namespace BaseSelectT {
     closeOnSelect?: boolean
   }
 
-  export interface Props<TItem extends Item> extends BaseProps<
-    Base<TItem>,
-    Variant,
-    Extend,
-    Classes,
-    Styles
-  > {}
+  export interface Props<TItem extends Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
 }
 
 export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {}

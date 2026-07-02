@@ -60,7 +60,6 @@ export namespace ProgressT {
   export type Variant = ProgressVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
   /**
@@ -101,14 +100,7 @@ export namespace ProgressT {
     renderStep?: (context: StepRenderContext) => JSX.Element
   }
 
-  export interface Props extends BaseProps<
-    Base,
-    Variant,
-    Extend,
-    Classes,
-    Styles,
-    'indeterminate' | 'minValue' | 'maxValue'
-  > {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

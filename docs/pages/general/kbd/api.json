@@ -39,7 +39,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
       },
       {
         "name": "slotPrefix",

@@ -30,17 +30,15 @@ export namespace TooltipT {
   export type Variant = TooltipVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = Pick<
-    PopperProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
-  >
-
   export interface Item {}
 
   /**
    * Base props for the Tooltip component.
    */
-  export interface Base {
+  export interface Base extends Pick<
+    PopperProps,
+    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
+  > {
     /**
      * Delay before opening on hover or focus.
      * @default 0
@@ -72,7 +70,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

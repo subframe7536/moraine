@@ -21,11 +21,13 @@ export namespace IconButtonInnerT {
   export type Variant = IconButtonVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = ComponentProps<'button'>
 
   export interface Item {}
 
-  export interface Base {
+  export interface Base extends Omit<
+    ComponentProps<'button'>,
+    'children' | 'class' | 'style' | 'classes' | 'styles' | 'name' | 'size'
+  > {
     /**
      * Icon source. Strings should be Uno icon classes such as `i-lucide-search`.
      */
@@ -44,7 +46,7 @@ export namespace IconButtonInnerT {
     iconSlotName?: string
   }
 
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 export interface IconButtonInnerProps extends IconButtonInnerT.Props {}

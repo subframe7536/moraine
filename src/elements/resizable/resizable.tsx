@@ -75,7 +75,6 @@ export namespace ResizableT {
   export type Variant = ResizableVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item extends ResizablePanelItem {}
   /**
@@ -155,7 +154,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

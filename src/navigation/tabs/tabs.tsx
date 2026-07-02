@@ -58,7 +58,6 @@ export namespace TabsT {
   export type Variant = TabsVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   /**
    * An individual tab in the tabs component.
@@ -154,7 +153,7 @@ export namespace TabsT {
   /**
    * Props for the Tabs component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

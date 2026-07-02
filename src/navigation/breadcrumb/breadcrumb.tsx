@@ -63,7 +63,6 @@ export namespace BreadcrumbT {
   export type Variant = BreadcrumbVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   /**
    * An individual item in the breadcrumb trail.
@@ -151,7 +150,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

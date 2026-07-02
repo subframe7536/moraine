@@ -65,6 +65,52 @@
       "description": "Trailing region inside an option row, usually for selection state or custom content."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "Omit<BaseSelectT.Item<Val>, \"children\">[] | undefined",
+        "description": "One-layer child options for grouped select."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "string | JSX.Element",
+        "description": "Description shown below the label."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the option is disabled."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown next to the label."
+      },
+      {
+        "name": "key",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Text key used for filtering and matching; set this when `label` is not a string."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | JSX.Element",
+        "description": "Label to display for the option, or the option group title."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "Val | undefined",
+        "description": "Value of the option."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -241,7 +287,9 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Enable search input.",
+        "defaultValue": "false"
       },
       {
         "name": "searchMaxLength",
@@ -258,7 +306,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
       },
       {
         "name": "style",
@@ -296,52 +344,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "Omit<BaseSelectT.Item<Val>, \"children\">[] | undefined",
-        "description": "One-layer child options for grouped select."
-      },
-      {
-        "name": "description",
-        "required": false,
-        "type": "string | JSX.Element",
-        "description": "Description shown below the label."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the option is disabled."
-      },
-      {
-        "name": "icon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon shown next to the label."
-      },
-      {
-        "name": "key",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Text key used for filtering and matching; set this when `label` is not a string."
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "string | JSX.Element",
-        "description": "Label to display for the option, or the option group title."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "Val | undefined",
-        "description": "Value of the option."
-      }
-    ]
   },
   "attributes": {
     "aria": [

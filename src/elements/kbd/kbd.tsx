@@ -23,7 +23,6 @@ export namespace KbdT {
   export type Variant = KbdVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
   /**
@@ -49,7 +48,7 @@ export namespace KbdT {
   /**
    * Props for the Kbd component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

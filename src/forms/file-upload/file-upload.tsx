@@ -93,7 +93,6 @@ export namespace FileUploadT {
   export type Variant = FileUploadVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -208,7 +207,7 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

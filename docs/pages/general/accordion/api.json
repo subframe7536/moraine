@@ -41,6 +41,41 @@
       "description": "Panel that contains the item content when expanded."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to display when the accordion item is expanded."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the accordion item is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Header label for the accordion item."
+      },
+      {
+        "name": "leading",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading icon name for the accordion item."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique value for the accordion item."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -139,41 +174,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to display when the accordion item is expanded."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the accordion item is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Header label for the accordion item."
-      },
-      {
-        "name": "leading",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Leading icon name for the accordion item."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique value for the accordion item."
-      }
-    ]
   },
   "attributes": {
     "aria": [

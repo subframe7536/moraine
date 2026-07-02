@@ -27,6 +27,10 @@ async function writeNodeModuleFile(
   await writeFile(filePath, content, 'utf8')
 }
 
+function resultProps(result: ReturnType<typeof generateApiDoc>, key: string) {
+  return result?.componentDocs.get(key)?.props.own ?? []
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -336,6 +340,181 @@ declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Ele
     expect(asProp?.type).toBe('"button" | undefined')
     expect(dataProp?.type).toBe('"button"[] | undefined')
     expect(fooProp?.type).toBe('"button" | undefined')
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('uses public component aliases for BaseProps slot override props', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type ClassValue = string
+declare namespace JSX {
+  interface CSSProperties {
+    color?: string
+  }
+}
+
+type SlotClasses<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: ClassValue
+}
+type SlotStyles<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
+}
+type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: SlotClasses<TSlot>
+  styles?: SlotStyles<TSlot>
+}
+
+declare namespace AliasButtonT {
+  interface Slot<T = unknown> {
+    root?: T
+    label?: T
+  }
+  type Variant = never
+  type Classes = Slot<ClassValue>
+  type Styles = Slot<JSX.CSSProperties>
+  interface Base {
+    label?: string
+  }
+  interface Props extends BaseProps<Base, Variant, Slot> {}
+}
+
+declare function AliasButton(props: AliasButtonT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(generateApiDoc(projectRoot), 'alias-button')
+
+    expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
+      'AliasButtonT.Classes | undefined',
+    )
+    expect(props.find((prop) => prop.name === 'styles')?.type).toBe(
+      'AliasButtonT.Styles | undefined',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('keeps shared slot override aliases before component aliases', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type ClassValue = string
+declare namespace JSX {
+  interface CSSProperties {
+    color?: string
+  }
+}
+
+type SlotClasses<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: ClassValue
+}
+type SlotStyles<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
+}
+type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: SlotClasses<TSlot>
+  styles?: SlotStyles<TSlot>
+}
+
+interface SharedSlots<T = unknown> {
+  trigger?: T
+  content?: T
+}
+type SharedClasses = SharedSlots<ClassValue>
+type SharedStyles = SharedSlots<JSX.CSSProperties>
+interface SharedRootProps {
+  classes?: SharedClasses
+  styles?: SharedStyles
+}
+
+declare namespace SharedMenuT {
+  interface Slot<T = unknown> extends SharedSlots<T> {}
+  type Variant = never
+  type Classes = Slot<ClassValue>
+  type Styles = Slot<JSX.CSSProperties>
+  interface Base extends SharedRootProps {}
+  interface Props extends BaseProps<Base, Variant, Slot> {}
+}
+
+declare function SharedMenu(props: SharedMenuT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(generateApiDoc(projectRoot), 'shared-menu')
+
+    expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
+      '(SharedClasses & SharedMenuT.Classes) | undefined',
+    )
+    expect(props.find((prop) => prop.name === 'styles')?.type).toBe(
+      '(SharedStyles & SharedMenuT.Styles) | undefined',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('extracts props inherited by namespace Base declarations', async () => {
+    const projectRoot = await createTempProject()
+    await writeNodeModuleFile(
+      projectRoot,
+      'overlay-lib',
+      'package.json',
+      JSON.stringify({ name: 'overlay-lib', types: './dist/index.d.ts' }),
+    )
+    await writeNodeModuleFile(
+      projectRoot,
+      'overlay-lib',
+      'dist/index.d.ts',
+      `
+export interface ModalProps {
+  /** Controlled open state. */
+  open?: boolean
+  /** Called when open state changes. */
+  onOpenChange?: (open: boolean) => void
+}
+`,
+    )
+    await writeProjectDts(
+      projectRoot,
+      `
+import type { ModalProps } from 'overlay-lib'
+
+type BaseProps<B, V, E, TClasses, TStyles> = B & ([V] extends [never] ? {} : V) & {
+  classes?: TClasses
+  styles?: TStyles
+}
+
+declare namespace DialogT {
+  type Variant = never
+  interface Classes {}
+  interface Styles {}
+  interface Base extends Pick<ModalProps, 'open' | 'onOpenChange'> {
+    /** Dialog title. */
+    title?: string
+  }
+  interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+}
+
+declare function Dialog(props: DialogT.Props): JSX.Element
+`,
+    )
+
+    const result = generateApiDoc(projectRoot)
+    const dialogDoc = result?.componentDocs.get('dialog')
+    const inheritedGroup = dialogDoc?.props.inherited.find((group) =>
+      group.props.some((prop) => prop.name === 'open'),
+    )
+
+    expect(dialogDoc?.props.own.find((prop) => prop.name === 'title')?.description).toBe(
+      'Dialog title.',
+    )
+    expect(inheritedGroup?.props.map((prop) => prop.name)).toEqual(['onOpenChange', 'open'])
+    expect(inheritedGroup?.props.find((prop) => prop.name === 'open')?.type).toBe(
+      'boolean | undefined',
+    )
 
     await rm(projectRoot, { recursive: true, force: true })
   })

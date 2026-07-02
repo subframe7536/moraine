@@ -64,7 +64,6 @@ export namespace RadioGroupT {
   export type Variant = RadioGroupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   /**
    * A radio item object.
@@ -126,7 +125,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

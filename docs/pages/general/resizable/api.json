@@ -29,6 +29,99 @@
       "description": "Extra hit target used when nested handles meet across axes."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Additional CSS classes for the panel."
+      },
+      {
+        "name": "collapsible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "collapsibleMin",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "0"
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render inside the panel."
+      },
+      {
+        "name": "defaultSize",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "1"
+      },
+      {
+        "name": "min",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "0"
+      },
+      {
+        "name": "onCollapse",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is collapsed."
+      },
+      {
+        "name": "onExpand",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is expanded."
+      },
+      {
+        "name": "onResize",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is resized."
+      },
+      {
+        "name": "panelId",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the panel."
+      },
+      {
+        "name": "resizable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the panel is resizable.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined",
+        "description": "Additional CSS styles for the panel."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -130,99 +223,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Additional CSS classes for the panel."
-      },
-      {
-        "name": "collapsible",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "collapsibleMin",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "0"
-      },
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render inside the panel."
-      },
-      {
-        "name": "defaultSize",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-      },
-      {
-        "name": "max",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "1"
-      },
-      {
-        "name": "min",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "0"
-      },
-      {
-        "name": "onCollapse",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is collapsed."
-      },
-      {
-        "name": "onExpand",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is expanded."
-      },
-      {
-        "name": "onResize",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is resized."
-      },
-      {
-        "name": "panelId",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the panel."
-      },
-      {
-        "name": "resizable",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the panel is resizable.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "JSX.CSSProperties | undefined",
-        "description": "Additional CSS styles for the panel."
-      }
-    ]
   },
   "attributes": {
     "aria": [

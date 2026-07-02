@@ -41,6 +41,49 @@
       "description": "Tab panel rendered for the selected item."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Custom class for the tab content panel."
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to display when the tab is active."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the tab is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to display next to the label."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label to display on the tab trigger."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique value for the tab.",
+        "defaultValue": "index of the item"
+      }
+    ],
+    "description": "An individual tab in the tabs component."
+  },
   "props": {
     "own": [
       {
@@ -109,7 +152,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
       },
       {
         "name": "style",
@@ -134,49 +177,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Custom class for the tab content panel."
-      },
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to display when the tab is active."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the tab is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "icon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon to display next to the label."
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Label to display on the tab trigger."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique value for the tab.",
-        "defaultValue": "index of the item"
-      }
-    ],
-    "description": "An individual tab in the tabs component."
   },
   "attributes": {
     "aria": [

@@ -92,7 +92,6 @@ export namespace SidebarFrameT {
   export type Variant = SidebarFrameVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -133,7 +132,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

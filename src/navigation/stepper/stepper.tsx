@@ -68,7 +68,6 @@ export namespace StepperT {
   export type Variant = StepperVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   /**
    * An individual step in the stepper.
@@ -176,7 +175,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

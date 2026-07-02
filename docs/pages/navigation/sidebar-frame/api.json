@@ -93,7 +93,7 @@
       {
         "name": "side",
         "required": false,
-        "type": "\"left\" | \"right\" | undefined"
+        "type": "\"right\" | \"left\" | undefined"
       },
       {
         "name": "style",

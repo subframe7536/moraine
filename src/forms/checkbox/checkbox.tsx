@@ -59,7 +59,6 @@ export namespace CheckboxT {
   export type Variant = CheckboxVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -148,10 +147,7 @@ export namespace CheckboxT {
   export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
-    Extend,
-    Classes,
-    Styles,
-    'ref' | 'indeterminate'
+    Slot
   > {}
 }
 

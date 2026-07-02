@@ -1,5 +1,4 @@
 import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
 import { createStore, produce, reconcile } from 'solid-js/store'
 
 import { resolveRenderProp } from '../../shared/render-prop'
@@ -63,7 +62,6 @@ export namespace FormT {
   export type Variant = never
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
   /**
@@ -136,9 +134,7 @@ export namespace FormT {
   export interface Props<TState extends object = object> extends BaseProps<
     Base<TState>,
     Variant,
-    Extend,
-    Classes,
-    Styles
+    Slot
   > {}
 }
 
@@ -299,25 +295,7 @@ async function validateStandardSchema(
 
 /** Form container with schema-based validation and submission handling. */
 export function Form<TState extends object = object>(props: FormProps<TState>): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'id',
-    'state',
-    'schema',
-    'validate',
-    'validateOn',
-    'validateOnInputDelay',
-    'disabled',
-    'loadingAuto',
-    'onSubmit',
-    'onError',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'children',
-  ])
-
-  const formId = useId(() => local.id, 'form')
+  const formId = useId(() => props.id, 'form')
   const [formState, setFormState] = createStore<FormRuntimeStore>({
     loading: false,
     errors: [],
@@ -325,8 +303,8 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
   })
 
   function buildValidationState(): TState | undefined {
-    if (local.state !== undefined) {
-      return local.state
+    if (props.state !== undefined) {
+      return props.state
     }
 
     const result: Record<string, unknown> = {}
@@ -439,7 +417,7 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
 
   async function handleInputEvent(event: FormInputEvent): Promise<void> {
     const identity = toFieldIdentity(event.name)
-    const shouldValidate = (local.validateOn ?? DEFAULT_VALIDATE_ON).includes(event.type)
+    const shouldValidate = (props.validateOn ?? DEFAULT_VALIDATE_ON).includes(event.type)
 
     if (shouldValidate && !formState.loading && identity) {
       if (event.type === 'input') {
@@ -516,10 +494,10 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
 
   async function getErrors(): Promise<FormValidationError[]> {
     const validationState = buildValidationState()
-    const schemaErrors = local.schema
-      ? await validateStandardSchema(validationState, local.schema)
+    const schemaErrors = props.schema
+      ? await validateStandardSchema(validationState, props.schema)
       : []
-    const validationErrors = (await local.validate?.(validationState)) ?? []
+    const validationErrors = (await props.validate?.(validationState)) ?? []
 
     const allErrors = [...schemaErrors, ...validationErrors]
     return resolveErrorIds(allErrors)
@@ -558,7 +536,7 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
 
   const contextValue: FormContextValue = {
     get disabled() {
-      return local.disabled ?? false
+      return props.disabled ?? false
     },
     get loading() {
       return formState.loading
@@ -567,10 +545,10 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
       return formState.errors
     },
     get validateOn() {
-      return local.validateOn ?? DEFAULT_VALIDATE_ON
+      return props.validateOn ?? DEFAULT_VALIDATE_ON
     },
     get validateOnInputDelay() {
-      return local.validateOnInputDelay ?? 300
+      return props.validateOnInputDelay ?? 300
     },
     registerInput,
     unregisterInput,
@@ -586,7 +564,7 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
         return fieldValue
       }
 
-      return getValueAtPath(local.state, identity.path)
+      return getValueAtPath(props.state, identity.path)
     },
     getFieldState: (name) => {
       const identity = toFieldIdentity(name)
@@ -602,8 +580,8 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
         return
       }
 
-      if (local.state !== undefined) {
-        setValueAtPath(local.state, path, value)
+      if (props.state !== undefined) {
+        setValueAtPath(props.state, path, value)
       }
 
       const key = pathToKey(path)
@@ -629,7 +607,7 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     event.preventDefault()
 
     const submitEvent = event as FormT.SubmitEvent<TState>
-    setFormState('loading', Boolean(local.loadingAuto ?? true))
+    setFormState('loading', Boolean(props.loadingAuto ?? true))
 
     try {
       const currentErrors = await runValidation()
@@ -638,12 +616,12 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
         const errorEvent = Object.assign(event, {
           errors: currentErrors,
         }) as FormT.ErrorEvent
-        local.onError?.(errorEvent)
+        props.onError?.(errorEvent)
         return
       }
 
       submitEvent.data = buildValidationState()
-      await local.onSubmit?.(submitEvent)
+      await props.onSubmit?.(submitEvent)
       setFormState(
         'fields',
         produce((currentFields) => {
@@ -672,13 +650,12 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     <FormProvider value={contextValue}>
       <form
         id={formId()}
-        style={{ ...local.styles?.root, ...local.style }}
-        class={cn('w-full data-loading:opacity-80', local.classes?.root, local.class)}
+        style={{ ...props.styles?.root, ...props.style }}
+        class={cn('w-full data-loading:opacity-80', props.classes?.root, props.class)}
         data-loading={formState.loading ? '' : undefined}
         onSubmit={onSubmit}
-        {...rest}
       >
-        {resolveRenderProp<FormT.RenderProps>(local.children, {
+        {resolveRenderProp<FormT.RenderProps>(props.children, {
           get errors() {
             return formState.errors
           },
