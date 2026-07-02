@@ -344,7 +344,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

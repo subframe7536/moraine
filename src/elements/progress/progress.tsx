@@ -100,14 +100,7 @@ export namespace ProgressT {
     renderStep?: (context: StepRenderContext) => JSX.Element
   }
 
-  export interface Props extends BaseProps<
-    Base,
-    Variant,
-    never,
-    Classes,
-    Styles,
-    'indeterminate' | 'minValue' | 'maxValue'
-  > {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

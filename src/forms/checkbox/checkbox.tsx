@@ -147,10 +147,7 @@ export namespace CheckboxT {
   export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
-    never,
-    Classes,
-    Styles,
-    'ref' | 'indeterminate'
+    Slot
   > {}
 }
 

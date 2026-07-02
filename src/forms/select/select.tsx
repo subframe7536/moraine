@@ -124,9 +124,7 @@ export namespace SelectT {
   export interface Props<TItem extends Value = Value> extends BaseProps<
     Base<TItem>,
     Variant,
-    never,
-    Classes,
-    Styles
+    Slot
   > {}
 }
 

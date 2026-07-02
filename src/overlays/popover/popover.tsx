@@ -75,7 +75,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

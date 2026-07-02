@@ -157,7 +157,7 @@ export namespace InputT {
    */
   export interface Props<
     M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, never, Classes, Styles> {}
+  > extends BaseProps<Base<M>, Variant, Slot> {}
 }
 
 /**

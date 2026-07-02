@@ -134,9 +134,7 @@ export namespace FormT {
   export interface Props<TState extends object = object> extends BaseProps<
     Base<TState>,
     Variant,
-    never,
-    Classes,
-    Styles
+    Slot
   > {}
 }
 

@@ -122,13 +122,7 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export interface Props<TValue = Value> extends BaseProps<
-    Base<TValue>,
-    Variant,
-    never,
-    Classes,
-    Styles
-  > {}
+  export interface Props<TValue = Value> extends BaseProps<Base<TValue>, Variant, Slot> {}
 }
 
 /**

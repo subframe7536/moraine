@@ -126,7 +126,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

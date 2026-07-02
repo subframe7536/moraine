@@ -142,9 +142,7 @@ export namespace CheckboxGroupT {
   export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
-    never,
-    Classes,
-    Styles
+    Slot
   > {}
 }
 

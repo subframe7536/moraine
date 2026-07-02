@@ -150,7 +150,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

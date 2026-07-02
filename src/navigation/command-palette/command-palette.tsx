@@ -193,7 +193,7 @@ export namespace CommandPaletteT {
     footer?: JSX.Element
   }
 
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 export interface CommandPaletteProps extends CommandPaletteT.Props {}

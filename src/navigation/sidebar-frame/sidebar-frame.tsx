@@ -132,7 +132,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**

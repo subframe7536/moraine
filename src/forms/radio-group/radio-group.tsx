@@ -125,7 +125,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /**
