@@ -228,6 +228,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'controlVariant',
     'classes',
     'styles',
+    'class',
+    'style',
     'prevIcon',
     'prevText',
     'nextIcon',
@@ -327,8 +329,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
   return (
     <nav
       data-slot="root"
-      style={local.styles?.root}
-      class={cn('w-full', local.classes?.root)}
+      style={{ ...local.styles?.root, ...local.style }}
+      class={cn('w-full', local.classes?.root, local.class)}
       {...rest}
     >
       <ul

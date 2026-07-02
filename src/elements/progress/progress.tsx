@@ -250,7 +250,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       data-orientation={merged.orientation}
       {...dataAttrs()}
       class={progressRootVariants(
@@ -258,6 +258,7 @@ export function Progress(props: ProgressProps): JSX.Element {
           orientation: merged.orientation,
         },
         merged.classes?.root,
+        merged.class,
       )}
     >
       <Show when={!isIndeterminate() && (merged.status || merged.renderStatus)}>

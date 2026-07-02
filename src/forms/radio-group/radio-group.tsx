@@ -245,8 +245,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-disabled={field.disabled() || undefined}
       aria-readonly={readOnly() || undefined}
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('relative', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('relative', merged.classes?.root, merged.class)}
       {...dataAttrs()}
       {...field.ariaAttrs()}
     >

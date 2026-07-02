@@ -342,8 +342,12 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      style={merged.styles?.root}
-      class={tabsRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={tabsRootVariants(
+        { orientation: merged.orientation },
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <div
         ref={(e) => (listRef = e)}

@@ -227,8 +227,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     <div
       id={rootId()}
       data-slot="root"
-      style={props.styles?.root}
-      class={cn(props.classes?.root)}
+      style={{ ...props.styles?.root, ...props.style }}
+      class={cn(props.classes?.root, props.class)}
       {...dataAttrs()}
     >
       <Show

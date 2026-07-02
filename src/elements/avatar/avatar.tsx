@@ -237,7 +237,11 @@ export function Avatar(props: AvatarProps): JSX.Element {
       <span
         data-slot={props.slot}
         data-status={status()}
-        style={props.slot === 'groupItem' ? merged.styles?.groupItem : merged.styles?.root}
+        style={
+          props.slot === 'groupItem'
+            ? { ...merged.styles?.groupItem, ...merged.style }
+            : { ...merged.styles?.root, ...merged.style }
+        }
         class={avatarRootVariants(
           {
             size: merged.size,
@@ -251,6 +255,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
                 merged.classes?.groupItem,
               )
             : merged.classes?.root,
+          merged.class,
         )}
       >
         <img

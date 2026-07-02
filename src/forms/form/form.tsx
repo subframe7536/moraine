@@ -310,6 +310,8 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     'onError',
     'classes',
     'styles',
+    'class',
+    'style',
     'children',
   ])
 
@@ -668,8 +670,8 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     <FormProvider value={contextValue}>
       <form
         id={formId()}
-        style={local.styles?.root}
-        class={cn('w-full data-loading:opacity-80', local.classes?.root)}
+        style={{ ...local.styles?.root, ...local.style }}
+        class={cn('w-full data-loading:opacity-80', local.classes?.root, local.class)}
         data-loading={formState.loading ? '' : undefined}
         onSubmit={onSubmit}
         {...rest}

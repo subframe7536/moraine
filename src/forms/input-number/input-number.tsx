@@ -831,13 +831,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={inputNumberRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       {...dataAttrs()}
     >

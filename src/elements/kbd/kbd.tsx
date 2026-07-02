@@ -79,8 +79,8 @@ export function Kbd(props: KbdProps): JSX.Element {
         <Match when={props.value!.length > 1}>
           <span
             data-slot={props.slotPrefix ? `${props.slotPrefix}-kbds` : 'kbds'}
-            class={cn('inline-flex gap-1 items-center', props.classes?.root)}
-            style={props.styles?.root}
+            class={cn('inline-flex gap-1 items-center', props.classes?.root, props.class)}
+            style={{ ...props.styles?.root, ...props.style }}
           >
             <For each={props.value}>
               {(value, idx) => <Inner val={value} append={idx() < props.value!.length - 1} />}

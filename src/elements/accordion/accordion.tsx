@@ -273,8 +273,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
-      style={merged.styles?.root}
-      class={cn('flex flex-col w-full', merged.disabled && 'effect-dis', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn(
+        'flex flex-col w-full',
+        merged.disabled && 'effect-dis',
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <For each={normalizedItems()}>
         {(entry) => {

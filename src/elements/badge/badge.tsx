@@ -101,13 +101,14 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-size={merged.size}
       data-variant={merged.variant}
       title={merged.title}
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={badgeVariants(
         {
           size: merged.size,
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={(e) => {
         e.preventDefault()

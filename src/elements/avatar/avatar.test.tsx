@@ -336,17 +336,16 @@ describe('Avatar', () => {
     expect(groupCount?.style.width).toBe('200px')
   })
 
-  test('rejects arbitrary html props and class prop in type contract', () => {
+  test('rejects arbitrary html props while accepting root class prop in type contract', () => {
     // @ts-expect-error Avatar is sealed and does not accept arbitrary html props.
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }
-    // @ts-expect-error Avatar uses classes slots instead of class prop.
-    const invalidClassProp: AvatarProps = { class: 'avatar-class' }
+    const validClassProp: AvatarProps = { class: 'avatar-class' }
     // @ts-expect-error Avatar no longer accepts top-level single-item props.
     const invalidSingleProp: AvatarProps = { src: '/avatar.png' }
     const validItemsProp: AvatarProps = { items: [{ icon: 'i-lucide-user' }] }
 
     expect(invalidHtmlProps).toBeDefined()
-    expect(invalidClassProp).toBeDefined()
+    expect(validClassProp).toBeDefined()
     expect(invalidSingleProp).toBeDefined()
     expect(validItemsProp).toBeDefined()
   })

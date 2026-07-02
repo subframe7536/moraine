@@ -52,6 +52,8 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'classes',
     'styles',
+    'class',
+    'style',
     'name',
     'size',
     'slotName',
@@ -62,8 +64,8 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
     <button
       data-slot={local.slotName ?? 'root'}
       type="button"
-      class={iconButtonVariants({ size: local.size }, local.classes?.root)}
-      style={local.styles?.root}
+      class={iconButtonVariants({ size: local.size }, local.classes?.root, local.class)}
+      style={{ ...local.styles?.root, ...local.style }}
       {...rest}
     >
       <Icon

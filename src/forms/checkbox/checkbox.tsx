@@ -378,7 +378,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={checkboxRootVariants(
         {
           variant: merged.variant,
@@ -390,6 +390,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           }),
         merged.variant === 'card' && 'cursor-pointer',
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}

@@ -315,8 +315,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('flex flex-row', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('flex flex-row', merged.classes?.root, merged.class)}
     >
       <HiddenInput
         ref={(element) => {

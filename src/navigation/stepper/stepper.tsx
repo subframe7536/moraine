@@ -311,8 +311,12 @@ export function Stepper(props: StepperProps): JSX.Element {
     <div
       id={id()}
       data-slot="root"
-      style={merged.styles?.root}
-      class={stepperRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={stepperRootVariants(
+        { orientation: merged.orientation },
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <div
         role="tablist"

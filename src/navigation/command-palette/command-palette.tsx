@@ -466,10 +466,11 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={cn(
         'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
         merged.classes?.root,
+        merged.class,
       )}
     >
       <div

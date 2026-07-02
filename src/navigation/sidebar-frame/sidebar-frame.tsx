@@ -298,8 +298,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
     >
       <merged.renderFrame
         {...context}

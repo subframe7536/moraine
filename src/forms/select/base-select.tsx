@@ -818,8 +818,8 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-required={merged.required ? '' : undefined}
-      style={merged.styles?.root}
-      class={cn('inline-flex h-fit w-full relative', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
     >
       {props.children({
         ...stateApi,

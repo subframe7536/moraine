@@ -340,13 +340,14 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={textareaRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}

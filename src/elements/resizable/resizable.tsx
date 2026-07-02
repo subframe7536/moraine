@@ -730,10 +730,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
       ref={rootRef}
       id={local.id}
       data-slot="root"
-      style={local.styles?.root}
+      style={{ ...local.styles?.root, ...local.style }}
       data-resizable-root
       data-orientation={orientation()}
-      class={resizableRootVariants({ orientation: orientation() }, local.classes?.root)}
+      class={resizableRootVariants(
+        { orientation: orientation() },
+        local.classes?.root,
+        local.class,
+      )}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {

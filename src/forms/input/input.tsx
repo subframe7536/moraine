@@ -318,13 +318,14 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={inputRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
