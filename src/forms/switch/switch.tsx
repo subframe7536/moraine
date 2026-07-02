@@ -247,6 +247,22 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
+  const switchAriaAttrs = createMemo(() => {
+    const attrs = { ...field.ariaAttrs() }
+    const describedBy = [
+      attrs['aria-describedby'],
+      merged.description ? descriptionId() : undefined,
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    if (describedBy) {
+      attrs['aria-describedby'] = describedBy
+    }
+
+    return attrs
+  })
+
   createEffect(() => {
     if (inputEl) {
       inputEl.checked = Boolean(checked())
@@ -358,8 +374,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
         aria-labelledby={merged.label ? labelId() : undefined}
-        aria-describedby={merged.description ? descriptionId() : undefined}
-        {...field.ariaAttrs()}
+        {...switchAriaAttrs()}
         style={merged.styles?.track}
         class={switchTrackVariants(
           {

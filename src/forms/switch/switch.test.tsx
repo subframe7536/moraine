@@ -27,6 +27,28 @@ describe('Switch', () => {
     expect(screen.getByText('Receive updates')).not.toBeNull()
   })
 
+  test('combines local description with form field aria description', () => {
+    const state = { enabled: false }
+
+    const screen = render(() => (
+      <Form state={state}>
+        <FormField name="enabled" label="Enabled" description="Field description" help="Field help">
+          <Switch description="Switch description" />
+        </FormField>
+      </Form>
+    ))
+
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+    const describedBy = switchInput.getAttribute('aria-describedby') ?? ''
+
+    expect(screen.getByText('Field description')).not.toBeNull()
+    expect(screen.getByText('Field help')).not.toBeNull()
+    expect(screen.getByText('Switch description')).not.toBeNull()
+    expect(describedBy).toContain('-description')
+    expect(describedBy).toContain('-help')
+    expect(describedBy).toContain(`${switchInput.id}-description`)
+  })
+
   test('supports uncontrolled toggle', async () => {
     const screen = render(() => <Switch label="Marketing" />)
     const switchInput = screen.getByRole('switch', { name: 'Marketing' })
