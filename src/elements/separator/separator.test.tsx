@@ -78,7 +78,7 @@ describe('Separator', () => {
 
   test('renders middle content through children', () => {
     const withText = render(() => <Separator>+1</Separator>)
-    expect(withText.container.querySelector('[data-slot="container"]')?.textContent).toBe('+1')
+    expect(withText.container.querySelector('[data-slot="content"]')?.textContent).toBe('+1')
 
     const withIconLikeNode = render(() => (
       <Separator>
@@ -109,7 +109,7 @@ describe('Separator', () => {
         classes={{
           root: 'root-override',
           border: 'border-override',
-          container: 'container-override',
+          content: 'content-override',
         }}
       >
         <span data-testid="middle-content">L</span>
@@ -118,26 +118,24 @@ describe('Separator', () => {
 
     const root = withChildren.container.querySelector('[data-slot="root"]')
     const borders = withChildren.container.querySelectorAll('[data-slot="border"]')
-    const container = withChildren.container.querySelector('[data-slot="container"]')
+    const content = withChildren.container.querySelector('[data-slot="content"]')
 
     expect(root?.className).toContain('root-override')
     expect(borders.length).toBe(2)
     expect(borders[0]?.className).toContain('border-override')
     expect(borders[1]?.className).toContain('border-override')
-    expect(container?.className).toContain('container-override')
+    expect(content?.className).toContain('content-override')
     expect(withChildren.getByTestId('middle-content').textContent).toBe('L')
   })
 
   test('applies styles overrides for all slots', () => {
     const withChildren = render(() => (
       <Separator
-        styles={
-          {
-            root: { width: '200px' },
-            border: { width: '200px' },
-            container: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          border: { width: '200px' },
+          content: { width: '200px' },
+        }}
       >
         <span data-testid="middle-content">L</span>
       </Separator>
@@ -145,14 +143,14 @@ describe('Separator', () => {
 
     const root = withChildren.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const borders = withChildren.container.querySelectorAll('[data-slot="border"]')
-    const container = withChildren.container.querySelector(
-      '[data-slot="container"]',
+    const content = withChildren.container.querySelector(
+      '[data-slot="content"]',
     ) as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect((borders[0] as HTMLElement | null)?.style.width).toBe('200px')
     expect((borders[1] as HTMLElement | null)?.style.width).toBe('200px')
-    expect(container?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
   })
 
   test('exports separator from root index', () => {

@@ -40,7 +40,7 @@ export const separatorBorderVariants = cva('border-current flex-1 shrink-0', {
   },
 })
 
-export const separatorContainerVariants = cva('font-medium flex items-center', {
+export const separatorContentVariants = cva('font-medium flex items-center', {
   defaultVariants: {
     orientation: 'horizontal',
   },

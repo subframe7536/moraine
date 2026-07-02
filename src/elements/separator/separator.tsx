@@ -6,7 +6,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { SeparatorVariantProps } from './separator.class'
 import {
   separatorBorderVariants,
-  separatorContainerVariants,
+  separatorContentVariants,
   separatorRootVariants,
 } from './separator.class'
 
@@ -21,7 +21,7 @@ export namespace SeparatorT {
     border?: T
 
     /** Optional label or custom content rendered within the separator line. */
-    container?: T
+    content?: T
   }
   export type Variant = SeparatorVariantProps
   export type Classes = Slot<SlotClassValue>
@@ -101,13 +101,13 @@ export function Separator(props: SeparatorProps): JSX.Element {
 
       <Show when={merged.children}>
         <div
-          data-slot="container"
-          style={merged.styles?.container}
-          class={separatorContainerVariants(
+          data-slot="content"
+          style={merged.styles?.content}
+          class={separatorContentVariants(
             {
               orientation: merged.orientation,
             },
-            merged.classes?.container,
+            merged.classes?.content,
           )}
         >
           {merged.children}
