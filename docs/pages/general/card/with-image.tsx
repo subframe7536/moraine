@@ -12,7 +12,7 @@ export function WithImage() {
             class="rounded-t-2xl w-full aspect-video object-cover brightness-60 grayscale"
           />
         }
-        footer={<Button class={'w-full'}>Open</Button>}
+        footer={<Button class="w-full">Open</Button>}
       >
         <h3 class="font-semibold">Beautiful Landscape</h3>
         <p class="text-sm text-muted-foreground mt-1">

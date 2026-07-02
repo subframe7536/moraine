@@ -75,13 +75,7 @@ export function DocsSearchTrigger(props: {
       <span class="i-lucide-search shrink-0 size-4 block" aria-hidden="true" />
       <Show when={variant() === 'desktop'}>
         <span class="text-left flex-1 truncate">Search...</span>
-        <Kbd
-          size="xs"
-          variant="outline"
-          value={['⌘', 'K']}
-          class="gap-1"
-          classes={{ item: 'text-[0.65rem]' }}
-        />
+        <Kbd size="xs" variant="outline" value={['⌘', 'K']} classes={{ item: 'text-[0.65rem]' }} />
       </Show>
     </button>
   )

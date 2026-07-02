@@ -153,7 +153,7 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
                   variant="outline"
                   aria-label="Expand code"
                   onClick={() => setIsExpanded(true)}
-                  class={'translate--1/2 bottom-2 left-1/2 absolute'}
+                  class="translate--1/2 bottom-2 left-1/2 absolute"
                 >
                   Expand code
                 </Button>

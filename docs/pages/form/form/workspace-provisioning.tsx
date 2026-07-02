@@ -36,7 +36,7 @@ export function WorkspaceProvisioning() {
 
         return errors
       }}
-      class={'mx-auto max-w-2xl w-full space-y-4'}
+      class="mx-auto max-w-2xl w-full space-y-4"
     >
       <FormField name="workspaceName" label="Workspace Name" required>
         <Input

@@ -15,7 +15,7 @@ export function RenderContext() {
         }
         return []
       }}
-      class={'mx-auto max-w-xl w-full space-y-4'}
+      class="mx-auto max-w-xl w-full space-y-4"
     >
       <FormField name="releaseTitle" label="Release Title" required>
         {(props) => (

@@ -14,7 +14,7 @@ export function Default() {
       description="Deploy your new project in one-click."
       footer={
         <>
-          <Button class={'w-full'} type="submit">
+          <Button class="w-full" type="submit">
             Deploy
           </Button>
           <div class="text-xs text-muted-foreground m-a flex gap-1 items-center">

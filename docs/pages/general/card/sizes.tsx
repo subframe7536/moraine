@@ -8,7 +8,7 @@ export function Sizes() {
         title="Small Card"
         description="Compact"
         footer={<Button size="sm">Action</Button>}
-        class={'h-fit max-w-xs'}
+        class="h-fit max-w-xs"
       >
         <p class="text-sm opacity-85">Compact spacing for dense layouts and sidebars.</p>
       </Card>
@@ -17,7 +17,7 @@ export function Sizes() {
         title="Default Card"
         description="Default"
         footer={<Button size="sm">Action</Button>}
-        class={'h-fit max-w-xs'}
+        class="h-fit max-w-xs"
       >
         <p class="text-sm opacity-85">Standard spacing for normal form and dashboard cards.</p>
       </Card>
