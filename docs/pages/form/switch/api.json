@@ -199,12 +199,6 @@
         "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
-        "name": "aria-describedby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References descriptive text associated with the control."
-      },
-      {
         "name": "aria-disabled",
         "required": false,
         "type": "boolean | string | undefined",
@@ -383,12 +377,6 @@
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-describedby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References descriptive text associated with the control."
           },
           {
             "name": "aria-disabled",

@@ -300,12 +300,6 @@
     ],
     "slots": [
       {
-        "name": "container",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "control",
         "cssVariables": [],
         "dataAttributes": [
@@ -316,7 +310,44 @@
             "description": "Present when the field has a validation error."
           }
         ],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "aria-checked",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "aria-readonly",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control value cannot be changed by the user."
+          },
+          {
+            "name": "aria-required",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that user input is required."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "description",
@@ -349,28 +380,10 @@
         "dataAttributes": [],
         "ariaAttributes": [
           {
-            "name": "aria-checked",
+            "name": "aria-hidden",
             "required": false,
             "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-readonly",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control value cannot be changed by the user."
-          },
-          {
-            "name": "aria-required",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that user input is required."
+            "description": "Hides decorative content from assistive technology."
           }
         ]
       },
@@ -390,14 +403,7 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
+        "ariaAttributes": []
       },
       {
         "name": "wrapper",

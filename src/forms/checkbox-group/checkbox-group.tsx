@@ -333,8 +333,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                     tableSize: merged.variant === 'table' ? field.size() : undefined,
                     tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
                   },
-                  merged.variant === 'table' &&
-                    'relative rounded-none border border-muted data-checked:(bg-primary/10 border-primary/50) data-checked:z-1',
+                  merged.variant === 'table' && 'relative rounded-none border border-muted',
                   merged.classes?.item,
                 ),
                 ...merged.classes,

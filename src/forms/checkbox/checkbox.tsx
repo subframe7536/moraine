@@ -20,7 +20,6 @@ import type { CheckboxVariantProps } from './checkbox.class'
 import {
   checkboxBaseVariants,
   checkboxCardPaddingVariants,
-  checkboxContainerVariants,
   checkboxIconVariants,
   checkboxLabelVariants,
   checkboxRootVariants,
@@ -33,9 +32,6 @@ export namespace CheckboxT {
      * Labelable checkbox wrapper that coordinates input, indicator, and text content.
      */
     root?: T
-
-    /** Text column that groups label and description. */
-    container?: T
 
     /** Visible checkbox control users recognize as the toggle target. */
     control?: T
@@ -68,9 +64,9 @@ export namespace CheckboxT {
   export interface Base<TTrue = boolean, TFalse = boolean>
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
     /**
-     * Pointer down handler for the checkbox root container.
+     * Pointer down handler for the checkbox control.
      */
-    onPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
+    onPointerDown?: JSX.EventHandler<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the checkbox is checked.
@@ -291,10 +287,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
+  const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() =>
     merged.description ? `${field.id()}-description` : undefined,
   )
-  const inputAriaAttrs = createMemo(() => {
+  const checkboxAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
 
@@ -304,13 +301,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
     return attrs
   })
-  const dataAttrs = createMemo(() => ({
-    'data-checked': resolvedChecked() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-indeterminate': indeterminate() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
-  }))
 
   createEffect(() => {
     if (inputEl) {
@@ -351,10 +341,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
 
     onChange(!resolvedChecked())
-    inputEl?.focus()
   }
 
-  function onInputKeyDown(event: KeyboardEvent): void {
+  function onControlKeyDown(event: KeyboardEvent): void {
     if (event.key !== ' ') {
       return
     }
@@ -363,7 +352,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     toggle()
   }
 
-  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
+  const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
     merged.onPointerDown?.(event)
 
     if (document.activeElement === inputEl) {
@@ -371,10 +360,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
   }
 
+  const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
+    if (merged.variant !== 'card') {
+      return
+    }
+
+    const target = event.target
+    if (target instanceof HTMLElement && target.closest('[data-slot="control"]')) {
+      return
+    }
+
+    toggle()
+  }
+
   return (
     <div
-      id={`${field.id()}-root`}
-      role="group"
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
       class={checkboxRootVariants(
@@ -390,96 +390,89 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         merged.classes?.root,
         merged.class,
       )}
-      onPointerDown={onRootPointerDown}
-      {...dataAttrs()}
+      onClick={onRootClick}
     >
-      <Show when={merged.variant === 'card'}>
-        <label for={field.id()} class="cursor-pointer inset-0 absolute" />
-      </Show>
-      <div
-        data-slot="container"
-        style={merged.styles?.container}
-        class={checkboxContainerVariants(
-          {
-            size: field.size(),
-          },
-          merged.variant === 'card' && 'relative z-1',
-          merged.classes?.container,
-        )}
-      >
-        <HiddenInput
-          ref={(element) => {
-            inputEl = element
-          }}
-          id={field.id()}
-          type="checkbox"
-          name={field.name()}
-          value={merged.value}
-          checked={Boolean(resolvedChecked())}
-          required={merged.required}
-          disabled={field.disabled()}
-          readOnly={readOnly()}
-          aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          aria-required={merged.required || undefined}
-          aria-disabled={field.disabled() || undefined}
-          aria-readonly={readOnly() || undefined}
-          class="peer"
-          data-slot="input"
-          onChange={(event) => {
-            event.stopPropagation()
+      <HiddenInput
+        ref={(element) => {
+          inputEl = element
+        }}
+        id={`${field.id()}-input`}
+        type="checkbox"
+        name={field.name()}
+        value={merged.value}
+        checked={Boolean(resolvedChecked())}
+        required={merged.required}
+        disabled={field.disabled()}
+        readOnly={readOnly()}
+        tabIndex={-1}
+        aria-hidden="true"
+        class="peer"
+        data-slot="input"
+        onChange={(event) => {
+          event.stopPropagation()
 
-            if (field.disabled() || readOnly()) {
-              event.currentTarget.checked = Boolean(resolvedChecked())
-              event.currentTarget.indeterminate = indeterminate()
-              return
-            }
-
-            onChange(event.currentTarget.checked)
+          if (field.disabled() || readOnly()) {
             event.currentTarget.checked = Boolean(resolvedChecked())
             event.currentTarget.indeterminate = indeterminate()
-          }}
-          onKeyDown={onInputKeyDown}
-          {...dataAttrs()}
-          {...inputAriaAttrs()}
-        />
+            return
+          }
 
-        <div
-          data-slot="control"
-          style={merged.styles?.control}
-          data-invalid={field.invalid() ? '' : undefined}
-          class={checkboxBaseVariants(
-            {
-              size: field.size(),
-            },
-            merged.indicator === 'hidden' && 'sr-only',
-            merged.classes?.control,
-          )}
-          onClick={() => toggle()}
-          {...dataAttrs()}
-        >
-          <Show when={resolvedChecked() || indeterminate()}>
-            <div
-              data-slot="indicator"
-              style={merged.styles?.indicator}
-              class={cn(
-                'text-primary-foreground bg-primary flex size-full items-center justify-center',
-                merged.classes?.indicator,
-              )}
-              {...dataAttrs()}
-            >
-              <Icon
-                name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
-                class={checkboxIconVariants(
-                  {
-                    size: field.size(),
-                  },
-                  merged.classes?.icon,
-                )}
-              />
-            </div>
-          </Show>
-        </div>
-      </div>
+          onChange(event.currentTarget.checked)
+          event.currentTarget.checked = Boolean(resolvedChecked())
+          event.currentTarget.indeterminate = indeterminate()
+        }}
+      />
+
+      <button
+        id={field.id()}
+        type="button"
+        role="checkbox"
+        disabled={field.disabled()}
+        data-slot="control"
+        data-invalid={field.invalid() ? '' : undefined}
+        aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
+        aria-required={merged.required || undefined}
+        aria-disabled={field.disabled() || undefined}
+        aria-readonly={readOnly() || undefined}
+        aria-labelledby={merged.label ? labelId() : undefined}
+        style={merged.styles?.control}
+        class={checkboxBaseVariants(
+          { size: field.size() },
+          merged.indicator === 'hidden' && 'sr-only',
+          merged.classes?.control,
+          field.disabled() && 'effect-dis',
+        )}
+        onPointerDown={onPointerDown}
+        onClick={() => toggle()}
+        onKeyDown={onControlKeyDown}
+        {...checkboxAriaAttrs()}
+        data-checked={resolvedChecked() ? '' : undefined}
+        data-disabled={field.disabled() ? '' : undefined}
+        data-indeterminate={indeterminate() ? '' : undefined}
+        data-readonly={readOnly() ? '' : undefined}
+        data-required={merged.required ? '' : undefined}
+      >
+        <Show when={resolvedChecked() || indeterminate()}>
+          <span
+            data-slot="indicator"
+            style={merged.styles?.indicator}
+            class={cn(
+              'text-primary-foreground bg-primary flex size-full items-center justify-center',
+              merged.classes?.indicator,
+            )}
+            data-checked={resolvedChecked() ? '' : undefined}
+            data-disabled={field.disabled() ? '' : undefined}
+            data-indeterminate={indeterminate() ? '' : undefined}
+            data-readonly={readOnly() ? '' : undefined}
+            data-required={merged.required ? '' : undefined}
+          >
+            <Icon
+              name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+              class={checkboxIconVariants({ size: field.size() }, merged.classes?.icon)}
+            />
+          </span>
+        </Show>
+      </button>
 
       <Show when={merged.label || merged.description}>
         <div
@@ -499,12 +492,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               fallback={
                 <label
                   for={field.id()}
+                  id={labelId()}
                   data-slot="label"
                   style={merged.styles?.label}
                   class={checkboxLabelVariants(
-                    {
-                      required: merged.required,
-                    },
+                    { required: merged.required },
                     merged.classes?.label,
                   )}
                 >
@@ -513,14 +505,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               }
             >
               <p
+                id={labelId()}
                 data-slot="label"
                 style={merged.styles?.label}
-                class={checkboxLabelVariants(
-                  {
-                    required: merged.required,
-                  },
-                  merged.classes?.label,
-                )}
+                class={checkboxLabelVariants({ required: merged.required }, merged.classes?.label)}
               >
                 {merged.label}
               </p>

@@ -28,7 +28,7 @@ export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-1
   },
 })
 
-export const checkboxGroupItemVariants = cva('data-disabled:effect-dis', {
+export const checkboxGroupItemVariants = cva('', {
   variants: {
     tableSize: CARD_PADDING_SIZE_VARIANT,
     tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,

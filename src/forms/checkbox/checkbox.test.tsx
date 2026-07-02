@@ -6,6 +6,14 @@ import { FormField } from '../form-field'
 
 import { Checkbox } from './checkbox'
 
+function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
+  expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
+}
+
+function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
+  return container.querySelector('input[type="checkbox"][data-slot="input"]') as HTMLInputElement
+}
+
 describe('Checkbox', () => {
   test('renders label and description with accessible checkbox input', () => {
     const screen = render(() => (
@@ -55,47 +63,47 @@ describe('Checkbox', () => {
       />
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Custom' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Custom' })
 
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
 
     await fireEvent.click(checkbox)
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
   })
 
   test('toggles with Space key', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox label="Keyboard" onChange={onChange} />)
-    const checkbox = screen.getByRole('checkbox', { name: 'Keyboard' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Keyboard' })
 
     await fireEvent.keyDown(checkbox, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(true)
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
 
     await fireEvent.keyDown(checkbox, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith(false)
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
   })
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox disabled label="Disabled" onChange={onChange} />)
-    const checkbox = screen.getByRole('checkbox', { name: 'Disabled' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Disabled' })
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    expect(checkbox.disabled).toBe(true)
+    expect(checkbox.getAttribute('aria-disabled')).toBe('true')
 
     await fireEvent.click(checkbox)
     await fireEvent.click(control)
     await fireEvent.keyDown(checkbox, { key: ' ' })
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -109,14 +117,15 @@ describe('Checkbox', () => {
       />
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Select all' }) as HTMLInputElement
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const checkbox = screen.getByRole('checkbox', { name: 'Select all' })
+    const input = getHiddenCheckbox(screen.container)
+    const control = screen.container.querySelector('[data-slot="control"]')
 
     await waitFor(() => {
-      expect(checkbox.indeterminate).toBe(true)
-      expect(checkbox.checked).toBe(false)
-      expect(checkbox.getAttribute('aria-checked')).toBe('mixed')
-      expect(root?.getAttribute('data-indeterminate')).not.toBeNull()
+      expect(input.indeterminate).toBe(true)
+      expect(input.checked).toBe(false)
+      expectCheckboxChecked(checkbox, 'mixed')
+      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
   })
@@ -132,13 +141,15 @@ describe('Checkbox', () => {
 
     const checkbox = screen.getByRole('checkbox', {
       name: 'Default indeterminate',
-    }) as HTMLInputElement
-    const root = screen.container.querySelector('[data-slot="root"]')
+    })
+    const input = getHiddenCheckbox(screen.container)
+    const control = screen.container.querySelector('[data-slot="control"]')
 
     await waitFor(() => {
-      expect(checkbox.indeterminate).toBe(true)
-      expect(checkbox.checked).toBe(false)
-      expect(root?.getAttribute('data-indeterminate')).not.toBeNull()
+      expect(input.indeterminate).toBe(true)
+      expect(input.checked).toBe(false)
+      expectCheckboxChecked(checkbox, 'mixed')
+      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
   })
@@ -149,14 +160,14 @@ describe('Checkbox', () => {
     ))
 
     const checkbox = screen.getByRole('checkbox', { name: 'Terms' })
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const input = getHiddenCheckbox(screen.container)
     const control = screen.container.querySelector('[data-slot="control"]')
 
     expect(checkbox.getAttribute('id')).toBe('terms-checkbox')
-    expect(checkbox.getAttribute('name')).toBe('terms')
-    expect(checkbox.getAttribute('value')).toBe('accepted')
-    expect(checkbox.getAttribute('required')).not.toBeNull()
-    expect(root?.getAttribute('data-required')).toBe('')
+    expect(input.getAttribute('id')).toBe('terms-checkbox-input')
+    expect(input.getAttribute('name')).toBe('terms')
+    expect(input.getAttribute('value')).toBe('accepted')
+    expect(input.getAttribute('required')).not.toBeNull()
     expect(control?.getAttribute('data-required')).toBe('')
   })
 
@@ -164,7 +175,7 @@ describe('Checkbox', () => {
     const onChange = vi.fn()
 
     const screen = render(() => <Checkbox checked label="Controlled" onChange={onChange} />)
-    const checkbox = screen.getByRole('checkbox', { name: 'Controlled' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Controlled' })
 
     await fireEvent.click(checkbox)
 
@@ -172,25 +183,25 @@ describe('Checkbox', () => {
     expect(onChange).toHaveBeenCalledWith(false)
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
   test('does not toggle a controlled readonly checkbox', async () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox checked readOnly label="Readonly" onChange={onChange} />)
-    const checkbox = screen.getByRole('checkbox', { name: 'Readonly' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Readonly' })
 
     expect(checkbox.getAttribute('aria-readonly')).toBe('true')
 
     await fireEvent.click(checkbox)
 
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
     expect(onChange).not.toHaveBeenCalled()
 
     await fireEvent.keyDown(checkbox, { key: ' ' })
 
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -201,16 +212,16 @@ describe('Checkbox', () => {
     ))
     const checkbox = screen.getByRole('checkbox', {
       name: 'Readonly uncontrolled',
-    }) as HTMLInputElement
+    })
 
     await fireEvent.click(checkbox)
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
     expect(onChange).not.toHaveBeenCalled()
 
     await fireEvent.keyDown(checkbox, { key: ' ' })
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -226,9 +237,9 @@ describe('Checkbox', () => {
         onChange={onChange}
       />
     ))
-    const checkbox = screen.getByRole('checkbox', { name: 'Status' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Status' })
 
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
 
     await fireEvent.click(checkbox)
 
@@ -236,7 +247,7 @@ describe('Checkbox', () => {
     expect(onChange).toHaveBeenCalledWith('inactive')
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
@@ -251,23 +262,23 @@ describe('Checkbox', () => {
       </Form>
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Status' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Status' })
 
     expect(state.status).toBe('active')
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
 
     await fireEvent.click(checkbox)
 
     await waitFor(() => {
       expect(state.status).toBe('inactive')
-      expect(checkbox.checked).toBe(false)
+      expectCheckboxChecked(checkbox, false)
     })
 
     await fireEvent.click(checkbox)
 
     await waitFor(() => {
       expect(state.status).toBe('active')
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
@@ -282,11 +293,11 @@ describe('Checkbox', () => {
       </Form>
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Status' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Status' })
 
     await waitFor(() => {
       expect(state.status).toBe('active')
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
@@ -301,11 +312,11 @@ describe('Checkbox', () => {
       </Form>
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Status' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Status' })
 
     await waitFor(() => {
       expect(state.status).toBe('inactive')
-      expect(checkbox.checked).toBe(false)
+      expectCheckboxChecked(checkbox, false)
     })
   })
 
@@ -320,11 +331,11 @@ describe('Checkbox', () => {
       </Form>
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Status' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Status' })
 
     await waitFor(() => {
       expect(state.status).toBe('active')
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
@@ -416,20 +427,24 @@ describe('Checkbox', () => {
     ))
 
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const checkbox = screen.getByRole('checkbox', { name: 'Agree' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Agree' })
+    const input = getHiddenCheckbox(screen.container)
 
-    expect(checkbox.checked).toBe(true)
+    expectCheckboxChecked(checkbox, true)
+    expect(input.checked).toBe(true)
     expect(new FormData(form).get('agree')).toBe('yes')
 
     await fireEvent.click(checkbox)
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
+    expect(input.checked).toBe(false)
     expect(new FormData(form).has('agree')).toBe(false)
 
     form.reset()
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
+      expect(input.checked).toBe(true)
       expect(new FormData(form).get('agree')).toBe('yes')
     })
   })
@@ -450,11 +465,10 @@ describe('Checkbox', () => {
     const base = screen.container.querySelector('[data-slot="control"]')
 
     expect(root?.className).toContain('rounded-lg')
-    expect(root?.className).toContain('data-checked:border-primary')
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('root-override')
     expect(input?.className).toContain('peer')
-    expect(base?.className).toContain('peer-focus-visible:effect-fv-border')
+    expect(base?.className).toContain('focus-visible:effect-fv-border')
     expect(base?.className).toContain('size-5')
   })
 
@@ -484,18 +498,14 @@ describe('Checkbox', () => {
     const screen = render(() => <Checkbox variant="card" label="Card root click" />)
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
-    const checkbox = screen.container.querySelector(
-      'input[type="checkbox"][data-slot="input"]',
-    ) as HTMLInputElement
-    const hitArea = root.querySelector(`label[for="${checkbox.id}"]`) as HTMLLabelElement
+    const checkbox = screen.getByRole('checkbox', { name: 'Card root click' })
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
 
-    // JSDOM doesn't compute layout, so clicking the root won't hit the absolute-positioned label.
-    await fireEvent.click(hitArea)
+    await fireEvent.click(root)
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
@@ -503,14 +513,14 @@ describe('Checkbox', () => {
     const screen = render(() => <Checkbox label="List root click" />)
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
-    const checkbox = screen.getByRole('checkbox', { name: 'List root click' }) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'List root click' })
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
 
     await fireEvent.click(root)
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(false)
+      expectCheckboxChecked(checkbox, false)
     })
   })
 

@@ -7,6 +7,14 @@ import { FormField } from '../form-field'
 
 import { CheckboxGroup } from './checkbox-group'
 
+function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
+  expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
+}
+
+function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElement {
+  return container.querySelector(`input[type="checkbox"][value="${value}"]`) as HTMLInputElement
+}
+
 describe('CheckboxGroup', () => {
   test('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
@@ -20,7 +28,7 @@ describe('CheckboxGroup', () => {
     const items = [{ value: 'a', label: 'Alpha', description: 'First option' }]
     const screen = render(() => <CheckboxGroup items={items} legend="Mapped" />)
 
-    expect(screen.getByRole('checkbox', { name: 'Alpha' }).getAttribute('value')).toBe('a')
+    expect(getHiddenCheckbox(screen.container, 'a').getAttribute('value')).toBe('a')
     expect(screen.getByText('First option')).not.toBeNull()
   })
 
@@ -39,13 +47,15 @@ describe('CheckboxGroup', () => {
       />
     ))
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Alpha' }) as HTMLInputElement
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    const checkbox = screen.getByRole('checkbox', { name: 'Alpha' })
+    const input = getHiddenCheckbox(screen.container, 'a')
+    const control = screen.container.querySelector('[data-slot="control"]')
 
     await waitFor(() => {
-      expect(checkbox.indeterminate).toBe(true)
-      expect(checkbox.checked).toBe(false)
-      expect(item?.getAttribute('data-indeterminate')).not.toBeNull()
+      expect(input.indeterminate).toBe(true)
+      expect(input.checked).toBe(false)
+      expectCheckboxChecked(checkbox, 'mixed')
+      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
   })
@@ -56,36 +66,36 @@ describe('CheckboxGroup', () => {
       <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onChange={onChange} />
     ))
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
-    expect(checkboxA.checked).toBe(true)
-    expect(checkboxB.checked).toBe(false)
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
 
     await fireEvent.click(checkboxB)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
-    expect(checkboxB.checked).toBe(true)
+    expectCheckboxChecked(checkboxB, true)
   })
 
   test('toggles item with Space key', async () => {
     const onChange = vi.fn()
     const screen = render(() => <CheckboxGroup items={['A', 'B']} onChange={onChange} />)
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
     await fireEvent.keyDown(checkboxA, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A'])
-    expect(checkboxA.checked).toBe(true)
+    expectCheckboxChecked(checkboxA, true)
 
     await fireEvent.keyDown(checkboxA, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith([])
-    expect(checkboxA.checked).toBe(false)
+    expectCheckboxChecked(checkboxA, false)
   })
 
   test('does not toggle disabled group or item', async () => {
@@ -105,16 +115,16 @@ describe('CheckboxGroup', () => {
       />
     ))
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
     await fireEvent.click(checkboxA)
     await fireEvent.keyDown(checkboxB, { key: ' ' })
 
-    expect(checkboxA.disabled).toBe(true)
-    expect(checkboxB.disabled).toBe(true)
-    expect(checkboxA.checked).toBe(false)
-    expect(checkboxB.checked).toBe(false)
+    expect(checkboxA.getAttribute('aria-disabled')).toBe('true')
+    expect(checkboxB.getAttribute('aria-disabled')).toBe('true')
+    expectCheckboxChecked(checkboxA, false)
+    expectCheckboxChecked(checkboxB, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -122,14 +132,14 @@ describe('CheckboxGroup', () => {
     const onChange = vi.fn()
     const screen = render(() => <CheckboxGroup items={['A']} readOnly onChange={onChange} />)
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
     expect(checkboxA.getAttribute('aria-readonly')).toBe('true')
 
     await fireEvent.click(checkboxA)
     await fireEvent.keyDown(checkboxA, { key: ' ' })
 
-    expect(checkboxA.checked).toBe(false)
+    expectCheckboxChecked(checkboxA, false)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -139,8 +149,8 @@ describe('CheckboxGroup', () => {
       <CheckboxGroup items={['A', 'B']} value={['A']} onChange={onChange} />
     ))
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
     await fireEvent.click(checkboxB)
 
@@ -148,8 +158,8 @@ describe('CheckboxGroup', () => {
     expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
 
     await waitFor(() => {
-      expect(checkboxA.checked).toBe(true)
-      expect(checkboxB.checked).toBe(false)
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
     })
   })
 
@@ -210,10 +220,12 @@ describe('CheckboxGroup', () => {
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]') as HTMLFieldSetElement
     const legend = screen.getByText('Channels')
     const checkbox = screen.getByRole('checkbox', { name: 'Email' })
+    const input = getHiddenCheckbox(screen.container, 'email')
     const description = screen.getByText('Send email updates')
 
     expect(fieldset.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'))
-    expect(checkbox.getAttribute('required')).not.toBeNull()
+    expect(checkbox.getAttribute('aria-required')).toBe('true')
+    expect(input.getAttribute('required')).not.toBeNull()
     expect(description).not.toBeNull()
   })
 
@@ -264,37 +276,33 @@ describe('CheckboxGroup', () => {
   test('toggles item when clicking table item root', async () => {
     const screen = render(() => <CheckboxGroup items={['A']} variant="table" />)
 
-    const checkbox = screen.container.querySelector(
-      'input[type="checkbox"][value="A"]',
-    ) as HTMLInputElement
+    const checkbox = screen.getByRole('checkbox', { name: 'A' })
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
-    const hitArea = item?.querySelector(`label[for="${checkbox.id}"]`) as HTMLLabelElement | null
 
-    expect(checkbox.checked).toBe(false)
+    expectCheckboxChecked(checkbox, false)
 
-    // JSDOM doesn't compute layout, so clicking the item root won't hit the absolute-positioned label.
-    await fireEvent.click(hitArea as HTMLLabelElement)
+    await fireEvent.click(item as HTMLElement)
 
     await waitFor(() => {
-      expect(checkbox.checked).toBe(true)
+      expectCheckboxChecked(checkbox, true)
     })
   })
 
   test('does not toggle item when clicking list item root', async () => {
     const screen = render(() => <CheckboxGroup items={['A', 'B']} defaultValue={['A']} />)
 
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
     const items = screen.container.querySelectorAll('[data-slot="fieldset"] > [data-slot="root"]')
 
-    expect(checkboxA.checked).toBe(true)
-    expect(checkboxB.checked).toBe(false)
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
 
     await fireEvent.click(items[1] as HTMLElement)
 
     await waitFor(() => {
-      expect(checkboxA.checked).toBe(true)
-      expect(checkboxB.checked).toBe(false)
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
     })
   })
 
@@ -499,11 +507,11 @@ describe('CheckboxGroup', () => {
     ))
 
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const checkboxA = screen.getByRole('checkbox', { name: 'A' }) as HTMLInputElement
-    const checkboxB = screen.getByRole('checkbox', { name: 'B' }) as HTMLInputElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
-    expect(checkboxA.checked).toBe(true)
-    expect(checkboxB.checked).toBe(false)
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
     expect(new FormData(form).getAll('choices')).toEqual(['A'])
 
     await fireEvent.click(checkboxA)
@@ -514,8 +522,8 @@ describe('CheckboxGroup', () => {
     form.reset()
 
     await waitFor(() => {
-      expect(checkboxA.checked).toBe(true)
-      expect(checkboxB.checked).toBe(false)
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
       expect(new FormData(form).getAll('choices')).toEqual(['A'])
     })
   })
