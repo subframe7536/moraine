@@ -126,11 +126,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                     <div class="text-2xl font-bold capitalize sm:text-3xl">{title()}</div>
                     <Show when={status()}>
                       {(nextStatus) => (
-                        <Badge
-                          size="sm"
-                          variant="outline"
-                          classes={{ root: 'tracking-wide font-semibold' }}
-                        >
+                        <Badge size="sm" variant="outline" class="tracking-wide font-semibold">
                           {DOCS_HEADER_STATUS_LABELS[nextStatus()]}
                         </Badge>
                       )}

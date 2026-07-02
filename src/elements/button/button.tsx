@@ -15,7 +15,9 @@ import { buttonVariants } from './button.class'
 
 export namespace ButtonT {
   export interface Slot<T = unknown> {
-    /** Interactive button element, or the polymorphic element provided through `as`. */
+    /**
+     * Interactive button element, or the polymorphic element provided through `as`.
+     */
     root?: T
 
     /** Loading icon shown while the button is busy. */
@@ -110,6 +112,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'size',
     'classes',
     'styles',
+    'class',
+    'style',
     'slotName',
     'disabled',
     'loading',
@@ -223,13 +227,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     <Dynamic
       component={tag()}
       data-slot={local.slotName || 'root'}
-      style={local.styles?.root}
+      style={{ ...local.styles?.root, ...local.style }}
       class={buttonVariants(
         {
           variant: local.variant,
           size: local.size,
         },
         local.classes?.root,
+        local.class,
       )}
       type={isNativeBtn() ? 'button' : undefined}
       role={needsButtonRole() ? 'button' : undefined}

@@ -9,7 +9,7 @@ export function ForcedMobile() {
         renderSidebarBody={(ctx) => (
           <div class="text-sm p-3 h-full overflow-y-auto">
             <p class="text-muted-foreground">This sidebar is rendered inside Sheet.</p>
-            <Button classes={{ root: 'mt-3' }} variant="outline" onClick={() => ctx.setOpen(false)}>
+            <Button class="mt-3" variant="outline" onClick={() => ctx.setOpen(false)}>
               Close
             </Button>
           </div>

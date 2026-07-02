@@ -37,7 +37,9 @@ export namespace BreadcrumbT {
   }
 
   export interface Slot<T = unknown> {
-    /** Navigation container for the breadcrumb trail. */
+    /**
+     * Navigation container for the breadcrumb trail.
+     */
     root?: T
 
     /** Ordered list that contains breadcrumb items and separators. */
@@ -174,9 +176,9 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   return (
     <nav
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       aria-label={merged['aria-label']}
-      class={cn('min-w-0 relative', merged.classes?.root)}
+      class={cn('min-w-0 relative', merged.classes?.root, merged.class)}
     >
       <ol
         data-slot="list"
@@ -227,8 +229,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     disabled={isDisabled()}
                     onClick={item.onClick}
                     leading={item.icon}
+                    class={cn(!merged.wrap && 'truncate', merged.classes?.link)}
                     classes={{
-                      root: [!merged.wrap && 'truncate', merged.classes?.link],
                       leading: merged.classes?.leading,
                       label: merged.classes?.label,
                     }}

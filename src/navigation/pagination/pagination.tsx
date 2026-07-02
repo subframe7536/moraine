@@ -13,7 +13,9 @@ type PaginationVariant = ButtonProps['variant']
 
 export namespace PaginationT {
   export interface Slot<T = unknown> {
-    /** Navigation container for page controls. */
+    /**
+     * Navigation container for page controls.
+     */
     root?: T
 
     /** Wrapper that lays out page, ellipsis, previous, and next controls. */
@@ -228,6 +230,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'controlVariant',
     'classes',
     'styles',
+    'class',
+    'style',
     'prevIcon',
     'prevText',
     'nextIcon',
@@ -327,8 +331,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
   return (
     <nav
       data-slot="root"
-      style={local.styles?.root}
-      class={cn('w-full', local.classes?.root)}
+      style={{ ...local.styles?.root, ...local.style }}
+      class={cn('w-full', local.classes?.root, local.class)}
       {...rest}
     >
       <ul
@@ -344,7 +348,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={local.controlVariant}
               size={getSize(local.size, local.prevText)}
               aria-label={getPrevLabel()}
-              classes={{ root: local.classes?.prev }}
+              class={local.classes?.prev}
               onClick={() => selectPage(resolvedPage() - 1)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
               leading={<Icon name={local.prevIcon} />}
@@ -383,7 +387,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    classes={{ root: ['outline-none', local.classes?.link] }}
+                    class={cn('outline-none', local.classes?.link)}
                     onClick={() => selectPage(item)}
                     {...getControlProps(item, false)}
                   >
@@ -403,7 +407,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={local.controlVariant}
               size={getSize(local.size, local.nextText)}
               aria-label={getNextLabel()}
-              classes={{ root: local.classes?.next }}
+              class={local.classes?.next}
               onClick={() => selectPage(resolvedPage() + 1)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
               trailing={<Icon name={local.nextIcon} />}

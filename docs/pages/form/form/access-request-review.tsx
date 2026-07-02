@@ -38,7 +38,7 @@ export function AccessRequestReview() {
 
         return errors
       }}
-      classes={{ root: 'mx-auto max-w-2xl w-full space-y-4' }}
+      class="mx-auto max-w-2xl w-full space-y-4"
     >
       <FormField name="requester" label="Requester" required>
         <Input

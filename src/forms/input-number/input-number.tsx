@@ -147,7 +147,9 @@ function clamp(value: number, min: number, max: number): number {
 
 export namespace InputNumberT {
   export interface Slot<T = unknown> {
-    /** Number input wrapper that owns the input and step controls. */
+    /**
+     * Number input wrapper that owns the input and step controls.
+     */
     root?: T
 
     /** Native number input element. */
@@ -831,13 +833,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={inputNumberRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       {...dataAttrs()}
     >

@@ -10,7 +10,7 @@
   "slots": [
     {
       "name": "root",
-      "description": "Avatar frame that controls size, shape, image, fallback, and badge placement."
+      "description": "Avatar frame that controls size, shape, image, fallback, and badge placement, or the container of grouped avatars when multiple items are provided."
     },
     {
       "name": "image",
@@ -29,15 +29,11 @@
       "description": "Status or indicator badge anchored to the avatar frame."
     },
     {
-      "name": "group",
-      "description": "Container that lays out multiple avatars as an overlapping group."
-    },
-    {
-      "name": "groupItem",
+      "name": "item",
       "description": "Individual avatar wrapper used when rendering grouped avatars."
     },
     {
-      "name": "groupCount",
+      "name": "count",
       "description": "Count indicator shown when a group has more avatars than the visible limit."
     }
   ],
@@ -47,6 +43,12 @@
         "name": "badgePosition",
         "required": false,
         "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
       },
       {
         "name": "classes",
@@ -70,6 +72,11 @@
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",
@@ -175,6 +182,12 @@
         "ariaAttributes": []
       },
       {
+        "name": "count",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
         "name": "fallback",
         "cssVariables": [],
         "dataAttributes": [],
@@ -187,19 +200,13 @@
         "ariaAttributes": []
       },
       {
-        "name": "group",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "groupCount",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "image",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

@@ -32,6 +32,12 @@
   "props": {
     "own": [
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "ResizableT.Classes | undefined"
@@ -111,6 +117,11 @@
         "type": "MaybeRenderProp<ResizableT.HandleState>",
         "description": "Custom handle to render.\n- `true`: render built-in handle.\n- `JSX.Element`: render static custom handle content.\n- `(state) => JSX.Element`: render dynamic content by handle state.",
         "defaultValue": "true"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

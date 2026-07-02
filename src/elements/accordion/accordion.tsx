@@ -11,7 +11,9 @@ import type { IconT } from '../icon'
 
 export namespace AccordionT {
   export interface Slot<T = unknown> {
-    /** Container that owns the accordion item collection and shared state attributes. */
+    /**
+     * Container that owns the accordion item collection and shared state attributes.
+     */
     root?: T
 
     /** Wrapper for one accordion entry, including its header trigger and collapsible panel. */
@@ -273,8 +275,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
-      style={merged.styles?.root}
-      class={cn('flex flex-col w-full', merged.disabled && 'effect-dis', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn(
+        'flex flex-col w-full',
+        merged.disabled && 'effect-dis',
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <For each={normalizedItems()}>
         {(entry) => {

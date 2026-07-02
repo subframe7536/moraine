@@ -30,6 +30,12 @@
         "description": "Element that triggers the popup or additional content."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "PopupT.Classes | undefined"
@@ -100,6 +106,11 @@
         "type": "boolean | undefined",
         "description": "Whether to allow scrolling within the popup.",
         "defaultValue": "false"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

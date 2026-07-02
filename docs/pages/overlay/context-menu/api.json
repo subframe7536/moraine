@@ -85,6 +85,12 @@
         "description": "Target area that opens the context menu on right-click or long press."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "ContextMenuT.Classes | undefined"
@@ -176,6 +182,11 @@
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

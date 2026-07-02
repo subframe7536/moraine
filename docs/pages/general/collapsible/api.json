@@ -30,6 +30,12 @@
         "description": "Content to render inside the collapsible."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "CollapsibleT.Classes | undefined"
@@ -71,6 +77,11 @@
         "required": false,
         "type": "JSX.Element | Component<CollapsibleT.RenderTriggerContext>",
         "description": "Custom trigger content or render function.\n- When component has no prop, the whole component will be wrapped with `<button>`\n- When component has props, uncontrolled state must be setup manually via `CollapsibleT.RenderTriggerContext`"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

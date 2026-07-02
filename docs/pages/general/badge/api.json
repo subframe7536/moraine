@@ -34,6 +34,12 @@
         "description": "Children of the badge."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "BadgeT.Classes | undefined"
@@ -61,6 +67,11 @@
         "type": "string | undefined",
         "description": "Data slot for styling.",
         "defaultValue": "root"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

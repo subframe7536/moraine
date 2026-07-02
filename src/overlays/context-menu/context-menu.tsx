@@ -330,8 +330,8 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         aria-haspopup="menu"
         aria-controls={resolvedOpen() ? contentId() : undefined}
         aria-expanded={resolvedOpen() ? 'true' : 'false'}
-        class={cn(merged.classes?.trigger)}
-        style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger }}
+        class={cn(merged.classes?.trigger, merged.class)}
+        style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger, ...merged.style }}
         onContextMenu={onContextMenu}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

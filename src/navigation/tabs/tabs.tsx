@@ -29,7 +29,9 @@ import type { TabsVariantProps } from './tabs.class'
 
 export namespace TabsT {
   export interface Slot<T = unknown> {
-    /** Tabs container that owns tab selection and panel rendering. */
+    /**
+     * Tabs container that owns tab selection and panel rendering.
+     */
     root?: T
 
     /** Tablist that contains all tab triggers and the selection indicator. */
@@ -342,8 +344,12 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      style={merged.styles?.root}
-      class={tabsRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={tabsRootVariants(
+        { orientation: merged.orientation },
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <div
         ref={(e) => (listRef = e)}

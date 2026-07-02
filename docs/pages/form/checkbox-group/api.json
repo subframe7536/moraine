@@ -62,6 +62,12 @@
         "description": "Default checked icon for all items."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "CheckboxGroupT.Classes | undefined"
@@ -144,6 +150,11 @@
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

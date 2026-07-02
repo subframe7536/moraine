@@ -42,7 +42,9 @@ export namespace TextareaT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /** Textarea wrapper that owns header, textarea, footer, and autoresize state. */
+    /**
+     * Textarea wrapper that owns header, textarea, footer, and autoresize state.
+     */
     root?: T
 
     /** Optional content rendered above the textarea. */
@@ -340,13 +342,14 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={textareaRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}

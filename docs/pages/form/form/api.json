@@ -22,6 +22,12 @@
         "description": "Children of the form, can be a render function."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "FormT.Classes | undefined"
@@ -69,6 +75,11 @@
         "required": false,
         "type": "TState | undefined",
         "description": "The state of the form (controlled)."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

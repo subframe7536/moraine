@@ -21,7 +21,9 @@ import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from 
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
-    /** Switch wrapper that coordinates input, track, thumb, and text content. */
+    /**
+     * Switch wrapper that coordinates input, track, thumb, and text content.
+     */
     root?: T
 
     /** Visible switch track that shows checked and unchecked state. */
@@ -315,8 +317,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('flex flex-row', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('flex flex-row', merged.classes?.root, merged.class)}
     >
       <HiddenInput
         ref={(element) => {

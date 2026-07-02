@@ -37,7 +37,9 @@ export namespace ProgressT {
   }
 
   export interface Slot<T = unknown> {
-    /** Progress container that owns track, indicator, labels, and step markers. */
+    /**
+     * Progress container that owns track, indicator, labels, and step markers.
+     */
     root?: T
 
     /** Text region that displays the current progress status. */
@@ -250,7 +252,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       data-orientation={merged.orientation}
       {...dataAttrs()}
       class={progressRootVariants(
@@ -258,6 +260,7 @@ export function Progress(props: ProgressProps): JSX.Element {
           orientation: merged.orientation,
         },
         merged.classes?.root,
+        merged.class,
       )}
     >
       <Show when={!isIndeterminate() && (merged.status || merged.renderStatus)}>

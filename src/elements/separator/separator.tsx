@@ -12,7 +12,9 @@ import {
 
 export namespace SeparatorT {
   export interface Slot<T = unknown> {
-    /** Separator line container, including optional label content. */
+    /**
+     * Separator line container, including optional label content.
+     */
     root?: T
 
     /** Visual line segment rendered around optional separator content. */
@@ -78,8 +80,12 @@ export function Separator(props: SeparatorProps): JSX.Element {
       data-orientation={merged.orientation}
       aria-orientation={merged.orientation === 'vertical' ? 'vertical' : undefined}
       aria-hidden={merged.decorative ? true : undefined}
-      style={merged.styles?.root}
-      class={separatorRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={separatorRootVariants(
+        { orientation: merged.orientation },
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <div
         data-slot="border"

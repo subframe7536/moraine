@@ -44,6 +44,19 @@ describe('Tooltip', () => {
     expect(trigger?.getAttribute('tabindex')).toBe('-1')
   })
 
+  test('applies top-level class and style to trigger', () => {
+    render(() => (
+      <Tooltip text="Tooltip content" class="trigger-class" style={{ width: '200px' }}>
+        <button type="button">Trigger</button>
+      </Tooltip>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLElement | null
+
+    expect(trigger?.className).toContain('trigger-class')
+    expect(trigger?.style.width).toBe('200px')
+  })
+
   test('renders keyboard hints', () => {
     render(() => (
       <Tooltip open text="Save" kbds={['Ctrl', 'S']}>

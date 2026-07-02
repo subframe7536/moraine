@@ -118,6 +118,19 @@ describe('Popup', () => {
     )
   })
 
+  test('applies top-level class and style to trigger', () => {
+    render(() => (
+      <Popup open content="Body" class="trigger-class" style={{ width: '200px' }}>
+        <button type="button">Trigger</button>
+      </Popup>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLElement | null
+
+    expect(trigger?.className).toContain('trigger-class')
+    expect(trigger?.style.width).toBe('200px')
+  })
+
   test('does not render content when content is undefined or null', () => {
     render(() => (
       <Popup open>

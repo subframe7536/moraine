@@ -242,7 +242,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       preventScroll={!merged.scrollable}
       trigger={merged.children}
       classes={{
-        trigger: merged.classes?.trigger,
+        trigger: cn(merged.classes?.trigger, merged.class),
         overlay: popupOverlayVariants(
           {
             scrollable: merged.scrollable,
@@ -257,7 +257,7 @@ export function Dialog(props: DialogProps): JSX.Element {
         ),
       }}
       styles={{
-        trigger: merged.styles?.trigger,
+        trigger: { ...merged.styles?.trigger, ...merged.style },
         overlay: merged.styles?.overlay,
         content: merged.styles?.content,
       }}

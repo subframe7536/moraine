@@ -18,7 +18,9 @@ export namespace BadgeT {
   > {}
 
   export interface Slot<T = unknown> {
-    /** Inline badge container that carries the variant, size, and interactive state. */
+    /**
+     * Inline badge container that carries the variant, size, and interactive state.
+     */
     root?: T
 
     /** Optional icon displayed before the badge label. */
@@ -101,13 +103,14 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-size={merged.size}
       data-variant={merged.variant}
       title={merged.title}
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={badgeVariants(
         {
           size: merged.size,
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={(e) => {
         e.preventDefault()
@@ -152,8 +155,8 @@ export function Badge(props: BadgeProps): JSX.Element {
               name={trailing()}
               size={merged.size}
               data-slot="trailing"
-              styles={{ root: merged.styles?.trailing }}
-              classes={{ root: cn('ms-.5', merged.classes?.trailing) }}
+              style={merged.styles?.trailing}
+              class={cn('ms-.5', merged.classes?.trailing)}
               onClick={merged.onTrailingClick}
             />
           </Show>

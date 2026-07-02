@@ -74,6 +74,12 @@
         "description": "Trigger element that opens the sheet."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "SheetT.Classes | undefined"
@@ -154,6 +160,11 @@
         "name": "side",
         "required": false,
         "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

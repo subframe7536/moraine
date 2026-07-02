@@ -37,7 +37,9 @@ export namespace SliderT {
   export type Value = number | number[]
 
   export interface Slot<T = unknown> {
-    /** Slider container that owns track, range, thumbs, and labels. */
+    /**
+     * Slider container that owns track, range, thumbs, and labels.
+     */
     root?: T
 
     /** Background rail representing the full slider range. */
@@ -672,11 +674,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={merged.required ? '' : undefined}
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={sliderRootVariants(
         { orientation: merged.orientation },
         field.disabled() && 'effect-dis',
         merged.classes?.root,
+        merged.class,
       )}
     >
       <div

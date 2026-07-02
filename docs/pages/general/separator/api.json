@@ -30,6 +30,12 @@
         "description": "Additional content to render inside the separator (usually between two borders)."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "SeparatorT.Classes | undefined"
@@ -52,6 +58,11 @@
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

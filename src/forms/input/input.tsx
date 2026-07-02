@@ -28,7 +28,9 @@ export namespace InputT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /** Input wrapper that positions icons, loading state, and the native input. */
+    /**
+     * Input wrapper that positions icons, loading state, and the native input.
+     */
     root?: T
 
     /** Native text input element. */
@@ -318,13 +320,14 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={inputRootVariants(
         {
           size: field.size(),
           variant: merged.variant,
         },
         merged.classes?.root,
+        merged.class,
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}

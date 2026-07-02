@@ -56,15 +56,13 @@ describe('Avatar', () => {
     ))
 
     expect(screen.container.querySelectorAll('[data-slot="root"]')).toHaveLength(0)
-    expect(screen.container.querySelectorAll('[data-slot="group"]')).toHaveLength(0)
   })
 
   test('treats one item as single avatar structure', () => {
     const screen = render(() => <Avatar items={[{ text: 'MR' }]} />)
 
     expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="group"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="groupItem"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="item"]')).toBeNull()
   })
 
   test('renders fallback first while image is loading', () => {
@@ -223,31 +221,31 @@ describe('Avatar', () => {
       <Avatar max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
     ))
 
-    const group = screen.container.querySelector('[data-slot="group"]')
-    const groupCount = screen.container.querySelector('[data-slot="groupCount"]')
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const count = screen.container.querySelector('[data-slot="count"]')
     const fallbacks = Array.from(
-      screen.container.querySelectorAll('[data-slot="groupItem"] [data-slot="fallback"]'),
+      screen.container.querySelectorAll('[data-slot="item"] [data-slot="fallback"]'),
     )
 
-    expect(group).not.toBeNull()
-    expect(groupCount?.textContent).toBe('+2')
+    expect(root).not.toBeNull()
+    expect(count?.textContent).toBe('+2')
     expect(fallbacks).toHaveLength(2)
     expect(fallbacks[0]?.textContent).toBe('B')
     expect(fallbacks[1]?.textContent).toBe('A')
-    expect(group?.className).toContain('flex-row-reverse')
-    expect(group?.className).toContain('justify-end')
-    const groupItem = screen.container.querySelector('[data-slot="groupItem"]')
-    expect(groupItem?.className).toContain('-me-1.5')
+    expect(root?.className).toContain('flex-row-reverse')
+    expect(root?.className).toContain('justify-end')
+    const item = screen.container.querySelector('[data-slot="item"]')
+    expect(item?.className).toContain('-me-1.5')
   })
 
   test('renders all group items when max is absent and reverses order', () => {
     const screen = render(() => <Avatar items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />)
 
     const fallbacks = Array.from(
-      screen.container.querySelectorAll('[data-slot="groupItem"] [data-slot="fallback"]'),
+      screen.container.querySelectorAll('[data-slot="item"] [data-slot="fallback"]'),
     )
 
-    expect(screen.container.querySelector('[data-slot="groupCount"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="count"]')).toBeNull()
     expect(fallbacks).toHaveLength(3)
     expect(fallbacks[0]?.textContent).toBe('C')
     expect(fallbacks[1]?.textContent).toBe('B')
@@ -262,8 +260,8 @@ describe('Avatar', () => {
       </>
     ))
 
-    const groupCounts = Array.from(screen.container.querySelectorAll('[data-slot="groupCount"]'))
-    const groupItems = Array.from(screen.container.querySelectorAll('[data-slot="groupItem"]'))
+    const groupCounts = Array.from(screen.container.querySelectorAll('[data-slot="count"]'))
+    const groupItems = Array.from(screen.container.querySelectorAll('[data-slot="item"]'))
 
     expect(groupCounts[0]?.className).toContain('size-6')
     expect(groupCounts[0]?.className).toContain('-me-1')
@@ -313,40 +311,33 @@ describe('Avatar', () => {
       <Avatar
         max={1}
         items={[{ text: 'A' }, { text: 'B' }]}
-        styles={
-          {
-            group: { width: '200px' },
-            groupItem: { width: '200px' },
-            groupCount: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          item: { width: '200px' },
+          count: { width: '200px' },
+        }}
       />
     ))
 
-    const group = screen.container.querySelector('[data-slot="group"]') as HTMLElement | null
-    const groupItem = screen.container.querySelector(
-      '[data-slot="groupItem"]',
-    ) as HTMLElement | null
-    const groupCount = screen.container.querySelector(
-      '[data-slot="groupCount"]',
-    ) as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
+    const count = screen.container.querySelector('[data-slot="count"]') as HTMLElement | null
 
-    expect(group?.style.width).toBe('200px')
-    expect(groupItem?.style.width).toBe('200px')
-    expect(groupCount?.style.width).toBe('200px')
+    expect(root?.style.width).toBe('200px')
+    expect(item?.style.width).toBe('200px')
+    expect(count?.style.width).toBe('200px')
   })
 
-  test('rejects arbitrary html props and class prop in type contract', () => {
+  test('rejects arbitrary html props while accepting root class prop in type contract', () => {
     // @ts-expect-error Avatar is sealed and does not accept arbitrary html props.
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }
-    // @ts-expect-error Avatar uses classes slots instead of class prop.
-    const invalidClassProp: AvatarProps = { class: 'avatar-class' }
+    const validClassProp: AvatarProps = { class: 'avatar-class' }
     // @ts-expect-error Avatar no longer accepts top-level single-item props.
     const invalidSingleProp: AvatarProps = { src: '/avatar.png' }
     const validItemsProp: AvatarProps = { items: [{ icon: 'i-lucide-user' }] }
 
     expect(invalidHtmlProps).toBeDefined()
-    expect(invalidClassProp).toBeDefined()
+    expect(validClassProp).toBeDefined()
     expect(invalidSingleProp).toBeDefined()
     expect(validItemsProp).toBeDefined()
   })

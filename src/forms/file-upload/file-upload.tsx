@@ -48,7 +48,9 @@ export namespace FileUploadT {
   export type Value = File | File[] | null
 
   export interface Slot<T = unknown> {
-    /** Upload component container that owns dropzone, file input, and file list. */
+    /**
+     * Upload component container that owns dropzone, file input, and file list.
+     */
     root?: T
 
     /** Dropzone and picker control users interact with to select files. */
@@ -691,7 +693,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       role="group"
       disabled={field.disabled()}
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
       class={fileUploadRootVariants(
@@ -699,6 +701,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
           size: field.size(),
         },
         merged.classes?.root,
+        merged.class,
       )}
     >
       <Show

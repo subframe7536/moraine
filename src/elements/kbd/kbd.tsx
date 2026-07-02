@@ -9,7 +9,12 @@ import { kbdItemVariants } from './kbd.class'
 
 export namespace KbdT {
   export interface Slot<T = unknown> {
-    /** Keyboard shortcut container that groups one or more key tokens. */
+    /**
+     * Wrapper around multiple key tokens.
+     *
+     * Single-value shortcuts render only the `item` slot, so top-level `class` and `style`
+     * are applied to that item instead.
+     */
     root?: T
 
     /** Individual key token inside the shortcut sequence. */
@@ -54,7 +59,7 @@ export interface KbdProps extends KbdT.Props {}
 
 /** Keyboard shortcut display component with configurable size and variant. */
 export function Kbd(props: KbdProps): JSX.Element {
-  const Inner = (innerProps: { val: string; append?: boolean }) => (
+  const Inner = (innerProps: { val: string; append?: boolean; topLevel?: boolean }) => (
     <>
       <kbd
         data-slot={props.slotPrefix ? `${props.slotPrefix}-kbd` : 'kbd'}
@@ -63,9 +68,9 @@ export function Kbd(props: KbdProps): JSX.Element {
             size: props.size,
             variant: props.variant,
           },
-          props.classes?.item,
+          innerProps.topLevel ? props.class : props.classes?.item,
         )}
-        style={props.styles?.item}
+        style={innerProps.topLevel ? props.style : props.styles?.item}
       >
         {innerProps.val}
       </kbd>
@@ -75,12 +80,12 @@ export function Kbd(props: KbdProps): JSX.Element {
   return (
     <Show when={props.value}>
       <Switch>
-        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]!} />}</Match>
+        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]!} topLevel />}</Match>
         <Match when={props.value!.length > 1}>
           <span
             data-slot={props.slotPrefix ? `${props.slotPrefix}-kbds` : 'kbds'}
-            class={cn('inline-flex gap-1 items-center', props.classes?.root)}
-            style={props.styles?.root}
+            class={cn('inline-flex gap-1 items-center', props.classes?.root, props.class)}
+            style={{ ...props.styles?.root, ...props.style }}
           >
             <For each={props.value}>
               {(value, idx) => <Inner val={value} append={idx() < props.value!.length - 1} />}

@@ -101,6 +101,12 @@
         "description": "Allow creating new tags on Enter when no match is found."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "MultiSelectT.Classes | undefined"
@@ -304,6 +310,11 @@
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

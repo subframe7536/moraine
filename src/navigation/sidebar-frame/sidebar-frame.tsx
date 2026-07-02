@@ -68,7 +68,9 @@ export namespace SidebarFrameT {
    * Slot keys for classes/styles overrides.
    */
   export interface Slot<T = unknown> {
-    /** Frame container that coordinates sidebar and main content layout. */
+    /**
+     * Frame container that coordinates sidebar and main content layout.
+     */
     root?: T
 
     /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */
@@ -298,8 +300,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
     >
       <merged.renderFrame
         {...context}

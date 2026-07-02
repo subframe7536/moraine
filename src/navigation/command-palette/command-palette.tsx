@@ -44,7 +44,9 @@ export namespace CommandPaletteT {
   }
 
   export interface Slot<T = unknown> {
-    /** Command palette container that owns search, navigation stack, and option list. */
+    /**
+     * Command palette container that owns search, navigation stack, and option list.
+     */
     root?: T
 
     /** Search row that groups input, search icon, and navigation controls. */
@@ -466,10 +468,11 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   return (
     <div
       data-slot="root"
-      style={merged.styles?.root}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={cn(
         'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
         merged.classes?.root,
+        merged.class,
       )}
     >
       <div
@@ -484,29 +487,25 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
               name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.searchIcon}
               data-slot="search"
               tabIndex={-1}
-              styles={{ root: merged.styles?.search }}
+              style={merged.styles?.search}
               aria-busy={merged.loading || undefined}
               data-loading={merged.loading ? '' : undefined}
               disabled={merged.loading || undefined}
-              classes={{
-                root: ['text-muted-foreground size-5 pointer-events-none', merged.classes?.search],
-              }}
+              class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
             />
           }
         >
           <IconButtonInner
             name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.backIcon}
             data-slot="back"
-            styles={{ root: merged.styles?.back }}
+            style={merged.styles?.back}
             aria-busy={merged.loading || undefined}
             data-loading={merged.loading ? '' : undefined}
             disabled={merged.loading || undefined}
-            classes={{
-              root: [
-                'text-muted-foreground outline-none hover:text-foreground',
-                merged.classes?.back,
-              ],
-            }}
+            class={cn(
+              'text-muted-foreground outline-none hover:text-foreground',
+              merged.classes?.back,
+            )}
             onClick={navigateBack}
             aria-label="Go back"
           />
@@ -534,13 +533,11 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           <IconButtonInner
             name={merged.closeIcon}
             data-slot="close"
-            styles={{ root: merged.styles?.close }}
-            classes={{
-              root: [
-                'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
-                merged.classes?.close,
-              ],
-            }}
+            style={merged.styles?.close}
+            class={cn(
+              'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
+              merged.classes?.close,
+            )}
             onClick={() => merged.onClose?.()}
             aria-label="Close"
           />

@@ -54,6 +54,12 @@
         "defaultValue": "Pagination"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "PaginationT.Classes | undefined",
@@ -158,6 +164,11 @@
         "type": "FormFieldSize | undefined",
         "description": "Size of the pagination buttons.",
         "defaultValue": "md"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

@@ -24,7 +24,9 @@ import {
 
 export namespace CheckboxGroupT {
   export interface Slot<T = unknown> {
-    /** Group container that owns checkbox collection state and layout. */
+    /**
+     * Group container that owns checkbox collection state and layout.
+     */
     root?: T
 
     /** Fieldset element that groups checkbox options for accessibility. */
@@ -271,8 +273,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     <div
       id={`${groupId()}-root`}
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('relative', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('relative', merged.classes?.root, merged.class)}
     >
       <fieldset
         ref={(element) => {

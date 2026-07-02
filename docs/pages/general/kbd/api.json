@@ -10,7 +10,7 @@
   "slots": [
     {
       "name": "root",
-      "description": "Keyboard shortcut container that groups one or more key tokens."
+      "description": "Wrapper around multiple key tokens.\n\nSingle-value shortcuts render only the `item` slot, so top-level `class` and `style`\nare applied to that item instead."
     },
     {
       "name": "item",
@@ -24,6 +24,12 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Slot between kbds"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
       },
       {
         "name": "classes",
@@ -40,6 +46,11 @@
         "required": false,
         "type": "string | undefined",
         "description": "Prefix for data-slot attributes."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

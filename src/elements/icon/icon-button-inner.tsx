@@ -10,7 +10,9 @@ import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonInnerT {
   export interface Slot<T = unknown> {
-    /** Internal icon-only button shell used by composed components. */
+    /**
+     * Internal icon-only button shell used by composed components.
+     */
     root?: T
 
     /** Icon glyph rendered inside the internal button shell. */
@@ -52,6 +54,8 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'classes',
     'styles',
+    'class',
+    'style',
     'name',
     'size',
     'slotName',
@@ -62,8 +66,8 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
     <button
       data-slot={local.slotName ?? 'root'}
       type="button"
-      class={iconButtonVariants({ size: local.size }, local.classes?.root)}
-      style={local.styles?.root}
+      class={iconButtonVariants({ size: local.size }, local.classes?.root, local.class)}
+      style={{ ...local.styles?.root, ...local.style }}
       {...rest}
     >
       <Icon

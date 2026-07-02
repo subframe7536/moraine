@@ -39,7 +39,7 @@ export function Basic() {
         renderMain={(ctx) => (
           <>
             <div class="flex flex-row items-center">
-              <Button variant="ghost" classes={{ root: 'm-2' }} onClick={() => ctx.toggle()}>
+              <Button variant="ghost" class="m-2" onClick={() => ctx.toggle()}>
                 <Icon name="i-lucide-sidebar" />
               </Button>
               <h3 class="text-base font-semibold">Getting Started</h3>

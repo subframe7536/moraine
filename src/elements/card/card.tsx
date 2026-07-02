@@ -6,7 +6,9 @@ import { cn } from '../../shared/utils'
 
 export namespace CardT {
   export interface Slot<T = unknown> {
-    /** Card container that frames the header, body, and footer regions. */
+    /**
+     * Card container that frames the header, body, and footer regions.
+     */
     root?: T
 
     /** Top region for title, description, custom header content, and actions. */
@@ -90,10 +92,11 @@ export function Card(props: CardProps): JSX.Element {
   return (
     <div
       data-slot="root"
-      style={props.styles?.root}
+      style={{ ...props.styles?.root, ...props.style }}
       class={cn(
         'text-card-foreground surface-border rounded-2xl bg-card flex flex-col shadow-xs/5 relative not-dark:bg-clip-padding',
         props.classes?.root,
+        props.class,
       )}
     >
       <Show when={props.header || props.title || props.description}>

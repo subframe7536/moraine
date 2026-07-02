@@ -121,7 +121,7 @@ export const SidebarHeader = (props: SidebarHeaderProps) => {
         <img src="/favicon.svg" alt="icon" class="size-7" />
         <p class="text-lg font-semibold truncate">
           Moraine
-          <Badge size="xs" variant="outline" classes={{ root: 'font-mono ms-1.5' }}>
+          <Badge size="xs" variant="outline" class="font-mono ms-1.5">
             v{version}
           </Badge>
         </p>

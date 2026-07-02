@@ -37,7 +37,9 @@ export namespace FormFieldT {
   }
 
   export interface Slot<T = unknown> {
-    /** Field wrapper that links label, control, description, and messages. */
+    /**
+     * Field wrapper that links label, control, description, and messages.
+     */
     root?: T
 
     /** Inner wrapper that arranges label, control, helper text, and messages. */
@@ -179,6 +181,9 @@ export function FormField(props: FormFieldProps): JSX.Element {
     'orientation',
     'size',
     'classes',
+    'styles',
+    'class',
+    'style',
   ])
 
   const formContext = useFormContext()
@@ -331,7 +336,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       <Dynamic
         component={local.as}
         data-slot="root"
-        style={merged.styles?.root}
+        style={{ ...merged.styles?.root, ...merged.style }}
         data-orientation={local.orientation}
         class={formFieldSizeVariants(
           {
@@ -339,6 +344,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
           },
           local.orientation === 'horizontal' && 'flex items-baseline justify-between gap-2',
           local.classes?.root,
+          local.class,
         )}
         {...rest}
       >

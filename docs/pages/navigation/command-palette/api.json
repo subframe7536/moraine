@@ -121,6 +121,12 @@
         "defaultValue": "icon-chevron-right"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "CommandPaletteT.Classes | undefined"
@@ -210,6 +216,11 @@
         "required": false,
         "type": "string | undefined",
         "description": "Controlled search term."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
       },
       {
         "name": "styles",

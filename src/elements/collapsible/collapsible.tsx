@@ -67,7 +67,9 @@ export namespace CollapsibleT {
   }
 
   export interface Slot<T = unknown> {
-    /** Container that owns the trigger and expandable content state. */
+    /**
+     * Container that owns the trigger and expandable content state.
+     */
     root?: T
 
     /** Button users activate to toggle the content visibility. */
@@ -227,8 +229,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     <div
       id={rootId()}
       data-slot="root"
-      style={props.styles?.root}
-      class={cn(props.classes?.root)}
+      style={{ ...props.styles?.root, ...props.style }}
+      class={cn(props.classes?.root, props.class)}
       {...dataAttrs()}
     >
       <Show

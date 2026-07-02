@@ -14,7 +14,7 @@ export function Default() {
       description="Deploy your new project in one-click."
       footer={
         <>
-          <Button classes={{ root: 'w-full' }} type="submit">
+          <Button class="w-full" type="submit">
             Deploy
           </Button>
           <div class="text-xs text-muted-foreground m-a flex gap-1 items-center">
@@ -23,7 +23,8 @@ export function Default() {
           </div>
         </>
       }
-      classes={{ root: 'w-full max-w-xs', footer: 'flex flex-col gap-3' }}
+      class="max-w-xs w-full"
+      classes={{ footer: 'flex flex-col gap-3' }}
     >
       <div class="flex flex-col gap-4">
         <FormField label="Name">

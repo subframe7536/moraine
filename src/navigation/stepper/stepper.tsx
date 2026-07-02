@@ -27,7 +27,9 @@ export namespace StepperT {
   export type Value = string
 
   export interface Slot<T = unknown> {
-    /** Stepper container that owns orientation, step state, and panel rendering. */
+    /**
+     * Stepper container that owns orientation, step state, and panel rendering.
+     */
     root?: T
 
     /** Step navigation header that contains all step triggers. */
@@ -311,8 +313,12 @@ export function Stepper(props: StepperProps): JSX.Element {
     <div
       id={id()}
       data-slot="root"
-      style={merged.styles?.root}
-      class={stepperRootVariants({ orientation: merged.orientation }, merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={stepperRootVariants(
+        { orientation: merged.orientation },
+        merged.classes?.root,
+        merged.class,
+      )}
     >
       <div
         role="tablist"

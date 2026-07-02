@@ -152,7 +152,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
       trigger={merged.children}
       classes={{
-        trigger: merged.classes?.trigger,
+        trigger: cn(merged.classes?.trigger, merged.class),
         overlay: cn(
           'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
           merged.classes?.overlay,
@@ -168,7 +168,7 @@ export function Sheet(props: SheetProps): JSX.Element {
         ),
       }}
       styles={{
-        trigger: merged.styles?.trigger,
+        trigger: { ...merged.styles?.trigger, ...merged.style },
         overlay: merged.styles?.overlay,
         content: merged.styles?.content,
       }}

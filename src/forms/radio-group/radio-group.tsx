@@ -28,7 +28,9 @@ import {
 
 export namespace RadioGroupT {
   export interface Slot<T = unknown> {
-    /** Radio group container that owns selection state and layout. */
+    /**
+     * Radio group container that owns selection state and layout.
+     */
     root?: T
 
     /** Fieldset element that groups radio options for accessibility. */
@@ -245,8 +247,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-disabled={field.disabled() || undefined}
       aria-readonly={readOnly() || undefined}
       data-slot="root"
-      style={merged.styles?.root}
-      class={cn('relative', merged.classes?.root)}
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn('relative', merged.classes?.root, merged.class)}
       {...dataAttrs()}
       {...field.ariaAttrs()}
     >

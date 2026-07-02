@@ -11,7 +11,9 @@ import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonT {
   export interface Slot<T = unknown> {
-    /** Icon-only button element that owns loading, disabled, and interaction state. */
+    /**
+     * Icon-only button element that owns loading, disabled, and interaction state.
+     */
     root?: T
 
     /** Icon glyph rendered inside the button, including the loading icon when active. */
@@ -67,6 +69,8 @@ export interface IconButtonProps extends IconButtonT.Props {}
  */
 export function IconButton(props: IconButtonProps): JSX.Element {
   const [local, rest] = splitProps(props, [
+    'class',
+    'style',
     'classes',
     'styles',
     'name',
@@ -89,10 +93,12 @@ export function IconButton(props: IconButtonProps): JSX.Element {
       {...rest}
       name={isLoading() ? (local.loadingIcon ?? 'icon-loading') : local.name}
       size={local.size}
+      class={local.class}
       classes={{
         root: local.classes?.root,
         icon: cn(isLoading() && 'effect-loading', local.classes?.icon),
       }}
+      style={local.style}
       styles={local.styles}
       aria-busy={isLoading() || undefined}
       data-loading={isLoading() ? '' : undefined}
