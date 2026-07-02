@@ -30,7 +30,6 @@ export namespace RadioGroupT {
   export interface Slot<T = unknown> {
     /**
      * Radio group container that owns selection state and layout.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

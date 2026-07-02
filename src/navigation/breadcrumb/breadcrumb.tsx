@@ -39,7 +39,6 @@ export namespace BreadcrumbT {
   export interface Slot<T = unknown> {
     /**
      * Navigation container for the breadcrumb trail.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

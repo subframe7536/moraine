@@ -56,7 +56,6 @@ export namespace FormT {
   export interface Slot<T = unknown> {
     /**
      * Form element that owns validation, submission, and field context.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

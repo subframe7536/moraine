@@ -165,8 +165,8 @@ export function Popover(props: PopoverProps): JSX.Element {
       role="dialog"
       toggleOnClick={merged.mode === 'click'}
       trigger={merged.children}
-      triggerStyle={merged.styles?.trigger}
-      triggerClass={cn(merged.classes?.trigger)}
+      triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
+      triggerClass={cn(merged.classes?.trigger, merged.class)}
       onTriggerPointerEnter={
         merged.mode === 'hover'
           ? ({ open }) => {

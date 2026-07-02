@@ -83,7 +83,6 @@ export namespace BaseSelectT {
   export interface Slot<T = unknown> {
     /**
      * Select root that owns open state, value display, and popup positioning.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

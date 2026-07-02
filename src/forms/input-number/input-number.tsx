@@ -149,7 +149,6 @@ export namespace InputNumberT {
   export interface Slot<T = unknown> {
     /**
      * Number input wrapper that owns the input and step controls.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

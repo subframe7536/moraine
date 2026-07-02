@@ -44,7 +44,6 @@ export namespace TextareaT {
   export interface Slot<T = unknown> {
     /**
      * Textarea wrapper that owns header, textarea, footer, and autoresize state.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

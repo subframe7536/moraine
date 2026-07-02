@@ -13,7 +13,6 @@ export namespace IconButtonT {
   export interface Slot<T = unknown> {
     /**
      * Icon-only button element that owns loading, disabled, and interaction state.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

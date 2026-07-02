@@ -13,7 +13,6 @@ export namespace AccordionT {
   export interface Slot<T = unknown> {
     /**
      * Container that owns the accordion item collection and shared state attributes.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

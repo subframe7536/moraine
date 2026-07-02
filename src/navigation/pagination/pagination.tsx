@@ -15,7 +15,6 @@ export namespace PaginationT {
   export interface Slot<T = unknown> {
     /**
      * Navigation container for page controls.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

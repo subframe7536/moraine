@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
 import { Modal } from '../base/modal'
 import type { ModalProps } from '../base/modal'
 
@@ -103,7 +104,7 @@ export function Popup(props: PopupProps): JSX.Element {
       preventScroll={!merged.scrollable}
       trigger={merged.children}
       classes={{
-        trigger: merged.classes?.trigger,
+        trigger: cn(merged.classes?.trigger, merged.class),
         overlay: popupOverlayVariants(
           {
             scrollable: merged.scrollable,
@@ -118,7 +119,7 @@ export function Popup(props: PopupProps): JSX.Element {
         ),
       }}
       styles={{
-        trigger: merged.styles?.trigger,
+        trigger: { ...merged.styles?.trigger, ...merged.style },
         overlay: merged.styles?.overlay,
         content: merged.styles?.content,
       }}

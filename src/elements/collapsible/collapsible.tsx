@@ -69,7 +69,6 @@ export namespace CollapsibleT {
   export interface Slot<T = unknown> {
     /**
      * Container that owns the trigger and expandable content state.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

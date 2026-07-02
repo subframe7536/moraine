@@ -46,7 +46,6 @@ export namespace CommandPaletteT {
   export interface Slot<T = unknown> {
     /**
      * Command palette container that owns search, navigation stack, and option list.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

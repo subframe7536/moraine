@@ -30,7 +30,6 @@ export namespace InputT {
   export interface Slot<T = unknown> {
     /**
      * Input wrapper that positions icons, loading state, and the native input.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

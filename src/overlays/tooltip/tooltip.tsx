@@ -184,8 +184,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       describeTrigger
       trigger={merged.children}
-      triggerStyle={merged.styles?.trigger}
-      triggerClass={cn(merged.classes?.trigger)}
+      triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
+      triggerClass={cn(merged.classes?.trigger, merged.class)}
       onTriggerFocus={({ open }) => {
         scheduleOpen(open)
       }}

@@ -18,6 +18,19 @@ async function finishMenuExitMotion(): Promise<void> {
 }
 
 describe('DropdownMenu', () => {
+  test('applies top-level class and style to trigger', () => {
+    render(() => (
+      <DropdownMenu items={[{ label: 'Archive' }]} class="trigger-class" style={{ width: '200px' }}>
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLElement | null
+
+    expect(trigger?.className).toContain('trigger-class')
+    expect(trigger?.style.width).toBe('200px')
+  })
+
   test('opens by keyboard and supports keyboard selection', async () => {
     const onSelect = vi.fn()
 

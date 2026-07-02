@@ -11,7 +11,6 @@ export namespace KbdT {
   export interface Slot<T = unknown> {
     /**
      * Keyboard shortcut container that groups one or more key tokens.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

@@ -23,7 +23,6 @@ export namespace SwitchT {
   export interface Slot<T = unknown> {
     /**
      * Switch wrapper that coordinates input, track, thumb, and text content.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

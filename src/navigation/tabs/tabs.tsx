@@ -31,7 +31,6 @@ export namespace TabsT {
   export interface Slot<T = unknown> {
     /**
      * Tabs container that owns tab selection and panel rendering.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

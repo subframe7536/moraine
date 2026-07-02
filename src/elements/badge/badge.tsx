@@ -20,7 +20,6 @@ export namespace BadgeT {
   export interface Slot<T = unknown> {
     /**
      * Inline badge container that carries the variant, size, and interactive state.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

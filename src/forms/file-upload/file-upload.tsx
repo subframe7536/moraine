@@ -50,7 +50,6 @@ export namespace FileUploadT {
   export interface Slot<T = unknown> {
     /**
      * Upload component container that owns dropzone, file input, and file list.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

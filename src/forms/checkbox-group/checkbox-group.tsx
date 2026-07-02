@@ -26,7 +26,6 @@ export namespace CheckboxGroupT {
   export interface Slot<T = unknown> {
     /**
      * Group container that owns checkbox collection state and layout.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

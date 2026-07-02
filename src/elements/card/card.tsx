@@ -8,7 +8,6 @@ export namespace CardT {
   export interface Slot<T = unknown> {
     /**
      * Card container that frames the header, body, and footer regions.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T

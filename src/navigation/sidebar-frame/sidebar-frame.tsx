@@ -70,7 +70,6 @@ export namespace SidebarFrameT {
   export interface Slot<T = unknown> {
     /**
      * Frame container that coordinates sidebar and main content layout.
-     * @deprecated Use top-level `class` and `style` props for the component root.
      */
 
     root?: T
