@@ -237,8 +237,8 @@ export function Avatar(props: AvatarProps): JSX.Element {
         data-slot={props.slot}
         data-status={status()}
         style={{
-          ...merged.styles,
           ...(props.slot === 'item' ? merged.styles?.item : merged.styles?.root),
+          ...merged.style,
         }}
         class={avatarRootVariants(
           { size: merged.size },
@@ -320,8 +320,8 @@ export function Avatar(props: AvatarProps): JSX.Element {
     >
       <div
         data-slot="root"
-        style={merged.styles?.root}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root)}
+        style={{ ...merged.styles?.root, ...merged.style }}
+        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
       >
         <Show when={hiddenCount() > 0}>
           <span

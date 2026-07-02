@@ -31,9 +31,9 @@ export type BaseProps<B, V, E, TClasses, TStyles, ExtraOmitKeys extends Property
         | 'styles'
         | Extract<ExtraOmitKeys, keyof E>
       >) & {
-    /** Class applied to the component root element. */
+    /** Class applied to the component root or trigger element. */
     class?: ClassValue
-    /** Style applied to the component root element. */
+    /** Style applied to the component root or trigger element. */
     style?: JSX.CSSProperties
     /** Classes applied to the component slots. */
     classes?: TClasses

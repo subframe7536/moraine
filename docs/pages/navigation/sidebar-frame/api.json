@@ -39,7 +39,7 @@
         "name": "class",
         "required": false,
         "type": "ClassValue",
-        "description": "Class applied to the component root element."
+        "description": "Class applied to the component root or trigger element."
       },
       {
         "name": "classes",

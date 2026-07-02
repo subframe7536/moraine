@@ -69,6 +69,8 @@ export interface IconButtonProps extends IconButtonT.Props {}
  */
 export function IconButton(props: IconButtonProps): JSX.Element {
   const [local, rest] = splitProps(props, [
+    'class',
+    'style',
     'classes',
     'styles',
     'name',
@@ -91,10 +93,13 @@ export function IconButton(props: IconButtonProps): JSX.Element {
       {...rest}
       name={isLoading() ? (local.loadingIcon ?? 'icon-loading') : local.name}
       size={local.size}
-      class={local.classes?.root}
-      classes={{ icon: cn(isLoading() && 'effect-loading', local.classes?.icon) }}
-      style={local.styles?.root}
-      styles={{ icon: local.styles?.icon }}
+      class={local.class}
+      classes={{
+        root: local.classes?.root,
+        icon: cn(isLoading() && 'effect-loading', local.classes?.icon),
+      }}
+      style={local.style}
+      styles={local.styles}
       aria-busy={isLoading() || undefined}
       data-loading={isLoading() ? '' : undefined}
       disabled={isLoading() || local.disabled}
