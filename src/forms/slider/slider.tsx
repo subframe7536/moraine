@@ -40,7 +40,6 @@ export namespace SliderT {
     /**
      * Slider container that owns track, range, thumbs, and labels.
      */
-
     root?: T
 
     /** Background rail representing the full slider range. */

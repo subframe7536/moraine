@@ -84,7 +84,6 @@ export namespace BaseSelectT {
     /**
      * Select root that owns open state, value display, and popup positioning.
      */
-
     root?: T
 
     /** Popup panel that contains search input, options, groups, and empty state. */

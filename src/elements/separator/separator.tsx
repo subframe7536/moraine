@@ -15,7 +15,6 @@ export namespace SeparatorT {
     /**
      * Separator line container, including optional label content.
      */
-
     root?: T
 
     /** Visual line segment rendered around optional separator content. */

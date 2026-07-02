@@ -47,7 +47,6 @@ export namespace CommandPaletteT {
     /**
      * Command palette container that owns search, navigation stack, and option list.
      */
-
     root?: T
 
     /** Search row that groups input, search icon, and navigation controls. */

@@ -32,7 +32,6 @@ export namespace CheckboxT {
     /**
      * Labelable checkbox wrapper that coordinates input, indicator, and text content.
      */
-
     root?: T
 
     /** Text column that groups label and description. */

@@ -16,7 +16,6 @@ export namespace PaginationT {
     /**
      * Navigation container for page controls.
      */
-
     root?: T
 
     /** Wrapper that lays out page, ellipsis, previous, and next controls. */

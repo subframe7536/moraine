@@ -45,7 +45,6 @@ export namespace TextareaT {
     /**
      * Textarea wrapper that owns header, textarea, footer, and autoresize state.
      */
-
     root?: T
 
     /** Optional content rendered above the textarea. */

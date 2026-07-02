@@ -71,7 +71,6 @@ export namespace SidebarFrameT {
     /**
      * Frame container that coordinates sidebar and main content layout.
      */
-
     root?: T
 
     /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */

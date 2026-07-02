@@ -21,7 +21,6 @@ export namespace BadgeT {
     /**
      * Inline badge container that carries the variant, size, and interactive state.
      */
-
     root?: T
 
     /** Optional icon displayed before the badge label. */

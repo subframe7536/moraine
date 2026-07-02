@@ -30,7 +30,6 @@ export namespace StepperT {
     /**
      * Stepper container that owns orientation, step state, and panel rendering.
      */
-
     root?: T
 
     /** Step navigation header that contains all step triggers. */

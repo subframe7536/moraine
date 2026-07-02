@@ -13,7 +13,6 @@ export namespace IconButtonInnerT {
     /**
      * Internal icon-only button shell used by composed components.
      */
-
     root?: T
 
     /** Icon glyph rendered inside the internal button shell. */

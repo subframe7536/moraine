@@ -40,7 +40,6 @@ export namespace ProgressT {
     /**
      * Progress container that owns track, indicator, labels, and step markers.
      */
-
     root?: T
 
     /** Text region that displays the current progress status. */

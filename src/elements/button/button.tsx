@@ -18,7 +18,6 @@ export namespace ButtonT {
     /**
      * Interactive button element, or the polymorphic element provided through `as`.
      */
-
     root?: T
 
     /** Loading icon shown while the button is busy. */

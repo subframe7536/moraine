@@ -70,7 +70,6 @@ export namespace CollapsibleT {
     /**
      * Container that owns the trigger and expandable content state.
      */
-
     root?: T
 
     /** Button users activate to toggle the content visibility. */

@@ -24,7 +24,6 @@ export namespace AvatarT {
     /**
      * Avatar frame that controls size, shape, image, fallback, and badge placement.
      */
-
     root?: T
 
     /** Loaded avatar image rendered inside the frame. */

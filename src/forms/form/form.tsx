@@ -57,7 +57,6 @@ export namespace FormT {
     /**
      * Form element that owns validation, submission, and field context.
      */
-
     root?: T
   }
 

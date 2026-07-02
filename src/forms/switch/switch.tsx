@@ -24,7 +24,6 @@ export namespace SwitchT {
     /**
      * Switch wrapper that coordinates input, track, thumb, and text content.
      */
-
     root?: T
 
     /** Visible switch track that shows checked and unchecked state. */

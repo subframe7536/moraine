@@ -31,7 +31,6 @@ export namespace InputT {
     /**
      * Input wrapper that positions icons, loading state, and the native input.
      */
-
     root?: T
 
     /** Native text input element. */

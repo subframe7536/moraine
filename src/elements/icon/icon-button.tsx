@@ -14,7 +14,6 @@ export namespace IconButtonT {
     /**
      * Icon-only button element that owns loading, disabled, and interaction state.
      */
-
     root?: T
 
     /** Icon glyph rendered inside the button, including the loading icon when active. */

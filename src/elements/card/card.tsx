@@ -9,7 +9,6 @@ export namespace CardT {
     /**
      * Card container that frames the header, body, and footer regions.
      */
-
     root?: T
 
     /** Top region for title, description, custom header content, and actions. */

@@ -51,7 +51,6 @@ export namespace FileUploadT {
     /**
      * Upload component container that owns dropzone, file input, and file list.
      */
-
     root?: T
 
     /** Dropzone and picker control users interact with to select files. */

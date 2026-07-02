@@ -40,7 +40,6 @@ export namespace BreadcrumbT {
     /**
      * Navigation container for the breadcrumb trail.
      */
-
     root?: T
 
     /** Ordered list that contains breadcrumb items and separators. */

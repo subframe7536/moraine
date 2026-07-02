@@ -31,7 +31,6 @@ export namespace RadioGroupT {
     /**
      * Radio group container that owns selection state and layout.
      */
-
     root?: T
 
     /** Fieldset element that groups radio options for accessibility. */

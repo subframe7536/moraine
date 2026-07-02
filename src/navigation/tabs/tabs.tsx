@@ -32,7 +32,6 @@ export namespace TabsT {
     /**
      * Tabs container that owns tab selection and panel rendering.
      */
-
     root?: T
 
     /** Tablist that contains all tab triggers and the selection indicator. */

@@ -58,7 +58,6 @@ export namespace ResizableT {
     /**
      * Layout container that owns resizable panels and handles.
      */
-
     root?: T
 
     /** Content pane whose size is controlled by adjacent resize handles. */

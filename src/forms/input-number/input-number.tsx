@@ -150,7 +150,6 @@ export namespace InputNumberT {
     /**
      * Number input wrapper that owns the input and step controls.
      */
-
     root?: T
 
     /** Native number input element. */

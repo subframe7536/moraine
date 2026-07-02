@@ -27,7 +27,6 @@ export namespace CheckboxGroupT {
     /**
      * Group container that owns checkbox collection state and layout.
      */
-
     root?: T
 
     /** Fieldset element that groups checkbox options for accessibility. */

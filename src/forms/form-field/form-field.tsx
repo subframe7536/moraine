@@ -40,7 +40,6 @@ export namespace FormFieldT {
     /**
      * Field wrapper that links label, control, description, and messages.
      */
-
     root?: T
 
     /** Inner wrapper that arranges label, control, helper text, and messages. */

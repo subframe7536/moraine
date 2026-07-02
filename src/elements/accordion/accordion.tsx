@@ -14,7 +14,6 @@ export namespace AccordionT {
     /**
      * Container that owns the accordion item collection and shared state attributes.
      */
-
     root?: T
 
     /** Wrapper for one accordion entry, including its header trigger and collapsible panel. */
