@@ -796,7 +796,7 @@ describe('Slider', () => {
 
   test('applies style overrides for root and thumb slots', () => {
     const screen = render(() => (
-      <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } } as any} />
+      <Slider styles={{ root: { width: '200px' }, thumb: { width: '200px' } }} />
     ))
 
     const root = screen.container.querySelector(

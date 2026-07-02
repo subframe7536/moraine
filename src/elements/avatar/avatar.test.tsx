@@ -276,15 +276,13 @@ describe('Avatar', () => {
     const screen = render(() => (
       <Avatar
         items={[{ src: '/loading.png', text: 'MR', icon: 'i-lucide-check' }]}
-        styles={
-          {
-            root: { width: '200px' },
-            image: { width: '200px' },
-            fallback: { width: '200px' },
-            fallbackIcon: { width: '200px' },
-            badge: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          image: { width: '200px' },
+          fallback: { width: '200px' },
+          fallbackIcon: { width: '200px' },
+          badge: { width: '200px' },
+        }}
       />
     ))
 

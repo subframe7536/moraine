@@ -21,7 +21,7 @@ import type { IconT } from '../../../elements/icon'
 import { Kbd } from '../../../elements/kbd'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { callHandler, cn, useId } from '../../../shared/utils'
+import { cn, useId } from '../../../shared/utils'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -139,8 +139,8 @@ interface OverlayMenuLayerProps<
   depth: number
   getReferenceElement: () => ReferenceElement | undefined
   onAutoFocusHandled?: () => void
-  onContentPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
-  onContextMenu?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
+  onContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
   open: boolean
   parentLayer?: OverlayMenuLayerState
   presenceDataAttrs: Accessor<{
@@ -173,10 +173,10 @@ export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
   onClose: () => void
 
   /** Pointer down handler for the content wrapper. */
-  onContentPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+  onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
 
   /** Context menu handler for the content wrapper. */
-  onContentContextMenu?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  onContentContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
 
   /** Whether the overlay menu content is open. */
   open: boolean
@@ -1092,12 +1092,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         style={props.styles?.content}
         class={overlayMenuContentVariants({ side: side() }, props.classes?.content)}
-        onPointerDown={(event) => {
-          callHandler(event, props.onContentPointerDown)
-        }}
-        onContextMenu={(event) => {
-          callHandler(event, props.onContextMenu)
-        }}
+        onPointerDown={(event) => props.onContentPointerDown?.(event)}
+        onContextMenu={(event) => props.onContextMenu?.(event)}
         onFocusIn={(event) => {
           if (!event.currentTarget.contains(event.target as Node)) {
             return

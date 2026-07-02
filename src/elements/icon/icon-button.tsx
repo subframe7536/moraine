@@ -87,7 +87,9 @@ export function IconButton(props: IconButtonProps): JSX.Element {
   const { isLoading, onClick } = useLoadingAutoClick<HTMLButtonElement, MouseEvent>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
-    onClick: () => local.onClick,
+    get onClick() {
+      return local.onClick
+    },
   })
 
   return (

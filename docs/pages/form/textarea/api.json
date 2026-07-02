@@ -136,7 +136,7 @@
       {
         "name": "onBlur",
         "required": false,
-        "type": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> | undefined",
+        "type": "JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> | undefined",
         "description": "Native blur event handler."
       },
       {
@@ -148,13 +148,13 @@
       {
         "name": "onFocus",
         "required": false,
-        "type": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> | undefined",
+        "type": "JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> | undefined",
         "description": "Native focus event handler."
       },
       {
         "name": "onInput",
         "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent, JSX.EventHandler<HTMLTextAreaElement, InputEvent>> | undefined",
+        "type": "JSX.EventHandler<HTMLTextAreaElement, InputEvent> | undefined",
         "description": "Native input event handler."
       },
       {

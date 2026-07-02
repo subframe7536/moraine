@@ -113,7 +113,7 @@ describe('Tooltip', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Tooltip open text="Styled" styles={{ content: { width: '200px' } } as any}>
+      <Tooltip open text="Styled" styles={{ content: { width: '200px' } }}>
         <button type="button">Trigger</button>
       </Tooltip>
     ))

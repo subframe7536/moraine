@@ -148,7 +148,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const { isLoading, onClick } = useLoadingAutoClick<any, MouseEvent>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
-    onClick: () => local.onClick,
+    get onClick() {
+      return local.onClick
+    },
   })
 
   const tag = () => (local.as as ValidComponent) ?? 'button'

@@ -797,7 +797,7 @@ describe('DropdownMenu', () => {
     render(() => (
       <DropdownMenu
         defaultOpen
-        styles={{ content: { width: '200px' } } as any}
+        styles={{ content: { width: '200px' } }}
         items={[{ label: 'Open file' }]}
       >
         <button type="button">Actions</button>

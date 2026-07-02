@@ -189,16 +189,14 @@ describe('Progress', () => {
         value={60}
         status
         max={['A', 'B', 'C']}
-        styles={
-          {
-            root: { width: '200px' },
-            status: { width: '200px' },
-            track: { width: '200px' },
-            indicator: { width: '200px' },
-            steps: { width: '200px' },
-            step: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          status: { width: '200px' },
+          track: { width: '200px' },
+          indicator: { width: '200px' },
+          steps: { width: '200px' },
+          step: { width: '200px' },
+        }}
       />
     ))
 

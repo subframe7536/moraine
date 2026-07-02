@@ -223,13 +223,11 @@ describe('Popup', () => {
       <Popup
         open
         content="Body"
-        styles={
-          {
-            trigger: { width: '200px' },
-            content: { width: '200px' },
-            overlay: { width: '200px' },
-          } as any
-        }
+        styles={{
+          trigger: { width: '200px' },
+          content: { width: '200px' },
+          overlay: { width: '200px' },
+        }}
       >
         <button type="button">Trigger</button>
       </Popup>

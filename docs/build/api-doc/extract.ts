@@ -328,7 +328,9 @@ function getSlotOverrideTypeName(propName: string): 'Classes' | 'Styles' | undef
   return undefined
 }
 
-function getGenericSlotOverrideTypeName(propName: string): 'SlotClasses' | 'SlotStyles' | undefined {
+function getGenericSlotOverrideTypeName(
+  propName: string,
+): 'SlotClasses' | 'SlotStyles' | undefined {
   if (propName === 'classes') {
     return 'SlotClasses'
   }
@@ -737,7 +739,13 @@ function processComponentNode(
         componentName,
         slotOverrideTypes: metadata.slotOverrideTypes.get(componentName),
       }
-      const props = groupProperties(propsType, checker, sourceFile, propsParam.name, propFormatContext)
+      const props = groupProperties(
+        propsType,
+        checker,
+        sourceFile,
+        propsParam.name,
+        propFormatContext,
+      )
       const ownPropNames = new Set(props.own.map((prop) => prop.name))
       const baseInherited = (metadata.baseInherited.get(componentName) ?? [])
         .map((group) => ({

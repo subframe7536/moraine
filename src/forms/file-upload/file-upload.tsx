@@ -6,7 +6,7 @@ import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
+import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -110,27 +110,27 @@ export namespace FileUploadT {
     /**
      * Click handler for the upload control.
      */
-    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    onClick?: JSX.EventHandler<HTMLElement, MouseEvent>
 
     /**
      * Keyboard handler for the upload control.
      */
-    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onKeyDown?: JSX.EventHandler<HTMLElement, KeyboardEvent>
 
     /**
      * Drag-over handler for the upload dropzone.
      */
-    onDragOver?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
+    onDragOver?: JSX.EventHandler<HTMLElement, DragEvent>
 
     /**
      * Drag-leave handler for the upload dropzone.
      */
-    onDragLeave?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
+    onDragLeave?: JSX.EventHandler<HTMLElement, DragEvent>
 
     /**
      * Drop handler for the upload dropzone.
      */
-    onDrop?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
+    onDrop?: JSX.EventHandler<HTMLElement, DragEvent>
 
     /**
      * Accepted file types (e.g., ".jpg,.png", "image/*").
@@ -641,16 +641,18 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     )
   }
 
-  function onControlClick(event: MouseEvent): void {
-    callHandler(event, merged.onClick)
+  const onControlClick: JSX.EventHandler<HTMLButtonElement | HTMLDivElement, MouseEvent> = (
+    event,
+  ) => {
+    merged.onClick?.(event)
 
     if (!event.defaultPrevented) {
       openFileDialog()
     }
   }
 
-  function onDropzoneKeyDown(event: KeyboardEvent): void {
-    callHandler(event, merged.onKeyDown)
+  const onDropzoneKeyDown: JSX.EventHandler<HTMLDivElement, KeyboardEvent> = (event) => {
+    merged.onKeyDown?.(event)
 
     if (!event.defaultPrevented && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault()
@@ -658,8 +660,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     }
   }
 
-  function onDropzoneDragOver(event: DragEvent): void {
-    callHandler(event, merged.onDragOver)
+  const onDropzoneDragOver: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+    merged.onDragOver?.(event)
 
     if (!event.defaultPrevented && !field.disabled() && !readOnly()) {
       event.preventDefault()
@@ -667,13 +669,13 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     }
   }
 
-  function onDropzoneDragLeave(event: DragEvent): void {
-    callHandler(event, merged.onDragLeave)
+  const onDropzoneDragLeave: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+    merged.onDragLeave?.(event)
     setDragging(false)
   }
 
-  function onDropzoneDrop(event: DragEvent): void {
-    callHandler(event, merged.onDrop)
+  const onDropzoneDrop: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
+    merged.onDrop?.(event)
     setDragging(false)
 
     if (event.defaultPrevented || field.disabled() || readOnly()) {

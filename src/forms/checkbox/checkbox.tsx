@@ -7,7 +7,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -70,7 +70,7 @@ export namespace CheckboxT {
     /**
      * Pointer down handler for the checkbox root container.
      */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+    onPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
 
     /**
      * Native value submitted when the checkbox is checked.
@@ -363,8 +363,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     toggle()
   }
 
-  function onRootPointerDown(event: PointerEvent): void {
-    callHandler(event, merged.onPointerDown)
+  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
+    merged.onPointerDown?.(event)
 
     if (document.activeElement === inputEl) {
       event.preventDefault()

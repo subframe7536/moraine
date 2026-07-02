@@ -18,14 +18,14 @@ function isPromiseLike(value: unknown): value is PromiseLikeWithThen {
 interface UseLoadingAutoClickOptions<T, E extends Event> {
   loading?: Accessor<boolean | undefined>
   loadingAuto?: Accessor<boolean | undefined>
-  onClick?: Accessor<JSX.EventHandlerUnion<T, E> | undefined>
+  onClick?: JSX.EventHandlerUnion<T, E>
 }
 
 export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
   options: UseLoadingAutoClickOptions<T, E>,
 ): {
   isLoading: Accessor<boolean>
-  onClick: JSX.EventHandlerUnion<T, E>
+  onClick: JSX.EventHandler<T, E>
 } {
   const [loadingAutoState, setLoadingAutoState] = createSignal(false)
 
@@ -33,8 +33,8 @@ export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
     Boolean(options.loading?.() || (options.loadingAuto?.() && loadingAutoState())),
   )
 
-  const onClick: JSX.EventHandlerUnion<T, E> = (event) => {
-    const { result: handlerResult, defaultPrevented } = callHandler(event, options.onClick?.())
+  const onClick: JSX.EventHandler<T, E> = (event) => {
+    const { defaultPrevented, result: handlerResult } = callHandler<T, E>(event, options.onClick)
 
     if (!options.loadingAuto?.() || defaultPrevented || !isPromiseLike(handlerResult)) {
       return

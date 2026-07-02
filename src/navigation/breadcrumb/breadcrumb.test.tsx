@@ -175,13 +175,11 @@ describe('Breadcrumb', () => {
   test('applies styles overrides', () => {
     const screen = render(() => (
       <Breadcrumb
-        styles={
-          {
-            root: { width: '200px' },
-            link: { width: '200px' },
-            separator: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          link: { width: '200px' },
+          separator: { width: '200px' },
+        }}
         items={[
           { label: 'Home', href: '/', icon: 'i-lucide-house' },
           { label: 'Docs', href: '/docs' },

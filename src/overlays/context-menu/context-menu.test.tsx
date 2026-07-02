@@ -891,7 +891,7 @@ describe('ContextMenu', () => {
 
   test('applies styles override to content', async () => {
     const screen = render(() => (
-      <ContextMenu styles={{ content: { width: '200px' } } as any} items={[{ label: 'Open item' }]}>
+      <ContextMenu styles={{ content: { width: '200px' } }} items={[{ label: 'Open item' }]}>
         <div>Row Item</div>
       </ContextMenu>
     ))

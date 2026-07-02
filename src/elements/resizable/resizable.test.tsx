@@ -332,14 +332,12 @@ describe('Resizable', () => {
   test('applies styles overrides', () => {
     const screen = render(() => (
       <Resizable
-        styles={
-          {
-            root: { width: '200px' },
-            panel: { width: '200px' },
-            divider: { width: '200px' },
-            handle: { width: '200px' },
-          } as any
-        }
+        styles={{
+          root: { width: '200px' },
+          panel: { width: '200px' },
+          divider: { width: '200px' },
+          handle: { width: '200px' },
+        }}
         panels={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
       />
     ))

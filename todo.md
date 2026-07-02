@@ -8,7 +8,7 @@
 - [x] refactor switch component's dom structure, make it more semantic and accessible, and remove unnecessary wrapper elements, dont show focus ring when clicked.
 - [x] unify slot names, only contains inner element slots, the outest slot should be component itself, and add class / style props to component props, so no longer needed to setup classes / styles object for simple root component
 - [x] cleanup unncessary `splitProps` and `mergeProps` usage in all components.
-- [ ] rename sperator component 's `container` slot to `content`.
+- [x] rename sperator component 's `container` slot to `content`.
 - [ ] remove unnecessary wrapper memo on `inputAriaAttrs` in `checkbox` component
 - [ ] keep tooltip panel open when hovered another trigger with a timeout, to have better user experience when switching between triggers.
 - [ ] only add data attributes on essential elements in `checkbox`, unwrap `dataAttr` memo

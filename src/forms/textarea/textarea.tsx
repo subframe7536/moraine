@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, mergeProps, on, onMount } from 'solid-j
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
+import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -148,17 +148,17 @@ export namespace TextareaT {
     /**
      * Native input event handler.
      */
-    onInput?: JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>
+    onInput?: JSX.EventHandler<HTMLTextAreaElement, InputEvent>
 
     /**
      * Native blur event handler.
      */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent>
 
     /**
      * Native focus event handler.
      */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent>
 
     /**
      * Children elements, rendered inside the root below the textarea.
@@ -268,16 +268,16 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     textareaEl.style.overflow = prevOverflow
   }
 
-  const onInput: JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent> = (event) => {
+  const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
     autoResize()
-    callHandler(event, merged.onInput as JSX.EventHandlerUnion<HTMLTextAreaElement, InputEvent>)
+    merged.onInput?.(event)
 
     if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
     }
   }
 
-  const onChange: JSX.EventHandlerUnion<HTMLTextAreaElement, Event> = (event) => {
+  const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
     const value = event.currentTarget.value
     if (isLazy()) {
       updateInputValue(value)
@@ -291,17 +291,17 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
   }
 
-  const onBlur: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
+  const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
     field.emit('blur')
-    callHandler(event, merged.onBlur as any)
+    merged.onBlur?.(event)
   }
 
-  const onFocus: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent> = (event) => {
+  const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
     field.emit('focus')
-    callHandler(event, merged.onFocus as any)
+    merged.onFocus?.(event)
   }
 
-  const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
+  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
     if (
       event.button !== 0 ||
       event.defaultPrevented ||

@@ -60,7 +60,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
       addUtilities(buildTransitionAnimationUtilities())
 
       if (options.icons !== false) {
-        addUtilities(buildIconShortcutUtilities() as any)
+        addUtilities(buildIconShortcutUtilities())
       }
 
       // Attribute variants for data-* and aria-* selectors

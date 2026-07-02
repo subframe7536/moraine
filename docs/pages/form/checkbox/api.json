@@ -147,7 +147,7 @@
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLDivElement, PointerEvent, JSX.EventHandler<HTMLDivElement, PointerEvent>> | undefined",
+        "type": "JSX.EventHandler<HTMLDivElement, PointerEvent> | undefined",
         "description": "Pointer down handler for the checkbox root container."
       },
       {

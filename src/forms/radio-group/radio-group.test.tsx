@@ -355,13 +355,11 @@ describe('RadioGroup', () => {
     const screen = render(() => (
       <RadioGroup
         items={['A']}
-        styles={
-          {
-            item: { width: '200px' },
-            control: { width: '200px' },
-            label: { width: '200px' },
-          } as any
-        }
+        styles={{
+          item: { width: '200px' },
+          control: { width: '200px' },
+          label: { width: '200px' },
+        }}
       />
     ))
 

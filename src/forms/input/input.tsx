@@ -6,7 +6,7 @@ import { Icon } from '../../elements/icon'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -134,17 +134,17 @@ export namespace InputT {
     /**
      * Event handler for the input event.
      */
-    onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
+    onInput?: JSX.EventHandler<HTMLInputElement, InputEvent>
 
     /**
      * Event handler for the blur event.
      */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
 
     /**
      * Event handler for the focus event.
      */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
 
     /**
      * Additional content to render inside the input container.
@@ -265,15 +265,15 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     field.emit('input')
   }
 
-  const onInput: JSX.EventHandlerUnion<HTMLInputElement, InputEvent> = (event) => {
-    callHandler(event, merged.onInput as JSX.EventHandlerUnion<HTMLInputElement, InputEvent>)
+  const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
+    merged.onInput?.(event)
 
     if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
     }
   }
 
-  const onChange: JSX.EventHandlerUnion<HTMLInputElement, Event> = (event) => {
+  const onChange: JSX.EventHandler<HTMLInputElement, Event> = (event) => {
     const value = event.currentTarget.value
 
     if (isLazy()) {
@@ -288,17 +288,17 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
   }
 
-  const onBlur: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
+  const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
     field.emit('blur')
-    callHandler(event, merged.onBlur as any)
+    merged.onBlur?.(event)
   }
 
-  const onFocus: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
+  const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
     field.emit('focus')
-    callHandler(event, merged.onFocus as any)
+    merged.onFocus?.(event)
   }
 
-  const onRootPointerDown: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent> = (event) => {
+  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
     if (event.button !== 0 || event.defaultPrevented || event.target === inputEl) {
       return
     }

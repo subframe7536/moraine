@@ -16,7 +16,7 @@ import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, useId } from '../../shared/utils'
+import { useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -293,22 +293,22 @@ export namespace InputNumberT {
     /**
      * Callback when the input loses focus.
      */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
 
     /**
      * Callback when the input gains focus.
      */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
 
     /**
      * Callback when the increment button is clicked.
      */
-    onIncrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+    onIncrementClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>
 
     /**
      * Callback when the decrement button is clicked.
      */
-    onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+    onDecrementClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>
 
     /**
      * Whether press-and-hold should trigger repeated value changes.
@@ -679,13 +679,16 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
   }
 
-  function onControlClick(kind: ControlKind, event: MouseEvent): void {
+  function onControlClick(
+    kind: ControlKind,
+    event: Parameters<JSX.EventHandler<HTMLButtonElement, MouseEvent>>[0],
+  ): void {
     const state = pressStates[kind]
 
     if (state.syntheticClicksPending > 0) {
       state.syntheticClicksPending -= 1
-      const { defaultPrevented } = callHandler(event, getControlUserOnClick(kind))
-      if (!defaultPrevented) {
+      getControlUserOnClick(kind)?.(event)
+      if (!event.defaultPrevented) {
         if (kind === 'increment') {
           incrementValue()
         } else {
@@ -706,9 +709,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return
     }
 
-    const { defaultPrevented } = callHandler(event, getControlUserOnClick(kind))
+    getControlUserOnClick(kind)?.(event)
 
-    if (!defaultPrevented) {
+    if (!event.defaultPrevented) {
       if (kind === 'increment') {
         incrementValue()
       } else {
@@ -770,7 +773,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return <Button as="button" {...resolveControlProps('decrement')} />
   }
 
-  const onBlur: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
+  const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
     // On blur, try to parse and commit any partial input
     const rawInput = inputText()
     const parsed = parseLocaleNumber(rawInput, merged.locale)
@@ -783,16 +786,16 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       setInputText(formatLocaleNumber(currentValue(), merged.locale))
     }
 
-    callHandler(event, merged.onBlur as any)
+    merged.onBlur?.(event)
     field.emit('blur')
   }
 
-  const onFocus: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> = (event) => {
-    callHandler(event, merged.onFocus as any)
+  const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
+    merged.onFocus?.(event)
     field.emit('focus')
   }
 
-  const onWheel: JSX.EventHandlerUnion<HTMLInputElement, WheelEvent> = (event) => {
+  const onWheel: JSX.EventHandler<HTMLInputElement, WheelEvent> = (event) => {
     if (!merged.wheel || (document.activeElement !== inputEl && !field.disabled())) {
       return
     }

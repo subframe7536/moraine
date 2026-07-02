@@ -17,7 +17,7 @@
       "description": "Visual line segment rendered around optional separator content."
     },
     {
-      "name": "container",
+      "name": "content",
       "description": "Optional label or custom content rendered within the separator line."
     }
   ],
@@ -120,7 +120,7 @@
         "ariaAttributes": []
       },
       {
-        "name": "container",
+        "name": "content",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []
