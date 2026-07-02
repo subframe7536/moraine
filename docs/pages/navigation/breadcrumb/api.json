@@ -37,70 +37,6 @@
       "description": "Visual divider between breadcrumb entries."
     }
   ],
-  "props": {
-    "own": [
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessibility label for the navigation element.",
-        "defaultValue": "Breadcrumbs"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "ClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "BreadcrumbT.Classes | undefined"
-      },
-      {
-        "name": "itemRender",
-        "required": false,
-        "type": "((context: BreadcrumbT.ItemRenderContext) => ValidComponent) | undefined",
-        "description": "Custom renderer for individual breadcrumb items."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "BreadcrumbT.Item[] | undefined",
-        "description": "Array of breadcrumb items to display."
-      },
-      {
-        "name": "separator",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the separator between items.",
-        "defaultValue": "icon-chevron-right"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined",
-        "description": "Size of the breadcrumb items and icons.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "JSX.CSSProperties | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "BreadcrumbT.Styles | undefined"
-      },
-      {
-        "name": "wrap",
-        "required": false,
-        "type": "boolean | undefined"
-      }
-    ],
-    "inherited": []
-  },
   "item": {
     "props": [
       {
@@ -159,6 +95,70 @@
       }
     ],
     "description": "An individual item in the breadcrumb trail."
+  },
+  "props": {
+    "own": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessibility label for the navigation element.",
+        "defaultValue": "Breadcrumbs"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "BreadcrumbT.Classes | undefined"
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((context: BreadcrumbT.ItemRenderContext) => ValidComponent) | undefined",
+        "description": "Custom renderer for individual breadcrumb items."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "BreadcrumbT.Item[] | undefined",
+        "description": "Array of breadcrumb items to display."
+      },
+      {
+        "name": "separator",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the separator between items.",
+        "defaultValue": "icon-chevron-right"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined",
+        "description": "Size of the breadcrumb items and icons.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "BreadcrumbT.Styles | undefined"
+      },
+      {
+        "name": "wrap",
+        "required": false,
+        "type": "boolean | undefined"
+      }
+    ],
+    "inherited": []
   },
   "attributes": {
     "aria": [

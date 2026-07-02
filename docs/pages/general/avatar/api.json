@@ -37,55 +37,6 @@
       "description": "Count indicator shown when a group has more avatars than the visible limit."
     }
   ],
-  "props": {
-    "own": [
-      {
-        "name": "badgePosition",
-        "required": false,
-        "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "ClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "AvatarT.Classes | undefined"
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "AvatarT.Item[] | undefined",
-        "description": "Array of items to render in a group.",
-        "defaultValue": "[]"
-      },
-      {
-        "name": "max",
-        "required": false,
-        "type": "string | number | undefined",
-        "description": "Maximum number of avatars to show when in a group."
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "JSX.CSSProperties | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "AvatarT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  },
   "item": {
     "props": [
       {
@@ -132,6 +83,55 @@
         "description": "Initial text to show if image fails or is missing."
       }
     ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "badgePosition",
+        "required": false,
+        "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "AvatarT.Classes | undefined"
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "AvatarT.Item[] | undefined",
+        "description": "Array of items to render in a group.",
+        "defaultValue": "[]"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Maximum number of avatars to show when in a group."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "AvatarT.Styles | undefined"
+      }
+    ],
+    "inherited": []
   },
   "attributes": {
     "aria": [

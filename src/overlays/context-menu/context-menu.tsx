@@ -19,14 +19,12 @@ export namespace ContextMenuT {
   export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = OverlayMenuRootProps<Item>
-
   export interface Item extends OverlayMenuSharedItem<Item> {}
 
   /**
    * Base props for the ContextMenu component.
    */
-  export interface Base {
+  export interface Base extends OverlayMenuRootProps<Item> {
     /**
      * Target area that opens the context menu on right-click or long press.
      */
@@ -36,7 +34,7 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
 /**

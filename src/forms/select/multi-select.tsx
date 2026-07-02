@@ -90,22 +90,26 @@ export namespace MultiSelectT {
   export type Variant = SelectControlVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend<TItem extends Value = Value> = Omit<
-    BaseSelectT.Base<Item<TItem>>,
-    | 'children'
-    | 'closeOnSelect'
-    | 'emptyRender'
-    | 'initialValue'
-    | 'onInputKeyDown'
-    | 'onOptionSelect'
-    | 'selectedValues'
-    | 'tabSelectionBehavior'
-  >
-
   export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
 
   export interface Base<TItem extends Value = Value>
-    extends FormIdentityOptions, FormValueOptions<TItem[]>, FormRequiredOption, FormDisableOption {
+    extends
+      Omit<
+        BaseSelectT.Base<Item<TItem>>,
+        | 'children'
+        | 'closeOnSelect'
+        | 'emptyRender'
+        | 'initialValue'
+        | 'onInputKeyDown'
+        | 'onOptionSelect'
+        | 'optionRender'
+        | 'selectedValues'
+        | 'tabSelectionBehavior'
+      >,
+      FormIdentityOptions,
+      FormValueOptions<TItem[]>,
+      FormRequiredOption,
+      FormDisableOption {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem[]>) => void
     /**
@@ -162,7 +166,7 @@ export namespace MultiSelectT {
   export interface Props<TItem extends Value = Value> extends BaseProps<
     Base<TItem>,
     Variant,
-    Extend<TItem>,
+    never,
     Classes,
     Styles
   > {}

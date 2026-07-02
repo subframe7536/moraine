@@ -340,6 +340,69 @@ declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Ele
     await rm(projectRoot, { recursive: true, force: true })
   })
 
+  test('extracts props inherited by namespace Base declarations', async () => {
+    const projectRoot = await createTempProject()
+    await writeNodeModuleFile(
+      projectRoot,
+      'overlay-lib',
+      'package.json',
+      JSON.stringify({ name: 'overlay-lib', types: './dist/index.d.ts' }),
+    )
+    await writeNodeModuleFile(
+      projectRoot,
+      'overlay-lib',
+      'dist/index.d.ts',
+      `
+export interface ModalProps {
+  /** Controlled open state. */
+  open?: boolean
+  /** Called when open state changes. */
+  onOpenChange?: (open: boolean) => void
+}
+`,
+    )
+    await writeProjectDts(
+      projectRoot,
+      `
+import type { ModalProps } from 'overlay-lib'
+
+type BaseProps<B, V, E, TClasses, TStyles> = B & ([V] extends [never] ? {} : V) & {
+  classes?: TClasses
+  styles?: TStyles
+}
+
+declare namespace DialogT {
+  type Variant = never
+  interface Classes {}
+  interface Styles {}
+  interface Base extends Pick<ModalProps, 'open' | 'onOpenChange'> {
+    /** Dialog title. */
+    title?: string
+  }
+  interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
+}
+
+declare function Dialog(props: DialogT.Props): JSX.Element
+`,
+    )
+
+    const result = generateApiDoc(projectRoot)
+    const dialogDoc = result?.componentDocs.get('dialog')
+    const inheritedGroup = dialogDoc?.props.inherited.find((group) =>
+      group.props.some((prop) => prop.name === 'open'),
+    )
+
+    expect(dialogDoc?.props.own.find((prop) => prop.name === 'title')?.description).toBe(
+      'Dialog title.',
+    )
+    expect(inheritedGroup?.props.map((prop) => prop.name)).toEqual(['onOpenChange', 'open'])
+    expect(inheritedGroup?.props.find((prop) => prop.name === 'open')?.type).toBe(
+      'boolean | undefined',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
   test('normalizes windows and posix style paths for compiler host comparison', () => {
     const winPath = 'E:\\project\\moraine\\dist\\index.d.mts'
     const posixPath = 'E:/project/moraine/dist/index.d.mts'

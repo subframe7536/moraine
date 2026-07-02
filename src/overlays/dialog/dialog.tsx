@@ -49,17 +49,15 @@ export namespace DialogT {
   export type Variant = DialogCardVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = Pick<
-    ModalProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
-  >
-
   export interface Item {}
 
   /**
    * Base props for the Dialog component.
    */
-  export interface Base {
+  export interface Base extends Pick<
+    ModalProps,
+    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
+  > {
     /**
      * Primary title displayed in the dialog header.
      */
@@ -128,7 +126,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
 /**

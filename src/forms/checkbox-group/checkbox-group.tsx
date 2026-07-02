@@ -63,7 +63,6 @@ export namespace CheckboxGroupT {
   export type Variant = CheckboxGroupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item<TTrue = boolean, TFalse = boolean> {
     /**
@@ -143,7 +142,7 @@ export namespace CheckboxGroupT {
   export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
-    Extend,
+    never,
     Classes,
     Styles
   > {}

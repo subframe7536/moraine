@@ -25,7 +25,12 @@ export namespace PopoverT {
   export type Variant = PopoverContentVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = Pick<
+  export interface Item {}
+
+  /**
+   * Base props for the Popover component.
+   */
+  export interface Base extends Pick<
     PopperProps,
     | 'id'
     | 'open'
@@ -37,14 +42,7 @@ export namespace PopoverT {
     | 'preventScroll'
     | 'dismissible'
     | 'onClosePrevent'
-  >
-
-  export interface Item {}
-
-  /**
-   * Base props for the Popover component.
-   */
-  export interface Base {
+  > {
     /**
      * Interaction mode for triggering the popover.
      * @default 'click'
@@ -77,7 +75,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
 /**

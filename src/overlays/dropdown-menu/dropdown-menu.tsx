@@ -20,14 +20,12 @@ export namespace DropdownMenuT {
   export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = OverlayMenuRootProps<Item>
-
   export interface Item extends OverlayMenuSharedItem<Item> {}
 
   /**
    * Base props for the DropdownMenu component.
    */
-  export interface Base {
+  export interface Base extends OverlayMenuRootProps<Item> {
     /**
      * Trigger content used to open the dropdown menu.
      */
@@ -37,7 +35,7 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
 /**

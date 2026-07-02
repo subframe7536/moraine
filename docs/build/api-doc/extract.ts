@@ -298,8 +298,13 @@ function extractItemsAliasPropDocs(
   return extractOwnPropDocsFromType(checker, sourceFile, resolvedType, typeNode)
 }
 
-function createPropDoc(checker: ts.TypeChecker, propSymbol: ts.Symbol, location: ts.Node): PropDoc {
-  const propType = checker.getTypeOfSymbolAtLocation(propSymbol, location)
+function createPropDoc(
+  checker: ts.TypeChecker,
+  propSymbol: ts.Symbol,
+  location: ts.Node,
+  propTypeOverride?: ts.Type,
+): PropDoc {
+  const propType = propTypeOverride ?? checker.getTypeOfSymbolAtLocation(propSymbol, location)
   const optionalFlag = (propSymbol.flags & ts.SymbolFlags.Optional) !== 0
   const required = !(optionalFlag || typeIncludesUndefined(propType))
   const description = displayText(propSymbol.getDocumentationComment(checker)).trim() || undefined
@@ -417,6 +422,102 @@ export function shouldIncludeInheritedGroup(from: string): boolean {
 interface ComponentMetadata {
   slots: Map<string, SlotDoc[]>
   items: Map<string, ItemDoc>
+  baseInherited: Map<string, InheritedGroupDoc[]>
+}
+
+function mergeInheritedGroups(...groups: InheritedGroupDoc[][]): InheritedGroupDoc[] {
+  const merged = new Map<string, Map<string, PropDoc>>()
+
+  for (const groupList of groups) {
+    for (const group of groupList) {
+      const props = merged.get(group.from) ?? new Map<string, PropDoc>()
+      for (const prop of group.props) {
+        props.set(prop.name, prop)
+      }
+      merged.set(group.from, props)
+    }
+  }
+
+  return [...merged.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([from, props]) => ({
+      from,
+      props: [...props.values()].sort((left, right) => left.name.localeCompare(right.name)),
+    }))
+}
+
+function extractBaseInheritedGroups(
+  node: ts.ModuleDeclaration,
+  checker: ts.TypeChecker,
+): InheritedGroupDoc[] {
+  const body = node.body
+  if (!body || !ts.isModuleBlock(body)) {
+    return []
+  }
+
+  const groups = new Map<string, PropDoc[]>()
+
+  const addProp = (propSymbol: ts.Symbol, location: ts.Node, propType?: ts.Type) => {
+    const declaration = propSymbol.declarations?.[0]
+    const from = declaration
+      ? inferModuleFromFileName(declaration.getSourceFile().fileName)
+      : 'External'
+
+    if (!shouldIncludeInheritedGroup(from)) {
+      return
+    }
+
+    const props = groups.get(from) ?? []
+    props.push(createPropDoc(checker, propSymbol, location, propType))
+    groups.set(from, props)
+  }
+
+  for (const statement of body.statements) {
+    if (!ts.isInterfaceDeclaration(statement) || statement.name.text !== 'Base') {
+      continue
+    }
+
+    for (const clause of statement.heritageClauses ?? []) {
+      for (const typeNode of clause.types) {
+        if (
+          ts.isExpressionWithTypeArguments(typeNode) &&
+          ts.isIdentifier(typeNode.expression) &&
+          typeNode.expression.text === 'Pick' &&
+          typeNode.typeArguments?.length === 2
+        ) {
+          const sourceType = checker.getTypeFromTypeNode(typeNode.typeArguments[0]!)
+          const keyType = typeNode.typeArguments[1]!
+          const keyNodes = ts.isUnionTypeNode(keyType) ? keyType.types : [keyType]
+
+          for (const keyNode of keyNodes) {
+            if (!ts.isLiteralTypeNode(keyNode)) {
+              continue
+            }
+
+            const name = getLiteralStringText(keyNode.literal)
+            const propSymbol = name ? sourceType.getProperty(name) : undefined
+            if (!propSymbol) {
+              continue
+            }
+
+            addProp(propSymbol, typeNode, checker.getTypeOfSymbolAtLocation(propSymbol, typeNode))
+          }
+
+          continue
+        }
+
+        const type = checker.getTypeAtLocation(typeNode)
+        for (const propSymbol of checker.getPropertiesOfType(type)) {
+          addProp(propSymbol, typeNode, checker.getTypeOfSymbolAtLocation(propSymbol, typeNode))
+        }
+      }
+    }
+  }
+
+  return [...groups.entries()].map(([from, props]) => ({
+    from,
+    props: props.sort((left, right) => left.name.localeCompare(right.name)),
+  }))
 }
 
 function collectNamespaceMetadata(
@@ -425,6 +526,7 @@ function collectNamespaceMetadata(
 ): ComponentMetadata {
   const slots = new Map<string, SlotDoc[]>()
   const items = new Map<string, ItemDoc>()
+  const baseInherited = new Map<string, InheritedGroupDoc[]>()
 
   const visit = (node: ts.Node) => {
     if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
@@ -438,6 +540,11 @@ function collectNamespaceMetadata(
       if (itemsDoc) {
         items.set(componentName, itemsDoc)
       }
+
+      const inherited = extractBaseInheritedGroups(node, checker)
+      if (inherited.length > 0) {
+        baseInherited.set(componentName, inherited)
+      }
     }
 
     ts.forEachChild(node, visit)
@@ -445,7 +552,7 @@ function collectNamespaceMetadata(
 
   visit(sourceFile)
 
-  return { slots, items }
+  return { slots, items, baseInherited }
 }
 
 function processComponentNode(
@@ -485,8 +592,21 @@ function processComponentNode(
   const doc: ComponentDoc = {
     component,
     slots: metadata.slots.get(componentName) ?? [],
-    props: groupProperties(propsType, checker, sourceFile, propsParam.name),
     ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
+    props: (() => {
+      const props = groupProperties(propsType, checker, sourceFile, propsParam.name)
+      const ownPropNames = new Set(props.own.map((prop) => prop.name))
+      const baseInherited = (metadata.baseInherited.get(componentName) ?? [])
+        .map((group) => ({
+          from: group.from,
+          props: group.props.filter((prop) => !ownPropNames.has(prop.name)),
+        }))
+        .filter((group) => group.props.length > 0)
+      return {
+        own: props.own,
+        inherited: mergeInheritedGroups(props.inherited, baseInherited),
+      }
+    })(),
   }
 
   return { key: componentKey, doc }

@@ -115,7 +115,6 @@ export namespace CommandPaletteT {
   export type Variant = never
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {
     /** Unique identifier for the group. */
@@ -194,7 +193,7 @@ export namespace CommandPaletteT {
     footer?: JSX.Element
   }
 
-  export interface Props extends BaseProps<Base, Variant, Extend, Classes, Styles> {}
+  export interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
 export interface CommandPaletteProps extends CommandPaletteT.Props {}

@@ -48,7 +48,6 @@ export namespace SwitchT {
   export type Variant = SwitchVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -134,7 +133,7 @@ export namespace SwitchT {
   export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
     Base<TTrue, TFalse>,
     Variant,
-    Extend,
+    never,
     Classes,
     Styles
   > {}

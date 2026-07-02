@@ -60,7 +60,6 @@ export namespace ProgressT {
   export type Variant = ProgressVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
   /**
@@ -104,7 +103,7 @@ export namespace ProgressT {
   export interface Props extends BaseProps<
     Base,
     Variant,
-    Extend,
+    never,
     Classes,
     Styles,
     'indeterminate' | 'minValue' | 'maxValue'

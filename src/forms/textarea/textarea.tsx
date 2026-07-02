@@ -61,7 +61,6 @@ export namespace TextareaT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -172,7 +171,7 @@ export namespace TextareaT {
    */
   export interface Props<
     M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, Extend, Classes, Styles> {}
+  > extends BaseProps<Base<M>, Variant, never, Classes, Styles> {}
 }
 
 /**

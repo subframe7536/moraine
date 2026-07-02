@@ -85,7 +85,7 @@
       {
         "name": "closeIcon",
         "required": false,
-        "type": "string | number | boolean | Node | JSX.ArrayElement | (string & {}) | Component<Omit<IconProps, \"name\">> | null | undefined",
+        "type": "string | number | boolean | (string & {}) | Node | JSX.ArrayElement | Component<Omit<IconProps, \"name\">> | null | undefined",
         "description": "Icon name or custom content for the close button.",
         "defaultValue": "icon-close"
       },

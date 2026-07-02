@@ -97,6 +97,28 @@
       "description": "Message shown when no command items match the search."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "SubItem[] | undefined",
+        "description": "Items belonging to this group."
+      },
+      {
+        "name": "id",
+        "required": true,
+        "type": "string",
+        "description": "Unique identifier for the group."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Display name for the group header."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -229,28 +251,6 @@
       }
     ],
     "inherited": []
-  },
-  "item": {
-    "props": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "SubItem[] | undefined",
-        "description": "Items belonging to this group."
-      },
-      {
-        "name": "id",
-        "required": true,
-        "type": "string",
-        "description": "Unique identifier for the group."
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Display name for the group header."
-      }
-    ]
   },
   "attributes": {
     "aria": [

@@ -59,7 +59,6 @@ export namespace SliderT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Extend = never
 
   export interface Item {}
 
@@ -126,7 +125,7 @@ export namespace SliderT {
   export interface Props<TValue = Value> extends BaseProps<
     Base<TValue>,
     Variant,
-    Extend,
+    never,
     Classes,
     Styles
   > {}

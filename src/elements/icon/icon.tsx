@@ -11,7 +11,6 @@ export namespace IconT {
   export type Variant = never
   export type Classes = never
   export type Styles = never
-  export type Extend = never
 
   export interface Item {}
   /**
