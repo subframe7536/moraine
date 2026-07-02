@@ -16,6 +16,7 @@ import { Portal } from 'solid-js/web'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
+import type { TransitionPresenceMotion } from '../../shared/use-transition-presence'
 import { cn, useId } from '../../shared/utils'
 
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack'
@@ -102,11 +103,13 @@ export interface PopperProps {
   positionerClass?: string
   positionerStyle?: JSX.CSSProperties
   preventScroll?: boolean
+  restoreFocusOnClose?: boolean
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
   sameWidth?: boolean
   shift?: number
   slide?: boolean
   toggleOnClick?: boolean
+  transitionMode?: TransitionPresenceMotion
   trigger: JSX.Element
   triggerClass?: string
   triggerStyle?: JSX.CSSProperties
@@ -138,10 +141,12 @@ export function Popper(props: PopperProps): JSX.Element {
       overlap: false,
       overflowPadding: 4,
       placement: 'bottom' as PopperPlacement,
+      restoreFocusOnClose: true,
       sameWidth: false,
       shift: 0,
       slide: true,
       toggleOnClick: true,
+      transitionMode: 'both' as const,
     },
     props,
   )
@@ -154,6 +159,7 @@ export function Popper(props: PopperProps): JSX.Element {
   const isOpen = createMemo(() => Boolean(open()) && !merged.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
+  const [positionerPositioned, setPositionerPositioned] = createSignal(false)
   const [triggerElement, setTriggerElement] = createSignal<HTMLSpanElement | undefined>()
   const [internalCurrentPlacement, setInternalCurrentPlacement] = createSignal<string>('bottom')
   const currentPlacement = createMemo(
@@ -161,9 +167,29 @@ export function Popper(props: PopperProps): JSX.Element {
   )
   const contentPresence = useTransitionPresence({
     open: () => Boolean((isOpen() || merged.forceMount) && !merged.disabled),
+    get mode() {
+      return merged.transitionMode
+    },
   })
 
   let cleanupAutoUpdate: (() => void) | undefined
+  let enablePositionerTransitionFrame: number | undefined
+
+  function schedulePositionerTransition(): void {
+    if (positionerPositioned() || enablePositionerTransitionFrame !== undefined) {
+      return
+    }
+
+    if (typeof requestAnimationFrame !== 'function') {
+      setPositionerPositioned(true)
+      return
+    }
+
+    enablePositionerTransitionFrame = requestAnimationFrame(() => {
+      setPositionerPositioned(true)
+      enablePositionerTransitionFrame = undefined
+    })
+  }
 
   function setOpen(nextOpen: boolean): void {
     if (merged.disabled || nextOpen === isOpen()) {
@@ -199,6 +225,7 @@ export function Popper(props: PopperProps): JSX.Element {
       cleanupAutoUpdate = undefined
       setContentElement(undefined)
       setPositionerElement(undefined)
+      setPositionerPositioned(false)
       contentPresence.setElement(undefined)
     }
   })
@@ -321,6 +348,7 @@ export function Popper(props: PopperProps): JSX.Element {
             ? 'hidden'
             : 'visible',
       })
+      schedulePositionerTransition()
     }
 
     cleanupAutoUpdate = autoUpdate(trigger, positioner, updatePosition)
@@ -329,6 +357,13 @@ export function Popper(props: PopperProps): JSX.Element {
     onCleanup(() => {
       cleanupAutoUpdate?.()
       cleanupAutoUpdate = undefined
+      if (
+        enablePositionerTransitionFrame !== undefined &&
+        typeof cancelAnimationFrame === 'function'
+      ) {
+        cancelAnimationFrame(enablePositionerTransitionFrame)
+        enablePositionerTransitionFrame = undefined
+      }
     })
   })
 
@@ -467,7 +502,10 @@ export function Popper(props: PopperProps): JSX.Element {
     onCleanup(() => {
       releaseStack()
       releaseScrollLock?.()
-      focusTrigger(triggerElement())
+
+      if (merged.restoreFocusOnClose) {
+        focusTrigger(triggerElement())
+      }
     })
   })
 
@@ -518,7 +556,8 @@ export function Popper(props: PopperProps): JSX.Element {
           <div
             ref={setPositionerElement}
             data-slot="positioner"
-            style={merged.positionerStyle}
+            data-positioned={positionerPositioned() ? '' : undefined}
+            style={{ visibility: 'hidden', ...merged.positionerStyle }}
             class={cn('left-0 top-0 fixed z-50', merged.positionerClass)}
           >
             {merged.content({

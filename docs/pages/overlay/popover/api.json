@@ -242,6 +242,12 @@
         "description": "State or slot attribute exposed for styling hooks and selectors."
       },
       {
+        "name": "data-positioned",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
@@ -426,7 +432,14 @@
       {
         "name": "positioner",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-positioned",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
         "ariaAttributes": []
       },
       {

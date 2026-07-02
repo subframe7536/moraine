@@ -1,6 +1,6 @@
-import { render } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { setPopperTestPlacementAccessor } from '../base/popper'
 
@@ -20,6 +20,7 @@ describe('Tooltip', () => {
 
   afterEach(() => {
     setPopperTestPlacementAccessor(undefined)
+    vi.useRealTimers()
   })
 
   test('renders text content when open is controlled', () => {
@@ -150,5 +151,139 @@ describe('Tooltip', () => {
     expect(updatedContent?.className).toContain('data-closed:animate-tooltip-out')
     expect(updatedContent?.className).toContain('animate-tooltip-side-bottom')
     expect(updatedContent?.className).not.toContain('animate-tooltip-side-top')
+  })
+
+  test('opens first hover after delay', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <Tooltip text="Tooltip content">
+        <button type="button">Trigger</button>
+      </Tooltip>
+    ))
+
+    const trigger = screen.getByText('Trigger').parentElement!
+
+    await fireEvent.pointerEnter(trigger)
+
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+
+    await vi.advanceTimersByTimeAsync(599)
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Tooltip content')
+  })
+
+  test('opens the next tooltip immediately and closes the previous tooltip', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip text="First tooltip">
+          <button type="button">First</button>
+        </Tooltip>
+        <Tooltip text="Second tooltip">
+          <button type="button">Second</button>
+        </Tooltip>
+      </div>
+    ))
+
+    const firstTrigger = screen.getByText('First').parentElement!
+    const secondTrigger = screen.getByText('Second').parentElement!
+    const firstButton = screen.getByText('First')
+
+    await fireEvent.pointerEnter(firstTrigger)
+    await vi.advanceTimersByTimeAsync(600)
+
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('First tooltip')
+
+    await fireEvent.pointerLeave(firstTrigger)
+    await fireEvent.pointerEnter(secondTrigger)
+
+    const activeTooltip = document.body.querySelector('[role=tooltip]')
+
+    expect(document.body.querySelectorAll('[role=tooltip]').length).toBe(1)
+    expect(activeTooltip?.textContent).toContain('Second tooltip')
+    expect(document.activeElement).not.toBe(firstButton)
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).not.toContain(
+      'First tooltip',
+    )
+    expect(activeTooltip?.className).toContain('data-expanded:animate-none')
+    expect(document.body.querySelector('[data-slot=positioner]')?.className).toContain(
+      'transition-transform',
+    )
+  })
+
+  test('keeps instant motion during the next tooltip close delay', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip text="First tooltip">
+          <button type="button">First</button>
+        </Tooltip>
+        <Tooltip text="Second tooltip">
+          <button type="button">Second</button>
+        </Tooltip>
+      </div>
+    ))
+
+    const firstTrigger = screen.getByText('First').parentElement!
+    const secondTrigger = screen.getByText('Second').parentElement!
+
+    await fireEvent.pointerEnter(firstTrigger)
+    await vi.advanceTimersByTimeAsync(600)
+    await fireEvent.pointerLeave(firstTrigger)
+    await fireEvent.pointerEnter(secondTrigger)
+    await fireEvent.pointerLeave(secondTrigger)
+
+    const activeTooltip = document.body.querySelector('[role=tooltip]')
+    const activeTooltipClass = activeTooltip?.className
+
+    expect(activeTooltipClass).toContain('data-expanded:animate-none')
+
+    await vi.advanceTimersByTimeAsync(199)
+
+    expect(document.body.querySelector('[role=tooltip]')?.className).toBe(activeTooltipClass)
+
+    await vi.advanceTimersByTimeAsync(1)
+
+    const closingTooltip = document.body.querySelector('[role=tooltip]')
+
+    expect(closingTooltip?.getAttribute('data-closed')).toBe('')
+    expect(closingTooltip?.className).toContain('data-closed:animate-tooltip-out')
+    expect(closingTooltip?.className).not.toContain('data-closed:animate-none')
+  })
+
+  test('does not skip delay when the previous trigger never opened', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip text="First tooltip">
+          <button type="button">First</button>
+        </Tooltip>
+        <Tooltip text="Second tooltip">
+          <button type="button">Second</button>
+        </Tooltip>
+      </div>
+    ))
+
+    const firstTrigger = screen.getByText('First').parentElement!
+    const secondTrigger = screen.getByText('Second').parentElement!
+
+    await fireEvent.pointerEnter(firstTrigger)
+    await vi.advanceTimersByTimeAsync(100)
+    await fireEvent.pointerLeave(firstTrigger)
+    await fireEvent.pointerEnter(secondTrigger)
+
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+
+    await vi.advanceTimersByTimeAsync(599)
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
 })

@@ -19,6 +19,7 @@ export const tooltipContentVariants = cva(
     },
     defaultVariants: {
       side: 'top',
+      invert: false,
     },
   },
 )

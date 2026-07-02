@@ -53,7 +53,7 @@
         "required": false,
         "type": "number | undefined",
         "description": "Delay in milliseconds before closing after leaving trigger or content.",
-        "defaultValue": "0"
+        "defaultValue": "200"
       },
       {
         "name": "defaultOpen",
@@ -74,6 +74,13 @@
         "name": "id",
         "required": false,
         "type": "string | undefined"
+      },
+      {
+        "name": "instantOpenDelay",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Delay in milliseconds to skip the open delay for the next trigger after closing.",
+        "defaultValue": "300"
       },
       {
         "name": "invert",
@@ -101,7 +108,7 @@
         "required": false,
         "type": "number | undefined",
         "description": "Delay in milliseconds before opening on hover or focus.",
-        "defaultValue": "0"
+        "defaultValue": "600"
       },
       {
         "name": "placement",
@@ -234,6 +241,12 @@
       },
       {
         "name": "data-placement",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
+        "name": "data-positioned",
         "required": false,
         "type": "string | undefined",
         "description": "State or slot attribute exposed for styling hooks and selectors."
@@ -417,7 +430,14 @@
       {
         "name": "positioner",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-positioned",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          }
+        ],
         "ariaAttributes": []
       },
       {
