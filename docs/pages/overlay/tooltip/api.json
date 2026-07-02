@@ -52,7 +52,7 @@
         "name": "closeDelay",
         "required": false,
         "type": "number | undefined",
-        "description": "Delay before closing after leaving trigger or content.",
+        "description": "Delay in milliseconds before closing after leaving trigger or content.",
         "defaultValue": "0"
       },
       {
@@ -100,7 +100,7 @@
         "name": "openDelay",
         "required": false,
         "type": "number | undefined",
-        "description": "Delay before opening on hover or focus.",
+        "description": "Delay in milliseconds before opening on hover or focus.",
         "defaultValue": "0"
       },
       {

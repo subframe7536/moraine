@@ -180,12 +180,6 @@
         "description": "Indicates that the control is disabled."
       },
       {
-        "name": "aria-labelledby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the element that labels the control or region."
-      },
-      {
         "name": "aria-orientation",
         "required": false,
         "type": "boolean | string | undefined",
@@ -212,6 +206,36 @@
     ],
     "data": [
       {
+        "name": "data-checked",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is checked or selected."
+      },
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-invalid",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field has a validation error."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
+      },
+      {
+        "name": "data-required",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is required."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
@@ -222,7 +246,38 @@
       {
         "name": "control",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
+          }
+        ],
         "ariaAttributes": []
       },
       {
@@ -234,7 +289,38 @@
       {
         "name": "indicator",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-invalid",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
+          }
+        ],
         "ariaAttributes": []
       },
       {

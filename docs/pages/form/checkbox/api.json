@@ -256,6 +256,24 @@
     ],
     "data": [
       {
+        "name": "data-checked",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is checked or selected."
+      },
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-indeterminate",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
+      },
+      {
         "name": "data-invalid",
         "required": false,
         "type": "string | undefined",
@@ -266,6 +284,18 @@
         "required": false,
         "type": "string | undefined",
         "description": "Present when the component is loading."
+      },
+      {
+        "name": "data-readonly",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is read-only."
+      },
+      {
+        "name": "data-required",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the field is required."
       },
       {
         "name": "data-slot",
@@ -280,10 +310,40 @@
         "cssVariables": [],
         "dataAttributes": [
           {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-indeterminate",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
             "name": "data-invalid",
             "required": false,
             "type": "string | undefined",
             "description": "Present when the field has a validation error."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
           }
         ],
         "ariaAttributes": [
@@ -334,7 +394,38 @@
       {
         "name": "indicator",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-checked",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is checked or selected."
+          },
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-indeterminate",
+            "required": false,
+            "type": "string | undefined",
+            "description": "State or slot attribute exposed for styling hooks and selectors."
+          },
+          {
+            "name": "data-readonly",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is read-only."
+          },
+          {
+            "name": "data-required",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the field is required."
+          }
+        ],
         "ariaAttributes": []
       },
       {

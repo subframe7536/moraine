@@ -260,11 +260,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 },
                 merged.classes?.item,
               )}
-              data-checked={selected() ? '' : undefined}
-              data-invalid={field.invalid() ? '' : undefined}
-              data-disabled={disabled() ? '' : undefined}
-              data-readonly={readOnly() ? '' : undefined}
-              data-required={merged.required ? '' : undefined}
             >
               <HiddenInput
                 ref={(element) => {
@@ -297,9 +292,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 data-slot="control"
                 style={merged.styles?.control}
                 class={radioGroupBaseVariants(
-                  {
-                    size: field.size(),
-                  },
+                  { size: field.size() },
                   merged.indicator === 'hidden' && 'sr-only',
                   merged.classes?.control,
                 )}

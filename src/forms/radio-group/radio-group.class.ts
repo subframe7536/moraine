@@ -10,7 +10,7 @@ import {
 } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
-export const radioGroupRootVariants = cva('relative flex', {
+export const radioGroupRootVariants = cva('flex relative', {
   defaultVariants: {
     orientation: 'vertical',
   },

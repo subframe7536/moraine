@@ -32,7 +32,6 @@ describe('RadioGroup', () => {
     const disabledScreen = render(() => <RadioGroup required disabled items={['Basic', 'Pro']} />)
     const disabledGroup = disabledScreen.getByRole('radiogroup')
     const disabledRadio = disabledScreen.getByRole('radio', { name: 'Basic' }) as HTMLInputElement
-    const disabledItem = disabledScreen.container.querySelector('[data-slot="item"]')
     const disabledControl = disabledScreen.container.querySelector('[data-slot="control"]')
 
     expect(disabledGroup.getAttribute('aria-required')).toBe('true')
@@ -43,8 +42,6 @@ describe('RadioGroup', () => {
     expect(disabledRadio.disabled).toBe(true)
     expect(disabledRadio.getAttribute('aria-required')).toBe('true')
     expect(disabledRadio.getAttribute('aria-disabled')).toBe('true')
-    expect(disabledItem?.getAttribute('data-required')).toBe('')
-    expect(disabledItem?.getAttribute('data-disabled')).toBe('')
     expect(disabledControl?.getAttribute('data-required')).toBe('')
     expect(disabledControl?.getAttribute('data-disabled')).toBe('')
 
@@ -53,14 +50,11 @@ describe('RadioGroup', () => {
     const readOnlyScreen = render(() => <RadioGroup readOnly items={['Basic']} />)
     const readOnlyGroup = readOnlyScreen.getByRole('radiogroup')
     const readOnlyRadio = readOnlyScreen.getByRole('radio', { name: 'Basic' }) as HTMLInputElement
-    const readOnlyItem = readOnlyScreen.container.querySelector('[data-slot="item"]')
 
     expect(readOnlyGroup.getAttribute('aria-readonly')).toBe('true')
     expect(readOnlyGroup.getAttribute('data-readonly')).toBe('')
     expect(readOnlyRadio.readOnly).toBe(true)
     expect(readOnlyRadio.getAttribute('aria-readonly')).toBe('true')
-    expect(readOnlyRadio.getAttribute('data-readonly')).toBe('')
-    expect(readOnlyItem?.getAttribute('data-readonly')).toBe('')
   })
 
   test('maps object items using default value/label/description fields', () => {
@@ -171,9 +165,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-invalid')).toBe('true')
     expect(group.getAttribute('data-invalid')).toBe('')
 
-    const item = screen.container.querySelector('[data-slot="item"]')
     const control = screen.container.querySelector('[data-slot="control"]')
-    expect(item?.getAttribute('data-invalid')).toBe('')
     expect(control?.getAttribute('data-invalid')).toBe('')
 
     const radio = screen.getByRole('radio', { name: 'Pro' })

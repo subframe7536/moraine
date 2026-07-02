@@ -40,13 +40,13 @@ export namespace TooltipT {
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
   > {
     /**
-     * Delay before opening on hover or focus.
+     * Delay in milliseconds before opening on hover or focus.
      * @default 0
      */
     openDelay?: number
 
     /**
-     * Delay before closing after leaving trigger or content.
+     * Delay in milliseconds before closing after leaving trigger or content.
      * @default 0
      */
     closeDelay?: number

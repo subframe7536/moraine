@@ -29,12 +29,7 @@ export function SizesOrientation() {
       <div class="space-y-3">
         <div class="p-4 b-(1 border) rounded-lg">
           <FormField label="Horizontal card">
-            <RadioGroup
-              items={ITEMS}
-              variant="card"
-              orientation="horizontal"
-              defaultValue="pro"
-            />
+            <RadioGroup items={ITEMS} variant="card" orientation="horizontal" defaultValue="pro" />
           </FormField>
         </div>
         <div class="p-4 b-(1 border) rounded-lg">

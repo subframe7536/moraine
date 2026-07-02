@@ -12,7 +12,7 @@
 - [x] add missing `inputAriaAttrs` in `Switch` component
 - [x] only add data attributes on essential elements in `checkbox`, unwrap `dataAttr` memo
 - [x] simplify `radio-group` 's classes, remove unnecessary wrapper elements, let form-field component to control form title & description, and make it more semantic and accessible.
-- [ ] keep tooltip panel open when hovered another trigger with a timeout, to have better user experience when switching between triggers.
+- [ ] keep tooltip panel open and add move transition when hover on another trigger which also has a tooltip, to have better user experience when switching between triggers.
 - [ ] unify and correct class/style priority: top level `class` / `style` (root only) > `classes` / `styles` > component builtin classes / styles
 - [ ] extract logic from slider component to a separate hook, and all export component level hooks (should located at same dir 's `/hook` dir ) custom implementations.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible
