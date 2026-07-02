@@ -10,6 +10,7 @@
 - [x] cleanup unncessary `splitProps` and `mergeProps` usage in all components.
 - [ ] rename sperator component 's `container` slot to `content`.
 - [ ] remove unnecessary wrapper memo on `inputAriaAttrs` in `checkbox` component
+- [ ] keep tooltip panel open when hovered another trigger with a timeout, to have better user experience when switching between triggers.
 - [ ] only add data attributes on essential elements in `checkbox`, unwrap `dataAttr` memo
 - [ ] simplify `avatar` / `checkbox` / `radio-group` 's classes, remove unnecessary wrapper elements, and make it more semantic and accessible.
 - [ ] unify and correct class/style priority: top level `class` / `style` (root only) > `classes` / `styles` > component builtin classes / styles
