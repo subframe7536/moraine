@@ -13,20 +13,8 @@
       "description": "Radio group container that owns selection state and layout."
     },
     {
-      "name": "fieldset",
-      "description": "Fieldset element that groups radio options for accessibility."
-    },
-    {
-      "name": "legend",
-      "description": "Legend text that labels the radio group."
-    },
-    {
       "name": "item",
       "description": "Wrapper for one radio option."
-    },
-    {
-      "name": "container",
-      "description": "Text column for an option label and description."
     },
     {
       "name": "control",
@@ -120,12 +108,6 @@
         "required": false,
         "type": "(string | RadioGroupT.Item)[] | undefined",
         "description": "Array of items to render in the group."
-      },
-      {
-        "name": "legend",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Legend for the radio group."
       },
       {
         "name": "name",
@@ -238,12 +220,6 @@
     ],
     "slots": [
       {
-        "name": "container",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "control",
         "cssVariables": [],
         "dataAttributes": [],
@@ -254,19 +230,6 @@
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []
-      },
-      {
-        "name": "fieldset",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-labelledby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the element that labels the control or region."
-          }
-        ]
       },
       {
         "name": "indicator",
@@ -307,12 +270,6 @@
       },
       {
         "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "legend",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

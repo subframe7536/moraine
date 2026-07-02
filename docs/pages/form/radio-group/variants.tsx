@@ -1,4 +1,4 @@
-import { RadioGroup } from '@src'
+import { FormField, RadioGroup } from '@src'
 
 export function Variants() {
   const ITEMS = [
@@ -10,19 +10,24 @@ export function Variants() {
   return (
     <div class="gap-4 grid lg:grid-cols-3 sm:grid-cols-2">
       <div class="p-4 b-(1 border) rounded-lg">
-        <RadioGroup legend="List" items={ITEMS} defaultValue="starter" />
+        <FormField label="List">
+          <RadioGroup items={ITEMS} defaultValue="starter" />
+        </FormField>
       </div>
       <div class="p-4 b-(1 border) rounded-lg">
-        <RadioGroup legend="Card" items={ITEMS} variant="card" defaultValue="pro" />
+        <FormField label="Card">
+          <RadioGroup items={ITEMS} variant="card" defaultValue="pro" />
+        </FormField>
       </div>
       <div class="p-4 b-(1 border) rounded-lg">
-        <RadioGroup
-          legend="Table"
-          items={ITEMS}
-          variant="table"
-          orientation="vertical"
-          defaultValue="enterprise"
-        />
+        <FormField label="Table">
+          <RadioGroup
+            items={ITEMS}
+            variant="table"
+            orientation="vertical"
+            defaultValue="enterprise"
+          />
+        </FormField>
       </div>
     </div>
   )

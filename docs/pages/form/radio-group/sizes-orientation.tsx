@@ -1,4 +1,4 @@
-import { RadioGroup } from '@src'
+import { FormField, RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 import { For } from 'solid-js'
 
@@ -19,34 +19,33 @@ export function SizesOrientation() {
         <For each={SIZES}>
           {(size) => (
             <div class="p-4 b-(1 border) rounded-lg">
-              <RadioGroup
-                legend={`Size ${size}`}
-                items={ITEMS}
-                size={size}
-                defaultValue="starter"
-              />
+              <FormField label={`Size ${size}`}>
+                <RadioGroup items={ITEMS} size={size} defaultValue="starter" />
+              </FormField>
             </div>
           )}
         </For>
       </div>
       <div class="space-y-3">
         <div class="p-4 b-(1 border) rounded-lg">
-          <RadioGroup
-            legend="Horizontal card"
-            items={ITEMS}
-            variant="card"
-            orientation="horizontal"
-            defaultValue="pro"
-          />
+          <FormField label="Horizontal card">
+            <RadioGroup
+              items={ITEMS}
+              variant="card"
+              orientation="horizontal"
+              defaultValue="pro"
+            />
+          </FormField>
         </div>
         <div class="p-4 b-(1 border) rounded-lg">
-          <RadioGroup
-            legend="Horizontal table"
-            items={ITEMS}
-            variant="table"
-            orientation="horizontal"
-            defaultValue="enterprise"
-          />
+          <FormField label="Horizontal table">
+            <RadioGroup
+              items={ITEMS}
+              variant="table"
+              orientation="horizontal"
+              defaultValue="enterprise"
+            />
+          </FormField>
         </div>
       </div>
     </div>

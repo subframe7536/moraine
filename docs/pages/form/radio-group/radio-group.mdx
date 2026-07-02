@@ -15,20 +15,17 @@ import { RadioGroup } from 'moraine'
 
 ## Slot Structure
 
-Fieldset with optional legend and mutually exclusive radio items.
+Radiogroup root with mutually exclusive radio items. Use `FormField` for the group label, description, help text, and validation message.
 
 ```text
 root
-└── fieldset
-    ├── legend (optional)
-    └── item (×n)
-        ├── container
-        │   ├── input
-        │   └── control
-        │       └── indicator
-        └── wrapper (optional)
-            ├── label (optional)
-            └── description (optional)
+└── item (×n)
+    ├── input
+    ├── control
+    │   └── indicator
+    └── wrapper (optional)
+        ├── label (optional)
+        └── description (optional)
 ```
 
 ## Examples

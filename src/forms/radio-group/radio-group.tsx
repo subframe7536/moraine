@@ -19,10 +19,8 @@ import type {
 import type { RadioGroupVariantProps } from './radio-group.class'
 import {
   radioGroupBaseVariants,
-  radioGroupContainerVariants,
-  radioGroupFieldsetVariants,
   radioGroupItemVariants,
-  radioGroupLegendVariants,
+  radioGroupRootVariants,
   radioGroupWrapperVariants,
 } from './radio-group.class'
 
@@ -33,17 +31,8 @@ export namespace RadioGroupT {
      */
     root?: T
 
-    /** Fieldset element that groups radio options for accessibility. */
-    fieldset?: T
-
-    /** Legend text that labels the radio group. */
-    legend?: T
-
     /** Wrapper for one radio option. */
     item?: T
-
-    /** Text column for an option label and description. */
-    container?: T
 
     /** Visible radio control for an individual option. */
     control?: T
@@ -105,11 +94,6 @@ export namespace RadioGroupT {
      * @default 'vertical'
      */
     orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Legend for the radio group.
-     */
-    legend?: JSX.Element
 
     /**
      * Array of items to render in the group.
@@ -182,8 +166,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'data-required': merged.required ? '' : undefined,
   }))
 
-  const legendId = createMemo(() => `${groupId()}-legend`)
-
   const normalizedItems = createMemo<NormalizedRadioGroupItem[]>(() => {
     const items = merged.items ?? []
 
@@ -247,183 +229,153 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-readonly={readOnly() || undefined}
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('relative', merged.classes?.root, merged.class)}
+      class={radioGroupRootVariants(
+        {
+          orientation: merged.orientation,
+        },
+        merged.variant !== 'table' && 'gap-2',
+        merged.classes?.root,
+        merged.class,
+      )}
       {...dataAttrs()}
       {...field.ariaAttrs()}
     >
-      <fieldset
-        data-slot="fieldset"
-        style={merged.styles?.fieldset}
-        aria-labelledby={merged.legend ? legendId() : undefined}
-        class={radioGroupFieldsetVariants(
-          {
-            orientation: merged.orientation,
-          },
-          merged.variant !== 'table' && 'gap-2',
-          merged.classes?.fieldset,
-        )}
-      >
-        <Show when={merged.legend}>
-          <legend
-            id={legendId()}
-            data-slot="legend"
-            style={merged.styles?.legend}
-            class={radioGroupLegendVariants(
-              {
-                size: field.size(),
-                required: merged.required,
-              },
-              merged.classes?.legend,
-            )}
-          >
-            {merged.legend}
-          </legend>
-        </Show>
+      <For each={normalizedItems()}>
+        {(item) => {
+          const disabled = createMemo(() => Boolean(item.disabled || field.disabled()))
+          const selected = createMemo(() => item.value === selectedValue())
 
-        <For each={normalizedItems()}>
-          {(item) => {
-            const disabled = createMemo(() => Boolean(item.disabled || field.disabled()))
-            const selected = createMemo(() => item.value === selectedValue())
-            const itemDataAttrs = createMemo(() => ({
-              'data-checked': selected() ? '' : undefined,
-              'data-invalid': field.invalid() ? '' : undefined,
-              'data-disabled': disabled() ? '' : undefined,
-              'data-readonly': readOnly() ? '' : undefined,
-              'data-required': merged.required ? '' : undefined,
-            }))
+          return (
+            <Dynamic
+              component={merged.variant === 'list' ? 'div' : 'label'}
+              id={item.id}
+              data-slot="item"
+              style={merged.styles?.item}
+              class={radioGroupItemVariants(
+                {
+                  size: field.size(),
+                  variant: merged.variant === 'list' ? undefined : merged.variant,
+                  indicator: merged.indicator === 'hidden' ? undefined : merged.indicator,
+                  tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
+                },
+                merged.classes?.item,
+              )}
+              data-checked={selected() ? '' : undefined}
+              data-invalid={field.invalid() ? '' : undefined}
+              data-disabled={disabled() ? '' : undefined}
+              data-readonly={readOnly() ? '' : undefined}
+              data-required={merged.required ? '' : undefined}
+            >
+              <HiddenInput
+                ref={(element) => {
+                  inputRefs.set(item.value, element)
+                }}
+                id={item.inputId}
+                type="radio"
+                name={field.name()}
+                value={item.value}
+                checked={selected()}
+                required={merged.required}
+                disabled={disabled()}
+                readOnly={readOnly()}
+                aria-required={merged.required || undefined}
+                aria-disabled={disabled() || undefined}
+                aria-readonly={readOnly() || undefined}
+                class="peer"
+                data-slot="input"
+                onChange={(event) => {
+                  event.stopPropagation()
+                  onChange(item.value)
+                  event.currentTarget.checked = selected()
+                }}
+                onKeyDown={(event) => {
+                  onNavigationKeyDown(event, item.value, merged.orientation)
+                }}
+              />
 
-            return (
-              <Dynamic
-                component={merged.variant === 'list' ? 'div' : 'label'}
-                id={item.id}
-                data-slot="item"
-                style={merged.styles?.item}
-                class={radioGroupItemVariants(
+              <div
+                data-slot="control"
+                style={merged.styles?.control}
+                class={radioGroupBaseVariants(
                   {
                     size: field.size(),
-                    variant: merged.variant === 'list' ? undefined : merged.variant,
-                    indicator: merged.indicator === 'hidden' ? undefined : merged.indicator,
-                    tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
                   },
-                  merged.classes?.item,
+                  merged.indicator === 'hidden' && 'sr-only',
+                  merged.classes?.control,
                 )}
-                {...itemDataAttrs()}
+                data-checked={selected() ? '' : undefined}
+                data-invalid={field.invalid() ? '' : undefined}
+                data-disabled={disabled() ? '' : undefined}
+                data-readonly={readOnly() ? '' : undefined}
+                data-required={merged.required ? '' : undefined}
               >
+                <Show when={selected()}>
+                  <div
+                    data-slot="indicator"
+                    style={merged.styles?.indicator}
+                    class={cn(
+                      'rounded-full flex size-full ring-(4 primary ring inset) items-center justify-center',
+                      merged.classes?.indicator,
+                    )}
+                    data-checked={selected() ? '' : undefined}
+                    data-invalid={field.invalid() ? '' : undefined}
+                    data-disabled={disabled() ? '' : undefined}
+                    data-readonly={readOnly() ? '' : undefined}
+                    data-required={merged.required ? '' : undefined}
+                  />
+                </Show>
+              </div>
+
+              <Show when={item.label || item.description}>
                 <div
-                  data-slot="container"
-                  style={merged.styles?.container}
-                  class={radioGroupContainerVariants(
+                  data-slot="wrapper"
+                  style={merged.styles?.wrapper}
+                  class={radioGroupWrapperVariants(
                     {
-                      size: field.size(),
+                      indicator: merged.indicator,
                     },
-                    merged.classes?.container,
+                    merged.classes?.wrapper,
                   )}
                 >
-                  <HiddenInput
-                    ref={(element) => {
-                      inputRefs.set(item.value, element)
-                    }}
-                    id={item.inputId}
-                    type="radio"
-                    name={field.name()}
-                    value={item.value}
-                    checked={selected()}
-                    required={merged.required}
-                    disabled={disabled()}
-                    readOnly={readOnly()}
-                    aria-required={merged.required || undefined}
-                    aria-disabled={disabled() || undefined}
-                    aria-readonly={readOnly() || undefined}
-                    class="peer"
-                    data-slot="input"
-                    onChange={(event) => {
-                      event.stopPropagation()
-                      onChange(item.value)
-                      event.currentTarget.checked = selected()
-                    }}
-                    onKeyDown={(event) => {
-                      onNavigationKeyDown(event, item.value, merged.orientation)
-                    }}
-                    {...itemDataAttrs()}
-                  />
-
-                  <div
-                    data-slot="control"
-                    style={merged.styles?.control}
-                    class={radioGroupBaseVariants(
-                      {
-                        size: field.size(),
-                      },
-                      merged.indicator === 'hidden' && 'sr-only',
-                      merged.classes?.control,
-                    )}
-                    {...itemDataAttrs()}
-                  >
-                    <Show when={selected()}>
-                      <div
-                        data-slot="indicator"
-                        style={merged.styles?.indicator}
-                        class={cn(
-                          'rounded-full flex size-full ring-(4 primary ring inset) items-center justify-center',
-                          merged.classes?.indicator,
-                        )}
-                        {...itemDataAttrs()}
-                      />
-                    </Show>
-                  </div>
-                </div>
-
-                <Show when={item.label || item.description}>
-                  <div
-                    data-slot="wrapper"
-                    style={merged.styles?.wrapper}
-                    class={radioGroupWrapperVariants(
-                      {
-                        indicator: merged.indicator,
-                      },
-                      merged.classes?.wrapper,
-                    )}
-                  >
-                    <Show when={item.label}>
-                      <Show
-                        when={merged.variant === 'list'}
-                        fallback={
-                          <p
-                            data-slot="label"
-                            style={merged.styles?.label}
-                            class={cn('text-foreground font-medium', merged.classes?.label)}
-                          >
-                            {item.label}
-                          </p>
-                        }
-                      >
-                        <label
-                          for={item.inputId}
+                  <Show when={item.label}>
+                    <Show
+                      when={merged.variant === 'list'}
+                      fallback={
+                        <p
                           data-slot="label"
                           style={merged.styles?.label}
                           class={cn('text-foreground font-medium', merged.classes?.label)}
                         >
                           {item.label}
-                        </label>
-                      </Show>
-                    </Show>
-
-                    <Show when={item.description}>
-                      <p
-                        data-slot="description"
-                        style={merged.styles?.description}
-                        class={cn('text-muted-foreground', merged.classes?.description)}
+                        </p>
+                      }
+                    >
+                      <label
+                        for={item.inputId}
+                        data-slot="label"
+                        style={merged.styles?.label}
+                        class={cn('text-foreground font-medium', merged.classes?.label)}
                       >
-                        {item.description}
-                      </p>
+                        {item.label}
+                      </label>
                     </Show>
-                  </div>
-                </Show>
-              </Dynamic>
-            )
-          }}
-        </For>
-      </fieldset>
+                  </Show>
+
+                  <Show when={item.description}>
+                    <p
+                      data-slot="description"
+                      style={merged.styles?.description}
+                      class={cn('text-muted-foreground', merged.classes?.description)}
+                    >
+                      {item.description}
+                    </p>
+                  </Show>
+                </div>
+              </Show>
+            </Dynamic>
+          )
+        }}
+      </For>
     </div>
   )
 }

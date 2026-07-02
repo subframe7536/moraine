@@ -7,12 +7,25 @@ import { FormField } from '../form-field'
 import { RadioGroup } from './radio-group'
 
 describe('RadioGroup', () => {
-  test('renders legend and radio options', () => {
-    const screen = render(() => <RadioGroup legend="Plan" items={['Basic', 'Pro']} />)
+  test('renders radio options with form-field label and no legacy wrappers', () => {
+    const screen = render(() => (
+      <FormField label="Plan" description="Select one plan">
+        <RadioGroup items={['Basic', 'Pro']} />
+      </FormField>
+    ))
 
     expect(screen.getByText('Plan')).not.toBeNull()
     expect(screen.getByRole('radio', { name: 'Basic' })).not.toBeNull()
     expect(screen.getByRole('radio', { name: 'Pro' })).not.toBeNull()
+
+    const group = screen.getByRole('radiogroup')
+    const label = screen.getByText('Plan')
+
+    expect(label.getAttribute('for')).toBeNull()
+    expect(group.getAttribute('aria-describedby')).toContain('description')
+    expect(screen.container.querySelector('[data-slot="fieldset"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="legend"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
@@ -176,12 +189,12 @@ describe('RadioGroup', () => {
       <RadioGroup items={['A', 'B']} orientation="horizontal" variant="table" size="xl" />
     ))
 
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
+    const group = screen.getByRole('radiogroup')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
     const firstInput = screen.container.querySelector('[data-slot="input"]')
     const firstBase = screen.container.querySelector('[data-slot="control"]')
 
-    expect(fieldset?.className).toContain('flex-row')
+    expect(group.className).toContain('flex-row')
     expect(firstItem?.className).toContain('p-4.5')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
@@ -193,10 +206,10 @@ describe('RadioGroup', () => {
   test('applies vertical table layout classes', () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" size="xl" />)
 
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
+    const group = screen.getByRole('radiogroup')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
 
-    expect(fieldset?.className).toContain('flex-col')
+    expect(group.className).toContain('flex-col')
     expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-b-lg')
     expect(firstItem?.className).toContain('not-first-of-type:-mt-px')
@@ -351,7 +364,7 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('applies style overrides to item and checkbox slots', () => {
+  test('applies style overrides to item and radio slots', () => {
     const screen = render(() => (
       <RadioGroup
         items={['A']}

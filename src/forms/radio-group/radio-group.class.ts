@@ -2,32 +2,20 @@ import type { VariantProps } from 'cls-variant'
 
 import {
   CHECKABLE_BASE_SIZE_VARIANT,
-  CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
   FLEX_ORIENTATION_VARIANT,
-  REQUIRED_MARK_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
   TEXT_SIZE_VARIANT,
 } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
-export const radioGroupFieldsetVariants = cva('flex', {
+export const radioGroupRootVariants = cva('relative flex', {
   defaultVariants: {
     orientation: 'vertical',
   },
   variants: {
     orientation: FLEX_ORIENTATION_VARIANT,
-  },
-})
-
-export const radioGroupLegendVariants = cva('text-foreground font-medium mb-2 block', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: TEXT_SIZE_VARIANT,
-    required: REQUIRED_MARK_VARIANT,
   },
 })
 
@@ -99,15 +87,6 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
   ],
 })
 
-export const radioGroupContainerVariants = cva('flex items-center', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
-  },
-})
-
 export const radioGroupBaseVariants = cva(
   'outline-none border border-input rounded-full bg-background inline-flex transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/30',
   {
@@ -136,8 +115,7 @@ type RadioGroupItemVariantProps = Omit<
   'variant' | 'indicator' | 'tableOrientation'
 >
 
-export type RadioGroupVariantProps = VariantProps<typeof radioGroupFieldsetVariants> &
-  VariantProps<typeof radioGroupLegendVariants> &
+export type RadioGroupVariantProps = VariantProps<typeof radioGroupRootVariants> &
   RadioGroupItemVariantProps & {
     variant?: RadioGroupItemVariant
     indicator?: RadioGroupItemIndicator
