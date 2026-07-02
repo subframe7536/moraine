@@ -22,7 +22,7 @@ type Status = 'idle' | 'loading' | 'loaded' | 'error'
 export namespace AvatarT {
   export interface Slot<T = unknown> {
     /**
-     * Avatar frame that controls size, shape, image, fallback, and badge placement.
+     * Avatar frame that controls size, shape, image, fallback, and badge placement, or the container of grouped avatars when multiple items are provided.
      */
     root?: T
 
@@ -38,14 +38,11 @@ export namespace AvatarT {
     /** Status or indicator badge anchored to the avatar frame. */
     badge?: T
 
-    /** Container that lays out multiple avatars as an overlapping group. */
-    group?: T
-
     /** Individual avatar wrapper used when rendering grouped avatars. */
-    groupItem?: T
+    item?: T
 
     /** Count indicator shown when a group has more avatars than the visible limit. */
-    groupCount?: T
+    count?: T
   }
   export type Variant = AvatarVariantProps
   export type Classes = Slot<SlotClassValue>
@@ -182,7 +179,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     return merged.items.length - visibleItems().length
   })
 
-  function AvatarFace(props: AvatarT.Item & { slot: 'root' | 'groupItem' }): JSX.Element {
+  function AvatarFace(props: AvatarT.Item & { slot: 'root' | 'item' }): JSX.Element {
     const [status, setStatusSignal] = createSignal<Status>('idle')
     const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 
@@ -239,25 +236,15 @@ export function Avatar(props: AvatarProps): JSX.Element {
       <span
         data-slot={props.slot}
         data-status={status()}
-        style={
-          props.slot === 'groupItem'
-            ? { ...merged.styles?.groupItem, ...merged.style }
-            : { ...merged.styles?.root, ...merged.style }
-        }
+        style={{
+          ...merged.styles,
+          ...(props.slot === 'item' ? merged.styles?.item : merged.styles?.root),
+        }}
         class={avatarRootVariants(
-          {
-            size: merged.size,
-          },
-          props.slot === 'groupItem'
-            ? avatarGroupItemVariants(
-                {
-                  size: merged.size,
-                },
-                merged.classes?.root,
-                merged.classes?.groupItem,
-              )
-            : merged.classes?.root,
-          merged.class,
+          { size: merged.size },
+          props.slot === 'item'
+            ? avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)
+            : [merged.classes?.root, merged.class],
         )}
       >
         <img
@@ -332,26 +319,26 @@ export function Avatar(props: AvatarProps): JSX.Element {
       }
     >
       <div
-        data-slot="group"
-        style={merged.styles?.group}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.group)}
+        data-slot="root"
+        style={merged.styles?.root}
+        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root)}
       >
         <Show when={hiddenCount() > 0}>
           <span
-            data-slot="groupCount"
-            style={merged.styles?.groupCount}
+            data-slot="count"
+            style={merged.styles?.count}
             class={avatarGroupCountVariants(
               {
                 size: merged.size,
               },
-              merged.classes?.groupCount,
+              merged.classes?.count,
             )}
           >
             +{hiddenCount()}
           </span>
         </Show>
 
-        <For each={visibleItems()}>{(item) => <AvatarFace {...item} slot="groupItem" />}</For>
+        <For each={visibleItems()}>{(item) => <AvatarFace {...item} slot="item" />}</For>
       </div>
     </Show>
   )

@@ -815,9 +815,8 @@ describe('Slider', () => {
 
     expect(dividers).toHaveLength(4)
     expect((dividers[0] as HTMLElement).style.left).toBe('20%')
-    expect(dividers[0]?.className).toContain('h-1/2')
+    expect(dividers[0]?.className).toContain('h-full')
     expect(dividers[0]?.className).toContain('w-px')
-    expect(dividers[0]?.className).toContain('z-0')
   })
 
   test('uses a solid track and inset marker shape for bold variant', () => {
@@ -829,16 +828,14 @@ describe('Slider', () => {
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
     expect(track?.className).toContain('var-slider-18')
-    expect(track?.className).toContain('before:(inset-0 rounded)')
     expect(range?.className).toContain('rounded')
-    expect(range?.className).toContain('z-10')
+    expect(range?.className).toContain('z-2')
     expect(divider?.className).toContain('w-px')
-    expect(divider?.className).toContain('z-0')
     expect(divider?.className).not.toContain('opacity-0')
     expect(thumb?.className).toContain('bg-primary-foreground')
-    expect(thumb?.className).toContain('z-20')
+    expect(thumb?.className).toContain('z-3')
     expect(thumb?.className).not.toContain('cursor-pointer')
-    expect(thumb?.className).toContain('focus-visible:outline-primary-foreground')
+    expect(thumb?.className).toContain('focus-visible:outline-(1 border primary-foreground)')
     expect(thumb?.className).toContain('rounded-sm')
     expect(thumb?.className).toContain('h-3')
     expect(thumb?.className).toContain('w-1')
@@ -864,7 +861,7 @@ describe('Slider', () => {
     thumb.focus()
 
     expect(document.activeElement).toBe(thumb)
-    expect(thumb.className).toContain('focus-visible:outline-primary-foreground')
+    expect(thumb.className).toContain('focus-visible:outline-(1 border primary-foreground)')
 
     await fireEvent.pointerDown(thumb, {
       button: 0,

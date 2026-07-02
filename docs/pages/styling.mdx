@@ -91,7 +91,9 @@ moraineTailwind({
 
 ## Override Component Styles
 
-Use top-level `class` and `style` for the component root in normal components. Overlay components apply top-level `class` and `style` to their trigger, because the floating content is rendered separately. Use `classes` and `styles` for named slots when you need to target a specific inner slot or overlay content; keys match slot names.
+Use top-level `class` and `style` for the component root in normal components. Use `classes` and `styles` for named slots when you need to target a specific inner slot or overlay content; keys match slot names.
+
+- Overlay components apply top-level `class` and `style` to their **trigger** slot, because the floating content is rendered separately.
 
 ```tsx
 import { Button } from 'moraine'
