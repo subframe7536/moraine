@@ -196,7 +196,7 @@
       {
         "name": "type",
         "required": false,
-        "type": "\"number\" | \"hidden\" | \"search\" | \"email\" | \"tel\" | \"text\" | \"url\" | \"date\" | \"time\" | \"button\" | \"checkbox\" | \"radio\" | \"image\" | (string & {}) | \"submit\" | \"reset\" | \"color\" | \"datetime-local\" | \"file\" | \"month\" | \"password\" | \"range\" | \"week\" | undefined",
+        "type": "\"number\" | \"hidden\" | \"search\" | \"email\" | \"tel\" | \"text\" | \"url\" | \"date\" | \"time\" | \"button\" | \"checkbox\" | \"radio\" | \"image\" | (string & {}) | \"submit\" | \"reset\" | \"color\" | \"file\" | \"datetime-local\" | \"month\" | \"password\" | \"range\" | \"week\" | undefined",
         "description": "The type of the input element.",
         "defaultValue": "text"
       },

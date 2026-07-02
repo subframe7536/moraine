@@ -24,7 +24,7 @@ export type BaseProps<Base, Variant, TSlot> = Base &
     /** Style applied to the component root or trigger element. */
     style?: JSX.CSSProperties
     /** Classes applied to the component slots. */
-    classes?: { [K in keyof TSlot]?: ClassValue }
+    classes?: SlotClasses<TSlot>
     /** Styles applied to the component slots. */
-    styles?: { [K in keyof TSlot]?: JSX.CSSProperties }
+    styles?: SlotStyles<TSlot>
   }

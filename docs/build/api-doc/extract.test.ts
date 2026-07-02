@@ -27,6 +27,10 @@ async function writeNodeModuleFile(
   await writeFile(filePath, content, 'utf8')
 }
 
+function resultProps(result: ReturnType<typeof generateApiDoc>, key: string) {
+  return result?.componentDocs.get(key)?.props.own ?? []
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -336,6 +340,118 @@ declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Ele
     expect(asProp?.type).toBe('"button" | undefined')
     expect(dataProp?.type).toBe('"button"[] | undefined')
     expect(fooProp?.type).toBe('"button" | undefined')
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('uses public component aliases for BaseProps slot override props', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type ClassValue = string
+declare namespace JSX {
+  interface CSSProperties {
+    color?: string
+  }
+}
+
+type SlotClasses<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: ClassValue
+}
+type SlotStyles<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
+}
+type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: SlotClasses<TSlot>
+  styles?: SlotStyles<TSlot>
+}
+
+declare namespace AliasButtonT {
+  interface Slot<T = unknown> {
+    root?: T
+    label?: T
+  }
+  type Variant = never
+  type Classes = Slot<ClassValue>
+  type Styles = Slot<JSX.CSSProperties>
+  interface Base {
+    label?: string
+  }
+  interface Props extends BaseProps<Base, Variant, Slot> {}
+}
+
+declare function AliasButton(props: AliasButtonT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(generateApiDoc(projectRoot), 'alias-button')
+
+    expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
+      'AliasButtonT.Classes | undefined',
+    )
+    expect(props.find((prop) => prop.name === 'styles')?.type).toBe(
+      'AliasButtonT.Styles | undefined',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('keeps shared slot override aliases before component aliases', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type ClassValue = string
+declare namespace JSX {
+  interface CSSProperties {
+    color?: string
+  }
+}
+
+type SlotClasses<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: ClassValue
+}
+type SlotStyles<TSlot> = {
+  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
+}
+type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: SlotClasses<TSlot>
+  styles?: SlotStyles<TSlot>
+}
+
+interface SharedSlots<T = unknown> {
+  trigger?: T
+  content?: T
+}
+type SharedClasses = SharedSlots<ClassValue>
+type SharedStyles = SharedSlots<JSX.CSSProperties>
+interface SharedRootProps {
+  classes?: SharedClasses
+  styles?: SharedStyles
+}
+
+declare namespace SharedMenuT {
+  interface Slot<T = unknown> extends SharedSlots<T> {}
+  type Variant = never
+  type Classes = Slot<ClassValue>
+  type Styles = Slot<JSX.CSSProperties>
+  interface Base extends SharedRootProps {}
+  interface Props extends BaseProps<Base, Variant, Slot> {}
+}
+
+declare function SharedMenu(props: SharedMenuT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(generateApiDoc(projectRoot), 'shared-menu')
+
+    expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
+      '(SharedClasses & SharedMenuT.Classes) | undefined',
+    )
+    expect(props.find((prop) => prop.name === 'styles')?.type).toBe(
+      '(SharedStyles & SharedMenuT.Styles) | undefined',
+    )
 
     await rm(projectRoot, { recursive: true, force: true })
   })

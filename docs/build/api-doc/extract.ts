@@ -48,6 +48,11 @@ function typeIncludesUndefined(type: ts.Type): boolean {
 const TYPE_FORMAT_FLAGS =
   ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
 
+interface PropFormatContext {
+  componentName?: string
+  slotOverrideTypes?: ReadonlySet<string>
+}
+
 export function normalizePathForComparison(filePath: string): string {
   const resolved = path.resolve(filePath).replaceAll('\\', '/')
   return process.platform === 'win32' ? resolved.toLowerCase() : resolved
@@ -107,6 +112,10 @@ function entityNameToParts(name: ts.EntityName): string[] {
     return [name.text]
   }
   return [...entityNameToParts(name.left), name.right.text]
+}
+
+function entityNameToText(name: ts.EntityName): string {
+  return entityNameToParts(name).join('.')
 }
 
 function isJsxElementReturn(typeNode: ts.TypeNode | undefined): boolean {
@@ -298,11 +307,121 @@ function extractItemsAliasPropDocs(
   return extractOwnPropDocsFromType(checker, sourceFile, resolvedType, typeNode)
 }
 
+function getEnclosingModuleName(node: ts.Node): string | undefined {
+  let current: ts.Node | undefined = node
+  while (current) {
+    if (ts.isModuleDeclaration(current) && ts.isIdentifier(current.name)) {
+      return current.name.text
+    }
+    current = current.parent
+  }
+  return undefined
+}
+
+function getSlotOverrideTypeName(propName: string): 'Classes' | 'Styles' | undefined {
+  if (propName === 'classes') {
+    return 'Classes'
+  }
+  if (propName === 'styles') {
+    return 'Styles'
+  }
+  return undefined
+}
+
+function getGenericSlotOverrideTypeName(propName: string): 'SlotClasses' | 'SlotStyles' | undefined {
+  if (propName === 'classes') {
+    return 'SlotClasses'
+  }
+  if (propName === 'styles') {
+    return 'SlotStyles'
+  }
+  return undefined
+}
+
+function getSlotOverrideAliasFromTypeNode(
+  typeNode: ts.TypeNode,
+  declaration: ts.Node,
+  propName: string,
+  context: PropFormatContext,
+): string | undefined {
+  const overrideTypeName = getSlotOverrideTypeName(propName)
+  const genericTypeName = getGenericSlotOverrideTypeName(propName)
+  if (!overrideTypeName || !genericTypeName || !context.componentName) {
+    return undefined
+  }
+
+  if (!ts.isTypeReferenceNode(typeNode)) {
+    return undefined
+  }
+
+  const typeName = entityNameToText(typeNode.typeName)
+  const componentNamespace = `${context.componentName}T`
+  const componentAlias = `${componentNamespace}.${overrideTypeName}`
+
+  if (typeName === genericTypeName) {
+    return context.slotOverrideTypes?.has(overrideTypeName) ? componentAlias : undefined
+  }
+
+  if (typeName === overrideTypeName) {
+    return getEnclosingModuleName(declaration) === componentNamespace ? componentAlias : undefined
+  }
+
+  return typeName
+}
+
+function formatSlotOverridePropType(
+  propSymbol: ts.Symbol,
+  propType: ts.Type,
+  propName: string,
+  context: PropFormatContext,
+): string | undefined {
+  if (!getSlotOverrideTypeName(propName)) {
+    return undefined
+  }
+
+  const aliases: string[] = []
+  const seen = new Set<string>()
+
+  for (const declaration of propSymbol.declarations ?? []) {
+    if (!ts.isPropertySignature(declaration) || !declaration.type) {
+      continue
+    }
+
+    const alias = getSlotOverrideAliasFromTypeNode(declaration.type, declaration, propName, context)
+    if (!alias || seen.has(alias)) {
+      continue
+    }
+
+    seen.add(alias)
+    aliases.push(alias)
+  }
+
+  if (aliases.length === 0) {
+    return undefined
+  }
+
+  const baseType = aliases.length === 1 ? aliases[0]! : `(${aliases.join(' & ')})`
+  return typeIncludesUndefined(propType) ? `${baseType} | undefined` : baseType
+}
+
+function formatPropType(
+  checker: ts.TypeChecker,
+  propSymbol: ts.Symbol,
+  propType: ts.Type,
+  location: ts.Node,
+  context: PropFormatContext = {},
+): string {
+  const propName = propSymbol.getName()
+  const typeText = checker.typeToString(propType, location, TYPE_FORMAT_FLAGS)
+  return formatSlotOverridePropType(propSymbol, propType, propName, context) ?? typeText
+}
+
 function createPropDoc(
   checker: ts.TypeChecker,
   propSymbol: ts.Symbol,
   location: ts.Node,
   propTypeOverride?: ts.Type,
+  context: PropFormatContext = {},
 ): PropDoc {
   const propType = propTypeOverride ?? checker.getTypeOfSymbolAtLocation(propSymbol, location)
   const optionalFlag = (propSymbol.flags & ts.SymbolFlags.Optional) !== 0
@@ -313,7 +432,7 @@ function createPropDoc(
   return {
     name: propSymbol.getName(),
     required,
-    type: checker.typeToString(propType, location, TYPE_FORMAT_FLAGS),
+    type: formatPropType(checker, propSymbol, propType, location, context),
     ...(description ? { description } : {}),
     ...(defaultTag ? { defaultValue: normalizeDefaultTag(defaultTag.text) } : {}),
   }
@@ -324,6 +443,7 @@ function extractOwnPropDocsFromType(
   sourceFile: ts.SourceFile,
   sourceType: ts.Type,
   location: ts.Node,
+  context: PropFormatContext = {},
 ): PropDoc[] {
   return checker
     .getPropertiesOfType(sourceType)
@@ -334,7 +454,7 @@ function extractOwnPropDocsFromType(
         (ts.isPropertySignature(declaration) || ts.isPropertyDeclaration(declaration))
       )
     })
-    .map((symbol) => createPropDoc(checker, symbol, location))
+    .map((symbol) => createPropDoc(checker, symbol, location, undefined, context))
     .sort((left, right) => left.name.localeCompare(right.name))
 }
 
@@ -380,12 +500,13 @@ function groupProperties(
   checker: ts.TypeChecker,
   sourceFile: ts.SourceFile,
   location: ts.Node,
+  context: PropFormatContext = {},
 ): { own: PropDoc[]; inherited: InheritedGroupDoc[] } {
   const own: PropDoc[] = []
   const inheritedGroups = new Map<string, PropDoc[]>()
 
   for (const propSymbol of checker.getPropertiesOfType(propsType)) {
-    const doc = createPropDoc(checker, propSymbol, location)
+    const doc = createPropDoc(checker, propSymbol, location, undefined, context)
     const declaration = propSymbol.declarations?.[0]
     const isOwn = declaration?.getSourceFile().fileName === sourceFile.fileName
 
@@ -423,6 +544,7 @@ interface ComponentMetadata {
   slots: Map<string, SlotDoc[]>
   items: Map<string, ItemDoc>
   baseInherited: Map<string, InheritedGroupDoc[]>
+  slotOverrideTypes: Map<string, ReadonlySet<string>>
 }
 
 function mergeInheritedGroups(...groups: InheritedGroupDoc[][]): InheritedGroupDoc[] {
@@ -527,10 +649,27 @@ function collectNamespaceMetadata(
   const slots = new Map<string, SlotDoc[]>()
   const items = new Map<string, ItemDoc>()
   const baseInherited = new Map<string, InheritedGroupDoc[]>()
+  const slotOverrideTypes = new Map<string, ReadonlySet<string>>()
 
   const visit = (node: ts.Node) => {
     if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
       const componentName = node.name.text.slice(0, -1)
+      const body = node.body
+      const overrideTypes = new Set<string>()
+      if (body && ts.isModuleBlock(body)) {
+        for (const statement of body.statements) {
+          if (
+            (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) &&
+            (statement.name.text === 'Classes' || statement.name.text === 'Styles')
+          ) {
+            overrideTypes.add(statement.name.text)
+          }
+        }
+      }
+      if (overrideTypes.size > 0) {
+        slotOverrideTypes.set(componentName, overrideTypes)
+      }
+
       const slotDocs = extractSlotDocs(node, checker)
       if (slotDocs.length > 0) {
         slots.set(componentName, slotDocs)
@@ -552,7 +691,7 @@ function collectNamespaceMetadata(
 
   visit(sourceFile)
 
-  return { slots, items, baseInherited }
+  return { slots, items, baseInherited, slotOverrideTypes }
 }
 
 function processComponentNode(
@@ -594,7 +733,11 @@ function processComponentNode(
     slots: metadata.slots.get(componentName) ?? [],
     ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
     props: (() => {
-      const props = groupProperties(propsType, checker, sourceFile, propsParam.name)
+      const propFormatContext: PropFormatContext = {
+        componentName,
+        slotOverrideTypes: metadata.slotOverrideTypes.get(componentName),
+      }
+      const props = groupProperties(propsType, checker, sourceFile, propsParam.name, propFormatContext)
       const ownPropNames = new Set(props.own.map((prop) => prop.name))
       const baseInherited = (metadata.baseInherited.get(componentName) ?? [])
         .map((group) => ({
