@@ -6,7 +6,11 @@ import { cn } from '../../shared/utils'
 
 export namespace CardT {
   export interface Slot<T = unknown> {
-    /** Card container that frames the header, body, and footer regions. */
+    /**
+     * Card container that frames the header, body, and footer regions.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Top region for title, description, custom header content, and actions. */

@@ -42,7 +42,11 @@ export namespace TextareaT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /** Textarea wrapper that owns header, textarea, footer, and autoresize state. */
+    /**
+     * Textarea wrapper that owns header, textarea, footer, and autoresize state.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Optional content rendered above the textarea. */

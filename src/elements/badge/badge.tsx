@@ -18,7 +18,11 @@ export namespace BadgeT {
   > {}
 
   export interface Slot<T = unknown> {
-    /** Inline badge container that carries the variant, size, and interactive state. */
+    /**
+     * Inline badge container that carries the variant, size, and interactive state.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Optional icon displayed before the badge label. */
@@ -153,8 +157,8 @@ export function Badge(props: BadgeProps): JSX.Element {
               name={trailing()}
               size={merged.size}
               data-slot="trailing"
-              styles={{ root: merged.styles?.trailing }}
-              classes={{ root: cn('ms-.5', merged.classes?.trailing) }}
+              style={merged.styles?.trailing}
+              class={cn('ms-.5', merged.classes?.trailing)}
               onClick={merged.onTrailingClick}
             />
           </Show>

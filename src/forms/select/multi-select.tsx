@@ -608,9 +608,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                         size={api.field.size()}
                         title={option.key}
                         variant={props.tagVariant}
-                        styles={{ root: props.styles?.tag }}
+                        style={props.styles?.tag}
+                        class={cn('pe-0 max-w-50%', props.classes?.tag)}
                         classes={{
-                          root: ['max-w-50% pe-0', props.classes?.tag],
                           trailing: ['rounded hover:bg-accent scale-85', props.classes?.tagRemove],
                         }}
                         trailing={props.closeIcon ?? 'icon-close'}

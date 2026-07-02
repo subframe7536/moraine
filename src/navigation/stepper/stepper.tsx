@@ -27,7 +27,11 @@ export namespace StepperT {
   export type Value = string
 
   export interface Slot<T = unknown> {
-    /** Stepper container that owns orientation, step state, and panel rendering. */
+    /**
+     * Stepper container that owns orientation, step state, and panel rendering.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Step navigation header that contains all step triggers. */

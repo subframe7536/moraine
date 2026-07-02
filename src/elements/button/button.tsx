@@ -15,7 +15,11 @@ import { buttonVariants } from './button.class'
 
 export namespace ButtonT {
   export interface Slot<T = unknown> {
-    /** Interactive button element, or the polymorphic element provided through `as`. */
+    /**
+     * Interactive button element, or the polymorphic element provided through `as`.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Loading icon shown while the button is busy. */

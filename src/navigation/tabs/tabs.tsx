@@ -29,7 +29,11 @@ import type { TabsVariantProps } from './tabs.class'
 
 export namespace TabsT {
   export interface Slot<T = unknown> {
-    /** Tabs container that owns tab selection and panel rendering. */
+    /**
+     * Tabs container that owns tab selection and panel rendering.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Tablist that contains all tab triggers and the selection indicator. */

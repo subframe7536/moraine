@@ -37,7 +37,11 @@ export namespace SliderT {
   export type Value = number | number[]
 
   export interface Slot<T = unknown> {
-    /** Slider container that owns track, range, thumbs, and labels. */
+    /**
+     * Slider container that owns track, range, thumbs, and labels.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Background rail representing the full slider range. */

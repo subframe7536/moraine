@@ -10,7 +10,11 @@ import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonInnerT {
   export interface Slot<T = unknown> {
-    /** Internal icon-only button shell used by composed components. */
+    /**
+     * Internal icon-only button shell used by composed components.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Icon glyph rendered inside the internal button shell. */

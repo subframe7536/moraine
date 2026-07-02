@@ -91,14 +91,14 @@ moraineTailwind({
 
 ## Override Component Styles
 
-Most components support `classes` and `styles`. Keys match slot names.
+Use top-level `class` and `style` for the component root. Use `classes` and `styles` for inner slots; keys match slot names.
 
 ```tsx
 import { Button } from 'moraine'
 
 function MyButton() {
   return (
-    <Button classes={{ label: 'bg-green-500' }} styles={{ root: { background: 'red' } }}>
+    <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'bg-green-500' }}>
       Click me
     </Button>
   )

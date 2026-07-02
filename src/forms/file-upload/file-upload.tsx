@@ -48,7 +48,11 @@ export namespace FileUploadT {
   export type Value = File | File[] | null
 
   export interface Slot<T = unknown> {
-    /** Upload component container that owns dropzone, file input, and file list. */
+    /**
+     * Upload component container that owns dropzone, file input, and file list.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Dropzone and picker control users interact with to select files. */

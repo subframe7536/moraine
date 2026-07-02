@@ -55,7 +55,11 @@ export namespace ResizableT {
   }
 
   export interface Slot<T = unknown> {
-    /** Layout container that owns resizable panels and handles. */
+    /**
+     * Layout container that owns resizable panels and handles.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Content pane whose size is controlled by adjacent resize handles. */

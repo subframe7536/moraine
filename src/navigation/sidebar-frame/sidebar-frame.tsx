@@ -68,7 +68,11 @@ export namespace SidebarFrameT {
    * Slot keys for classes/styles overrides.
    */
   export interface Slot<T = unknown> {
-    /** Frame container that coordinates sidebar and main content layout. */
+    /**
+     * Frame container that coordinates sidebar and main content layout.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */

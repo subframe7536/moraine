@@ -20,7 +20,7 @@ export function WithValidation() {
 
         return errors
       }}
-      classes={{ root: 'mx-auto max-w-xl w-full space-y-4' }}
+      class={'mx-auto max-w-xl w-full space-y-4'}
     >
       <FormField name="email" label="Owner Email" required>
         <Input

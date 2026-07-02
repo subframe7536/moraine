@@ -28,7 +28,11 @@ export namespace InputT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /** Input wrapper that positions icons, loading state, and the native input. */
+    /**
+     * Input wrapper that positions icons, loading state, and the native input.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Native text input element. */

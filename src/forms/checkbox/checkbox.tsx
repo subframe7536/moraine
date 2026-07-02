@@ -29,7 +29,11 @@ import {
 
 export namespace CheckboxT {
   export interface Slot<T = unknown> {
-    /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
+    /**
+     * Labelable checkbox wrapper that coordinates input, indicator, and text content.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Text column that groups label and description. */

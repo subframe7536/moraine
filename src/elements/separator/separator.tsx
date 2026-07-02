@@ -12,7 +12,11 @@ import {
 
 export namespace SeparatorT {
   export interface Slot<T = unknown> {
-    /** Separator line container, including optional label content. */
+    /**
+     * Separator line container, including optional label content.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Visual line segment rendered around optional separator content. */

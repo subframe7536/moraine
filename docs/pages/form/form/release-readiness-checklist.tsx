@@ -14,7 +14,7 @@ export function ReleaseReadinessChecklist() {
         ),
         notes: v.pipe(v.string(), v.minLength(10, 'Add at least 10 characters of release notes.')),
       })}
-      classes={{ root: 'mx-auto max-w-2xl w-full space-y-4' }}
+      class={'mx-auto max-w-2xl w-full space-y-4'}
     >
       <FormField name="releaseVersion" label="Release Version" required>
         <Input placeholder="v2.14.0" />

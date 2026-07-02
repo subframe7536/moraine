@@ -79,7 +79,8 @@ export function DocsSearchTrigger(props: {
           size="xs"
           variant="outline"
           value={['⌘', 'K']}
-          classes={{ root: 'gap-1', item: 'text-[0.65rem]' }}
+          class="gap-1"
+          classes={{ item: 'text-[0.65rem]' }}
         />
       </Show>
     </button>

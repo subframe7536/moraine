@@ -37,7 +37,11 @@ export namespace FormFieldT {
   }
 
   export interface Slot<T = unknown> {
-    /** Field wrapper that links label, control, description, and messages. */
+    /**
+     * Field wrapper that links label, control, description, and messages.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Inner wrapper that arranges label, control, helper text, and messages. */

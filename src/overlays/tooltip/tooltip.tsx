@@ -139,10 +139,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           variant={merged.invert ? 'invert' : undefined}
           size="sm"
           value={merged.kbds}
-          classes={{
-            root: [merged.text && 'ms-1', merged.classes?.kbds],
-            item: merged.classes?.kbd,
-          }}
+          class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
+          classes={{ item: merged.classes?.kbd }}
         />
       </div>
     )

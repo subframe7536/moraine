@@ -21,7 +21,11 @@ type Status = 'idle' | 'loading' | 'loaded' | 'error'
 
 export namespace AvatarT {
   export interface Slot<T = unknown> {
-    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
+    /**
+     * Avatar frame that controls size, shape, image, fallback, and badge placement.
+     * @deprecated Use top-level `class` and `style` props for the component root.
+     */
+
     root?: T
 
     /** Loaded avatar image rendered inside the frame. */
