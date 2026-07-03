@@ -168,14 +168,14 @@
         "defaultValue": "icon-close"
       },
       {
-        "name": "empty",
+        "name": "emptyRender",
         "required": false,
         "type": "JSX.Element",
         "description": "Elements to show when no items match the search.",
         "defaultValue": "No results."
       },
       {
-        "name": "footer",
+        "name": "footerRender",
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render at bottom of the palette."

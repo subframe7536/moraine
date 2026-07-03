@@ -20,7 +20,7 @@
   "props": {
     "own": [
       {
-        "name": "between",
+        "name": "betweenRender",
         "required": false,
         "type": "JSX.Element",
         "description": "Slot between kbds"

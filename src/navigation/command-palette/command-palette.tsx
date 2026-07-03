@@ -188,9 +188,9 @@ export namespace CommandPaletteT {
      * Elements to show when no items match the search.
      * @default 'No results.'
      */
-    empty?: JSX.Element
+    emptyRender?: JSX.Element
     /** Content to render at bottom of the palette. */
-    footer?: JSX.Element
+    footerRender?: JSX.Element
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -292,7 +292,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       childIcon: 'icon-chevron-right' as IconT.Name,
       backIcon: 'icon-arrow-left' as IconT.Name,
       closeIcon: 'icon-close' as IconT.Name,
-      empty: 'No results.',
+      emptyRender: 'No results.',
     },
     props,
   )
@@ -551,7 +551,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
             style={merged.styles?.empty}
             class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
           >
-            {merged.empty}
+            {merged.emptyRender}
           </div>
         }
       >
@@ -717,13 +717,13 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         </div>
       </Show>
 
-      <Show when={merged.footer}>
+      <Show when={merged.footerRender}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
           class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
         >
-          {merged.footer}
+          {merged.footerRender}
         </div>
       </Show>
     </div>

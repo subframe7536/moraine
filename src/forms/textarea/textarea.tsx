@@ -123,12 +123,12 @@ export namespace TextareaT {
     /**
      * Element to render above the textarea.
      */
-    header?: JSX.Element
+    headerRender?: JSX.Element
 
     /**
      * Element to render below the textarea.
      */
-    footer?: JSX.Element
+    footerRender?: JSX.Element
 
     /**
      * Modifiers for input processing (e.g., lazy, trim, number).
@@ -353,7 +353,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
     >
-      <Show when={merged.header}>
+      <Show when={merged.headerRender}>
         <div
           data-slot="header"
           style={merged.styles?.header}
@@ -364,7 +364,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
             merged.classes?.header,
           )}
         >
-          {merged.header}
+          {merged.headerRender}
         </div>
       </Show>
 
@@ -401,7 +401,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
       {merged.children}
 
-      <Show when={merged.footer}>
+      <Show when={merged.footerRender}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
@@ -412,7 +412,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
             merged.classes?.footer,
           )}
         >
-          {merged.footer}
+          {merged.footerRender}
         </div>
       </Show>
     </div>

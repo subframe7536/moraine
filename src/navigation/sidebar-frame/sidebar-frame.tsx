@@ -148,7 +148,7 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
         open={ctx.isOpen()}
         onOpenChange={ctx.setOpen}
         close={false}
-        body={<ctx.sidebar />}
+        bodyRender={<ctx.sidebar />}
       >
         <span class="hidden" aria-hidden="true" />
       </Sheet>

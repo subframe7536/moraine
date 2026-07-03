@@ -7,12 +7,16 @@ export function Variants() {
         inset
         title="Inset sheet"
         close={<span class="text-xs font-semibold">Done</span>}
-        body="Inset sheet with custom close content."
+        bodyRender="Inset sheet with custom close content."
       >
         <Button variant="secondary">Inset + custom close</Button>
       </Sheet>
 
-      <Sheet title="No close button" close={false} body="Close button is hidden for this sheet.">
+      <Sheet
+        title="No close button"
+        close={false}
+        bodyRender="Close button is hidden for this sheet."
+      >
         <Button variant="outline">Close=false</Button>
       </Sheet>
     </div>
