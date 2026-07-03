@@ -1210,5 +1210,56 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenLastCalledWith(60)
     })
+
+    test('track press reuses the last focused overlapping thumb', async () => {
+      const screen = render(() => <Slider defaultValue={[20, 20]} />)
+      const thumbs = getThumbs(screen.container)
+      const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+
+      mockPointerCapture(track)
+      mockTrackRect(track)
+
+      await fireEvent.focus(thumbs[0] as HTMLElement)
+      await fireEvent.pointerDown(track, {
+        button: 0,
+        pointerId: 1,
+        clientX: 20,
+        clientY: 0,
+      })
+
+      expect(document.activeElement).toBe(thumbs[0])
+    })
+
+    test('pointer cancel commits pending drag values', async () => {
+      const onChange = vi.fn()
+      const screen = render(() => <Slider defaultValue={20} onChange={onChange} />)
+      const thumb = getThumbs(screen.container)[0] as HTMLElement
+      const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+
+      mockPointerCapture(thumb)
+      mockTrackRect(track)
+
+      await fireEvent.pointerDown(thumb, {
+        button: 0,
+        pointerId: 1,
+        clientX: 20,
+        clientY: 0,
+      })
+      await fireEvent.pointerMove(thumb, {
+        pointerId: 1,
+        clientX: 45,
+        clientY: 0,
+      })
+
+      expect(onChange).not.toHaveBeenCalled()
+
+      await fireEvent.pointerCancel(thumb, {
+        pointerId: 1,
+        clientX: 45,
+        clientY: 0,
+      })
+
+      expect(onChange).toHaveBeenLastCalledWith(45)
+    })
   })
 })
