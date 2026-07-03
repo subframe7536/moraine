@@ -53,6 +53,28 @@ describe('DropdownMenu', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
+  test('closes from trigger keyboard escape while open', async () => {
+    const screen = render(() => (
+      <DropdownMenu items={[{ label: 'Open file' }]}>
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    const trigger = screen.getByText('Actions')
+    await fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    await fireEvent.keyDown(trigger, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+    })
+  })
+
   test('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
     const screen = render(() => (
       <DropdownMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>

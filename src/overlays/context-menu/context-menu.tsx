@@ -63,6 +63,10 @@ function hasLongPressMovedBeyondTolerance(
   return x * x + y * y > CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE ** 2
 }
 
+function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
+  return event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)
+}
+
 /**
  * Menu triggered by right-click or long press on its child content.
  */
@@ -103,14 +107,29 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     merged.onOpenChange?.(open)
   }
 
-  const openFromPoint = (x: number, y: number): void => {
+  const openFromPoint = (
+    x: number,
+    y: number,
+    strategy: OverlayMenuFocusStrategy = 'content',
+  ): void => {
     if (merged.disabled) {
       return
     }
 
-    setAutoFocusStrategy('content')
+    setAutoFocusStrategy(strategy)
     setAnchorPoint({ x, y })
     commitOpen(true)
+  }
+
+  const openFromTriggerCenter = (strategy: OverlayMenuFocusStrategy): void => {
+    const rect = triggerElement?.getBoundingClientRect()
+
+    if (!rect) {
+      openFromPoint(0, 0, strategy)
+      return
+    }
+
+    openFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2, strategy)
   }
 
   /** Consume the deferred native contextmenu event emitted after dismissing from right-click or long-press input. */
@@ -335,6 +354,21 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         onPointerMove={onPointerMove}
         onPointerCancel={onPointerCancel}
         onPointerUp={onPointerUp}
+        onKeyDown={(event) => {
+          if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
+            return
+          }
+
+          event.preventDefault()
+          event.stopPropagation()
+
+          if (resolvedOpen()) {
+            commitOpen(false)
+            return
+          }
+
+          openFromTriggerCenter('first')
+        }}
       >
         {merged.children}
       </span>
