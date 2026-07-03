@@ -14,20 +14,19 @@ export function Single() {
             value: 'shipping',
             label: 'Shipping information',
             leading: 'i-lucide-truck',
-            renderContent:
-              'Orders are processed in 1-2 business days and delivered in 3-5 business days.',
+            render: 'Orders are processed in 1-2 business days and delivered in 3-5 business days.',
           },
           {
             value: 'returns',
             label: 'Returns policy',
             leading: 'i-lucide-rotate-ccw',
-            renderContent: 'Returns are accepted within 30 days of delivery.',
+            render: 'Returns are accepted within 30 days of delivery.',
           },
           {
             value: 'support',
             label: 'Support',
             leading: 'i-lucide-life-buoy',
-            renderContent: 'Reach support any time at support@example.com.',
+            render: 'Reach support any time at support@example.com.',
           },
         ]}
       />

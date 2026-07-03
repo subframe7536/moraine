@@ -214,20 +214,20 @@ export function SidebarFrameSheetResizableRender(
             ctx.side === 'left'
               ? [
                   {
-                    renderContent: <ctx.sidebar />,
+                    render: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },
                   {
-                    renderContent: <ctx.main />,
+                    render: <ctx.main />,
                   },
                 ]
               : [
                   {
-                    renderContent: <ctx.main />,
+                    render: <ctx.main />,
                   },
                   {
-                    renderContent: <ctx.sidebar />,
+                    render: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },

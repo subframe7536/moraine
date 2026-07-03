@@ -66,7 +66,7 @@ export namespace AccordionT {
     /**
      * Content to display when the accordion item is expanded.
      */
-    renderContent?: JSX.Element
+    render?: JSX.Element
   }
   /**
    * Base props for the Accordion component.
@@ -455,8 +455,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   )}
                   {...contentDataAttrs()}
                 >
-                  <Show when={entry.item.renderContent}>
-                    <div class="style-accordion-content pb-2.5">{entry.item.renderContent}</div>
+                  <Show when={entry.item.render}>
+                    <div class="style-accordion-content pb-2.5">{entry.item.render}</div>
                   </Show>
                 </div>
               </Show>

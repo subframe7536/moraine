@@ -24,7 +24,7 @@ export function resolvePanels(
       onExpand: panel.onExpand,
       class: panel.class,
       style: panel.style,
-      renderContent: panel.renderContent,
+      render: panel.render,
     }
   })
 }

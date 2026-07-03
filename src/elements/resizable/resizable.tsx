@@ -846,7 +846,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 onTransitionEnd={(event) => onPanelTransitionFinish(index, event)}
                 onTransitionCancel={(event) => onPanelTransitionFinish(index, event)}
               >
-                {panelItem().renderContent}
+                {panelItem().render}
               </div>
 
               <Show when={index < resolvedPanels().length - 1}>

@@ -89,7 +89,7 @@ export interface ResizablePanelItem {
   /**
    * Content to render inside the panel.
    */
-  renderContent?: JSX.Element
+  render?: JSX.Element
 }
 
 export const PRECISION = 6

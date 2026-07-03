@@ -11,19 +11,19 @@ export function Variants() {
             label: 'Overview',
             value: 'overview',
             icon: 'i-lucide:layout-dashboard',
-            renderContent: <p class="text-sm text-foreground">Overview panel content.</p>,
+            render: <p class="text-sm text-foreground">Overview panel content.</p>,
           },
           {
             label: 'Settings',
             value: 'settings',
             icon: 'i-lucide:settings',
-            renderContent: <p class="text-sm text-foreground">Settings panel content.</p>,
+            render: <p class="text-sm text-foreground">Settings panel content.</p>,
           },
           {
             label: 'Billing',
             value: 'billing',
             icon: 'i-lucide:credit-card',
-            renderContent: <p class="text-sm text-foreground">Billing panel content.</p>,
+            render: <p class="text-sm text-foreground">Billing panel content.</p>,
           },
         ]}
       />
@@ -35,19 +35,19 @@ export function Variants() {
             label: 'Overview',
             value: 'overview',
             icon: 'i-lucide:layout-dashboard',
-            renderContent: <p class="text-sm text-foreground">Overview panel content.</p>,
+            render: <p class="text-sm text-foreground">Overview panel content.</p>,
           },
           {
             label: 'Settings',
             value: 'settings',
             icon: 'i-lucide:settings',
-            renderContent: <p class="text-sm text-foreground">Settings panel content.</p>,
+            render: <p class="text-sm text-foreground">Settings panel content.</p>,
           },
           {
             label: 'Billing',
             value: 'billing',
             icon: 'i-lucide:credit-card',
-            renderContent: <p class="text-sm text-foreground">Billing panel content.</p>,
+            render: <p class="text-sm text-foreground">Billing panel content.</p>,
           },
         ]}
       />

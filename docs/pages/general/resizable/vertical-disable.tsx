@@ -24,7 +24,7 @@ export function VerticalDisable() {
             panels={[
               {
                 defaultSize: '33%',
-                renderContent: createPanel(
+                render: createPanel(
                   'Top',
                   'Interactive vertical divider between top and middle.',
                   'bg-muted',
@@ -33,7 +33,7 @@ export function VerticalDisable() {
               {
                 defaultSize: '34%',
                 min: '30%',
-                renderContent: createPanel(
+                render: createPanel(
                   'Middle',
                   'All dividers remain present because handle settings live on the root now.',
                   'bg-background',
@@ -41,11 +41,7 @@ export function VerticalDisable() {
               },
               {
                 defaultSize: '33%',
-                renderContent: createPanel(
-                  'Bottom',
-                  'Last panel in the vertical stack.',
-                  'bg-muted',
-                ),
+                render: createPanel('Bottom', 'Last panel in the vertical stack.', 'bg-muted'),
               },
             ]}
           />
@@ -65,7 +61,7 @@ export function VerticalDisable() {
             panels={[
               {
                 defaultSize: '33%',
-                renderContent: createPanel(
+                render: createPanel(
                   'Top',
                   'Divider stays visible but is not interactive.',
                   'bg-muted',
@@ -73,7 +69,7 @@ export function VerticalDisable() {
               },
               {
                 defaultSize: '34%',
-                renderContent: createPanel(
+                render: createPanel(
                   'Middle',
                   'Keyboard and pointer resizing are both disabled.',
                   'bg-background',
@@ -81,7 +77,7 @@ export function VerticalDisable() {
               },
               {
                 defaultSize: '33%',
-                renderContent: createPanel('Bottom', 'Useful for read-only layouts.', 'bg-muted'),
+                render: createPanel('Bottom', 'Useful for read-only layouts.', 'bg-muted'),
               },
             ]}
           />
