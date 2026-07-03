@@ -1,8 +1,10 @@
 import type { JSX } from 'solid-js'
-import { For, mergeProps } from 'solid-js'
+import { For, mergeProps, onMount } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useId } from '../../shared/utils'
+import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -135,21 +137,62 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     props,
   )
 
-  const slider = useSlider(merged)
+  const generatedId = useId(() => merged.id, 'slider')
+  const field = useFormField(
+    () => ({
+      id: merged.id,
+      name: merged.name,
+      size: merged.size,
+      disabled: merged.disabled,
+    }),
+    () => ({
+      defaultId: generatedId(),
+      defaultSize: 'md',
+    }),
+  )
+  const sliderOptions = mergeProps(merged, {
+    get disabled() {
+      return field.disabled()
+    },
+    onValueInput(value: TValue) {
+      field.setFormValue(value)
+      merged.onValueChange?.(value)
+      field.emit('input')
+    },
+    onValueCommit(value: TValue) {
+      field.setFormValue(value)
+      merged.onChange?.(value)
+      field.emit('change')
+    },
+    onFocus() {
+      field.emit('focus')
+    },
+    onBlur() {
+      field.emit('blur')
+    },
+  })
+  const slider = useSlider(sliderOptions)
+
+  onMount(() => {
+    if (field.value() === undefined) {
+      field.setFormValue(slider.getPublicValue(slider.currentValues()))
+    }
+  })
+
   return (
     <div
-      id={`${slider.field.id()}-root`}
+      id={`${field.id()}-root`}
       role="group"
       data-slot="root"
       data-orientation={merged.orientation}
-      data-disabled={slider.field.disabled() ? '' : undefined}
-      data-invalid={slider.field.invalid() ? '' : undefined}
+      data-disabled={field.disabled() ? '' : undefined}
+      data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={merged.required ? '' : undefined}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={sliderRootVariants(
         { orientation: merged.orientation },
-        slider.field.disabled() && 'effect-dis',
+        field.disabled() && 'effect-dis',
         merged.classes?.root,
         merged.class,
       )}
@@ -163,7 +206,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         style={merged.styles?.track}
         class={sliderTrackVariants(
           {
-            size: slider.field.size(),
+            size: field.size(),
             orientation: merged.orientation,
             variant: merged.variant,
           },
@@ -224,12 +267,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-dragging={
               slider.dragging() && slider.activeThumbIndexState() === thumbIndex ? '' : undefined
             }
-            data-disabled={slider.field.disabled() ? '' : undefined}
-            data-invalid={slider.field.invalid() ? '' : undefined}
+            data-disabled={field.disabled() ? '' : undefined}
+            data-invalid={field.invalid() ? '' : undefined}
             data-readonly={merged.readOnly ? '' : undefined}
             data-required={merged.required ? '' : undefined}
             role="slider"
-            tabIndex={slider.field.disabled() ? undefined : 0}
+            tabIndex={field.disabled() ? undefined : 0}
             style={{
               ...slider.thumbStyles()[thumbIndex],
               ...merged.styles?.thumb,
@@ -238,7 +281,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               {
                 inverted: merged.inverted,
                 orientation: merged.orientation,
-                size: slider.field.size(),
+                size: field.size(),
                 variant: merged.variant,
               },
               merged.classes?.thumb,
@@ -254,7 +297,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 : `Thumb ${thumbIndex + 1} of ${slider.currentValues().length}`
             }
             aria-required={merged.required || undefined}
-            aria-disabled={slider.field.disabled() || undefined}
+            aria-disabled={field.disabled() || undefined}
             aria-readonly={merged.readOnly || undefined}
             onPointerDown={(event) => {
               slider.onThumbPointerDown(thumbIndex, event)
@@ -278,22 +321,22 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           >
             <HiddenInput
               type="range"
-              id={slider.field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
-              name={slider.field.name()}
+              id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
+              name={field.name()}
               min={slider.getThumbMinValue(slider.currentValues(), thumbIndex)}
               max={slider.getThumbMaxValue(slider.currentValues(), thumbIndex)}
               step={slider.definedStep() ?? 'any'}
               value={slider.currentValues()[thumbIndex] ?? merged.min!}
               required={merged.required}
-              disabled={slider.field.disabled()}
+              disabled={field.disabled()}
               readOnly={merged.readOnly}
-              tabIndex={slider.field.disabled() ? undefined : -1}
+              tabIndex={field.disabled() ? undefined : -1}
               aria-valuetext={slider.getThumbValueText(thumbIndex)}
               aria-orientation={merged.orientation}
               aria-required={merged.required || undefined}
-              aria-disabled={slider.field.disabled() || undefined}
+              aria-disabled={field.disabled() || undefined}
               aria-readonly={merged.readOnly || undefined}
-              {...slider.field.ariaAttrs()}
+              {...field.ariaAttrs()}
             />
           </div>
         )}

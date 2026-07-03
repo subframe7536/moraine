@@ -1,9 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, onMount } from 'solid-js'
 
-import { useId } from '../../../shared/utils'
-import { useFormField } from '../../form-field/form-field-context'
-import type { SliderProps, SliderT } from '../slider'
+import type { SliderVariantProps } from '../slider.class'
 import {
   clamp,
   getClosestValueIndex,
@@ -15,20 +13,32 @@ import {
   resolveSliderEdges,
   snapValueToStep,
 } from '../utils'
+import type { SliderValue } from '../utils'
 
-type UseSliderProps<TValue extends SliderT.Value> = SliderProps<TValue> & {
+type UseSliderProps<TValue extends SliderValue> = {
   allowThumbCrossing: boolean
+  defaultValue?: TValue
+  disabled?: boolean
+  divider?: boolean
   inverted: boolean
   max: number
   min: number
   minStepsBetweenThumbs: number
   orientation: 'horizontal' | 'vertical'
+  readOnly?: boolean
+  step?: number
+  styles?: { divider?: JSX.CSSProperties }
+  value?: TValue
+  variant?: SliderVariantProps['variant']
+  onBlur?: () => void
+  onFocus?: () => void
+  onValueCommit?: (value: TValue) => void
+  onValueInput?: (value: TValue) => void
 }
 
-export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
+export function useSlider<TValue extends SliderValue = SliderValue>(
   merged: UseSliderProps<TValue>,
 ) {
-  const generatedId = useId(() => merged.id, 'slider')
   const [displayValues, setDisplayValues] = createSignal<number[]>([])
   const getControlledValues = () => normalizeSliderValues(merged.value, merged.min!)
 
@@ -75,23 +85,10 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
       ? false
       : (document.dir || document.documentElement.dir || 'ltr') === 'rtl'
 
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: merged.size,
-      disabled: merged.disabled,
-    }),
-    () => ({
-      defaultId: generatedId(),
-      defaultSize: 'md',
-    }),
-  )
-
   const getSliderEdges = createMemo(() =>
     resolveSliderEdges(merged.orientation, merged.inverted, isRTL()),
   )
-  const isActionDisabled = createMemo(() => field.disabled() || merged.readOnly)
+  const isActionDisabled = createMemo(() => merged.disabled || merged.readOnly)
   const currentValues = createMemo(() => getControlledValues() ?? displayValues())
   const interactionValues = () => pendingValues ?? currentValues()
   const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
@@ -139,10 +136,6 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
     if (getControlledValues() === undefined) {
       setDisplayValues(initialValue)
     }
-
-    if (field.value() === undefined) {
-      field.setFormValue(toPublicValue(initialValue))
-    }
   })
 
   createEffect(() => {
@@ -152,7 +145,7 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
     }
   })
 
-  function toPublicValue(values: number[]): TValue {
+  function getPublicValue(values: number[]): TValue {
     if (Array.isArray(merged.value) || Array.isArray(merged.defaultValue)) {
       return [...values] as TValue
     }
@@ -217,10 +210,7 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
       return
     }
 
-    const nextValue = toPublicValue(pendingValues)
-    field.setFormValue(nextValue)
-    merged.onChange?.(nextValue)
-    field.emit('change')
+    merged.onValueCommit?.(getPublicValue(pendingValues))
     pendingValues = undefined
   }
 
@@ -292,10 +282,7 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
     pendingValues = nextValues
     setDisplayValues(nextValues)
 
-    const publicValue = toPublicValue(nextValues)
-    field.setFormValue(publicValue)
-    merged.onValueChange?.(publicValue)
-    field.emit('input')
+    merged.onValueInput?.(getPublicValue(nextValues))
 
     return nextIndex
   }
@@ -485,7 +472,7 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
 
   function onThumbFocus(index: number): void {
     lastUsedThumbIndex = index
-    field.emit('focus')
+    merged.onFocus?.()
   }
 
   function onThumbKeyUp(event: KeyboardEvent): void {
@@ -516,7 +503,7 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
   }
 
   function onThumbBlur(): void {
-    field.emit('blur')
+    merged.onBlur?.()
 
     if (suppressNextBlurCommit) {
       suppressNextBlurCommit = false
@@ -545,8 +532,8 @@ export function useSlider<TValue extends SliderT.Value = SliderT.Value>(
     definedStep,
     dividerIndexes,
     dragging,
-    field,
     getDividerStyle,
+    getPublicValue,
     getThumbMaxValue,
     getThumbMinValue,
     getThumbValueText,
