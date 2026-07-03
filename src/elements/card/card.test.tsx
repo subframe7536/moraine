@@ -27,7 +27,10 @@ describe('Card', () => {
 
   test('renders header and footer only when provided', () => {
     const emptyScreen = render(() => (
-      <Card header={false as unknown as JSX.Element} footer={null as unknown as JSX.Element}>
+      <Card
+        renderHeader={false as unknown as JSX.Element}
+        renderFooter={null as unknown as JSX.Element}
+      >
         Body
       </Card>
     ))
@@ -36,7 +39,7 @@ describe('Card', () => {
     expect(emptyScreen.container.querySelector('[data-slot="footer"]')).toBeNull()
 
     const screen = render(() => (
-      <Card header="Header content" footer="Footer content">
+      <Card renderHeader="Header content" renderFooter="Footer content">
         Body
       </Card>
     ))
@@ -50,8 +53,8 @@ describe('Card', () => {
   test('applies classes.root/classes.header/classes.body/classes.footer overrides', () => {
     const screen = render(() => (
       <Card
-        header="Header"
-        footer="Footer"
+        renderHeader="Header"
+        renderFooter="Footer"
         classes={{
           root: 'root-override',
           header: 'header-override',
@@ -77,8 +80,8 @@ describe('Card', () => {
   test('applies styles.root/styles.header/styles.body/styles.footer overrides', () => {
     const screen = render(() => (
       <Card
-        header="Header"
-        footer="Footer"
+        renderHeader="Header"
+        renderFooter="Footer"
         styles={{
           root: { width: '200px' },
           header: { width: '200px' },

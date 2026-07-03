@@ -57,12 +57,12 @@ export function Usage() {
     <Popup
       open={paletteOpen()}
       onOpenChange={setPaletteOpen}
-      content={
+      renderContent={
         <CommandPalette
           items={BASIC_GROUPS}
           close
           onClose={() => setPaletteOpen(false)}
-          footer={
+          renderFooter={
             <div class="flex gap-4 items-center justify-between">
               <div class="flex flex-wrap gap-3 items-center">
                 <div class="flex gap-2 items-center">

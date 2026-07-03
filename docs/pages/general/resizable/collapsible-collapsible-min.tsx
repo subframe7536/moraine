@@ -48,7 +48,7 @@ export function CollapsibleCollapsibleMin() {
               min: '16%',
               collapsible: true,
               collapsibleMin: '10%',
-              content: createPanel(
+              renderContent: createPanel(
                 'Sidebar',
                 'Click the handle to collapse/expand. Drag the divider to resize.',
                 'bg-muted',
@@ -57,7 +57,7 @@ export function CollapsibleCollapsibleMin() {
             {
               size: externalSizes()[1],
               min: '24%',
-              content: createPanel(
+              renderContent: createPanel(
                 'Editor',
                 'Dragging still works and keeps controlled px sizes in sync.',
                 'bg-background',

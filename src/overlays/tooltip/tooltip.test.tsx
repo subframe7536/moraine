@@ -25,7 +25,7 @@ describe('Tooltip', () => {
 
   test('renders text content when open is controlled', () => {
     render(() => (
-      <Tooltip open text="Tooltip content">
+      <Tooltip open renderText="Tooltip content">
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -35,7 +35,7 @@ describe('Tooltip', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Tooltip text="Tooltip content">
+      <Tooltip renderText="Tooltip content">
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -47,7 +47,7 @@ describe('Tooltip', () => {
 
   test('applies top-level class and style to trigger', () => {
     render(() => (
-      <Tooltip text="Tooltip content" class="trigger-class" style={{ width: '200px' }}>
+      <Tooltip renderText="Tooltip content" class="trigger-class" style={{ width: '200px' }}>
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -60,7 +60,7 @@ describe('Tooltip', () => {
 
   test('renders keyboard hints', () => {
     render(() => (
-      <Tooltip open text="Save" kbds={['Ctrl', 'S']}>
+      <Tooltip open renderText="Save" kbds={['Ctrl', 'S']}>
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -74,7 +74,7 @@ describe('Tooltip', () => {
 
   test('applies classes.content to content slot', () => {
     render(() => (
-      <Tooltip open text="Tooltip content" classes={{ content: 'content-override' }}>
+      <Tooltip open renderText="Tooltip content" classes={{ content: 'content-override' }}>
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -98,7 +98,7 @@ describe('Tooltip', () => {
 
   test('does not render content when disabled', () => {
     const screen = render(() => (
-      <Tooltip open text="Tooltip content" disabled>
+      <Tooltip open renderText="Tooltip content" disabled>
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -114,7 +114,7 @@ describe('Tooltip', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Tooltip open text="Styled" styles={{ content: { width: '200px' } }}>
+      <Tooltip open renderText="Styled" styles={{ content: { width: '200px' } }}>
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -131,7 +131,7 @@ describe('Tooltip', () => {
       version()
 
       return (
-        <Tooltip open side="top" text="Tooltip content">
+        <Tooltip open side="top" renderText="Tooltip content">
           <button type="button">Trigger</button>
         </Tooltip>
       )
@@ -157,7 +157,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
-      <Tooltip text="Tooltip content">
+      <Tooltip renderText="Tooltip content">
         <button type="button">Trigger</button>
       </Tooltip>
     ))
@@ -180,10 +180,10 @@ describe('Tooltip', () => {
 
     const screen = render(() => (
       <div>
-        <Tooltip text="First tooltip">
+        <Tooltip renderText="First tooltip">
           <button type="button">First</button>
         </Tooltip>
-        <Tooltip text="Second tooltip">
+        <Tooltip renderText="Second tooltip">
           <button type="button">Second</button>
         </Tooltip>
       </div>
@@ -220,10 +220,10 @@ describe('Tooltip', () => {
 
     const screen = render(() => (
       <div>
-        <Tooltip text="First tooltip">
+        <Tooltip renderText="First tooltip">
           <button type="button">First</button>
         </Tooltip>
-        <Tooltip text="Second tooltip">
+        <Tooltip renderText="Second tooltip">
           <button type="button">Second</button>
         </Tooltip>
       </div>
@@ -261,10 +261,10 @@ describe('Tooltip', () => {
 
     const screen = render(() => (
       <div>
-        <Tooltip text="First tooltip">
+        <Tooltip renderText="First tooltip">
           <button type="button">First</button>
         </Tooltip>
-        <Tooltip text="Second tooltip">
+        <Tooltip renderText="Second tooltip">
           <button type="button">Second</button>
         </Tooltip>
       </div>

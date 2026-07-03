@@ -26,12 +26,14 @@ export function ControlledDisabledItems() {
           {
             label: 'Overview',
             value: 'overview',
-            content: <p class="text-sm text-foreground">Overview section with release status.</p>,
+            renderContent: (
+              <p class="text-sm text-foreground">Overview section with release status.</p>
+            ),
           },
           {
             label: 'Settings',
             value: 'settings',
-            content: (
+            renderContent: (
               <p class="text-sm text-foreground">Settings section with environment options.</p>
             ),
           },
@@ -39,7 +41,9 @@ export function ControlledDisabledItems() {
             label: 'Billing (Disabled)',
             value: 'billing',
             disabled: true,
-            content: <p class="text-sm text-foreground">This panel is intentionally disabled.</p>,
+            renderContent: (
+              <p class="text-sm text-foreground">This panel is intentionally disabled.</p>
+            ),
           },
         ]}
       />

@@ -18,12 +18,12 @@ export function BasicHorizontal() {
           {
             defaultSize: '40%',
             min: '20%',
-            content: createPanel('Navigation', 'Left panel can shrink to 20%.', 'bg-muted'),
+            renderContent: createPanel('Navigation', 'Left panel can shrink to 20%.', 'bg-muted'),
           },
           {
             defaultSize: '60%',
             min: '30%',
-            content: createPanel(
+            renderContent: createPanel(
               'Content',
               'Right panel keeps enough width for details.',
               'bg-background',

@@ -37,7 +37,7 @@ export namespace PopupT {
     | 'overlay'
     | 'dismissible'
     | 'onClosePrevent'
-    | 'content'
+    | 'renderContent'
   > {
     /**
      * Whether to allow scrolling within the popup.
@@ -121,7 +121,7 @@ export function Popup(props: PopupProps): JSX.Element {
         overlay: merged.styles?.overlay,
         content: merged.styles?.content,
       }}
-      content={merged.content}
+      renderContent={merged.renderContent}
     />
   )
 }

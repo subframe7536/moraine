@@ -9,17 +9,17 @@ export function Multiple() {
         {
           value: 'a',
           label: 'Account setup',
-          content: 'Create your account and verify email.',
+          renderContent: 'Create your account and verify email.',
         },
         {
           value: 'b',
           label: 'Team invite',
-          content: 'Invite teammates to your workspace.',
+          renderContent: 'Invite teammates to your workspace.',
         },
         {
           value: 'c',
           label: 'Billing',
-          content: 'Add a payment method to continue.',
+          renderContent: 'Add a payment method to continue.',
         },
       ]}
       classes={{

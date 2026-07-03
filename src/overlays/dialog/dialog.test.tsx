@@ -31,8 +31,8 @@ describe('Modal', () => {
         open
         title="Confirm"
         description="Please confirm"
-        body="Modal body"
-        footer="Modal footer"
+        renderBody="Modal body"
+        renderFooter="Modal footer"
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -54,7 +54,7 @@ describe('Modal', () => {
 
   test('composes dialog as popup container + card shell', () => {
     render(() => (
-      <Dialog open title="Composed" body="Body">
+      <Dialog open title="Composed" renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -68,7 +68,7 @@ describe('Modal', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Dialog open body="Body">
+      <Dialog open renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -86,7 +86,7 @@ describe('Modal', () => {
         defaultOpen
         onOpenChange={onOpenChange}
         trigger={<button type="button">Open modal</button>}
-        content={({ close }) => (
+        renderContent={({ close }) => (
           <button type="button" data-testid="content-close" onClick={close}>
             Close from content
           </button>
@@ -111,7 +111,7 @@ describe('Modal', () => {
         open
         title="Default title"
         description="Default description"
-        header={<div data-testid="custom-header">Custom Header</div>}
+        renderHeader={<div data-testid="custom-header">Custom Header</div>}
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -126,7 +126,11 @@ describe('Modal', () => {
 
   test('renders body content and keeps shell sections', () => {
     render(() => (
-      <Dialog open title="Dialog title" body={<div data-testid="custom-body">Body Content</div>}>
+      <Dialog
+        open
+        title="Dialog title"
+        renderBody={<div data-testid="custom-body">Body Content</div>}
+      >
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -141,7 +145,7 @@ describe('Modal', () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
-      <Dialog onOpenChange={onOpenChange} title="Settings" body="Body">
+      <Dialog onOpenChange={onOpenChange} title="Settings" renderBody="Body">
         <button type="button">Open modal</button>
       </Dialog>
     ))
@@ -169,7 +173,7 @@ describe('Modal', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Dialog open title="Portal default" body="Body">
+      <Dialog open title="Portal default" renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -180,7 +184,7 @@ describe('Modal', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Dialog open overlay={false} body="Body">
+      <Dialog open overlay={false} renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -190,7 +194,7 @@ describe('Modal', () => {
 
   test('supports scrollable overlay mode', () => {
     render(() => (
-      <Dialog open scrollable body="Scrollable body">
+      <Dialog open scrollable renderBody="Scrollable body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -206,7 +210,7 @@ describe('Modal', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Dialog open closeIcon={<span data-testid="custom-close">X</span>} body="Body">
+      <Dialog open closeIcon={<span data-testid="custom-close">X</span>} renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -216,7 +220,7 @@ describe('Modal', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Dialog open close={false} body="Body">
+      <Dialog open close={false} renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -228,7 +232,7 @@ describe('Modal', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
+      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} renderBody="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -251,7 +255,7 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
+        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} renderBody="Body">
           <button type="button">Trigger</button>
         </Dialog>
       </>
@@ -274,7 +278,12 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog onOpenChange={onOpenChange} defaultOpen title="Dialog title" body="Dialog body">
+        <Dialog
+          onOpenChange={onOpenChange}
+          defaultOpen
+          title="Dialog title"
+          renderBody="Dialog body"
+        >
           <button type="button">Trigger</button>
         </Dialog>
       </>
@@ -307,7 +316,7 @@ describe('Modal', () => {
         dismissible
         onClosePrevent={onClosePrevent}
         onOpenChange={onOpenChange}
-        body="Body"
+        renderBody="Body"
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -328,7 +337,7 @@ describe('Modal', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Dialog open body="Body" styles={{ content: { width: '200px' } }}>
+      <Dialog open renderBody="Body" styles={{ content: { width: '200px' } }}>
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -348,14 +357,14 @@ describe('Modal', () => {
           overlay
           onOpenChange={onOuterChange}
           trigger={<button type="button">Outer trigger</button>}
-          content={<div data-testid="outer-body">Outer body</div>}
+          renderContent={<div data-testid="outer-body">Outer body</div>}
         />
         <Modal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
           trigger={<button type="button">Inner trigger</button>}
-          content={<div data-testid="inner-body">Inner body</div>}
+          renderContent={<div data-testid="inner-body">Inner body</div>}
         />
       </>
     ))
@@ -387,14 +396,14 @@ describe('Modal', () => {
           overlay
           onOpenChange={onOuterChange}
           trigger={<button type="button">Outer trigger</button>}
-          content={<div data-testid="outer-body">Outer body</div>}
+          renderContent={<div data-testid="outer-body">Outer body</div>}
         />
         <Modal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
           trigger={<button type="button">Inner trigger</button>}
-          content={
+          renderContent={
             <button type="button" data-testid="inner-button">
               Inner button
             </button>

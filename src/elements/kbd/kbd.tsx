@@ -32,7 +32,7 @@ export namespace KbdT {
     /**
      * Slot between kbds
      */
-    between?: JSX.Element
+    renderBetween?: JSX.Element
 
     /**
      * Prefix for data-slot attributes.
@@ -73,7 +73,7 @@ export function Kbd(props: KbdProps): JSX.Element {
       >
         {innerProps.val}
       </kbd>
-      <Show when={innerProps.append}>{props.between}</Show>
+      <Show when={innerProps.append}>{props.renderBetween}</Show>
     </>
   )
   return (

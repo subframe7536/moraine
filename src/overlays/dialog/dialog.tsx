@@ -95,17 +95,17 @@ export namespace DialogT {
     /**
      * Custom element to render in the header slot.
      */
-    header?: JSX.Element
+    renderHeader?: JSX.Element
 
     /**
      * Custom element to render in the body slot.
      */
-    body?: JSX.Element
+    renderBody?: JSX.Element
 
     /**
      * Custom element to render in the footer slot.
      */
-    footer?: JSX.Element
+    renderFooter?: JSX.Element
 
     /**
      * Slot-based class overrides.
@@ -164,8 +164,8 @@ export function Dialog(props: DialogProps): JSX.Element {
   }
 
   const headerContent = (close: () => void) => {
-    if (merged.header) {
-      return merged.header
+    if (merged.renderHeader) {
+      return merged.renderHeader
     }
 
     if (!merged.title && !merged.description && !merged.close) {
@@ -261,10 +261,10 @@ export function Dialog(props: DialogProps): JSX.Element {
       }}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}
-      content={(context) => (
+      renderContent={(context) => (
         <Card
-          header={headerContent(context.close)}
-          footer={merged.footer}
+          renderHeader={headerContent(context.close)}
+          renderFooter={merged.renderFooter}
           classes={{
             root: dialogCardVariants({ layout: popupLayout() }),
             header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
@@ -275,7 +275,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             ],
           }}
         >
-          {merged.body}
+          {merged.renderBody}
         </Card>
       )}
     />

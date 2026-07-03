@@ -6,12 +6,12 @@ export function HeaderAction() {
       <Card
         title="Meeting Notes"
         description="Transcript summary from the latest client sync."
-        action={
+        renderAction={
           <Button size="sm" variant="secondary">
             Transcribe
           </Button>
         }
-        footer={
+        renderFooter={
           <div class="flex gap-2 w-full justify-end">
             <Button size="sm" variant="outline">
               Dismiss

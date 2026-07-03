@@ -52,7 +52,7 @@
   "props": {
     "own": [
       {
-        "name": "body",
+        "name": "renderBody",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the body slot."
@@ -108,7 +108,7 @@
         "description": "Whether outside interaction and Escape should dismiss the shell."
       },
       {
-        "name": "footer",
+        "name": "renderFooter",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the footer slot."
@@ -121,7 +121,7 @@
         "defaultValue": "false"
       },
       {
-        "name": "header",
+        "name": "renderHeader",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the header slot."

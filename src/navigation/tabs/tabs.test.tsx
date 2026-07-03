@@ -16,8 +16,8 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 
 describe('Tabs', () => {
   const ITEMS = [
-    { label: 'Overview', value: 'overview', content: 'Overview content' },
-    { label: 'Settings', value: 'settings', content: 'Settings content' },
+    { label: 'Overview', value: 'overview', renderContent: 'Overview content' },
+    { label: 'Settings', value: 'settings', renderContent: 'Settings content' },
   ]
 
   test('renders triggers and tab content', () => {
@@ -36,8 +36,8 @@ describe('Tabs', () => {
         value="one"
         onChange={onChange}
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
         ]}
       />
     ))
@@ -54,9 +54,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -83,9 +83,9 @@ describe('Tabs', () => {
       <Tabs
         orientation="vertical"
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -107,9 +107,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -135,9 +135,9 @@ describe('Tabs', () => {
         defaultValue="one"
         onChange={onChange}
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
       />
     ))
@@ -168,9 +168,9 @@ describe('Tabs', () => {
       <Tabs
         keyboardLoop={false}
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
         defaultValue="three"
       />
@@ -266,9 +266,9 @@ describe('Tabs', () => {
       <div dir="rtl">
         <Tabs
           items={[
-            { label: 'One', value: 'one', content: 'Panel one' },
-            { label: 'Two', value: 'two', content: 'Panel two' },
-            { label: 'Three', value: 'three', content: 'Panel three' },
+            { label: 'One', value: 'one', renderContent: 'Panel one' },
+            { label: 'Two', value: 'two', renderContent: 'Panel two' },
+            { label: 'Three', value: 'three', renderContent: 'Panel three' },
           ]}
           defaultValue="two"
         />
@@ -297,9 +297,9 @@ describe('Tabs', () => {
     const screen = render(() => (
       <Tabs
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two', disabled: true },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two', disabled: true },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
         defaultValue="one"
       />
@@ -325,9 +325,9 @@ describe('Tabs', () => {
         activationMode="manual"
         defaultValue="one"
         items={[
-          { label: 'One', value: 'one', content: 'Panel one' },
-          { label: 'Two', value: 'two', content: 'Panel two' },
-          { label: 'Three', value: 'three', content: 'Panel three' },
+          { label: 'One', value: 'one', renderContent: 'Panel one' },
+          { label: 'Two', value: 'two', renderContent: 'Panel two' },
+          { label: 'Three', value: 'three', renderContent: 'Panel three' },
         ]}
       />
     ))

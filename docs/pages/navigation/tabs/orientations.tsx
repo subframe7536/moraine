@@ -11,19 +11,19 @@ export function Orientations() {
             label: 'Overview',
             value: 'overview',
             icon: 'i-lucide:layout-dashboard',
-            content: <p class="text-sm text-foreground">Overview panel content.</p>,
+            renderContent: <p class="text-sm text-foreground">Overview panel content.</p>,
           },
           {
             label: 'Settings',
             value: 'settings',
             icon: 'i-lucide:settings',
-            content: <p class="text-sm text-foreground">Settings panel content.</p>,
+            renderContent: <p class="text-sm text-foreground">Settings panel content.</p>,
           },
           {
             label: 'Billing',
             value: 'billing',
             icon: 'i-lucide:credit-card',
-            content: <p class="text-sm text-foreground">Billing panel content.</p>,
+            renderContent: <p class="text-sm text-foreground">Billing panel content.</p>,
           },
         ]}
       />
@@ -39,19 +39,19 @@ export function Orientations() {
             label: 'Overview',
             value: 'overview',
             icon: 'i-lucide:layout-dashboard',
-            content: <p class="text-sm text-foreground w-sm">Overview panel content.</p>,
+            renderContent: <p class="text-sm text-foreground w-sm">Overview panel content.</p>,
           },
           {
             label: 'Settings',
             value: 'settings',
             icon: 'i-lucide:settings',
-            content: <p class="text-sm text-foreground w-sm">Settings panel content.</p>,
+            renderContent: <p class="text-sm text-foreground w-sm">Settings panel content.</p>,
           },
           {
             label: 'Billing',
             value: 'billing',
             icon: 'i-lucide:credit-card',
-            content: <p class="text-sm text-foreground w-sm">Billing panel content.</p>,
+            renderContent: <p class="text-sm text-foreground w-sm">Billing panel content.</p>,
           },
         ]}
       />

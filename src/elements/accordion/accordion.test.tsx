@@ -10,17 +10,17 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
     value: 'one',
     label: 'One',
     leading: 'icon-house',
-    content: <span>Content one</span>,
+    renderContent: <span>Content one</span>,
   },
   {
     value: 'two',
     label: 'Two',
-    content: <span>Content two</span>,
+    renderContent: <span>Content two</span>,
   },
   {
     value: 'three',
     label: 'Three',
-    content: <span>Content three</span>,
+    renderContent: <span>Content three</span>,
   },
 ]
 

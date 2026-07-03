@@ -70,7 +70,7 @@ export interface PopperProps {
   ariaDescribedBy?: string
   ariaLabelledBy?: string
   closeOnOutsideFocus?: boolean
-  content: (context: PopperContentContext) => JSX.Element
+  renderContent: (context: PopperContentContext) => JSX.Element
   defaultOpen?: boolean
   describeTrigger?: boolean
   detachedPadding?: number
@@ -560,7 +560,7 @@ export function Popper(props: PopperProps): JSX.Element {
             style={{ visibility: 'hidden', ...merged.positionerStyle }}
             class={cn('left-0 top-0 fixed z-50', merged.positionerClass)}
           >
-            {merged.content({
+            {merged.renderContent({
               close: () => {
                 setOpen(false)
               },

@@ -48,7 +48,7 @@
         "defaultValue": "100"
       },
       {
-        "name": "content",
+        "name": "renderContent",
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render inside the popover body."

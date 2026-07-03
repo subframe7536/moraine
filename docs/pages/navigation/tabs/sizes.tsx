@@ -17,17 +17,17 @@ export function Sizes() {
                 {
                   label: 'Overview',
                   value: 'overview',
-                  content: <p class="text-sm text-foreground">Overview</p>,
+                  renderContent: <p class="text-sm text-foreground">Overview</p>,
                 },
                 {
                   label: 'Metrics',
                   value: 'metrics',
-                  content: <p class="text-sm text-foreground">Metrics</p>,
+                  renderContent: <p class="text-sm text-foreground">Metrics</p>,
                 },
                 {
                   label: 'Activity',
                   value: 'activity',
-                  content: <p class="text-sm text-foreground">Activity</p>,
+                  renderContent: <p class="text-sm text-foreground">Activity</p>,
                 },
               ]}
             />

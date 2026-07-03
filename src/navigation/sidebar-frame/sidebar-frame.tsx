@@ -148,7 +148,7 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
         open={ctx.isOpen()}
         onOpenChange={ctx.setOpen}
         close={false}
-        body={<ctx.sidebar />}
+        renderBody={<ctx.sidebar />}
       >
         <span class="hidden" aria-hidden="true" />
       </Sheet>
@@ -214,20 +214,20 @@ export function SidebarFrameSheetResizableRender(
             ctx.side === 'left'
               ? [
                   {
-                    content: <ctx.sidebar />,
+                    renderContent: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },
                   {
-                    content: <ctx.main />,
+                    renderContent: <ctx.main />,
                   },
                 ]
               : [
                   {
-                    content: <ctx.main />,
+                    renderContent: <ctx.main />,
                   },
                   {
-                    content: <ctx.sidebar />,
+                    renderContent: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
                     class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
                   },

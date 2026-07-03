@@ -64,7 +64,7 @@ export namespace PopoverT {
     /**
      * Content to render inside the popover body.
      */
-    content?: JSX.Element
+    renderContent?: JSX.Element
 
     /**
      * The reference element that triggers the popover.
@@ -131,7 +131,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         class={popoverContentVariants({ side: resolvedSide() }, merged.classes?.content)}
         {...context.contentProps}
       >
-        <Show when={merged.content !== undefined && merged.content !== null}>
+        <Show when={merged.renderContent !== undefined && merged.renderContent !== null}>
           <div
             data-slot="body"
             style={merged.styles?.body}
@@ -140,7 +140,7 @@ export function Popover(props: PopoverProps): JSX.Element {
               merged.classes?.body,
             )}
           >
-            {merged.content}
+            {merged.renderContent}
           </div>
         </Show>
       </div>
@@ -243,7 +243,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         event.preventDefault()
         merged.onClosePrevent?.()
       }}
-      content={Content}
+      renderContent={Content}
     />
   )
 }

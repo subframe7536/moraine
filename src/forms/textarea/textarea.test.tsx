@@ -97,8 +97,8 @@ describe('Textarea', () => {
   test('renders header and footer slots in expected order', () => {
     const screen = render(() => (
       <Textarea
-        header={<span data-testid="header-content">Header</span>}
-        footer={<span data-testid="footer-content">Footer</span>}
+        renderHeader={<span data-testid="header-content">Header</span>}
+        renderFooter={<span data-testid="footer-content">Footer</span>}
       >
         <span data-testid="child-content">Child</span>
       </Textarea>
@@ -120,7 +120,10 @@ describe('Textarea', () => {
 
   test('focuses textarea when clicking non-interactive header or footer area', async () => {
     const screen = render(() => (
-      <Textarea header={<span>Header content</span>} footer={<span>Footer content</span>} />
+      <Textarea
+        renderHeader={<span>Header content</span>}
+        renderFooter={<span>Footer content</span>}
+      />
     ))
 
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
@@ -135,12 +138,12 @@ describe('Textarea', () => {
   test('does not steal focus from interactive header and footer controls', async () => {
     const screen = render(() => (
       <Textarea
-        header={
+        renderHeader={
           <button type="button" data-testid="header-button">
             Header Action
           </button>
         }
-        footer={
+        renderFooter={
           <button type="button" data-testid="footer-button">
             Footer Action
           </button>
@@ -382,8 +385,8 @@ describe('Textarea', () => {
   test('applies classes.header and classes.footer overrides', () => {
     const screen = render(() => (
       <Textarea
-        header={<span>Header</span>}
-        footer={<span>Footer</span>}
+        renderHeader={<span>Header</span>}
+        renderFooter={<span>Footer</span>}
         classes={{ header: 'header-override', footer: 'footer-override' }}
       />
     ))
@@ -397,8 +400,8 @@ describe('Textarea', () => {
   test('applies styles.header and styles.footer overrides', () => {
     const screen = render(() => (
       <Textarea
-        header={<span>Header</span>}
-        footer={<span>Footer</span>}
+        renderHeader={<span>Header</span>}
+        renderFooter={<span>Footer</span>}
         styles={{ header: { width: '200px' }, footer: { width: '200px' } }}
       />
     ))

@@ -6,19 +6,21 @@ export function Vertical() {
       title: 'Queued',
       description: 'Waiting for worker capacity.',
       value: 'queued',
-      content: <p class="text-sm text-foreground">This job is waiting in the queue.</p>,
+      renderContent: <p class="text-sm text-foreground">This job is waiting in the queue.</p>,
     },
     {
       title: 'Building',
       description: 'Compiling and bundling assets.',
       value: 'building',
-      content: <p class="text-sm text-foreground">The current build is running.</p>,
+      renderContent: <p class="text-sm text-foreground">The current build is running.</p>,
     },
     {
       title: 'Ready',
       description: 'Artifacts are available.',
       value: 'ready',
-      content: <p class="text-sm text-foreground">The deployment artifact is ready to use.</p>,
+      renderContent: (
+        <p class="text-sm text-foreground">The deployment artifact is ready to use.</p>
+      ),
     },
   ]
 
