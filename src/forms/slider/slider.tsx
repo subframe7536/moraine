@@ -237,7 +237,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             <div
               data-slot="divider"
               data-orientation={merged.orientation}
-              style={slider.getDividerStyle(dividerIndex)}
+              style={{ ...slider.getDividerStyle(dividerIndex), ...merged.styles?.divider }}
               class={sliderDividerVariants(
                 {
                   orientation: merged.orientation,
