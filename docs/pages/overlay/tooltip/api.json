@@ -131,7 +131,7 @@
         "type": "TooltipT.Styles | undefined"
       },
       {
-        "name": "renderText",
+        "name": "text",
         "required": false,
         "type": "JSX.Element",
         "description": "Primary text content or element to display."

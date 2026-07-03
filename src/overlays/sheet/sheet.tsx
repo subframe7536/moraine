@@ -83,22 +83,22 @@ export namespace SheetT {
     /**
      * Custom element to render in the header slot.
      */
-    renderHeader?: JSX.Element
+    header?: JSX.Element
 
     /**
      * Custom element to render in the scrollable body slot.
      */
-    renderBody?: JSX.Element
+    body?: JSX.Element
 
     /**
      * Custom element to render in the footer slot.
      */
-    renderFooter?: JSX.Element
+    footer?: JSX.Element
 
     /**
      * Additional action elements to render in the header.
      */
-    renderActions?: JSX.Element
+    actions?: JSX.Element
 
     /**
      * Trigger element that opens the sheet.
@@ -137,7 +137,7 @@ export function Sheet(props: SheetProps): JSX.Element {
   )
 
   const hasDefaultHeader = () =>
-    Boolean(merged.title || merged.description || merged.renderActions || merged.close)
+    Boolean(merged.title || merged.description || merged.actions || merged.close)
 
   return (
     <Modal
@@ -173,16 +173,16 @@ export function Sheet(props: SheetProps): JSX.Element {
       contentAttributes={{ 'data-side': merged.side }}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}
-      renderContent={({ close }) => (
+      content={({ close }) => (
         <>
-          <Show when={merged.renderHeader || hasDefaultHeader()}>
+          <Show when={merged.header || hasDefaultHeader()}>
             <div
               data-slot="header"
               style={merged.styles?.header}
               class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
             >
               <Show
-                when={merged.renderHeader}
+                when={merged.header}
                 fallback={
                   <>
                     <div
@@ -213,7 +213,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                       </Show>
                     </div>
 
-                    <Show when={merged.renderActions}>
+                    <Show when={merged.actions}>
                       <div
                         data-slot="actions"
                         style={merged.styles?.actions}
@@ -222,7 +222,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           merged.classes?.actions,
                         )}
                       >
-                        {merged.renderActions}
+                        {merged.actions}
                       </div>
                     </Show>
 
@@ -248,32 +248,32 @@ export function Sheet(props: SheetProps): JSX.Element {
                   </>
                 }
               >
-                {merged.renderHeader}
+                {merged.header}
               </Show>
             </div>
           </Show>
 
-          <Show when={merged.renderBody}>
+          <Show when={merged.body}>
             <div
               data-slot="body"
               style={merged.styles?.body}
               class={cn(
                 'flex-1 overflow-auto',
-                (merged.renderHeader || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
+                (merged.header || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
                 merged.classes?.body,
               )}
             >
-              {merged.renderBody}
+              {merged.body}
             </div>
           </Show>
 
-          <Show when={merged.renderFooter}>
+          <Show when={merged.footer}>
             <div
               data-slot="footer"
               style={merged.styles?.footer}
               class={cn('mt-auto p-4 flex flex-col gap-2', merged.classes?.footer)}
             >
-              {merged.renderFooter}
+              {merged.footer}
             </div>
           </Show>
         </>

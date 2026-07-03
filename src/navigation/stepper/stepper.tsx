@@ -98,7 +98,7 @@ export namespace StepperT {
     /**
      * Content to display when the step is active.
      */
-    render?: JSX.Element
+    content?: JSX.Element
 
     /**
      * Whether the step is disabled.
@@ -449,7 +449,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
       <For each={normalizedItems()}>
         {(entry) => (
-          <Show when={entry.item.render && resolvedValue() === entry.value}>
+          <Show when={entry.item.content && resolvedValue() === entry.value}>
             <div
               id={getContentId(entry.value)}
               role="tabpanel"
@@ -460,7 +460,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               style={merged.styles?.content}
               class={cn('w-full', entry.item.class, merged.classes?.content)}
             >
-              {entry.item.render}
+              {entry.item.content}
             </div>
           </Show>
         )}

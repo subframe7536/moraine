@@ -12,7 +12,7 @@ export function Default() {
     <Card
       title="Create project"
       description="Deploy your new project in one-click."
-      renderFooter={
+      footer={
         <>
           <Button class="w-full" type="submit">
             Deploy

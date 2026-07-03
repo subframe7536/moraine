@@ -98,11 +98,11 @@ export namespace MultiSelectT {
         BaseSelectT.Base<Item<TItem>>,
         | 'children'
         | 'closeOnSelect'
-        | 'renderEmpty'
+        | 'emptyRender'
         | 'initialValue'
         | 'onInputKeyDown'
         | 'onOptionSelect'
-        | 'renderOption'
+        | 'optionRender'
         | 'selectedValues'
         | 'tabSelectionBehavior'
       >,
@@ -130,13 +130,13 @@ export namespace MultiSelectT {
     /** Maximum visible tags before showing +N (visual only). */
     maxTagCount?: number
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    renderOption?: (option: (MultiSelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
+    optionRender?: (option: (MultiSelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
     /** Custom renderer for each selected tag (multiple/tags). */
-    renderTag?: (option: MultiSelectT.Item<TItem> & { onClose: () => void }) => JSX.Element
+    tagRender?: (option: MultiSelectT.Item<TItem> & { onClose: () => void }) => JSX.Element
     /** Custom renderer for the option label text. */
-    renderLabel?: (option: MultiSelectT.Item<TItem>) => JSX.Element
+    labelRender?: (option: MultiSelectT.Item<TItem>) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    renderEmpty?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
+    emptyRender?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -512,7 +512,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       option,
       classes: props.classes,
       styles: props.styles,
-      renderLabel: props.renderLabel,
+      labelRender: props.labelRender,
     })
   }
 
@@ -525,8 +525,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       closeOnSelect={false}
       onOptionSelect={toggleOption}
       onInputKeyDown={handleEnterKey}
-      renderEmpty={createEmptyRenderer({
-        renderEmpty: props.renderEmpty,
+      emptyRender={createEmptyRenderer({
+        emptyRender: props.emptyRender,
         classes: props.classes,
         styles: props.styles,
         buildContext: (ctx: BaseSelectT.StateApi<Item>) => ({
@@ -540,7 +540,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
           close: ctx.close,
         }),
       })}
-      renderOption={(option) => props.renderOption?.(option) ?? renderDefaultOption(option)}
+      optionRender={(option) => props.optionRender?.(option) ?? renderDefaultOption(option)}
     >
       {(api) => {
         const selectedOptions = createMemo(() => getSelectedOptions(api))
@@ -602,8 +602,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                   const onClose = () => toggleOption(option, api)
                   return (
                     <Show
-                      when={!props.renderTag}
-                      fallback={props.renderTag?.({ ...option.raw, onClose })}
+                      when={!props.tagRender}
+                      fallback={props.tagRender?.({ ...option.raw, onClose })}
                     >
                       <Badge
                         slotName="tag"

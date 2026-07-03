@@ -158,7 +158,7 @@
         "defaultValue": "false"
       },
       {
-        "name": "renderEmpty",
+        "name": "emptyRender",
         "required": false,
         "type": "string | ((context: SelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom renderer for the empty state when current filtered result has no matches."
@@ -184,7 +184,7 @@
         "description": "The ID of the input element."
       },
       {
-        "name": "renderLabel",
+        "name": "labelRender",
         "required": false,
         "type": "((option: SelectT.Item<TItem>) => JSX.Element) | undefined",
         "description": "Custom renderer for the option label text."
@@ -245,7 +245,7 @@
         "description": "Controlled open state."
       },
       {
-        "name": "renderOption",
+        "name": "optionRender",
         "required": false,
         "type": "((option: (SelectT.Item<TItem> & BaseSelectT.OptionRenderState) | null) => JSX.Element) | undefined",
         "description": "Custom renderer for each option in the dropdown. Passes `null` for empty state."

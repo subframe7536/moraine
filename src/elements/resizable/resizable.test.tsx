@@ -117,7 +117,7 @@ afterAll(() => {
 describe('Resizable', () => {
   test('renders panels and auto inserts handles between panels', () => {
     const screen = render(() => (
-      <Resizable panels={[{ render: 'Left' }, { render: 'Center' }, { render: 'Right' }]} />
+      <Resizable panels={[{ content: 'Left' }, { content: 'Center' }, { content: 'Right' }]} />
     ))
 
     const panels = screen.container.querySelectorAll('[data-slot="panel"]')
@@ -130,7 +130,7 @@ describe('Resizable', () => {
 
   test('keeps built-in handle content and hidden handle behavior stable', () => {
     const builtIn = render(() => (
-      <Resizable renderHandle panels={[{ render: 'Left' }, { render: 'Right' }]} />
+      <Resizable renderHandle panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(builtIn.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -139,7 +139,7 @@ describe('Resizable', () => {
     builtIn.unmount()
 
     const hidden = render(() => (
-      <Resizable renderHandle={false} panels={[{ render: 'Left' }, { render: 'Right' }]} />
+      <Resizable renderHandle={false} panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(hidden.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -148,7 +148,7 @@ describe('Resizable', () => {
 
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
-      <Resizable orientation="vertical" panels={[{ render: 'Top' }, { render: 'Bottom' }]} />
+      <Resizable orientation="vertical" panels={[{ content: 'Top' }, { content: 'Bottom' }]} />
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -166,7 +166,7 @@ describe('Resizable', () => {
       <Resizable
         disable
         onResize={onResize}
-        panels={[{ render: 'One' }, { render: 'Two' }, { render: 'Three' }]}
+        panels={[{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]}
       />
     ))
 
@@ -198,7 +198,7 @@ describe('Resizable', () => {
           divider: 'divider-override',
           handle: 'handle-override',
         }}
-        panels={[{ render: 'A', class: 'panel-a' }, { render: 'B' }, { render: 'C' }]}
+        panels={[{ content: 'A', class: 'panel-a' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
@@ -237,13 +237,13 @@ describe('Resizable', () => {
         )}
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -282,13 +282,13 @@ describe('Resizable', () => {
         )}
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -314,13 +314,13 @@ describe('Resizable', () => {
         )}
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -338,7 +338,7 @@ describe('Resizable', () => {
           divider: { width: '200px' },
           handle: { width: '200px' },
         }}
-        panels={[{ render: 'A' }, { render: 'B' }, { render: 'C' }]}
+        panels={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
@@ -368,8 +368,8 @@ describe('Resizable', () => {
           }}
           onResizeEnd={(nextSizes) => events.push({ type: 'end', sizes: nextSizes })}
           panels={[
-            { render: 'Left', min: '20%', size: sizes()[0] },
-            { render: 'Right', min: '20%', size: sizes()[1] },
+            { content: 'Left', min: '20%', size: sizes()[0] },
+            { content: 'Right', min: '20%', size: sizes()[1] },
           ]}
         />
       )
@@ -401,8 +401,8 @@ describe('Resizable', () => {
         onResize={onResize}
         onResizeEnd={onResizeEnd}
         panels={[
-          { render: 'Left', min: '20%', size: 200 },
-          { render: 'Right', min: '20%', size: 800 },
+          { content: 'Left', min: '20%', size: 200 },
+          { content: 'Right', min: '20%', size: 800 },
         ]}
       />
     ))
@@ -430,8 +430,8 @@ describe('Resizable', () => {
           }}
           onResizeEnd={(nextSizes) => events.push({ type: 'end', sizes: nextSizes })}
           panels={[
-            { render: 'Left', min: '20%', size: sizes()[0] },
-            { render: 'Right', min: '20%', size: sizes()[1] },
+            { content: 'Left', min: '20%', size: sizes()[0] },
+            { content: 'Right', min: '20%', size: sizes()[1] },
           ]}
         />
       )
@@ -455,8 +455,8 @@ describe('Resizable', () => {
 
     const screen = render(() => {
       const [panels, setPanels] = createStore([
-        { render: 'Left', min: '20%' as const, size: 400 },
-        { render: 'Right', min: '20%' as const, size: 600 },
+        { content: 'Left', min: '20%' as const, size: 400 },
+        { content: 'Right', min: '20%' as const, size: 600 },
       ])
 
       return (
@@ -484,7 +484,7 @@ describe('Resizable', () => {
   test('supports mixed controlled sizes with px numbers and percent strings', () => {
     const screen = render(() => (
       <Resizable
-        panels={[{ render: 'A', size: 200 }, { render: 'B', size: '30%' }, { render: 'C' }]}
+        panels={[{ content: 'A', size: 200 }, { content: 'B', size: '30%' }, { content: 'C' }]}
       />
     ))
 
@@ -500,9 +500,9 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'A', size: 900, min: '10%', max: '50%' },
-          { render: 'B', defaultSize: '40%', min: '30%', max: '45%' },
-          { render: 'C', min: '20%', max: '35%' },
+          { content: 'A', size: 900, min: '10%', max: '50%' },
+          { content: 'B', defaultSize: '40%', min: '30%', max: '45%' },
+          { content: 'C', min: '20%', max: '35%' },
         ]}
       />
     ))
@@ -520,8 +520,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Left', defaultSize: '30%' },
-          { render: 'Right', defaultSize: '70%' },
+          { content: 'Left', defaultSize: '30%' },
+          { content: 'Right', defaultSize: '70%' },
         ]}
       />
     ))
@@ -537,8 +537,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
-          { render: 'Content' },
+          { content: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
+          { content: 'Content' },
         ]}
       />
     ))
@@ -557,8 +557,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
-          { render: 'Content' },
+          { content: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
+          { content: 'Content' },
         ]}
       />
     ))
@@ -585,8 +585,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Left', defaultSize: '30%' },
-          { render: 'Right', defaultSize: '70%' },
+          { content: 'Left', defaultSize: '30%' },
+          { content: 'Right', defaultSize: '70%' },
         ]}
       />
     ))
@@ -618,8 +618,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Left', defaultSize: '30%' },
-          { render: 'Right', defaultSize: '70%' },
+          { content: 'Left', defaultSize: '30%' },
+          { content: 'Right', defaultSize: '70%' },
         ]}
       />
     ))
@@ -644,12 +644,12 @@ describe('Resizable', () => {
         onResize={onResize}
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -674,13 +674,13 @@ describe('Resizable', () => {
         onResize={onResize}
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -703,13 +703,13 @@ describe('Resizable', () => {
         handleAction="collapse"
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -739,13 +739,13 @@ describe('Resizable', () => {
         handleAction="collapse"
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -767,13 +767,13 @@ describe('Resizable', () => {
         renderHandle
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -802,13 +802,8 @@ describe('Resizable', () => {
       <Resizable
         handleAction="collapse"
         panels={[
-          {
-            render: 'Sidebar',
-            defaultSize: '30%',
-            collapsible: true,
-            collapsibleMin: '10%',
-          },
-          { render: 'Content', defaultSize: '70%' },
+          { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
+          { content: 'Content', defaultSize: '70%' },
         ]}
       />
     ))
@@ -849,13 +844,13 @@ describe('Resizable', () => {
             onResize={handleResize}
             panels={[
               {
-                render: 'Sidebar',
+                content: 'Sidebar',
                 size: sizes()[0],
                 min: '16%',
                 collapsible: collapsed(),
                 collapsibleMin: '10%',
               },
-              { render: 'Content', size: sizes()[1], min: '24%' },
+              { content: 'Content', size: sizes()[1], min: '24%' },
             ]}
           />
         </div>
@@ -886,8 +881,8 @@ describe('Resizable', () => {
       <Resizable
         onHandleKeyDown={onHandleKeyDown}
         panels={[
-          { render: 'Left', min: '20%', defaultSize: '50%' },
-          { render: 'Right', min: '20%', defaultSize: '50%' },
+          { content: 'Left', min: '20%', defaultSize: '50%' },
+          { content: 'Right', min: '20%', defaultSize: '50%' },
         ]}
       />
     ))
@@ -922,8 +917,8 @@ describe('Resizable', () => {
           }
         }}
         panels={[
-          { render: 'Left', min: '20%', size: 500 },
-          { render: 'Right', min: '20%', size: 500 },
+          { content: 'Left', min: '20%', size: 500 },
+          { content: 'Right', min: '20%', size: 500 },
         ]}
       />
     ))
@@ -941,7 +936,7 @@ describe('Resizable', () => {
 
   test('supports dragging when pointer down starts on handle visual area', async () => {
     const screen = render(() => (
-      <Resizable renderHandle panels={[{ render: 'Left' }, { render: 'Right' }]} />
+      <Resizable renderHandle panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     const handleVisual = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
@@ -966,13 +961,13 @@ describe('Resizable', () => {
           onResize={(nextSizes) => setSizes(nextSizes)}
           panels={[
             {
-              render: 'Left',
+              content: 'Left',
               size: sizes()[0],
               min: '20%',
               collapsible: true,
               collapsibleMin: '10%',
             },
-            { render: 'Right', size: sizes()[1], min: '20%' },
+            { content: 'Right', size: sizes()[1], min: '20%' },
           ]}
         />
       )
@@ -998,14 +993,8 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          {
-            render: 'Left',
-            size: 100,
-            min: '20%',
-            collapsible: true,
-            collapsibleMin: '10%',
-          },
-          { render: 'Right', size: 900, min: '20%' },
+          { content: 'Left', size: 100, min: '20%', collapsible: true, collapsibleMin: '10%' },
+          { content: 'Right', size: 900, min: '20%' },
         ]}
       />
     ))
@@ -1022,9 +1011,9 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         panels={[
-          { render: 'Left', collapsible: true },
-          { render: 'Center', collapsible: true },
-          { render: 'Right' },
+          { content: 'Left', collapsible: true },
+          { content: 'Center', collapsible: true },
+          { content: 'Right' },
         ]}
       />
     ))
@@ -1038,13 +1027,13 @@ describe('Resizable', () => {
         handleAction="collapse"
         panels={[
           {
-            render: 'Sidebar',
+            content: 'Sidebar',
             defaultSize: '30%',
             min: '20%',
             collapsible: true,
             collapsibleMin: '10%',
           },
-          { render: 'Content', defaultSize: '70%', min: '20%' },
+          { content: 'Content', defaultSize: '70%', min: '20%' },
         ]}
       />
     ))
@@ -1080,8 +1069,8 @@ describe('Resizable', () => {
           </button>
           <Resizable
             panels={[
-              { render: 'Left', size: sizes()[0], collapsible: true },
-              { render: 'Right', size: sizes()[1] },
+              { content: 'Left', size: sizes()[0], collapsible: true },
+              { content: 'Right', size: sizes()[1] },
             ]}
           />
         </div>
@@ -1107,14 +1096,14 @@ describe('Resizable', () => {
         renderHandle
         intersection
         panels={[
-          { render: 'Outer Left' },
+          { content: 'Outer Left' },
           {
-            render: (
+            content: (
               <Resizable
                 orientation="vertical"
                 renderHandle
                 intersection
-                panels={[{ render: 'Inner Top' }, { render: 'Inner Bottom' }]}
+                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1149,14 +1138,14 @@ describe('Resizable', () => {
         renderHandle
         intersection
         panels={[
-          { render: 'Outer Left' },
+          { content: 'Outer Left' },
           {
-            render: (
+            content: (
               <Resizable
                 orientation="vertical"
                 renderHandle
                 intersection
-                panels={[{ render: 'Inner Top' }, { render: 'Inner Bottom' }]}
+                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1183,14 +1172,14 @@ describe('Resizable', () => {
         renderHandle
         intersection
         panels={[
-          { render: 'Outer Left' },
+          { content: 'Outer Left' },
           {
-            render: (
+            content: (
               <Resizable
                 orientation="vertical"
                 renderHandle
                 intersection
-                panels={[{ render: 'Inner Top' }, { render: 'Inner Bottom' }]}
+                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1227,9 +1216,9 @@ describe('Resizable', () => {
 
     const screen = render(() => {
       const [panelMetas, setPanelMetas] = createSignal([
-        { render: 'One', min: '20%' as const },
-        { render: 'Two', min: '20%' as const },
-        { render: 'Three', min: '20%' as const },
+        { content: 'One', min: '20%' as const },
+        { content: 'Two', min: '20%' as const },
+        { content: 'Three', min: '20%' as const },
       ])
       const [sizes, setSizes] = createSignal([340, 330, 330])
       const panels = () =>
@@ -1279,7 +1268,7 @@ describe('Resizable', () => {
   })
 
   test('updates data-active and data-dragging through hover and drag states', async () => {
-    const screen = render(() => <Resizable panels={[{ render: 'Left' }, { render: 'Right' }]} />)
+    const screen = render(() => <Resizable panels={[{ content: 'Left' }, { content: 'Right' }]} />)
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
     const panel = screen.container.querySelector('[data-slot="panel"]') as HTMLDivElement
@@ -1314,14 +1303,14 @@ describe('Resizable', () => {
         renderHandle
         intersection
         panels={[
-          { render: 'Outer Left' },
+          { content: 'Outer Left' },
           {
-            render: (
+            content: (
               <Resizable
                 orientation="vertical"
                 renderHandle
                 intersection
-                panels={[{ render: 'Inner Top' }, { render: 'Inner Bottom' }]}
+                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1354,14 +1343,14 @@ describe('Resizable', () => {
         renderHandle
         intersection
         panels={[
-          { render: 'Outer Left' },
+          { content: 'Outer Left' },
           {
-            render: (
+            content: (
               <Resizable
                 orientation="vertical"
                 renderHandle
                 intersection
-                panels={[{ render: 'Inner Top' }, { render: 'Inner Bottom' }]}
+                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },

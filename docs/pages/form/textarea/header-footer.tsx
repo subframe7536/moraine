@@ -8,7 +8,7 @@ export function HeaderFooter() {
     <div class="gap-6 grid lg:grid-cols-3">
       <Textarea
         placeholder="Ask, search or chat..."
-        renderHeader={
+        header={
           <>
             <span class="font-semibold">Info text</span>
             <span class="i-lucide-info text-base ms-auto" />
@@ -25,7 +25,7 @@ export function HeaderFooter() {
         onValueChange={(nextValue) => setComposerValue(String(nextValue ?? ''))}
         placeholder="Write your message..."
         autoResize
-        renderFooter={
+        footer={
           <>
             <span>{composerValue().length}/280 characters</span>
             <button
@@ -44,13 +44,13 @@ export function HeaderFooter() {
 
       <Textarea
         placeholder="console.log('Hello, world!');"
-        renderHeader={
+        header={
           <>
             <span class="i-lucide-code text-base" />
             <span>script.js</span>
           </>
         }
-        renderFooter={
+        footer={
           <>
             <span>Line 1, Column 1</span>
             <span class="ms-auto">JavaScript</span>

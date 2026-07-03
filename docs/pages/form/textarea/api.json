@@ -91,13 +91,13 @@
         "defaultValue": "false"
       },
       {
-        "name": "renderFooter",
+        "name": "footer",
         "required": false,
         "type": "JSX.Element",
         "description": "Element to render below the textarea."
       },
       {
-        "name": "renderHeader",
+        "name": "header",
         "required": false,
         "type": "JSX.Element",
         "description": "Element to render above the textarea."

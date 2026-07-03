@@ -8,7 +8,7 @@ export function Placements() {
     <div class="flex flex-wrap gap-4 items-center">
       <For each={PLACEMENTS}>
         {(placement) => (
-          <Tooltip renderText={`Tooltip on ${placement}`} placement={placement}>
+          <Tooltip text={`Tooltip on ${placement}`} placement={placement}>
             <Button variant="outline">{placement}</Button>
           </Tooltip>
         )}

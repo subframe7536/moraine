@@ -444,12 +444,12 @@ describe('Select - render hooks', () => {
     })
   })
 
-  test('uses renderLabel for item label rendering', () => {
+  test('uses labelRender for item label rendering', () => {
     render(() => (
       <Select
         options={FRUITS}
         defaultOpen
-        renderLabel={(option) => (
+        labelRender={(option) => (
           <span data-testid={`custom-label-${String(option.value)}`}>{option.label}</span>
         )}
         placeholder="Pick"
@@ -460,12 +460,12 @@ describe('Select - render hooks', () => {
     expect(queryBody('[data-testid="custom-label-banana"]')).not.toBeNull()
   })
 
-  test('uses renderOption for custom item rendering', () => {
+  test('uses optionRender for custom item rendering', () => {
     render(() => (
       <Select
         options={FRUITS}
         defaultOpen
-        renderOption={(option) => <span data-testid="custom-option">{option?.label} (custom)</span>}
+        optionRender={(option) => <span data-testid="custom-option">{option?.label} (custom)</span>}
         placeholder="Pick"
       />
     ))
@@ -474,15 +474,15 @@ describe('Select - render hooks', () => {
     expect(customOptions.length).toBeGreaterThan(0)
   })
 
-  test('passes selected state for normal items to renderOption', () => {
-    const renderCalls: Array<Parameters<NonNullable<SelectT.Base['renderOption']>>[0]> = []
+  test('passes selected state for normal items to optionRender', () => {
+    const renderCalls: Array<Parameters<NonNullable<SelectT.Base['optionRender']>>[0]> = []
 
     render(() => (
       <Select
         options={FRUITS}
         value="apple"
         defaultOpen
-        renderOption={(props) => {
+        optionRender={(props) => {
           renderCalls.push(props)
           return <span data-testid="custom-option">{props?.label}</span>
         }}
@@ -742,13 +742,13 @@ describe('Select - form integration', () => {
 })
 
 describe('Select - empty state', () => {
-  test('renders renderOption null as empty state', async () => {
+  test('renders optionRender null as empty state', async () => {
     const screen = render(() => (
       <Select
         options={FRUITS}
         search
         defaultOpen
-        renderOption={(option) =>
+        optionRender={(option) =>
           option ? (
             <span>{option.label}</span>
           ) : (
@@ -771,7 +771,7 @@ describe('Select - empty state', () => {
     })
   })
 
-  test('renders default "No options" text when renderOption does not handle empty state', async () => {
+  test('renders default "No options" text when optionRender does not handle empty state', async () => {
     const screen = render(() => (
       <Select options={FRUITS} search defaultOpen placeholder="Search..." />
     ))

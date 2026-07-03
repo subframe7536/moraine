@@ -78,11 +78,11 @@ export namespace SelectT {
         BaseSelectT.Base<Item<TItem>>,
         | 'children'
         | 'closeOnSelect'
-        | 'renderEmpty'
+        | 'emptyRender'
         | 'initialValue'
         | 'onInputKeyDown'
         | 'onOptionSelect'
-        | 'renderOption'
+        | 'optionRender'
         | 'selectedValues'
         | 'tabSelectionBehavior'
       >,
@@ -93,11 +93,11 @@ export namespace SelectT {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem | null>) => void
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    renderOption?: (option: (SelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
+    optionRender?: (option: (SelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
     /** Custom renderer for the option label text. */
-    renderLabel?: (option: SelectT.Item<TItem>) => JSX.Element
+    labelRender?: (option: SelectT.Item<TItem>) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    renderEmpty?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
+    emptyRender?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -181,7 +181,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       option,
       classes: props.classes,
       styles: props.styles,
-      renderLabel: props.renderLabel,
+      labelRender: props.labelRender,
     })
   }
 
@@ -191,8 +191,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       initialValue={getInitialValue()}
       selectedValues={getSelectedValues()}
       onOptionSelect={(option, api) => updateSelection(option, api)}
-      renderEmpty={createEmptyRenderer({
-        renderEmpty: props.renderEmpty,
+      emptyRender={createEmptyRenderer({
+        emptyRender: props.emptyRender,
         classes: props.classes,
         styles: props.styles,
         buildContext: (api: BaseSelectT.StateApi<Item>) => {
@@ -205,7 +205,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
           }
         },
       })}
-      renderOption={(option) => props.renderOption?.(option) ?? renderDefaultOption(option)}
+      optionRender={(option) => props.optionRender?.(option) ?? renderDefaultOption(option)}
     >
       {(api) => {
         return (

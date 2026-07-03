@@ -39,7 +39,7 @@ export interface ModalProps {
   /** Trigger content rendered inside the opener wrapper. */
   trigger?: JSX.Element
   /** Modal content rendered inside the content surface. */
-  renderContent?: MaybeRenderProp<ModalContentContext>
+  content?: MaybeRenderProp<ModalContentContext>
   /** Slot-based class overrides for the trigger, overlay, and content elements. */
   classes?: SlotClasses<ModalSlot>
   /** Slot-based style overrides for the trigger, overlay, and content elements. */
@@ -84,7 +84,7 @@ export function Modal(props: ModalProps): JSX.Element {
   }
 
   const resolvedContent = createMemo(() =>
-    resolveRenderProp(props.renderContent, {
+    resolveRenderProp(props.content, {
       close: () => updateOpen(false),
     }),
   )

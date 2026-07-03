@@ -6,12 +6,12 @@ export function DefaultShell() {
       <Dialog
         title="Delete Project"
         description="This action cannot be undone."
-        renderBody={
+        body={
           <p class="text-sm text-foreground">
             The selected project and all related records will be permanently removed.
           </p>
         }
-        renderFooter={
+        footer={
           <>
             <Button variant="outline">Cancel</Button>
             <Button variant="destructive">Delete</Button>

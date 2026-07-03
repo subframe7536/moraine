@@ -392,7 +392,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         items={merged.items}
         checkedIcon={merged.checkedIcon}
         submenuIcon={merged.submenuIcon}
-        renderItem={merged.renderItem}
+        itemRender={merged.itemRender}
         contentTop={merged.contentTop}
         contentBottom={merged.contentBottom}
         preventScroll={merged.preventScroll}

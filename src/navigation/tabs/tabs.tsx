@@ -82,7 +82,7 @@ export namespace TabsT {
     /**
      * Content to display when the tab is active.
      */
-    render?: JSX.Element
+    content?: JSX.Element
 
     /**
      * Whether the tab is disabled.
@@ -456,7 +456,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 style={merged.styles?.content}
                 class={cn('outline-none w-full', merged.classes?.content, item.class)}
               >
-                {item.render}
+                {item.content}
               </div>
             </Show>
           )

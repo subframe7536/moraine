@@ -8,7 +8,7 @@ export function DismissControl() {
     <Popup
       dismissible={false}
       onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
-      renderContent={
+      content={
         <div class="p-4 b-1 b-border rounded-xl bg-background ring-1 ring-foreground/10 shadow-md">
           <h3 class="text-sm font-semibold">Persistent popup</h3>
           <p class="text-sm text-muted-foreground mt-1">Refresh to dismiss</p>

@@ -24,7 +24,7 @@ export function NestedPanels() {
               {
                 defaultSize: '32%',
                 min: '20%',
-                render: createPanel(
+                content: createPanel(
                   'Sidebar',
                   'Outer divider can intersect with the nested group.',
                   'bg-muted',
@@ -33,7 +33,7 @@ export function NestedPanels() {
               {
                 defaultSize: '68%',
                 min: '35%',
-                render: (
+                content: (
                   <Resizable
                     orientation="vertical"
                     renderHandle
@@ -42,12 +42,12 @@ export function NestedPanels() {
                       {
                         defaultSize: '50%',
                         min: '25%',
-                        render: createPanel('Editor', 'Nested top panel.', 'bg-background'),
+                        content: createPanel('Editor', 'Nested top panel.', 'bg-background'),
                       },
                       {
                         defaultSize: '50%',
                         min: '20%',
-                        render: createPanel(
+                        content: createPanel(
                           'Console',
                           'Nested bottom panel with cross drag enabled.',
                           'bg-muted/50',
@@ -60,7 +60,7 @@ export function NestedPanels() {
               {
                 defaultSize: '32%',
                 min: '20%',
-                render: createPanel(
+                content: createPanel(
                   'Sidebar',
                   'Outer divider can intersect with the nested group.',
                   'bg-muted',
@@ -83,7 +83,7 @@ export function NestedPanels() {
               {
                 defaultSize: '68%',
                 min: '35%',
-                render: (
+                content: (
                   <Resizable
                     orientation="vertical"
                     renderHandle={<Icon name="i-lucide:activity" />}
@@ -92,12 +92,12 @@ export function NestedPanels() {
                       {
                         defaultSize: '50%',
                         min: '25%',
-                        render: createPanel('Editor', 'Nested top panel.', 'bg-background'),
+                        content: createPanel('Editor', 'Nested top panel.', 'bg-background'),
                       },
                       {
                         defaultSize: '50%',
                         min: '20%',
-                        render: createPanel(
+                        content: createPanel(
                           'Console',
                           'Nested bottom panel with cross drag disabled.',
                           'bg-muted/50',
@@ -110,7 +110,7 @@ export function NestedPanels() {
               {
                 defaultSize: '32%',
                 min: '20%',
-                render: createPanel(
+                content: createPanel(
                   'Inspector',
                   'Comparison panel for nested intersection behavior.',
                   'bg-muted',

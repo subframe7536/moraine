@@ -7,7 +7,7 @@ export function ScrollableOverlayMode() {
   return (
     <Popup
       scrollable
-      renderContent={
+      content={
         <div class="p-4 b-1 b-border rounded-xl bg-background ring-1 ring-foreground/10 shadow-md">
           <h3 class="text-sm font-semibold">Scrollable Popup</h3>
           <div class="mt-2 space-y-1">

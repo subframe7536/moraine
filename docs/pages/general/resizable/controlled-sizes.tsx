@@ -11,7 +11,7 @@ export function ControlledSizes() {
     {
       size: 360,
       min: '20%' as const,
-      render: createPanel(
+      content: createPanel(
         'Logs',
         'Drag or use arrow keys to rebalance with px callbacks.',
         'bg-muted',
@@ -20,7 +20,7 @@ export function ControlledSizes() {
     {
       size: 640,
       min: '25%' as const,
-      render: createPanel(
+      content: createPanel(
         'Preview',
         'The external store writes callback px values back into panel.size.',
         'bg-background',

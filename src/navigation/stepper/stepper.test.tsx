@@ -20,19 +20,19 @@ describe('Stepper', () => {
       title: 'Address',
       description: 'Add your address here',
       value: 'address',
-      render: 'Address content',
+      content: 'Address content',
     },
     {
       title: 'Shipping',
       description: 'Set your preferred shipping method',
       value: 'shipping',
-      render: 'Shipping content',
+      content: 'Shipping content',
     },
     {
       title: 'Checkout',
       description: 'Confirm your order',
       value: 'checkout',
-      render: 'Checkout content',
+      content: 'Checkout content',
     },
   ]
 
@@ -218,7 +218,7 @@ describe('Stepper', () => {
           {
             title: 'Inbox',
             icon: 'icon-inbox',
-            render: 'Inbox content',
+            content: 'Inbox content',
           },
         ]}
       />

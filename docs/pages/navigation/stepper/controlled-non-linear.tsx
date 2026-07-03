@@ -6,17 +6,17 @@ export function ControlledNonLinear() {
     {
       title: 'Draft',
       value: 'draft',
-      render: <p class="text-sm text-foreground">Prepare release notes.</p>,
+      content: <p class="text-sm text-foreground">Prepare release notes.</p>,
     },
     {
       title: 'Review',
       value: 'review',
-      render: <p class="text-sm text-foreground">Collect team approvals.</p>,
+      content: <p class="text-sm text-foreground">Collect team approvals.</p>,
     },
     {
       title: 'Ship',
       value: 'ship',
-      render: <p class="text-sm text-foreground">Deploy to production.</p>,
+      content: <p class="text-sm text-foreground">Deploy to production.</p>,
     },
   ]
 

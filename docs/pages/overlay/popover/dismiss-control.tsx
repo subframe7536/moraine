@@ -10,7 +10,7 @@ export function DismissControl() {
         defaultOpen
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
-        renderContent={
+        content={
           <div class="space-y-1">
             <p class="text-sm font-medium">Persistent popover</p>
             <p class="text-xs text-muted-foreground">

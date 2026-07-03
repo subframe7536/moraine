@@ -21,7 +21,7 @@ async function finishExitMotion(): Promise<void> {
 describe('Popup', () => {
   test('renders popup content when open', () => {
     render(() => (
-      <Popup open renderContent="Popup content">
+      <Popup open content="Popup content">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -34,7 +34,7 @@ describe('Popup', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Popup open renderContent="Portal content">
+      <Popup open content="Portal content">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -45,7 +45,7 @@ describe('Popup', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Popup open overlay={false} renderContent="Body">
+      <Popup open overlay={false} content="Body">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -55,7 +55,7 @@ describe('Popup', () => {
 
   test('supports scrollable overlay mode', () => {
     render(() => (
-      <Popup open scrollable renderContent="Scrollable body">
+      <Popup open scrollable content="Scrollable body">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -72,7 +72,7 @@ describe('Popup', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Popup open renderContent="Body">
+      <Popup open content="Body">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -84,7 +84,7 @@ describe('Popup', () => {
 
   test('does not lock body scroll in scrollable mode by default', () => {
     render(() => (
-      <Popup defaultOpen scrollable renderContent="Scrollable body">
+      <Popup defaultOpen scrollable content="Scrollable body">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -96,7 +96,7 @@ describe('Popup', () => {
     render(() => (
       <Popup
         open
-        renderContent="Body"
+        content="Body"
         classes={{
           trigger: 'trigger-override',
           content: 'content-override',
@@ -120,7 +120,7 @@ describe('Popup', () => {
 
   test('applies top-level class and style to trigger', () => {
     render(() => (
-      <Popup open renderContent="Body" class="trigger-class" style={{ width: '200px' }}>
+      <Popup open content="Body" class="trigger-class" style={{ width: '200px' }}>
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -140,7 +140,7 @@ describe('Popup', () => {
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
     render(() => (
-      <Popup open renderContent={null as never}>
+      <Popup open content={null as never}>
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -151,7 +151,7 @@ describe('Popup', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} renderContent="Body">
+      <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Body">
         <button type="button">Trigger</button>
       </Popup>
     ))
@@ -174,7 +174,7 @@ describe('Popup', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} renderContent="Body">
+        <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Body">
           <button type="button">Trigger</button>
         </Popup>
       </>
@@ -199,7 +199,7 @@ describe('Popup', () => {
         dismissible
         onClosePrevent={onClosePrevent}
         onOpenChange={onOpenChange}
-        renderContent="Body"
+        content="Body"
       >
         <button type="button">Trigger</button>
       </Popup>
@@ -222,7 +222,7 @@ describe('Popup', () => {
     render(() => (
       <Popup
         open
-        renderContent="Body"
+        content="Body"
         styles={{
           trigger: { width: '200px' },
           content: { width: '200px' },

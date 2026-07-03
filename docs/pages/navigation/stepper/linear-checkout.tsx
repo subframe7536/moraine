@@ -7,21 +7,21 @@ export function LinearCheckout() {
       description: 'Where should we send the order?',
       icon: 'i-lucide:map-pinned',
       value: 'address',
-      render: <p class="text-sm text-foreground">Collect shipping address details.</p>,
+      content: <p class="text-sm text-foreground">Collect shipping address details.</p>,
     },
     {
       title: 'Shipping',
       description: 'Choose a delivery method.',
       icon: 'i-lucide:truck',
       value: 'shipping',
-      render: <p class="text-sm text-foreground">Pick standard, express, or local pickup.</p>,
+      content: <p class="text-sm text-foreground">Pick standard, express, or local pickup.</p>,
     },
     {
       title: 'Payment',
       description: 'Confirm billing and payment.',
       icon: 'i-lucide:credit-card',
       value: 'payment',
-      render: <p class="text-sm text-foreground">Review billing details and submit payment.</p>,
+      content: <p class="text-sm text-foreground">Review billing details and submit payment.</p>,
     },
   ]
 

@@ -157,9 +157,9 @@ export namespace BaseSelectT {
     /** Render the trigger/control surface. */
     children: (api: ControlApi<TItem>) => JSX.Element
     /** Renderer for each option in the dropdown. Receives `null` when no option matches. */
-    renderOption: (option: (TItem & OptionRenderState) | null) => JSX.Element
+    optionRender: (option: (TItem & OptionRenderState) | null) => JSX.Element
     /** Custom rendered empty state. */
-    renderEmpty?: (context: StateApi<TItem>) => JSX.Element | undefined
+    emptyRender?: (context: StateApi<TItem>) => JSX.Element | undefined
     /** Called when an option is selected by pointer or keyboard. */
     onOptionSelect: (option: NormalizedOption<TItem>, context: OptionSelectContext<TItem>) => void
     /**
@@ -797,7 +797,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           props.classes?.item,
         )}
       >
-        {props.renderOption({
+        {props.optionRender({
           ...option.raw,
           isSelected: isSelected(),
           isHighlighted: highlightedKey() === option.key,
@@ -873,7 +873,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               >
                 <Show
                   when={visibleFlatOptions().length > 0}
-                  fallback={props.renderEmpty?.(stateApi) ?? props.renderOption(null)}
+                  fallback={props.emptyRender?.(stateApi) ?? props.optionRender(null)}
                 >
                   <For each={visibleOptions()}>
                     {(item) => (

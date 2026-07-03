@@ -33,7 +33,7 @@ describe('Popover', () => {
 
   test('supports click mode and renders content', () => {
     render(() => (
-      <Popover open renderContent="Popover content">
+      <Popover open content="Popover content">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -46,7 +46,7 @@ describe('Popover', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Popover open renderContent="Popover content">
+      <Popover open content="Popover content">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -58,7 +58,7 @@ describe('Popover', () => {
 
   test('supports hover mode and renders content', () => {
     render(() => (
-      <Popover mode="hover" open renderContent="Hover content">
+      <Popover mode="hover" open content="Hover content">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -77,7 +77,7 @@ describe('Popover', () => {
     setMockPlacement(placement)
 
     render(() => (
-      <Popover open placement={placement} renderContent="Placement content">
+      <Popover open placement={placement} content="Placement content">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -94,7 +94,7 @@ describe('Popover', () => {
         classes={{
           content: 'content-slot-class',
         }}
-        renderContent="Styled"
+        content="Styled"
       >
         <button type="button">Trigger</button>
       </Popover>
@@ -107,7 +107,7 @@ describe('Popover', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Popover open renderContent="Portal default">
+      <Popover open content="Portal default">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -133,7 +133,7 @@ describe('Popover', () => {
     ).toBeNull()
 
     render(() => (
-      <Popover open renderContent={null as never}>
+      <Popover open content={null as never}>
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -144,12 +144,7 @@ describe('Popover', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Popover
-        defaultOpen
-        dismissible={false}
-        onClosePrevent={onClosePrevent}
-        renderContent="Persistent"
-      >
+      <Popover defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Persistent">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -176,7 +171,7 @@ describe('Popover', () => {
           defaultOpen
           dismissible={false}
           onClosePrevent={onClosePrevent}
-          renderContent="Persistent"
+          content="Persistent"
         >
           <button type="button">Trigger</button>
         </Popover>
@@ -204,7 +199,7 @@ describe('Popover', () => {
           defaultOpen
           dismissible={false}
           onClosePrevent={onClosePrevent}
-          renderContent="Persistent"
+          content="Persistent"
         >
           <button type="button">Trigger</button>
         </Popover>
@@ -233,7 +228,7 @@ describe('Popover', () => {
         dismissible
         onClosePrevent={onClosePrevent}
         onOpenChange={onOpenChange}
-        renderContent="Closable"
+        content="Closable"
       >
         <button type="button">Trigger</button>
       </Popover>
@@ -265,7 +260,7 @@ describe('Popover', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Popover defaultOpen onOpenChange={onOpenChange} renderContent="Closable">
+        <Popover defaultOpen onOpenChange={onOpenChange} content="Closable">
           <button type="button">Trigger</button>
         </Popover>
       </>
@@ -285,7 +280,7 @@ describe('Popover', () => {
 
   test('positions defaultOpen popover on initial mount', async () => {
     render(() => (
-      <Popover defaultOpen renderContent="Positioned">
+      <Popover defaultOpen content="Positioned">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -301,7 +296,7 @@ describe('Popover', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Popover open styles={{ content: { width: '200px' } }} renderContent="Styled">
+      <Popover open styles={{ content: { width: '200px' } }} content="Styled">
         <button type="button">Trigger</button>
       </Popover>
     ))
@@ -318,7 +313,7 @@ describe('Popover', () => {
       version()
 
       return (
-        <Popover open placement="bottom" renderContent="Popover content">
+        <Popover open placement="bottom" content="Popover content">
           <button type="button">Trigger</button>
         </Popover>
       )

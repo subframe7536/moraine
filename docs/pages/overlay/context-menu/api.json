@@ -244,7 +244,7 @@
         "description": "Unique base id used to derive trigger and content ids."
       },
       {
-        "name": "renderItem",
+        "name": "itemRender",
         "required": false,
         "type": "((context: OverlayMenuSharedItemRenderContext<ContextMenuT.Item>) => JSX.Element) | undefined",
         "description": "Custom renderer for individual items."

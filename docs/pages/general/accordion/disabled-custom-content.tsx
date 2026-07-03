@@ -10,7 +10,7 @@ export function DisabledCustomContent() {
           value: 'setup',
           label: 'Setup checklist',
           leading: 'i-lucide-list-checks',
-          render: (
+          content: (
             <div class="space-y-2">
               <p>Complete these steps before inviting your team:</p>
               <ul class="pl-5 list-disc space-y-1">
@@ -29,13 +29,13 @@ export function DisabledCustomContent() {
           label: 'Security review (Locked)',
           leading: 'i-lucide-shield-check',
           disabled: true,
-          render: 'Available on Pro plan and above.',
+          content: 'Available on Pro plan and above.',
         },
         {
           value: 'integrations',
           label: 'Integrations',
           leading: 'i-lucide-plug',
-          render: (
+          content: (
             <div class="pt-2 space-y-2">
               <p>Connect your tools to automate the workflow.</p>
               <p>

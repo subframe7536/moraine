@@ -24,7 +24,7 @@ export function CreateNewTags() {
         onChange={setCreateTagValues}
         allowCreate
         placeholder="Type to create tags..."
-        renderEmpty={(ctx) => (
+        emptyRender={(ctx) => (
           <div class="p-2 text-center">
             <button
               type="button"

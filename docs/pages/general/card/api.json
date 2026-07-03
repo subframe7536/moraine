@@ -40,7 +40,7 @@
   "props": {
     "own": [
       {
-        "name": "renderAction",
+        "name": "action",
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render in the action slot (usually a button in the header)."
@@ -76,13 +76,13 @@
         "description": "Description of the card."
       },
       {
-        "name": "renderFooter",
+        "name": "footer",
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render in the footer slot."
       },
       {
-        "name": "renderHeader",
+        "name": "header",
         "required": false,
         "type": "JSX.Element",
         "description": "Content to render in the header slot, overrides title/description."

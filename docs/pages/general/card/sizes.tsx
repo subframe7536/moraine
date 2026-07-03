@@ -7,7 +7,7 @@ export function Sizes() {
         compact
         title="Small Card"
         description="Compact"
-        renderFooter={<Button size="sm">Action</Button>}
+        footer={<Button size="sm">Action</Button>}
         class="h-fit max-w-xs"
       >
         <p class="text-sm opacity-85">Compact spacing for dense layouts and sidebars.</p>
@@ -16,7 +16,7 @@ export function Sizes() {
       <Card
         title="Default Card"
         description="Default"
-        renderFooter={<Button size="sm">Action</Button>}
+        footer={<Button size="sm">Action</Button>}
         class="h-fit max-w-xs"
       >
         <p class="text-sm opacity-85">Standard spacing for normal form and dashboard cards.</p>

@@ -451,8 +451,8 @@ describe('DropdownMenu', () => {
     expect(contentBottom).toHaveBeenCalledWith({ sub: true })
   })
 
-  test('passes renderItem context for root and nested items', async () => {
-    const renderItem = vi.fn((props: any) => (
+  test('passes itemRender context for root and nested items', async () => {
+    const itemRender = vi.fn((props: any) => (
       <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
         {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
         {String(props.isCheckbox)}
@@ -462,7 +462,7 @@ describe('DropdownMenu', () => {
     render(() => (
       <DropdownMenu
         defaultOpen
-        renderItem={renderItem}
+        itemRender={itemRender}
         items={[
           {
             label: 'Parent',
@@ -493,7 +493,7 @@ describe('DropdownMenu', () => {
       'Checkbox:0:false:true',
     )
 
-    expect(renderItem).toHaveBeenCalled()
+    expect(itemRender).toHaveBeenCalled()
   })
 
   test('renders into portal by default', () => {

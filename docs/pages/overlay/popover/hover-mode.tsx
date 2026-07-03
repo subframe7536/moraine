@@ -7,7 +7,7 @@ export function HoverMode() {
         mode="hover"
         openDelay={180}
         closeDelay={120}
-        renderContent={
+        content={
           <div class="space-y-1">
             <p class="text-sm font-medium">Hover Card</p>
             <p class="text-xs text-muted-foreground">

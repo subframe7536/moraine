@@ -60,7 +60,7 @@ export namespace TooltipT {
     /**
      * Primary text content or element to display.
      */
-    renderText?: JSX.Element
+    text?: JSX.Element
 
     /**
      * Keyboard shortcuts to display next to the text.
@@ -277,13 +277,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         )}
         {...context.contentProps}
       >
-        <Show when={typeof merged.renderText === 'string'} fallback={merged.renderText}>
+        <Show when={typeof merged.text === 'string'} fallback={merged.text}>
           <span
             data-slot="text"
             style={merged.styles?.text}
             class={cn('leading-4 text-pretty', merged.classes?.text)}
           >
-            {merged.renderText}
+            {merged.text}
           </span>
         </Show>
 
@@ -291,7 +291,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           variant={merged.invert ? 'invert' : undefined}
           size="sm"
           value={merged.kbds}
-          class={cn(merged.renderText && 'ms-1', merged.classes?.kbds)}
+          class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
           classes={{ item: merged.classes?.kbd }}
         />
       </div>
@@ -346,7 +346,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       onContentPointerLeave={(props) => {
         scheduleClose(props.close, props.isOpen)
       }}
-      renderContent={Content}
+      content={Content}
     />
   )
 }

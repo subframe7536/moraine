@@ -41,7 +41,7 @@
         "type": "PopupT.Classes | undefined"
       },
       {
-        "name": "renderContent",
+        "name": "content",
         "required": false,
         "type": "MaybeRenderProp<ModalContentContext>",
         "description": "Modal content rendered inside the content surface."

@@ -15,7 +15,7 @@ export function ScrollableDismissibleControl() {
         scrollable
         title="Release Notes"
         description="Scrollable dialog content."
-        renderBody={
+        body={
           <div class="space-y-1">
             <For each={SCROLLABLE_LINES}>
               {(line) => <p class="text-sm text-foreground">{line}</p>}
@@ -31,7 +31,7 @@ export function ScrollableDismissibleControl() {
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
         title="Persistent dialog"
-        renderBody={
+        body={
           <p class="text-sm text-foreground">
             Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
           </p>
