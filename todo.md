@@ -13,14 +13,14 @@
 - [x] only add data attributes on essential elements in `checkbox`, unwrap `dataAttr` memo
 - [x] simplify `radio-group` 's classes, remove unnecessary wrapper elements, let form-field component to control form title & description, and make it more semantic and accessible.
 - [x] keep tooltip panel open and add move transition when hover on another trigger which also has a tooltip, to have better user experience when switching between triggers.
+- [ ] extract logic from slider component to a separate hook, and export component level hooks (should located at same dir 's `/hook` dir ) custom implementations.
+- [ ] unify custom render function prop with prefix `render`, target should be `renderXXXX`
 - [ ] unify and correct class/style priority: top level `class` / `style` (root only) > `classes` / `styles` > component builtin classes / styles
-- [ ] extract logic from slider component to a separate hook, and all export component level hooks (should located at same dir 's `/hook` dir ) custom implementations.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible
-- [ ] add docs for icon-button component.
 - [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
+- [ ] drop icon-button component.
 - [ ] find a way to add jsdoc for Variant 's props
-- [ ] unify custom render function prop with prefix `render`, target should be `renderXXXX`
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
 
