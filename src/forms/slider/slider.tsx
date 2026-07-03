@@ -150,16 +150,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       defaultSize: 'md',
     }),
   )
-  const sliderOptions = mergeProps(merged, {
-    get disabled() {
-      return field.disabled()
-    },
-    onValueInput(value: TValue) {
+  const slider = useSlider(merged, {
+    disabled: field.disabled,
+    onValueInput(value) {
       field.setFormValue(value)
       merged.onValueChange?.(value)
       field.emit('input')
     },
-    onValueCommit(value: TValue) {
+    onValueCommit(value) {
       field.setFormValue(value)
       merged.onChange?.(value)
       field.emit('change')
@@ -171,7 +169,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       field.emit('blur')
     },
   })
-  const slider = useSlider(sliderOptions)
 
   onMount(() => {
     if (field.value() === undefined) {
@@ -199,7 +196,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     >
       <div
         ref={(element) => {
-          slider.setTrackElementState(element)
+          slider.setTrackRef(element)
         }}
         data-slot="track"
         data-orientation={merged.orientation}
@@ -286,9 +283,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               },
               merged.classes?.thumb,
             )}
-            aria-valuemin={slider.getThumbMinValue(slider.currentValues(), thumbIndex)}
+            aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min!}
-            aria-valuemax={slider.getThumbMaxValue(slider.currentValues(), thumbIndex)}
+            aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
             aria-orientation={merged.orientation}
             aria-label={
@@ -323,8 +320,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               type="range"
               id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
               name={field.name()}
-              min={slider.getThumbMinValue(slider.currentValues(), thumbIndex)}
-              max={slider.getThumbMaxValue(slider.currentValues(), thumbIndex)}
+              min={slider.getThumbMinValue(thumbIndex)}
+              max={slider.getThumbMaxValue(thumbIndex)}
               step={slider.definedStep() ?? 'any'}
               value={slider.currentValues()[thumbIndex] ?? merged.min!}
               required={merged.required}

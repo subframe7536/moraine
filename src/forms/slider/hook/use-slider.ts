@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Setter } from 'solid-js'
 import { createEffect, createMemo, createSignal, onMount } from 'solid-js'
 
 import type { SliderVariantProps } from '../slider.class'
@@ -18,7 +18,6 @@ import type { SliderValue } from '../utils'
 type UseSliderProps<TValue extends SliderValue> = {
   allowThumbCrossing: boolean
   defaultValue?: TValue
-  disabled?: boolean
   divider?: boolean
   inverted: boolean
   max: number
@@ -30,15 +29,48 @@ type UseSliderProps<TValue extends SliderValue> = {
   styles?: { divider?: JSX.CSSProperties }
   value?: TValue
   variant?: SliderVariantProps['variant']
+}
+
+type UseSliderOptions<TValue extends SliderValue> = {
+  disabled?: () => boolean | undefined
   onBlur?: () => void
   onFocus?: () => void
   onValueCommit?: (value: TValue) => void
   onValueInput?: (value: TValue) => void
 }
 
+export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
+  activeThumbIndexState: () => number | undefined
+  currentValues: () => number[]
+  definedStep: () => number | undefined
+  dividerIndexes: () => number[]
+  dragging: () => boolean
+  getDividerStyle: (index: number) => JSX.CSSProperties
+  getPublicValue: (values: number[]) => TValue
+  getThumbMaxValue: (index: number) => number
+  getThumbMinValue: (index: number) => number
+  getThumbValueText: (index: number) => string
+  onPointerCancel: (event: PointerEvent) => void
+  onThumbBlur: () => void
+  onThumbFocus: (index: number) => void
+  onThumbKeyDown: (index: number, event: KeyboardEvent) => void
+  onThumbKeyUp: (event: KeyboardEvent) => void
+  onThumbPointerDown: (index: number, event: PointerEvent) => void
+  onThumbPointerMove: (event: PointerEvent) => void
+  onThumbPointerUp: (event: PointerEvent) => void
+  onTrackPointerDown: (event: PointerEvent) => void
+  onTrackPointerMove: (event: PointerEvent) => void
+  onTrackPointerUp: (event: PointerEvent) => void
+  rangeStyle: () => JSX.CSSProperties
+  setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
+  setTrackRef: Setter<HTMLDivElement | undefined>
+  thumbStyles: () => JSX.CSSProperties[]
+}
+
 export function useSlider<TValue extends SliderValue = SliderValue>(
   merged: UseSliderProps<TValue>,
-) {
+  options: UseSliderOptions<TValue> = {},
+): UseSliderReturn<TValue> {
   const [displayValues, setDisplayValues] = createSignal<number[]>([])
   const getControlledValues = () => normalizeSliderValues(merged.value, merged.min!)
 
@@ -61,7 +93,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     return Math.max(calcPageSize, step)
   })
   const [thumbRefs, setThumbRefs] = createSignal<Array<HTMLDivElement | undefined>>([])
-  const [trackElement, setTrackElementState] = createSignal<HTMLDivElement | undefined>(undefined)
+  const [trackElement, setTrackRef] = createSignal<HTMLDivElement | undefined>(undefined)
   const [activeThumbIndexState, setActiveThumbIndexState] = createSignal<number | undefined>(
     undefined,
   )
@@ -88,7 +120,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   const getSliderEdges = createMemo(() =>
     resolveSliderEdges(merged.orientation, merged.inverted, isRTL()),
   )
-  const isActionDisabled = createMemo(() => merged.disabled || merged.readOnly)
+  const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
   const currentValues = createMemo(() => getControlledValues() ?? displayValues())
   const interactionValues = () => pendingValues ?? currentValues()
   const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
@@ -153,18 +185,26 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     return (values[0] ?? merged.min!) as TValue
   }
 
-  function getThumbMinValue(values: number[], index: number): number {
+  function getThumbMinValueFor(values: number[], index: number): number {
     const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
     return index === 0
       ? merged.min!
       : clamp((values[index - 1] ?? merged.min!) + thumbGap, merged.min!, merged.max!)
   }
 
-  function getThumbMaxValue(values: number[], index: number): number {
+  function getThumbMaxValueFor(values: number[], index: number): number {
     const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
     return index === values.length - 1
       ? merged.max!
       : clamp((values[index + 1] ?? merged.max!) - thumbGap, merged.min!, merged.max!)
+  }
+
+  function getThumbMinValue(index: number): number {
+    return getThumbMinValueFor(currentValues(), index)
+  }
+
+  function getThumbMaxValue(index: number): number {
+    return getThumbMaxValueFor(currentValues(), index)
   }
 
   function getValueFromPointer(pointerPosition: number): number {
@@ -210,7 +250,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       return
     }
 
-    merged.onValueCommit?.(getPublicValue(pendingValues))
+    options.onValueCommit?.(getPublicValue(pendingValues))
     pendingValues = undefined
   }
 
@@ -236,8 +276,8 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     candidateValue: number,
   ): { nextIndex: number; nextValues: number[] } | undefined {
     const allowsThumbCrossing = merged.allowThumbCrossing && merged.minStepsBetweenThumbs === 0
-    const minValue = allowsThumbCrossing ? merged.min! : getThumbMinValue(values, index)
-    const maxValue = allowsThumbCrossing ? merged.max! : getThumbMaxValue(values, index)
+    const minValue = allowsThumbCrossing ? merged.min! : getThumbMinValueFor(values, index)
+    const maxValue = allowsThumbCrossing ? merged.max! : getThumbMaxValueFor(values, index)
     const step = definedStep()
     const nextValue = step
       ? snapValueToStep(candidateValue, minValue, maxValue, step)
@@ -282,7 +322,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     pendingValues = nextValues
     setDisplayValues(nextValues)
 
-    merged.onValueInput?.(getPublicValue(nextValues))
+    options.onValueInput?.(getPublicValue(nextValues))
 
     return nextIndex
   }
@@ -421,12 +461,12 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     event.preventDefault()
 
     if (key === 'Home') {
-      applyThumbValue(index, getThumbMinValue(interactionValues(), index))
+      applyThumbValue(index, getThumbMinValueFor(interactionValues(), index))
       return
     }
 
     if (key === 'End') {
-      applyThumbValue(index, getThumbMaxValue(interactionValues(), index))
+      applyThumbValue(index, getThumbMaxValueFor(interactionValues(), index))
       return
     }
 
@@ -472,7 +512,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
 
   function onThumbFocus(index: number): void {
     lastUsedThumbIndex = index
-    merged.onFocus?.()
+    options.onFocus?.()
   }
 
   function onThumbKeyUp(event: KeyboardEvent): void {
@@ -503,7 +543,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function onThumbBlur(): void {
-    merged.onBlur?.()
+    options.onBlur?.()
 
     if (suppressNextBlurCommit) {
       suppressNextBlurCommit = false
@@ -550,7 +590,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     onTrackPointerUp,
     rangeStyle,
     setThumbRefs,
-    setTrackElementState,
+    setTrackRef,
     thumbStyles,
   }
 }
