@@ -191,7 +191,7 @@
         "defaultValue": "false"
       },
       {
-        "name": "emptyRender",
+        "name": "renderEmpty",
         "required": false,
         "type": "string | ((context: MultiSelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom renderer for the empty state when current filtered result has no matches."
@@ -217,7 +217,7 @@
         "description": "The ID of the input element."
       },
       {
-        "name": "labelRender",
+        "name": "renderLabel",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem>) => JSX.Element) | undefined",
         "description": "Custom renderer for the option label text."
@@ -296,7 +296,7 @@
         "description": "Controlled open state."
       },
       {
-        "name": "optionRender",
+        "name": "renderOption",
         "required": false,
         "type": "((option: (MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) | null) => JSX.Element) | undefined",
         "description": "Custom renderer for each option in the dropdown. Passes `null` for empty state."
@@ -370,7 +370,7 @@
         "type": "MultiSelectT.Styles | undefined"
       },
       {
-        "name": "tagRender",
+        "name": "renderTag",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem> & { onClose: () => void; }) => JSX.Element) | undefined",
         "description": "Custom renderer for each selected tag (multiple/tags)."

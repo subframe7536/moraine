@@ -378,14 +378,14 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenCalledWith(['banana'])
   })
 
-  test('passes null to optionRender for empty state', async () => {
+  test('passes null to renderOption for empty state', async () => {
     let receivedEmptyOption = false
     const screen = render(() => (
       <MultiSelect
         search
         options={FRUITS}
         defaultOpen
-        optionRender={(option) => {
+        renderOption={(option) => {
           receivedEmptyOption = option === null
           return <div data-testid="empty">Empty</div>
         }}
@@ -416,12 +416,12 @@ describe('MultiSelect', () => {
     })
   })
 
-  test('uses tagRender for custom tag rendering', () => {
+  test('uses renderTag for custom tag rendering', () => {
     const screen = render(() => (
       <MultiSelect
         options={FRUITS}
         value={['apple']}
-        tagRender={(props) => (
+        renderTag={(props) => (
           <span data-testid="custom-tag">
             {props.label}
             <button onClick={props.onClose}>x</button>

@@ -198,8 +198,8 @@ describe('Breadcrumb', () => {
     expect(separator?.style.width).toBe('200px')
   })
 
-  test('supports itemRender with @solidjs/router A component', () => {
-    const itemRender = vi.fn<(context: BreadcrumbT.ItemRenderContext) => typeof A>((_) => A)
+  test('supports renderItem with @solidjs/router A component', () => {
+    const renderItem = vi.fn<(context: BreadcrumbT.ItemRenderContext) => typeof A>((_) => A)
 
     const screen = render(() => (
       <Router url="/">
@@ -207,7 +207,7 @@ describe('Breadcrumb', () => {
           path="/"
           component={() => (
             <Breadcrumb
-              itemRender={itemRender}
+              renderItem={renderItem}
               items={[
                 { label: 'Home', href: '/' },
                 { label: 'Current', href: '/current' },
@@ -224,9 +224,9 @@ describe('Breadcrumb', () => {
     expect(screen.getByText('Home')).not.toBeNull()
     expect(links.length).toBe(2)
     expect(homeLink.getAttribute('href')).toBe('/')
-    expect(itemRender).toHaveBeenCalled()
+    expect(renderItem).toHaveBeenCalled()
 
-    const contexts = itemRender.mock.calls
+    const contexts = renderItem.mock.calls
       .map(([context]) => context)
       .filter((context): context is BreadcrumbT.ItemRenderContext => context !== undefined)
     expect(

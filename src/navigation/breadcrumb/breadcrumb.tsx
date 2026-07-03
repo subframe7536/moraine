@@ -144,7 +144,7 @@ export namespace BreadcrumbT {
     /**
      * Custom renderer for individual breadcrumb items.
      */
-    itemRender?: (context: ItemRenderContext) => ValidComponent
+    renderItem?: (context: ItemRenderContext) => ValidComponent
   }
 
   /**
@@ -191,7 +191,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             const isDisabled = createMemo(() => Boolean(item.disabled || isCurrent()))
             const href = createMemo(() => {
               const defaultHref = item.to ?? item.href
-              if (merged.itemRender) {
+              if (merged.renderItem) {
                 return defaultHref
               }
               return isDisabled() ? undefined : defaultHref
@@ -206,8 +206,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                 >
                   <Button
                     as={
-                      merged.itemRender
-                        ? merged.itemRender({
+                      merged.renderItem
+                        ? merged.renderItem({
                             item,
                             index: index(),
                             current: isCurrent(),

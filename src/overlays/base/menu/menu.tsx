@@ -90,7 +90,7 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
   gutter?: number
 
   /** Custom renderer for individual items. */
-  itemRender?: (context: OverlayMenuSharedItemRenderContext<TItem>) => JSX.Element
+  renderItem?: (context: OverlayMenuSharedItemRenderContext<TItem>) => JSX.Element
 
   /** Items rendered in the menu body. */
   items?: TItem[]
@@ -356,8 +356,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }): JSX.Element {
     return (
       <Show
-        when={!props.itemRender}
-        fallback={props.itemRender!({
+        when={!props.renderItem}
+        fallback={props.renderItem!({
           item: contentProps.item,
           depth: props.depth,
           hasChildren: contentProps.hasChildren,
@@ -1020,7 +1020,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               size={props.size}
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
-              itemRender={props.itemRender}
+              renderItem={props.renderItem}
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
@@ -1305,7 +1305,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           size={merged.size}
           checkedIcon={merged.checkedIcon}
           submenuIcon={merged.submenuIcon}
-          itemRender={merged.itemRender}
+          renderItem={merged.renderItem}
           contentTop={merged.contentTop}
           contentBottom={merged.contentBottom}
           getReferenceElement={getReferenceElement}

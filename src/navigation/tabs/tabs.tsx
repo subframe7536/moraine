@@ -367,7 +367,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...merged.styles?.indicator, ...indicatorStyle() }}
+          style={{ ...indicatorStyle(), ...merged.styles?.indicator }}
           class={tabsIndicatorVariants(
             {
               orientation: merged.orientation,

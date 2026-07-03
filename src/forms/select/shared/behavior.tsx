@@ -28,11 +28,11 @@ interface RenderDefaultSelectOptionOptions<TItem> {
     | null
   classes?: SlotClasses<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
   styles?: SlotStyles<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
-  labelRender?: (option: TItem) => JSX.Element
+  renderLabel?: (option: TItem) => JSX.Element
 }
 
 interface CreateEmptyRendererOptions<TApi, TCtx> {
-  emptyRender?: string | ((context: TCtx) => JSX.Element)
+  renderEmpty?: string | ((context: TCtx) => JSX.Element)
   classes?: SlotClasses<'empty'>
   styles?: SlotStyles<'empty'>
   buildContext: (api: TApi) => TCtx
@@ -236,7 +236,7 @@ export function renderDefaultSelectOption<TItem>(
       style={options.styles?.itemLabel}
       class={cn('truncate', options.classes?.itemLabel)}
     >
-      <Show when={options.labelRender} keyed fallback={option.label}>
+      <Show when={options.renderLabel} keyed fallback={option.label}>
         {(render) => render(option)}
       </Show>
     </span>
@@ -281,11 +281,11 @@ export function renderDefaultSelectOption<TItem>(
 export function createEmptyRenderer<TContext, TCtx>(
   options: CreateEmptyRendererOptions<TContext, TCtx>,
 ): ((context: TContext) => JSX.Element) | undefined {
-  if (!options.emptyRender) {
+  if (!options.renderEmpty) {
     return undefined
   }
   return (context) => (
-    <Show when={options.emptyRender} keyed>
+    <Show when={options.renderEmpty} keyed>
       {(render) => (
         <Show
           when={typeof render === 'string'}

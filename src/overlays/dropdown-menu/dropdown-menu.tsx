@@ -178,7 +178,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         items={merged.items}
         checkedIcon={merged.checkedIcon}
         submenuIcon={merged.submenuIcon}
-        itemRender={merged.itemRender}
+        renderItem={merged.renderItem}
         contentTop={merged.contentTop}
         contentBottom={merged.contentBottom}
         preventScroll={merged.preventScroll}

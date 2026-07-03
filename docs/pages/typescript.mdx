@@ -63,7 +63,7 @@ Prop callbacks often receive component-specific objects. Type them using the app
 ```tsx
 import type { SelectProps } from 'moraine'
 
-const labelRender: SelectProps['labelRender'] = (option) =>
+const renderLabel: SelectProps['renderLabel'] = (option) =>
   typeof option.label === 'string' ? option.label : (option.key ?? 'Unknown')
 ```
 

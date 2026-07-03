@@ -117,7 +117,7 @@
         "type": "BreadcrumbT.Classes | undefined"
       },
       {
-        "name": "itemRender",
+        "name": "renderItem",
         "required": false,
         "type": "((context: BreadcrumbT.ItemRenderContext) => ValidComponent) | undefined",
         "description": "Custom renderer for individual breadcrumb items."
