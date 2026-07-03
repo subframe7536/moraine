@@ -126,6 +126,12 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
             return
           }
 
+          if (event.key === 'Escape' && isOpen()) {
+            event.preventDefault()
+            commitOpen(false)
+            return
+          }
+
           if (event.key === 'ArrowDown') {
             event.preventDefault()
             openWithStrategy('first')

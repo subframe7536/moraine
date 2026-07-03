@@ -82,6 +82,35 @@ describe('ContextMenu', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
+  test('opens from keyboard context menu shortcut at trigger center', async () => {
+    const screen = render(() => (
+      <ContextMenu items={[{ label: 'Keyboard action' }, { label: 'Second action' }]}>
+        <button type="button">Row Item</button>
+      </ContextMenu>
+    ))
+
+    const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]') as HTMLElement
+    trigger.getBoundingClientRect = () =>
+      ({
+        bottom: 40,
+        height: 20,
+        left: 10,
+        right: 110,
+        top: 20,
+        width: 100,
+        x: 10,
+        y: 20,
+        toJSON: () => ({}),
+      }) as DOMRect
+
+    await fireEvent.keyDown(screen.getByText('Row Item'), { key: 'F10', shiftKey: true })
+
+    await waitFor(() => {
+      const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
+      expect(highlighted?.textContent).toContain('Keyboard action')
+    })
+  })
+
   test('exposes trigger data state while opened, closed, and disabled', async () => {
     const screen = render(() => (
       <ContextMenu disabled items={[{ label: 'Disabled action' }]}>
