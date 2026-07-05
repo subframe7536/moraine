@@ -97,7 +97,7 @@ export namespace SelectT {
     /** Custom renderer for the option label text. */
     labelRender?: (option: SelectT.Item<TItem>) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
+    emptyRender?: (context: EmptyRenderContext<TItem>) => JSX.Element
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -193,8 +193,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       onOptionSelect={(option, api) => updateSelection(option, api)}
       emptyRender={createEmptyRenderer({
         emptyRender: props.emptyRender,
-        classes: props.classes,
-        styles: props.styles,
         buildContext: (api: BaseSelectT.StateApi<Item>) => {
           const selected = findSelectedOption(api)
           return {
