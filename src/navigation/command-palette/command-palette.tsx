@@ -292,7 +292,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       childIcon: 'icon-chevron-right' as IconT.Name,
       backIcon: 'icon-arrow-left' as IconT.Name,
       closeIcon: 'icon-close' as IconT.Name,
-      emptyRender: 'No results.',
+      empty: 'No results.',
     },
     props,
   )

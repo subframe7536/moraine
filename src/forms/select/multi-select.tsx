@@ -136,7 +136,7 @@ export namespace MultiSelectT {
     /** Custom renderer for the option label text. */
     labelRender?: (option: MultiSelectT.Item<TItem>) => JSX.Element
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: string | ((context: EmptyRenderContext<TItem>) => JSX.Element)
+    emptyRender?: (context: EmptyRenderContext<TItem>) => JSX.Element
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -527,8 +527,6 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       onInputKeyDown={handleEnterKey}
       emptyRender={createEmptyRenderer({
         emptyRender: props.emptyRender,
-        classes: props.classes,
-        styles: props.styles,
         buildContext: (ctx: BaseSelectT.StateApi<Item>) => ({
           inputValue: ctx.inputValue(),
           hasMatches: ctx.visibleFlatOptions().length > 0,

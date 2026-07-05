@@ -193,7 +193,7 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "string | ((context: MultiSelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
+        "type": "((context: MultiSelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom renderer for the empty state when current filtered result has no matches."
       },
       {

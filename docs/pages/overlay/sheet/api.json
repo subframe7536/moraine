@@ -56,13 +56,13 @@
   "props": {
     "own": [
       {
-        "name": "actionsRender",
+        "name": "action",
         "required": false,
         "type": "JSX.Element",
         "description": "Additional action elements to render in the header."
       },
       {
-        "name": "bodyRender",
+        "name": "body",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the scrollable body slot."
@@ -110,13 +110,13 @@
         "description": "Whether outside interaction and Escape should dismiss the shell."
       },
       {
-        "name": "footerRender",
+        "name": "footer",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the footer slot."
       },
       {
-        "name": "headerRender",
+        "name": "header",
         "required": false,
         "type": "JSX.Element",
         "description": "Custom element to render in the header slot."
