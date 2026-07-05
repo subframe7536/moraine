@@ -11,7 +11,7 @@ export function DismissControl() {
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
         title="Persistent sheet"
-        bodyRender={
+        body={
           <p class="text-sm text-foreground">
             Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
           </p>

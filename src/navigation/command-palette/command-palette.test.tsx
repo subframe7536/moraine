@@ -29,7 +29,7 @@ const GROUPS = [
 describe('CommandPalette', () => {
   test('forces input focus in dialog when autofocus is enabled', async () => {
     render(() => (
-      <Dialog open close={false} bodyRender={<CommandPalette items={GROUPS} />}>
+      <Dialog open close={false} body={<CommandPalette items={GROUPS} />}>
         <button type="button">Open</button>
       </Dialog>
     ))
@@ -351,7 +351,7 @@ describe('CommandPalette', () => {
           search: 'search-override',
           close: 'close-override',
         }}
-        footerRender={<span>Footer content</span>}
+        footer={<span>Footer content</span>}
       />
     ))
 
@@ -391,7 +391,7 @@ describe('CommandPalette', () => {
 
   test('renders footer content when footer is provided', async () => {
     const screen = render(() => (
-      <CommandPalette items={GROUPS} footerRender={<span>Palette Footer</span>} />
+      <CommandPalette items={GROUPS} footer={<span>Palette Footer</span>} />
     ))
 
     await waitFor(() => {

@@ -188,9 +188,9 @@ export namespace CommandPaletteT {
      * Elements to show when no items match the search.
      * @default 'No results.'
      */
-    emptyRender?: JSX.Element
+    empty?: JSX.Element
     /** Content to render at bottom of the palette. */
-    footerRender?: JSX.Element
+    footer?: JSX.Element
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -551,7 +551,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
             style={merged.styles?.empty}
             class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
           >
-            {merged.emptyRender}
+            {merged.empty}
           </div>
         }
       >
@@ -717,13 +717,13 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         </div>
       </Show>
 
-      <Show when={merged.footerRender}>
+      <Show when={merged.footer}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
           class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
         >
-          {merged.footerRender}
+          {merged.footer}
         </div>
       </Show>
     </div>

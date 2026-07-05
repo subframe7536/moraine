@@ -5,7 +5,7 @@ export function CustomEmptyState() {
     <div class="max-w-full w-lg">
       <CommandPalette
         items={[]}
-        emptyRender={
+        empty={
           <span class="flex flex-col gap-2 items-center">
             <span class="i-lucide-search-x text-muted-foreground size-6" aria-hidden="true" />
             <span class="text-foreground font-medium">No commands found</span>

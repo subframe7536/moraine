@@ -12,7 +12,7 @@ export function Sides() {
             side={side}
             title={`Sheet ${side}`}
             description={`This sheet opens from ${side}.`}
-            bodyRender={<p class="text-sm text-foreground">Body content from {side} side.</p>}
+            body={<p class="text-sm text-foreground">Body content from {side} side.</p>}
           >
             <Button variant="outline" size="sm">
               {side}

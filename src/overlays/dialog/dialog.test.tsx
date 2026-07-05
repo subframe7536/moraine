@@ -31,8 +31,8 @@ describe('Modal', () => {
         open
         title="Confirm"
         description="Please confirm"
-        bodyRender="Modal body"
-        footerRender="Modal footer"
+        body="Modal body"
+        footer="Modal footer"
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -54,7 +54,7 @@ describe('Modal', () => {
 
   test('composes dialog as popup container + card shell', () => {
     render(() => (
-      <Dialog open title="Composed" bodyRender="Body">
+      <Dialog open title="Composed" body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -68,7 +68,7 @@ describe('Modal', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Dialog open bodyRender="Body">
+      <Dialog open body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -111,7 +111,7 @@ describe('Modal', () => {
         open
         title="Default title"
         description="Default description"
-        headerRender={<div data-testid="custom-header">Custom Header</div>}
+        header={<div data-testid="custom-header">Custom Header</div>}
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -126,11 +126,7 @@ describe('Modal', () => {
 
   test('renders body content and keeps shell sections', () => {
     render(() => (
-      <Dialog
-        open
-        title="Dialog title"
-        bodyRender={<div data-testid="custom-body">Body Content</div>}
-      >
+      <Dialog open title="Dialog title" body={<div data-testid="custom-body">Body Content</div>}>
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -145,7 +141,7 @@ describe('Modal', () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
-      <Dialog onOpenChange={onOpenChange} title="Settings" bodyRender="Body">
+      <Dialog onOpenChange={onOpenChange} title="Settings" body="Body">
         <button type="button">Open modal</button>
       </Dialog>
     ))
@@ -173,7 +169,7 @@ describe('Modal', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Dialog open title="Portal default" bodyRender="Body">
+      <Dialog open title="Portal default" body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -184,7 +180,7 @@ describe('Modal', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Dialog open overlay={false} bodyRender="Body">
+      <Dialog open overlay={false} body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -194,7 +190,7 @@ describe('Modal', () => {
 
   test('supports scrollable overlay mode', () => {
     render(() => (
-      <Dialog open scrollable bodyRender="Scrollable body">
+      <Dialog open scrollable body="Scrollable body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -210,7 +206,7 @@ describe('Modal', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Dialog open closeIcon={<span data-testid="custom-close">X</span>} bodyRender="Body">
+      <Dialog open closeIcon={<span data-testid="custom-close">X</span>} body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -220,7 +216,7 @@ describe('Modal', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Dialog open close={false} bodyRender="Body">
+      <Dialog open close={false} body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -232,7 +228,7 @@ describe('Modal', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} bodyRender="Body">
+      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
         <button type="button">Trigger</button>
       </Dialog>
     ))
@@ -255,7 +251,7 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} bodyRender="Body">
+        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
           <button type="button">Trigger</button>
         </Dialog>
       </>
@@ -278,12 +274,7 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog
-          onOpenChange={onOpenChange}
-          defaultOpen
-          title="Dialog title"
-          bodyRender="Dialog body"
-        >
+        <Dialog onOpenChange={onOpenChange} defaultOpen title="Dialog title" body="Dialog body">
           <button type="button">Trigger</button>
         </Dialog>
       </>
@@ -316,7 +307,7 @@ describe('Modal', () => {
         dismissible
         onClosePrevent={onClosePrevent}
         onOpenChange={onOpenChange}
-        bodyRender="Body"
+        body="Body"
       >
         <button type="button">Trigger</button>
       </Dialog>
@@ -337,7 +328,7 @@ describe('Modal', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Dialog open bodyRender="Body" styles={{ content: { width: '200px' } }}>
+      <Dialog open body="Body" styles={{ content: { width: '200px' } }}>
         <button type="button">Trigger</button>
       </Dialog>
     ))

@@ -130,13 +130,13 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         header: 'hidden',
         body: 'p-0',
       }}
-      bodyRender={
+      body={
         <CommandPalette
           items={items()}
           placeholder="Search components, hooks, and pages..."
           searchTerm={searchTerm()}
           onSearchTermChange={setSearchTerm}
-          emptyRender="No matching pages."
+          empty="No matching pages."
           classes={{
             root: 'rounded-xl',
             inputWrapper: 'b-(b border) h-12',

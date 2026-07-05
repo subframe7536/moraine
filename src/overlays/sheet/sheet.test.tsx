@@ -27,7 +27,7 @@ describe('Sheet', () => {
     ['bottom', 'bottom-0', 'animate-sheet-side-bottom'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
     render(() => (
-      <Sheet open side={side} bodyRender="Sheet body">
+      <Sheet open side={side} body="Sheet body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -51,7 +51,7 @@ describe('Sheet', () => {
         classes={{
           content: 'content-class',
         }}
-        bodyRender="Body"
+        body="Body"
       >
         <button type="button">Trigger</button>
       </Sheet>
@@ -72,9 +72,9 @@ describe('Sheet', () => {
         open
         title="Panel"
         description="Panel description"
-        actionsRender={<button type="button">Action</button>}
-        bodyRender="Sheet body"
-        footerRender="Sheet footer"
+        action={<button type="button">Action</button>}
+        body="Sheet body"
+        footer="Sheet footer"
       >
         <button type="button">Trigger</button>
       </Sheet>
@@ -90,7 +90,7 @@ describe('Sheet', () => {
 
   test('keeps trigger wrapper out of tab order', () => {
     render(() => (
-      <Sheet open bodyRender="Body">
+      <Sheet open body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -102,7 +102,7 @@ describe('Sheet', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Sheet open close={<span data-testid="custom-close">X</span>} bodyRender="Body">
+      <Sheet open close={<span data-testid="custom-close">X</span>} body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -112,7 +112,7 @@ describe('Sheet', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Sheet open close={false} bodyRender="Body">
+      <Sheet open close={false} body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -122,11 +122,7 @@ describe('Sheet', () => {
 
   test('renders body content and keeps shell sections', () => {
     render(() => (
-      <Sheet
-        open
-        title="Sheet title"
-        bodyRender={<div data-testid="custom-body">Body Content</div>}
-      >
+      <Sheet open title="Sheet title" body={<div data-testid="custom-body">Body Content</div>}>
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -141,7 +137,7 @@ describe('Sheet', () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
-      <Sheet onOpenChange={onOpenChange} title="Sheet" bodyRender="Body">
+      <Sheet onOpenChange={onOpenChange} title="Sheet" body="Body">
         <button type="button">Open sheet</button>
       </Sheet>
     ))
@@ -169,7 +165,7 @@ describe('Sheet', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Sheet open title="Portal default" bodyRender="Body">
+      <Sheet open title="Portal default" body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -180,7 +176,7 @@ describe('Sheet', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Sheet open overlay={false} bodyRender="Body">
+      <Sheet open overlay={false} body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -192,7 +188,7 @@ describe('Sheet', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} bodyRender="Body">
+      <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
         <button type="button">Trigger</button>
       </Sheet>
     ))
@@ -215,7 +211,7 @@ describe('Sheet', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} bodyRender="Body">
+        <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
           <button type="button">Trigger</button>
         </Sheet>
       </>
@@ -240,7 +236,7 @@ describe('Sheet', () => {
         dismissible
         onClosePrevent={onClosePrevent}
         onOpenChange={onOpenChange}
-        bodyRender="Body"
+        body="Body"
       >
         <button type="button">Trigger</button>
       </Sheet>
@@ -267,7 +263,7 @@ describe('Sheet', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Sheet open bodyRender="Body" styles={{ content: { width: '200px' } }}>
+      <Sheet open body="Body" styles={{ content: { width: '200px' } }}>
         <button type="button">Trigger</button>
       </Sheet>
     ))
