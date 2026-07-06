@@ -192,13 +192,13 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.Context<TItem>) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom empty state renderer."
       },
       {
         "name": "footerRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.Context<TItem>) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom footer renderer."
       },
       {
@@ -228,7 +228,7 @@
         "defaultValue": "false"
       },
       {
-        "name": "maxLength",
+        "name": "searchMaxLength",
         "required": false,
         "type": "number | undefined",
         "description": "Maximum allowed length for the search text."

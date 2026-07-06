@@ -510,6 +510,24 @@ describe('CommandPalette', () => {
     })
   })
 
+  test('passes filtered visibleGroups to render contexts', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        groups={GROUPS}
+        searchTerm="Settings"
+        footerRender={(ctx) => (
+          <span>
+            Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+          </span>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByText('Visible 1')).toBeTruthy()
+    })
+  })
+
   test('supports custom itemRender with runtime item context', async () => {
     const screen = render(() => (
       <CommandPalette
@@ -550,6 +568,42 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('typed-item').textContent).toBe('g:/docs/action')
+    })
+  })
+
+  test('preserves custom item metadata for nested children', async () => {
+    interface CustomItem extends CommandPaletteT.Item {
+      route: string
+    }
+
+    const screen = render(() => (
+      <CommandPalette<CustomItem>
+        groups={[
+          {
+            id: 'g',
+            items: [
+              {
+                value: 'parent',
+                label: 'Parent',
+                route: '/docs',
+                children: [{ value: 'child', label: 'Child', route: '/docs/child' }],
+              },
+            ],
+          },
+        ]}
+        itemRender={(ctx) => <span data-testid="nested-item">{ctx.item.route}</span>}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('nested-item').textContent).toBe('/docs')
+    })
+
+    const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
+    await fireEvent.click(parentItem)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('nested-item').textContent).toBe('/docs/child')
     })
   })
 
@@ -598,6 +652,28 @@ describe('CommandPalette', () => {
   test('rejects item classes in type contract', () => {
     // @ts-expect-error item-level classes has been removed
     const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', classes: { item: 'x' } }
+    expect(item).toBeDefined()
+  })
+
+  test('requires custom child items to satisfy the generic item shape', () => {
+    interface CustomItem extends CommandPaletteT.Item {
+      route: string
+    }
+
+    const item: CommandPaletteT.Group<CustomItem> = {
+      id: 'g',
+      items: [
+        {
+          value: 'parent',
+          route: '/docs',
+          children: [
+            // @ts-expect-error nested custom items must also provide route
+            { value: 'child' },
+          ],
+        },
+      ],
+    }
+
     expect(item).toBeDefined()
   })
 })

@@ -40,9 +40,13 @@ export namespace CommandPaletteT {
     /** Whether this item should be excluded from built-in search filtering. */
     alwaysShow?: boolean
     /** Selecting this item drills into a nested group of items. */
-    children?: Item[]
+    children?: ItemNode<this>[]
     /** Callback triggered when the item is selected. */
     onSelect?: () => void
+  }
+
+  export type ItemNode<TItem extends Item = Item> = Omit<TItem, 'children'> & {
+    children?: ItemNode<TItem>[]
   }
 
   export interface Slot<T = unknown> {
@@ -115,7 +119,7 @@ export namespace CommandPaletteT {
     /** Display name for the group header. */
     label?: string
     /** Items belonging to this group. */
-    items?: TItem[]
+    items?: ItemNode<TItem>[]
   }
 
   export interface Icons {
@@ -141,7 +145,7 @@ export namespace CommandPaletteT {
   }
 
   export interface ItemRenderContext<TItem extends Item = Item> extends BaseContext<TItem> {
-    item: TItem
+    item: ItemNode<TItem>
     group: Group<TItem>
     selected: boolean
     focused: boolean
@@ -224,7 +228,7 @@ interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.It
   label: string
   searchText: string
   disabled: boolean
-  item: TItem
+  item: CommandPaletteT.ItemNode<TItem>
   group: CommandPaletteT.Group<TItem>
   active: boolean
   alwaysShow: boolean
@@ -407,7 +411,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         {
           id: `history-${item.key}`,
           label: item.item.label,
-          items: item.item.children as TItem[],
+          items: item.item.children,
         },
       ])
       applySearchValue('')
@@ -498,7 +502,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         return visibleGroups().map((group) =>
           Object.assign({}, group.source, {
             label: group.source.label ?? group.label,
-            children: group.items.map((item) => item.item),
+            items: group.items.map((item) => item.item),
           }),
         )
       },
