@@ -7,22 +7,22 @@ export function Sides() {
         <SidebarFrame
           isMobile={false}
           side="left"
-          renderSidebarHeader={() => <div class="text-xs p-3">side=left</div>}
-          renderSidebarBody={() => (
+          sidebarHeaderRender={() => <div class="text-xs p-3">side=left</div>}
+          sidebarBodyRender={() => (
             <div class="text-sm text-muted-foreground p-2 h-full">Sidebar panel (left)</div>
           )}
-          renderMain={() => <div class="text-sm p-3 h-full">Main panel</div>}
+          mainRender={() => <div class="text-sm p-3 h-full">Main panel</div>}
         />
       </div>
       <div class="b-1 b-border rounded-xl h-64 w-full overflow-hidden">
         <SidebarFrame
           isMobile={false}
           side="right"
-          renderSidebarHeader={() => <div class="text-xs p-3">side=right</div>}
-          renderSidebarBody={() => (
+          sidebarHeaderRender={() => <div class="text-xs p-3">side=right</div>}
+          sidebarBodyRender={() => (
             <div class="text-sm text-muted-foreground p-2 h-full">Sidebar panel (right)</div>
           )}
-          renderMain={() => <div class="text-sm p-3 h-full">Main panel</div>}
+          mainRender={() => <div class="text-sm p-3 h-full">Main panel</div>}
         />
       </div>
     </div>

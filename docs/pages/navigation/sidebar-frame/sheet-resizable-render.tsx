@@ -10,7 +10,7 @@ export function SheetResizableRender() {
     <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
-        renderFrame={(ctx) => (
+        frameRender={(ctx) => (
           <SidebarFrameSheetResizableRender
             {...ctx}
             resizablePanelOptions={{
@@ -29,8 +29,8 @@ export function SheetResizableRender() {
             }}
           />
         )}
-        renderSidebarHeader={() => <div class="text-sm p-3">Workspace</div>}
-        renderSidebarBody={() => (
+        sidebarHeaderRender={() => <div class="text-sm p-3">Workspace</div>}
+        sidebarBodyRender={() => (
           <div class="p-2 h-full overflow-y-auto">
             <div class="flex flex-col gap-1">
               <For each={ITEMS}>
@@ -46,7 +46,7 @@ export function SheetResizableRender() {
             </div>
           </div>
         )}
-        renderMain={() => (
+        mainRender={() => (
           <div class="p-4 flex flex-col gap-3 h-full">
             <h3 class="text-base font-semibold">Resizable Desktop Frame</h3>
             <p class="text-sm text-muted-foreground">

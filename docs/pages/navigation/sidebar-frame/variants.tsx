@@ -10,11 +10,11 @@ export function Variants() {
             <SidebarFrame
               isMobile={false}
               variant={variant}
-              renderSidebarHeader={() => <div class="text-xs p-3">{variant}</div>}
-              renderSidebarBody={() => (
+              sidebarHeaderRender={() => <div class="text-xs p-3">{variant}</div>}
+              sidebarBodyRender={() => (
                 <div class="text-sm text-muted-foreground p-2">Sidebar content</div>
               )}
-              renderMain={() => (
+              mainRender={() => (
                 <div class="p-4 h-full">
                   <div class="text-sm text-foreground p-4 b-1 b-border rounded-lg b-dashed bg-muted/20 h-full">
                     Main content area

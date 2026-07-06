@@ -5,8 +5,8 @@ export function ForcedMobile() {
     <div class="b-1 b-border rounded-xl h-72 overflow-hidden">
       <SidebarFrame
         isMobile
-        renderSidebarHeader={() => <div class="text-sm p-3">Mobile Menu</div>}
-        renderSidebarBody={(ctx) => (
+        sidebarHeaderRender={() => <div class="text-sm p-3">Mobile Menu</div>}
+        sidebarBodyRender={(ctx) => (
           <div class="text-sm p-3 h-full overflow-y-auto">
             <p class="text-muted-foreground">This sidebar is rendered inside Sheet.</p>
             <Button class="mt-3" variant="outline" onClick={() => ctx.setOpen(false)}>
@@ -14,7 +14,7 @@ export function ForcedMobile() {
             </Button>
           </div>
         )}
-        renderMain={(ctx) => (
+        mainRender={(ctx) => (
           <div class="p-4 flex flex-col gap-3 h-full">
             <h3 class="text-base font-semibold">Forced Mobile Mode</h3>
             <p class="text-sm text-muted-foreground">

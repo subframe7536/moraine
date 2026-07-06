@@ -30,8 +30,8 @@ afterEach(() => {
 function createBaseProps(): SidebarFrameProps {
   return {
     isMobile: false,
-    renderSidebarBody: () => <div>Sidebar body</div>,
-    renderMain: () => <div>Main content</div>,
+    sidebarBodyRender: () => <div>Sidebar body</div>,
+    mainRender: () => <div>Main content</div>,
   }
 }
 
@@ -60,7 +60,7 @@ describe('SidebarFrame', () => {
     const screen = render(() => (
       <SidebarFrame
         {...createBaseProps()}
-        renderMain={(ctx) => (
+        mainRender={(ctx) => (
           <button type="button" onClick={ctx.toggle}>
             toggle desktop
           </button>
@@ -83,7 +83,7 @@ describe('SidebarFrame', () => {
     const screen = render(() => (
       <SidebarFrame
         {...createBaseProps()}
-        renderFrame={() => <div data-testid="custom-frame">custom</div>}
+        frameRender={() => <div data-testid="custom-frame">custom</div>}
       />
     ))
 
@@ -93,7 +93,7 @@ describe('SidebarFrame', () => {
 
   test('renders resizable wrapper on desktop when using SheetResizable render', () => {
     const screen = render(() => (
-      <SidebarFrame {...createBaseProps()} renderFrame={SidebarFrameSheetResizableRender} />
+      <SidebarFrame {...createBaseProps()} frameRender={SidebarFrameSheetResizableRender} />
     ))
 
     expect(screen.container.querySelector('[data-slot="divider"]')).not.toBeNull()
@@ -104,7 +104,7 @@ describe('SidebarFrame', () => {
       <SidebarFrame
         {...createBaseProps()}
         isMobile
-        renderFrame={SidebarFrameSheetResizableRender}
+        frameRender={SidebarFrameSheetResizableRender}
       />
     ))
 
@@ -162,8 +162,8 @@ describe('SidebarFrame', () => {
     const screen = render(() => (
       <SidebarFrame
         isMobile
-        renderSidebarBody={() => <div>Mobile sidebar body</div>}
-        renderMain={(ctx) => (
+        sidebarBodyRender={() => <div>Mobile sidebar body</div>}
+        mainRender={(ctx) => (
           <button type="button" onClick={ctx.toggle}>
             toggle
           </button>
@@ -186,7 +186,7 @@ describe('SidebarFrame', () => {
       <SidebarFrame
         {...createBaseProps()}
         scrollThreshold={10}
-        renderMain={(ctx) => <div data-testid="scroll-state">{ctx.scrolled() ? 'on' : 'off'}</div>}
+        mainRender={(ctx) => <div data-testid="scroll-state">{ctx.scrolled() ? 'on' : 'off'}</div>}
       />
     ))
 

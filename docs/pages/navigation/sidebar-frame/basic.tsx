@@ -19,8 +19,8 @@ export function Basic() {
     <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
-        renderSidebarHeader={() => <div class="text-sm font-semibold p-4">Documentation</div>}
-        renderSidebarBody={() => (
+        sidebarHeaderRender={() => <div class="text-sm font-semibold p-4">Documentation</div>}
+        sidebarBodyRender={() => (
           <div class="p-2 h-full overflow-y-auto">
             <div class="flex flex-col gap-1">
               <For each={PAGES}>
@@ -36,7 +36,7 @@ export function Basic() {
             </div>
           </div>
         )}
-        renderMain={(ctx) => (
+        mainRender={(ctx) => (
           <>
             <div class="flex flex-row items-center">
               <Button variant="ghost" class="m-2" onClick={() => ctx.toggle()}>
