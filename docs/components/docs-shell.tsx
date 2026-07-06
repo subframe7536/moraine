@@ -19,7 +19,7 @@ export interface DocsShellProps {
 export function DocsShell(props: DocsShellProps) {
   return (
     <SidebarFrame
-      renderSidebarHeader={(ctx) =>
+      sidebarHeaderRender={(ctx) =>
         props.sidebarHeader({
           isMobile: ctx.isMobile,
           sidebarOpen: ctx.isOpen,
@@ -28,7 +28,7 @@ export function DocsShell(props: DocsShellProps) {
           scrolled: ctx.scrolled,
         })
       }
-      renderSidebarBody={(ctx) =>
+      sidebarBodyRender={(ctx) =>
         props.sidebar({
           isMobile: ctx.isMobile,
           sidebarOpen: ctx.isOpen,
@@ -37,7 +37,7 @@ export function DocsShell(props: DocsShellProps) {
           scrolled: ctx.scrolled,
         })
       }
-      renderMain={(ctx) =>
+      mainRender={(ctx) =>
         props.main({
           isMobile: ctx.isMobile,
           sidebarOpen: ctx.isOpen,

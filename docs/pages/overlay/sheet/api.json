@@ -56,7 +56,7 @@
   "props": {
     "own": [
       {
-        "name": "actions",
+        "name": "action",
         "required": false,
         "type": "JSX.Element",
         "description": "Additional action elements to render in the header."

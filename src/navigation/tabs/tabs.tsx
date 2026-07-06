@@ -89,11 +89,6 @@ export namespace TabsT {
      * @default false
      */
     disabled?: boolean
-
-    /**
-     * Custom class for the tab content panel.
-     */
-    class?: string
   }
 
   /**
@@ -367,7 +362,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...merged.styles?.indicator, ...indicatorStyle() }}
+          style={{ ...indicatorStyle(), ...merged.styles?.indicator }}
           class={tabsIndicatorVariants(
             {
               orientation: merged.orientation,
@@ -454,7 +449,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-selected=""
                 data-slot="content"
                 style={merged.styles?.content}
-                class={cn('outline-none w-full', merged.classes?.content, item.class)}
+                class={cn('outline-none w-full', merged.classes?.content)}
               >
                 {item.content}
               </div>

@@ -72,7 +72,7 @@ describe('Sheet', () => {
         open
         title="Panel"
         description="Panel description"
-        actions={<button type="button">Action</button>}
+        action={<button type="button">Action</button>}
         body="Sheet body"
         footer="Sheet footer"
       >

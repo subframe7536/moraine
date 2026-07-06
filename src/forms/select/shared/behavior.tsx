@@ -32,9 +32,7 @@ interface RenderDefaultSelectOptionOptions<TItem> {
 }
 
 interface CreateEmptyRendererOptions<TApi, TCtx> {
-  emptyRender?: string | ((context: TCtx) => JSX.Element)
-  classes?: SlotClasses<'empty'>
-  styles?: SlotStyles<'empty'>
+  emptyRender?: (context: TCtx) => JSX.Element
   buildContext: (api: TApi) => TCtx
 }
 
@@ -284,18 +282,5 @@ export function createEmptyRenderer<TContext, TCtx>(
   if (!options.emptyRender) {
     return undefined
   }
-  return (context) => (
-    <Show when={options.emptyRender} keyed>
-      {(render) => (
-        <Show
-          when={typeof render === 'string'}
-          fallback={(render as (context: TCtx) => JSX.Element)(options.buildContext(context))}
-        >
-          <div data-slot="empty" style={options.styles?.empty} class={cn(options.classes?.empty)}>
-            {render as string}
-          </div>
-        </Show>
-      )}
-    </Show>
-  )
+  return (context) => options.emptyRender?.(options.buildContext(context))
 }

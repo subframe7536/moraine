@@ -98,7 +98,7 @@ export namespace SheetT {
     /**
      * Additional action elements to render in the header.
      */
-    actions?: JSX.Element
+    action?: JSX.Element
 
     /**
      * Trigger element that opens the sheet.
@@ -137,7 +137,7 @@ export function Sheet(props: SheetProps): JSX.Element {
   )
 
   const hasDefaultHeader = () =>
-    Boolean(merged.title || merged.description || merged.actions || merged.close)
+    Boolean(merged.title || merged.description || merged.action || merged.close)
 
   return (
     <Modal
@@ -213,7 +213,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                       </Show>
                     </div>
 
-                    <Show when={merged.actions}>
+                    <Show when={merged.action}>
                       <div
                         data-slot="actions"
                         style={merged.styles?.actions}
@@ -222,7 +222,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           merged.classes?.actions,
                         )}
                       >
-                        {merged.actions}
+                        {merged.action}
                       </div>
                     </Show>
 

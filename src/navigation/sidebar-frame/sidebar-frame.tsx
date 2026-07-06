@@ -19,7 +19,7 @@ export namespace SidebarFrameT {
   /**
    * Render context exposed to sidebar/main render functions.
    */
-  export interface Context extends Variant {
+  export interface BaseContext extends Variant {
     /**
      * Whether current viewport is treated as mobile.
      */
@@ -45,7 +45,7 @@ export namespace SidebarFrameT {
   /**
    * Extended render context for frame composition.
    */
-  export interface FrameContext extends Context {
+  export interface FrameContext extends BaseContext {
     /**
      * Processed sidebar block component.
      */
@@ -56,14 +56,6 @@ export namespace SidebarFrameT {
     main: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
   }
 
-  /**
-   * Shared render function signature for sidebar/main sections.
-   */
-  export type RenderFn = (ctx: Context) => JSX.Element
-  /**
-   * Render function signature for frame wrapper.
-   */
-  export type RenderFrame = (ctx: FrameContext) => JSX.Element
   /**
    * Slot keys for classes/styles overrides.
    */
@@ -109,24 +101,24 @@ export namespace SidebarFrameT {
     /**
      * Optional render function for sidebar header section.
      */
-    renderSidebarHeader?: RenderFn
+    sidebarHeaderRender?: (ctx: BaseContext) => JSX.Element
     /**
      * Render function for sidebar body section.
      */
-    renderSidebarBody: RenderFn
+    sidebarBodyRender: (ctx: BaseContext) => JSX.Element
     /**
      * Optional render function for sidebar footer section.
      */
-    renderSidebarFooter?: RenderFn
+    sidebarFooterRender?: (ctx: BaseContext) => JSX.Element
     /**
      * Render function for main content section.
      */
-    renderMain: RenderFn
+    mainRender: (ctx: BaseContext) => JSX.Element
     /**
      * Optional frame renderer used to compose sidebar/main layout.
      * @default SidebarFrameSheetOnlyRender
      */
-    renderFrame?: RenderFrame
+    frameRender?: (ctx: FrameContext) => JSX.Element
   }
 
   /**
@@ -254,7 +246,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       variant: 'default' as SidebarFrameT.Variant['variant'],
       side: 'left' as SidebarFrameT.Variant['side'],
       scrollThreshold: 60,
-      renderFrame: SidebarFrameSheetOnlyRender,
+      frameRender: SidebarFrameSheetOnlyRender,
     },
     props,
   )
@@ -282,7 +274,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     untrack(() => setOpen(!isMobile))
   })
 
-  const context: SidebarFrameT.Context = {
+  const context: SidebarFrameT.BaseContext = {
     isMobile: resolvedIsMobile,
     scrolled,
     isOpen,
@@ -302,7 +294,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
     >
-      <merged.renderFrame
+      <merged.frameRender
         {...context}
         sidebar={(props) => (
           <div
@@ -321,7 +313,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               merged.classes?.sidebar,
             )}
           >
-            <Show when={merged.renderSidebarHeader}>
+            <Show when={merged.sidebarHeaderRender}>
               {(renderSidebarHeader) => (
                 <div
                   data-slot="sidebarHeader"
@@ -338,10 +330,10 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               style={merged.styles?.sidebarBody}
               class={cn('flex-1 min-h-0 overflow-y-auto', merged.classes?.sidebarBody)}
             >
-              {merged.renderSidebarBody(context)}
+              {merged.sidebarBodyRender(context)}
             </div>
 
-            <Show when={merged.renderSidebarFooter}>
+            <Show when={merged.sidebarFooterRender}>
               {(renderSidebarFooter) => (
                 <div
                   data-slot="sidebarFooter"
@@ -372,7 +364,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}
           >
-            {merged.renderMain(context)}
+            {merged.mainRender(context)}
           </div>
         )}
       />

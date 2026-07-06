@@ -47,41 +47,23 @@
         "type": "SidebarFrameT.Classes | undefined"
       },
       {
+        "name": "frameRender",
+        "required": false,
+        "type": "((ctx: SidebarFrameT.FrameContext) => JSX.Element) | undefined",
+        "description": "Optional frame renderer used to compose sidebar/main layout.",
+        "defaultValue": "SidebarFrameSheetOnlyRender"
+      },
+      {
         "name": "isMobile",
         "required": false,
         "type": "boolean | undefined",
         "description": "Controlled mobile mode state.\nWhen omitted, mobile state is resolved from `matchMedia`."
       },
       {
-        "name": "renderFrame",
-        "required": false,
-        "type": "SidebarFrameT.RenderFrame | undefined",
-        "description": "Optional frame renderer used to compose sidebar/main layout.",
-        "defaultValue": "SidebarFrameSheetOnlyRender"
-      },
-      {
-        "name": "renderMain",
+        "name": "mainRender",
         "required": true,
-        "type": "SidebarFrameT.RenderFn",
+        "type": "(ctx: SidebarFrameT.BaseContext) => JSX.Element",
         "description": "Render function for main content section."
-      },
-      {
-        "name": "renderSidebarBody",
-        "required": true,
-        "type": "SidebarFrameT.RenderFn",
-        "description": "Render function for sidebar body section."
-      },
-      {
-        "name": "renderSidebarFooter",
-        "required": false,
-        "type": "SidebarFrameT.RenderFn | undefined",
-        "description": "Optional render function for sidebar footer section."
-      },
-      {
-        "name": "renderSidebarHeader",
-        "required": false,
-        "type": "SidebarFrameT.RenderFn | undefined",
-        "description": "Optional render function for sidebar header section."
       },
       {
         "name": "scrollThreshold",
@@ -94,6 +76,24 @@
         "name": "side",
         "required": false,
         "type": "\"right\" | \"left\" | undefined"
+      },
+      {
+        "name": "sidebarBodyRender",
+        "required": true,
+        "type": "(ctx: SidebarFrameT.BaseContext) => JSX.Element",
+        "description": "Render function for sidebar body section."
+      },
+      {
+        "name": "sidebarFooterRender",
+        "required": false,
+        "type": "((ctx: SidebarFrameT.BaseContext) => JSX.Element) | undefined",
+        "description": "Optional render function for sidebar footer section."
+      },
+      {
+        "name": "sidebarHeaderRender",
+        "required": false,
+        "type": "((ctx: SidebarFrameT.BaseContext) => JSX.Element) | undefined",
+        "description": "Optional render function for sidebar header section."
       },
       {
         "name": "style",

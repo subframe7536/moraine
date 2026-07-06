@@ -21,13 +21,13 @@ export function HeaderFooterSlots() {
     <div class="b-1 b-border rounded-xl h-72 w-full overflow-hidden">
       <SidebarFrame
         isMobile={false}
-        renderSidebarHeader={() => (
+        sidebarHeaderRender={() => (
           <div class="p-3">
             <p class="text-sm font-medium">Project Tasks</p>
             <p class="text-xs text-muted-foreground mt-1">Header slot content</p>
           </div>
         )}
-        renderSidebarBody={() => (
+        sidebarBodyRender={() => (
           <div class="p-2">
             <div class="flex flex-col gap-1">
               <For each={TASKS}>
@@ -43,7 +43,7 @@ export function HeaderFooterSlots() {
             </div>
           </div>
         )}
-        renderSidebarFooter={() => (
+        sidebarFooterRender={() => (
           <div class="p-2 b-t b-border bg-background/80 flex gap-2 items-center justify-between">
             <span class="text-xs text-muted-foreground">12 tasks</span>
             <Button size="sm" variant="ghost">
@@ -51,7 +51,7 @@ export function HeaderFooterSlots() {
             </Button>
           </div>
         )}
-        renderMain={() => (
+        mainRender={() => (
           <div class="p-4 h-full">
             <h3 class="text-base font-semibold">Main Content</h3>
             <p class="text-sm text-muted-foreground mt-2">
