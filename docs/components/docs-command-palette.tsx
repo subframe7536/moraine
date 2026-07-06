@@ -18,12 +18,12 @@ export interface DocsCommandPaletteProps {
 function buildItems(
   pages: SidebarPage[],
   onNavigate: (key: string) => void,
-): CommandPaletteT.Item[] {
-  const grouped = new Map<string, CommandPaletteT.SubItem[]>()
-  const ungrouped: CommandPaletteT.SubItem[] = []
+): CommandPaletteT.Group[] {
+  const grouped = new Map<string, CommandPaletteT.Item[]>()
+  const ungrouped: CommandPaletteT.Item[] = []
 
   for (const page of pages) {
-    const item: CommandPaletteT.SubItem = {
+    const item: CommandPaletteT.Item = {
       value: page.key,
       label: page.label,
       description: page.status?.toUpperCase(),
@@ -39,7 +39,7 @@ function buildItems(
     grouped.set(group, list)
   }
 
-  const items: CommandPaletteT.Item[] = []
+  const items: CommandPaletteT.Group[] = []
   if (ungrouped.length > 0) {
     items.push({ id: 'ungrouped', children: ungrouped })
   }
@@ -132,7 +132,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       }}
       body={
         <CommandPalette
-          items={items()}
+          groups={items()}
           placeholder="Search components, hooks, and pages..."
           searchTerm={searchTerm()}
           onSearchTermChange={setSearchTerm}

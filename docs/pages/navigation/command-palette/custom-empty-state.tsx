@@ -4,7 +4,7 @@ export function CustomEmptyState() {
   return (
     <div class="max-w-full w-lg">
       <CommandPalette
-        items={[]}
+        groups={[]}
         emptyRender={() => (
           <span class="flex flex-col gap-2 items-center">
             <span class="i-lucide-search-x text-muted-foreground size-6" aria-hidden="true" />

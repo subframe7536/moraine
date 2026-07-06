@@ -88,22 +88,70 @@
   "item": {
     "props": [
       {
-        "name": "children",
+        "name": "active",
         "required": false,
-        "type": "SubItem[] | undefined",
-        "description": "Items belonging to this group."
+        "type": "boolean | undefined",
+        "description": "Whether to force the item into an active (highlighted) state."
       },
       {
-        "name": "id",
-        "required": true,
-        "type": "string",
-        "description": "Unique identifier for the group."
+        "name": "alwaysShow",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether this item should be excluded from built-in search filtering."
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "Item[] | undefined",
+        "description": "Selecting this item drills into a nested group of items."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Secondary description text shown for the item."
+      },
+      {
+        "name": "descriptionPosition",
+        "required": false,
+        "type": "\"bottom\" | \"trailing\" | undefined",
+        "description": "Where the item description is rendered. Overrides the root setting."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is disabled and cannot be selected."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "string | undefined",
+        "description": "UnoCSS icon class or name to display."
+      },
+      {
+        "name": "kbds",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Array of keyboard shortcuts to display."
       },
       {
         "name": "label",
         "required": false,
         "type": "string | undefined",
-        "description": "Display name for the group header."
+        "description": "Primary label for the item."
+      },
+      {
+        "name": "onSelect",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Callback triggered when the item is selected."
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "string",
+        "description": "Unique value for the item."
       }
     ]
   },
@@ -117,20 +165,6 @@
         "defaultValue": "true"
       },
       {
-        "name": "backIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the group navigation back button.",
-        "defaultValue": "icon-arrow-left"
-      },
-      {
-        "name": "childIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for items with sub-groups.",
-        "defaultValue": "icon-chevron-right"
-      },
-      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -142,18 +176,18 @@
         "type": "CommandPaletteT.Classes | undefined"
       },
       {
-        "name": "close",
+        "name": "descriptionPosition",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to show a close button in the header.",
-        "defaultValue": "false"
+        "type": "\"bottom\" | \"trailing\" | undefined",
+        "description": "Where descriptions render by default.",
+        "defaultValue": "bottom"
       },
       {
-        "name": "closeIcon",
+        "name": "disableFilter",
         "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the palette close button.",
-        "defaultValue": "icon-close"
+        "type": "boolean | undefined",
+        "description": "Disable built-in search filtering and render all provided items.",
+        "defaultValue": "false"
       },
       {
         "name": "emptyRender",
@@ -168,31 +202,23 @@
         "description": "Custom footer renderer."
       },
       {
-        "name": "ignoreSearch",
+        "name": "groups",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Disable built-in search filtering and render all provided items.",
-        "defaultValue": "false"
+        "type": "CommandPaletteT.Group[] | undefined",
+        "description": "Command groups to display initially.",
+        "defaultValue": "[]"
       },
       {
-        "name": "itemDescriptionPosition",
+        "name": "icons",
         "required": false,
-        "type": "\"bottom\" | \"trailing\" | undefined",
-        "description": "Where descriptions render by default.",
-        "defaultValue": "bottom"
+        "type": "CommandPaletteT.Icons | undefined",
+        "description": "Icons used by the command palette."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemContext) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
         "description": "Custom command row content renderer."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "CommandPaletteT.Item[] | undefined",
-        "description": "Command groups to display initially.",
-        "defaultValue": "[]"
       },
       {
         "name": "loading",
@@ -202,11 +228,10 @@
         "defaultValue": "false"
       },
       {
-        "name": "loadingIcon",
+        "name": "maxLength",
         "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the loading state.",
-        "defaultValue": "icon-loading"
+        "type": "number | undefined",
+        "description": "Maximum allowed length for the search text."
       },
       {
         "name": "onClose",
@@ -228,23 +253,17 @@
         "defaultValue": "Search..."
       },
       {
-        "name": "searchIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the search indicator.",
-        "defaultValue": "icon-search"
-      },
-      {
-        "name": "searchMaxLength",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Maximum allowed length for the search text."
-      },
-      {
         "name": "searchTerm",
         "required": false,
         "type": "string | undefined",
         "description": "Controlled search term."
+      },
+      {
+        "name": "showClose",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show a close button in the header.",
+        "defaultValue": "false"
       },
       {
         "name": "style",

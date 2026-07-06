@@ -3,7 +3,7 @@ import type { CommandPaletteT } from '@src'
 import { createSignal, onCleanup, onMount } from 'solid-js'
 
 export function Usage() {
-  const BASIC_GROUPS: CommandPaletteT.Item[] = [
+  const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
       label: 'Workspace',
@@ -59,8 +59,8 @@ export function Usage() {
       onOpenChange={setPaletteOpen}
       content={
         <CommandPalette
-          items={BASIC_GROUPS}
-          close
+          groups={BASIC_GROUPS}
+          showClose
           onClose={() => setPaletteOpen(false)}
           footerRender={() => (
             <div class="flex gap-4 items-center justify-between">

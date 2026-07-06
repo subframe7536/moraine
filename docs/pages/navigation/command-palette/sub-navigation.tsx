@@ -2,7 +2,7 @@ import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 
 export function SubNavigation() {
-  const SUB_NAV_GROUPS: CommandPaletteT.Item[] = [
+  const SUB_NAV_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'main',
       label: 'Commands',
@@ -40,7 +40,7 @@ export function SubNavigation() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette items={SUB_NAV_GROUPS} />
+      <CommandPalette groups={SUB_NAV_GROUPS} />
     </div>
   )
 }

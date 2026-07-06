@@ -2,7 +2,7 @@ import { CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 
 export function Basic() {
-  const BASIC_GROUPS: CommandPaletteT.Item[] = [
+  const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
       label: 'Workspace',
@@ -41,7 +41,7 @@ export function Basic() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette items={BASIC_GROUPS} />
+      <CommandPalette groups={BASIC_GROUPS} />
     </div>
   )
 }

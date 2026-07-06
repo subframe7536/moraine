@@ -18,7 +18,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn } from '../../shared/utils'
 
 export namespace CommandPaletteT {
-  export interface SubItem {
+  export interface Item {
     /** Unique value for the item. */
     value: string
     /** Primary label for the item. */
@@ -26,7 +26,7 @@ export namespace CommandPaletteT {
     /** Secondary description text shown for the item. */
     description?: string
     /** Where the item description is rendered. Overrides the root setting. */
-    itemDescriptionPosition?: 'bottom' | 'trailing'
+    descriptionPosition?: 'bottom' | 'trailing'
     /** UnoCSS icon class or name to display. */
     icon?: string
     /** Array of keyboard shortcuts to display. */
@@ -36,9 +36,9 @@ export namespace CommandPaletteT {
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
-    ignoreSearch?: boolean
+    alwaysShow?: boolean
     /** Selecting this item drills into a nested group of items. */
-    children?: SubItem[]
+    children?: Item[]
     /** Callback triggered when the item is selected. */
     onSelect?: () => void
   }
@@ -107,13 +107,26 @@ export namespace CommandPaletteT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {
+  export interface Group {
     /** Unique identifier for the group. */
     id: string
     /** Display name for the group header. */
     label?: string
     /** Items belonging to this group. */
-    children?: SubItem[]
+    children?: Item[]
+  }
+
+  export interface Icons {
+    /** Icon name for the search indicator. */
+    search?: IconT.Name
+    /** Icon name for the loading state. */
+    loading?: IconT.Name
+    /** Icon name for items with sub-groups. */
+    expand?: IconT.Name
+    /** Icon name for the group navigation back button. */
+    back?: IconT.Name
+    /** Icon name for the palette close button. */
+    close?: IconT.Name
   }
 
   export interface Context {
@@ -121,13 +134,13 @@ export namespace CommandPaletteT {
     loading: boolean
     hasItems: boolean
     depth: number
-    currentGroups: Item[]
-    visibleGroups: Item[]
+    groups: Group[]
+    visibleGroups: Group[]
   }
 
-  export interface ItemContext extends Context {
-    item: SubItem
-    group: Item
+  export interface ItemRenderContext extends Context {
+    item: Item
+    group: Group
     selected: boolean
     focused: boolean
     disabled: boolean
@@ -140,7 +153,7 @@ export namespace CommandPaletteT {
      * Command groups to display initially.
      * @default []
      */
-    items?: Item[]
+    groups?: Group[]
     /**
      * Placeholder text for the search input.
      * @default 'Search...'
@@ -151,42 +164,19 @@ export namespace CommandPaletteT {
     /** Callback triggered when the search term changes. */
     onSearchTermChange?: (term: string) => void
     /** Maximum allowed length for the search text. */
-    searchMaxLength?: number
+    maxLength?: number
     /**
      * Whether to focus the search input automatically on mount.
      * @default true
      */
     autofocus?: boolean
-    /**
-     * Icon name for the search indicator.
-     * @default 'icon-search'
-     */
-    searchIcon?: IconT.Name
-    /**
-     * Icon name for the loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-    /**
-     * Icon name for items with sub-groups.
-     * @default 'icon-chevron-right'
-     */
-    childIcon?: IconT.Name
-    /**
-     * Icon name for the group navigation back button.
-     * @default 'icon-arrow-left'
-     */
-    backIcon?: IconT.Name
-    /**
-     * Icon name for the palette close button.
-     * @default 'icon-close'
-     */
-    closeIcon?: IconT.Name
+    /** Icons used by the command palette. */
+    icons?: Icons
     /**
      * Whether to show a close button in the header.
      * @default false
      */
-    close?: boolean
+    showClose?: boolean
     /** Callback triggered when the close button is clicked. */
     onClose?: () => void
     /**
@@ -198,18 +188,18 @@ export namespace CommandPaletteT {
      * Disable built-in search filtering and render all provided items.
      * @default false
      */
-    ignoreSearch?: boolean
+    disableFilter?: boolean
     /**
      * Where descriptions render by default.
      * @default 'bottom'
      */
-    itemDescriptionPosition?: 'bottom' | 'trailing'
+    descriptionPosition?: 'bottom' | 'trailing'
     /** Custom empty state renderer. */
     emptyRender?: (ctx: Context) => JSX.Element
     /** Custom footer renderer. */
     footerRender?: (ctx: Context) => JSX.Element
     /** Custom command row content renderer. */
-    itemRender?: (ctx: ItemContext) => JSX.Element
+    itemRender?: (ctx: ItemRenderContext) => JSX.Element
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -222,31 +212,31 @@ interface NormalizedItem {
   label: string
   searchText: string
   disabled: boolean
-  item: CommandPaletteT.SubItem
-  group: CommandPaletteT.Item
+  item: CommandPaletteT.Item
+  group: CommandPaletteT.Group
   itemLabel?: string
   description?: string
   icon?: string
   kbds?: string[]
   active: boolean
-  ignoreSearch: boolean
-  itemDescriptionPosition?: 'bottom' | 'trailing'
-  children?: CommandPaletteT.SubItem[]
+  alwaysShow: boolean
+  descriptionPosition?: 'bottom' | 'trailing'
+  children?: CommandPaletteT.Item[]
   onSelect?: () => void
 }
 
 interface NormalizedGroup {
-  source: CommandPaletteT.Item
+  source: CommandPaletteT.Group
   label: string
   items: NormalizedItem[]
 }
 
-function buildItemLabel(item: CommandPaletteT.SubItem): string {
+function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
 
 function createNormalizedGroups(
-  groups: CommandPaletteT.Item[] | undefined,
+  groups: CommandPaletteT.Group[] | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup[] {
   const seenValues = new Set<string>()
@@ -292,8 +282,8 @@ function createNormalizedGroups(
         icon: item.icon,
         kbds: item.kbds,
         active: Boolean(item.active),
-        ignoreSearch: Boolean(item.ignoreSearch),
-        itemDescriptionPosition: item.itemDescriptionPosition,
+        alwaysShow: Boolean(item.alwaysShow),
+        descriptionPosition: item.descriptionPosition,
         children: item.children,
         onSelect: item.onSelect,
       }
@@ -309,20 +299,30 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     {
       placeholder: 'Search...',
       autofocus: true,
-      close: false,
-      searchIcon: 'icon-search' as IconT.Name,
-      loadingIcon: 'icon-loading' as IconT.Name,
-      childIcon: 'icon-chevron-right' as IconT.Name,
-      backIcon: 'icon-arrow-left' as IconT.Name,
-      closeIcon: 'icon-close' as IconT.Name,
-      itemDescriptionPosition: 'bottom' as const,
+      showClose: false,
+      icons: {
+        search: 'icon-search' as IconT.Name,
+        loading: 'icon-loading' as IconT.Name,
+        expand: 'icon-chevron-right' as IconT.Name,
+        back: 'icon-arrow-left' as IconT.Name,
+        close: 'icon-close' as IconT.Name,
+      },
+      descriptionPosition: 'bottom' as const,
     },
     props,
   )
+  const icons = createMemo(() => ({
+    search: 'icon-search' as IconT.Name,
+    loading: 'icon-loading' as IconT.Name,
+    expand: 'icon-chevron-right' as IconT.Name,
+    back: 'icon-arrow-left' as IconT.Name,
+    close: 'icon-close' as IconT.Name,
+    ...merged.icons,
+  }))
 
-  const [history, setHistory] = createSignal<CommandPaletteT.Item[]>([])
+  const [history, setHistory] = createSignal<CommandPaletteT.Group[]>([])
   const [internalSearch, setInternalSearch] = createSignal('')
-  const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>(undefined)
+  const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
   const warnedDuplicateValues = new Set<string>()
   let inputRef: HTMLInputElement | undefined
@@ -369,25 +369,23 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   })
 
-  const currentGroups = createMemo<CommandPaletteT.Item[]>(() => {
+  const groups = createMemo<CommandPaletteT.Group[]>(() => {
     const stack = history()
     const current = stack.at(-1)
-    return current ? [current] : (merged.items ?? [])
+    return current ? [current] : (merged.groups ?? [])
   })
 
-  const normalizedGroups = createMemo(() =>
-    createNormalizedGroups(currentGroups(), warnDuplicateValue),
-  )
+  const normalizedGroups = createMemo(() => createNormalizedGroups(groups(), warnDuplicateValue))
   const visibleGroups = createMemo(() => {
     const term = currentSearchTerm().trim().toLowerCase()
-    if (merged.ignoreSearch || term === '') {
+    if (merged.disableFilter || term === '') {
       return normalizedGroups()
     }
 
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {
-          items: group.items.filter((item) => item.ignoreSearch || item.searchText.includes(term)),
+          items: group.items.filter((item) => item.alwaysShow || item.searchText.includes(term)),
         }),
       )
       .filter((group) => group.items.length > 0)
@@ -397,17 +395,17 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
 
   createEffect(() => {
     const items = visibleItems().filter((item) => !item.disabled)
-    const highlighted = highlightedKey()
+    const highlighted = activeKey()
     if (highlighted && items.some((item) => item.key === highlighted)) {
       return
     }
-    setHighlightedKey(items[0]?.key)
+    setActiveKey(items[0]?.key)
   })
 
   function navigateBack(): void {
     setHistory((stack) => stack.slice(0, -1))
     applySearchValue('')
-    setHighlightedKey(undefined)
+    setActiveKey(undefined)
   }
 
   function activateItem(item: NormalizedItem): void {
@@ -421,7 +419,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         { id: `history-${item.key}`, label: item.itemLabel, children: item.children! },
       ])
       applySearchValue('')
-      setHighlightedKey(undefined)
+      setActiveKey(undefined)
       queueMicrotask(() => {
         inputRef?.focus()
       })
@@ -437,14 +435,14 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       return
     }
 
-    const currentIndex = items.findIndex((item) => item.key === highlightedKey())
+    const currentIndex = items.findIndex((item) => item.key === activeKey())
     const nextIndex =
       currentIndex === -1
         ? delta > 0
           ? 0
           : items.length - 1
         : (currentIndex + delta + items.length) % items.length
-    setHighlightedKey(items[nextIndex]?.key)
+    setActiveKey(items[nextIndex]?.key)
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
@@ -467,19 +465,19 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
 
     if (event.key === 'Home') {
       event.preventDefault()
-      setHighlightedKey(visibleItems().find((item) => !item.disabled)?.key)
+      setActiveKey(visibleItems().find((item) => !item.disabled)?.key)
       return
     }
 
     if (event.key === 'End') {
       event.preventDefault()
       const items = visibleItems().filter((item) => !item.disabled)
-      setHighlightedKey(items[items.length - 1]?.key)
+      setActiveKey(items[items.length - 1]?.key)
       return
     }
 
     if (event.key === 'Enter') {
-      const highlighted = visibleItems().find((item) => item.key === highlightedKey())
+      const highlighted = visibleItems().find((item) => item.key === activeKey())
       if (highlighted) {
         event.preventDefault()
         activateItem(highlighted)
@@ -501,8 +499,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       get depth() {
         return history().length
       },
-      get currentGroups() {
-        return currentGroups()
+      get groups() {
+        return groups()
       },
       get visibleGroups() {
         return visibleGroups().map((group) =>
@@ -515,7 +513,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   }
 
-  function getItemContext(item: NormalizedItem): CommandPaletteT.ItemContext {
+  function getItemContext(item: NormalizedItem): CommandPaletteT.ItemRenderContext {
     return {
       ...getContext(),
       item: item.item,
@@ -524,7 +522,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         return item.active
       },
       get focused() {
-        return highlightedKey() === item.key
+        return activeKey() === item.key
       },
       get disabled() {
         return item.disabled
@@ -571,7 +569,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           when={history().length > 0}
           fallback={
             <IconButtonInner
-              name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.searchIcon}
+              name={merged.loading ? icons().loading : icons().search}
               data-slot="search"
               tabIndex={-1}
               style={merged.styles?.search}
@@ -583,7 +581,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           }
         >
           <IconButtonInner
-            name={merged.loading ? (merged.loadingIcon ?? 'icon-loading') : merged.backIcon}
+            name={merged.loading ? icons().loading : icons().back}
             data-slot="back"
             style={merged.styles?.back}
             aria-busy={merged.loading || undefined}
@@ -610,15 +608,15 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           )}
           placeholder={merged.placeholder}
           autofocus={merged.autofocus}
-          maxLength={merged.searchMaxLength}
+          maxLength={merged.maxLength}
           value={currentSearchTerm()}
           onInput={(event) => applySearchValue(event.currentTarget.value)}
           onKeyDown={handleKeyDown}
         />
 
-        <Show when={merged.close}>
+        <Show when={merged.showClose}>
           <IconButtonInner
-            name={merged.closeIcon}
+            name={icons().close}
             data-slot="close"
             style={merged.styles?.close}
             class={cn(
@@ -676,14 +674,14 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                   {(item) => {
                     const hasChildren = () => (item.children?.length ?? 0) > 0
                     const descriptionPosition = () =>
-                      item.itemDescriptionPosition ?? merged.itemDescriptionPosition
+                      item.descriptionPosition ?? merged.descriptionPosition
                     return (
                       <div
                         role="option"
                         tabIndex={-1}
                         data-slot="item"
                         data-disabled={item.disabled ? '' : undefined}
-                        data-highlighted={highlightedKey() === item.key ? '' : undefined}
+                        data-highlighted={activeKey() === item.key ? '' : undefined}
                         aria-disabled={item.disabled || undefined}
                         style={merged.styles?.item}
                         class={cn(
@@ -692,7 +690,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                         )}
                         onPointerMove={() => {
                           if (!item.disabled) {
-                            setHighlightedKey(item.key)
+                            setActiveKey(item.key)
                           }
                         }}
                         onPointerDown={(event) => event.preventDefault()}
@@ -762,7 +760,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                                   }
                                 >
                                   <Icon
-                                    name={merged.childIcon}
+                                    name={icons().expand}
                                     slotName="itemTrailingIcon"
                                     class="text-muted-foreground shrink-0"
                                   />

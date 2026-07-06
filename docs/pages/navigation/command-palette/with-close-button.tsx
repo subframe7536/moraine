@@ -3,7 +3,7 @@ import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
 export function WithCloseButton() {
-  const BASIC_GROUPS: CommandPaletteT.Item[] = [
+  const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
       label: 'Workspace',
@@ -45,7 +45,11 @@ export function WithCloseButton() {
   return (
     <>
       <div class="max-w-full w-lg">
-        <CommandPalette items={BASIC_GROUPS} close onClose={() => setCloseCount((c) => c + 1)} />
+        <CommandPalette
+          groups={BASIC_GROUPS}
+          showClose
+          onClose={() => setCloseCount((c) => c + 1)}
+        />
       </div>
       <p class="text-sm text-muted-foreground mt-2">Close clicked: {closeCount()} time(s)</p>
     </>

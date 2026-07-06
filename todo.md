@@ -19,9 +19,9 @@
 - [x] refactor `command-palette` component,
   - [x] rename `footer?: JSX.Element` to `footerRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
   - [x] rename `empty?: JSX.Element` to `emptyRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
-  - [x] add `itemRender?: (ctx: ItemContext) => JSX.Element` prop to customize item render, `ItemContext` should be current state and item data, allow to customize item based on its data(e.g. title, description, group, icon, level etc.) and runtime state (e.g., selected, focused, disabled, searchTerm).
-  - [x] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `itemDescriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
-  - [x] add `ignoreSearch` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `items` prop
+  - [x] add `itemRender?: (ctx: ItemRenderContext) => JSX.Element` prop to customize item render, `ItemRenderContext` should be current state and item data, allow to customize item based on its data(e.g. title, description, group, icon, level etc.) and runtime state (e.g., selected, focused, disabled, searchTerm).
+  - [x] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `descriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
+  - [x] add `disableFilter` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `groups` prop
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
 - [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible

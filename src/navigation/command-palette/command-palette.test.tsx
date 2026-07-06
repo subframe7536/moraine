@@ -29,7 +29,7 @@ const GROUPS = [
 describe('CommandPalette', () => {
   test('forces input focus in dialog when autofocus is enabled', async () => {
     render(() => (
-      <Dialog open close={false} body={<CommandPalette items={GROUPS} />}>
+      <Dialog open close={false} body={<CommandPalette groups={GROUPS} />}>
         <button type="button">Open</button>
       </Dialog>
     ))
@@ -43,7 +43,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies fixed listbox max height', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(screen.container.querySelector('[data-slot="listbox"]')?.className).toContain(
@@ -54,7 +54,7 @@ describe('CommandPalette', () => {
 
   test('adjusts item trailing spacing via classes.itemTrailingKbds', async () => {
     const xs = render(() => (
-      <CommandPalette items={GROUPS} classes={{ itemTrailingKbds: 'gap-1' }} />
+      <CommandPalette groups={GROUPS} classes={{ itemTrailingKbds: 'gap-1' }} />
     ))
 
     await waitFor(() => {
@@ -65,7 +65,7 @@ describe('CommandPalette', () => {
     })
 
     const md = render(() => (
-      <CommandPalette items={GROUPS} classes={{ itemTrailingKbds: 'gap-1.5' }} />
+      <CommandPalette groups={GROUPS} classes={{ itemTrailingKbds: 'gap-1.5' }} />
     ))
 
     await waitFor(() => {
@@ -76,7 +76,7 @@ describe('CommandPalette', () => {
     })
 
     const xl = render(() => (
-      <CommandPalette items={GROUPS} classes={{ itemTrailingKbds: 'gap-2' }} />
+      <CommandPalette groups={GROUPS} classes={{ itemTrailingKbds: 'gap-2' }} />
     ))
 
     await waitFor(() => {
@@ -88,7 +88,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps item gap classes for icon and non-icon entries', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const withIcon = screen.getByText('New File').closest('[data-slot="item"]')
@@ -101,7 +101,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders input and item labels', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Search...')).toBeTruthy()
@@ -111,7 +111,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders group labels', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(screen.getByText('Actions')).toBeTruthy()
@@ -120,7 +120,7 @@ describe('CommandPalette', () => {
   })
 
   test('shows empty state when no groups', async () => {
-    const screen = render(() => <CommandPalette items={[]} />)
+    const screen = render(() => <CommandPalette groups={[]} />)
 
     await waitFor(() => {
       expect(screen.getByText('No results.')).toBeTruthy()
@@ -128,7 +128,7 @@ describe('CommandPalette', () => {
   })
 
   test('kbds render in item', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const kbds = screen.container.querySelectorAll('[data-slot="itemTrailing-kbd"]')
@@ -142,7 +142,7 @@ describe('CommandPalette', () => {
 
     const screen = render(() => (
       <CommandPalette
-        items={[{ id: 'g', children: [{ value: 'action', label: 'Action', onSelect }] }]}
+        groups={[{ id: 'g', children: [{ value: 'action', label: 'Action', onSelect }] }]}
       />
     ))
 
@@ -157,13 +157,15 @@ describe('CommandPalette', () => {
   test('supports overriding built-in icons including back icon', async () => {
     const screen = render(() => (
       <CommandPalette
-        close
-        searchIcon="icon-hash"
-        loadingIcon="icon-reload"
-        childIcon="icon-arrow-right"
-        backIcon="icon-arrow-up"
-        closeIcon="icon-minus"
-        items={[
+        showClose
+        icons={{
+          search: 'icon-hash',
+          loading: 'icon-reload',
+          expand: 'icon-arrow-right',
+          back: 'icon-arrow-up',
+          close: 'icon-minus',
+        }}
+        groups={[
           {
             id: 'g',
             children: [
@@ -179,36 +181,34 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const searchIcon = screen.container.querySelector(
+      const search = screen.container.querySelector(
         '[data-slot="search"] [data-slot="icon"]',
       ) as HTMLElement
-      const childIcon = screen.container.querySelector(
-        '[data-slot="itemTrailingIcon"]',
-      ) as HTMLElement
-      const closeIcon = screen.container.querySelector(
+      const expand = screen.container.querySelector('[data-slot="itemTrailingIcon"]') as HTMLElement
+      const close = screen.container.querySelector(
         '[data-slot="close"] [data-slot="icon"]',
       ) as HTMLElement
 
-      expect(searchIcon.className).toContain('icon-hash')
-      expect(childIcon.className).toContain('icon-arrow-right')
-      expect(closeIcon.className).toContain('icon-minus')
+      expect(search.className).toContain('icon-hash')
+      expect(expand.className).toContain('icon-arrow-right')
+      expect(close.className).toContain('icon-minus')
     })
 
     const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
     await fireEvent.click(parentItem)
 
     await waitFor(() => {
-      const backIcon = screen.container.querySelector(
+      const back = screen.container.querySelector(
         '[data-slot="back"] [data-slot="icon"]',
       ) as HTMLElement
-      expect(backIcon.className).toContain('icon-arrow-up')
+      expect(back.className).toContain('icon-arrow-up')
     })
   })
 
   test('navigates into children on selection and shows back button', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           {
             id: 'g',
             children: [
@@ -236,7 +236,7 @@ describe('CommandPalette', () => {
   test('navigates back on back button click', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           {
             id: 'g',
             children: [
@@ -272,7 +272,7 @@ describe('CommandPalette', () => {
   test('navigates back on Backspace with empty input', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           {
             id: 'g',
             children: [
@@ -307,7 +307,7 @@ describe('CommandPalette', () => {
 
   test('close button renders and calls onClose', async () => {
     const onClose = vi.fn()
-    const screen = render(() => <CommandPalette items={GROUPS} close onClose={onClose} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
 
     await waitFor(() => {
       const closeBtn = screen.container.querySelector('[data-slot="close"]') as HTMLElement
@@ -319,7 +319,7 @@ describe('CommandPalette', () => {
   })
 
   test('disabled item has data-disabled attribute', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} />)
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const items = screen.container.querySelectorAll('[data-slot="item"]')
@@ -329,7 +329,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders custom placeholder', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} placeholder="Type a command..." />)
+    const screen = render(() => <CommandPalette groups={GROUPS} placeholder="Type a command..." />)
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Type a command...')).toBeTruthy()
@@ -339,8 +339,8 @@ describe('CommandPalette', () => {
   test('applies classes overrides to root and slots', async () => {
     const screen = render(() => (
       <CommandPalette
-        close
-        items={GROUPS}
+        showClose
+        groups={GROUPS}
         classes={{
           root: 'root-override',
           inputWrapper: 'input-wrapper-override',
@@ -393,7 +393,7 @@ describe('CommandPalette', () => {
 
   test('renders footer content when footer is provided', async () => {
     const screen = render(() => (
-      <CommandPalette items={GROUPS} footerRender={() => <span>Palette Footer</span>} />
+      <CommandPalette groups={GROUPS} footerRender={() => <span>Palette Footer</span>} />
     ))
 
     await waitFor(() => {
@@ -403,7 +403,9 @@ describe('CommandPalette', () => {
   })
 
   test('applies classes.empty override', async () => {
-    const screen = render(() => <CommandPalette items={[]} classes={{ empty: 'empty-override' }} />)
+    const screen = render(() => (
+      <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />
+    ))
 
     await waitFor(() => {
       expect(screen.container.querySelector('[data-slot="empty"]')?.className).toContain(
@@ -414,7 +416,7 @@ describe('CommandPalette', () => {
 
   test('applies styles.empty override', async () => {
     const screen = render(() => (
-      <CommandPalette items={[]} styles={{ empty: { width: '200px' } }} />
+      <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />
     ))
 
     await waitFor(() => {
@@ -427,7 +429,7 @@ describe('CommandPalette', () => {
   test('applies classes.back override', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           {
             id: 'g',
             children: [
@@ -458,7 +460,7 @@ describe('CommandPalette', () => {
   })
 
   test('filters by controlled searchTerm', async () => {
-    const screen = render(() => <CommandPalette items={GROUPS} searchTerm="Settings" />)
+    const screen = render(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
 
     await waitFor(() => {
       expect(screen.getByText('Go to Settings')).toBeTruthy()
@@ -471,7 +473,7 @@ describe('CommandPalette', () => {
 
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           {
             id: 'g',
             children: [
@@ -495,7 +497,7 @@ describe('CommandPalette', () => {
   test('renders footerRender and emptyRender with current state', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[]}
+        groups={[]}
         searchTerm="missing"
         emptyRender={(ctx) => <span>Empty {ctx.searchTerm}</span>}
         footerRender={(ctx) => <span>Depth {ctx.depth}</span>}
@@ -511,7 +513,7 @@ describe('CommandPalette', () => {
   test('supports custom itemRender with runtime item context', async () => {
     const screen = render(() => (
       <CommandPalette
-        items={[
+        groups={[
           { id: 'g', children: [{ value: 'action', label: 'Action', description: 'Run it' }] },
         ]}
         itemRender={(ctx) => (
@@ -531,18 +533,18 @@ describe('CommandPalette', () => {
     const screen = render(() => (
       <CommandPalette
         searchTerm="zzz"
-        itemDescriptionPosition="trailing"
-        items={[
+        descriptionPosition="trailing"
+        groups={[
           {
             id: 'g',
             children: [
-              { value: 'always', label: 'Always', description: 'Visible', ignoreSearch: true },
+              { value: 'always', label: 'Always', description: 'Visible', alwaysShow: true },
               {
                 value: 'bottom',
                 label: 'Bottom',
                 description: 'Below',
-                itemDescriptionPosition: 'bottom',
-                ignoreSearch: true,
+                descriptionPosition: 'bottom',
+                alwaysShow: true,
               },
             ],
           },
@@ -565,13 +567,13 @@ describe('CommandPalette', () => {
 
   test('requires value in item type contract', () => {
     // @ts-expect-error value is required
-    const item: CommandPaletteT.SubItem = { label: 'No value' }
+    const item: CommandPaletteT.Item = { label: 'No value' }
     expect(item).toBeDefined()
   })
 
   test('rejects item classes in type contract', () => {
     // @ts-expect-error item-level classes has been removed
-    const item: CommandPaletteT.SubItem = { value: 'x', label: 'Legacy', classes: { item: 'x' } }
+    const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', classes: { item: 'x' } }
     expect(item).toBeDefined()
   })
 })
