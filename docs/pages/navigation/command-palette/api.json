@@ -114,7 +114,7 @@
       {
         "name": "descriptionPosition",
         "required": false,
-        "type": "\"bottom\" | \"trailing\" | undefined",
+        "type": "DescriptionPosition | undefined",
         "description": "Where the item description is rendered. Overrides the root setting."
       },
       {
@@ -178,7 +178,7 @@
       {
         "name": "descriptionPosition",
         "required": false,
-        "type": "\"bottom\" | \"trailing\" | undefined",
+        "type": "CommandPaletteT.DescriptionPosition | undefined",
         "description": "Where descriptions render by default.",
         "defaultValue": "bottom"
       },
@@ -192,19 +192,19 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.Context) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.Context<TItem>) => JSX.Element) | undefined",
         "description": "Custom empty state renderer."
       },
       {
         "name": "footerRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.Context) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.Context<TItem>) => JSX.Element) | undefined",
         "description": "Custom footer renderer."
       },
       {
         "name": "groups",
         "required": false,
-        "type": "CommandPaletteT.Group[] | undefined",
+        "type": "CommandPaletteT.Group<TItem>[] | undefined",
         "description": "Command groups to display initially.",
         "defaultValue": "[]"
       },
@@ -217,7 +217,7 @@
       {
         "name": "itemRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom command row content renderer."
       },
       {

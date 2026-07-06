@@ -529,6 +529,32 @@ describe('CommandPalette', () => {
     })
   })
 
+  test('infers custom item metadata in itemRender', async () => {
+    interface CustomItem extends CommandPaletteT.Item {
+      route: string
+    }
+
+    const screen = render(() => (
+      <CommandPalette<CustomItem>
+        groups={[
+          {
+            id: 'g',
+            children: [{ value: 'action', label: 'Action', route: '/docs/action' }],
+          },
+        ]}
+        itemRender={(ctx) => (
+          <span data-testid="typed-item">
+            {ctx.group.id}:{ctx.item.route}
+          </span>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('typed-item').textContent).toBe('g:/docs/action')
+    })
+  })
+
   test('supports root and item-level search and description position options', async () => {
     const screen = render(() => (
       <CommandPalette

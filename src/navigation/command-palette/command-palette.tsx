@@ -18,6 +18,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn } from '../../shared/utils'
 
 export namespace CommandPaletteT {
+  export type DescriptionPosition = 'bottom' | 'trailing'
+
   export interface Item {
     /** Unique value for the item. */
     value: string
@@ -26,7 +28,7 @@ export namespace CommandPaletteT {
     /** Secondary description text shown for the item. */
     description?: string
     /** Where the item description is rendered. Overrides the root setting. */
-    descriptionPosition?: 'bottom' | 'trailing'
+    descriptionPosition?: DescriptionPosition
     /** UnoCSS icon class or name to display. */
     icon?: string
     /** Array of keyboard shortcuts to display. */
@@ -107,13 +109,13 @@ export namespace CommandPaletteT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Group {
+  export interface Group<TItem extends Item = Item> {
     /** Unique identifier for the group. */
     id: string
     /** Display name for the group header. */
     label?: string
     /** Items belonging to this group. */
-    children?: Item[]
+    children?: TItem[]
   }
 
   export interface Icons {
@@ -129,18 +131,18 @@ export namespace CommandPaletteT {
     close?: IconT.Name
   }
 
-  export interface Context {
+  export interface Context<TItem extends Item = Item> {
     searchTerm: string
     loading: boolean
     hasItems: boolean
     depth: number
-    groups: Group[]
-    visibleGroups: Group[]
+    groups: Group<TItem>[]
+    visibleGroups: Group<TItem>[]
   }
 
-  export interface ItemRenderContext extends Context {
-    item: Item
-    group: Group
+  export interface ItemRenderContext<TItem extends Item = Item> extends Context<TItem> {
+    item: TItem
+    group: Group<TItem>
     selected: boolean
     focused: boolean
     disabled: boolean
@@ -148,12 +150,12 @@ export namespace CommandPaletteT {
     level: number
   }
 
-  export interface Base {
+  export interface Base<TItem extends Item = Item> {
     /**
      * Command groups to display initially.
      * @default []
      */
-    groups?: Group[]
+    groups?: Group<TItem>[]
     /**
      * Placeholder text for the search input.
      * @default 'Search...'
@@ -193,52 +195,55 @@ export namespace CommandPaletteT {
      * Where descriptions render by default.
      * @default 'bottom'
      */
-    descriptionPosition?: 'bottom' | 'trailing'
+    descriptionPosition?: DescriptionPosition
     /** Custom empty state renderer. */
-    emptyRender?: (ctx: Context) => JSX.Element
+    emptyRender?: (ctx: Context<TItem>) => JSX.Element
     /** Custom footer renderer. */
-    footerRender?: (ctx: Context) => JSX.Element
+    footerRender?: (ctx: Context<TItem>) => JSX.Element
     /** Custom command row content renderer. */
-    itemRender?: (ctx: ItemRenderContext) => JSX.Element
+    itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
   }
 
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export interface Props<TItem extends Item = Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
 }
 
-export interface CommandPaletteProps extends CommandPaletteT.Props {}
+export interface CommandPaletteProps<
+  TItem extends CommandPaletteT.Item = CommandPaletteT.Item,
+> extends CommandPaletteT.Props<TItem> {}
 
-interface NormalizedItem {
+const DEFAULT_ICONS = {
+  search: 'icon-search',
+  loading: 'icon-loading',
+  expand: 'icon-chevron-right',
+  back: 'icon-arrow-left',
+  close: 'icon-close',
+} satisfies Required<CommandPaletteT.Icons>
+
+interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string
   searchText: string
   disabled: boolean
-  item: CommandPaletteT.Item
-  group: CommandPaletteT.Group
-  itemLabel?: string
-  description?: string
-  icon?: string
-  kbds?: string[]
+  item: TItem
+  group: CommandPaletteT.Group<TItem>
   active: boolean
   alwaysShow: boolean
-  descriptionPosition?: 'bottom' | 'trailing'
-  children?: CommandPaletteT.Item[]
-  onSelect?: () => void
 }
 
-interface NormalizedGroup {
-  source: CommandPaletteT.Group
+interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
+  source: CommandPaletteT.Group<TItem>
   label: string
-  items: NormalizedItem[]
+  items: NormalizedItem<TItem>[]
 }
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
 
-function createNormalizedGroups(
-  groups: CommandPaletteT.Group[] | undefined,
+function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
+  groups: CommandPaletteT.Group<TItem>[],
   warnDuplicateValue: (value: string) => void,
-): NormalizedGroup[] {
+): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
   const seenKeys = new Set<string>()
 
@@ -259,7 +264,7 @@ function createNormalizedGroups(
     return key
   }
 
-  return (groups ?? []).map((group) => ({
+  return groups.map((group) => ({
     source: group,
     label: group.label ?? '',
     items: (group.children ?? []).map((item, index) => {
@@ -277,15 +282,8 @@ function createNormalizedGroups(
         disabled: Boolean(item.disabled),
         item,
         group,
-        itemLabel: item.label,
-        description: item.description,
-        icon: item.icon,
-        kbds: item.kbds,
         active: Boolean(item.active),
         alwaysShow: Boolean(item.alwaysShow),
-        descriptionPosition: item.descriptionPosition,
-        children: item.children,
-        onSelect: item.onSelect,
       }
     }),
   }))
@@ -294,33 +292,21 @@ function createNormalizedGroups(
 /**
  * CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.
  */
-export function CommandPalette(props: CommandPaletteProps): JSX.Element {
+export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
+  props: CommandPaletteProps<TItem>,
+): JSX.Element {
   const merged = mergeProps(
     {
       placeholder: 'Search...',
       autofocus: true,
       showClose: false,
-      icons: {
-        search: 'icon-search' as IconT.Name,
-        loading: 'icon-loading' as IconT.Name,
-        expand: 'icon-chevron-right' as IconT.Name,
-        back: 'icon-arrow-left' as IconT.Name,
-        close: 'icon-close' as IconT.Name,
-      },
       descriptionPosition: 'bottom' as const,
     },
     props,
   )
-  const icons = createMemo(() => ({
-    search: 'icon-search' as IconT.Name,
-    loading: 'icon-loading' as IconT.Name,
-    expand: 'icon-chevron-right' as IconT.Name,
-    back: 'icon-arrow-left' as IconT.Name,
-    close: 'icon-close' as IconT.Name,
-    ...merged.icons,
-  }))
+  const icons = createMemo(() => Object.assign({}, DEFAULT_ICONS, merged.icons))
 
-  const [history, setHistory] = createSignal<CommandPaletteT.Group[]>([])
+  const [history, setHistory] = createSignal<CommandPaletteT.Group<TItem>[]>([])
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
@@ -369,13 +355,15 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   })
 
-  const groups = createMemo<CommandPaletteT.Group[]>(() => {
+  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => {
     const stack = history()
     const current = stack.at(-1)
     return current ? [current] : (merged.groups ?? [])
   })
 
-  const normalizedGroups = createMemo(() => createNormalizedGroups(groups(), warnDuplicateValue))
+  const normalizedGroups = createMemo(() =>
+    createNormalizedGroups<TItem>(groups(), warnDuplicateValue),
+  )
   const visibleGroups = createMemo(() => {
     const term = currentSearchTerm().trim().toLowerCase()
     if (merged.disableFilter || term === '') {
@@ -408,15 +396,19 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     setActiveKey(undefined)
   }
 
-  function activateItem(item: NormalizedItem): void {
+  function activateItem(item: NormalizedItem<TItem>): void {
     if (item.disabled) {
       return
     }
 
-    if ((item.children?.length ?? 0) > 0) {
+    if ((item.item.children?.length ?? 0) > 0) {
       setHistory((stack) => [
         ...stack,
-        { id: `history-${item.key}`, label: item.itemLabel, children: item.children! },
+        {
+          id: `history-${item.key}`,
+          label: item.item.label,
+          children: item.item.children as TItem[],
+        },
       ])
       applySearchValue('')
       setActiveKey(undefined)
@@ -426,7 +418,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       return
     }
 
-    item.onSelect?.()
+    item.item.onSelect?.()
   }
 
   function focusByOffset(delta: number): void {
@@ -485,7 +477,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   }
 
-  function getContext(): CommandPaletteT.Context {
+  function getContext(): CommandPaletteT.Context<TItem> {
     return {
       get searchTerm() {
         return currentSearchTerm()
@@ -513,7 +505,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   }
 
-  function getItemContext(item: NormalizedItem): CommandPaletteT.ItemRenderContext {
+  function getItemContext(item: NormalizedItem<TItem>): CommandPaletteT.ItemRenderContext<TItem> {
     return {
       ...getContext(),
       item: item.item,
@@ -528,7 +520,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         return item.disabled
       },
       get hasChildren() {
-        return (item.children?.length ?? 0) > 0
+        return (item.item.children?.length ?? 0) > 0
       },
       get level() {
         return history().length
@@ -536,15 +528,15 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   }
 
-  function renderItemDescription(item: NormalizedItem): JSX.Element {
+  function renderItemDescription(item: NormalizedItem<TItem>): JSX.Element {
     return (
-      <Show when={item.description}>
+      <Show when={item.item.description}>
         <span
           data-slot="itemDescription"
           style={merged.styles?.itemDescription}
           class={cn('text-xs text-muted-foreground truncate', merged.classes?.itemDescription)}
         >
-          {item.description}
+          {item.item.description}
         </span>
       </Show>
     )
@@ -672,9 +664,9 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
 
                 <For each={group.items}>
                   {(item) => {
-                    const hasChildren = () => (item.children?.length ?? 0) > 0
+                    const hasChildren = () => (item.item.children?.length ?? 0) > 0
                     const descriptionPosition = () =>
-                      item.descriptionPosition ?? merged.descriptionPosition
+                      item.item.descriptionPosition ?? merged.descriptionPosition
                     return (
                       <div
                         role="option"
@@ -700,9 +692,9 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                           when={merged.itemRender}
                           fallback={
                             <>
-                              <Show when={item.icon}>
+                              <Show when={item.item.icon}>
                                 <Icon
-                                  name={item.icon}
+                                  name={item.item.icon}
                                   slotName="itemLeading"
                                   style={merged.styles?.itemLeading}
                                   class={cn(
@@ -728,7 +720,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                                     merged.classes?.itemLabel,
                                   )}
                                 >
-                                  {item.itemLabel ?? item.label}
+                                  {item.item.label ?? item.label}
                                 </span>
                                 <Show when={descriptionPosition() === 'bottom'}>
                                   {renderItemDescription(item)}
@@ -751,7 +743,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                                   fallback={
                                     <Kbd
                                       slotPrefix="itemTrailing"
-                                      value={item.kbds}
+                                      value={item.item.kbds}
                                       classes={{
                                         root: merged.classes?.itemTrailingKbds,
                                         item: merged.classes?.itemTrailingKbd,
