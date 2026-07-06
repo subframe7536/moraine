@@ -25,9 +25,9 @@
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
 - [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible
-- [ ] drop icon-button component.
+- [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
 - [ ] find a way to add jsdoc for Variant 's props
-- [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens
+- [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
 
 # V1
