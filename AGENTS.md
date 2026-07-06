@@ -49,6 +49,7 @@ Use `bun` for all package management and script execution.
 - **Constants:** UPPER_SNAKE_CASE (`DEFAULT_TIMEOUT`).
 - **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
+- **Props:** If a component prop is a component (`(ctx: Context) => JSX.Element`, `Component<{ ctx: Context }>`), prop name must end with `Render` (`itemRender: <Component>`).
 
 ### Public Type Exports
 

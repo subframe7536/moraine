@@ -14,11 +14,17 @@
 - [x] simplify `radio-group` 's classes, remove unnecessary wrapper elements, let form-field component to control form title & description, and make it more semantic and accessible.
 - [x] keep tooltip panel open and add move transition when hover on another trigger which also has a tooltip, to have better user experience when switching between triggers.
 - [x] extract logic from slider component to a separate hook, and export component level hooks (should located at same dir 's `/hook` dir ) custom implementations.
-- [ ] unify custom render function prop with prefix `render`, target should be `renderXXXX`
+- [x] unify custom render function prop with suffix `Render`, target should be `xxxRender`
 - [x] unify and correct class/style priority: top level `class` / `style` (root only) > `classes` / `styles` > component builtin classes / styles
-- [ ] refactor form / form-field to formisch, replace existing form context logic if possible
-- [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
+- [ ] refactor `command-palette` component,
+  - [ ] rename `footer?: JSX.Element` to `footerRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
+  - [ ] rename `empty?: JSX.Element` to `emptyRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
+  - [ ] add `itemRender?: (ctx: ItemContext) => JSX.Element` prop to customize item render, `ItemContext` should be current state and item data, allow to customize item based on its data(e.g. title, description, group, icon, level etc.) and runtime state (e.g., selected, focused, disabled, searchTerm).
+  - [ ] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `itemDescriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
+  - [ ] add `ignoreSearch` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `items` prop
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
+- [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
+- [ ] refactor form / form-field to formisch, replace existing form context logic if possible
 - [ ] drop icon-button component.
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens
