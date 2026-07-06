@@ -44,12 +44,6 @@
   "item": {
     "props": [
       {
-        "name": "class",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Custom class for the tab content panel."
-      },
-      {
         "name": "content",
         "required": false,
         "type": "JSX.Element",

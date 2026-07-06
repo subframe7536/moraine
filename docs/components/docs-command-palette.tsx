@@ -43,11 +43,11 @@ function buildItems(
   if (ungrouped.length > 0) {
     items.push({ id: 'ungrouped', items: ungrouped })
   }
-  for (const [group, children] of grouped.entries()) {
+  for (const [group, groupItems] of grouped.entries()) {
     items.push({
       id: `group-${group}`,
       label: group.charAt(0).toUpperCase() + group.slice(1),
-      items: children,
+      items: groupItems,
     })
   }
   return items

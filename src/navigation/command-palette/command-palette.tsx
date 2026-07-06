@@ -20,42 +20,13 @@ import { cn } from '../../shared/utils'
 export namespace CommandPaletteT {
   export type DescriptionPosition = 'bottom' | 'trailing'
 
-  export interface Item {
-    /** Unique value for the item. */
-    value: string
-    /** Primary label for the item. */
-    label?: string
-    /** Secondary description text shown for the item. */
-    description?: string
-    /** Where the item description is rendered. Overrides the root setting. */
-    descriptionPosition?: DescriptionPosition
-    /** UnoCSS icon class or name to display. */
-    icon?: string
-    /** Array of keyboard shortcuts to display. */
-    kbds?: string[]
-    /** Whether to force the item into an active (highlighted) state. */
-    active?: boolean
-    /** Whether the item is disabled and cannot be selected. */
-    disabled?: boolean
-    /** Whether this item should be excluded from built-in search filtering. */
-    alwaysShow?: boolean
-    /** Selecting this item drills into a nested group of items. */
-    children?: ItemNode<this>[]
-    /** Callback triggered when the item is selected. */
-    onSelect?: () => void
-  }
-
-  export type ItemNode<TItem extends Item = Item> = Omit<TItem, 'children'> & {
-    children?: ItemNode<TItem>[]
-  }
-
   export interface Slot<T = unknown> {
     /**
-     * Command palette container that owns search, navigation stack, and option list.
+     * Command palette container that owns search and option list.
      */
     root?: T
 
-    /** Search row that groups input, search icon, and navigation controls. */
+    /** Search row that groups input, search icon, and dismiss controls. */
     inputWrapper?: T
 
     /** Search input used to filter commands. */
@@ -88,7 +59,7 @@ export namespace CommandPaletteT {
     /** Supporting text for a command item. */
     itemDescription?: T
 
-    /** Trailing region for shortcuts, submenu indicators, or custom item metadata. */
+    /** Trailing region for shortcuts or custom item metadata. */
     itemTrailing?: T
 
     /** Container for keyboard shortcut hints at the end of a command row. */
@@ -99,9 +70,6 @@ export namespace CommandPaletteT {
 
     /** Search icon or loading indicator displayed in the input row. */
     search?: T
-
-    /** Button that returns from a nested command group. */
-    back?: T
 
     /** Button that dismisses the command palette. */
     close?: T
@@ -119,7 +87,7 @@ export namespace CommandPaletteT {
     /** Display name for the group header. */
     label?: string
     /** Items belonging to this group. */
-    items?: ItemNode<TItem>[]
+    items?: TItem[]
   }
 
   export interface Icons {
@@ -127,31 +95,47 @@ export namespace CommandPaletteT {
     search?: IconT.Name
     /** Icon name for the loading state. */
     loading?: IconT.Name
-    /** Icon name for items with sub-groups. */
-    expand?: IconT.Name
-    /** Icon name for the group navigation back button. */
-    back?: IconT.Name
     /** Icon name for the palette close button. */
     close?: IconT.Name
+  }
+
+  export interface Item {
+    /** Unique value for the item. */
+    value: string
+    /** Primary label for the item. */
+    label?: string
+    /** Secondary description text shown for the item. */
+    description?: string
+    /** Where the item description is rendered. Overrides the root setting. */
+    descriptionPosition?: DescriptionPosition
+    /** UnoCSS icon class or name to display. */
+    icon?: string
+    /** Array of keyboard shortcuts to display. */
+    kbds?: string[]
+    /** Whether to force the item into an active (highlighted) state. */
+    active?: boolean
+    /** Whether the item is disabled and cannot be selected. */
+    disabled?: boolean
+    /** Whether this item should be excluded from built-in search filtering. */
+    alwaysShow?: boolean
+    /** Callback triggered when the item is selected. */
+    onSelect?: () => void
   }
 
   export interface BaseContext<TItem extends Item = Item> {
     searchTerm: string
     loading: boolean
     hasItems: boolean
-    depth: number
     groups: Group<TItem>[]
     visibleGroups: Group<TItem>[]
   }
 
   export interface ItemRenderContext<TItem extends Item = Item> extends BaseContext<TItem> {
-    item: ItemNode<TItem>
+    item: TItem
     group: Group<TItem>
     selected: boolean
     focused: boolean
     disabled: boolean
-    hasChildren: boolean
-    level: number
   }
 
   export interface Base<TItem extends Item = Item> {
@@ -218,8 +202,6 @@ export interface CommandPaletteProps<
 const DEFAULT_ICONS = {
   search: 'icon-search',
   loading: 'icon-loading',
-  expand: 'icon-chevron-right',
-  back: 'icon-arrow-left',
   close: 'icon-close',
 } satisfies Required<CommandPaletteT.Icons>
 
@@ -228,7 +210,7 @@ interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.It
   label: string
   searchText: string
   disabled: boolean
-  item: CommandPaletteT.ItemNode<TItem>
+  item: TItem
   group: CommandPaletteT.Group<TItem>
   active: boolean
   alwaysShow: boolean
@@ -294,7 +276,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 }
 
 /**
- * CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.
+ * CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.
  */
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
@@ -310,7 +292,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   )
   const icons = createMemo(() => Object.assign({}, DEFAULT_ICONS, merged.icons))
 
-  const [history, setHistory] = createSignal<CommandPaletteT.Group<TItem>[]>([])
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
@@ -359,11 +340,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   })
 
-  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => {
-    const stack = history()
-    const current = stack.at(-1)
-    return current ? [current] : (merged.groups ?? [])
-  })
+  const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
 
   const normalizedGroups = createMemo(() =>
     createNormalizedGroups<TItem>(groups(), warnDuplicateValue),
@@ -394,31 +371,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     setActiveKey(items[0]?.key)
   })
 
-  function navigateBack(): void {
-    setHistory((stack) => stack.slice(0, -1))
-    applySearchValue('')
-    setActiveKey(undefined)
-  }
-
   function activateItem(item: NormalizedItem<TItem>): void {
     if (item.disabled) {
-      return
-    }
-
-    if ((item.item.children?.length ?? 0) > 0) {
-      setHistory((stack) => [
-        ...stack,
-        {
-          id: `history-${item.key}`,
-          label: item.item.label,
-          items: item.item.children,
-        },
-      ])
-      applySearchValue('')
-      setActiveKey(undefined)
-      queueMicrotask(() => {
-        inputRef?.focus()
-      })
       return
     }
 
@@ -442,11 +396,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Backspace' && !currentSearchTerm()) {
-      navigateBack()
-      return
-    }
-
     if (event.key === 'ArrowDown') {
       event.preventDefault()
       focusByOffset(1)
@@ -492,9 +441,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       get hasItems() {
         return hasItems()
       },
-      get depth() {
-        return history().length
-      },
       get groups() {
         return groups()
       },
@@ -522,12 +468,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       },
       get disabled() {
         return item.disabled
-      },
-      get hasChildren() {
-        return (item.item.children?.length ?? 0) > 0
-      },
-      get level() {
-        return history().length
       },
     }
   }
@@ -561,36 +501,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         style={merged.styles?.inputWrapper}
         class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
       >
-        <Show
-          when={history().length > 0}
-          fallback={
-            <IconButtonInner
-              name={merged.loading ? icons().loading : icons().search}
-              data-slot="search"
-              tabIndex={-1}
-              style={merged.styles?.search}
-              aria-busy={merged.loading || undefined}
-              data-loading={merged.loading ? '' : undefined}
-              disabled={merged.loading || undefined}
-              class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
-            />
-          }
-        >
-          <IconButtonInner
-            name={merged.loading ? icons().loading : icons().back}
-            data-slot="back"
-            style={merged.styles?.back}
-            aria-busy={merged.loading || undefined}
-            data-loading={merged.loading ? '' : undefined}
-            disabled={merged.loading || undefined}
-            class={cn(
-              'text-muted-foreground outline-none hover:text-foreground',
-              merged.classes?.back,
-            )}
-            onClick={navigateBack}
-            aria-label="Go back"
-          />
-        </Show>
+        <IconButtonInner
+          name={merged.loading ? icons().loading : icons().search}
+          data-slot="search"
+          tabIndex={-1}
+          style={merged.styles?.search}
+          aria-busy={merged.loading || undefined}
+          data-loading={merged.loading ? '' : undefined}
+          disabled={merged.loading || undefined}
+          class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
+        />
 
         <input
           ref={(el) => {
@@ -668,7 +588,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
                 <For each={group.items}>
                   {(item) => {
-                    const hasChildren = () => (item.item.children?.length ?? 0) > 0
                     const descriptionPosition = () =>
                       item.item.descriptionPosition ?? merged.descriptionPosition
                     return (
@@ -742,25 +661,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                                 <Show when={descriptionPosition() === 'trailing'}>
                                   {renderItemDescription(item)}
                                 </Show>
-                                <Show
-                                  when={hasChildren()}
-                                  fallback={
-                                    <Kbd
-                                      slotPrefix="itemTrailing"
-                                      value={item.item.kbds}
-                                      classes={{
-                                        root: merged.classes?.itemTrailingKbds,
-                                        item: merged.classes?.itemTrailingKbd,
-                                      }}
-                                    />
-                                  }
-                                >
-                                  <Icon
-                                    name={icons().expand}
-                                    slotName="itemTrailingIcon"
-                                    class="text-muted-foreground shrink-0"
-                                  />
-                                </Show>
+                                <Kbd
+                                  slotPrefix="itemTrailing"
+                                  value={item.item.kbds}
+                                  classes={{
+                                    root: merged.classes?.itemTrailingKbds,
+                                    item: merged.classes?.itemTrailingKbd,
+                                  }}
+                                />
                               </span>
                             </>
                           }

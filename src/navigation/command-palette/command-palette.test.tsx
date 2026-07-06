@@ -154,29 +154,40 @@ describe('CommandPalette', () => {
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
-  test('supports overriding built-in icons including back icon', async () => {
+  test('activates the highlighted item on Enter', async () => {
+    const onSelect = vi.fn()
+
+    const screen = render(() => (
+      <CommandPalette
+        groups={[
+          {
+            id: 'g',
+            items: [
+              { value: 'first', label: 'First' },
+              { value: 'second', label: 'Second', onSelect },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    const input = screen.getByPlaceholderText('Search...') as HTMLInputElement
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+    await fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(onSelect).toHaveBeenCalledTimes(1)
+  })
+
+  test('supports overriding built-in icons', async () => {
     const screen = render(() => (
       <CommandPalette
         showClose
         icons={{
           search: 'icon-hash',
           loading: 'icon-reload',
-          expand: 'icon-arrow-right',
-          back: 'icon-arrow-up',
           close: 'icon-minus',
         }}
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'parent',
-                label: 'Parent',
-                children: [{ value: 'child', label: 'Child' }],
-              },
-            ],
-          },
-        ]}
+        groups={GROUPS}
       />
     ))
 
@@ -184,124 +195,12 @@ describe('CommandPalette', () => {
       const search = screen.container.querySelector(
         '[data-slot="search"] [data-slot="icon"]',
       ) as HTMLElement
-      const expand = screen.container.querySelector('[data-slot="itemTrailingIcon"]') as HTMLElement
       const close = screen.container.querySelector(
         '[data-slot="close"] [data-slot="icon"]',
       ) as HTMLElement
 
       expect(search.className).toContain('icon-hash')
-      expect(expand.className).toContain('icon-arrow-right')
       expect(close.className).toContain('icon-minus')
-    })
-
-    const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(parentItem)
-
-    await waitFor(() => {
-      const back = screen.container.querySelector(
-        '[data-slot="back"] [data-slot="icon"]',
-      ) as HTMLElement
-      expect(back.className).toContain('icon-arrow-up')
-    })
-  })
-
-  test('navigates into children on selection and shows back button', async () => {
-    const screen = render(() => (
-      <CommandPalette
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'more',
-                label: 'More',
-                children: [{ value: 'sub-item', label: 'Sub Item' }],
-              },
-            ],
-          },
-        ]}
-      />
-    ))
-
-    await waitFor(() => screen.getByText('More'))
-
-    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(item)
-
-    await waitFor(() => {
-      expect(screen.container.querySelector('[data-slot="back"]')).not.toBeNull()
-    })
-  })
-
-  test('navigates back on back button click', async () => {
-    const screen = render(() => (
-      <CommandPalette
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'parent',
-                label: 'Parent',
-                children: [{ value: 'child', label: 'Child' }],
-              },
-            ],
-          },
-        ]}
-      />
-    ))
-
-    await waitFor(() => screen.getByText('Parent'))
-
-    const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(parentItem)
-
-    await waitFor(() => {
-      expect(screen.container.querySelector('[data-slot="back"]')).not.toBeNull()
-    })
-
-    const backButton = screen.container.querySelector('[data-slot="back"]') as HTMLElement
-    await fireEvent.click(backButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Parent')).toBeTruthy()
-      expect(screen.container.querySelector('[data-slot="back"]')).toBeNull()
-    })
-  })
-
-  test('navigates back on Backspace with empty input', async () => {
-    const screen = render(() => (
-      <CommandPalette
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'parent',
-                label: 'Parent',
-                children: [{ value: 'child', label: 'Child' }],
-              },
-            ],
-          },
-        ]}
-      />
-    ))
-
-    await waitFor(() => screen.getByText('Parent'))
-
-    const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(parentItem)
-
-    await waitFor(() => {
-      expect(screen.container.querySelector('[data-slot="back"]')).not.toBeNull()
-    })
-
-    const input = screen.getByPlaceholderText('Search...') as HTMLInputElement
-    await fireEvent.keyDown(input, { key: 'Backspace' })
-
-    await waitFor(() => {
-      expect(screen.getByText('Parent')).toBeTruthy()
-      expect(screen.container.querySelector('[data-slot="back"]')).toBeNull()
     })
   })
 
@@ -426,39 +325,6 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('applies classes.back override', async () => {
-    const screen = render(() => (
-      <CommandPalette
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'parent',
-                label: 'Parent',
-                children: [{ value: 'child', label: 'Child' }],
-              },
-            ],
-          },
-        ]}
-        classes={{ back: 'back-override' }}
-      />
-    ))
-
-    await waitFor(() => {
-      expect(screen.getByText('Parent')).toBeTruthy()
-    })
-
-    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(item)
-
-    await waitFor(() => {
-      expect(screen.container.querySelector('[data-slot="back"]')?.className).toContain(
-        'back-override',
-      )
-    })
-  })
-
   test('filters by controlled searchTerm', async () => {
     const screen = render(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
 
@@ -500,31 +366,59 @@ describe('CommandPalette', () => {
         groups={[]}
         searchTerm="missing"
         emptyRender={(ctx) => <span>Empty {ctx.searchTerm}</span>}
-        footerRender={(ctx) => <span>Depth {ctx.depth}</span>}
+        footerRender={(ctx) => <span>Groups {ctx.groups.length}</span>}
       />
     ))
 
     await waitFor(() => {
       expect(screen.getByText('Empty missing')).toBeTruthy()
-      expect(screen.getByText('Depth 0')).toBeTruthy()
+      expect(screen.getByText('Groups 0')).toBeTruthy()
     })
   })
 
-  test('passes filtered visibleGroups to render contexts', async () => {
+  test('keeps the list unchanged on Backspace with an empty input', async () => {
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
+
+    const input = screen.getByPlaceholderText('Search...') as HTMLInputElement
+    await fireEvent.keyDown(input, { key: 'Backspace' })
+
+    await waitFor(() => {
+      expect(screen.getByText('New File')).toBeTruthy()
+      expect(screen.getByText('Go to Dashboard')).toBeTruthy()
+    })
+  })
+
+  test('passes filtered visibleGroups to footerRender', async () => {
     const screen = render(() => (
       <CommandPalette
         groups={GROUPS}
         searchTerm="Settings"
         footerRender={(ctx) => (
-          <span>
-            Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
-          </span>
+          <span>Visible {ctx.visibleGroups.flatMap((group) => group.items ?? []).length}</span>
         )}
       />
     ))
 
     await waitFor(() => {
       expect(screen.getByText('Visible 1')).toBeTruthy()
+    })
+  })
+
+  test('passes filtered visibleGroups to emptyRender', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        groups={GROUPS}
+        searchTerm="missing"
+        emptyRender={(ctx) => (
+          <span>
+            Empty {ctx.searchTerm}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+          </span>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByText('Empty missing:0')).toBeTruthy()
     })
   })
 
@@ -542,6 +436,24 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('custom-item').textContent).toBe('Action:Run it:focused')
+    })
+  })
+
+  test('passes filtered visibleGroups to itemRender', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        groups={GROUPS}
+        searchTerm="Settings"
+        itemRender={(ctx) => (
+          <span data-testid="visible-groups">
+            {ctx.item.value}:{ctx.visibleGroups.flatMap((group) => group.items ?? []).length}
+          </span>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('visible-groups').textContent).toBe('go-settings:1')
     })
   })
 
@@ -568,42 +480,6 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('typed-item').textContent).toBe('g:/docs/action')
-    })
-  })
-
-  test('preserves custom item metadata for nested children', async () => {
-    interface CustomItem extends CommandPaletteT.Item {
-      route: string
-    }
-
-    const screen = render(() => (
-      <CommandPalette<CustomItem>
-        groups={[
-          {
-            id: 'g',
-            items: [
-              {
-                value: 'parent',
-                label: 'Parent',
-                route: '/docs',
-                children: [{ value: 'child', label: 'Child', route: '/docs/child' }],
-              },
-            ],
-          },
-        ]}
-        itemRender={(ctx) => <span data-testid="nested-item">{ctx.item.route}</span>}
-      />
-    ))
-
-    await waitFor(() => {
-      expect(screen.getByTestId('nested-item').textContent).toBe('/docs')
-    })
-
-    const parentItem = screen.container.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(parentItem)
-
-    await waitFor(() => {
-      expect(screen.getByTestId('nested-item').textContent).toBe('/docs/child')
     })
   })
 
@@ -652,28 +528,6 @@ describe('CommandPalette', () => {
   test('rejects item classes in type contract', () => {
     // @ts-expect-error item-level classes has been removed
     const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', classes: { item: 'x' } }
-    expect(item).toBeDefined()
-  })
-
-  test('requires custom child items to satisfy the generic item shape', () => {
-    interface CustomItem extends CommandPaletteT.Item {
-      route: string
-    }
-
-    const item: CommandPaletteT.Group<CustomItem> = {
-      id: 'g',
-      items: [
-        {
-          value: 'parent',
-          route: '/docs',
-          children: [
-            // @ts-expect-error nested custom items must also provide route
-            { value: 'child' },
-          ],
-        },
-      ],
-    }
-
     expect(item).toBeDefined()
   })
 })

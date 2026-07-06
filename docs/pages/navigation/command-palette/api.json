@@ -4,17 +4,17 @@
     "name": "CommandPalette",
     "category": "navigation",
     "polymorphic": false,
-    "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.",
+    "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
     "sourcePath": "src/navigation/command-palette/command-palette.tsx"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Command palette container that owns search, navigation stack, and option list."
+      "description": "Command palette container that owns search and option list."
     },
     {
       "name": "inputWrapper",
-      "description": "Search row that groups input, search icon, and navigation controls."
+      "description": "Search row that groups input, search icon, and dismiss controls."
     },
     {
       "name": "input",
@@ -58,7 +58,7 @@
     },
     {
       "name": "itemTrailing",
-      "description": "Trailing region for shortcuts, submenu indicators, or custom item metadata."
+      "description": "Trailing region for shortcuts or custom item metadata."
     },
     {
       "name": "itemTrailingKbds",
@@ -71,10 +71,6 @@
     {
       "name": "search",
       "description": "Search icon or loading indicator displayed in the input row."
-    },
-    {
-      "name": "back",
-      "description": "Button that returns from a nested command group."
     },
     {
       "name": "close",
@@ -98,12 +94,6 @@
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether this item should be excluded from built-in search filtering."
-      },
-      {
-        "name": "children",
-        "required": false,
-        "type": "Item[] | undefined",
-        "description": "Selecting this item drills into a nested group of items."
       },
       {
         "name": "description",
@@ -228,12 +218,6 @@
         "defaultValue": "false"
       },
       {
-        "name": "searchMaxLength",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Maximum allowed length for the search text."
-      },
-      {
         "name": "onClose",
         "required": false,
         "type": "(() => void) | undefined",
@@ -251,6 +235,12 @@
         "type": "string | undefined",
         "description": "Placeholder text for the search input.",
         "defaultValue": "Search..."
+      },
+      {
+        "name": "searchMaxLength",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum allowed length for the search text."
       },
       {
         "name": "searchTerm",
@@ -338,32 +328,6 @@
       }
     ],
     "slots": [
-      {
-        "name": "back",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-loading",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component is loading."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-busy",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          }
-        ]
-      },
       {
         "name": "close",
         "cssVariables": [],
@@ -459,12 +423,6 @@
       },
       {
         "name": "itemTrailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemTrailingIcon",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

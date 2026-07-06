@@ -25,7 +25,6 @@ Search input and results list with grouped items and optional footer.
 root
 └── inputWrapper
     ├── search (IconButton, optional)
-    ├── back (IconButton, optional)
     ├── input
     └── close (IconButton, optional)
 ```
@@ -40,7 +39,7 @@ root
 │   │   ├── itemWrapper
 │   │   │   ├── itemLabel
 │   │   │   └── itemDescription (optional)
-│   │   └── itemTrailing (description, icon, or Kbd, optional)
+│   │   └── itemTrailing (description or Kbd, optional)
 │   └── group (×n, optional)
 │       └── label (optional)
 ├── empty (optional, no matches)
@@ -81,6 +80,6 @@ A close button in the input trailing slot.
 
 ### Sub-Navigation
 
-Items with children drill into a sub-group. Press Backspace or the back button to return.
+Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper.
 
 <DemoCommandPaletteSubNavigation />
