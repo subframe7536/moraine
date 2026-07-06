@@ -32,7 +32,7 @@ export function Basic() {
           value: 'go-settings',
           label: 'Settings',
           icon: 'i-lucide-settings',
-          suffix: 'Preferences',
+          description: 'Preferences',
         },
         { value: 'go-billing', label: 'Billing', icon: 'i-lucide-credit-card', disabled: true },
       ],

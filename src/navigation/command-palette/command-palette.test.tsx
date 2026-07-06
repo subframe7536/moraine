@@ -182,7 +182,9 @@ describe('CommandPalette', () => {
       const searchIcon = screen.container.querySelector(
         '[data-slot="search"] [data-slot="icon"]',
       ) as HTMLElement
-      const childIcon = screen.container.querySelector('[data-slot="itemTrailing"]') as HTMLElement
+      const childIcon = screen.container.querySelector(
+        '[data-slot="itemTrailingIcon"]',
+      ) as HTMLElement
       const closeIcon = screen.container.querySelector(
         '[data-slot="close"] [data-slot="icon"]',
       ) as HTMLElement
@@ -351,7 +353,7 @@ describe('CommandPalette', () => {
           search: 'search-override',
           close: 'close-override',
         }}
-        footer={<span>Footer content</span>}
+        footerRender={() => <span>Footer content</span>}
       />
     ))
 
@@ -391,7 +393,7 @@ describe('CommandPalette', () => {
 
   test('renders footer content when footer is provided', async () => {
     const screen = render(() => (
-      <CommandPalette items={GROUPS} footer={<span>Palette Footer</span>} />
+      <CommandPalette items={GROUPS} footerRender={() => <span>Palette Footer</span>} />
     ))
 
     await waitFor(() => {
@@ -488,6 +490,77 @@ describe('CommandPalette', () => {
 
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('duplicate item value "dup"'))
     warnSpy.mockRestore()
+  })
+
+  test('renders footerRender and emptyRender with current state', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        items={[]}
+        searchTerm="missing"
+        emptyRender={(ctx) => <span>Empty {ctx.searchTerm}</span>}
+        footerRender={(ctx) => <span>Depth {ctx.depth}</span>}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByText('Empty missing')).toBeTruthy()
+      expect(screen.getByText('Depth 0')).toBeTruthy()
+    })
+  })
+
+  test('supports custom itemRender with runtime item context', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        items={[
+          { id: 'g', children: [{ value: 'action', label: 'Action', description: 'Run it' }] },
+        ]}
+        itemRender={(ctx) => (
+          <span data-testid="custom-item">
+            {ctx.item.label}:{ctx.item.description}:{ctx.focused ? 'focused' : 'idle'}
+          </span>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('custom-item').textContent).toBe('Action:Run it:focused')
+    })
+  })
+
+  test('supports root and item-level search and description position options', async () => {
+    const screen = render(() => (
+      <CommandPalette
+        searchTerm="zzz"
+        itemDescriptionPosition="trailing"
+        items={[
+          {
+            id: 'g',
+            children: [
+              { value: 'always', label: 'Always', description: 'Visible', ignoreSearch: true },
+              {
+                value: 'bottom',
+                label: 'Bottom',
+                description: 'Below',
+                itemDescriptionPosition: 'bottom',
+                ignoreSearch: true,
+              },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    await waitFor(() => {
+      const always = screen.getByText('Always').closest('[data-slot="item"]')
+      const bottom = screen.getByText('Bottom').closest('[data-slot="item"]')
+
+      expect(
+        always?.querySelector('[data-slot="itemTrailing"] [data-slot="itemDescription"]'),
+      ).not.toBeNull()
+      expect(
+        bottom?.querySelector('[data-slot="itemWrapper"] [data-slot="itemDescription"]'),
+      ).not.toBeNull()
+    })
   })
 
   test('requires value in item type contract', () => {

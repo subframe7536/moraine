@@ -26,7 +26,7 @@ function buildItems(
     const item: CommandPaletteT.SubItem = {
       value: page.key,
       label: page.label,
-      suffix: page.status?.toUpperCase(),
+      description: page.status?.toUpperCase(),
       onSelect: () => onNavigate(page.key),
     }
     const group = page.group?.trim()
@@ -136,7 +136,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
           placeholder="Search components, hooks, and pages..."
           searchTerm={searchTerm()}
           onSearchTermChange={setSearchTerm}
-          empty="No matching pages."
+          emptyRender={() => 'No matching pages.'}
           classes={{
             root: 'rounded-xl',
             inputWrapper: 'b-(b border) h-12',

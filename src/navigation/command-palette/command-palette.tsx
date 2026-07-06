@@ -23,12 +23,10 @@ export namespace CommandPaletteT {
     value: string
     /** Primary label for the item. */
     label?: string
-    /** Optional prefix text shown before the label. */
-    prefix?: string
-    /** Optional suffix text shown after the label. */
-    suffix?: string
-    /** Secondary description text shown below the label. */
+    /** Secondary description text shown for the item. */
     description?: string
+    /** Where the item description is rendered. Overrides the root setting. */
+    itemDescriptionPosition?: 'bottom' | 'trailing'
     /** UnoCSS icon class or name to display. */
     icon?: string
     /** Array of keyboard shortcuts to display. */
@@ -37,6 +35,8 @@ export namespace CommandPaletteT {
     active?: boolean
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
+    /** Whether this item should be excluded from built-in search filtering. */
+    ignoreSearch?: boolean
     /** Selecting this item drills into a nested group of items. */
     children?: SubItem[]
     /** Callback triggered when the item is selected. */
@@ -79,15 +79,6 @@ export namespace CommandPaletteT {
     /** Primary text for a command item. */
     itemLabel?: T
 
-    /** Base text region for an item label before prefix or suffix decoration. */
-    itemLabelBase?: T
-
-    /** Prefix text rendered before the main item label. */
-    itemLabelPrefix?: T
-
-    /** Suffix text rendered after the main item label. */
-    itemLabelSuffix?: T
-
     /** Supporting text for a command item. */
     itemDescription?: T
 
@@ -123,6 +114,25 @@ export namespace CommandPaletteT {
     label?: string
     /** Items belonging to this group. */
     children?: SubItem[]
+  }
+
+  export interface Context {
+    searchTerm: string
+    loading: boolean
+    hasItems: boolean
+    depth: number
+    currentGroups: Item[]
+    visibleGroups: Item[]
+  }
+
+  export interface ItemContext extends Context {
+    item: SubItem
+    group: Item
+    selected: boolean
+    focused: boolean
+    disabled: boolean
+    hasChildren: boolean
+    level: number
   }
 
   export interface Base {
@@ -185,12 +195,21 @@ export namespace CommandPaletteT {
      */
     loading?: boolean
     /**
-     * Elements to show when no items match the search.
-     * @default 'No results.'
+     * Disable built-in search filtering and render all provided items.
+     * @default false
      */
-    empty?: JSX.Element
-    /** Content to render at bottom of the palette. */
-    footer?: JSX.Element
+    ignoreSearch?: boolean
+    /**
+     * Where descriptions render by default.
+     * @default 'bottom'
+     */
+    itemDescriptionPosition?: 'bottom' | 'trailing'
+    /** Custom empty state renderer. */
+    emptyRender?: (ctx: Context) => JSX.Element
+    /** Custom footer renderer. */
+    footerRender?: (ctx: Context) => JSX.Element
+    /** Custom command row content renderer. */
+    itemRender?: (ctx: ItemContext) => JSX.Element
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -203,27 +222,27 @@ interface NormalizedItem {
   label: string
   searchText: string
   disabled: boolean
+  item: CommandPaletteT.SubItem
+  group: CommandPaletteT.Item
   itemLabel?: string
-  prefix?: string
-  suffix?: string
   description?: string
   icon?: string
   kbds?: string[]
+  active: boolean
+  ignoreSearch: boolean
+  itemDescriptionPosition?: 'bottom' | 'trailing'
   children?: CommandPaletteT.SubItem[]
   onSelect?: () => void
 }
 
 interface NormalizedGroup {
+  source: CommandPaletteT.Item
   label: string
   items: NormalizedItem[]
 }
 
 function buildItemLabel(item: CommandPaletteT.SubItem): string {
-  const text = [item.prefix, item.label, item.suffix]
-    .filter((part): part is string => Boolean(part))
-    .join(' ')
-
-  return text || item.value
+  return item.label || item.value
 }
 
 function createNormalizedGroups(
@@ -251,6 +270,7 @@ function createNormalizedGroups(
   }
 
   return (groups ?? []).map((group) => ({
+    source: group,
     label: group.label ?? '',
     items: (group.children ?? []).map((item, index) => {
       if (seenValues.has(item.value)) {
@@ -265,12 +285,15 @@ function createNormalizedGroups(
         label,
         searchText: label.toLowerCase(),
         disabled: Boolean(item.disabled),
+        item,
+        group,
         itemLabel: item.label,
-        prefix: item.prefix,
-        suffix: item.suffix,
         description: item.description,
         icon: item.icon,
         kbds: item.kbds,
+        active: Boolean(item.active),
+        ignoreSearch: Boolean(item.ignoreSearch),
+        itemDescriptionPosition: item.itemDescriptionPosition,
         children: item.children,
         onSelect: item.onSelect,
       }
@@ -292,7 +315,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       childIcon: 'icon-chevron-right' as IconT.Name,
       backIcon: 'icon-arrow-left' as IconT.Name,
       closeIcon: 'icon-close' as IconT.Name,
-      empty: 'No results.',
+      itemDescriptionPosition: 'bottom' as const,
     },
     props,
   )
@@ -357,14 +380,14 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
   )
   const visibleGroups = createMemo(() => {
     const term = currentSearchTerm().trim().toLowerCase()
-    if (term === '') {
+    if (merged.ignoreSearch || term === '') {
       return normalizedGroups()
     }
 
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {
-          items: group.items.filter((item) => item.searchText.includes(term)),
+          items: group.items.filter((item) => item.ignoreSearch || item.searchText.includes(term)),
         }),
       )
       .filter((group) => group.items.length > 0)
@@ -464,6 +487,71 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
     }
   }
 
+  function getContext(): CommandPaletteT.Context {
+    return {
+      get searchTerm() {
+        return currentSearchTerm()
+      },
+      get loading() {
+        return Boolean(merged.loading)
+      },
+      get hasItems() {
+        return hasItems()
+      },
+      get depth() {
+        return history().length
+      },
+      get currentGroups() {
+        return currentGroups()
+      },
+      get visibleGroups() {
+        return visibleGroups().map((group) =>
+          Object.assign({}, group.source, {
+            label: group.source.label ?? group.label,
+            children: group.items.map((item) => item.item),
+          }),
+        )
+      },
+    }
+  }
+
+  function getItemContext(item: NormalizedItem): CommandPaletteT.ItemContext {
+    return {
+      ...getContext(),
+      item: item.item,
+      group: item.group,
+      get selected() {
+        return item.active
+      },
+      get focused() {
+        return highlightedKey() === item.key
+      },
+      get disabled() {
+        return item.disabled
+      },
+      get hasChildren() {
+        return (item.children?.length ?? 0) > 0
+      },
+      get level() {
+        return history().length
+      },
+    }
+  }
+
+  function renderItemDescription(item: NormalizedItem): JSX.Element {
+    return (
+      <Show when={item.description}>
+        <span
+          data-slot="itemDescription"
+          style={merged.styles?.itemDescription}
+          class={cn('text-xs text-muted-foreground truncate', merged.classes?.itemDescription)}
+        >
+          {item.description}
+        </span>
+      </Show>
+    )
+  }
+
   return (
     <div
       data-slot="root"
@@ -551,7 +639,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
             style={merged.styles?.empty}
             class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
           >
-            {merged.empty}
+            {merged.emptyRender?.(getContext()) ?? 'No results.'}
           </div>
         }
       >
@@ -587,6 +675,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                 <For each={group.items}>
                   {(item) => {
                     const hasChildren = () => (item.children?.length ?? 0) > 0
+                    const descriptionPosition = () =>
+                      item.itemDescriptionPosition ?? merged.itemDescriptionPosition
                     return (
                       <div
                         role="option"
@@ -608,104 +698,80 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                         onPointerDown={(event) => event.preventDefault()}
                         onClick={() => activateItem(item)}
                       >
-                        <Show when={item.icon}>
-                          <Icon
-                            name={item.icon}
-                            slotName="itemLeading"
-                            style={merged.styles?.itemLeading}
-                            class={cn(
-                              'text-muted-foreground shrink-0',
-                              merged.classes?.itemLeading,
-                            )}
-                          />
-                        </Show>
-
-                        <span
-                          data-slot="itemWrapper"
-                          style={merged.styles?.itemWrapper}
-                          class={cn(
-                            'text-start flex flex-1 flex-col min-w-0',
-                            merged.classes?.itemWrapper,
-                          )}
-                        >
-                          <Show when={item.prefix || item.itemLabel || item.suffix}>
-                            <span
-                              data-slot="itemLabel"
-                              style={merged.styles?.itemLabel}
-                              class={cn(
-                                'text-sm inline-flex gap-2 truncate items-baseline',
-                                merged.classes?.itemLabel,
-                              )}
-                            >
-                              <Show when={item.prefix}>
-                                <span
-                                  data-slot="itemLabelPrefix"
-                                  style={merged.styles?.itemLabelPrefix}
+                        <Show
+                          when={merged.itemRender}
+                          fallback={
+                            <>
+                              <Show when={item.icon}>
+                                <Icon
+                                  name={item.icon}
+                                  slotName="itemLeading"
+                                  style={merged.styles?.itemLeading}
                                   class={cn(
                                     'text-muted-foreground shrink-0',
-                                    merged.classes?.itemLabelPrefix,
+                                    merged.classes?.itemLeading,
                                   )}
-                                >
-                                  {item.prefix}
-                                </span>
+                                />
                               </Show>
-                              <span
-                                data-slot="itemLabelBase"
-                                style={merged.styles?.itemLabelBase}
-                                class={cn(merged.classes?.itemLabelBase)}
-                              >
-                                {item.itemLabel}
-                              </span>
-                              <Show when={item.suffix}>
-                                <span
-                                  data-slot="itemLabelSuffix"
-                                  style={merged.styles?.itemLabelSuffix}
-                                  class={cn(
-                                    'text-xs text-muted-foreground shrink-0',
-                                    merged.classes?.itemLabelSuffix,
-                                  )}
-                                >
-                                  {item.suffix}
-                                </span>
-                              </Show>
-                            </span>
-                          </Show>
-                          <Show when={item.description}>
-                            <span
-                              data-slot="itemDescription"
-                              style={merged.styles?.itemDescription}
-                              class={cn(
-                                'text-xs text-muted-foreground truncate',
-                                merged.classes?.itemDescription,
-                              )}
-                            >
-                              {item.description}
-                            </span>
-                          </Show>
-                        </span>
 
-                        <Show
-                          when={hasChildren()}
-                          fallback={
-                            <Kbd
-                              slotPrefix="itemTrailing"
-                              value={item.kbds}
-                              classes={{
-                                root: merged.classes?.itemTrailingKbds,
-                                item: merged.classes?.itemTrailingKbd,
-                              }}
-                            />
+                              <span
+                                data-slot="itemWrapper"
+                                style={merged.styles?.itemWrapper}
+                                class={cn(
+                                  'text-start flex flex-1 flex-col min-w-0',
+                                  merged.classes?.itemWrapper,
+                                )}
+                              >
+                                <span
+                                  data-slot="itemLabel"
+                                  style={merged.styles?.itemLabel}
+                                  class={cn(
+                                    'text-sm truncate items-baseline',
+                                    merged.classes?.itemLabel,
+                                  )}
+                                >
+                                  {item.itemLabel ?? item.label}
+                                </span>
+                                <Show when={descriptionPosition() === 'bottom'}>
+                                  {renderItemDescription(item)}
+                                </Show>
+                              </span>
+
+                              <span
+                                data-slot="itemTrailing"
+                                style={merged.styles?.itemTrailing}
+                                class={cn(
+                                  'flex shrink-0 gap-2 items-center',
+                                  merged.classes?.itemTrailing,
+                                )}
+                              >
+                                <Show when={descriptionPosition() === 'trailing'}>
+                                  {renderItemDescription(item)}
+                                </Show>
+                                <Show
+                                  when={hasChildren()}
+                                  fallback={
+                                    <Kbd
+                                      slotPrefix="itemTrailing"
+                                      value={item.kbds}
+                                      classes={{
+                                        root: merged.classes?.itemTrailingKbds,
+                                        item: merged.classes?.itemTrailingKbd,
+                                      }}
+                                    />
+                                  }
+                                >
+                                  <Icon
+                                    name={merged.childIcon}
+                                    slotName="itemTrailingIcon"
+                                    class="text-muted-foreground shrink-0"
+                                  />
+                                </Show>
+                              </span>
+                            </>
                           }
                         >
-                          <Icon
-                            name={merged.childIcon}
-                            slotName="itemTrailing"
-                            style={merged.styles?.itemTrailing}
-                            class={cn(
-                              'text-muted-foreground shrink-0',
-                              merged.classes?.itemTrailing,
-                            )}
-                          />
+                          {(itemRender) => itemRender()(getItemContext(item))}
                         </Show>
                       </div>
                     )
@@ -717,13 +783,13 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         </div>
       </Show>
 
-      <Show when={merged.footer}>
+      <Show when={merged.footerRender}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
           class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
         >
-          {merged.footer}
+          {merged.footerRender?.(getContext())}
         </div>
       </Show>
     </div>

@@ -53,18 +53,6 @@
       "description": "Primary text for a command item."
     },
     {
-      "name": "itemLabelBase",
-      "description": "Base text region for an item label before prefix or suffix decoration."
-    },
-    {
-      "name": "itemLabelPrefix",
-      "description": "Prefix text rendered before the main item label."
-    },
-    {
-      "name": "itemLabelSuffix",
-      "description": "Suffix text rendered after the main item label."
-    },
-    {
       "name": "itemDescription",
       "description": "Supporting text for a command item."
     },
@@ -168,17 +156,36 @@
         "defaultValue": "icon-close"
       },
       {
-        "name": "empty",
+        "name": "emptyRender",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Elements to show when no items match the search.",
-        "defaultValue": "No results."
+        "type": "((ctx: CommandPaletteT.Context) => JSX.Element) | undefined",
+        "description": "Custom empty state renderer."
       },
       {
-        "name": "footer",
+        "name": "footerRender",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render at bottom of the palette."
+        "type": "((ctx: CommandPaletteT.Context) => JSX.Element) | undefined",
+        "description": "Custom footer renderer."
+      },
+      {
+        "name": "ignoreSearch",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Disable built-in search filtering and render all provided items.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "itemDescriptionPosition",
+        "required": false,
+        "type": "\"bottom\" | \"trailing\" | undefined",
+        "description": "Where descriptions render by default.",
+        "defaultValue": "bottom"
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((ctx: CommandPaletteT.ItemContext) => JSX.Element) | undefined",
+        "description": "Custom command row content renderer."
       },
       {
         "name": "items",
@@ -426,24 +433,6 @@
         "ariaAttributes": []
       },
       {
-        "name": "itemLabelBase",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabelPrefix",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabelSuffix",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "itemLeading",
         "cssVariables": [],
         "dataAttributes": [],
@@ -451,6 +440,12 @@
       },
       {
         "name": "itemTrailing",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemTrailingIcon",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

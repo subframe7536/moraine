@@ -33,7 +33,7 @@ export function Usage() {
           value: 'go-settings',
           label: 'Settings',
           icon: 'i-lucide-settings',
-          suffix: 'Preferences',
+          description: 'Preferences',
         },
         { value: 'go-billing', label: 'Billing', icon: 'i-lucide-credit-card', disabled: true },
       ],
@@ -62,7 +62,7 @@ export function Usage() {
           items={BASIC_GROUPS}
           close
           onClose={() => setPaletteOpen(false)}
-          footer={
+          footerRender={() => (
             <div class="flex gap-4 items-center justify-between">
               <div class="flex flex-wrap gap-3 items-center">
                 <div class="flex gap-2 items-center">
@@ -79,7 +79,7 @@ export function Usage() {
                 <span>Close</span>
               </div>
             </div>
-          }
+          )}
         />
       }
       classes={{ content: 'top-1/4 translate-y-0 w-lg max-w-[calc(100vw-2rem)]' }}
