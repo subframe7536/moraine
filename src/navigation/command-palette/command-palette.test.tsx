@@ -6,11 +6,11 @@ import { Dialog } from '../../overlays/dialog'
 import { CommandPalette } from './command-palette'
 import type { CommandPaletteT } from './command-palette'
 
-const GROUPS = [
+const GROUPS: CommandPaletteT.Group[] = [
   {
     id: 'actions',
     label: 'Actions',
-    children: [
+    items: [
       { value: 'new-file', label: 'New File', icon: 'i-lucide-file-plus', kbds: ['⌘', 'N'] },
       { value: 'open-folder', label: 'Open Folder', icon: 'i-lucide-folder-open' },
       { value: 'disabled-action', label: 'Disabled Action', disabled: true },
@@ -19,7 +19,7 @@ const GROUPS = [
   {
     id: 'navigation',
     label: 'Navigation',
-    children: [
+    items: [
       { value: 'go-dashboard', label: 'Go to Dashboard' },
       { value: 'go-settings', label: 'Go to Settings' },
     ],
@@ -142,7 +142,7 @@ describe('CommandPalette', () => {
 
     const screen = render(() => (
       <CommandPalette
-        groups={[{ id: 'g', children: [{ value: 'action', label: 'Action', onSelect }] }]}
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', onSelect }] }]}
       />
     ))
 
@@ -168,7 +168,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               {
                 value: 'parent',
                 label: 'Parent',
@@ -211,7 +211,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               {
                 value: 'more',
                 label: 'More',
@@ -239,7 +239,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               {
                 value: 'parent',
                 label: 'Parent',
@@ -275,7 +275,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               {
                 value: 'parent',
                 label: 'Parent',
@@ -432,7 +432,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               {
                 value: 'parent',
                 label: 'Parent',
@@ -476,7 +476,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               { value: 'dup', label: 'First' },
               { value: 'dup', label: 'Second' },
             ],
@@ -513,9 +513,7 @@ describe('CommandPalette', () => {
   test('supports custom itemRender with runtime item context', async () => {
     const screen = render(() => (
       <CommandPalette
-        groups={[
-          { id: 'g', children: [{ value: 'action', label: 'Action', description: 'Run it' }] },
-        ]}
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', description: 'Run it' }] }]}
         itemRender={(ctx) => (
           <span data-testid="custom-item">
             {ctx.item.label}:{ctx.item.description}:{ctx.focused ? 'focused' : 'idle'}
@@ -539,7 +537,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [{ value: 'action', label: 'Action', route: '/docs/action' }],
+            items: [{ value: 'action', label: 'Action', route: '/docs/action' }],
           },
         ]}
         itemRender={(ctx) => (
@@ -563,7 +561,7 @@ describe('CommandPalette', () => {
         groups={[
           {
             id: 'g',
-            children: [
+            items: [
               { value: 'always', label: 'Always', description: 'Visible', alwaysShow: true },
               {
                 value: 'bottom',

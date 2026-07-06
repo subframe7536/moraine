@@ -6,7 +6,7 @@ export function SubNavigation() {
     {
       id: 'main',
       label: 'Commands',
-      children: [
+      items: [
         {
           value: 'create',
           label: 'Create',

@@ -6,7 +6,7 @@ export function Basic() {
     {
       id: 'workspace',
       label: 'Workspace',
-      children: [
+      items: [
         { value: 'new-issue', label: 'New Issue', icon: 'i-lucide-circle-plus', kbds: ['⌘', 'N'] },
         {
           value: 'open-inbox',
@@ -25,7 +25,7 @@ export function Basic() {
     {
       id: 'navigation',
       label: 'Navigation',
-      children: [
+      items: [
         { value: 'go-dashboard', label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
         { value: 'go-projects', label: 'Projects', icon: 'i-lucide-folder-kanban' },
         {

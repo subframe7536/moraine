@@ -115,7 +115,7 @@ export namespace CommandPaletteT {
     /** Display name for the group header. */
     label?: string
     /** Items belonging to this group. */
-    children?: TItem[]
+    items?: TItem[]
   }
 
   export interface Icons {
@@ -131,7 +131,7 @@ export namespace CommandPaletteT {
     close?: IconT.Name
   }
 
-  export interface Context<TItem extends Item = Item> {
+  export interface BaseContext<TItem extends Item = Item> {
     searchTerm: string
     loading: boolean
     hasItems: boolean
@@ -140,7 +140,7 @@ export namespace CommandPaletteT {
     visibleGroups: Group<TItem>[]
   }
 
-  export interface ItemRenderContext<TItem extends Item = Item> extends Context<TItem> {
+  export interface ItemRenderContext<TItem extends Item = Item> extends BaseContext<TItem> {
     item: TItem
     group: Group<TItem>
     selected: boolean
@@ -166,7 +166,7 @@ export namespace CommandPaletteT {
     /** Callback triggered when the search term changes. */
     onSearchTermChange?: (term: string) => void
     /** Maximum allowed length for the search text. */
-    maxLength?: number
+    searchMaxLength?: number
     /**
      * Whether to focus the search input automatically on mount.
      * @default true
@@ -197,9 +197,9 @@ export namespace CommandPaletteT {
      */
     descriptionPosition?: DescriptionPosition
     /** Custom empty state renderer. */
-    emptyRender?: (ctx: Context<TItem>) => JSX.Element
+    emptyRender?: (ctx: BaseContext<TItem>) => JSX.Element
     /** Custom footer renderer. */
-    footerRender?: (ctx: Context<TItem>) => JSX.Element
+    footerRender?: (ctx: BaseContext<TItem>) => JSX.Element
     /** Custom command row content renderer. */
     itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
   }
@@ -267,7 +267,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   return groups.map((group) => ({
     source: group,
     label: group.label ?? '',
-    items: (group.children ?? []).map((item, index) => {
+    items: (group.items ?? []).map((item, index) => {
       if (seenValues.has(item.value)) {
         warnDuplicateValue(item.value)
       }
@@ -407,7 +407,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         {
           id: `history-${item.key}`,
           label: item.item.label,
-          children: item.item.children as TItem[],
+          items: item.item.children as TItem[],
         },
       ])
       applySearchValue('')
@@ -477,7 +477,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function getContext(): CommandPaletteT.Context<TItem> {
+  function getContext(): CommandPaletteT.BaseContext<TItem> {
     return {
       get searchTerm() {
         return currentSearchTerm()
@@ -600,7 +600,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           )}
           placeholder={merged.placeholder}
           autofocus={merged.autofocus}
-          maxLength={merged.maxLength}
+          maxLength={merged.searchMaxLength}
           value={currentSearchTerm()}
           onInput={(event) => applySearchValue(event.currentTarget.value)}
           onKeyDown={handleKeyDown}

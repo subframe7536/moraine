@@ -41,13 +41,13 @@ function buildItems(
 
   const items: CommandPaletteT.Group[] = []
   if (ungrouped.length > 0) {
-    items.push({ id: 'ungrouped', children: ungrouped })
+    items.push({ id: 'ungrouped', items: ungrouped })
   }
   for (const [group, children] of grouped.entries()) {
     items.push({
       id: `group-${group}`,
       label: group.charAt(0).toUpperCase() + group.slice(1),
-      children,
+      items: children,
     })
   }
   return items

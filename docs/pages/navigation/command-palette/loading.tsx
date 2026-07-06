@@ -6,7 +6,7 @@ export function Loading() {
     {
       id: 'workspace',
       label: 'Workspace',
-      children: [
+      items: [
         { value: 'new-issue', label: 'New Issue', icon: 'i-lucide-circle-plus', kbds: ['⌘', 'N'] },
         {
           value: 'open-inbox',
