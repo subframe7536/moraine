@@ -9,9 +9,22 @@ export function Position() {
       id: 'actions',
       label: 'Actions',
       items: [
-        { value: 'new-file', label: 'New File', icon: 'i-lucide-file-plus', kbds: ['⌘', 'N'] },
-        { value: 'new-folder', label: 'New Folder', icon: 'i-lucide-folder-plus' },
-        { value: 'settings', label: 'Settings', icon: 'i-lucide-settings' },
+        {
+          value: 'new-file',
+          label: 'New File',
+          leadingRender: () => <span class="i-lucide-file-plus" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+        },
+        {
+          value: 'new-folder',
+          label: 'New Folder',
+          leadingRender: () => <span class="i-lucide-folder-plus" />,
+        },
+        {
+          value: 'settings',
+          label: 'Settings',
+          leadingRender: () => <span class="i-lucide-settings" />,
+        },
       ],
     },
   ]

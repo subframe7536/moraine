@@ -11,10 +11,8 @@ import {
   onMount,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
-import { Kbd } from '../../elements/kbd'
 import { Modal } from '../../overlays/base/modal'
 import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
@@ -61,7 +59,7 @@ export namespace CommandPaletteT {
     /** Command row that can be highlighted, selected, or disabled. */
     item?: T
 
-    /** Leading icon or visual for a command row. */
+    /** Leading region for a command row. */
     itemLeading?: T
 
     /** Text column that groups command label and description. */
@@ -75,12 +73,6 @@ export namespace CommandPaletteT {
 
     /** Trailing region for shortcuts or custom item metadata. */
     itemTrailing?: T
-
-    /** Container for keyboard shortcut hints at the end of a command row. */
-    itemTrailingKbds?: T
-
-    /** Individual keyboard key hint in a command row. */
-    itemTrailingKbd?: T
 
     /** Search icon or loading indicator displayed in the input row. */
     search?: T
@@ -113,10 +105,10 @@ export namespace CommandPaletteT {
     description?: string
     /** Where the item description is rendered. Overrides the root setting. */
     descriptionPosition?: DescriptionPosition
-    /** UnoCSS icon class or name to display. */
-    icon?: string
-    /** Array of keyboard shortcuts to display. */
-    kbds?: string[]
+    /** Custom visual rendered at the start of the item. */
+    leadingRender?: (ctx: ItemRenderContext) => JSX.Element
+    /** Custom visual rendered at the end of the item. */
+    trailingRender?: (ctx: ItemRenderContext) => JSX.Element
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
@@ -137,6 +129,7 @@ export namespace CommandPaletteT {
     item: TItem
     group: Group<TItem>
     focused: boolean
+    selected: boolean
     disabled: boolean
   }
 
@@ -517,6 +510,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       get focused() {
         return activeKey() === item.key
       },
+      get selected() {
+        return false
+      },
       get disabled() {
         return item.disabled
       },
@@ -705,16 +701,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                               when={merged.itemRender}
                               fallback={
                                 <>
-                                  <Show when={item.item.icon}>
-                                    <Icon
-                                      name={item.item.icon}
-                                      slotName="itemLeading"
-                                      style={merged.styles?.itemLeading}
-                                      class={cn(
-                                        'text-muted-foreground shrink-0',
-                                        merged.classes?.itemLeading,
-                                      )}
-                                    />
+                                  <Show when={item.item.leadingRender}>
+                                    {(leadingRender) => (
+                                      <span
+                                        data-slot="itemLeading"
+                                        style={merged.styles?.itemLeading}
+                                        class={cn(
+                                          'text-muted-foreground shrink-0',
+                                          merged.classes?.itemLeading,
+                                        )}
+                                      >
+                                        {leadingRender()(getItemContext(item))}
+                                      </span>
+                                    )}
                                   </Show>
 
                                   <span
@@ -722,6 +721,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                                     style={merged.styles?.itemWrapper}
                                     class={cn(
                                       'text-start flex flex-1 flex-col min-w-0',
+                                      descriptionPosition() === 'trailing' &&
+                                        'flex-row gap-2 items-baseline',
                                       merged.classes?.itemWrapper,
                                     )}
                                   >
@@ -729,37 +730,35 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                                       data-slot="itemLabel"
                                       style={merged.styles?.itemLabel}
                                       class={cn(
-                                        'text-sm truncate items-baseline',
+                                        'text-sm min-w-0 truncate items-baseline',
+                                        descriptionPosition() === 'trailing' && 'flex flex-1 gap-2',
                                         merged.classes?.itemLabel,
                                       )}
                                     >
-                                      {item.item.label ?? item.label}
+                                      <span class="truncate">{item.item.label ?? item.label}</span>
+                                      <Show when={descriptionPosition() === 'trailing'}>
+                                        {renderItemDescription(item)}
+                                      </Show>
                                     </span>
                                     <Show when={descriptionPosition() === 'bottom'}>
                                       {renderItemDescription(item)}
                                     </Show>
                                   </span>
 
-                                  <span
-                                    data-slot="itemTrailing"
-                                    style={merged.styles?.itemTrailing}
-                                    class={cn(
-                                      'flex shrink-0 gap-2 items-center',
-                                      merged.classes?.itemTrailing,
+                                  <Show when={item.item.trailingRender}>
+                                    {(trailingRender) => (
+                                      <span
+                                        data-slot="itemTrailing"
+                                        style={merged.styles?.itemTrailing}
+                                        class={cn(
+                                          'flex shrink-0 gap-2 items-center',
+                                          merged.classes?.itemTrailing,
+                                        )}
+                                      >
+                                        {trailingRender()(getItemContext(item))}
+                                      </span>
                                     )}
-                                  >
-                                    <Show when={descriptionPosition() === 'trailing'}>
-                                      {renderItemDescription(item)}
-                                    </Show>
-                                    <Kbd
-                                      slotPrefix="itemTrailing"
-                                      value={item.item.kbds}
-                                      classes={{
-                                        root: merged.classes?.itemTrailingKbds,
-                                        item: merged.classes?.itemTrailingKbd,
-                                      }}
-                                    />
-                                  </span>
+                                  </Show>
                                 </>
                               }
                             >
