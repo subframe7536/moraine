@@ -24,9 +24,12 @@
   - [x] add `disableFilter` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `groups` prop
   - [x] drop nest item support
   - [x] flatten icon props
-  - [ ] breaking change: wrap with modal, forward modal props, add `closeOnSelect` prop to control whether to close modal when item is selected.
-  - [ ] make position controllable via `position?: { top?: number; left?: number }` prop and add `onPositionChange?: (position: { top: number; left: number }) => void` prop to notify user when position changed. `CommandPalette` component should forward `position` and `onPositionChange` prop to modal.
-  - [ ] remove `active` prop from item
+  - [x] breaking change: wrap with modal, forward modal props, add `closeOnSelect` prop to control whether to close modal when item is selected.
+  - [x] make position controllable via `position?: { top?: number; left?: number }` prop and add `onPositionChange?: (position: { top: number; left: number }) => void` prop to notify user when position changed. `CommandPalette` component should forward `position` and `onPositionChange` prop to modal.
+  - [x] remove `active` prop from item
+  - [ ] when `descriptionPosition` prop is set to `trailing`, the description should be rendered at the end of item inside `itemLabel` slot and near to it, instead of the end of the whole item, and the description should be truncated if it exceeds the available space.
+  - [ ] remove `kbds` prop from item, make it customizable via new `item.trailing?: IconT.Name` slot, which will be rendered at the end of item, and can be used to render kbd, badge, icon etc. rename `item.icon` to `item.leading?: IconT.Name`, which will be rendered at the start of item, and can be used to render icon, avatar etc.
+  - [ ] refresh doc, make example more real-world, and add more examples to show how to customize item render via `itemRender` prop, and how to customize item label and description position via `descriptionPosition` prop.
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
 - [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible

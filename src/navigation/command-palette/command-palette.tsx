@@ -141,8 +141,8 @@ export namespace CommandPaletteT {
   }
 
   export interface Position {
-    top?: number
-    left?: number
+    top: number
+    left: number
   }
 
   export interface Base<TItem extends Item = Item> extends Pick<
@@ -219,9 +219,9 @@ export namespace CommandPaletteT {
      */
     closeOnSelect?: boolean
     /** Fixed content position in pixels. Missing axes keep the default centered placement. */
-    position?: Position
+    position?: Partial<Position>
     /** Callback triggered when the modal content position changes. */
-    onPositionChange?: (position: Required<Position>) => void
+    onPositionChange?: (position: Position) => void
     /** Optional trigger element that opens the command palette. */
     children?: JSX.Element
   }
