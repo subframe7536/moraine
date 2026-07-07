@@ -182,11 +182,9 @@ describe('CommandPalette', () => {
     const screen = render(() => (
       <CommandPalette
         showClose
-        icons={{
-          search: 'icon-hash',
-          loading: 'icon-reload',
-          close: 'icon-minus',
-        }}
+        leadingIcon="icon-hash"
+        loadingIcon="icon-reload"
+        closeIcon="icon-minus"
         groups={GROUPS}
       />
     ))

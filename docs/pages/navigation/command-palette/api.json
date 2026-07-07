@@ -166,6 +166,13 @@
         "type": "CommandPaletteT.Classes | undefined"
       },
       {
+        "name": "closeIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the palette close button.",
+        "defaultValue": "icon-close"
+      },
+      {
         "name": "descriptionPosition",
         "required": false,
         "type": "CommandPaletteT.DescriptionPosition | undefined",
@@ -199,16 +206,17 @@
         "defaultValue": "[]"
       },
       {
-        "name": "icons",
-        "required": false,
-        "type": "CommandPaletteT.Icons | undefined",
-        "description": "Icons used by the command palette."
-      },
-      {
         "name": "itemRender",
         "required": false,
         "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom command row content renderer."
+      },
+      {
+        "name": "leadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name of input's leading icon.",
+        "defaultValue": "icon-search"
       },
       {
         "name": "loading",
@@ -216,6 +224,13 @@
         "type": "boolean | undefined",
         "description": "Whether the palette is in a loading state.",
         "defaultValue": "false"
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name of input's leading icon for the loading state.",
+        "defaultValue": "icon-loading"
       },
       {
         "name": "onClose",

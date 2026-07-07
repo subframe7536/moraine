@@ -90,15 +90,6 @@ export namespace CommandPaletteT {
     items?: TItem[]
   }
 
-  export interface Icons {
-    /** Icon name for the search indicator. */
-    search?: IconT.Name
-    /** Icon name for the loading state. */
-    loading?: IconT.Name
-    /** Icon name for the palette close button. */
-    close?: IconT.Name
-  }
-
   export interface Item {
     /** Unique value for the item. */
     value: string
@@ -160,8 +151,21 @@ export namespace CommandPaletteT {
      * @default true
      */
     autofocus?: boolean
-    /** Icons used by the command palette. */
-    icons?: Icons
+    /**
+     * Icon name of input's leading icon.
+     * @default 'icon-search'
+     */
+    leadingIcon?: IconT.Name
+    /**
+     * Icon name of input's leading icon for the loading state.
+     * @default 'icon-loading'
+     */
+    loadingIcon?: IconT.Name
+    /**
+     * Icon name for the palette close button.
+     * @default 'icon-close'
+     */
+    closeIcon?: IconT.Name
     /**
      * Whether to show a close button in the header.
      * @default false
@@ -199,11 +203,9 @@ export interface CommandPaletteProps<
   TItem extends CommandPaletteT.Item = CommandPaletteT.Item,
 > extends CommandPaletteT.Props<TItem> {}
 
-const DEFAULT_ICONS = {
-  search: 'icon-search',
-  loading: 'icon-loading',
-  close: 'icon-close',
-} satisfies Required<CommandPaletteT.Icons>
+const DEFAULT_SEARCH_ICON: IconT.Name = 'icon-search'
+const DEFAULT_LOADING_ICON: IconT.Name = 'icon-loading'
+const DEFAULT_CLOSE_ICON: IconT.Name = 'icon-close'
 
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
@@ -287,10 +289,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       autofocus: true,
       showClose: false,
       descriptionPosition: 'bottom' as const,
+      searchIcon: DEFAULT_SEARCH_ICON,
+      loadingIcon: DEFAULT_LOADING_ICON,
+      closeIcon: DEFAULT_CLOSE_ICON,
     },
     props,
   )
-  const icons = createMemo(() => Object.assign({}, DEFAULT_ICONS, merged.icons))
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
@@ -502,7 +506,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
       >
         <IconButtonInner
-          name={merged.loading ? icons().loading : icons().search}
+          name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           data-slot="search"
           tabIndex={-1}
           style={merged.styles?.search}
@@ -532,7 +536,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
         <Show when={merged.showClose}>
           <IconButtonInner
-            name={icons().close}
+            name={merged.closeIcon}
             data-slot="close"
             style={merged.styles?.close}
             class={cn(
