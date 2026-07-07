@@ -1,7 +1,9 @@
-import { CommandPalette } from '@src'
+import { Button, CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
+import { createSignal } from 'solid-js'
 
 export function Loading() {
+  const [open, setOpen] = createSignal(false)
   const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
@@ -26,7 +28,9 @@ export function Loading() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette groups={BASIC_GROUPS} loading />
+      <CommandPalette open={open()} onOpenChange={setOpen} groups={BASIC_GROUPS} loading>
+        <Button variant="outline">Open palette</Button>
+      </CommandPalette>
     </div>
   )
 }

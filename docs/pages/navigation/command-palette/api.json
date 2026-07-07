@@ -9,6 +9,18 @@
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element users activate to open the command palette dialog."
+    },
+    {
+      "name": "overlay",
+      "description": "Backdrop layer rendered behind the command palette dialog."
+    },
+    {
+      "name": "content",
+      "description": "Modal content element that positions the command palette panel."
+    },
+    {
       "name": "root",
       "description": "Command palette container that owns search and option list."
     },
@@ -84,12 +96,6 @@
   "item": {
     "props": [
       {
-        "name": "active",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to force the item into an active (highlighted) state."
-      },
-      {
         "name": "alwaysShow",
         "required": false,
         "type": "boolean | undefined",
@@ -155,6 +161,12 @@
         "defaultValue": "true"
       },
       {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Optional trigger element that opens the command palette."
+      },
+      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -173,6 +185,19 @@
         "defaultValue": "icon-close"
       },
       {
+        "name": "closeOnSelect",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to close the command palette when an enabled item is selected.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
+      },
+      {
         "name": "descriptionPosition",
         "required": false,
         "type": "CommandPaletteT.DescriptionPosition | undefined",
@@ -185,6 +210,12 @@
         "type": "boolean | undefined",
         "description": "Disable built-in search filtering and render all provided items.",
         "defaultValue": "false"
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
       },
       {
         "name": "emptyRender",
@@ -204,6 +235,12 @@
         "type": "CommandPaletteT.Group<TItem>[] | undefined",
         "description": "Command groups to display initially.",
         "defaultValue": "[]"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
       },
       {
         "name": "itemRender",
@@ -239,10 +276,40 @@
         "description": "Callback triggered when the close button is clicked."
       },
       {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "onPositionChange",
+        "required": false,
+        "type": "((position: Required<CommandPaletteT.Position>) => void) | undefined",
+        "description": "Callback triggered when the modal content position changes."
+      },
+      {
         "name": "onSearchTermChange",
         "required": false,
         "type": "((term: string) => void) | undefined",
         "description": "Callback triggered when the search term changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "overlay",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render the overlay element."
       },
       {
         "name": "placeholder",
@@ -250,6 +317,12 @@
         "type": "string | undefined",
         "description": "Placeholder text for the search input.",
         "defaultValue": "Search..."
+      },
+      {
+        "name": "position",
+        "required": false,
+        "type": "CommandPaletteT.Position | undefined",
+        "description": "Fixed content position in pixels. Missing axes keep the default centered placement."
       },
       {
         "name": "searchMaxLength",
@@ -292,6 +365,12 @@
         "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
+        "name": "aria-describedby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References descriptive text associated with the control."
+      },
+      {
         "name": "aria-disabled",
         "required": false,
         "type": "boolean | string | undefined",
@@ -308,6 +387,18 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-modal",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Identifies modal content that traps interaction outside the dialog."
       },
       {
         "name": "role",
@@ -353,6 +444,37 @@
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "content",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "aria-modal",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Identifies modal content that traps interaction outside the dialog."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
       },
@@ -468,6 +590,12 @@
         ]
       },
       {
+        "name": "overlay",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
@@ -492,6 +620,12 @@
             "description": "Accessibility attribute forwarded by the rendered component."
           }
         ]
+      },
+      {
+        "name": "trigger",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
       }
     ]
   }

@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
-import { CommandPalette, Dialog, Kbd, cn } from '../../src'
+import { CommandPalette, Kbd, cn } from '../../src'
 import type { CommandPaletteT } from '../../src'
 
 import type { SidebarPage } from './sidebar'
@@ -116,7 +116,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
   })
 
   return (
-    <Dialog
+    <CommandPalette
       open={props.open()}
       onOpenChange={(next) => {
         props.setOpen(next)
@@ -124,28 +124,17 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
           setSearchTerm('')
         }
       }}
-      close={false}
+      groups={items()}
+      placeholder="Search components, hooks, and pages..."
+      searchTerm={searchTerm()}
+      onSearchTermChange={setSearchTerm}
+      emptyRender={() => 'No matching pages.'}
       classes={{
         content: 'p-0 overflow-hidden',
-        header: 'hidden',
-        body: 'p-0',
+        root: 'rounded-xl',
+        inputWrapper: 'b-(b border) h-12',
+        listbox: 'max-h-[min(60vh,30rem)] py-2',
       }}
-      body={
-        <CommandPalette
-          groups={items()}
-          placeholder="Search components, hooks, and pages..."
-          searchTerm={searchTerm()}
-          onSearchTermChange={setSearchTerm}
-          emptyRender={() => 'No matching pages.'}
-          classes={{
-            root: 'rounded-xl',
-            inputWrapper: 'b-(b border) h-12',
-            listbox: 'max-h-[min(60vh,30rem)] py-2',
-          }}
-        />
-      }
-    >
-      <span class="hidden" aria-hidden="true" />
-    </Dialog>
+    />
   )
 }

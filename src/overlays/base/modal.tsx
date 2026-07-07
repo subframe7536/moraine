@@ -22,6 +22,8 @@ export interface ModalContentContext {
 export interface ModalProps {
   /** Unique identifier used to derive the content id. */
   id?: string
+  /** Ref callback for the modal content element. */
+  ref?: (element: HTMLDivElement | undefined) => void
   /** Controlled open state. */
   open?: boolean
   /** Initial open state when uncontrolled. */
@@ -239,6 +241,7 @@ export function Modal(props: ModalProps): JSX.Element {
           ref={(element) => {
             setContentElement(element)
             contentPresence.setElement(element)
+            props.ref?.(element)
           }}
           id={contentId()}
           role="dialog"

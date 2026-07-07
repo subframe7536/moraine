@@ -50,6 +50,7 @@ export function SubNavigation() {
       ],
     },
   ]
+  const [open, setOpen] = createSignal(false)
   const [view, setView] = createSignal<'root' | 'create' | 'share'>('root')
 
   const groups = createMemo(() => {
@@ -93,7 +94,9 @@ export function SubNavigation() {
           Back
         </Button>
       </div>
-      <CommandPalette groups={groups()} />
+      <CommandPalette open={open()} onOpenChange={setOpen} closeOnSelect={false} groups={groups()}>
+        <Button variant="outline">Open palette</Button>
+      </CommandPalette>
     </div>
   )
 }

@@ -3,11 +3,11 @@ header: true
 ---
 
 import { DemoCommandPaletteUsage } from './usage?example'
-import { DemoCommandPaletteBasic } from './basic?example'
 import { DemoCommandPaletteCustomEmptyState } from './custom-empty-state?example'
 import { DemoCommandPaletteLoading } from './loading?example'
 import { DemoCommandPaletteWithCloseButton } from './with-close-button?example'
 import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
+import { DemoCommandPalettePosition } from './position?example'
 
 ## Import
 
@@ -17,7 +17,7 @@ import { CommandPalette } from 'moraine'
 
 ## Slot Structure
 
-Search input and results list with grouped items and optional footer.
+Command palette wraps a Modal dialog with a search input, a scrollable listbox of grouped items, and an optional footer.
 
 ### Input area
 
@@ -48,17 +48,11 @@ root
 
 ## Examples
 
-### Usage
-
-Click the button or press ⌘K to open the command palette.
-
-<DemoCommandPaletteUsage />
-
 ### Basic
 
-Groups of items with icons, kbds, and descriptions.
+Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
 
-<DemoCommandPaletteBasic />
+<DemoCommandPaletteUsage />
 
 ### Custom Empty State
 
@@ -83,3 +77,9 @@ A close button in the input trailing slot.
 Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper.
 
 <DemoCommandPaletteSubNavigation />
+
+### Position
+
+Fix the palette at a specific pixel offset and track its actual rendered position via `onPositionChange`.
+
+<DemoCommandPalettePosition />

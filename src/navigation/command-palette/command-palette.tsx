@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
 } from 'solid-js'
@@ -14,13 +15,26 @@ import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import { Kbd } from '../../elements/kbd'
+import { Modal } from '../../overlays/base/modal'
+import type { ModalProps } from '../../overlays/base/modal'
+import { popupOverlayVariants } from '../../overlays/popup/popup.class'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
+import { useEventListener } from '../../utils'
 
 export namespace CommandPaletteT {
   export type DescriptionPosition = 'bottom' | 'trailing'
 
   export interface Slot<T = unknown> {
+    /** Element users activate to open the command palette dialog. */
+    trigger?: T
+
+    /** Backdrop layer rendered behind the command palette dialog. */
+    overlay?: T
+
+    /** Modal content element that positions the command palette panel. */
+    content?: T
+
     /**
      * Command palette container that owns search and option list.
      */
@@ -103,8 +117,6 @@ export namespace CommandPaletteT {
     icon?: string
     /** Array of keyboard shortcuts to display. */
     kbds?: string[]
-    /** Whether to force the item into an active (highlighted) state. */
-    active?: boolean
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
@@ -124,12 +136,19 @@ export namespace CommandPaletteT {
   export interface ItemRenderContext<TItem extends Item = Item> extends BaseContext<TItem> {
     item: TItem
     group: Group<TItem>
-    selected: boolean
     focused: boolean
     disabled: boolean
   }
 
-  export interface Base<TItem extends Item = Item> {
+  export interface Position {
+    top?: number
+    left?: number
+  }
+
+  export interface Base<TItem extends Item = Item> extends Pick<
+    ModalProps,
+    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
+  > {
     /**
      * Command groups to display initially.
      * @default []
@@ -194,6 +213,17 @@ export namespace CommandPaletteT {
     footerRender?: (ctx: BaseContext<TItem>) => JSX.Element
     /** Custom command row content renderer. */
     itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
+    /**
+     * Whether to close the command palette when an enabled item is selected.
+     * @default true
+     */
+    closeOnSelect?: boolean
+    /** Fixed content position in pixels. Missing axes keep the default centered placement. */
+    position?: Position
+    /** Callback triggered when the modal content position changes. */
+    onPositionChange?: (position: Required<Position>) => void
+    /** Optional trigger element that opens the command palette. */
+    children?: JSX.Element
   }
 
   export interface Props<TItem extends Item = Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
@@ -203,10 +233,6 @@ export interface CommandPaletteProps<
   TItem extends CommandPaletteT.Item = CommandPaletteT.Item,
 > extends CommandPaletteT.Props<TItem> {}
 
-const DEFAULT_SEARCH_ICON: IconT.Name = 'icon-search'
-const DEFAULT_LOADING_ICON: IconT.Name = 'icon-loading'
-const DEFAULT_CLOSE_ICON: IconT.Name = 'icon-close'
-
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string
@@ -214,7 +240,6 @@ interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.It
   disabled: boolean
   item: TItem
   group: CommandPaletteT.Group<TItem>
-  active: boolean
   alwaysShow: boolean
 }
 
@@ -270,7 +295,6 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
         disabled: Boolean(item.disabled),
         item,
         group,
-        active: Boolean(item.active),
         alwaysShow: Boolean(item.alwaysShow),
       }
     }),
@@ -288,19 +312,23 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       placeholder: 'Search...',
       autofocus: true,
       showClose: false,
+      overlay: true,
+      dismissible: true,
+      closeOnSelect: true,
       descriptionPosition: 'bottom' as const,
-      searchIcon: DEFAULT_SEARCH_ICON,
-      loadingIcon: DEFAULT_LOADING_ICON,
-      closeIcon: DEFAULT_CLOSE_ICON,
+      leadingIcon: 'icon-search',
+      loadingIcon: 'icon-loading',
+      closeIcon: 'icon-close',
     },
     props,
   )
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
+  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
   const warnedDuplicateValues = new Set<string>()
-  let inputRef: HTMLInputElement | undefined
 
   const warnDuplicateValue = (value: string): void => {
     if (process.env.NODE_ENV === 'production' || warnedDuplicateValues.has(value)) {
@@ -321,14 +349,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     merged.onSearchTermChange?.(value)
   }
 
-  onMount(() => {
+  createEffect(() => {
+    const input = inputElement()
     let dialogAutofocusTimer: ReturnType<typeof setTimeout> | undefined
-    if (!merged.autofocus || !inputRef || !inputRef.closest('[role="dialog"]')) {
+    if (!merged.autofocus || !input || !input.closest('[role="dialog"]')) {
       return
     }
 
     dialogAutofocusTimer = setTimeout(() => {
-      inputRef?.focus()
+      input.focus()
     }, 0)
 
     onCleanup(() => {
@@ -339,8 +368,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   createEffect(() => {
-    if (merged.searchTerm !== undefined && inputRef && inputRef.value !== merged.searchTerm) {
-      inputRef.value = merged.searchTerm
+    const input = inputElement()
+    if (merged.searchTerm !== undefined && input && input.value !== merged.searchTerm) {
+      input.value = merged.searchTerm
     }
   })
 
@@ -375,12 +405,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     setActiveKey(items[0]?.key)
   })
 
-  function activateItem(item: NormalizedItem<TItem>): void {
+  function activateItem(item: NormalizedItem<TItem>, close: () => void): void {
     if (item.disabled) {
       return
     }
 
     item.item.onSelect?.()
+    if (merged.closeOnSelect) {
+      close()
+    }
   }
 
   function focusByOffset(delta: number): void {
@@ -399,7 +432,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     setActiveKey(items[nextIndex]?.key)
   }
 
-  function handleKeyDown(event: KeyboardEvent): void {
+  function handleKeyDown(event: KeyboardEvent, close: () => void): void {
     if (event.key === 'ArrowDown') {
       event.preventDefault()
       focusByOffset(1)
@@ -429,10 +462,27 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       const highlighted = visibleItems().find((item) => item.key === activeKey())
       if (highlighted) {
         event.preventDefault()
-        activateItem(highlighted)
+        activateItem(highlighted, close)
       }
     }
   }
+
+  const emit = () => {
+    const rect = contentElement()?.getBoundingClientRect()
+    if (rect && merged.onPositionChange) {
+      merged.onPositionChange({ top: rect.top, left: rect.left })
+    }
+  }
+
+  createEffect(
+    on([() => merged.position?.top, () => merged.position?.left], () => {
+      queueMicrotask(emit)
+    }),
+  )
+
+  onMount(() => {
+    useEventListener(window, 'resize', emit)
+  })
 
   function getContext(): CommandPaletteT.BaseContext<TItem> {
     return {
@@ -464,9 +514,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       ...getContext(),
       item: item.item,
       group: item.group,
-      get selected() {
-        return item.active
-      },
       get focused() {
         return activeKey() === item.key
       },
@@ -491,213 +538,254 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   return (
-    <div
-      data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(
-        'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
-        merged.classes?.root,
-        merged.class,
-      )}
-    >
-      <div
-        data-slot="inputWrapper"
-        style={merged.styles?.inputWrapper}
-        class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
-      >
-        <IconButtonInner
-          name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
-          data-slot="search"
-          tabIndex={-1}
-          style={merged.styles?.search}
-          aria-busy={merged.loading || undefined}
-          data-loading={merged.loading ? '' : undefined}
-          disabled={merged.loading || undefined}
-          class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
-        />
-
-        <input
-          ref={(el) => {
-            inputRef = el
-          }}
-          data-slot="input"
-          style={merged.styles?.input}
+    <Modal
+      id={merged.id}
+      open={merged.open}
+      defaultOpen={merged.defaultOpen}
+      onOpenChange={merged.onOpenChange}
+      overlay={merged.overlay}
+      dismissible={merged.dismissible}
+      onClosePrevent={merged.onClosePrevent}
+      preventScroll
+      trigger={merged.children}
+      ref={setContentElement}
+      classes={{
+        trigger: ['outline-none', merged.classes?.trigger],
+        overlay: popupOverlayVariants(
+          {
+            scrollable: false,
+          },
+          merged.classes?.overlay,
+        ),
+        content: [
+          'outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in grid max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] fixed sm:max-w-lg',
+          merged.position?.left === undefined && 'left-1/2 -translate-x-1/2',
+          merged.position?.top === undefined && 'top-1/2 -translate-y-1/2',
+          merged.classes?.content,
+        ],
+      }}
+      styles={{
+        trigger: merged.styles?.trigger,
+        overlay: merged.styles?.overlay,
+        content: {
+          ...merged.styles?.content,
+          ...(merged.position?.top !== undefined ? { top: `${merged.position.top}px` } : {}),
+          ...(merged.position?.left !== undefined ? { left: `${merged.position.left}px` } : {}),
+        },
+      }}
+      content={(context) => (
+        <div
+          data-slot="root"
+          style={{ ...merged.styles?.root, ...merged.style }}
           class={cn(
-            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
-            merged.classes?.input,
+            'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
+            merged.classes?.root,
+            merged.class,
           )}
-          placeholder={merged.placeholder}
-          autofocus={merged.autofocus}
-          maxLength={merged.searchMaxLength}
-          value={currentSearchTerm()}
-          onInput={(event) => applySearchValue(event.currentTarget.value)}
-          onKeyDown={handleKeyDown}
-        />
-
-        <Show when={merged.showClose}>
-          <IconButtonInner
-            name={merged.closeIcon}
-            data-slot="close"
-            style={merged.styles?.close}
-            class={cn(
-              'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
-              merged.classes?.close,
-            )}
-            onClick={() => merged.onClose?.()}
-            aria-label="Close"
-          />
-        </Show>
-      </div>
-
-      <Show
-        when={hasItems()}
-        fallback={
+        >
           <div
-            data-slot="empty"
-            style={merged.styles?.empty}
-            class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
+            data-slot="inputWrapper"
+            style={merged.styles?.inputWrapper}
+            class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
           >
-            {merged.emptyRender?.(getContext()) ?? 'No results.'}
+            <IconButtonInner
+              name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
+              data-slot="search"
+              tabIndex={-1}
+              style={merged.styles?.search}
+              aria-busy={merged.loading || undefined}
+              data-loading={merged.loading ? '' : undefined}
+              disabled={merged.loading || undefined}
+              class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
+            />
+
+            <input
+              ref={(el) => {
+                setInputElement(el)
+              }}
+              data-slot="input"
+              style={merged.styles?.input}
+              class={cn(
+                'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
+                merged.classes?.input,
+              )}
+              placeholder={merged.placeholder}
+              autofocus={merged.autofocus}
+              maxLength={merged.searchMaxLength}
+              value={currentSearchTerm()}
+              onInput={(event) => applySearchValue(event.currentTarget.value)}
+              onKeyDown={(event) => handleKeyDown(event, context.close)}
+            />
+
+            <Show when={merged.showClose}>
+              <IconButtonInner
+                name={merged.closeIcon}
+                data-slot="close"
+                style={merged.styles?.close}
+                class={cn(
+                  'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
+                  merged.classes?.close,
+                )}
+                onClick={() => {
+                  merged.onClose?.()
+                  context.close()
+                }}
+                aria-label="Close"
+              />
+            </Show>
           </div>
-        }
-      >
-        <div
-          role="listbox"
-          data-slot="listbox"
-          style={merged.styles?.listbox}
-          class={cn(
-            'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
-            merged.classes?.listbox,
-          )}
-        >
-          <For each={visibleGroups()}>
-            {(group) => (
+
+          <Show
+            when={hasItems()}
+            fallback={
               <div
-                data-slot="group"
-                style={merged.styles?.group}
-                class={cn('mt-2 p-1', merged.classes?.group)}
+                data-slot="empty"
+                style={merged.styles?.empty}
+                class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
               >
-                <Show when={group.label}>
-                  <span
-                    data-slot="label"
-                    style={merged.styles?.label}
-                    class={cn(
-                      'text-sm text-muted-foreground font-semibold px-1.5',
-                      merged.classes?.label,
-                    )}
-                  >
-                    {group.label}
-                  </span>
-                </Show>
-
-                <For each={group.items}>
-                  {(item) => {
-                    const descriptionPosition = () =>
-                      item.item.descriptionPosition ?? merged.descriptionPosition
-                    return (
-                      <div
-                        role="option"
-                        tabIndex={-1}
-                        data-slot="item"
-                        data-disabled={item.disabled ? '' : undefined}
-                        data-highlighted={activeKey() === item.key ? '' : undefined}
-                        aria-disabled={item.disabled || undefined}
-                        style={merged.styles?.item}
-                        class={cn(
-                          'p-2 outline-none rounded-md flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
-                          merged.classes?.item,
-                        )}
-                        onPointerMove={() => {
-                          if (!item.disabled) {
-                            setActiveKey(item.key)
-                          }
-                        }}
-                        onPointerDown={(event) => event.preventDefault()}
-                        onClick={() => activateItem(item)}
-                      >
-                        <Show
-                          when={merged.itemRender}
-                          fallback={
-                            <>
-                              <Show when={item.item.icon}>
-                                <Icon
-                                  name={item.item.icon}
-                                  slotName="itemLeading"
-                                  style={merged.styles?.itemLeading}
-                                  class={cn(
-                                    'text-muted-foreground shrink-0',
-                                    merged.classes?.itemLeading,
-                                  )}
-                                />
-                              </Show>
-
-                              <span
-                                data-slot="itemWrapper"
-                                style={merged.styles?.itemWrapper}
-                                class={cn(
-                                  'text-start flex flex-1 flex-col min-w-0',
-                                  merged.classes?.itemWrapper,
-                                )}
-                              >
-                                <span
-                                  data-slot="itemLabel"
-                                  style={merged.styles?.itemLabel}
-                                  class={cn(
-                                    'text-sm truncate items-baseline',
-                                    merged.classes?.itemLabel,
-                                  )}
-                                >
-                                  {item.item.label ?? item.label}
-                                </span>
-                                <Show when={descriptionPosition() === 'bottom'}>
-                                  {renderItemDescription(item)}
-                                </Show>
-                              </span>
-
-                              <span
-                                data-slot="itemTrailing"
-                                style={merged.styles?.itemTrailing}
-                                class={cn(
-                                  'flex shrink-0 gap-2 items-center',
-                                  merged.classes?.itemTrailing,
-                                )}
-                              >
-                                <Show when={descriptionPosition() === 'trailing'}>
-                                  {renderItemDescription(item)}
-                                </Show>
-                                <Kbd
-                                  slotPrefix="itemTrailing"
-                                  value={item.item.kbds}
-                                  classes={{
-                                    root: merged.classes?.itemTrailingKbds,
-                                    item: merged.classes?.itemTrailingKbd,
-                                  }}
-                                />
-                              </span>
-                            </>
-                          }
-                        >
-                          {(itemRender) => itemRender()(getItemContext(item))}
-                        </Show>
-                      </div>
-                    )
-                  }}
-                </For>
+                {merged.emptyRender?.(getContext()) ?? 'No results.'}
               </div>
-            )}
-          </For>
-        </div>
-      </Show>
+            }
+          >
+            <div
+              role="listbox"
+              data-slot="listbox"
+              style={merged.styles?.listbox}
+              class={cn(
+                'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
+                merged.classes?.listbox,
+              )}
+            >
+              <For each={visibleGroups()}>
+                {(group) => (
+                  <div
+                    data-slot="group"
+                    style={merged.styles?.group}
+                    class={cn('mt-2 p-1', merged.classes?.group)}
+                  >
+                    <Show when={group.label}>
+                      <span
+                        data-slot="label"
+                        style={merged.styles?.label}
+                        class={cn(
+                          'text-sm text-muted-foreground font-semibold px-1.5',
+                          merged.classes?.label,
+                        )}
+                      >
+                        {group.label}
+                      </span>
+                    </Show>
 
-      <Show when={merged.footerRender}>
-        <div
-          data-slot="footer"
-          style={merged.styles?.footer}
-          class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
-        >
-          {merged.footerRender?.(getContext())}
+                    <For each={group.items}>
+                      {(item) => {
+                        const descriptionPosition = () =>
+                          item.item.descriptionPosition ?? merged.descriptionPosition
+                        return (
+                          <div
+                            role="option"
+                            tabIndex={-1}
+                            data-slot="item"
+                            data-disabled={item.disabled ? '' : undefined}
+                            data-highlighted={activeKey() === item.key ? '' : undefined}
+                            aria-disabled={item.disabled || undefined}
+                            style={merged.styles?.item}
+                            class={cn(
+                              'p-2 outline-none rounded-md flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
+                              merged.classes?.item,
+                            )}
+                            onPointerMove={() => {
+                              if (!item.disabled) {
+                                setActiveKey(item.key)
+                              }
+                            }}
+                            onPointerDown={(event) => event.preventDefault()}
+                            onClick={() => activateItem(item, context.close)}
+                          >
+                            <Show
+                              when={merged.itemRender}
+                              fallback={
+                                <>
+                                  <Show when={item.item.icon}>
+                                    <Icon
+                                      name={item.item.icon}
+                                      slotName="itemLeading"
+                                      style={merged.styles?.itemLeading}
+                                      class={cn(
+                                        'text-muted-foreground shrink-0',
+                                        merged.classes?.itemLeading,
+                                      )}
+                                    />
+                                  </Show>
+
+                                  <span
+                                    data-slot="itemWrapper"
+                                    style={merged.styles?.itemWrapper}
+                                    class={cn(
+                                      'text-start flex flex-1 flex-col min-w-0',
+                                      merged.classes?.itemWrapper,
+                                    )}
+                                  >
+                                    <span
+                                      data-slot="itemLabel"
+                                      style={merged.styles?.itemLabel}
+                                      class={cn(
+                                        'text-sm truncate items-baseline',
+                                        merged.classes?.itemLabel,
+                                      )}
+                                    >
+                                      {item.item.label ?? item.label}
+                                    </span>
+                                    <Show when={descriptionPosition() === 'bottom'}>
+                                      {renderItemDescription(item)}
+                                    </Show>
+                                  </span>
+
+                                  <span
+                                    data-slot="itemTrailing"
+                                    style={merged.styles?.itemTrailing}
+                                    class={cn(
+                                      'flex shrink-0 gap-2 items-center',
+                                      merged.classes?.itemTrailing,
+                                    )}
+                                  >
+                                    <Show when={descriptionPosition() === 'trailing'}>
+                                      {renderItemDescription(item)}
+                                    </Show>
+                                    <Kbd
+                                      slotPrefix="itemTrailing"
+                                      value={item.item.kbds}
+                                      classes={{
+                                        root: merged.classes?.itemTrailingKbds,
+                                        item: merged.classes?.itemTrailingKbd,
+                                      }}
+                                    />
+                                  </span>
+                                </>
+                              }
+                            >
+                              {(itemRender) => itemRender()(getItemContext(item))}
+                            </Show>
+                          </div>
+                        )
+                      }}
+                    </For>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+
+          <Show when={merged.footerRender}>
+            <div
+              data-slot="footer"
+              style={merged.styles?.footer}
+              class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
+            >
+              {merged.footerRender?.(getContext())}
+            </div>
+          </Show>
         </div>
-      </Show>
-    </div>
+      )}
+    />
   )
 }
