@@ -54,7 +54,7 @@
     },
     {
       "name": "itemLeading",
-      "description": "Leading icon or visual for a command row."
+      "description": "Leading region for a command row."
     },
     {
       "name": "itemWrapper",
@@ -71,14 +71,6 @@
     {
       "name": "itemTrailing",
       "description": "Trailing region for shortcuts or custom item metadata."
-    },
-    {
-      "name": "itemTrailingKbds",
-      "description": "Container for keyboard shortcut hints at the end of a command row."
-    },
-    {
-      "name": "itemTrailingKbd",
-      "description": "Individual keyboard key hint in a command row."
     },
     {
       "name": "search",
@@ -120,28 +112,28 @@
         "description": "Whether the item is disabled and cannot be selected."
       },
       {
-        "name": "icon",
-        "required": false,
-        "type": "string | undefined",
-        "description": "UnoCSS icon class or name to display."
-      },
-      {
-        "name": "kbds",
-        "required": false,
-        "type": "string[] | undefined",
-        "description": "Array of keyboard shortcuts to display."
-      },
-      {
         "name": "label",
         "required": false,
         "type": "string | undefined",
         "description": "Primary label for the item."
       },
       {
+        "name": "leadingRender",
+        "required": false,
+        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "description": "Custom visual rendered at the start of the item."
+      },
+      {
         "name": "onSelect",
         "required": false,
         "type": "(() => void) | undefined",
         "description": "Callback triggered when the item is selected."
+      },
+      {
+        "name": "trailingRender",
+        "required": false,
+        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "description": "Custom visual rendered at the end of the item."
       },
       {
         "name": "value",

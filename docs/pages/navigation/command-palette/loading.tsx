@@ -9,17 +9,22 @@ export function Loading() {
       id: 'workspace',
       label: 'Workspace',
       items: [
-        { value: 'new-issue', label: 'New Issue', icon: 'i-lucide-circle-plus', kbds: ['⌘', 'N'] },
+        {
+          value: 'new-issue',
+          label: 'New Issue',
+          leadingRender: () => <span class="i-lucide-circle-plus" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+        },
         {
           value: 'open-inbox',
           label: 'Open Inbox',
-          icon: 'i-lucide-inbox',
-          kbds: ['G', 'I'],
+          leadingRender: () => <span class="i-lucide-inbox" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
         },
         {
           value: 'sync-roadmap',
           label: 'Sync Roadmap',
-          icon: 'i-lucide-refresh-cw',
+          leadingRender: () => <span class="i-lucide-refresh-cw" />,
           description: 'Pull the latest planning updates',
         },
       ],

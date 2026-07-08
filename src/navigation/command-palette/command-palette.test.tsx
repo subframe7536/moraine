@@ -12,8 +12,17 @@ const GROUPS: CommandPaletteT.Group[] = [
     id: 'actions',
     label: 'Actions',
     items: [
-      { value: 'new-file', label: 'New File', icon: 'i-lucide-file-plus', kbds: ['⌘', 'N'] },
-      { value: 'open-folder', label: 'Open Folder', icon: 'i-lucide-folder-open' },
+      {
+        value: 'new-file',
+        label: 'New File',
+        leadingRender: () => <span class="i-lucide-file-plus" />,
+        trailingRender: () => <span>⌘N</span>,
+      },
+      {
+        value: 'open-folder',
+        label: 'Open Folder',
+        leadingRender: () => <span class="i-lucide-folder-open" />,
+      },
       { value: 'disabled-action', label: 'Disabled Action', disabled: true },
     ],
   },
@@ -210,30 +219,30 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('adjusts item trailing spacing via classes.itemTrailingKbds', async () => {
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailingKbds: 'gap-1' }} />)
+  test('adjusts item trailing spacing via classes.itemTrailing', async () => {
+    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing-kbds"]'),
+        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
       ) as HTMLElement[]
       expect(trailing.some((el) => el.classList.contains('gap-1'))).toBe(true)
     })
 
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailingKbds: 'gap-1.5' }} />)
+    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing-kbds"]'),
+        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
       ) as HTMLElement[]
       expect(trailing.some((el) => el.classList.contains('gap-1.5'))).toBe(true)
     })
 
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailingKbds: 'gap-2' }} />)
+    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing-kbds"]'),
+        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
       ) as HTMLElement[]
       expect(trailing.some((el) => el.classList.contains('gap-2'))).toBe(true)
     })
@@ -279,13 +288,12 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('kbds render in item', async () => {
+  test('custom trailing content renders in item', async () => {
     render(() => <CommandPalette open groups={GROUPS} />)
 
     await waitFor(() => {
-      const kbds = document.body.querySelectorAll('[data-slot="itemTrailing-kbd"]')
-      expect(kbds.length).toBeGreaterThan(0)
-      expect(document.body.querySelector('[data-slot="itemTrailing-kbds"]')).not.toBeNull()
+      expect(body().getByText('⌘N')).toBeTruthy()
+      expect(document.body.querySelector('[data-slot="itemTrailing"]')).not.toBeNull()
     })
   })
 
@@ -681,11 +689,46 @@ describe('CommandPalette', () => {
       const bottom = body().getByText('Bottom').closest('[data-slot="item"]')
 
       expect(
-        always?.querySelector('[data-slot="itemTrailing"] [data-slot="itemDescription"]'),
+        always?.querySelector('[data-slot="itemLabel"] [data-slot="itemDescription"]'),
       ).not.toBeNull()
       expect(
         bottom?.querySelector('[data-slot="itemWrapper"] [data-slot="itemDescription"]'),
       ).not.toBeNull()
+    })
+  })
+
+  test('passes runtime state to leadingRender and trailingRender', async () => {
+    render(() => (
+      <CommandPalette
+        open
+        searchTerm="run"
+        groups={[
+          {
+            id: 'g',
+            items: [
+              {
+                value: 'run',
+                label: 'Run',
+                leadingRender: (ctx) => (
+                  <span data-testid="leading-state">
+                    {ctx.focused ? 'focused' : 'idle'}:{ctx.disabled ? 'disabled' : 'enabled'}
+                  </span>
+                ),
+                trailingRender: (ctx) => (
+                  <span data-testid="trailing-state">
+                    {ctx.searchTerm}:{ctx.selected ? 'selected' : 'unselected'}
+                  </span>
+                ),
+              },
+            ],
+          },
+        ]}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(body().getByTestId('leading-state').textContent).toBe('focused:enabled')
+      expect(body().getByTestId('trailing-state').textContent).toBe('run:unselected')
     })
   })
 
@@ -695,9 +738,9 @@ describe('CommandPalette', () => {
     expect(item).toBeDefined()
   })
 
-  test('rejects item classes in type contract', () => {
-    // @ts-expect-error item-level classes has been removed
-    const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', classes: { item: 'x' } }
+  test('rejects legacy item shortcut prop in type contract', () => {
+    // @ts-expect-error kbds has been removed in favor of custom trailing content
+    const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', kbds: ['⌘', 'K'] }
     expect(item).toBeDefined()
   })
 })

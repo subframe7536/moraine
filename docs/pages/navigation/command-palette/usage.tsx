@@ -7,12 +7,22 @@ const GROUPS: CommandPaletteT.Group[] = [
     id: 'workspace',
     label: 'Workspace',
     items: [
-      { value: 'new-issue', label: 'New Issue', icon: 'i-lucide-circle-plus', kbds: ['⌘', 'N'] },
-      { value: 'open-inbox', label: 'Open Inbox', icon: 'i-lucide-inbox', kbds: ['G', 'I'] },
+      {
+        value: 'new-issue',
+        label: 'New Issue',
+        leadingRender: () => <span class="i-lucide-circle-plus" />,
+        trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+      },
+      {
+        value: 'open-inbox',
+        label: 'Open Inbox',
+        leadingRender: () => <span class="i-lucide-inbox" />,
+        trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
+      },
       {
         value: 'sync-roadmap',
         label: 'Sync Roadmap',
-        icon: 'i-lucide-refresh-cw',
+        leadingRender: () => <span class="i-lucide-refresh-cw" />,
         description: 'Pull the latest planning updates',
       },
     ],
@@ -21,15 +31,28 @@ const GROUPS: CommandPaletteT.Group[] = [
     id: 'navigation',
     label: 'Navigation',
     items: [
-      { value: 'go-dashboard', label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
-      { value: 'go-projects', label: 'Projects', icon: 'i-lucide-folder-kanban' },
+      {
+        value: 'go-dashboard',
+        label: 'Dashboard',
+        leadingRender: () => <span class="i-lucide-layout-dashboard" />,
+      },
+      {
+        value: 'go-projects',
+        label: 'Projects',
+        leadingRender: () => <span class="i-lucide-folder-kanban" />,
+      },
       {
         value: 'go-settings',
         label: 'Settings',
-        icon: 'i-lucide-settings',
+        leadingRender: () => <span class="i-lucide-settings" />,
         description: 'Preferences',
       },
-      { value: 'go-billing', label: 'Billing', icon: 'i-lucide-credit-card', disabled: true },
+      {
+        value: 'go-billing',
+        label: 'Billing',
+        leadingRender: () => <span class="i-lucide-credit-card" />,
+        disabled: true,
+      },
     ],
   },
 ]

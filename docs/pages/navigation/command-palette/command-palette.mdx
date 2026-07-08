@@ -8,6 +8,8 @@ import { DemoCommandPaletteLoading } from './loading?example'
 import { DemoCommandPaletteWithCloseButton } from './with-close-button?example'
 import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
 import { DemoCommandPalettePosition } from './position?example'
+import { DemoCommandPaletteCustomItemRender } from './custom-item-render?example'
+import { DemoCommandPaletteDescriptionPosition } from './description-position?example'
 
 ## Import
 
@@ -35,11 +37,11 @@ root
 root
 ├── listbox
 │   ├── item (×n)
-│   │   ├── itemLeading (Icon, optional)
+│   │   ├── itemLeading (optional)
 │   │   ├── itemWrapper
 │   │   │   ├── itemLabel
-│   │   │   └── itemDescription (optional)
-│   │   └── itemTrailing (description or Kbd, optional)
+│   │   │   └── itemDescription (optional, bottom or trailing inside itemLabel)
+│   │   └── itemTrailing (optional custom metadata)
 │   └── group (×n, optional)
 │       └── label (optional)
 ├── empty (optional, no matches)
@@ -53,6 +55,18 @@ root
 Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
 
 <DemoCommandPaletteUsage />
+
+### Custom Item Render
+
+Use `itemRender` when the row layout needs richer metadata than the default label, description, leadingRender, and trailingRender item render hooks.
+
+<DemoCommandPaletteCustomItemRender />
+
+### Description Position
+
+Set `descriptionPosition="trailing"` to keep descriptions inline near the label while reserving `item.trailingRender` for badges, shortcuts, or other metadata.
+
+<DemoCommandPaletteDescriptionPosition />
 
 ### Custom Empty State
 

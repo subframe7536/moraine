@@ -11,16 +11,20 @@ export function SubNavigation() {
         {
           value: 'create',
           label: 'Create',
-          icon: 'i-lucide-plus-circle',
+          leadingRender: () => <span class="i-lucide-plus-circle" />,
           description: 'Create new resources',
         },
         {
           value: 'share',
           label: 'Share',
-          icon: 'i-lucide-share-2',
+          leadingRender: () => <span class="i-lucide-share-2" />,
           description: 'Share with others',
         },
-        { value: 'delete', label: 'Delete', icon: 'i-lucide-trash-2' },
+        {
+          value: 'delete',
+          label: 'Delete',
+          leadingRender: () => <span class="i-lucide-trash-2" />,
+        },
       ],
     },
   ]
@@ -29,9 +33,21 @@ export function SubNavigation() {
       id: 'create',
       label: 'Create',
       items: [
-        { value: 'create-new-file', label: 'New File', icon: 'i-lucide-file-plus' },
-        { value: 'create-new-folder', label: 'New Folder', icon: 'i-lucide-folder-plus' },
-        { value: 'create-new-project', label: 'New Project', icon: 'i-lucide-git-branch' },
+        {
+          value: 'create-new-file',
+          label: 'New File',
+          leadingRender: () => <span class="i-lucide-file-plus" />,
+        },
+        {
+          value: 'create-new-folder',
+          label: 'New Folder',
+          leadingRender: () => <span class="i-lucide-folder-plus" />,
+        },
+        {
+          value: 'create-new-project',
+          label: 'New Project',
+          leadingRender: () => <span class="i-lucide-git-branch" />,
+        },
       ],
     },
   ]
@@ -43,10 +59,14 @@ export function SubNavigation() {
         {
           value: 'share-copy-link',
           label: 'Copy Link',
-          icon: 'i-lucide-link',
-          kbds: ['⌘', 'L'],
+          leadingRender: () => <span class="i-lucide-link" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">⌘L</span>,
         },
-        { value: 'share-send-email', label: 'Send via Email', icon: 'i-lucide-mail' },
+        {
+          value: 'share-send-email',
+          label: 'Send via Email',
+          leadingRender: () => <span class="i-lucide-mail" />,
+        },
       ],
     },
   ]
