@@ -282,7 +282,7 @@
       {
         "name": "onPositionChange",
         "required": false,
-        "type": "((position: Required<CommandPaletteT.Position>) => void) | undefined",
+        "type": "((position: CommandPaletteT.Position) => void) | undefined",
         "description": "Callback triggered when the modal content position changes."
       },
       {
@@ -313,7 +313,7 @@
       {
         "name": "position",
         "required": false,
-        "type": "CommandPaletteT.Position | undefined",
+        "type": "Partial<CommandPaletteT.Position> | undefined",
         "description": "Fixed content position in pixels. Missing axes keep the default centered placement."
       },
       {

@@ -10,6 +10,7 @@ import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
 import { DemoCommandPalettePosition } from './position?example'
 import { DemoCommandPaletteCustomItemRender } from './custom-item-render?example'
 import { DemoCommandPaletteDescriptionPosition } from './description-position?example'
+import { DemoCommandPaletteRealWorldExample } from './real-world-example?example'
 
 ## Import
 
@@ -55,6 +56,12 @@ root
 Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
 
 <DemoCommandPaletteUsage />
+
+### Real-World Example
+
+Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned.
+
+<DemoCommandPaletteRealWorldExample />
 
 ### Custom Item Render
 
