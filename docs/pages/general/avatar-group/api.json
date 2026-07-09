@@ -1,0 +1,150 @@
+{
+  "component": {
+    "key": "avatar-group",
+    "name": "AvatarGroup",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Group of overlapping avatars with optional overflow count.",
+    "sourcePath": "src/elements/avatar/avatar-group.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Container of grouped avatars."
+    },
+    {
+      "name": "item",
+      "description": "Individual avatar wrapper used when rendering grouped avatars."
+    },
+    {
+      "name": "count",
+      "description": "Count indicator shown when a group has more avatars than the visible limit."
+    },
+    {
+      "name": "image",
+      "description": "Loaded avatar image rendered inside each frame."
+    },
+    {
+      "name": "fallback",
+      "description": "Text fallback shown while an image is unavailable or failed."
+    },
+    {
+      "name": "fallbackIcon",
+      "description": "Icon fallback shown when no image or text fallback is available."
+    },
+    {
+      "name": "badge",
+      "description": "Status or indicator badge anchored to an avatar frame."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "AvatarGroupT.Classes | undefined"
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "AvatarGroupT.Item[] | undefined",
+        "description": "Array of avatars to render in the group.",
+        "defaultValue": "[]"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "string | number | undefined",
+        "description": "Maximum number of avatars to show."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "AvatarGroupT.Styles | undefined"
+      },
+      {
+        "name": "transition",
+        "required": false,
+        "type": "\"none\" | \"fast\" | \"normal\" | \"slow\" | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-status",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores async loading, loaded, or error status."
+      }
+    ],
+    "slots": [
+      {
+        "name": "badge",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "count",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fallback",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "fallbackIcon",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "image",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
+  }
+}

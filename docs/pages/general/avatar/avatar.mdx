@@ -6,17 +6,16 @@ import { DemoAvatarSingleAvatar } from './single-avatar?example'
 import { DemoAvatarSizes } from './sizes?example'
 import { DemoAvatarFallbackModes } from './fallback-modes?example'
 import { DemoAvatarBadgePositions } from './badge-positions?example'
-import { DemoAvatarMergedGroupMode } from './merged-group-mode?example'
 
 ## Import
 
 ```tsx
-import { Avatar, AvatarGroup } from 'moraine'
+import { Avatar } from 'moraine'
 ```
 
 ## Slot Structure
 
-Avatar renders a single image/fallback frame. AvatarGroup renders grouped avatars with an overflow counter.
+Avatar renders a single image/fallback frame. Use [`AvatarGroup`](/general/avatar-group) for grouped avatars with an overflow counter.
 
 ### Single avatar
 
@@ -26,18 +25,6 @@ root
 ├── fallback
 │   └── fallbackIcon (Icon, optional)
 └── badge (optional)
-```
-
-### Avatar group
-
-```text
-root
-├── count (optional, overflow count)
-└── item (×n)
-    ├── image
-    ├── fallback
-    │   └── fallbackIcon (Icon, optional)
-    └── badge (optional)
 ```
 
 ## Examples
@@ -50,7 +37,7 @@ Fallback first, then image crossfades in after preload.
 
 ### Sizes
 
-Scale from `xs` to `xl` for single and grouped avatar contexts.
+Scale single avatars from `xs` to `xl`.
 
 <DemoAvatarSizes />
 
@@ -65,9 +52,3 @@ Text, initials-from-alt and fallback icon.
 Top/bottom + left/right corner badge.
 
 <DemoAvatarBadgePositions />
-
-### Avatar Group
-
-Use AvatarGroup when rendering multiple avatars together.
-
-<DemoAvatarMergedGroupMode />

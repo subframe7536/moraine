@@ -45,7 +45,7 @@ export namespace AvatarT {
     alt?: string
 
     /** Icon name for the badge. */
-    icon?: IconT.Name
+    badge?: IconT.Name
 
     /**
      * Position of the badge.
@@ -212,7 +212,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         </Show>
       </span>
 
-      <Show when={merged.icon}>
+      <Show when={merged.badge}>
         {(badge) => (
           <span
             data-slot="badge"

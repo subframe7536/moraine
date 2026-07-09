@@ -113,10 +113,10 @@ describe('Avatar', () => {
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
       <>
-        <Avatar icon="i-lucide-check" badgePosition="top-left" />
-        <Avatar icon="i-lucide-check" badgePosition="top-right" />
-        <Avatar icon="i-lucide-check" badgePosition="bottom-left" />
-        <Avatar icon="i-lucide-check" badgePosition="bottom-right" />
+        <Avatar badge="i-lucide-check" badgePosition="top-left" />
+        <Avatar badge="i-lucide-check" badgePosition="top-right" />
+        <Avatar badge="i-lucide-check" badgePosition="bottom-left" />
+        <Avatar badge="i-lucide-check" badgePosition="bottom-right" />
       </>
     ))
 
@@ -133,7 +133,7 @@ describe('Avatar', () => {
   })
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
-    const screen = render(() => <Avatar icon="i-lucide-check" />)
+    const screen = render(() => <Avatar badge="i-lucide-check" />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toContain('overflow-visible')
@@ -143,8 +143,8 @@ describe('Avatar', () => {
   test('supports xs and xl size variants for single avatars', () => {
     const screen = render(() => (
       <>
-        <Avatar size="xs" fallback="i-lucide-user" icon="i-lucide-check" />
-        <Avatar size="xl" fallback="i-lucide-user" icon="i-lucide-check" />
+        <Avatar size="xs" fallback="i-lucide-user" badge="i-lucide-check" />
+        <Avatar size="xl" fallback="i-lucide-user" badge="i-lucide-check" />
       </>
     ))
 
@@ -278,7 +278,7 @@ describe('Avatar', () => {
       <Avatar
         src="/loading.png"
         text="MR"
-        icon="i-lucide-check"
+        badge="i-lucide-check"
         styles={{
           root: { width: '200px' },
           image: { width: '200px' },
@@ -334,8 +334,8 @@ describe('Avatar', () => {
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }
     const validClassProp: AvatarProps = { class: 'avatar-class' }
     // @ts-expect-error Avatar no longer accepts grouped items.
-    const invalidItemsProp: AvatarProps = { items: [{ icon: 'i-lucide-user' }] }
-    const validSingleProp: AvatarProps = { icon: 'i-lucide-user' }
+    const invalidItemsProp: AvatarProps = { items: [{ badge: 'i-lucide-user' }] }
+    const validSingleProp: AvatarProps = { badge: 'i-lucide-user' }
 
     expect(invalidHtmlProps).toBeDefined()
     expect(validClassProp).toBeDefined()

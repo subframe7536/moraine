@@ -19,7 +19,7 @@ export function MergedGroupMode() {
           { src: IMAGE_A, alt: 'Alpha' },
           { src: IMAGE_B, alt: 'Beta' },
           { text: 'CD' },
-          { text: 'EF', icon: 'i-lucide-flask-conical', badgePosition: 'top-right' },
+          { text: 'EF', badge: 'i-lucide-flask-conical', badgePosition: 'top-right' },
           { alt: 'Echo Foxtrot' },
         ]}
       />
