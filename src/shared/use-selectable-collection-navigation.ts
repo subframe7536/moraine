@@ -52,7 +52,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
    * }
    * ```
    */
-  onKeyDown?: (event: KeyboardEvent, currentValue: TValue) => boolean | void
+  onKeyDown?: (event: KeyboardEvent, currentValue: TValue | undefined) => boolean | void
   /**
    * Optional function to detect RTL direction.
    * If not provided, direction is detected from the event target's computed style.
@@ -169,9 +169,13 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
     applySelection(options.getValue(nextItem))
   }
 
+  function moveFromBoundaryForOffset(offset: number): void {
+    moveToBoundary(offset >= 0 ? 'first' : 'last')
+  }
+
   function onNavigationKeyDown(
     event: KeyboardEvent,
-    currentValue: TValue,
+    currentValue: TValue | undefined,
     orientation: Orientation,
   ): void {
     const normalizedKey = event.key === 'Spacebar' ? ' ' : event.key
@@ -200,12 +204,20 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
 
     if (normalizedKey === nextKey) {
       event.preventDefault()
+      if (currentValue === undefined) {
+        moveFromBoundaryForOffset(1)
+        return
+      }
       moveSelection(currentValue, 1)
       return
     }
 
     if (normalizedKey === previousKey) {
       event.preventDefault()
+      if (currentValue === undefined) {
+        moveFromBoundaryForOffset(-1)
+        return
+      }
       moveSelection(currentValue, -1)
       return
     }
@@ -222,7 +234,7 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
       return
     }
 
-    if (normalizedKey === 'Enter' || normalizedKey === ' ') {
+    if ((normalizedKey === 'Enter' || normalizedKey === ' ') && currentValue !== undefined) {
       event.preventDefault()
       options.onSelect(currentValue)
     }

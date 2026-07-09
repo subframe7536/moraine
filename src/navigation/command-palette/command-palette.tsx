@@ -17,7 +17,8 @@ import { Modal } from '../../overlays/base/modal'
 import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { callHandler, cn, useId } from '../../shared/utils'
 import { useEventListener } from '../../utils'
 
 export namespace CommandPaletteT {
@@ -103,6 +104,8 @@ export namespace CommandPaletteT {
     label?: string
     /** Secondary description text shown for the item. */
     description?: string
+    /** Additional keywords included in built-in search matching. */
+    keywords?: string[]
     /** Where the item description is rendered. Overrides the root setting. */
     descriptionPosition?: DescriptionPosition
     /** Custom visual rendered at the start of the item. */
@@ -129,6 +132,8 @@ export namespace CommandPaletteT {
     item: TItem
     group: Group<TItem>
     focused: boolean
+    active: boolean
+    /** Compatibility alias for the currently active item state. */
     selected: boolean
     disabled: boolean
   }
@@ -195,6 +200,10 @@ export namespace CommandPaletteT {
      * @default false
      */
     disableFilter?: boolean
+    /** Custom search text builder for built-in filtering. */
+    getItemSearchText?: (item: TItem, group: Group<TItem>) => string
+    /** Custom filter function that fully controls which groups and items are visible. */
+    filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
     /**
      * Where descriptions render by default.
      * @default 'bottom'
@@ -215,6 +224,12 @@ export namespace CommandPaletteT {
     position?: Partial<Position>
     /** Callback triggered when the modal content position changes. */
     onPositionChange?: (position: Position) => void
+    /** Additional attributes applied to the search input. */
+    inputProps?: JSX.InputHTMLAttributes<HTMLInputElement>
+    /** Additional attributes applied to the listbox container. */
+    listboxProps?: JSX.HTMLAttributes<HTMLDivElement>
+    /** Additional attributes applied to each item container. */
+    itemProps?: (ctx: ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLDivElement>
     /** Optional trigger element that opens the command palette. */
     children?: JSX.Element
   }
@@ -246,8 +261,36 @@ function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
 
+function toStyleObject(
+  style: string | JSX.CSSProperties | undefined,
+): JSX.CSSProperties | undefined {
+  if (!style || typeof style === 'string') {
+    return undefined
+  }
+
+  return style
+}
+
+function buildItemSearchText<TItem extends CommandPaletteT.Item>(
+  item: TItem,
+  group: CommandPaletteT.Group<TItem>,
+  getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
+): string {
+  if (getItemSearchText) {
+    return getItemSearchText(item, group).toLowerCase()
+  }
+
+  return [item.label, item.value, item.description, item.keywords?.join(' ')]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
+  getItemSearchText:
+    | ((item: TItem, group: CommandPaletteT.Group<TItem>) => string)
+    | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
@@ -284,7 +327,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
       return {
         key: createItemKey(item.value, group.id, index),
         label,
-        searchText: label.toLowerCase(),
+        searchText: buildItemSearchText(item, group, getItemSearchText),
         disabled: Boolean(item.disabled),
         item,
         group,
@@ -320,7 +363,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
+  const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'command-palette-listbox')
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
+  const activeDescendantId = createMemo(() =>
+    activeKey() ? `${listboxId()}-${activeKey()}` : undefined,
+  )
   const warnedDuplicateValues = new Set<string>()
 
   const warnDuplicateValue = (value: string): void => {
@@ -330,7 +377,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
     warnedDuplicateValues.add(value)
     console.warn(
-      `[platinum] CommandPalette received duplicate item value "${value}". ` +
+      `[moraine] CommandPalette received duplicate item value "${value}". ` +
         'Using a deduplicated internal key. Ensure item.value is unique for predictable selection.',
     )
   }
@@ -370,10 +417,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
 
   const normalizedGroups = createMemo(() =>
-    createNormalizedGroups<TItem>(groups(), warnDuplicateValue),
+    createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
     const term = currentSearchTerm().trim().toLowerCase()
+    if (merged.filterItems) {
+      return createNormalizedGroups<TItem>(
+        merged.filterItems({
+          groups: groups(),
+          searchTerm: currentSearchTerm(),
+        }),
+        merged.getItemSearchText,
+        warnDuplicateValue,
+      )
+    }
+
     if (merged.disableFilter || term === '') {
       return normalizedGroups()
     }
@@ -398,6 +456,29 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     setActiveKey(items[0]?.key)
   })
 
+  const { onNavigationKeyDown } = useSelectableCollectionNavigation<NormalizedItem<TItem>, string>({
+    items: () => visibleItems(),
+    getValue: (item) => item.key,
+    isDisabled: (item) => item.disabled,
+    loop: () => true,
+    activationMode: () => 'manual',
+    focusValue: (value) => {
+      setActiveKey(value)
+    },
+    onSelect: (value) => {
+      const highlighted = visibleItems().find((item) => item.key === value)
+      if (highlighted) {
+        activateItem(highlighted, () => {})
+      }
+    },
+    onKeyDown: (event) => {
+      if (event.key === ' ' || event.key === 'Spacebar') {
+        return true
+      }
+      return false
+    },
+  })
+
   function activateItem(item: NormalizedItem<TItem>, close: () => void): void {
     if (item.disabled) {
       return
@@ -409,55 +490,17 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function focusByOffset(delta: number): void {
-    const items = visibleItems().filter((item) => !item.disabled)
-    if (items.length === 0) {
-      return
-    }
-
-    const currentIndex = items.findIndex((item) => item.key === activeKey())
-    const nextIndex =
-      currentIndex === -1
-        ? delta > 0
-          ? 0
-          : items.length - 1
-        : (currentIndex + delta + items.length) % items.length
-    setActiveKey(items[nextIndex]?.key)
-  }
-
   function handleKeyDown(event: KeyboardEvent, close: () => void): void {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      focusByOffset(1)
-      return
-    }
-
-    if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      focusByOffset(-1)
-      return
-    }
-
-    if (event.key === 'Home') {
-      event.preventDefault()
-      setActiveKey(visibleItems().find((item) => !item.disabled)?.key)
-      return
-    }
-
-    if (event.key === 'End') {
-      event.preventDefault()
-      const items = visibleItems().filter((item) => !item.disabled)
-      setActiveKey(items[items.length - 1]?.key)
-      return
-    }
-
     if (event.key === 'Enter') {
       const highlighted = visibleItems().find((item) => item.key === activeKey())
       if (highlighted) {
         event.preventDefault()
         activateItem(highlighted, close)
       }
+      return
     }
+
+    onNavigationKeyDown(event, activeKey(), 'vertical')
   }
 
   const emit = () => {
@@ -503,15 +546,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function getItemContext(item: NormalizedItem<TItem>): CommandPaletteT.ItemRenderContext<TItem> {
+    const isActive = () => activeKey() === item.key
     return {
       ...getContext(),
       item: item.item,
       group: item.group,
       get focused() {
-        return activeKey() === item.key
+        return isActive()
+      },
+      get active() {
+        return isActive()
       },
       get selected() {
-        return false
+        return isActive()
       },
       get disabled() {
         return item.disabled
@@ -598,19 +645,46 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <input
               ref={(el) => {
                 setInputElement(el)
+                const inputRef = merged.inputProps?.ref
+                if (typeof inputRef === 'function') {
+                  inputRef(el)
+                }
               }}
+              {...merged.inputProps}
               data-slot="input"
-              style={merged.styles?.input}
+              style={{ ...toStyleObject(merged.inputProps?.style), ...merged.styles?.input }}
               class={cn(
                 'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
+                merged.inputProps?.class,
                 merged.classes?.input,
               )}
+              id={merged.inputProps?.id}
+              role="combobox"
+              aria-controls={listboxId()}
+              aria-expanded="true"
+              aria-haspopup="listbox"
+              aria-autocomplete="list"
+              aria-activedescendant={activeDescendantId()}
               placeholder={merged.placeholder}
               autofocus={merged.autofocus}
               maxLength={merged.searchMaxLength}
               value={currentSearchTerm()}
-              onInput={(event) => applySearchValue(event.currentTarget.value)}
-              onKeyDown={(event) => handleKeyDown(event, context.close)}
+              onInput={(event) => {
+                const { defaultPrevented } = callHandler(
+                  event,
+                  merged.inputProps?.onInput as JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
+                    | undefined,
+                )
+                if (!defaultPrevented) {
+                  applySearchValue(event.currentTarget.value)
+                }
+              }}
+              onKeyDown={(event) => {
+                const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown)
+                if (!defaultPrevented) {
+                  handleKeyDown(event, context.close)
+                }
+              }}
             />
 
             <Show when={merged.showClose}>
@@ -644,11 +718,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             }
           >
             <div
+              {...merged.listboxProps}
+              id={listboxId()}
               role="listbox"
               data-slot="listbox"
-              style={merged.styles?.listbox}
+              style={{ ...toStyleObject(merged.listboxProps?.style), ...merged.styles?.listbox }}
               class={cn(
                 'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
+                merged.listboxProps?.class,
                 merged.classes?.listbox,
               )}
             >
@@ -676,26 +753,49 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                       {(item) => {
                         const descriptionPosition = () =>
                           item.item.descriptionPosition ?? merged.descriptionPosition
+                        const itemContext = createMemo(() => getItemContext(item))
+                        const itemAttributes = createMemo(() => merged.itemProps?.(itemContext()))
                         return (
                           <div
+                            {...itemAttributes()}
+                            id={`${listboxId()}-${item.key}`}
                             role="option"
                             tabIndex={-1}
                             data-slot="item"
                             data-disabled={item.disabled ? '' : undefined}
                             data-highlighted={activeKey() === item.key ? '' : undefined}
+                            aria-selected={activeKey() === item.key}
                             aria-disabled={item.disabled || undefined}
-                            style={merged.styles?.item}
+                            style={{
+                              ...toStyleObject(itemAttributes()?.style),
+                              ...merged.styles?.item,
+                            }}
                             class={cn(
                               'p-2 outline-none rounded-md flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
+                              itemAttributes()?.class,
                               merged.classes?.item,
                             )}
-                            onPointerMove={() => {
+                            onPointerMove={(event) => {
+                              callHandler(event, itemAttributes()?.onPointerMove)
+                              if (event.defaultPrevented) {
+                                return
+                              }
                               if (!item.disabled) {
                                 setActiveKey(item.key)
                               }
                             }}
-                            onPointerDown={(event) => event.preventDefault()}
-                            onClick={() => activateItem(item, context.close)}
+                            onPointerDown={(event) => {
+                              callHandler(event, itemAttributes()?.onPointerDown)
+                              if (!event.defaultPrevented) {
+                                event.preventDefault()
+                              }
+                            }}
+                            onClick={(event) => {
+                              callHandler(event, itemAttributes()?.onClick)
+                              if (!event.defaultPrevented) {
+                                activateItem(item, context.close)
+                              }
+                            }}
                           >
                             <Show
                               when={merged.itemRender}
@@ -711,7 +811,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                                           merged.classes?.itemLeading,
                                         )}
                                       >
-                                        {leadingRender()(getItemContext(item))}
+                                        {leadingRender()(itemContext())}
                                       </span>
                                     )}
                                   </Show>
@@ -755,14 +855,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                                           merged.classes?.itemTrailing,
                                         )}
                                       >
-                                        {trailingRender()(getItemContext(item))}
+                                        {trailingRender()(itemContext())}
                                       </span>
                                     )}
                                   </Show>
                                 </>
                               }
                             >
-                              {(itemRender) => itemRender()(getItemContext(item))}
+                              {(itemRender) => itemRender()(itemContext())}
                             </Show>
                           </div>
                         )

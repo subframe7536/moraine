@@ -284,6 +284,28 @@ describe('useSelectableCollectionNavigation', () => {
       expect(spaceEvent.preventDefault).toHaveBeenCalled()
       expect(onSelect).toHaveBeenCalledWith('b')
     })
+
+    test('manual mode can focus from an undefined current value', () => {
+      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
+      const onSelect = vi.fn()
+      const focusValue = vi.fn()
+      const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
+
+      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+        items,
+        getValue: (item) => item.value,
+        onSelect,
+        focusValue,
+        activationMode,
+      })
+
+      const downEvent = createMockKeyboardEvent('ArrowDown')
+      onNavigationKeyDown(downEvent, undefined, 'vertical')
+
+      expect(downEvent.preventDefault).toHaveBeenCalled()
+      expect(onSelect).not.toHaveBeenCalled()
+      expect(focusValue).toHaveBeenCalledWith('a')
+    })
   })
 
   describe('typeahead extension point', () => {
@@ -338,7 +360,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
 
       let searchBuffer = ''
-      const typeaheadHandler = (event: KeyboardEvent, _currentValue: string) => {
+      const typeaheadHandler = (event: KeyboardEvent, _currentValue: string | undefined) => {
         if (event.key.length === 1 && /[a-z]/i.test(event.key)) {
           searchBuffer += event.key.toLowerCase()
 
