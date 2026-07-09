@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { Avatar } from './avatar'
 import type { AvatarProps } from './avatar'
+import { AvatarGroup } from './avatar-group'
 
 type MockImageOutcome = 'pending' | 'success' | 'error'
 
@@ -47,19 +48,19 @@ afterEach(() => {
 })
 
 describe('Avatar', () => {
-  test('renders nothing when items is undefined or empty', () => {
+  test('renders nothing when avatar group items is undefined or empty', () => {
     const screen = render(() => (
       <>
-        <Avatar />
-        <Avatar items={[]} />
+        <AvatarGroup />
+        <AvatarGroup items={[]} />
       </>
     ))
 
     expect(screen.container.querySelectorAll('[data-slot="root"]')).toHaveLength(0)
   })
 
-  test('treats one item as single avatar structure', () => {
-    const screen = render(() => <Avatar items={[{ text: 'MR' }]} />)
+  test('renders avatar as single avatar structure', () => {
+    const screen = render(() => <Avatar text="MR" />)
 
     expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
     expect(screen.container.querySelector('[data-slot="item"]')).toBeNull()
@@ -67,7 +68,7 @@ describe('Avatar', () => {
 
   test('renders fallback first while image is loading', () => {
     outcomesBySrc.set('/loading.png', 'pending')
-    const screen = render(() => <Avatar items={[{ src: '/loading.png', text: 'MR' }]} />)
+    const screen = render(() => <Avatar src="/loading.png" text="MR" />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]')
@@ -80,7 +81,7 @@ describe('Avatar', () => {
 
   test('switches to loaded state and crossfades image', async () => {
     outcomesBySrc.set('/loaded.png', 'success')
-    const screen = render(() => <Avatar items={[{ src: '/loaded.png', alt: 'Moraine' }]} />)
+    const screen = render(() => <Avatar src="/loaded.png" alt="Moraine" />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
@@ -97,9 +98,7 @@ describe('Avatar', () => {
 
   test('uses fallback icon on error state', async () => {
     outcomesBySrc.set('/broken.png', 'error')
-    const screen = render(() => (
-      <Avatar items={[{ src: '/broken.png', fallback: 'i-lucide-user' }]} />
-    ))
+    const screen = render(() => <Avatar src="/broken.png" fallback="i-lucide-user" />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const icon = screen.container.querySelector('[data-slot="fallbackIcon"]')
@@ -114,10 +113,10 @@ describe('Avatar', () => {
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
       <>
-        <Avatar items={[{ icon: 'i-lucide-check', badgePosition: 'top-left' }]} />
-        <Avatar items={[{ icon: 'i-lucide-check', badgePosition: 'top-right' }]} />
-        <Avatar items={[{ icon: 'i-lucide-check', badgePosition: 'bottom-left' }]} />
-        <Avatar items={[{ icon: 'i-lucide-check', badgePosition: 'bottom-right' }]} />
+        <Avatar icon="i-lucide-check" badgePosition="top-left" />
+        <Avatar icon="i-lucide-check" badgePosition="top-right" />
+        <Avatar icon="i-lucide-check" badgePosition="bottom-left" />
+        <Avatar icon="i-lucide-check" badgePosition="bottom-right" />
       </>
     ))
 
@@ -134,7 +133,7 @@ describe('Avatar', () => {
   })
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
-    const screen = render(() => <Avatar items={[{ icon: 'i-lucide-check' }]} />)
+    const screen = render(() => <Avatar icon="i-lucide-check" />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toContain('overflow-visible')
@@ -144,8 +143,8 @@ describe('Avatar', () => {
   test('supports xs and xl size variants for single avatars', () => {
     const screen = render(() => (
       <>
-        <Avatar size="xs" items={[{ fallback: 'i-lucide-user', icon: 'i-lucide-check' }]} />
-        <Avatar size="xl" items={[{ fallback: 'i-lucide-user', icon: 'i-lucide-check' }]} />
+        <Avatar size="xs" fallback="i-lucide-user" icon="i-lucide-check" />
+        <Avatar size="xl" fallback="i-lucide-user" icon="i-lucide-check" />
       </>
     ))
 
@@ -165,7 +164,7 @@ describe('Avatar', () => {
   })
 
   test('generates initials from alt when text is not provided', () => {
-    const screen = render(() => <Avatar items={[{ alt: 'Moraine Team' }]} />)
+    const screen = render(() => <Avatar alt="Moraine Team" />)
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
     expect(fallback?.textContent).toBe('MT')
@@ -180,7 +179,7 @@ describe('Avatar', () => {
       const [source, setSourceSignal] = createSignal('/first.png')
       setSource = setSourceSignal
 
-      return <Avatar items={[{ src: source(), text: 'MR' }]} />
+      return <Avatar src={source()} text="MR" />
     })
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -201,8 +200,8 @@ describe('Avatar', () => {
 
     const screen = render(() => (
       <>
-        <Avatar items={[{ src: '/ok.png', onStatusChange: successStatus }]} />
-        <Avatar items={[{ src: '/bad.png', onStatusChange: errorStatus }]} />
+        <Avatar src="/ok.png" onStatusChange={successStatus} />
+        <Avatar src="/bad.png" onStatusChange={errorStatus} />
       </>
     ))
 
@@ -216,9 +215,9 @@ describe('Avatar', () => {
     expect(errorStatus.mock.calls.map(([status]) => status)).toEqual(['loading', 'error'])
   })
 
-  test('merges avatar and avatar-group behavior with items + max', () => {
+  test('renders avatar group with items + max', () => {
     const screen = render(() => (
-      <Avatar max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
+      <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -239,7 +238,9 @@ describe('Avatar', () => {
   })
 
   test('renders all group items when max is absent and reverses order', () => {
-    const screen = render(() => <Avatar items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />)
+    const screen = render(() => (
+      <AvatarGroup items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
+    ))
 
     const fallbacks = Array.from(
       screen.container.querySelectorAll('[data-slot="item"] [data-slot="fallback"]'),
@@ -255,8 +256,8 @@ describe('Avatar', () => {
   test('supports xs and xl size variants for avatar groups', () => {
     const screen = render(() => (
       <>
-        <Avatar size="xs" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
-        <Avatar size="xl" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="xs" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="xl" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </>
     ))
 
@@ -275,7 +276,9 @@ describe('Avatar', () => {
   test('applies styles overrides to all slots', () => {
     const screen = render(() => (
       <Avatar
-        items={[{ src: '/loading.png', text: 'MR', icon: 'i-lucide-check' }]}
+        src="/loading.png"
+        text="MR"
+        icon="i-lucide-check"
         styles={{
           root: { width: '200px' },
           image: { width: '200px' },
@@ -306,7 +309,7 @@ describe('Avatar', () => {
 
   test('applies styles overrides to group slots', () => {
     const screen = render(() => (
-      <Avatar
+      <AvatarGroup
         max={1}
         items={[{ text: 'A' }, { text: 'B' }]}
         styles={{
@@ -330,13 +333,13 @@ describe('Avatar', () => {
     // @ts-expect-error Avatar is sealed and does not accept arbitrary html props.
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }
     const validClassProp: AvatarProps = { class: 'avatar-class' }
-    // @ts-expect-error Avatar no longer accepts top-level single-item props.
-    const invalidSingleProp: AvatarProps = { src: '/avatar.png' }
-    const validItemsProp: AvatarProps = { items: [{ icon: 'i-lucide-user' }] }
+    // @ts-expect-error Avatar no longer accepts grouped items.
+    const invalidItemsProp: AvatarProps = { items: [{ icon: 'i-lucide-user' }] }
+    const validSingleProp: AvatarProps = { icon: 'i-lucide-user' }
 
     expect(invalidHtmlProps).toBeDefined()
     expect(validClassProp).toBeDefined()
-    expect(invalidSingleProp).toBeDefined()
-    expect(validItemsProp).toBeDefined()
+    expect(invalidItemsProp).toBeDefined()
+    expect(validSingleProp).toBeDefined()
   })
 })

@@ -11,12 +11,12 @@ import { DemoAvatarMergedGroupMode } from './merged-group-mode?example'
 ## Import
 
 ```tsx
-import { Avatar } from 'moraine'
+import { Avatar, AvatarGroup } from 'moraine'
 ```
 
 ## Slot Structure
 
-Single avatar with image fallback, or a group of avatars with an overflow counter.
+Avatar renders a single image/fallback frame. AvatarGroup renders grouped avatars with an overflow counter.
 
 ### Single avatar
 
@@ -28,12 +28,12 @@ root
 └── badge (optional)
 ```
 
-### Group avatar
+### Avatar group
 
 ```text
-group
-├── groupCount (optional, overflow count)
-└── groupItem (×n)
+root
+├── count (optional, overflow count)
+└── item (×n)
     ├── image
     ├── fallback
     │   └── fallbackIcon (Icon, optional)
@@ -66,8 +66,8 @@ Top/bottom + left/right corner badge.
 
 <DemoAvatarBadgePositions />
 
-### Merged Group Mode
+### Avatar Group
 
-Use the same Avatar component with items.
+Use AvatarGroup when rendering multiple avatars together.
 
 <DemoAvatarMergedGroupMode />

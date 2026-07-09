@@ -1,4 +1,4 @@
-import { Avatar } from '@src'
+import { AvatarGroup } from '@src'
 
 export function MergedGroupMode() {
   const IMAGE_A = createSvgDataUrl('A', '#3f3f46')
@@ -12,7 +12,7 @@ export function MergedGroupMode() {
 
   return (
     <div class="flex flex-col gap-3">
-      <Avatar
+      <AvatarGroup
         size="md"
         max={3}
         items={[
@@ -24,7 +24,7 @@ export function MergedGroupMode() {
         ]}
       />
 
-      <Avatar size="sm" items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
+      <AvatarGroup size="sm" items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
     </div>
   )
 }

@@ -23,7 +23,7 @@
   - [ ] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `itemDescriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
   - [ ] add `ignoreSearch` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `items` prop
 - [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
-- [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
+- [x] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible
 - [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
 - [ ] find a way to add jsdoc for Variant 's props

@@ -1,8 +1,7 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { Show, createEffect, createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
 import type { IconT } from '../icon'
 import { Icon } from '../icon'
 
@@ -11,19 +10,15 @@ import {
   avatarBadgeVariants,
   avatarFallbackIconVariants,
   avatarFallbackVariants,
-  avatarGroupCountVariants,
-  avatarGroupItemVariants,
   avatarImageVariants,
   avatarRootVariants,
 } from './avatar.class'
 
-type Status = 'idle' | 'loading' | 'loaded' | 'error'
+export type AvatarStatus = 'idle' | 'loading' | 'loaded' | 'error'
 
 export namespace AvatarT {
   export interface Slot<T = unknown> {
-    /**
-     * Avatar frame that controls size, shape, image, fallback, and badge placement, or the container of grouped avatars when multiple items are provided.
-     */
+    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
     root?: T
 
     /** Loaded avatar image rendered inside the frame. */
@@ -37,31 +32,19 @@ export namespace AvatarT {
 
     /** Status or indicator badge anchored to the avatar frame. */
     badge?: T
-
-    /** Individual avatar wrapper used when rendering grouped avatars. */
-    item?: T
-
-    /** Count indicator shown when a group has more avatars than the visible limit. */
-    count?: T
   }
   export type Variant = AvatarVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export interface Item {
-    /**
-     * Source URL for the avatar image.
-     */
+    /** Source URL for the avatar image. */
     src?: string
 
-    /**
-     * Accessible alt text for the avatar.
-     */
+    /** Accessible alt text for the avatar. */
     alt?: string
 
-    /**
-     * Icon name for the badge.
-     */
+    /** Icon name for the badge. */
     icon?: IconT.Name
 
     /**
@@ -70,67 +53,27 @@ export namespace AvatarT {
      */
     badgePosition?: NonNullable<AvatarVariantProps['badgePosition']>
 
-    /**
-     * Initial text to show if image fails or is missing.
-     */
+    /** Initial text to show if image fails or is missing. */
     text?: string
 
-    /**
-     * Icon name to show as fallback.
-     */
+    /** Icon name to show as fallback. */
     fallback?: IconT.Name
 
-    /**
-     * Callback when the loading status of the avatar changes.
-     */
-    onStatusChange?: (status: Status) => void
-  }
-  /**
-   * Base props for the Avatar component.
-   */
-  export interface Base {
-    /**
-     * Array of items to render in a group.
-     * @default []
-     */
-    items?: Item[]
-
-    /**
-     * Maximum number of avatars to show when in a group.
-     */
-    max?: number | string
+    /** Callback when the loading status of the avatar changes. */
+    onStatusChange?: (status: AvatarStatus) => void
   }
 
-  /**
-   * Props for the Avatar component.
-   */
+  /** Base props for the Avatar component. */
+  export interface Base extends Item {}
+
+  /** Props for the Avatar component. */
   export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
-/**
- * Props for the Avatar component.
- */
+/** Props for the Avatar component. */
 export interface AvatarProps extends AvatarT.Props {}
 
-function resolveMax(max: AvatarProps['max']): number | undefined {
-  if (typeof max === 'string') {
-    const parsed = Number.parseInt(max, 10)
-
-    if (Number.isFinite(parsed) && parsed > 0) {
-      return parsed
-    }
-
-    return undefined
-  }
-
-  if (typeof max === 'number' && Number.isFinite(max) && max > 0) {
-    return max
-  }
-
-  return undefined
-}
-
-function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
+export function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
   if (preferredText) {
     return preferredText
@@ -148,197 +91,149 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
   return initials || '\u00A0'
 }
 
-/** Circular user or entity avatar with fallback initials and optional indicator. */
-export function Avatar(props: AvatarProps): JSX.Element {
+export interface AvatarFaceProps extends AvatarT.Item {
+  class?: SlotClassValue
+  style?: JSX.CSSProperties
+  classes?: AvatarT.Classes
+  styles?: AvatarT.Styles
+  size?: AvatarT.Variant['size']
+  transition?: AvatarT.Variant['transition']
+  rootSlot?: 'root' | 'item'
+}
+
+export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const merged = mergeProps(
     {
       size: 'md' as const,
       transition: 'normal' as const,
-      items: [] as AvatarT.Item[],
-      max: undefined as number | string | undefined,
     },
     props,
   )
+  const [status, setStatusSignal] = createSignal<AvatarStatus>('idle')
+  const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 
-  const visibleItems = createMemo(() => {
-    const allItems = merged.items
-    if (allItems.length === 0) {
-      return []
+  let currentStatus: AvatarStatus = 'idle'
+
+  function setStatus(nextStatus: AvatarStatus): void {
+    if (currentStatus === nextStatus) {
+      return
     }
 
-    const max = resolveMax(merged.max)
-    if (!max) {
-      return [...allItems].reverse()
-    }
+    currentStatus = nextStatus
+    setStatusSignal(nextStatus)
+    merged.onStatusChange?.(nextStatus)
+  }
 
-    return [...allItems].slice(0, max).reverse()
-  })
+  createEffect(() => {
+    const source = merged.src?.trim() || undefined
+    let cancelled = false
 
-  const hiddenCount = createMemo(() => {
-    return merged.items.length - visibleItems().length
-  })
-
-  function AvatarFace(props: AvatarT.Item & { slot: 'root' | 'item' }): JSX.Element {
-    const [status, setStatusSignal] = createSignal<Status>('idle')
-    const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
-
-    let currentStatus: Status = 'idle'
-
-    function setStatus(nextStatus: Status): void {
-      if (currentStatus === nextStatus) {
-        return
-      }
-
-      currentStatus = nextStatus
-      setStatusSignal(nextStatus)
-      props.onStatusChange?.(nextStatus)
-    }
-
-    createEffect(() => {
-      const source = props.src?.trim() || undefined
-      let cancelled = false
-
-      onCleanup(() => {
-        cancelled = true
-      })
-
-      setResolvedSrc(undefined)
-
-      if (!source || typeof window === 'undefined' || typeof window.Image !== 'function') {
-        setStatus('error')
-        return
-      }
-
-      setStatus('loading')
-      const loader = new window.Image()
-
-      loader.onload = () => {
-        if (cancelled) {
-          return
-        }
-        setResolvedSrc(source)
-        setStatus('loaded')
-      }
-
-      loader.onerror = () => {
-        if (cancelled) {
-          return
-        }
-        setResolvedSrc(undefined)
-        setStatus('error')
-      }
-
-      loader.src = source
+    onCleanup(() => {
+      cancelled = true
     })
 
-    return (
+    setResolvedSrc(undefined)
+
+    if (!source || typeof window === 'undefined' || typeof window.Image !== 'function') {
+      setStatus('error')
+      return
+    }
+
+    setStatus('loading')
+    const loader = new window.Image()
+
+    loader.onload = () => {
+      if (cancelled) {
+        return
+      }
+      setResolvedSrc(source)
+      setStatus('loaded')
+    }
+
+    loader.onerror = () => {
+      if (cancelled) {
+        return
+      }
+      setResolvedSrc(undefined)
+      setStatus('error')
+    }
+
+    loader.src = source
+  })
+
+  return (
+    <span
+      data-slot={merged.rootSlot ?? 'root'}
+      data-status={status()}
+      style={
+        merged.rootSlot === 'item' ? merged.style : { ...merged.styles?.root, ...merged.style }
+      }
+      class={avatarRootVariants(
+        { size: merged.size },
+        merged.rootSlot === 'item' ? merged.class : [merged.classes?.root, merged.class],
+      )}
+    >
+      <img
+        data-slot="image"
+        style={merged.styles?.image}
+        src={resolvedSrc()}
+        alt={merged.alt ?? ''}
+        class={avatarImageVariants(
+          { transition: merged.transition },
+          status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
+          merged.classes?.image,
+        )}
+      />
+
       <span
-        data-slot={props.slot}
-        data-status={status()}
-        style={{
-          ...(props.slot === 'item' ? merged.styles?.item : merged.styles?.root),
-          ...merged.style,
-        }}
-        class={avatarRootVariants(
-          { size: merged.size },
-          props.slot === 'item'
-            ? avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)
-            : [merged.classes?.root, merged.class],
+        data-slot="fallback"
+        style={merged.styles?.fallback}
+        class={avatarFallbackVariants(
+          {
+            size: merged.size,
+            status: status(),
+            transition: merged.transition,
+          },
+          merged.classes?.fallback,
         )}
       >
-        <img
-          data-slot="image"
-          style={merged.styles?.image}
-          src={resolvedSrc()}
-          alt={props.alt ?? ''}
-          class={avatarImageVariants(
-            { transition: merged.transition },
-            status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
-            merged.classes?.image,
-          )}
-        />
-
-        <span
-          data-slot="fallback"
-          style={merged.styles?.fallback}
-          class={avatarFallbackVariants(
-            {
-              size: merged.size,
-              status: status(),
-              transition: merged.transition,
-            },
-            merged.classes?.fallback,
-          )}
-        >
-          <Show when={props.fallback} fallback={resolveFallbackText(props.text, props.alt)}>
-            {(fallbackIcon) => (
-              <Icon
-                name={fallbackIcon()}
-                slotName="fallbackIcon"
-                style={merged.styles?.fallbackIcon}
-                class={avatarFallbackIconVariants(
-                  {
-                    size: merged.size,
-                  },
-                  merged.classes?.fallbackIcon,
-                )}
-              />
-            )}
-          </Show>
-        </span>
-
-        <Show when={props.icon}>
-          {(badge) => (
-            <span
-              data-slot="badge"
-              style={merged.styles?.badge}
-              class={avatarBadgeVariants(
-                {
-                  size: merged.size,
-                  badgePosition: props.badgePosition ?? 'bottom-right',
-                },
-                merged.classes?.badge,
+        <Show when={merged.fallback} fallback={resolveFallbackText(merged.text, merged.alt)}>
+          {(fallbackIcon) => (
+            <Icon
+              name={fallbackIcon()}
+              slotName="fallbackIcon"
+              style={merged.styles?.fallbackIcon}
+              class={avatarFallbackIconVariants(
+                { size: merged.size },
+                merged.classes?.fallbackIcon,
               )}
-            >
-              <Icon name={badge()} class="text-[0.75em]" />
-            </span>
+            />
           )}
         </Show>
       </span>
-    )
-  }
 
-  return (
-    <Show
-      when={merged.items.length > 1}
-      fallback={
-        <Show when={merged.items.length === 1}>
-          <AvatarFace {...merged.items[0]!} slot="root" />
-        </Show>
-      }
-    >
-      <div
-        data-slot="root"
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
-      >
-        <Show when={hiddenCount() > 0}>
+      <Show when={merged.icon}>
+        {(badge) => (
           <span
-            data-slot="count"
-            style={merged.styles?.count}
-            class={avatarGroupCountVariants(
+            data-slot="badge"
+            style={merged.styles?.badge}
+            class={avatarBadgeVariants(
               {
                 size: merged.size,
+                badgePosition: merged.badgePosition ?? 'bottom-right',
               },
-              merged.classes?.count,
+              merged.classes?.badge,
             )}
           >
-            +{hiddenCount()}
+            <Icon name={badge()} class="text-[0.75em]" />
           </span>
-        </Show>
-
-        <For each={visibleItems()}>{(item) => <AvatarFace {...item} slot="item" />}</For>
-      </div>
-    </Show>
+        )}
+      </Show>
+    </span>
   )
+}
+
+/** Circular user or entity avatar with fallback initials and optional indicator. */
+export function Avatar(props: AvatarProps): JSX.Element {
+  return <AvatarFace {...props} />
 }
