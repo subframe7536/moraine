@@ -16,16 +16,25 @@
 - [x] extract logic from slider component to a separate hook, and export component level hooks (should located at same dir 's `/hook` dir ) custom implementations.
 - [x] unify custom render function prop with suffix `Render`, target should be `xxxRender`
 - [x] unify and correct class/style priority: top level `class` / `style` (root only) > `classes` / `styles` > component builtin classes / styles
-- [ ] refactor `command-palette` component,
-  - [ ] rename `footer?: JSX.Element` to `footerRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
-  - [ ] rename `empty?: JSX.Element` to `emptyRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
-  - [ ] add `itemRender?: (ctx: ItemContext) => JSX.Element` prop to customize item render, `ItemContext` should be current state and item data, allow to customize item based on its data(e.g. title, description, group, icon, level etc.) and runtime state (e.g., selected, focused, disabled, searchTerm).
-  - [ ] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `itemDescriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
-  - [ ] add `ignoreSearch` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `items` prop
-- [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider.
+- [x] refactor `command-palette` component:
+  - [x] rename `footer?: JSX.Element` to `footerRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
+  - [x] rename `empty?: JSX.Element` to `emptyRender?: (ctx: Context) => JSX.Element`, `Context` should be current state
+  - [x] add `itemRender?: (ctx: ItemRenderContext) => JSX.Element` prop to customize item render, `ItemRenderContext` should be current state and item data, allow to customize item based on its data(e.g. title, description, group, icon, level etc.) and runtime state (e.g., selected, focused, disabled, searchTerm).
+  - [x] remove `itemLabelPrefix` and `itemLabelSuffix`, rename `ItemLableBase` to `ItemLabel`, make `itemDescription` 's position customizable via `descriptionPosition?: 'bottom' | 'trailing'` prop (root or item level)
+  - [x] add `disableFilter` to root level prop, which will disable search and show all items, let user to implement their own search logic via reactive `groups` prop
+  - [x] drop nest item support
+  - [x] flatten icon props
+  - [x] breaking change: wrap with modal, forward modal props, add `closeOnSelect` prop to control whether to close modal when item is selected.
+  - [x] make position controllable via `position?: { top?: number; left?: number }` prop and add `onPositionChange?: (position: { top: number; left: number }) => void` prop to notify user when position changed. `CommandPalette` component should forward `position` and `onPositionChange` prop to modal.
+  - [x] remove `active` prop from item
+  - [x] when `descriptionPosition` prop is set to `trailing`, the description should be rendered at the end of item inside `itemLabel` slot and near to it, instead of the end of the whole item, and the description should be truncated if it exceeds the available space.
+  - [x] remove `kbds` prop from item, make it customizable via new `item.trailingRender?: (ctx: ItemRenderContext) => JSX.Element` slot, which will be rendered at the end of item, and can be used to render kbd, badge, icon etc. rename `item.icon` to `item.leadingRender?: (ctx: ItemRenderContext) => JSX.Element`, which will be rendered at the start of item, and can be used to render icon, avatar etc.
+  - [x] refresh doc, make example more real-world, and add more examples to show how to customize item render via `itemRender` prop, and how to customize item label and description position via `descriptionPosition` prop.
+- [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider, support keyboard event key matching (`listen?: true | ((event: KeyboardEvent) => boolean)`, only setup this will setup event listener; if is `true`, use default mapping behavior) and trigger function `onTrigger?: (event: KeyboardEvent) => void`.
 - [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
 - [ ] refactor form / form-field to formisch, replace existing form context logic if possible
 - [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
+- [ ] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu`, which can be used to render a list of items with optional search and selection support, and support different sizes and variants.
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.

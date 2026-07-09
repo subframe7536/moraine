@@ -1,24 +1,30 @@
-import { CommandPalette } from '@src'
+import { Button, CommandPalette } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
 export function WithCloseButton() {
-  const BASIC_GROUPS: CommandPaletteT.Item[] = [
+  const [open, setOpen] = createSignal(false)
+  const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
       label: 'Workspace',
-      children: [
-        { value: 'new-issue', label: 'New Issue', icon: 'i-lucide-circle-plus', kbds: ['⌘', 'N'] },
+      items: [
+        {
+          value: 'new-issue',
+          label: 'New Issue',
+          leadingRender: () => <span class="i-lucide-circle-plus" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+        },
         {
           value: 'open-inbox',
           label: 'Open Inbox',
-          icon: 'i-lucide-inbox',
-          kbds: ['G', 'I'],
+          leadingRender: () => <span class="i-lucide-inbox" />,
+          trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
         },
         {
           value: 'sync-roadmap',
           label: 'Sync Roadmap',
-          icon: 'i-lucide-refresh-cw',
+          leadingRender: () => <span class="i-lucide-refresh-cw" />,
           description: 'Pull the latest planning updates',
         },
       ],
@@ -26,16 +32,29 @@ export function WithCloseButton() {
     {
       id: 'navigation',
       label: 'Navigation',
-      children: [
-        { value: 'go-dashboard', label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
-        { value: 'go-projects', label: 'Projects', icon: 'i-lucide-folder-kanban' },
+      items: [
+        {
+          value: 'go-dashboard',
+          label: 'Dashboard',
+          leadingRender: () => <span class="i-lucide-layout-dashboard" />,
+        },
+        {
+          value: 'go-projects',
+          label: 'Projects',
+          leadingRender: () => <span class="i-lucide-folder-kanban" />,
+        },
         {
           value: 'go-settings',
           label: 'Settings',
-          icon: 'i-lucide-settings',
-          suffix: 'Preferences',
+          leadingRender: () => <span class="i-lucide-settings" />,
+          description: 'Preferences',
         },
-        { value: 'go-billing', label: 'Billing', icon: 'i-lucide-credit-card', disabled: true },
+        {
+          value: 'go-billing',
+          label: 'Billing',
+          leadingRender: () => <span class="i-lucide-credit-card" />,
+          disabled: true,
+        },
       ],
     },
   ]
@@ -45,7 +64,15 @@ export function WithCloseButton() {
   return (
     <>
       <div class="max-w-full w-lg">
-        <CommandPalette items={BASIC_GROUPS} close onClose={() => setCloseCount((c) => c + 1)} />
+        <CommandPalette
+          open={open()}
+          onOpenChange={setOpen}
+          groups={BASIC_GROUPS}
+          showClose
+          onClose={() => setCloseCount((c) => c + 1)}
+        >
+          <Button variant="outline">Open palette</Button>
+        </CommandPalette>
       </div>
       <p class="text-sm text-muted-foreground mt-2">Close clicked: {closeCount()} time(s)</p>
     </>

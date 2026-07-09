@@ -3,11 +3,14 @@ header: true
 ---
 
 import { DemoCommandPaletteUsage } from './usage?example'
-import { DemoCommandPaletteBasic } from './basic?example'
 import { DemoCommandPaletteCustomEmptyState } from './custom-empty-state?example'
 import { DemoCommandPaletteLoading } from './loading?example'
 import { DemoCommandPaletteWithCloseButton } from './with-close-button?example'
 import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
+import { DemoCommandPalettePosition } from './position?example'
+import { DemoCommandPaletteCustomItemRender } from './custom-item-render?example'
+import { DemoCommandPaletteDescriptionPosition } from './description-position?example'
+import { DemoCommandPaletteRealWorldExample } from './real-world-example?example'
 
 ## Import
 
@@ -17,7 +20,7 @@ import { CommandPalette } from 'moraine'
 
 ## Slot Structure
 
-Search input and results list with grouped items and optional footer.
+Command palette wraps a Modal dialog with a search input, a scrollable listbox of grouped items, and an optional footer.
 
 ### Input area
 
@@ -25,7 +28,6 @@ Search input and results list with grouped items and optional footer.
 root
 └── inputWrapper
     ├── search (IconButton, optional)
-    ├── back (IconButton, optional)
     ├── input
     └── close (IconButton, optional)
 ```
@@ -36,14 +38,11 @@ root
 root
 ├── listbox
 │   ├── item (×n)
-│   │   ├── itemLeading (Icon, optional)
+│   │   ├── itemLeading (optional)
 │   │   ├── itemWrapper
-│   │   │   ├── itemLabel (optional)
-│   │   │   │   ├── itemLabelPrefix (optional)
-│   │   │   │   ├── itemLabelBase
-│   │   │   │   └── itemLabelSuffix (optional)
-│   │   │   └── itemDescription (optional)
-│   │   └── itemTrailing (Icon or Kbd, optional)
+│   │   │   ├── itemLabel
+│   │   │   └── itemDescription (optional, bottom or trailing inside itemLabel)
+│   │   └── itemTrailing (optional custom metadata)
 │   └── group (×n, optional)
 │       └── label (optional)
 ├── empty (optional, no matches)
@@ -52,17 +51,29 @@ root
 
 ## Examples
 
-### Usage
+### Basic
 
-Click the button or press ⌘K to open the command palette.
+Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
 
 <DemoCommandPaletteUsage />
 
-### Basic
+### Real-World Example
 
-Groups of items with icons, kbds, and descriptions.
+Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned.
 
-<DemoCommandPaletteBasic />
+<DemoCommandPaletteRealWorldExample />
+
+### Custom Item Render
+
+Use `itemRender` when the row layout needs richer metadata than the default label, description, leadingRender, and trailingRender item render hooks.
+
+<DemoCommandPaletteCustomItemRender />
+
+### Description Position
+
+Set `descriptionPosition="trailing"` to keep descriptions inline near the label while reserving `item.trailingRender` for badges, shortcuts, or other metadata.
+
+<DemoCommandPaletteDescriptionPosition />
 
 ### Custom Empty State
 
@@ -84,6 +95,12 @@ A close button in the input trailing slot.
 
 ### Sub-Navigation
 
-Items with children drill into a sub-group. Press Backspace or the back button to return.
+Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper.
 
 <DemoCommandPaletteSubNavigation />
+
+### Position
+
+Fix the palette at a specific pixel offset and track its actual rendered position via `onPositionChange`.
+
+<DemoCommandPalettePosition />
