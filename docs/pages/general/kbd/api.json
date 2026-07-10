@@ -4,27 +4,17 @@
     "name": "Kbd",
     "category": "elements",
     "polymorphic": false,
-    "description": "Keyboard shortcut display component with configurable size and variant.",
+    "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
     "sourcePath": "src/elements/kbd/kbd.tsx"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Wrapper around multiple key tokens.\n\nSingle-value shortcuts render only the `item` slot, so top-level `class` and `style`\nare applied to that item instead."
-    },
-    {
-      "name": "item",
-      "description": "Individual key token inside the shortcut sequence."
+      "description": "Keyboard keycap element."
     }
   ],
   "props": {
     "own": [
-      {
-        "name": "between",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Slot between kbds"
-      },
       {
         "name": "class",
         "required": false,
@@ -37,15 +27,21 @@
         "type": "KbdT.Classes | undefined"
       },
       {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
-      },
-      {
-        "name": "slotPrefix",
+        "name": "label",
         "required": false,
         "type": "string | undefined",
-        "description": "Prefix for data-slot attributes."
+        "description": "Accessible label for assistive technology."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Data slot used by the rendered keycap."
       },
       {
         "name": "style",
@@ -58,10 +54,17 @@
         "type": "KbdT.Styles | undefined"
       },
       {
-        "name": "value",
+        "name": "symbol",
         "required": false,
-        "type": "string[] | undefined",
-        "description": "Array of keys to display."
+        "type": "boolean | undefined",
+        "description": "Whether to resolve known key aliases to symbols.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "KbdT.Key",
+        "description": "Value displayed by the keycap or resolved through the static key aliases."
       },
       {
         "name": "variant",
@@ -72,7 +75,14 @@
     "inherited": []
   },
   "attributes": {
-    "aria": [],
+    "aria": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      }
+    ],
     "data": [
       {
         "name": "data-slot",

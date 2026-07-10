@@ -31,10 +31,10 @@
   - [x] remove `kbds` prop from item, make it customizable via new `item.trailingRender?: (ctx: ItemRenderContext) => JSX.Element` slot, which will be rendered at the end of item, and can be used to render kbd, badge, icon etc. rename `item.icon` to `item.leadingRender?: (ctx: ItemRenderContext) => JSX.Element`, which will be rendered at the start of item, and can be used to render icon, avatar etc.
   - [x] refresh doc, make example more real-world, and add more examples to show how to customize item render via `itemRender` prop, and how to customize item label and description position via `descriptionPosition` prop.
 - [x] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
-- [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants
-  - [ ] kbd-group should also support customizable divider, sequence, alternatives
-  - [ ] display text and accessible label for each kbd element
-  - [ ] support both symbol and text to better adapt different platforms and devices
+- [x] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants
+  - [x] kbd-group should also support customizable divider, sequence, alternatives
+  - [x] display text and accessible label for each kbd element
+  - [x] support both symbol and text to better adapt different platforms and devices
 - [ ] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
 - [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
 - [ ] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu`, which can be used to render a list of items with optional search and selection support, and support different sizes and variants.

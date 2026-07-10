@@ -741,9 +741,9 @@ describe('CommandPalette', () => {
     await waitFor(() => {
       const input = body().getByPlaceholderText('Search...') as HTMLInputElement
       const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement | null
-      const activeItem = document.body.querySelector('[data-slot="item"][data-highlighted]') as
-        | HTMLElement
-        | null
+      const activeItem = document.body.querySelector(
+        '[data-slot="item"][data-highlighted]',
+      ) as HTMLElement | null
 
       expect(input.getAttribute('role')).toBe('combobox')
       expect(input.getAttribute('aria-controls')).toBe(listbox?.id)
@@ -852,15 +852,19 @@ describe('CommandPalette', () => {
       <CommandPalette
         open
         groups={GROUPS}
-        inputProps={{
-          name: 'command-search',
-          'aria-label': 'Command Search',
-          'data-track': 'command-input',
-        } as JSX.InputHTMLAttributes<HTMLInputElement>}
-        listboxProps={{
-          'data-track': 'command-listbox',
-          onScroll: onListboxScroll,
-        } as JSX.HTMLAttributes<HTMLDivElement>}
+        inputProps={
+          {
+            name: 'command-search',
+            'aria-label': 'Command Search',
+            'data-track': 'command-input',
+          } as JSX.InputHTMLAttributes<HTMLInputElement>
+        }
+        listboxProps={
+          {
+            'data-track': 'command-listbox',
+            onScroll: onListboxScroll,
+          } as JSX.HTMLAttributes<HTMLDivElement>
+        }
       />
     ))
 

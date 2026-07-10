@@ -1,0 +1,171 @@
+{
+  "component": {
+    "key": "kbd-group",
+    "name": "KbdGroup",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+    "sourcePath": "src/elements/kbd/kbd-group.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Container for one or more shortcut steps."
+    },
+    {
+      "name": "chord",
+      "description": "Wrapper around keys pressed at the same time."
+    },
+    {
+      "name": "item",
+      "description": "Individual key token."
+    },
+    {
+      "name": "divider",
+      "description": "Divider between keys pressed at the same time."
+    },
+    {
+      "name": "sequenceDivider",
+      "description": "Divider between shortcut steps pressed in sequence."
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible label for assistive technology."
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Data slot used by the rendered keycap."
+      },
+      {
+        "name": "symbol",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to resolve known key aliases to symbols.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "KbdT.Key",
+        "description": "Value displayed by the keycap or resolved through the static key aliases."
+      }
+    ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "KbdGroupT.Classes | undefined"
+      },
+      {
+        "name": "dividerRender",
+        "required": false,
+        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "description": "Custom divider rendered between keys in the same group."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "KbdGroupT.Item[] | undefined",
+        "description": "Keys pressed at the same time, such as Ctrl+K."
+      },
+      {
+        "name": "sequence",
+        "required": false,
+        "type": "KbdGroupT.Item[][] | undefined",
+        "description": "Key groups pressed one after another, such as Ctrl+K then Ctrl+S."
+      },
+      {
+        "name": "sequenceDividerRender",
+        "required": false,
+        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "description": "Custom divider rendered between shortcut steps."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "KbdGroupT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"outline\" | \"invert\" | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "chord",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "divider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "sequenceDivider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
+  }
+}

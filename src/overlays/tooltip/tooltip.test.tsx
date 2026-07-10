@@ -65,11 +65,11 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const kbds = document.body.querySelectorAll('[data-slot="kbd"]')
+    const kbds = document.body.querySelectorAll('[data-slot="item"]')
     expect(kbds.length).toBe(2)
     expect(kbds.item(0)?.textContent).toBe('Ctrl')
     expect(kbds.item(1)?.textContent).toBe('S')
-    expect(document.body.querySelectorAll('[data-slot="kbds"]').length).toBe(1)
+    expect(document.body.querySelectorAll('[data-slot="root"]').length).toBe(1)
   })
 
   test('applies classes.content to content slot', () => {

@@ -427,9 +427,7 @@ describe('DropdownMenu', () => {
     expect(document.body.textContent).toContain('Account')
     expect(document.body.querySelector('[data-slot="separator"]')).not.toBeNull()
     expect(document.body.textContent).toContain('View profile')
-    expect(document.body.querySelectorAll('[data-slot="item-kbd"]').length).toBeGreaterThanOrEqual(
-      2,
-    )
+    expect(document.body.querySelectorAll('[data-slot="item"]').length).toBeGreaterThanOrEqual(2)
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 

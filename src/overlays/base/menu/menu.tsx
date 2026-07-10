@@ -18,7 +18,7 @@ import { Portal } from 'solid-js/web'
 
 import { Icon } from '../../../elements/icon'
 import type { IconT } from '../../../elements/icon'
-import { Kbd } from '../../../elements/kbd'
+import { KbdGroup } from '../../../elements/kbd'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
 import { cn, useId } from '../../../shared/utils'
@@ -419,14 +419,17 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           </Show>
 
           <Show when={!contentProps.hasChildren}>
-            <Kbd
-              size="sm"
-              slotPrefix="item"
-              value={contentProps.item.kbds}
-              classes={{
-                root: props.classes?.itemKbds,
-              }}
-            />
+            <Show when={contentProps.item.kbds?.length ? contentProps.item.kbds : undefined}>
+              {(value) => (
+                <KbdGroup
+                  size="sm"
+                  items={value()}
+                  classes={{
+                    root: props.classes?.itemKbds,
+                  }}
+                />
+              )}
+            </Show>
           </Show>
 
           <Show

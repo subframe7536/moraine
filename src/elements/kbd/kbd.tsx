@@ -1,97 +1,100 @@
 import type { JSX } from 'solid-js'
-import { For, Match, Show, Switch } from 'solid-js'
+import { Show, createMemo } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
 
 import type { KbdVariantProps } from './kbd.class'
-import { kbdItemVariants } from './kbd.class'
+import { kbdRootVariants } from './kbd.class'
+
+interface KbdKeyAlias {
+  label: string
+  text: string
+}
+
+const KBD_KEY_ALIASES = {
+  alt: { text: 'Alt', label: 'Alt' },
+  arrowdown: { text: '↓', label: 'Arrow Down' },
+  arrowleft: { text: '←', label: 'Arrow Left' },
+  arrowright: { text: '→', label: 'Arrow Right' },
+  arrowup: { text: '↑', label: 'Arrow Up' },
+  backspace: { text: '⌫', label: 'Backspace' },
+  capslock: { text: '⇪', label: 'Caps Lock' },
+  command: { text: '⌘', label: 'Command' },
+  control: { text: '⌃', label: 'Control' },
+  ctrl: { text: 'Ctrl', label: 'Control' },
+  delete: { text: '⌦', label: 'Delete' },
+  end: { text: '↘', label: 'End' },
+  enter: { text: '↵', label: 'Enter' },
+  escape: { text: 'Esc', label: 'Escape' },
+  home: { text: '↖', label: 'Home' },
+  meta: { text: '⌘', label: 'Meta' },
+  option: { text: '⌥', label: 'Option' },
+  pagedown: { text: '⇟', label: 'Page Down' },
+  pageup: { text: '⇞', label: 'Page Up' },
+  shift: { text: '⇧', label: 'Shift' },
+  tab: { text: '⇥', label: 'Tab' },
+  win: { text: '⊞', label: 'Windows' },
+} as const satisfies Record<string, KbdKeyAlias>
 
 export namespace KbdT {
   export interface Slot<T = unknown> {
-    /**
-     * Wrapper around multiple key tokens.
-     *
-     * Single-value shortcuts render only the `item` slot, so top-level `class` and `style`
-     * are applied to that item instead.
-     */
+    /** Keyboard keycap element. */
     root?: T
-
-    /** Individual key token inside the shortcut sequence. */
-    item?: T
   }
   export type Variant = KbdVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type BuiltinKbds = keyof typeof KBD_KEY_ALIASES
+  export type Key = BuiltinKbds | (string & {})
 
-  export interface Item {}
-  /**
-   * Base props for the Kbd component.
-   */
+  /** Base props for the Kbd component. */
   export interface Base {
+    /** Value displayed by the keycap or resolved through the static key aliases. */
+    value: Key
     /**
-     * Slot between kbds
+     * Whether to resolve known key aliases to symbols.
+     * @default true
      */
-    between?: JSX.Element
-
-    /**
-     * Prefix for data-slot attributes.
-     */
-    slotPrefix?: string
-
-    /**
-     * Array of keys to display.
-     */
-    value?: string[]
+    symbol?: boolean
+    /** Accessible label for assistive technology. */
+    label?: string
+    /** Data slot used by the rendered keycap. */
+    slotName?: string
   }
 
-  /**
-   * Props for the Kbd component.
-   */
+  /** Props for the Kbd component. */
   export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
-/**
- * Props for the Kbd component.
- */
+/** Props for the Kbd component. */
 export interface KbdProps extends KbdT.Props {}
 
-/** Keyboard shortcut display component with configurable size and variant. */
+/** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {
-  const Inner = (innerProps: { val: string; append?: boolean; topLevel?: boolean }) => (
-    <>
+  const alias = createMemo(() =>
+    props.symbol === false
+      ? undefined
+      : KBD_KEY_ALIASES[props.value.toLowerCase() as KbdT.BuiltinKbds],
+  )
+  const text = createMemo(() => alias()?.text ?? props.value)
+
+  return (
+    <Show when={text()}>
       <kbd
-        data-slot={props.slotPrefix ? `${props.slotPrefix}-kbd` : 'kbd'}
-        class={kbdItemVariants(
+        data-slot={props.slotName ?? 'root'}
+        aria-label={props.label ?? alias()?.label}
+        class={kbdRootVariants(
           {
             size: props.size,
             variant: props.variant,
           },
-          innerProps.topLevel ? props.class : props.classes?.item,
+          props.classes?.root,
+          props.class,
         )}
-        style={innerProps.topLevel ? props.style : props.styles?.item}
+        style={{ ...props.styles?.root, ...props.style }}
       >
-        {innerProps.val}
+        {text()}
       </kbd>
-      <Show when={innerProps.append}>{props.between}</Show>
-    </>
-  )
-  return (
-    <Show when={props.value}>
-      <Switch>
-        <Match when={props.value!.length === 1}>{<Inner val={props.value![0]!} topLevel />}</Match>
-        <Match when={props.value!.length > 1}>
-          <span
-            data-slot={props.slotPrefix ? `${props.slotPrefix}-kbds` : 'kbds'}
-            class={cn('inline-flex gap-1 items-center', props.classes?.root, props.class)}
-            style={{ ...props.styles?.root, ...props.style }}
-          >
-            <For each={props.value}>
-              {(value, idx) => <Inner val={value} append={idx() < props.value!.length - 1} />}
-            </For>
-          </span>
-        </Match>
-      </Switch>
     </Show>
   )
 }

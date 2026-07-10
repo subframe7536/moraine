@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
-import { Kbd } from '../../elements/kbd'
+import { KbdGroup } from '../../elements/kbd'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { Popper, resolveOverlayMenuSide } from '../base'
@@ -287,13 +287,17 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           </span>
         </Show>
 
-        <Kbd
-          variant={merged.invert ? 'invert' : undefined}
-          size="sm"
-          value={merged.kbds}
-          class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
-          classes={{ item: merged.classes?.kbd }}
-        />
+        <Show when={merged.kbds?.length ? merged.kbds : undefined}>
+          {(value) => (
+            <KbdGroup
+              variant={merged.invert ? 'invert' : undefined}
+              size="sm"
+              items={value()}
+              class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
+              classes={{ item: merged.classes?.kbd }}
+            />
+          )}
+        </Show>
       </div>
     )
   }

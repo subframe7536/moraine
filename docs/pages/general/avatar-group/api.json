@@ -37,6 +37,53 @@
       "description": "Status or indicator badge anchored to an avatar frame."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "alt",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible alt text for the avatar."
+      },
+      {
+        "name": "badge",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name for the badge."
+      },
+      {
+        "name": "badgePosition",
+        "required": false,
+        "type": "NonNullable<\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined> | undefined",
+        "description": "Position of the badge.",
+        "defaultValue": "bottom-right"
+      },
+      {
+        "name": "fallback",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name to show as fallback."
+      },
+      {
+        "name": "onStatusChange",
+        "required": false,
+        "type": "((status: AvatarStatus) => void) | undefined",
+        "description": "Callback when the loading status of the avatar changes."
+      },
+      {
+        "name": "src",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Source URL for the avatar image."
+      },
+      {
+        "name": "text",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Initial text to show if image fails or is missing."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -53,7 +100,7 @@
       {
         "name": "items",
         "required": false,
-        "type": "AvatarGroupT.Item[] | undefined",
+        "type": "AvatarT.Item[] | undefined",
         "description": "Array of avatars to render in the group.",
         "defaultValue": "[]"
       },
@@ -66,7 +113,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
       },
       {
         "name": "style",
@@ -87,8 +134,33 @@
     "inherited": []
   },
   "attributes": {
-    "aria": [],
+    "aria": [
+      {
+        "name": "aria-busy",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      }
+    ],
     "data": [
+      {
+        "name": "data-loading",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component is loading."
+      },
       {
         "name": "data-slot",
         "required": false,
@@ -129,12 +201,6 @@
       },
       {
         "name": "image",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "item",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

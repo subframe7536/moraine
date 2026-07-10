@@ -6,7 +6,7 @@ export function Sizes() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <For each={SIZES}>{(size) => <Kbd size={size} value={[size.toUpperCase()]} />}</For>
+      <For each={SIZES}>{(size) => <Kbd size={size} value={size.toUpperCase()} />}</For>
     </div>
   )
 }

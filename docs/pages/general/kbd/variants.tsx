@@ -6,7 +6,7 @@ export function Variants() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <For each={VARIANTS}>{(variant) => <Kbd variant={variant} value={[variant]} />}</For>
+      <For each={VARIANTS}>{(variant) => <Kbd variant={variant} value={variant} />}</For>
     </div>
   )
 }
