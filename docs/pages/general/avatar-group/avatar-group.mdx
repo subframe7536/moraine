@@ -1,0 +1,44 @@
+---
+header: true
+---
+
+import { DemoAvatarGroupBasic } from './basic?example'
+import { DemoAvatarGroupOverflow } from './overflow?example'
+import { DemoAvatarGroupSizes } from './sizes?example'
+
+## Import
+
+```tsx
+import { AvatarGroup } from 'moraine'
+```
+
+## Usage
+
+`AvatarGroup` renders multiple `Avatar` items as an overlapping group with an optional overflow count.
+Use [`Avatar`](/general/avatar) for a standalone avatar.
+
+## Slot Structure
+
+```text
+root
+├── count (optional, overflow count)
+└── item (×n)
+    ├── image
+    ├── fallback
+    │   └── fallbackIcon (Icon, optional)
+    └── badge (optional)
+```
+
+## Examples
+
+### Basic
+
+<DemoAvatarGroupBasic />
+
+### Overflow Count
+
+<DemoAvatarGroupOverflow />
+
+### Sizes
+
+<DemoAvatarGroupSizes />

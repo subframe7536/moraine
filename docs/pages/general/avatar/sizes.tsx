@@ -12,7 +12,7 @@ export function Sizes() {
       <For each={SIZES}>
         {(size) => (
           <div class="flex flex-col gap-2 items-center">
-            <Avatar size={size} items={[{ text: 'MR' }]} />
+            <Avatar size={size} text="MR" />
             <span class="text-xs text-muted-foreground font-mono">{size}</span>
           </div>
         )}

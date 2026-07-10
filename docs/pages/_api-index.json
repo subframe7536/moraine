@@ -25,6 +25,14 @@
       "sourcePath": "src/elements/avatar/avatar.tsx"
     },
     {
+      "key": "avatar-group",
+      "name": "AvatarGroup",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Group of overlapping avatars with optional overflow count.",
+      "sourcePath": "src/elements/avatar/avatar-group.tsx"
+    },
+    {
       "key": "badge",
       "name": "Badge",
       "category": "elements",
