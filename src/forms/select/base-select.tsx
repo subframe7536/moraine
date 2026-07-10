@@ -152,6 +152,8 @@ export namespace BaseSelectT {
      * @default []
      */
     selectedValues?: Value[]
+    /** Internal flag that selects native single or multiple form semantics. */
+    multiple?: boolean
     /** Form value used when the field initializes. */
     initialValue?: unknown
     /** Render the trigger/control surface. */
@@ -413,6 +415,21 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const allFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
     flattenOptions(normalizedOptions()),
   )
+  const selectedValues = createMemo(() =>
+    (merged.selectedValues ?? []).map((value) => String(value)),
+  )
+  const nativeFormOptions = createMemo<NormalizedOption<TItem>[]>(() => {
+    const optionsByValue = new Map(allFlatOptions().map((option) => [option.value, option]))
+    const selected = selectedValues()
+      .map((value) => optionsByValue.get(value))
+      .filter((option): option is NormalizedOption<TItem> => option !== undefined)
+    const selectedValuesSet = new Set(selected.map((option) => option.value))
+
+    return [
+      ...selected,
+      ...allFlatOptions().filter((option) => !selectedValuesSet.has(option.value)),
+    ]
+  })
 
   const [openState, setOpenState] = useControllableValue<boolean>({
     value: () => merged.open,
@@ -423,6 +440,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   let controlRef: HTMLDivElement | undefined
   let comboboxRef: HTMLElement | undefined
   let listboxRef: HTMLDivElement | undefined
+  let nativeFormSelectRef: HTMLSelectElement | undefined
   let hasReachedScrollBottom = false
 
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
@@ -446,6 +464,20 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       },
     ),
   )
+
+  createEffect(() => {
+    const select = nativeFormSelectRef
+    if (!select) {
+      return
+    }
+
+    const values = new Set(selectedValues())
+    for (const option of select.options) {
+      option.selected = option.hasAttribute('data-empty-option')
+        ? !merged.multiple && values.size === 0
+        : values.has(option.value)
+    }
+  })
 
   const visibleOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(() => {
     const options = normalizedOptions()
@@ -707,7 +739,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'aria-autocomplete': 'list',
     'aria-activedescendant': activeDescendantId(),
     disabled: field.disabled(),
-    required: merged.required,
     'aria-invalid': field.invalid() ? 'true' : undefined,
     'aria-required': merged.required || undefined,
     'aria-disabled': field.disabled() || undefined,
@@ -816,6 +847,34 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
     >
+      <select
+        ref={(element) => {
+          nativeFormSelectRef = element
+        }}
+        aria-hidden="true"
+        class="sr-only"
+        disabled={field.disabled()}
+        multiple={merged.multiple}
+        name={field.name()}
+        required={merged.required}
+        tabIndex={-1}
+      >
+        <Show when={!merged.multiple}>
+          <option data-empty-option value="" selected={selectedValues().length === 0} />
+        </Show>
+        <For each={nativeFormOptions()}>
+          {(option) => (
+            <option
+              value={option.value}
+              disabled={option.disabled}
+              selected={selectedValues().includes(option.value)}
+            >
+              {option.key}
+            </option>
+          )}
+        </For>
+      </select>
+
       {props.children({
         ...stateApi,
         controlProps,

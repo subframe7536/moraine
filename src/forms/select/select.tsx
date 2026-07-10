@@ -84,6 +84,7 @@ export namespace SelectT {
         | 'onOptionSelect'
         | 'optionRender'
         | 'selectedValues'
+        | 'multiple'
         | 'tabSelectionBehavior'
       >,
       FormIdentityOptions,
@@ -189,6 +190,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     <BaseSelect<Item>
       {...props}
       initialValue={getInitialValue()}
+      multiple={false}
       selectedValues={getSelectedValues()}
       onOptionSelect={(option, api) => updateSelection(option, api)}
       emptyRender={createEmptyRenderer({

@@ -647,6 +647,55 @@ describe('Select - keyboard and ARIA', () => {
 })
 
 describe('Select - form integration', () => {
+  test('serializes the selected scalar value through native form semantics', async () => {
+    const screen = render(() => (
+      <form>
+        <Select name="fruit" options={FRUITS} defaultValue="apple" defaultOpen />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+    expect(form.querySelectorAll('select[name="fruit"]')).toHaveLength(1)
+
+    const items = queryAllBody('[data-slot="item"]')
+    await fireEvent.click(items[1]!)
+
+    expect(new FormData(form).getAll('fruit')).toEqual(['banana'])
+  })
+
+  test('serializes numeric selections and omits disabled fields', () => {
+    const screen = render(() => (
+      <form>
+        <Select name="count" options={[{ label: 'One', value: 1 }]} defaultValue={1} />
+        <Select name="disabledFruit" options={FRUITS} defaultValue="apple" disabled />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const formData = new FormData(form)
+
+    expect(formData.getAll('count')).toEqual(['1'])
+    expect(formData.has('disabledFruit')).toBe(false)
+  })
+
+  test('uses the native select for required validity instead of unmatched search text', async () => {
+    const screen = render(() => (
+      <form>
+        <Select name="fruit" options={FRUITS} required search placeholder="Search fruit" />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    expect(form.checkValidity()).toBe(false)
+    expect(input.name).toBe('')
+    expect(input.required).toBe(false)
+    await fireEvent.input(input, { target: { value: 'not a fruit' } })
+
+    expect(form.checkValidity()).toBe(false)
+    expect(new FormData(form).getAll('fruit')).toEqual([''])
+  })
+
   test('applies aria-invalid from form field error state', async () => {
     const state = { fruit: '' }
 

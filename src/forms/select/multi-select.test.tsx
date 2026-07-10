@@ -442,6 +442,55 @@ describe('MultiSelect', () => {
     onChange(['apple'])
   })
 
+  test('serializes selected values as repeated same-name entries in selection order', async () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect name="fruits" options={FRUITS} defaultOpen />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const items = queryAllBody('[data-slot="item"]')
+
+    await fireEvent.click(items[1]!)
+    await fireEvent.click(items[0]!)
+
+    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
+    expect(form.querySelectorAll('select[name="fruits"]')).toHaveLength(1)
+  })
+
+  test('uses selected values for required validity and serializes created tags', async () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect name="fruits" options={FRUITS} required search allowCreate />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    const nativeSelect = form.querySelector('select[name="fruits"]') as HTMLSelectElement
+
+    expect(nativeSelect.multiple).toBe(true)
+    expect(Array.from(nativeSelect.selectedOptions)).toHaveLength(0)
+    expect(form.checkValidity()).toBe(false)
+    expect(input.name).toBe('')
+    expect(input.required).toBe(false)
+    await fireEvent.input(input, { target: { value: 'dragonfruit' } })
+    await fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(form.checkValidity()).toBe(true)
+    expect(new FormData(form).getAll('fruits')).toEqual(['dragonfruit'])
+  })
+
+  test('omits disabled fields from native form data', () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect name="fruits" options={FRUITS} defaultValue={['apple']} disabled />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    expect(new FormData(form).has('fruits')).toBe(false)
+  })
+
   test('clear resets bound form value to default array when provided', async () => {
     const state: { fruits: Array<string | number> } = { fruits: ['apple'] }
 

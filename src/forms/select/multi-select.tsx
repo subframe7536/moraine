@@ -104,6 +104,7 @@ export namespace MultiSelectT {
         | 'onOptionSelect'
         | 'optionRender'
         | 'selectedValues'
+        | 'multiple'
         | 'tabSelectionBehavior'
       >,
       FormIdentityOptions,
@@ -521,6 +522,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       {...props}
       options={options()}
       initialValue={props.defaultValue ?? []}
+      multiple
       selectedValues={selectedValues()}
       closeOnSelect={false}
       onOptionSelect={toggleOption}
