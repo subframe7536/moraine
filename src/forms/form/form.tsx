@@ -301,6 +301,9 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     errors: [],
     fields: {},
   })
+  let nextValidationRunId = 0
+  let latestFullValidationRunId = 0
+  const latestValidationRunIds = new Map<string, number>()
 
   function buildValidationState(): TState | undefined {
     if (props.state !== undefined) {
@@ -377,8 +380,12 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
     )
   }
 
+  function uniqueFieldIdentities(targets: FormFieldIdentity[]): FormFieldIdentity[] {
+    return [...new Map(targets.map((target) => [target.key, target])).values()]
+  }
+
   function updateValidatingCount(targets: FormFieldIdentity[], delta: 1 | -1): void {
-    const identities = [...new Map(targets.map((target) => [target.key, target])).values()]
+    const identities = uniqueFieldIdentities(targets)
     if (identities.length === 0) {
       return
     }
@@ -387,18 +394,23 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
       'fields',
       produce((currentFields) => {
         for (const identity of identities) {
-          const current = currentFields[identity.key] ?? createFieldEntry(identity)
-          const validatingCount = Math.max(0, current.runtime.validatingCount + delta)
+          const current = currentFields[identity.key]
+          if (!current && delta === -1) {
+            continue
+          }
 
-          if (validatingCount === current.runtime.validatingCount) {
+          const entry = current ?? createFieldEntry(identity)
+          const validatingCount = Math.max(0, entry.runtime.validatingCount + delta)
+
+          if (validatingCount === entry.runtime.validatingCount) {
             continue
           }
 
           currentFields[identity.key] = {
-            ...current,
+            ...entry,
             path: [...identity.path],
             runtime: {
-              ...current.runtime,
+              ...entry.runtime,
               validatingCount,
             },
           }
@@ -466,7 +478,13 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
   }
 
   function unregisterInput(name: string | string[]): void {
-    removeField(toFieldIdentity(name))
+    const identity = toFieldIdentity(name)
+    if (!identity) {
+      return
+    }
+
+    latestValidationRunIds.delete(identity.key)
+    removeField(identity)
   }
 
   function getInputMeta(name: string | string[]): FormInputMeta | undefined {
@@ -511,20 +529,50 @@ export function Form<TState extends object = object>(props: FormProps<TState>): 
   }
 
   async function runValidation(targets?: FormFieldIdentity[]): Promise<FormValidationError[]> {
-    const targetIdentities = targets ?? allFieldIdentities()
+    const isFullValidation = targets === undefined
+    const targetIdentities = uniqueFieldIdentities(targets ?? allFieldIdentities())
+    const runId = ++nextValidationRunId
+
+    for (const target of targetIdentities) {
+      latestValidationRunIds.set(target.key, runId)
+    }
+
+    if (isFullValidation) {
+      latestFullValidationRunId = runId
+    }
+
     updateValidatingCount(targetIdentities, 1)
 
     try {
       const allErrors = await getErrors()
-
-      if (!targets) {
-        setFormState('errors', reconcile(allErrors))
-        return allErrors
-      }
+      const currentTargetIdentities = targetIdentities.filter(
+        (target) => latestValidationRunIds.get(target.key) === runId,
+      )
+      const canReplaceFormErrors = isFullValidation && latestFullValidationRunId === runId
 
       const nextErrors = [
-        ...formState.errors.filter((error) => !matchesField(error, targetIdentities)),
-        ...allErrors.filter((error) => matchesField(error, targetIdentities)),
+        ...formState.errors.filter((error) => {
+          if (!toFieldIdentity(error.name)) {
+            return !canReplaceFormErrors
+          }
+
+          if (!matchesField(error, targetIdentities)) {
+            return !canReplaceFormErrors
+          }
+
+          return !matchesField(error, currentTargetIdentities)
+        }),
+        ...allErrors.filter((error) => {
+          if (!toFieldIdentity(error.name)) {
+            return canReplaceFormErrors
+          }
+
+          if (!matchesField(error, targetIdentities)) {
+            return canReplaceFormErrors
+          }
+
+          return matchesField(error, currentTargetIdentities)
+        }),
       ]
 
       setFormState('errors', reconcile(nextErrors))

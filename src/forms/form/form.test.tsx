@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { onMount, untrack } from 'solid-js'
+import { createSignal, onMount, Show, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -13,6 +13,7 @@ import type { SelectT } from '../select/select'
 
 import type { FormT } from './form'
 import { Form } from './form'
+import type { FormValidationError } from './form-context'
 import { useFormContext } from './form-context'
 
 interface TestState {
@@ -44,6 +45,39 @@ function TestInput(props: { state: TestState; deferInputValidation?: boolean }) 
       onChange={() => field.emit('change')}
       onBlur={() => field.emit('blur')}
       onFocus={() => field.emit('focus')}
+    />
+  )
+}
+
+interface Deferred<T> {
+  promise: Promise<T>
+  resolve: (value: T) => void
+}
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve: (value: T) => void = () => {}
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve
+  })
+
+  return { promise, resolve }
+}
+
+function RaceInput(props: { state: Record<string, string>; stateKey: string; testId: string }) {
+  const field = useFormField(undefined, () => ({
+    defaultId: `${props.testId}-default-id`,
+    defaultSize: 'md',
+  }))
+
+  return (
+    <input
+      data-testid={props.testId}
+      name={field.name()}
+      data-validating={String(field.runtimeState().validating)}
+      onInput={(event) => {
+        props.state[props.stateKey] = event.currentTarget.value
+        field.emit('input')
+      }}
     />
   )
 }
@@ -389,6 +423,289 @@ describe('Form', () => {
     await waitFor(() => {
       expect(input.getAttribute('data-validating')).toBe('false')
       expect(input.getAttribute('data-focused')).toBe('false')
+    })
+  })
+
+  test('ignores an old invalid input validation after a new valid result', async () => {
+    const state: TestState = { value: '' }
+    const validations: Array<{
+      value: string
+      result: Deferred<FormValidationError[]>
+    }> = []
+
+    const screen = render(() => (
+      <Form
+        state={state}
+        validateOn={['input']}
+        validateOnInputDelay={0}
+        validate={(currentState) => {
+          const result = createDeferred<FormValidationError[]>()
+          validations.push({ value: currentState?.value ?? '', result })
+          return result.promise
+        }}
+      >
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    const input = screen.getByTestId('input')
+    await fireEvent.input(input, { target: { value: 'invalid' } })
+    await waitFor(() => {
+      expect(validations).toHaveLength(1)
+    })
+    await fireEvent.input(input, { target: { value: 'valid' } })
+
+    await waitFor(() => {
+      expect(validations.map((validation) => validation.value)).toEqual(['invalid', 'valid'])
+    })
+
+    validations[1]!.result.resolve([])
+    await waitFor(() => {
+      expect(screen.queryByText('Old invalid error')).toBeNull()
+    })
+
+    validations[0]!.result.resolve([{ name: 'value', message: 'Old invalid error' }])
+    await waitFor(() => {
+      expect(input.getAttribute('data-validating')).toBe('false')
+      expect(screen.queryByText('Old invalid error')).toBeNull()
+    })
+  })
+
+  test('keeps a new invalid input validation after an old valid result', async () => {
+    const state: TestState = { value: '' }
+    const validations: Array<{
+      value: string
+      result: Deferred<FormValidationError[]>
+    }> = []
+
+    const screen = render(() => (
+      <Form
+        state={state}
+        validateOn={['input']}
+        validateOnInputDelay={0}
+        validate={(currentState) => {
+          const result = createDeferred<FormValidationError[]>()
+          validations.push({ value: currentState?.value ?? '', result })
+          return result.promise
+        }}
+      >
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    const input = screen.getByTestId('input')
+    await fireEvent.input(input, { target: { value: 'valid' } })
+    await waitFor(() => {
+      expect(validations).toHaveLength(1)
+    })
+    await fireEvent.input(input, { target: { value: 'invalid' } })
+
+    await waitFor(() => {
+      expect(validations.map((validation) => validation.value)).toEqual(['valid', 'invalid'])
+    })
+
+    validations[1]!.result.resolve([{ name: 'value', message: 'New invalid error' }])
+    await waitFor(() => {
+      expect(screen.getByText('New invalid error')).not.toBeNull()
+    })
+
+    validations[0]!.result.resolve([])
+    await waitFor(() => {
+      expect(input.getAttribute('data-validating')).toBe('false')
+      expect(screen.getByText('New invalid error')).not.toBeNull()
+    })
+  })
+
+  test('resolves concurrent field validations independently', async () => {
+    const state = { first: '', second: '' }
+    const validations: Deferred<FormValidationError[]>[] = []
+
+    const screen = render(() => (
+      <Form
+        state={state}
+        validateOn={['input']}
+        validateOnInputDelay={0}
+        validate={() => {
+          const result = createDeferred<FormValidationError[]>()
+          validations.push(result)
+          return result.promise
+        }}
+      >
+        <FormField name="first" label="First">
+          <RaceInput state={state} stateKey="first" testId="first-input" />
+        </FormField>
+        <FormField name="second" label="Second">
+          <RaceInput state={state} stateKey="second" testId="second-input" />
+        </FormField>
+      </Form>
+    ))
+
+    await fireEvent.input(screen.getByTestId('first-input'), { target: { value: 'first' } })
+    await fireEvent.input(screen.getByTestId('second-input'), { target: { value: 'second' } })
+
+    await waitFor(() => {
+      expect(validations).toHaveLength(2)
+    })
+
+    validations[0]!.resolve([{ name: 'first', message: 'First error' }])
+    await waitFor(() => {
+      expect(screen.getByText('First error')).not.toBeNull()
+    })
+
+    validations[1]!.resolve([])
+    await waitFor(() => {
+      expect(screen.getByText('First error')).not.toBeNull()
+    })
+  })
+
+  test('keeps a field validating until every overlapping request settles', async () => {
+    const state: TestState = { value: '' }
+    const validations: Deferred<FormValidationError[]>[] = []
+
+    const screen = render(() => (
+      <Form
+        state={state}
+        validateOn={['input']}
+        validateOnInputDelay={0}
+        validate={() => {
+          const result = createDeferred<FormValidationError[]>()
+          validations.push(result)
+          return result.promise
+        }}
+      >
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    const input = screen.getByTestId('input')
+    await fireEvent.input(input, { target: { value: 'first' } })
+    await waitFor(() => {
+      expect(validations).toHaveLength(1)
+    })
+    await fireEvent.input(input, { target: { value: 'second' } })
+
+    await waitFor(() => {
+      expect(validations).toHaveLength(2)
+      expect(input.getAttribute('data-validating')).toBe('true')
+    })
+
+    validations[1]!.resolve([])
+    await waitFor(() => {
+      expect(input.getAttribute('data-validating')).toBe('true')
+    })
+
+    validations[0]!.resolve([])
+    await waitFor(() => {
+      expect(input.getAttribute('data-validating')).toBe('false')
+    })
+  })
+
+  test('keeps submit validation errors when an earlier input validation resolves last', async () => {
+    const state: TestState = { value: '' }
+    const validations: Array<{
+      value: string
+      result: Deferred<FormValidationError[]>
+    }> = []
+    const onError = vi.fn()
+
+    const screen = render(() => (
+      <Form
+        state={state}
+        validateOn={['input']}
+        validateOnInputDelay={0}
+        validate={(currentState) => {
+          const result = createDeferred<FormValidationError[]>()
+          validations.push({ value: currentState?.value ?? '', result })
+          return result.promise
+        }}
+        onError={onError}
+      >
+        <FormField name="value" label="Value">
+          <TestInput state={state} />
+        </FormField>
+      </Form>
+    ))
+
+    await fireEvent.input(screen.getByTestId('input'), { target: { value: 'input-value' } })
+    await waitFor(() => {
+      expect(validations).toHaveLength(1)
+    })
+    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
+
+    await waitFor(() => {
+      expect(validations.map((validation) => validation.value)).toEqual([
+        'input-value',
+        'input-value',
+      ])
+    })
+
+    validations[1]!.result.resolve([{ name: 'value', message: 'Submit error' }])
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('Submit error')).not.toBeNull()
+    })
+
+    validations[0]!.result.resolve([{ name: 'value', message: 'Old input error' }])
+    await waitFor(() => {
+      expect(screen.getByTestId('input').getAttribute('data-validating')).toBe('false')
+      expect(screen.getByText('Submit error')).not.toBeNull()
+      expect(screen.queryByText('Old input error')).toBeNull()
+    })
+  })
+
+  test('does not restore an unregistered field after its validation settles', async () => {
+    const state: TestState = { value: '' }
+    const validation = createDeferred<FormValidationError[]>()
+    let validationSettled = false
+    let setVisible: (visible: boolean) => void = () => {}
+
+    const screen = render(() => {
+      const [visible, nextSetVisible] = createSignal(true)
+      setVisible = nextSetVisible
+
+      return (
+        <Form
+          state={state}
+          validateOn={['input']}
+          validateOnInputDelay={0}
+          validate={() =>
+            validation.promise.then((errors) => {
+              validationSettled = true
+              return errors
+            })
+          }
+        >
+          <Show when={visible()}>
+            <FormField name="value" label="Value">
+              <TestInput state={state} />
+            </FormField>
+          </Show>
+        </Form>
+      )
+    })
+
+    await fireEvent.input(screen.getByTestId('input'), { target: { value: 'invalid' } })
+    await waitFor(() => {
+      expect(screen.getByTestId('input').getAttribute('data-validating')).toBe('true')
+    })
+    setVisible(false)
+    validation.resolve([{ name: 'value', message: 'Removed field error' }])
+
+    await waitFor(() => {
+      expect(validationSettled).toBe(true)
+      expect(screen.queryByTestId('input')).toBeNull()
+    })
+
+    setVisible(true)
+    await waitFor(() => {
+      expect(screen.getByTestId('input').getAttribute('data-validating')).toBe('false')
+      expect(screen.queryByText('Removed field error')).toBeNull()
     })
   })
 
