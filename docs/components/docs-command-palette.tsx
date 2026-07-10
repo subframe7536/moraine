@@ -76,10 +76,10 @@ export function DocsSearchTrigger(props: {
       <Show when={variant() === 'desktop'}>
         <span class="text-left flex-1 truncate">Search...</span>
         <KbdGroup
-          value={['⌘', 'K']}
+          items={['⌘', 'K']}
           size="xs"
           variant="outline"
-          classes={{ item: 'text-[0.65rem]' }}
+          // classes={{ item: 'text-[0.65rem]' }}
         />
       </Show>
     </button>

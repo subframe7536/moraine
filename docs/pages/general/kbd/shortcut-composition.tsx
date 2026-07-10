@@ -4,7 +4,7 @@ export function ShortcutComposition() {
   return (
     <p class="text-sm text-foreground flex flex-wrap gap-2 items-center">
       Close dialogs with
-      <Kbd value="Esc" label="Escape" />
+      <Kbd value="escape" />
     </p>
   )
 }

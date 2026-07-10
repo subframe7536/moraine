@@ -16,7 +16,7 @@ import { KbdGroup } from 'moraine'
 ## Usage
 
 `KbdGroup` composes multiple [`Kbd`](/general/kbd) keycaps.
-Use `value` for keys pressed at the same time, such as `Ctrl + K`.
+Use `items` for keys pressed at the same time, such as `Ctrl + K`.
 Use `sequence` for chords pressed one after another, such as `Ctrl + K` then `Ctrl + S`.
 
 ## Slot Structure
@@ -24,9 +24,9 @@ Use `sequence` for chords pressed one after another, such as `Ctrl + K` then `Ct
 ```text
 root
 ├── chord
-│   ├── kbd (×n)
+│   ├── item (×n)
 │   └── divider (between simultaneous keys)
-└── sequence-divider (between ordered chords)
+└── sequenceDivider (between ordered chords)
 ```
 
 ## Examples

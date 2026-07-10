@@ -15,9 +15,12 @@ import { Kbd } from 'moraine'
 ## Slot Structure
 
 `Kbd` renders a single accessible keycap. Use [`KbdGroup`](/general/kbd-group) for shortcut chords and ordered sequences.
+Static aliases such as `meta`, `enter`, `escape`, and `arrowup` resolve to familiar key symbols with accessible labels.
+Set `symbol={false}` to render the raw key value without alias resolution.
+Use `KbdT.Key` in shortcut data models to retain alias autocomplete while accepting custom key names.
 
 ```text
-kbd
+root
 ```
 
 ## Examples

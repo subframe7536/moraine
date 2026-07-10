@@ -7,8 +7,8 @@ export function CustomDividers() {
         [{ value: 'Ctrl', label: 'Control' }, 'K'],
         ['Ctrl', 'S'],
       ]}
-      divider={<span class="text-xs text-muted-foreground">+</span>}
-      sequenceDivider={<span class="text-xs text-muted-foreground">then</span>}
+      dividerRender={() => <span class="text-xs text-muted-foreground">/</span>}
+      sequenceDividerRender={() => <span class="text-xs text-muted-foreground"> & </span>}
     />
   )
 }

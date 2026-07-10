@@ -1,128 +1,191 @@
 import { render, screen } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Kbd } from './kbd'
-import type { KbdProps } from './kbd'
+import type { KbdProps, KbdT } from './kbd'
 import { KbdGroup } from './kbd-group'
 import type { KbdGroupProps } from './kbd-group'
 
 describe('Kbd', () => {
-  test('renders one keycap value', () => {
+  test('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
-    const item = view.container.querySelector('[data-slot="kbd"]')
+    const root = view.container.querySelector('[data-slot="root"]')
 
-    expect(item?.tagName).toBe('KBD')
-    expect(item?.textContent).toBe('K')
+    expect(root?.tagName).toBe('KBD')
+    expect(root?.textContent).toBe('K')
   })
 
-  test('renders text before value with an accessible label', () => {
-    const view = render(() => <Kbd value="Command" text="Cmd" label="Command" />)
-    const item = screen.getByLabelText('Command')
+  test.each([
+    ['meta', '⌘', 'Meta'],
+    ['COMMAND', '⌘', 'Command'],
+    ['ctrl', 'Ctrl', 'Control'],
+    ['control', '⌃', 'Control'],
+    ['alt', 'Alt', 'Alt'],
+    ['option', '⌥', 'Option'],
+    ['shift', '⇧', 'Shift'],
+    ['enter', '↵', 'Enter'],
+    ['delete', '⌦', 'Delete'],
+    ['backspace', '⌫', 'Backspace'],
+    ['escape', 'Esc', 'Escape'],
+    ['tab', '⇥', 'Tab'],
+    ['capslock', '⇪', 'Caps Lock'],
+    ['arrowup', '↑', 'Arrow Up'],
+    ['arrowright', '→', 'Arrow Right'],
+    ['arrowdown', '↓', 'Arrow Down'],
+    ['arrowleft', '←', 'Arrow Left'],
+    ['pageup', '⇞', 'Page Up'],
+    ['pagedown', '⇟', 'Page Down'],
+    ['home', '↖', 'Home'],
+    ['end', '↘', 'End'],
+    ['win', '⊞', 'Windows'],
+  ])('resolves the %s alias', (value, text, label) => {
+    render(() => <Kbd value={value} />)
 
-    expect(item.textContent).toBe('Cmd')
-    expect(view.container.querySelector('[data-slot="kbd"]')).toBe(item)
+    expect(screen.getByLabelText(label).textContent).toBe(text)
   })
 
-  test('renders nothing without content', () => {
-    const view = render(() => <Kbd />)
+  test('preserves unknown values and lets an explicit label override an alias label', () => {
+    const view = render(() => (
+      <div>
+        <Kbd value="F13" />
+        <Kbd value="meta" label="Primary modifier" />
+      </div>
+    ))
 
-    expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
+    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('F13')
+    expect(screen.getByLabelText('Primary modifier').textContent).toBe('⌘')
   })
 
-  test('applies size classes on kbd items: xs/sm/md/lg/xl', () => {
-    const xs = render(() => <Kbd size="xs" value="X" />)
-    const sm = render(() => <Kbd size="sm" value="S" />)
-    const md = render(() => <Kbd size="md" value="M" />)
-    const lg = render(() => <Kbd size="lg" value="L" />)
-    const xl = render(() => <Kbd size="xl" value="XL" />)
+  test('renders the raw key when symbol aliases are disabled', () => {
+    const view = render(() => <Kbd value="meta" symbol={false} />)
+    const root = view.container.querySelector('[data-slot="root"]')
 
-    expect(xs.container.querySelector('[data-slot="kbd"]')?.className).toContain('h-3')
-    expect(sm.container.querySelector('[data-slot="kbd"]')?.className).toContain('h-4')
-    expect(md.container.querySelector('[data-slot="kbd"]')?.className).toContain('h-4.5')
-    expect(lg.container.querySelector('[data-slot="kbd"]')?.className).toContain('h-5')
-    expect(xl.container.querySelector('[data-slot="kbd"]')?.className).toContain('h-5.5')
+    expect(root?.textContent).toBe('meta')
+    expect(root?.getAttribute('aria-label')).toBeNull()
   })
 
-  test('rejects invalid props in type contract', () => {
+  test('does not render an empty value', () => {
+    const view = render(() => <Kbd value="" />)
+
+    expect(view.container.querySelector('[data-slot="root"]')).toBeNull()
+  })
+
+  test('applies size classes on keycaps', () => {
+    const sizes = [
+      ['xs', 'h-3'],
+      ['sm', 'h-4'],
+      ['md', 'h-4.5'],
+      ['lg', 'h-5'],
+      ['xl', 'h-5.5'],
+    ] as const
+
+    for (const [size, expectedClass] of sizes) {
+      const view = render(() => <Kbd size={size} value={size} />)
+      expect(view.container.querySelector('[data-slot="root"]')?.className).toContain(expectedClass)
+    }
+  })
+
+  test('supports a custom slot, class, style, and root slot overrides', () => {
+    const view = render(() => (
+      <Kbd
+        value="K"
+        slotName="shortcut"
+        class="shortcut-class"
+        style={{ width: '200px' }}
+        classes={{ root: 'root-class' }}
+        styles={{ root: { height: '20px' } }}
+      />
+    ))
+    const root = view.container.querySelector('[data-slot="shortcut"]') as HTMLElement | null
+
+    expect(root?.className).toContain('shortcut-class')
+    expect(root?.className).toContain('root-class')
+    expect(root?.style.width).toBe('200px')
+    expect(root?.style.height).toBe('20px')
+  })
+
+  test('rejects invalid props in the type contract', () => {
+    const aliasKey: KbdT.Key = 'meta'
+    const rawKey: KbdT.RawKey = 'F13'
+    const dynamicValue: string = 'MediaPlayPause'
+    const dynamicKey: KbdT.Key = dynamicValue
+    // @ts-expect-error value is required
+    const missingValueProps: KbdProps = {}
     // @ts-expect-error size must be a declared Kbd size
     const invalidSizeProps: KbdProps = { size: 'invalid', value: 'K' }
-    // @ts-expect-error Kbd renders a single key; use KbdGroup for sequences
-    const sequenceProps: KbdProps = { value: ['Ctrl', 'K'] }
+    // @ts-expect-error key values must be strings
+    const invalidValueProps: KbdProps = { value: 13 }
 
+    expect(aliasKey).toBe('meta')
+    expect(rawKey).toBe('F13')
+    expect(dynamicKey).toBe('MediaPlayPause')
+    expect(missingValueProps).toBeDefined()
     expect(invalidSizeProps).toBeDefined()
-    expect(sequenceProps).toBeDefined()
-  })
-
-  test('applies top-level class and style to keycap', () => {
-    const view = render(() => <Kbd value="K" class="shortcut" style={{ width: '200px' }} />)
-    const item = view.container.querySelector('[data-slot="kbd"]') as HTMLElement | null
-
-    expect(item?.className).toContain('shortcut')
-    expect(item?.style.width).toBe('200px')
+    expect(invalidValueProps).toBeDefined()
   })
 })
 
 describe('KbdGroup', () => {
-  test('renders simultaneous keys from value with dividers', () => {
-    const view = render(() => <KbdGroup value={['Ctrl', 'Shift', 'P']} />)
-    const root = view.container.querySelector('[data-slot="root"]')
-    const chord = view.container.querySelector('[data-slot="chord"]')
-    const items = view.container.querySelectorAll('[data-slot="kbd"]')
+  test('renders simultaneous items with dividers', () => {
+    const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
+    const items = view.container.querySelectorAll('[data-slot="item"]')
     const dividers = view.container.querySelectorAll('[data-slot="divider"]')
 
-    expect(root?.tagName).toBe('SPAN')
-    expect(chord?.tagName).toBe('SPAN')
-    expect(items.length).toBe(3)
-    expect(items.item(0)?.textContent).toBe('Ctrl')
-    expect(items.item(1)?.textContent).toBe('Shift')
-    expect(items.item(2)?.textContent).toBe('P')
+    expect(view.container.querySelector('[data-slot="root"]')?.tagName).toBe('SPAN')
+    expect(view.container.querySelector('[data-slot="chord"]')?.tagName).toBe('SPAN')
+    expect([...items].map((item) => item.textContent)).toEqual(['Ctrl', '⇧', 'P'])
     expect(dividers.length).toBe(2)
     expect(dividers.item(0)?.textContent).toBe('+')
   })
 
-  test('renders accessible text items', () => {
-    render(() => <KbdGroup value={[{ value: 'Cmd', label: 'Command' }, 'K']} />)
+  test('renders item objects with accessible labels', () => {
+    render(() => <KbdGroup items={[{ value: 'Cmd', label: 'Command key' }, 'K']} />)
 
-    expect(screen.getByLabelText('Command').textContent).toBe('Cmd')
+    expect(screen.getByLabelText('Command key').textContent).toBe('Cmd')
   })
 
-  test('renders ordered sequences with custom dividers', () => {
+  test('renders a sequence with custom dividers and indexes', () => {
+    const dividerRender = vi.fn((ctx: { index: number }) => <span>plus-{ctx.index}</span>)
+    const sequenceDividerRender = vi.fn((ctx: { index: number }) => <span>then-{ctx.index}</span>)
     const view = render(() => (
       <KbdGroup
         sequence={[
-          [{ value: 'Ctrl', label: 'Control' }, 'K'],
+          ['Ctrl', 'K'],
           ['Ctrl', 'S'],
         ]}
-        divider={(ctx) => <span data-index={ctx.index}>plus</span>}
-        sequenceDivider={(ctx) => <span data-index={ctx.index}>then</span>}
+        dividerRender={dividerRender}
+        sequenceDividerRender={sequenceDividerRender}
       />
     ))
 
-    expect(view.container.querySelectorAll('[data-slot="chord"]').length).toBe(2)
-    expect(view.container.querySelector('[data-slot="divider"]')?.textContent).toBe('plus')
-    expect(view.container.querySelector('[data-slot="sequence-divider"]')?.textContent).toBe('then')
+    expect(view.container.querySelectorAll('[data-slot="chord"]')).toHaveLength(2)
+    expect(view.container.querySelector('[data-slot="divider"]')?.textContent).toBe('plus-0')
+    expect(view.container.querySelector('[data-slot="sequenceDivider"]')?.textContent).toBe(
+      'then-0',
+    )
+    expect(dividerRender).toHaveBeenCalledTimes(2)
+    expect(sequenceDividerRender).toHaveBeenCalledOnce()
   })
 
-  test('rejects invalid group props in type contract', () => {
-    // @ts-expect-error value requires at least one key
-    const emptyValueProps: KbdGroupProps = { value: [] }
-    // @ts-expect-error sequence requires at least one non-empty chord
-    const emptySequenceProps: KbdGroupProps = { sequence: [] }
-    // @ts-expect-error value and sequence are mutually exclusive
-    const mixedProps: KbdGroupProps = { value: ['Ctrl'], sequence: [['Ctrl', 'S']] }
-    // @ts-expect-error sequence must be an array of chords
-    const flatSequenceProps: KbdGroupProps = { sequence: ['Ctrl', 'S'] }
+  test('prefers sequence when items and sequence are both provided', () => {
+    const view = render(() => <KbdGroup items={['Ignored']} sequence={[['Ctrl', 'S']]} />)
 
-    expect(emptyValueProps).toBeDefined()
-    expect(emptySequenceProps).toBeDefined()
-    expect(mixedProps).toBeDefined()
-    expect(flatSequenceProps).toBeDefined()
+    expect(view.container.textContent).not.toContain('Ignored')
+    expect(view.container.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
+  })
+
+  test('renders nothing for empty items and empty sequence groups', () => {
+    const emptyItems = render(() => <KbdGroup items={[]} />)
+    const emptySequence = render(() => <KbdGroup sequence={[[], []]} />)
+
+    expect(emptyItems.container.querySelector('[data-slot="root"]')).toBeNull()
+    expect(emptySequence.container.querySelector('[data-slot="root"]')).toBeNull()
   })
 
   test('applies group and item slot customizations', () => {
     const view = render(() => (
       <KbdGroup
-        value={['Ctrl', 'K']}
+        items={['Ctrl', 'K']}
         class="root-class"
         style={{ width: '200px' }}
         classes={{ chord: 'chord-class', item: 'item-class', divider: 'divider-class' }}
@@ -130,16 +193,36 @@ describe('KbdGroup', () => {
       />
     ))
     const root = view.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const chord = view.container.querySelector('[data-slot="chord"]')
-    const item = view.container.querySelector('[data-slot="kbd"]') as HTMLElement | null
+    const item = view.container.querySelector('[data-slot="item"]') as HTMLElement | null
     const divider = view.container.querySelector('[data-slot="divider"]') as HTMLElement | null
 
     expect(root?.className).toContain('root-class')
     expect(root?.style.width).toBe('200px')
-    expect(chord?.className).toContain('chord-class')
+    expect(view.container.querySelector('[data-slot="chord"]')?.className).toContain('chord-class')
     expect(item?.className).toContain('item-class')
     expect(item?.style.height).toBe('20px')
     expect(divider?.className).toContain('divider-class')
     expect(divider?.style.width).toBe('10px')
+  })
+
+  test('accepts items and sequence in the type contract', () => {
+    const itemsProps: KbdGroupProps = { items: ['Ctrl', { value: 'K' }] }
+    const sequenceProps: KbdGroupProps = {
+      sequence: [
+        ['Ctrl', 'K'],
+        ['Ctrl', 'S'],
+      ],
+    }
+    const combinedProps: KbdGroupProps = { items: ['Ignored'], sequence: [['Ctrl', 'S']] }
+    // @ts-expect-error item objects require value
+    const invalidItemProps: KbdGroupProps = { items: [{ label: 'Missing value' }] }
+    // @ts-expect-error sequence must contain arrays of items
+    const flatSequenceProps: KbdGroupProps = { sequence: ['Ctrl', 'S'] }
+
+    expect(itemsProps).toBeDefined()
+    expect(sequenceProps).toBeDefined()
+    expect(combinedProps).toBeDefined()
+    expect(invalidItemProps).toBeDefined()
+    expect(flatSequenceProps).toBeDefined()
   })
 })

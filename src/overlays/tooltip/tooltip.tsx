@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd'
-import type { KbdGroupT } from '../../elements/kbd'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { Popper, resolveOverlayMenuSide } from '../base'
@@ -10,10 +9,6 @@ import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base
 
 import { tooltipContentVariants } from './tooltip.class'
 import type { TooltipVariantProps } from './tooltip.class'
-
-function toKbdChord(value: string[] | undefined): KbdGroupT.Chord | undefined {
-  return value && value.length > 0 ? (value as unknown as KbdGroupT.Chord) : undefined
-}
 
 export namespace TooltipT {
   export interface Slot<T = unknown> {
@@ -292,12 +287,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           </span>
         </Show>
 
-        <Show when={toKbdChord(merged.kbds)}>
+        <Show when={merged.kbds?.length ? merged.kbds : undefined}>
           {(value) => (
             <KbdGroup
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
-              value={value()}
+              items={value()}
               class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
               classes={{ item: merged.classes?.kbd }}
             />

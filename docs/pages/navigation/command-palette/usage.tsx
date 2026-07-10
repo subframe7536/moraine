@@ -82,7 +82,7 @@ export function Usage() {
         <div class="flex gap-4 items-center justify-between">
           <div class="flex flex-wrap gap-3 items-center">
             <div class="flex gap-2 items-center">
-              <KbdGroup value={['↑', '↓']} />
+              <KbdGroup items={['↑', '↓']} />
               <span class="text-xs">Navigate</span>
             </div>
             <div class="flex gap-2 items-center">
@@ -97,7 +97,7 @@ export function Usage() {
         </div>
       )}
     >
-      <Button variant="outline" trailing={<KbdGroup value={['⌘', 'K']} />}>
+      <Button variant="outline" trailing={<KbdGroup items={['⌘', 'K']} />}>
         Search...
       </Button>
     </CommandPalette>

@@ -7,7 +7,12 @@
     "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
     "sourcePath": "src/elements/kbd/kbd.tsx"
   },
-  "slots": [{ "name": "item", "description": "Individual key token." }],
+  "slots": [
+    {
+      "name": "root",
+      "description": "Keyboard keycap element."
+    }
+  ],
   "props": {
     "own": [
       {
@@ -16,7 +21,11 @@
         "type": "ClassValue",
         "description": "Class applied to the component root or trigger element."
       },
-      { "name": "classes", "required": false, "type": "KbdT.Classes | undefined" },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "KbdT.Classes | undefined"
+      },
       {
         "name": "label",
         "required": false,
@@ -26,27 +35,36 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
       },
       {
-        "name": "slotPrefix",
+        "name": "slotName",
         "required": false,
         "type": "string | undefined",
-        "description": "Prefix for data-slot attributes."
+        "description": "Data slot used by the rendered keycap."
       },
-      { "name": "style", "required": false, "type": "JSX.CSSProperties | undefined" },
-      { "name": "styles", "required": false, "type": "KbdT.Styles | undefined" },
       {
-        "name": "text",
+        "name": "style",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Visible text for the key."
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "KbdT.Styles | undefined"
+      },
+      {
+        "name": "symbol",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to resolve known key aliases to symbols.",
+        "defaultValue": "true"
       },
       {
         "name": "value",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Fallback text value used when text is not provided."
+        "required": true,
+        "type": "KbdT.Key",
+        "description": "Value displayed by the keycap or resolved through the static key aliases."
       },
       {
         "name": "variant",
@@ -61,8 +79,8 @@
       {
         "name": "aria-label",
         "required": false,
-        "type": "string",
-        "description": "Accessible label for keycaps."
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
       }
     ],
     "data": [

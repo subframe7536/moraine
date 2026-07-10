@@ -7,7 +7,7 @@ export function Sizes() {
   return (
     <div class="flex flex-col gap-3 items-start">
       <For each={SIZES}>
-        {(size) => <KbdGroup size={size} value={['Ctrl', size.toUpperCase()]} />}
+        {(size) => <KbdGroup size={size} items={['Ctrl', size.toUpperCase()]} />}
       </For>
     </div>
   )

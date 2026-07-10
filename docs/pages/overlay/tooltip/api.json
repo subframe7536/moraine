@@ -260,6 +260,12 @@
     ],
     "slots": [
       {
+        "name": "chord",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
         "name": "content",
         "cssVariables": [
           {
@@ -303,6 +309,12 @@
             "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
+      },
+      {
+        "name": "divider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
       },
       {
         "name": "group",
@@ -441,6 +453,12 @@
         "ariaAttributes": []
       },
       {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
         "name": "separator",
         "cssVariables": [],
         "dataAttributes": [],
@@ -452,6 +470,12 @@
             "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
+      },
+      {
+        "name": "sequenceDivider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
       },
       {
         "name": "text",

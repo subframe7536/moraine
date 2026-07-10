@@ -8,15 +8,56 @@
     "sourcePath": "src/elements/kbd/kbd-group.tsx"
   },
   "slots": [
-    { "name": "root", "description": "Container for one or more shortcut steps." },
-    { "name": "chord", "description": "Wrapper around keys pressed at the same time." },
-    { "name": "item", "description": "Individual key token." },
-    { "name": "divider", "description": "Divider between keys pressed at the same time." },
+    {
+      "name": "root",
+      "description": "Container for one or more shortcut steps."
+    },
+    {
+      "name": "chord",
+      "description": "Wrapper around keys pressed at the same time."
+    },
+    {
+      "name": "item",
+      "description": "Individual key token."
+    },
+    {
+      "name": "divider",
+      "description": "Divider between keys pressed at the same time."
+    },
     {
       "name": "sequenceDivider",
       "description": "Divider between shortcut steps pressed in sequence."
     }
   ],
+  "item": {
+    "props": [
+      {
+        "name": "label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible label for assistive technology."
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Data slot used by the rendered keycap."
+      },
+      {
+        "name": "symbol",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to resolve known key aliases to symbols.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "KbdT.Key",
+        "description": "Value displayed by the keycap or resolved through the static key aliases."
+      }
+    ]
+  },
   "props": {
     "own": [
       {
@@ -25,43 +66,49 @@
         "type": "ClassValue",
         "description": "Class applied to the component root or trigger element."
       },
-      { "name": "classes", "required": false, "type": "KbdGroupT.Classes | undefined" },
       {
-        "name": "divider",
+        "name": "classes",
         "required": false,
-        "type": "JSX.Element | ((ctx: KbdGroupT.DividerContext) => JSX.Element)",
-        "description": "Divider rendered between keys in the same chord."
+        "type": "KbdGroupT.Classes | undefined"
+      },
+      {
+        "name": "dividerRender",
+        "required": false,
+        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "description": "Custom divider rendered between keys in the same group."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "KbdGroupT.Item[] | undefined",
+        "description": "Keys pressed at the same time, such as Ctrl+K."
       },
       {
         "name": "sequence",
         "required": false,
-        "type": "KbdGroupT.Sequence | undefined",
-        "description": "Chords pressed one after another, such as Ctrl+K then Ctrl+S."
+        "type": "KbdGroupT.Item[][] | undefined",
+        "description": "Key groups pressed one after another, such as Ctrl+K then Ctrl+S."
       },
       {
-        "name": "sequenceDivider",
+        "name": "sequenceDividerRender",
         "required": false,
-        "type": "JSX.Element | ((ctx: KbdGroupT.SequenceDividerContext) => JSX.Element)",
-        "description": "Divider rendered between shortcut steps."
+        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "description": "Custom divider rendered between shortcut steps."
       },
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
       },
       {
-        "name": "slotPrefix",
+        "name": "style",
         "required": false,
-        "type": "string | undefined",
-        "description": "Prefix for data-slot attributes."
+        "type": "JSX.CSSProperties | undefined"
       },
-      { "name": "style", "required": false, "type": "JSX.CSSProperties | undefined" },
-      { "name": "styles", "required": false, "type": "KbdGroupT.Styles | undefined" },
       {
-        "name": "value",
+        "name": "styles",
         "required": false,
-        "type": "KbdGroupT.Chord | undefined",
-        "description": "Keys pressed at the same time, such as Ctrl+K."
+        "type": "KbdGroupT.Styles | undefined"
       },
       {
         "name": "variant",
@@ -72,7 +119,14 @@
     "inherited": []
   },
   "attributes": {
-    "aria": [],
+    "aria": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      }
+    ],
     "data": [
       {
         "name": "data-slot",
@@ -81,6 +135,37 @@
         "description": "Identifies the rendered slot for styling hooks and selectors."
       }
     ],
-    "slots": []
+    "slots": [
+      {
+        "name": "chord",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "divider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "sequenceDivider",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      }
+    ]
   }
 }

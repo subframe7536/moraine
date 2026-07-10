@@ -69,8 +69,16 @@
       "name": "Kbd",
       "category": "elements",
       "polymorphic": false,
-      "description": "Keyboard shortcut display component with configurable size and variant.",
+      "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
       "sourcePath": "src/elements/kbd/kbd.tsx"
+    },
+    {
+      "key": "kbd-group",
+      "name": "KbdGroup",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+      "sourcePath": "src/elements/kbd/kbd-group.tsx"
     },
     {
       "key": "progress",

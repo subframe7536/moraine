@@ -85,7 +85,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
       },
       {
         "name": "slotName",

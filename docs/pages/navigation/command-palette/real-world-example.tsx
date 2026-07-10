@@ -53,7 +53,7 @@ export function RealWorldExample() {
           leadingRender: () => <span class="i-lucide-search-check" />,
           trailingRender: () => (
             <KbdGroup
-              value={[modifierLabel(), 'Shift', 'P']}
+              items={[modifierLabel(), 'Shift', 'P']}
               size="sm"
               class="text-muted-foreground"
             />
@@ -70,7 +70,7 @@ export function RealWorldExample() {
           description: 'Open the active team issue board.',
           leadingRender: () => <span class="i-lucide-circle-dot" />,
           trailingRender: () => (
-            <KbdGroup value={[modifierLabel(), 'I']} size="sm" class="text-muted-foreground" />
+            <KbdGroup items={[modifierLabel(), 'I']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'i' },
           onSelect: () => {
@@ -90,7 +90,7 @@ export function RealWorldExample() {
           description: 'Capture a bug or task without leaving the current page.',
           leadingRender: () => <span class="i-lucide-file-plus-2" />,
           trailingRender: () => (
-            <KbdGroup value={[modifierLabel(), 'N']} size="sm" class="text-muted-foreground" />
+            <KbdGroup items={[modifierLabel(), 'N']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'n' },
           onSelect: () => {
@@ -104,7 +104,7 @@ export function RealWorldExample() {
           description: 'Collapse navigation to focus on the current editor.',
           leadingRender: () => <span class="i-lucide-panel-left-close" />,
           trailingRender: () => (
-            <KbdGroup value={[modifierLabel(), 'B']} size="sm" class="text-muted-foreground" />
+            <KbdGroup items={[modifierLabel(), 'B']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'b' },
           onSelect: () => {
@@ -172,7 +172,7 @@ export function RealWorldExample() {
           <div class="flex flex-wrap gap-3 items-center justify-between">
             <div class="flex flex-wrap gap-3 items-center">
               <span class="flex gap-2 items-center">
-                <KbdGroup value={['↑', '↓']} size="sm" />
+                <KbdGroup items={['↑', '↓']} size="sm" />
                 <span class="text-xs">Navigate</span>
               </span>
               <span class="flex gap-2 items-center">
@@ -181,13 +181,13 @@ export function RealWorldExample() {
               </span>
             </div>
             <span class="flex gap-2 items-center">
-              <KbdGroup value={[modifierLabel(), 'K']} size="sm" />
+              <KbdGroup items={[modifierLabel(), 'K']} size="sm" />
               <span class="text-xs">Toggle palette</span>
             </span>
           </div>
         )}
       >
-        <Button variant="outline" trailing={<KbdGroup value={[modifierLabel(), 'K']} size="sm" />}>
+        <Button variant="outline" trailing={<KbdGroup items={[modifierLabel(), 'K']} size="sm" />}>
           Search projects, issues, and actions
         </Button>
       </CommandPalette>

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show } from 'solid-js'
+import { For, Show, createMemo } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -29,97 +29,77 @@ export namespace KbdGroupT {
   export type Variant = KbdGroupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type Item = KbdT.ItemInput
-  export type Chord = readonly [Item, ...Item[]]
-  export type Sequence = readonly [Chord, ...Chord[]]
-  export type DividerContext = { index: number }
-  export type SequenceDividerContext = { index: number }
-
-  export interface Common {
-    /** Divider rendered between keys in the same chord. */
-    divider?: JSX.Element | ((ctx: DividerContext) => JSX.Element)
-
-    /** Divider rendered between shortcut steps. */
-    sequenceDivider?: JSX.Element | ((ctx: SequenceDividerContext) => JSX.Element)
-
-    /** Prefix for data-slot attributes. */
-    slotPrefix?: string
-  }
-
-  export interface ValueBase extends Common {
-    /** Keys pressed at the same time, such as Ctrl+K. */
-    value: Chord
-
-    sequence?: never
-  }
-
-  export interface SequenceBase extends Common {
-    /** Chords pressed one after another, such as Ctrl+K then Ctrl+S. */
-    sequence: Sequence
-
-    value?: never
+  export type Item = KbdT.Key | KbdT.Base
+  export interface DividerRenderContext {
+    /** Zero-based divider index in the current collection. */
+    index: number
   }
 
   /** Base props for the KbdGroup component. */
-  export type Base = ValueBase | SequenceBase
+  export interface Base {
+    /** Keys pressed at the same time, such as Ctrl+K. */
+    items?: Item[]
+
+    /** Key groups pressed one after another, such as Ctrl+K then Ctrl+S. */
+    sequence?: Item[][]
+
+    /** Custom divider rendered between keys in the same group. */
+    dividerRender?: (ctx: DividerRenderContext) => JSX.Element
+
+    /** Custom divider rendered between shortcut steps. */
+    sequenceDividerRender?: (ctx: DividerRenderContext) => JSX.Element
+  }
 
   /** Props for the KbdGroup component. */
-  export type Props = BaseProps<ValueBase, Variant, Slot> | BaseProps<SequenceBase, Variant, Slot>
+  export interface Props extends BaseProps<Base, Variant, Slot> {}
 }
 
 /** Props for the KbdGroup component. */
-export type KbdGroupProps = KbdGroupT.Props
+export interface KbdGroupProps extends KbdGroupT.Props {}
 
-function resolveDivider<T extends { index: number }>(
-  divider: JSX.Element | ((ctx: T) => JSX.Element) | undefined,
-  ctx: T,
+function resolveDivider(
+  dividerRender: ((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined,
+  ctx: KbdGroupT.DividerRenderContext,
   fallback: JSX.Element,
 ): JSX.Element {
-  if (typeof divider === 'function') {
-    return divider(ctx)
-  }
-
-  return divider ?? fallback
+  return dividerRender?.(ctx) ?? fallback
 }
 
-function toItemProps(item: KbdGroupT.Item): KbdT.Item {
+function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string' ? { value: item } : item
 }
 
 /** Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences. */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
-  const chords = () => props.sequence ?? (props.value ? [props.value] : [])
-  const slot = (name: string) => (props.slotPrefix ? `${props.slotPrefix}-${name}` : name)
+  const groups = createMemo(() =>
+    (props.sequence ?? (props.items ? [props.items] : [])).filter((items) => items.length > 0),
+  )
 
   return (
-    <Show when={chords().length > 0}>
+    <Show when={groups().length > 0}>
       <span
-        data-slot={slot('root')}
+        data-slot="root"
         class={kbdGroupVariants({ size: props.size }, props.classes?.root, props.class)}
         style={{ ...props.styles?.root, ...props.style }}
       >
-        <For each={chords()}>
-          {(chord, chordIndex) => (
+        <For each={groups()}>
+          {(items, groupIndex) => (
             <>
-              <Show when={chordIndex() > 0}>
+              <Show when={groupIndex() > 0}>
                 <span
-                  data-slot={slot('sequence-divider')}
+                  data-slot="sequenceDivider"
                   class={cn('text-muted-foreground', props.classes?.sequenceDivider)}
                   style={props.styles?.sequenceDivider}
                 >
-                  {resolveDivider(
-                    props.sequenceDivider,
-                    { index: chordIndex() - 1 },
-                    <span>then</span>,
-                  )}
+                  {resolveDivider(props.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
                 </span>
               </Show>
               <span
-                data-slot={slot('chord')}
+                data-slot="chord"
                 class={cn('inline-flex gap-1 items-center', props.classes?.chord)}
                 style={props.styles?.chord}
               >
-                <For each={chord}>
+                <For each={items}>
                   {(item, index) => (
                     <>
                       <Kbd
@@ -128,15 +108,15 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                         variant={props.variant}
                         class={props.classes?.item}
                         style={props.styles?.item}
-                        slotPrefix={props.slotPrefix ? `${props.slotPrefix}-item` : undefined}
+                        slotName="item"
                       />
-                      <Show when={index() < chord.length - 1}>
+                      <Show when={index() < items.length - 1}>
                         <span
-                          data-slot={slot('divider')}
+                          data-slot="divider"
                           class={cn('text-muted-foreground', props.classes?.divider)}
                           style={props.styles?.divider}
                         >
-                          {resolveDivider(props.divider, { index: index() }, <span>+</span>)}
+                          {resolveDivider(props.dividerRender, { index: index() }, '+')}
                         </span>
                       </Show>
                     </>

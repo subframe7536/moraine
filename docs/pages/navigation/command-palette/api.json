@@ -112,6 +112,12 @@
         "description": "Whether the item is disabled and cannot be selected."
       },
       {
+        "name": "keywords",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Additional keywords included in built-in search matching."
+      },
+      {
         "name": "label",
         "required": false,
         "type": "string | undefined",
@@ -216,10 +222,22 @@
         "description": "Custom empty state renderer."
       },
       {
+        "name": "filterItems",
+        "required": false,
+        "type": "((args: { groups: CommandPaletteT.Group<TItem>[]; searchTerm: string; }) => CommandPaletteT.Group<TItem>[]) | undefined",
+        "description": "Custom filter function that fully controls which groups and items are visible."
+      },
+      {
         "name": "footerRender",
         "required": false,
         "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
         "description": "Custom footer renderer."
+      },
+      {
+        "name": "getItemSearchText",
+        "required": false,
+        "type": "((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined",
+        "description": "Custom search text builder for built-in filtering."
       },
       {
         "name": "groups",
@@ -235,6 +253,18 @@
         "description": "Unique identifier used to derive the content id."
       },
       {
+        "name": "inputProps",
+        "required": false,
+        "type": "JSX.InputHTMLAttributes<HTMLInputElement> | undefined",
+        "description": "Additional attributes applied to the search input."
+      },
+      {
+        "name": "itemProps",
+        "required": false,
+        "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLDivElement>) | undefined",
+        "description": "Additional attributes applied to each item container."
+      },
+      {
         "name": "itemRender",
         "required": false,
         "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
@@ -246,6 +276,12 @@
         "type": "IconT.Name",
         "description": "Icon name of input's leading icon.",
         "defaultValue": "icon-search"
+      },
+      {
+        "name": "listboxProps",
+        "required": false,
+        "type": "JSX.HTMLAttributes<HTMLDivElement> | undefined",
+        "description": "Additional attributes applied to the listbox container."
       },
       {
         "name": "loading",
@@ -351,10 +387,28 @@
   "attributes": {
     "aria": [
       {
+        "name": "aria-activedescendant",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-autocomplete",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
         "name": "aria-busy",
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-controls",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the controlled element while the related content is mounted."
       },
       {
         "name": "aria-describedby",
@@ -367,6 +421,18 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-expanded",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates whether the controlled content is expanded."
+      },
+      {
+        "name": "aria-haspopup",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
         "name": "aria-hidden",
@@ -391,6 +457,12 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Identifies modal content that traps interaction outside the dialog."
+      },
+      {
+        "name": "aria-selected",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates the currently selected option or tab."
       },
       {
         "name": "role",
@@ -492,7 +564,44 @@
         "name": "input",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "aria-activedescendant",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-autocomplete",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-controls",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the controlled element while the related content is mounted."
+          },
+          {
+            "name": "aria-expanded",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates whether the controlled content is expanded."
+          },
+          {
+            "name": "aria-haspopup",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "inputWrapper",
@@ -523,6 +632,12 @@
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-selected",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates the currently selected option or tab."
           },
           {
             "name": "role",
