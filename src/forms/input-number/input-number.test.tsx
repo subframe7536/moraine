@@ -202,18 +202,44 @@ describe('InputNumber', () => {
     expect(readOnlyWheelEvent.defaultPrevented).toBe(true)
   })
 
-  test('keeps hidden input value in sync with the visible input', async () => {
-    const screen = render(() => <InputNumber defaultValue={4} />)
+  test('serializes one native form value and honors disabled and readonly states', async () => {
+    const screen = render(() => (
+      <form>
+        <InputNumber name="quantity" defaultValue={4} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
     const input = screen.getByRole('spinbutton') as HTMLInputElement
-    const hiddenInput = screen.container.querySelector('input[type="hidden"]') as HTMLInputElement
 
     expect(input.value).toBe('4')
-    expect(hiddenInput.value).toBe('4')
+    expect(new FormData(form).getAll('quantity')).toEqual(['4'])
 
     await fireEvent.input(input, { currentTarget: { value: '40' }, target: { value: '40' } })
 
     expect(input.value).toBe('40')
-    expect(hiddenInput.value).toBe('40')
+    expect(new FormData(form).getAll('quantity')).toEqual(['40'])
+
+    screen.unmount()
+
+    const disabledScreen = render(() => (
+      <form>
+        <InputNumber name="quantity" defaultValue={4} disabled />
+      </form>
+    ))
+    const disabledForm = disabledScreen.container.querySelector('form') as HTMLFormElement
+
+    expect(new FormData(disabledForm).getAll('quantity')).toEqual([])
+
+    disabledScreen.unmount()
+
+    const readOnlyScreen = render(() => (
+      <form>
+        <InputNumber name="quantity" defaultValue={4} readOnly />
+      </form>
+    ))
+    const readOnlyForm = readOnlyScreen.container.querySelector('form') as HTMLFormElement
+
+    expect(new FormData(readOnlyForm).getAll('quantity')).toEqual(['4'])
   })
 
   test('repeats increment while the trigger is held', async () => {

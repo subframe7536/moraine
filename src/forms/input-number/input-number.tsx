@@ -13,7 +13,6 @@ import { Button } from '../../elements/button'
 import type { ButtonT } from '../../elements/button'
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
@@ -945,8 +944,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         {...dataAttrs()}
         {...field.ariaAttrs()}
       />
-
-      <HiddenInput type="hidden" visuallyHidden={false} name={field.name()} value={inputText()} />
 
       <Show when={isVertical() && (merged.increment || merged.decrement)}>
         <div
