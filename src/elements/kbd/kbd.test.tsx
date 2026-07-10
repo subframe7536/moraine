@@ -106,7 +106,7 @@ describe('Kbd', () => {
 
   test('rejects invalid props in the type contract', () => {
     const aliasKey: KbdT.Key = 'meta'
-    const rawKey: KbdT.RawKey = 'F13'
+    const rawKey: KbdT.Key = 'F13'
     const dynamicValue: string = 'MediaPlayPause'
     const dynamicKey: KbdT.Key = dynamicValue
     // @ts-expect-error value is required

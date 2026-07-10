@@ -120,7 +120,7 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"start\" | \"end\" | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | undefined"
       },
       {
         "name": "label",
