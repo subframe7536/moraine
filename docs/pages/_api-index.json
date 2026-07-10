@@ -245,7 +245,7 @@
       "name": "CommandPalette",
       "category": "navigation",
       "polymorphic": false,
-      "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.",
+      "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
       "sourcePath": "src/navigation/command-palette/command-palette.tsx"
     },
     {

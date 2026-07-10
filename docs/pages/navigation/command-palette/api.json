@@ -4,17 +4,29 @@
     "name": "CommandPalette",
     "category": "navigation",
     "polymorphic": false,
-    "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports nested groups, keyboard navigation, and customizable rendering through slots and styles.",
+    "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
     "sourcePath": "src/navigation/command-palette/command-palette.tsx"
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element users activate to open the command palette dialog."
+    },
+    {
+      "name": "overlay",
+      "description": "Backdrop layer rendered behind the command palette dialog."
+    },
+    {
+      "name": "content",
+      "description": "Modal content element that positions the command palette panel."
+    },
+    {
       "name": "root",
-      "description": "Command palette container that owns search, navigation stack, and option list."
+      "description": "Command palette container that owns search and option list."
     },
     {
       "name": "inputWrapper",
-      "description": "Search row that groups input, search icon, and navigation controls."
+      "description": "Search row that groups input, search icon, and dismiss controls."
     },
     {
       "name": "input",
@@ -42,7 +54,7 @@
     },
     {
       "name": "itemLeading",
-      "description": "Leading icon or visual for a command row."
+      "description": "Leading region for a command row."
     },
     {
       "name": "itemWrapper",
@@ -53,40 +65,16 @@
       "description": "Primary text for a command item."
     },
     {
-      "name": "itemLabelBase",
-      "description": "Base text region for an item label before prefix or suffix decoration."
-    },
-    {
-      "name": "itemLabelPrefix",
-      "description": "Prefix text rendered before the main item label."
-    },
-    {
-      "name": "itemLabelSuffix",
-      "description": "Suffix text rendered after the main item label."
-    },
-    {
       "name": "itemDescription",
       "description": "Supporting text for a command item."
     },
     {
       "name": "itemTrailing",
-      "description": "Trailing region for shortcuts, submenu indicators, or custom item metadata."
-    },
-    {
-      "name": "itemTrailingKbds",
-      "description": "Container for keyboard shortcut hints at the end of a command row."
-    },
-    {
-      "name": "itemTrailingKbd",
-      "description": "Individual keyboard key hint in a command row."
+      "description": "Trailing region for shortcuts or custom item metadata."
     },
     {
       "name": "search",
       "description": "Search icon or loading indicator displayed in the input row."
-    },
-    {
-      "name": "back",
-      "description": "Button that returns from a nested command group."
     },
     {
       "name": "close",
@@ -100,22 +88,58 @@
   "item": {
     "props": [
       {
-        "name": "children",
+        "name": "alwaysShow",
         "required": false,
-        "type": "SubItem[] | undefined",
-        "description": "Items belonging to this group."
+        "type": "boolean | undefined",
+        "description": "Whether this item should be excluded from built-in search filtering."
       },
       {
-        "name": "id",
-        "required": true,
-        "type": "string",
-        "description": "Unique identifier for the group."
+        "name": "description",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Secondary description text shown for the item."
+      },
+      {
+        "name": "descriptionPosition",
+        "required": false,
+        "type": "DescriptionPosition | undefined",
+        "description": "Where the item description is rendered. Overrides the root setting."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the item is disabled and cannot be selected."
       },
       {
         "name": "label",
         "required": false,
         "type": "string | undefined",
-        "description": "Display name for the group header."
+        "description": "Primary label for the item."
+      },
+      {
+        "name": "leadingRender",
+        "required": false,
+        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "description": "Custom visual rendered at the start of the item."
+      },
+      {
+        "name": "onSelect",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Callback triggered when the item is selected."
+      },
+      {
+        "name": "trailingRender",
+        "required": false,
+        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "description": "Custom visual rendered at the end of the item."
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "string",
+        "description": "Unique value for the item."
       }
     ]
   },
@@ -129,18 +153,10 @@
         "defaultValue": "true"
       },
       {
-        "name": "backIcon",
+        "name": "children",
         "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the group navigation back button.",
-        "defaultValue": "icon-arrow-left"
-      },
-      {
-        "name": "childIcon",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for items with sub-groups.",
-        "defaultValue": "icon-chevron-right"
+        "type": "JSX.Element",
+        "description": "Optional trigger element that opens the command palette."
       },
       {
         "name": "class",
@@ -154,13 +170,6 @@
         "type": "CommandPaletteT.Classes | undefined"
       },
       {
-        "name": "close",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to show a close button in the header.",
-        "defaultValue": "false"
-      },
-      {
         "name": "closeIcon",
         "required": false,
         "type": "IconT.Name",
@@ -168,24 +177,75 @@
         "defaultValue": "icon-close"
       },
       {
-        "name": "empty",
+        "name": "closeOnSelect",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Elements to show when no items match the search.",
-        "defaultValue": "No results."
+        "type": "boolean | undefined",
+        "description": "Whether to close the command palette when an enabled item is selected.",
+        "defaultValue": "true"
       },
       {
-        "name": "footer",
+        "name": "defaultOpen",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render at bottom of the palette."
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
       },
       {
-        "name": "items",
+        "name": "descriptionPosition",
         "required": false,
-        "type": "CommandPaletteT.Item[] | undefined",
+        "type": "CommandPaletteT.DescriptionPosition | undefined",
+        "description": "Where descriptions render by default.",
+        "defaultValue": "bottom"
+      },
+      {
+        "name": "disableFilter",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Disable built-in search filtering and render all provided items.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
+      },
+      {
+        "name": "emptyRender",
+        "required": false,
+        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
+        "description": "Custom empty state renderer."
+      },
+      {
+        "name": "footerRender",
+        "required": false,
+        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
+        "description": "Custom footer renderer."
+      },
+      {
+        "name": "groups",
+        "required": false,
+        "type": "CommandPaletteT.Group<TItem>[] | undefined",
         "description": "Command groups to display initially.",
         "defaultValue": "[]"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
+        "description": "Custom command row content renderer."
+      },
+      {
+        "name": "leadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon name of input's leading icon.",
+        "defaultValue": "icon-search"
       },
       {
         "name": "loading",
@@ -198,7 +258,7 @@
         "name": "loadingIcon",
         "required": false,
         "type": "IconT.Name",
-        "description": "Icon name for the loading state.",
+        "description": "Icon name of input's leading icon for the loading state.",
         "defaultValue": "icon-loading"
       },
       {
@@ -208,10 +268,40 @@
         "description": "Callback triggered when the close button is clicked."
       },
       {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "onPositionChange",
+        "required": false,
+        "type": "((position: CommandPaletteT.Position) => void) | undefined",
+        "description": "Callback triggered when the modal content position changes."
+      },
+      {
         "name": "onSearchTermChange",
         "required": false,
         "type": "((term: string) => void) | undefined",
         "description": "Callback triggered when the search term changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "overlay",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render the overlay element."
       },
       {
         "name": "placeholder",
@@ -221,11 +311,10 @@
         "defaultValue": "Search..."
       },
       {
-        "name": "searchIcon",
+        "name": "position",
         "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the search indicator.",
-        "defaultValue": "icon-search"
+        "type": "Partial<CommandPaletteT.Position> | undefined",
+        "description": "Fixed content position in pixels. Missing axes keep the default centered placement."
       },
       {
         "name": "searchMaxLength",
@@ -238,6 +327,13 @@
         "required": false,
         "type": "string | undefined",
         "description": "Controlled search term."
+      },
+      {
+        "name": "showClose",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to show a close button in the header.",
+        "defaultValue": "false"
       },
       {
         "name": "style",
@@ -261,6 +357,12 @@
         "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
+        "name": "aria-describedby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References descriptive text associated with the control."
+      },
+      {
         "name": "aria-disabled",
         "required": false,
         "type": "boolean | string | undefined",
@@ -277,6 +379,18 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
+      },
+      {
+        "name": "aria-modal",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Identifies modal content that traps interaction outside the dialog."
       },
       {
         "name": "role",
@@ -313,32 +427,6 @@
     ],
     "slots": [
       {
-        "name": "back",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-loading",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component is loading."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-busy",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          }
-        ]
-      },
-      {
         "name": "close",
         "cssVariables": [],
         "dataAttributes": [],
@@ -348,6 +436,37 @@
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Provides an accessible label when visible text is not sufficient."
+          }
+        ]
+      },
+      {
+        "name": "content",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-describedby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References descriptive text associated with the control."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
+            "name": "aria-modal",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Identifies modal content that traps interaction outside the dialog."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
           }
         ]
       },
@@ -426,24 +545,6 @@
         "ariaAttributes": []
       },
       {
-        "name": "itemLabelBase",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabelPrefix",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabelSuffix",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
         "name": "itemLeading",
         "cssVariables": [],
         "dataAttributes": [],
@@ -481,6 +582,12 @@
         ]
       },
       {
+        "name": "overlay",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
@@ -505,6 +612,12 @@
             "description": "Accessibility attribute forwarded by the rendered component."
           }
         ]
+      },
+      {
+        "name": "trigger",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
       }
     ]
   }

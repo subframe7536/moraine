@@ -120,7 +120,7 @@
       {
         "name": "side",
         "required": false,
-        "type": "\"top\" | \"right\" | \"bottom\" | \"left\" | undefined"
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
       },
       {
         "name": "style",
