@@ -67,7 +67,7 @@
       {
         "name": "schema",
         "required": false,
-        "type": "StandardSchemaV1<TState, TState> | undefined",
+        "type": "StandardSchemaV1<TState> | undefined",
         "description": "Standard Schema V1 for form validation."
       },
       {

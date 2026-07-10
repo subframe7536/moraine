@@ -1,51 +1,50 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import ts from 'typescript'
+import type { ESTree } from 'vite'
 
 import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions'
 
+import { entityNameToText, getIdentifierName, nodeText, parseTypeScript, walkAst } from './ast'
 import type { ApiAttributeDoc, ComponentAttributeDoc } from './types'
 
-function getJsxAttributeName(name: ts.JsxAttributeName): string | null {
-  if (ts.isIdentifier(name) || ts.isJsxNamespacedName(name)) {
-    return name.getText()
+function getJsxAttributeName(name: ESTree.JSXAttributeName): string | null {
+  if (name.type === 'JSXIdentifier') {
+    return name.name
+  }
+  if (name.type === 'JSXNamespacedName') {
+    return `${name.namespace.name}:${name.name.name}`
   }
   return null
 }
 
-function getJsxAttributeStaticValue(attribute: ts.JsxAttribute): string | null {
-  const initializer = attribute.initializer
-  if (!initializer) {
+function getJsxAttributeStaticValue(attribute: ESTree.JSXAttribute): string | null {
+  const value = attribute.value
+  if (!value) {
     return ''
   }
-  if (ts.isStringLiteral(initializer)) {
-    return initializer.text
+  if (value.type === 'Literal' && typeof value.value === 'string') {
+    return value.value
   }
   if (
-    ts.isJsxExpression(initializer) &&
-    initializer.expression &&
-    ts.isStringLiteralLike(initializer.expression)
+    value.type === 'JSXExpressionContainer' &&
+    value.expression.type === 'Literal' &&
+    typeof value.expression.value === 'string'
   ) {
-    return initializer.expression.text
+    return value.expression.value
   }
   return null
 }
 
-function getJsxAttributes(
-  node: ts.JsxOpeningElement | ts.JsxSelfClosingElement,
-): ts.JsxAttribute[] {
-  return node.attributes.properties.filter(ts.isJsxAttribute)
+function getJsxAttributes(node: ESTree.JSXOpeningElement): ESTree.JSXAttribute[] {
+  return node.attributes.filter(
+    (attribute): attribute is ESTree.JSXAttribute => attribute.type === 'JSXAttribute',
+  )
 }
 
-function getJsxTagName(tagName: ts.JsxTagNameExpression): string | null {
-  if (ts.isIdentifier(tagName)) {
-    return tagName.text
-  }
-  if (ts.isPropertyAccessExpression(tagName)) {
-    return tagName.name.text
-  }
-  return null
+function getJsxTagName(tagName: ESTree.JSXElementName): string | null {
+  const name = entityNameToText(tagName)
+  return name?.split('.').at(-1) ?? null
 }
 
 function resolveLocalImportPath(importerPath: string, specifier: string): string | null {
@@ -133,10 +132,10 @@ function createCssVariableDoc(name: string): ApiAttributeDoc {
   }
 }
 
-export function extractSourceAttributeReference(
+export async function extractSourceAttributeReference(
   projectRoot: string,
   sourcePath: string | undefined,
-): ComponentAttributeDoc {
+): Promise<ComponentAttributeDoc> {
   if (!sourcePath) {
     return { aria: [], data: [], slots: [] }
   }
@@ -166,7 +165,7 @@ export function extractSourceAttributeReference(
     return reference
   }
 
-  const collectFromSource = (absoluteSourcePath: string) => {
+  const collectFromSource = async (absoluteSourcePath: string): Promise<void> => {
     if (visited.has(absoluteSourcePath)) {
       return
     }
@@ -179,56 +178,48 @@ export function extractSourceAttributeReference(
       return
     }
 
-    const sourceFile = ts.createSourceFile(
+    const sourceFile = await parseTypeScript(
       absoluteSourcePath,
       sourceCode,
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TSX,
+      /\.(?:tsx|jsx)$/.test(absoluteSourcePath) ? 'tsx' : 'ts',
     )
     const localComponentImports = new Map<string, string>()
     const usedLocalComponents = new Set<string>()
 
-    for (const statement of sourceFile.statements) {
-      if (ts.isExportDeclaration(statement)) {
-        const moduleSpecifier = statement.moduleSpecifier
-        if (moduleSpecifier && ts.isStringLiteral(moduleSpecifier)) {
-          const resolvedPath = resolveLocalImportPath(absoluteSourcePath, moduleSpecifier.text)
+    for (const statement of sourceFile.program.body) {
+      if (
+        statement.type === 'ExportNamedDeclaration' ||
+        statement.type === 'ExportAllDeclaration'
+      ) {
+        const moduleSpecifier = statement.source?.value
+        if (typeof moduleSpecifier === 'string') {
+          const resolvedPath = resolveLocalImportPath(absoluteSourcePath, moduleSpecifier)
           if (resolvedPath) {
-            collectFromSource(resolvedPath)
+            await collectFromSource(resolvedPath)
           }
         }
         continue
       }
 
-      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+      if (statement.type !== 'ImportDeclaration' || typeof statement.source.value !== 'string') {
         continue
       }
-      const resolvedPath = resolveLocalImportPath(
-        absoluteSourcePath,
-        statement.moduleSpecifier.text,
-      )
+      const resolvedPath = resolveLocalImportPath(absoluteSourcePath, statement.source.value)
       if (!resolvedPath) {
         continue
       }
 
-      const clause = statement.importClause
-      if (clause?.name) {
-        localComponentImports.set(clause.name.text, resolvedPath)
-      }
-
-      const namedBindings = clause?.namedBindings
-      if (!namedBindings || !ts.isNamedImports(namedBindings)) {
-        continue
-      }
-
-      for (const element of namedBindings.elements) {
-        localComponentImports.set(element.name.text, resolvedPath)
+      for (const specifier of statement.specifiers) {
+        const localName = getIdentifierName(specifier.local)
+        if (localName) {
+          localComponentImports.set(localName, resolvedPath)
+        }
       }
     }
 
-    const visit = (node: ts.Node) => {
-      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+    walkAst(sourceFile.program, (current) => {
+      if (current.type === 'JSXOpeningElement') {
+        const node = current as ESTree.JSXOpeningElement
         const attributes = getJsxAttributes(node)
         const slotAttribute = attributes.find((attribute) => {
           const name = getJsxAttributeName(attribute.name)
@@ -260,26 +251,22 @@ export function extractSourceAttributeReference(
 
         if (slotName) {
           const slotReference = getSlotReference(slotName)
-          for (const match of node.getText(sourceFile).matchAll(/--[A-Za-z_][\w-]*/g)) {
+          for (const match of nodeText(sourceFile, node).matchAll(/--[A-Za-z_][\w-]*/g)) {
             slotReference.cssVariables.add(match[0])
           }
         }
 
-        const tagName = getJsxTagName(node.tagName)
+        const tagName = getJsxTagName(node.name)
         if (tagName && /^[A-Z]/.test(tagName)) {
           usedLocalComponents.add(tagName)
         }
       }
-
-      ts.forEachChild(node, visit)
-    }
-
-    visit(sourceFile)
+    })
 
     for (const componentName of usedLocalComponents) {
       const importedPath = localComponentImports.get(componentName)
       if (importedPath) {
-        collectFromSource(importedPath)
+        await collectFromSource(importedPath)
       }
     }
   }
@@ -289,7 +276,7 @@ export function extractSourceAttributeReference(
     return { aria: [], data: [], slots: [] }
   }
 
-  collectFromSource(resolvedSourcePath)
+  await collectFromSource(resolvedSourcePath)
 
   return {
     aria: [...ariaNames].sort().map(createAttributeDoc),

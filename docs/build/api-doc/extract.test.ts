@@ -27,7 +27,7 @@ async function writeNodeModuleFile(
   await writeFile(filePath, content, 'utf8')
 }
 
-function resultProps(result: ReturnType<typeof generateApiDoc>, key: string) {
+function resultProps(result: Awaited<ReturnType<typeof generateApiDoc>>, key: string) {
   return result?.componentDocs.get(key)?.props.own ?? []
 }
 
@@ -40,7 +40,7 @@ describe('generateApiDoc', () => {
     const projectRoot = await createTempProject()
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-    expect(generateApiDoc(projectRoot)).toBeNull()
+    expect(await generateApiDoc(projectRoot)).toBeNull()
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('not found, skipping generation'))
 
     await rm(projectRoot, { recursive: true, force: true })
@@ -94,7 +94,7 @@ declare function Empty(props: EmptyProps): JSX.Element
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     expect(result).not.toBeNull()
     const data = result!
 
@@ -166,7 +166,7 @@ declare function PropOnly(props: PropOnlyProps): JSX.Element
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     expect(result).not.toBeNull()
     const data = result!
 
@@ -226,7 +226,7 @@ declare function Collection(props: CollectionProps): JSX.Element
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     expect(result?.componentDocs.get('collection')?.item).toEqual({
       description: 'Collection-based items doc.',
       props: [
@@ -297,7 +297,7 @@ export interface ExternalProps {
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     const inheritedGroup = result?.componentDocs
       .get('external-alias')
       ?.props.inherited.find((group) => group.from === 'opaque-lib')
@@ -331,7 +331,7 @@ declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Ele
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     const props = result?.componentDocs.get('demo')?.props.own ?? []
     const asProp = props.find((prop) => prop.name === 'as')
     const dataProp = props.find((prop) => prop.name === 'data')
@@ -385,7 +385,7 @@ declare function AliasButton(props: AliasButtonT.Props): JSX.Element
 `,
     )
 
-    const props = resultProps(generateApiDoc(projectRoot), 'alias-button')
+    const props = resultProps(await generateApiDoc(projectRoot), 'alias-button')
 
     expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
       'AliasButtonT.Classes | undefined',
@@ -444,7 +444,7 @@ declare function SharedMenu(props: SharedMenuT.Props): JSX.Element
 `,
     )
 
-    const props = resultProps(generateApiDoc(projectRoot), 'shared-menu')
+    const props = resultProps(await generateApiDoc(projectRoot), 'shared-menu')
 
     expect(props.find((prop) => prop.name === 'classes')?.type).toBe(
       '(SharedClasses & SharedMenuT.Classes) | undefined',
@@ -502,7 +502,7 @@ declare function Dialog(props: DialogT.Props): JSX.Element
 `,
     )
 
-    const result = generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot)
     const dialogDoc = result?.componentDocs.get('dialog')
     const inheritedGroup = dialogDoc?.props.inherited.find((group) =>
       group.props.some((prop) => prop.name === 'open'),
@@ -519,7 +519,7 @@ declare function Dialog(props: DialogT.Props): JSX.Element
     await rm(projectRoot, { recursive: true, force: true })
   })
 
-  test('normalizes windows and posix style paths for compiler host comparison', () => {
+  test('normalizes Windows and POSIX paths for source cache comparison', () => {
     const winPath = 'E:\\project\\moraine\\dist\\index.d.mts'
     const posixPath = 'E:/project/moraine/dist/index.d.mts'
     const mixedCasePath = 'e:/PROJECT/moraine/dist/index.d.mts'

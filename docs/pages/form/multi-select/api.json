@@ -90,7 +90,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "Omit<BaseSelectT.Item<Val>, \"children\">[] | undefined",
+        "type": "Omit<BaseSelectT.Item<MultiSelectT.Value>, \"children\">[] | undefined",
         "description": "One-layer child options for grouped select."
       },
       {
@@ -126,7 +126,7 @@
       {
         "name": "value",
         "required": false,
-        "type": "Val | undefined",
+        "type": "MultiSelectT.Value | undefined",
         "description": "Value of the option."
       }
     ]
@@ -298,7 +298,7 @@
       {
         "name": "optionRender",
         "required": false,
-        "type": "((option: (MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) | null) => JSX.Element) | undefined",
+        "type": "((option: (MultiSelectT.Item<TItem> & MultiSelectT.OptionRenderState) | null) => JSX.Element) | undefined",
         "description": "Custom renderer for each option in the dropdown. Passes `null` for empty state."
       },
       {
@@ -471,6 +471,12 @@
         "required": false,
         "type": "string | undefined",
         "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-empty-option",
+        "required": false,
+        "type": "string | undefined",
+        "description": "State or slot attribute exposed for styling hooks and selectors."
       },
       {
         "name": "data-highlighted",

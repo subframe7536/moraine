@@ -102,7 +102,7 @@
       {
         "name": "descriptionPosition",
         "required": false,
-        "type": "DescriptionPosition | undefined",
+        "type": "CommandPaletteT.DescriptionPosition | undefined",
         "description": "Where the item description is rendered. Overrides the root setting."
       },
       {
@@ -126,7 +126,7 @@
       {
         "name": "leadingRender",
         "required": false,
-        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
         "description": "Custom visual rendered at the start of the item."
       },
       {
@@ -138,7 +138,7 @@
       {
         "name": "trailingRender",
         "required": false,
-        "type": "((ctx: ItemRenderContext) => JSX.Element) | undefined",
+        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
         "description": "Custom visual rendered at the end of the item."
       },
       {

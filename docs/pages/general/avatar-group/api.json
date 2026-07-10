@@ -100,7 +100,7 @@
       {
         "name": "items",
         "required": false,
-        "type": "AvatarT.Item[] | undefined",
+        "type": "AvatarGroupT.Item[] | undefined",
         "description": "Array of avatars to render in the group.",
         "defaultValue": "[]"
       },

@@ -100,7 +100,7 @@
       {
         "name": "value",
         "required": false,
-        "type": "string | undefined",
+        "type": "StepperT.Value | undefined",
         "description": "Unique value for the step.",
         "defaultValue": "index of the item"
       }
@@ -137,7 +137,7 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "string | undefined",
+        "type": "StepperT.Value | undefined",
         "description": "Default active step value for uncontrolled usage."
       },
       {
@@ -197,7 +197,7 @@
       {
         "name": "value",
         "required": false,
-        "type": "string | undefined",
+        "type": "StepperT.Value | undefined",
         "description": "Controlled active step value."
       }
     ],

@@ -56,6 +56,12 @@
         "type": "ButtonT.Classes | undefined"
       },
       {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Disabled state, including for non-button polymorphic roots."
+      },
+      {
         "name": "leading",
         "required": false,
         "type": "IconT.Name",

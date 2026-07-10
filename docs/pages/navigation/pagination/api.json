@@ -140,7 +140,7 @@
       {
         "name": "role",
         "required": false,
-        "type": "\"none\" | \"search\" | \"list\" | \"link\" | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | \"alert\" | \"alertdialog\" | \"application\" | \"article\" | \"banner\" | \"button\" | \"cell\" | \"checkbox\" | \"columnheader\" | \"combobox\" | \"complementary\" | \"contentinfo\" | \"definition\" | \"directory\" | \"document\" | \"feed\" | \"figure\" | \"form\" | \"gridcell\" | \"group\" | \"heading\" | \"img\" | \"listitem\" | \"log\" | \"main\" | \"marquee\" | \"math\" | \"menubar\" | \"menuitem\" | \"menuitemcheckbox\" | \"menuitemradio\" | \"meter\" | \"navigation\" | \"note\" | \"option\" | \"presentation\" | \"progressbar\" | \"radio\" | \"radiogroup\" | \"region\" | \"row\" | \"rowgroup\" | \"rowheader\" | \"scrollbar\" | \"searchbox\" | \"separator\" | \"slider\" | \"spinbutton\" | \"status\" | \"switch\" | \"tab\" | \"table\" | \"tablist\" | \"tabpanel\" | \"term\" | \"textbox\" | \"timer\" | \"toolbar\" | \"tooltip\" | \"treegrid\" | \"treeitem\" | undefined",
+        "type": "JSX.HTMLAttributes<HTMLElement>[\"role\"] | undefined",
         "description": "ARIA role for the navigation element.",
         "defaultValue": "navigation"
       },

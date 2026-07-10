@@ -48,12 +48,18 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
       console.warn(`[api-doc] No docs page found for "${key}", skipping colocated api.json`)
       return []
     }
-    const completeDoc = {
-      ...doc,
-      attributes: extractSourceAttributeReference(projectRoot, doc.component.sourcePath),
-    }
     return [
-      writeFile(path.join(pageDirectory, 'api.json'), JSON.stringify(completeDoc, null, 2), 'utf8'),
+      (async () => {
+        const completeDoc = {
+          ...doc,
+          attributes: await extractSourceAttributeReference(projectRoot, doc.component.sourcePath),
+        }
+        await writeFile(
+          path.join(pageDirectory, 'api.json'),
+          JSON.stringify(completeDoc, null, 2),
+          'utf8',
+        )
+      })(),
     ]
   })
   await Promise.all(writes)

@@ -87,7 +87,7 @@
       {
         "name": "close",
         "required": false,
-        "type": "JSX.Element",
+        "type": "boolean | JSX.Element",
         "description": "Whether to show a close button, or a custom element to use as one.",
         "defaultValue": "true"
       },

@@ -87,7 +87,7 @@
       {
         "name": "error",
         "required": false,
-        "type": "string | JSX.Element",
+        "type": "boolean | string | JSX.Element",
         "description": "Custom error message or force error state."
       },
       {

@@ -207,7 +207,7 @@
       {
         "name": "renderHandle",
         "required": false,
-        "type": "MaybeRenderProp<ResizableT.HandleState>",
+        "type": "boolean | MaybeRenderProp<ResizableT.HandleState>",
         "description": "Custom handle to render.\n- `true`: render built-in handle.\n- `JSX.Element`: render static custom handle content.\n- `(state) => JSX.Element`: render dynamic content by handle state.",
         "defaultValue": "true"
       },

@@ -1,97 +1,117 @@
-import ts from 'typescript'
+import type { ESTree } from 'vite'
+
+import { entityNameToText, nodeText, parseTypeScript, walkAst } from './ast'
 
 interface GenericAliasInfo {
+  node: ESTree.TSTypeAliasDeclaration
   paramName: string
-  defaultType: ts.TypeNode
+  defaultType: ESTree.TSType
 }
 
 interface GenericFunctionInfo {
+  node: DeclareFunctionNode
   paramName: string
-  defaultType: ts.TypeNode
+  defaultType: ESTree.TSType
 }
 
-function collectAliasReferences(
-  node: ts.Node | undefined,
-  aliasNames: ReadonlySet<string>,
-  out: Set<string>,
-): void {
-  if (!node) {
+type DeclareFunctionNode = ESTree.Function
+
+interface TextEdit {
+  start: number
+  end: number
+  text: string
+}
+
+function collectAliasReferences(node: unknown, aliasNames: ReadonlySet<string>): Set<string> {
+  const references = new Set<string>()
+  walkAst(node, (current) => {
+    if (current.type !== 'TSTypeReference') {
+      return
+    }
+    const typeName = entityNameToText((current as ESTree.TSTypeReference).typeName)
+    if (typeName && aliasNames.has(typeName)) {
+      references.add(typeName)
+    }
+  })
+  return references
+}
+
+function addEdit(edits: TextEdit[], next: TextEdit): void {
+  if (edits.some((edit) => edit.start <= next.start && edit.end >= next.end)) {
     return
   }
-
-  const visit = (child: ts.Node) => {
-    if (
-      ts.isTypeReferenceNode(child) &&
-      ts.isIdentifier(child.typeName) &&
-      aliasNames.has(child.typeName.text)
-    ) {
-      out.add(child.typeName.text)
+  for (let index = edits.length - 1; index >= 0; index -= 1) {
+    const edit = edits[index]!
+    if (next.start <= edit.start && next.end >= edit.end) {
+      edits.splice(index, 1)
     }
-    ts.forEachChild(child, visit)
   }
-
-  visit(node)
+  edits.push(next)
 }
 
-function replaceTypeReferences(
-  root: ts.Node,
-  context: ts.TransformationContext,
+function addTypeReferenceEdits(
+  root: unknown,
   genericParamName: string | undefined,
-  genericDefaultType: ts.TypeNode | undefined,
+  genericDefaultText: string | undefined,
   aliasNames: ReadonlySet<string>,
-): ts.Node {
-  const visit = (node: ts.Node): ts.Node => {
+  edits: TextEdit[],
+): void {
+  walkAst(root, (current) => {
+    if (current.type !== 'TSTypeReference') {
+      return
+    }
+
+    const reference = current as ESTree.TSTypeReference
+    const typeName = entityNameToText(reference.typeName)
     if (
       genericParamName &&
-      genericDefaultType &&
-      ts.isTypeReferenceNode(node) &&
-      !node.typeArguments &&
-      ts.isIdentifier(node.typeName) &&
-      node.typeName.text === genericParamName
+      genericDefaultText &&
+      !reference.typeArguments &&
+      typeName === genericParamName
     ) {
-      return cloneTypeNode(genericDefaultType)
+      addEdit(edits, { start: reference.start, end: reference.end, text: genericDefaultText })
+      return
     }
 
-    if (
-      ts.isTypeReferenceNode(node) &&
-      node.typeArguments &&
-      node.typeArguments.length > 0 &&
-      ts.isIdentifier(node.typeName) &&
-      aliasNames.has(node.typeName.text)
-    ) {
-      return ts.factory.updateTypeReferenceNode(node, node.typeName, undefined)
+    if (typeName && aliasNames.has(typeName) && reference.typeArguments) {
+      addEdit(edits, {
+        start: reference.typeArguments.start,
+        end: reference.typeArguments.end,
+        text: '',
+      })
     }
+  })
+}
 
-    return ts.visitEachChild(node, visit, context)
+function applyEdits(text: string, edits: TextEdit[]): string {
+  let output = text
+  for (const edit of edits.sort((left, right) => right.start - left.start)) {
+    output = output.slice(0, edit.start) + edit.text + output.slice(edit.end)
   }
-
-  return ts.visitNode(root, visit)
+  return output
 }
 
-function cloneTypeNode(typeNode: ts.TypeNode): ts.TypeNode {
-  const nodeFactory = ts.factory as ts.NodeFactory & { cloneNode: (node: ts.Node) => ts.Node }
-  return nodeFactory.cloneNode(typeNode) as ts.TypeNode
-}
-
-export function preprocessGenericTypeAliases(text: string, fileName: string): string {
-  const sourceFile = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true)
+export async function preprocessGenericTypeAliases(
+  text: string,
+  fileName: string,
+): Promise<string> {
+  const source = await parseTypeScript(fileName, text, 'ts')
   const genericAliases = new Map<string, GenericAliasInfo>()
 
-  for (const statement of sourceFile.statements) {
-    if (!ts.isTypeAliasDeclaration(statement)) {
+  for (const statement of source.program.body) {
+    if (
+      statement.type !== 'TSTypeAliasDeclaration' ||
+      statement.typeParameters?.params.length !== 1
+    ) {
       continue
     }
-    if (!statement.typeParameters || statement.typeParameters.length !== 1) {
-      continue
-    }
-
-    const typeParam = statement.typeParameters[0]!
+    const typeParam = statement.typeParameters.params[0]!
     if (!typeParam.default) {
       continue
     }
-
-    genericAliases.set(statement.name.text, {
-      paramName: typeParam.name.text,
+    genericAliases.set(statement.id.name, {
+      node: statement,
+      paramName: typeParam.name.name,
       defaultType: typeParam.default,
     })
   }
@@ -102,24 +122,23 @@ export function preprocessGenericTypeAliases(text: string, fileName: string): st
 
   const aliasNames = new Set(genericAliases.keys())
   const referencedAliases = new Set<string>()
-  const functionGenerics = new Map<ts.FunctionDeclaration, GenericFunctionInfo>()
+  const functionGenerics: GenericFunctionInfo[] = []
 
-  for (const statement of sourceFile.statements) {
-    if (!ts.isFunctionDeclaration(statement)) {
+  for (const statement of source.program.body) {
+    if (statement.type !== 'TSDeclareFunction' || statement.typeParameters?.params.length !== 1) {
       continue
     }
-    if (!statement.typeParameters || statement.typeParameters.length !== 1) {
-      continue
-    }
-
-    const typeParam = statement.typeParameters[0]!
+    const typeParam = statement.typeParameters.params[0]!
     if (!typeParam.default) {
       continue
     }
 
     const aliasesInParameters = new Set<string>()
-    for (const parameter of statement.parameters) {
-      collectAliasReferences(parameter.type, aliasNames, aliasesInParameters)
+    for (const parameter of statement.params) {
+      const annotation = 'typeAnnotation' in parameter ? parameter.typeAnnotation : null
+      for (const aliasName of collectAliasReferences(annotation, aliasNames)) {
+        aliasesInParameters.add(aliasName)
+      }
     }
     if (aliasesInParameters.size === 0) {
       continue
@@ -128,9 +147,9 @@ export function preprocessGenericTypeAliases(text: string, fileName: string): st
     for (const aliasName of aliasesInParameters) {
       referencedAliases.add(aliasName)
     }
-
-    functionGenerics.set(statement, {
-      paramName: typeParam.name.text,
+    functionGenerics.push({
+      node: statement,
+      paramName: typeParam.name.name,
       defaultType: typeParam.default,
     })
   }
@@ -139,100 +158,54 @@ export function preprocessGenericTypeAliases(text: string, fileName: string): st
     return text
   }
 
-  let changed = false
-  const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
-    const visit = (node: ts.Node): ts.Node => {
-      if (ts.isTypeAliasDeclaration(node) && referencedAliases.has(node.name.text)) {
-        const aliasInfo = genericAliases.get(node.name.text)
-        if (aliasInfo) {
-          changed = true
-          const updatedType = replaceTypeReferences(
-            node.type,
-            context,
-            aliasInfo.paramName,
-            aliasInfo.defaultType,
-            referencedAliases,
-          ) as ts.TypeNode
-          return ts.factory.updateTypeAliasDeclaration(
-            node,
-            node.modifiers,
-            node.name,
-            undefined,
-            updatedType,
-          )
-        }
-      }
-
-      if (ts.isFunctionDeclaration(node)) {
-        const genericInfo = functionGenerics.get(node)
-        if (genericInfo) {
-          changed = true
-          const updatedParameters = node.parameters.map((parameter) => {
-            if (!parameter.type) {
-              return parameter
-            }
-
-            const updatedType = replaceTypeReferences(
-              parameter.type,
-              context,
-              genericInfo.paramName,
-              genericInfo.defaultType,
-              referencedAliases,
-            ) as ts.TypeNode
-            return ts.factory.updateParameterDeclaration(
-              parameter,
-              parameter.modifiers,
-              parameter.dotDotDotToken,
-              parameter.name,
-              parameter.questionToken,
-              updatedType,
-              parameter.initializer,
-            )
-          })
-
-          const updatedReturnType = node.type
-            ? (replaceTypeReferences(
-                node.type,
-                context,
-                genericInfo.paramName,
-                genericInfo.defaultType,
-                referencedAliases,
-              ) as ts.TypeNode)
-            : undefined
-
-          return ts.factory.updateFunctionDeclaration(
-            node,
-            node.modifiers,
-            node.asteriskToken,
-            node.name,
-            undefined,
-            updatedParameters,
-            updatedReturnType,
-            node.body,
-          )
-        }
-      }
-
-      if (
-        ts.isTypeReferenceNode(node) &&
-        node.typeArguments &&
-        node.typeArguments.length > 0 &&
-        ts.isIdentifier(node.typeName) &&
-        referencedAliases.has(node.typeName.text)
-      ) {
-        changed = true
-        return ts.factory.updateTypeReferenceNode(node, node.typeName, undefined)
-      }
-
-      return ts.visitEachChild(node, visit, context)
+  const edits: TextEdit[] = []
+  for (const aliasName of referencedAliases) {
+    const alias = genericAliases.get(aliasName)
+    if (!alias?.node.typeParameters) {
+      continue
     }
-
-    return (node) => ts.visitNode(node, visit) as ts.SourceFile
+    addEdit(edits, {
+      start: alias.node.typeParameters.start,
+      end: alias.node.typeParameters.end,
+      text: '',
+    })
+    addTypeReferenceEdits(
+      alias.node.typeAnnotation,
+      alias.paramName,
+      nodeText(source, alias.defaultType),
+      referencedAliases,
+      edits,
+    )
   }
 
-  const transformed = ts.transform(sourceFile, [transformer])
-  const output = ts.createPrinter().printFile(transformed.transformed[0]!)
-  transformed.dispose()
+  for (const genericFunction of functionGenerics) {
+    if (genericFunction.node.typeParameters) {
+      addEdit(edits, {
+        start: genericFunction.node.typeParameters.start,
+        end: genericFunction.node.typeParameters.end,
+        text: '',
+      })
+    }
+    const defaultText = nodeText(source, genericFunction.defaultType)
+    for (const parameter of genericFunction.node.params) {
+      const annotation = 'typeAnnotation' in parameter ? parameter.typeAnnotation : null
+      addTypeReferenceEdits(
+        annotation,
+        genericFunction.paramName,
+        defaultText,
+        referencedAliases,
+        edits,
+      )
+    }
+    addTypeReferenceEdits(
+      genericFunction.node.returnType,
+      genericFunction.paramName,
+      defaultText,
+      referencedAliases,
+      edits,
+    )
+  }
 
-  return changed ? output : text
+  addTypeReferenceEdits(source.program, undefined, undefined, referencedAliases, edits)
+  return edits.length > 0 ? applyEdits(text, edits) : text
 }

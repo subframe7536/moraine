@@ -13,7 +13,7 @@ async function statSafe(filePath: string) {
 }
 
 export async function runApiDocGeneration(projectRoot: string): Promise<void> {
-  const result = generateApiDoc(projectRoot)
+  const result = await generateApiDoc(projectRoot)
   if (!result) {
     return
   }

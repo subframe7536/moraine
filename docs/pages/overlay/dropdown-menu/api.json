@@ -80,7 +80,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "Item[] | undefined",
+        "type": "DropdownMenuT.Item[] | undefined",
         "description": "Nested menu items for creating submenus."
       },
       {

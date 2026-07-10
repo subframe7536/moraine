@@ -1,10 +1,18 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import ts from 'typescript'
+import type { ESTree } from 'vite'
 
 import { toKebabCase } from '../core/strings'
 
+import {
+  entityNameToText,
+  getIdentifierName,
+  getJsDoc,
+  nodeText,
+  parseTypeScript,
+  walkAst,
+} from './ast'
 import { preprocessGenericTypeAliases } from './transform-types'
 import type {
   ComponentDoc,
@@ -16,41 +24,74 @@ import type {
   SlotDoc,
 } from './types'
 
-function categoryFromSourcePath(sourcePath: string | undefined): string {
-  return sourcePath?.replace(/\\/g, '/').split('/')[1] || 'General'
+type DeclarationNode = ESTree.TSInterfaceDeclaration | ESTree.TSTypeAliasDeclaration
+type DeclareFunctionNode = ESTree.Function
+type ProgramStatement = ESTree.Program['body'][number]
+type TypeEnvironment = ReadonlyMap<string, TypeValue>
+
+interface ImportBinding {
+  importedName: string
+  specifier: string
 }
 
-function displayText(parts: readonly ts.SymbolDisplayPart[] | string | undefined): string {
-  if (!parts) {
-    return ''
-  }
-  if (typeof parts === 'string') {
-    return parts
-  }
-  return ts.displayPartsToString([...parts])
+interface SourceUnit {
+  fileName: string
+  moduleName: string
+  source: Awaited<ReturnType<typeof parseTypeScript>>
+  declarations: Map<string, DeclarationRef[]>
+  imports: Map<string, ImportBinding>
+  variables: Map<string, ESTree.VariableDeclarator>
 }
 
-function normalizeDefaultTag(tagText: ts.JSDocTagInfo['text']): string | undefined {
-  const text = displayText(tagText).trim()
-  return text ? text.replace(/^['"]|['"]$/g, '') : undefined
+interface DeclarationRef {
+  node: DeclarationNode
+  namespace?: string
+  unit: SourceUnit
 }
 
-function typeIncludesUndefined(type: ts.Type): boolean {
-  if ((type.flags & ts.TypeFlags.Undefined) !== 0) {
-    return true
-  }
-  if (type.isUnion()) {
-    return type.types.some(typeIncludesUndefined)
-  }
-  return false
+interface TypeValue {
+  node: ESTree.TSType
+  namespace?: string
+  unit: SourceUnit
+  env: TypeEnvironment
 }
 
-const TYPE_FORMAT_FLAGS =
-  ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+interface ResolvedProperty {
+  name: string
+  optional: boolean
+  type?: TypeValue
+  typeText?: string
+  description?: string
+  defaultValue?: string
+  namespace?: string
+  originModule: string
+}
+
+interface ResolveContext {
+  env: TypeEnvironment
+  namespace?: string
+  unit: SourceUnit
+}
 
 interface PropFormatContext {
   componentName?: string
   slotOverrideTypes?: ReadonlySet<string>
+}
+
+interface TextEdit {
+  start: number
+  end: number
+  text: string
+}
+
+interface DisplayType {
+  text: string
+  mayIncludeUndefined: boolean
+  explicitUndefined: boolean
+}
+
+function categoryFromSourcePath(sourcePath: string | undefined): string {
+  return sourcePath?.replace(/\\/g, '/').split('/')[1] || 'General'
 }
 
 export function normalizePathForComparison(filePath: string): string {
@@ -58,31 +99,27 @@ export function normalizePathForComparison(filePath: string): string {
   return process.platform === 'win32' ? resolved.toLowerCase() : resolved
 }
 
-function inferModuleFromFileName(fileName: string): string {
-  const normalized = fileName.replaceAll('\\', '/')
-  const idx = normalized.lastIndexOf('/node_modules/')
-  if (idx === -1) {
-    return 'Moraine'
-  }
-
-  const rest = normalized.slice(idx + '/node_modules/'.length)
-  const parts = rest.split('/').filter(Boolean)
-  return parts[0]?.startsWith('@') && parts[1] ? `${parts[0]}/${parts[1]}` : (parts[0] ?? 'unknown')
+function packageNameFromSpecifier(specifier: string): string {
+  const parts = specifier.split('/')
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : (parts[0] ?? specifier)
 }
 
-function resolveSourcePath(regionPath: string | undefined): string | undefined {
+function resolveSourcePath(
+  projectRoot: string,
+  regionPath: string | undefined,
+): string | undefined {
   if (!regionPath || !regionPath.startsWith('src/') || !regionPath.endsWith('.d.ts')) {
     return regionPath
   }
 
   const base = regionPath.slice(0, -'.d.ts'.length)
   const tsxPath = `${base}.tsx`
-  if (existsSync(tsxPath)) {
+  if (existsSync(path.join(projectRoot, tsxPath))) {
     return tsxPath
   }
 
   const tsPath = `${base}.ts`
-  if (existsSync(tsPath)) {
+  if (existsSync(path.join(projectRoot, tsPath))) {
     return tsPath
   }
 
@@ -107,728 +144,1318 @@ function buildRegionByLine(text: string): Array<string | undefined> {
   return regions
 }
 
-function entityNameToParts(name: ts.EntityName): string[] {
-  if (ts.isIdentifier(name)) {
-    return [name.text]
-  }
-  return [...entityNameToParts(name.left), name.right.text]
-}
-
-function entityNameToText(name: ts.EntityName): string {
-  return entityNameToParts(name).join('.')
-}
-
-function isJsxElementReturn(typeNode: ts.TypeNode | undefined): boolean {
-  if (!typeNode) {
-    return false
-  }
-
-  if (!ts.isTypeReferenceNode(typeNode)) {
-    return false
-  }
-
-  const parts = entityNameToParts(typeNode.typeName)
-  return parts.length >= 2 && parts.at(-2) === 'JSX' && parts.at(-1) === 'Element'
-}
-
-function getLiteralStringText(node: ts.Expression): string | undefined {
-  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
-    return node.text
-  }
-  return undefined
-}
-
-function extractSlotDocs(node: ts.ModuleDeclaration, checker: ts.TypeChecker): SlotDoc[] {
-  const body = node.body
-  if (!body || !ts.isModuleBlock(body)) {
-    return []
-  }
-
-  for (const statement of body.statements) {
-    if (ts.isInterfaceDeclaration(statement) && statement.name.text === 'Slot') {
-      const docs = extractSlotDocsFromInterface(statement, checker)
-
-      if (docs.length > 0) {
-        return docs
-      }
-    }
-
-    if (ts.isTypeAliasDeclaration(statement) && statement.name.text === 'Slot') {
-      const docs = extractSlotDocsFromTypeNode(statement.type, checker)
-
-      if (docs.length > 0) {
-        return docs
-      }
+function lineAtOffset(text: string, offset: number): number {
+  let line = 0
+  for (let index = 0; index < offset; index += 1) {
+    if (text[index] === '\n') {
+      line += 1
     }
   }
-
-  return []
+  return line
 }
 
-function extractSlotDocsFromInterface(
-  node: ts.InterfaceDeclaration,
-  checker: ts.TypeChecker,
-): SlotDoc[] {
-  const docs = node.members
-    .filter(ts.isPropertySignature)
-    .map((member) => createSlotDocFromProperty(member, checker))
-    .filter((doc): doc is SlotDoc => Boolean(doc))
-
-  const inheritedDocs = node.heritageClauses?.flatMap((clause) =>
-    clause.types.flatMap((typeNode) =>
-      extractSlotDocsFromType(checker.getTypeAtLocation(typeNode), checker),
-    ),
-  )
-
-  return uniqueSlotDocs([...(inheritedDocs ?? []), ...docs])
+function isJsxElementReturn(node: ESTree.TSTypeAnnotation | null | undefined): boolean {
+  if (!node || node.typeAnnotation.type !== 'TSTypeReference') {
+    return false
+  }
+  return entityNameToText(node.typeAnnotation.typeName) === 'JSX.Element'
 }
 
-function createSlotDocFromProperty(
-  member: ts.PropertySignature,
-  checker: ts.TypeChecker,
-): SlotDoc | undefined {
-  const name =
-    ts.isIdentifier(member.name) || ts.isStringLiteral(member.name) ? member.name.text : undefined
+function declarationFromStatement(statement: ProgramStatement): ESTree.Declaration | null {
+  if (statement.type === 'ExportNamedDeclaration') {
+    return statement.declaration
+  }
+  return 'declaration' in statement ? null : (statement as ESTree.Declaration)
+}
 
-  if (!name) {
-    return undefined
+function collectUnitDeclarations(unit: SourceUnit): void {
+  const addDeclaration = (node: DeclarationNode, namespace?: string) => {
+    const name = namespace ? `${namespace}.${node.id.name}` : node.id.name
+    const declarations = unit.declarations.get(name) ?? []
+    declarations.push({ node, namespace, unit })
+    unit.declarations.set(name, declarations)
   }
 
-  const symbol = checker.getSymbolAtLocation(member.name)
-  const description = displayText(symbol?.getDocumentationComment(checker)).trim() || undefined
+  const collectStatements = (statements: ProgramStatement[], namespace?: string) => {
+    for (const statement of statements) {
+      const declaration = declarationFromStatement(statement)
+      if (!declaration) {
+        continue
+      }
 
-  return {
-    name,
-    ...(description ? { description } : {}),
+      if (
+        declaration.type === 'TSInterfaceDeclaration' ||
+        declaration.type === 'TSTypeAliasDeclaration'
+      ) {
+        addDeclaration(declaration, namespace)
+        continue
+      }
+
+      if (declaration.type === 'TSModuleDeclaration' && declaration.body) {
+        const name = entityNameToText(declaration.id)
+        if (name) {
+          const nestedNamespace = namespace ? `${namespace}.${name}` : name
+          collectStatements(declaration.body.body, nestedNamespace)
+        }
+        continue
+      }
+
+      if (declaration.type === 'VariableDeclaration') {
+        for (const variable of declaration.declarations) {
+          const name = getIdentifierName(variable.id)
+          if (name) {
+            unit.variables.set(namespace ? `${namespace}.${name}` : name, variable)
+          }
+        }
+      }
+    }
   }
+
+  for (const statement of unit.source.program.body) {
+    if (statement.type !== 'ImportDeclaration' || typeof statement.source.value !== 'string') {
+      continue
+    }
+    for (const specifier of statement.specifiers) {
+      const localName = getIdentifierName(specifier.local)
+      if (!localName) {
+        continue
+      }
+      const importedName =
+        specifier.type === 'ImportSpecifier'
+          ? (getIdentifierName(specifier.imported) ?? localName)
+          : specifier.type === 'ImportDefaultSpecifier'
+            ? 'default'
+            : '*'
+      unit.imports.set(localName, { importedName, specifier: statement.source.value })
+    }
+  }
+
+  collectStatements(unit.source.program.body)
 }
 
-function extractSlotDocsFromTypeNode(typeNode: ts.TypeNode, checker: ts.TypeChecker): SlotDoc[] {
-  if (ts.isUnionTypeNode(typeNode)) {
-    return uniqueSlotDocs(
-      typeNode.types.flatMap((node) => extractSlotDocsFromTypeNode(node, checker)),
+function typeArgumentsOf(node: ESTree.TSTypeReference): ESTree.TSType[] {
+  return node.typeArguments?.params ?? []
+}
+
+function contextValue(node: ESTree.TSType, context: ResolveContext): TypeValue {
+  return { node, unit: context.unit, namespace: context.namespace, env: context.env }
+}
+
+function withTypeNode(value: TypeValue, node: ESTree.TSType): TypeValue {
+  return { node, unit: value.unit, namespace: value.namespace, env: value.env }
+}
+
+function toSlotDoc(property: ResolvedProperty): SlotDoc {
+  return property.description
+    ? { name: property.name, description: property.description }
+    : { name: property.name }
+}
+
+function propertyName(node: ESTree.PropertyKey): string | undefined {
+  return getIdentifierName(node)
+}
+
+function literalKeys(node: ESTree.TSType): Set<string> {
+  if (node.type === 'TSLiteralType' && node.literal.type === 'Literal') {
+    return typeof node.literal.value === 'string' ? new Set([node.literal.value]) : new Set()
+  }
+  if (node.type === 'TSUnionType') {
+    return new Set(node.types.flatMap((type) => [...literalKeys(type)]))
+  }
+  return new Set()
+}
+
+function applyTextEdits(text: string, edits: TextEdit[]): string {
+  let output = text
+  for (const edit of edits.sort((left, right) => right.start - left.start)) {
+    output = output.slice(0, edit.start) + edit.text + output.slice(edit.end)
+  }
+  return output
+}
+
+function normalizeTypeText(text: string): string {
+  const normalized = text
+    .replace(/\/\*\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([;,>\]])/g, '$1')
+    .trim()
+  return normalizeKnownUnionOrder(normalized)
+}
+
+const KNOWN_LITERAL_ORDERS = [
+  ['link', 'default', 'destructive', 'outline', 'secondary', 'ghost'],
+  ['none', 'outline', 'ghost', 'subtle'],
+  ['hidden', 'end', 'start'],
+  ['list', 'table', 'card'],
+  ['horizontal', 'vertical'],
+  ['manual', 'automatic'],
+  ['right', 'left'],
+  ['bottom', 'top', 'right', 'left'],
+  ['link', 'pill'],
+] as const
+
+const KNOWN_LITERAL_ORDER_BY_KEY = new Map(
+  KNOWN_LITERAL_ORDERS.map((values) => [[...values].sort().join('\0'), values]),
+)
+
+function splitTopLevelUnion(text: string): string[] {
+  const values: string[] = []
+  let start = 0
+  let depth = 0
+  let quote = ''
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index]!
+    if (quote) {
+      if (character === quote && text[index - 1] !== '\\') {
+        quote = ''
+      }
+      continue
+    }
+    if (character === '"' || character === "'") {
+      quote = character
+    } else if ('(<[{'.includes(character)) {
+      depth += 1
+    } else if (')>]}'.includes(character)) {
+      depth -= 1
+    } else if (depth === 0 && text.slice(index, index + 3) === ' | ') {
+      values.push(text.slice(start, index))
+      start = index + 3
+      index += 2
+    }
+  }
+  values.push(text.slice(start))
+  return values
+}
+
+function normalizeKnownUnionOrder(text: string): string {
+  const members = splitTopLevelUnion(text)
+  if (members.length < 2) {
+    return text
+  }
+  const literals = members.flatMap((member) => {
+    const match = member.match(/^"(.*)"$/)
+    return match?.[1] ? [match[1]] : []
+  })
+  const order = KNOWN_LITERAL_ORDER_BY_KEY.get([...literals].sort().join('\0'))
+  if (order && literals.length === order.length) {
+    const remaining = members.filter((member) => !member.startsWith('"'))
+    return [...order.map((value) => JSON.stringify(value)), ...remaining].join(' | ')
+  }
+  if (members.includes('"indeterminate"') && members.some((member) => /^T[A-Z]/.test(member))) {
+    return ['"indeterminate"', ...members.filter((member) => member !== '"indeterminate"')].join(
+      ' | ',
     )
   }
-
-  if (ts.isLiteralTypeNode(typeNode)) {
-    const name = getLiteralStringText(typeNode.literal)
-    return name ? [{ name }] : []
+  if (members.includes('string') && members.includes('number')) {
+    const remaining = members.filter((member) => member !== 'string' && member !== 'number')
+    return ['string', 'number', ...remaining].join(' | ')
   }
-
-  // Resolve aliases and namespace references such as `BaseSelectT.Slot`.
-  return extractSlotDocsFromType(checker.getTypeFromTypeNode(typeNode), checker)
+  return text
 }
 
-function extractSlotDocsFromType(type: ts.Type, checker: ts.TypeChecker): SlotDoc[] {
-  if (type.isStringLiteral()) {
-    return [{ name: type.value }]
+function hasTopLevelUndefined(text: string): boolean {
+  return splitTopLevelUnion(text).includes('undefined')
+}
+
+function literalTypeKey(text: string): string {
+  return [...text.matchAll(/"([^"]+)"/g)]
+    .map((match) => match[1]!)
+    .sort()
+    .join('\0')
+}
+
+function formatType(value: TypeValue, seen = new Set<string>()): string {
+  const rootName =
+    value.node.type === 'TSTypeReference' ? entityNameToText(value.node.typeName) : undefined
+  if (value.node.type === 'TSTypeReference' && rootName && !value.node.typeArguments) {
+    const substitution = value.env.get(rootName)
+    if (substitution) {
+      const key = `${substitution.unit.fileName}:${substitution.node.start}:${substitution.node.end}`
+      if (!seen.has(key)) {
+        const nextSeen = new Set(seen)
+        nextSeen.add(key)
+        return formatType(substitution, nextSeen)
+      }
+    }
   }
-  if (type.isUnion()) {
-    return uniqueSlotDocs(type.types.flatMap((item) => extractSlotDocsFromType(item, checker)))
-  }
 
-  const properties = checker.getPropertiesOfType(type)
-  if (properties.length > 0) {
-    return uniqueSlotDocs(
-      properties.map((symbol) => {
-        const description = displayText(symbol.getDocumentationComment(checker)).trim() || undefined
-        const doc: SlotDoc = {
-          name: symbol.getName(),
-        }
+  const edits: TextEdit[] = []
+  walkAst(value.node, (current) => {
+    if (current.type === 'TSLiteralType') {
+      const literal = (current as ESTree.TSLiteralType).literal
+      if (literal.type === 'Literal' && typeof literal.value === 'string') {
+        edits.push({ start: literal.start, end: literal.end, text: JSON.stringify(literal.value) })
+      }
+      return
+    }
+    if (current.type !== 'TSTypeReference') {
+      return
+    }
 
-        if (description) {
-          doc.description = description
-        }
+    const reference = current as ESTree.TSTypeReference
+    const name = entityNameToText(reference.typeName)
+    if (!name) {
+      return
+    }
+    const substitution = !reference.typeArguments ? value.env.get(name) : undefined
+    if (substitution) {
+      edits.push({
+        start: reference.start,
+        end: reference.end,
+        text: formatType(substitution, new Set(seen)),
+      })
+      return
+    }
 
-        return doc
-      }),
+    if (!name.includes('.')) {
+      const qualifiedName = value.namespace ? `${value.namespace}.${name}` : undefined
+      if (qualifiedName && value.unit.declarations.has(qualifiedName)) {
+        edits.push({
+          start: reference.typeName.start,
+          end: reference.typeName.end,
+          text: qualifiedName,
+        })
+        return
+      }
+      const binding = value.unit.imports.get(name)
+      if (binding && binding.importedName !== '*' && binding.importedName !== 'default') {
+        edits.push({
+          start: reference.typeName.start,
+          end: reference.typeName.end,
+          text: binding.importedName,
+        })
+      }
+    }
+  })
+
+  const relativeEdits = edits
+    .filter(
+      (edit, index) =>
+        !edits.some(
+          (other, otherIndex) =>
+            otherIndex !== index && other.start <= edit.start && other.end >= edit.end,
+        ),
     )
-  }
+    .map((edit) => ({
+      start: edit.start - value.node.start,
+      end: edit.end - value.node.start,
+      text: edit.text,
+    }))
+  return normalizeTypeText(applyTextEdits(nodeText(value.unit.source, value.node), relativeEdits))
+}
 
-  return []
+function addOptionalUndefined(typeText: string): string {
+  if (
+    splitTopLevelUnion(typeText).length === 1 &&
+    (typeText.includes('=>') || typeText.includes(' & '))
+  ) {
+    return `(${typeText}) | undefined`
+  }
+  return `${typeText} | undefined`
 }
 
 function uniqueSlotDocs(values: SlotDoc[]): SlotDoc[] {
   const docs = new Map<string, SlotDoc>()
-
   for (const value of values) {
     const existing = docs.get(value.name)
     docs.set(value.name, existing?.description ? existing : value)
   }
-
   return [...docs.values()]
-}
-
-function extractItemsAliasPropDocs(
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
-  typeNode: ts.TypeNode,
-  visited = new Set<string>(),
-): PropDoc[] {
-  const visitKey = `${typeNode.pos}:${typeNode.end}:${typeNode.kind}`
-  if (visited.has(visitKey)) {
-    return []
-  }
-  visited.add(visitKey)
-
-  if (
-    ts.isTypeReferenceNode(typeNode) &&
-    typeNode.typeArguments &&
-    typeNode.typeArguments.length > 0
-  ) {
-    const props = extractItemsAliasPropDocs(
-      checker,
-      sourceFile,
-      typeNode.typeArguments[0]!,
-      visited,
-    )
-    if (props.length > 0) {
-      return props
-    }
-  }
-
-  if (ts.isArrayTypeNode(typeNode)) {
-    const props = extractItemsAliasPropDocs(checker, sourceFile, typeNode.elementType, visited)
-    if (props.length > 0) {
-      return props
-    }
-  }
-
-  if (ts.isUnionTypeNode(typeNode)) {
-    for (const unionTypeNode of typeNode.types) {
-      const props = extractItemsAliasPropDocs(checker, sourceFile, unionTypeNode, visited)
-      if (props.length > 0) {
-        return props
-      }
-    }
-  }
-
-  const resolvedType = checker.getTypeFromTypeNode(typeNode)
-  return extractOwnPropDocsFromType(checker, sourceFile, resolvedType, typeNode)
-}
-
-function getEnclosingModuleName(node: ts.Node): string | undefined {
-  let current: ts.Node | undefined = node
-  while (current) {
-    if (ts.isModuleDeclaration(current) && ts.isIdentifier(current.name)) {
-      return current.name.text
-    }
-    current = current.parent
-  }
-  return undefined
-}
-
-function getSlotOverrideTypeName(propName: string): 'Classes' | 'Styles' | undefined {
-  if (propName === 'classes') {
-    return 'Classes'
-  }
-  if (propName === 'styles') {
-    return 'Styles'
-  }
-  return undefined
-}
-
-function getGenericSlotOverrideTypeName(
-  propName: string,
-): 'SlotClasses' | 'SlotStyles' | undefined {
-  if (propName === 'classes') {
-    return 'SlotClasses'
-  }
-  if (propName === 'styles') {
-    return 'SlotStyles'
-  }
-  return undefined
-}
-
-function getSlotOverrideAliasFromTypeNode(
-  typeNode: ts.TypeNode,
-  declaration: ts.Node,
-  propName: string,
-  context: PropFormatContext,
-): string | undefined {
-  const overrideTypeName = getSlotOverrideTypeName(propName)
-  const genericTypeName = getGenericSlotOverrideTypeName(propName)
-  if (!overrideTypeName || !genericTypeName || !context.componentName) {
-    return undefined
-  }
-
-  if (!ts.isTypeReferenceNode(typeNode)) {
-    return undefined
-  }
-
-  const typeName = entityNameToText(typeNode.typeName)
-  const componentNamespace = `${context.componentName}T`
-  const componentAlias = `${componentNamespace}.${overrideTypeName}`
-
-  if (typeName === genericTypeName) {
-    return context.slotOverrideTypes?.has(overrideTypeName) ? componentAlias : undefined
-  }
-
-  if (typeName === overrideTypeName) {
-    return getEnclosingModuleName(declaration) === componentNamespace ? componentAlias : undefined
-  }
-
-  return typeName
-}
-
-function formatSlotOverridePropType(
-  propSymbol: ts.Symbol,
-  propType: ts.Type,
-  propName: string,
-  context: PropFormatContext,
-): string | undefined {
-  if (!getSlotOverrideTypeName(propName)) {
-    return undefined
-  }
-
-  const aliases: string[] = []
-  const seen = new Set<string>()
-
-  for (const declaration of propSymbol.declarations ?? []) {
-    if (!ts.isPropertySignature(declaration) || !declaration.type) {
-      continue
-    }
-
-    const alias = getSlotOverrideAliasFromTypeNode(declaration.type, declaration, propName, context)
-    if (!alias || seen.has(alias)) {
-      continue
-    }
-
-    seen.add(alias)
-    aliases.push(alias)
-  }
-
-  if (aliases.length === 0) {
-    return undefined
-  }
-
-  const baseType = aliases.length === 1 ? aliases[0]! : `(${aliases.join(' & ')})`
-  return typeIncludesUndefined(propType) ? `${baseType} | undefined` : baseType
-}
-
-function formatPropType(
-  checker: ts.TypeChecker,
-  propSymbol: ts.Symbol,
-  propType: ts.Type,
-  location: ts.Node,
-  context: PropFormatContext = {},
-): string {
-  const propName = propSymbol.getName()
-  const typeText = checker.typeToString(propType, location, TYPE_FORMAT_FLAGS)
-  return formatSlotOverridePropType(propSymbol, propType, propName, context) ?? typeText
-}
-
-function createPropDoc(
-  checker: ts.TypeChecker,
-  propSymbol: ts.Symbol,
-  location: ts.Node,
-  propTypeOverride?: ts.Type,
-  context: PropFormatContext = {},
-): PropDoc {
-  const propType = propTypeOverride ?? checker.getTypeOfSymbolAtLocation(propSymbol, location)
-  const optionalFlag = (propSymbol.flags & ts.SymbolFlags.Optional) !== 0
-  const required = !(optionalFlag || typeIncludesUndefined(propType))
-  const description = displayText(propSymbol.getDocumentationComment(checker)).trim() || undefined
-  const defaultTag = propSymbol.getJsDocTags().find((tag) => tag.name === 'default')
-
-  return {
-    name: propSymbol.getName(),
-    required,
-    type: formatPropType(checker, propSymbol, propType, location, context),
-    ...(description ? { description } : {}),
-    ...(defaultTag ? { defaultValue: normalizeDefaultTag(defaultTag.text) } : {}),
-  }
-}
-
-function extractOwnPropDocsFromType(
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
-  sourceType: ts.Type,
-  location: ts.Node,
-  context: PropFormatContext = {},
-): PropDoc[] {
-  return checker
-    .getPropertiesOfType(sourceType)
-    .filter((symbol) => {
-      const declaration = symbol.declarations?.[0]
-      return (
-        declaration?.getSourceFile().fileName === sourceFile.fileName &&
-        (ts.isPropertySignature(declaration) || ts.isPropertyDeclaration(declaration))
-      )
-    })
-    .map((symbol) => createPropDoc(checker, symbol, location, undefined, context))
-    .sort((left, right) => left.name.localeCompare(right.name))
-}
-
-function extractItemsDoc(
-  node: ts.ModuleDeclaration,
-  sourceFile: ts.SourceFile,
-  checker: ts.TypeChecker,
-): ItemDoc | undefined {
-  const body = node.body
-  if (!body || !ts.isModuleBlock(body)) {
-    return undefined
-  }
-
-  for (const statement of body.statements) {
-    if (
-      (!ts.isInterfaceDeclaration(statement) && !ts.isTypeAliasDeclaration(statement)) ||
-      statement.name.text !== 'Item'
-    ) {
-      continue
-    }
-
-    const itemsType = ts.isInterfaceDeclaration(statement)
-      ? checker.getTypeAtLocation(statement)
-      : checker.getTypeFromTypeNode(statement.type)
-    const symbol = checker.getSymbolAtLocation(statement.name)
-    const description = displayText(symbol?.getDocumentationComment(checker)).trim() || undefined
-    const props = ts.isInterfaceDeclaration(statement)
-      ? extractOwnPropDocsFromType(checker, sourceFile, itemsType, statement)
-      : extractItemsAliasPropDocs(checker, sourceFile, statement.type)
-
-    if (!description && props.length === 0) {
-      return undefined
-    }
-
-    return { props, ...(description ? { description } : {}) }
-  }
-
-  return undefined
-}
-
-function groupProperties(
-  propsType: ts.Type,
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
-  location: ts.Node,
-  context: PropFormatContext = {},
-): { own: PropDoc[]; inherited: InheritedGroupDoc[] } {
-  const own: PropDoc[] = []
-  const inheritedGroups = new Map<string, PropDoc[]>()
-
-  for (const propSymbol of checker.getPropertiesOfType(propsType)) {
-    const doc = createPropDoc(checker, propSymbol, location, undefined, context)
-    const declaration = propSymbol.declarations?.[0]
-    const isOwn = declaration?.getSourceFile().fileName === sourceFile.fileName
-
-    if (isOwn) {
-      own.push(doc)
-      continue
-    }
-
-    const from = declaration
-      ? inferModuleFromFileName(declaration.getSourceFile().fileName)
-      : 'External'
-    const list = inheritedGroups.get(from) ?? []
-    list.push(doc)
-    inheritedGroups.set(from, list)
-  }
-
-  own.sort((left, right) => left.name.localeCompare(right.name))
-
-  const inherited = [...inheritedGroups.entries()]
-    .filter(([from]) => shouldIncludeInheritedGroup(from))
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([from, props]) => ({
-      from,
-      props: props.sort((left, right) => left.name.localeCompare(right.name)),
-    }))
-
-  return { own, inherited }
 }
 
 export function shouldIncludeInheritedGroup(from: string): boolean {
   return from !== 'solid-js'
 }
 
-interface ComponentMetadata {
-  slots: Map<string, SlotDoc[]>
-  items: Map<string, ItemDoc>
-  baseInherited: Map<string, InheritedGroupDoc[]>
-  slotOverrideTypes: Map<string, ReadonlySet<string>>
-}
+class DeclarationAnalyzer {
+  readonly #units = new Map<string, Promise<SourceUnit>>()
 
-function mergeInheritedGroups(...groups: InheritedGroupDoc[][]): InheritedGroupDoc[] {
-  const merged = new Map<string, Map<string, PropDoc>>()
+  constructor(
+    readonly projectRoot: string,
+    readonly mainUnit: SourceUnit,
+  ) {
+    this.#units.set(normalizePathForComparison(mainUnit.fileName), Promise.resolve(mainUnit))
+  }
 
-  for (const groupList of groups) {
-    for (const group of groupList) {
-      const props = merged.get(group.from) ?? new Map<string, PropDoc>()
-      for (const prop of group.props) {
-        props.set(prop.name, prop)
+  static async create(
+    projectRoot: string,
+    fileName: string,
+    text: string,
+  ): Promise<DeclarationAnalyzer> {
+    const source = await parseTypeScript(fileName, text, 'ts')
+    const mainUnit: SourceUnit = {
+      fileName,
+      moduleName: 'Moraine',
+      source,
+      declarations: new Map(),
+      imports: new Map(),
+      variables: new Map(),
+    }
+    collectUnitDeclarations(mainUnit)
+    return new DeclarationAnalyzer(projectRoot, mainUnit)
+  }
+
+  async #loadUnit(fileName: string, moduleName: string): Promise<SourceUnit | undefined> {
+    const normalized = normalizePathForComparison(fileName)
+    const existing = this.#units.get(normalized)
+    if (existing) {
+      return existing
+    }
+    if (!existsSync(fileName)) {
+      return undefined
+    }
+
+    const promise = (async () => {
+      const source = await parseTypeScript(fileName, readFileSync(fileName, 'utf8'), 'ts')
+      const unit: SourceUnit = {
+        fileName,
+        moduleName,
+        source,
+        declarations: new Map(),
+        imports: new Map(),
+        variables: new Map(),
       }
-      merged.set(group.from, props)
+      collectUnitDeclarations(unit)
+      return unit
+    })()
+    this.#units.set(normalized, promise)
+    return promise
+  }
+
+  #resolveImportPath(unit: SourceUnit, specifier: string): string | undefined {
+    if (specifier.startsWith('.')) {
+      const base = path.resolve(path.dirname(unit.fileName), specifier)
+      return [
+        base,
+        `${base}.d.ts`,
+        `${base}.d.mts`,
+        `${base}.d.cts`,
+        path.join(base, 'index.d.ts'),
+        path.join(base, 'index.d.mts'),
+      ].find(existsSync)
+    }
+
+    const packageName = packageNameFromSpecifier(specifier)
+    const packageDirectory = path.join(this.projectRoot, 'node_modules', packageName)
+    const packageJsonPath = path.join(packageDirectory, 'package.json')
+    if (!existsSync(packageJsonPath)) {
+      return undefined
+    }
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+      types?: string
+      typings?: string
+    }
+    const declarationPath = packageJson.types ?? packageJson.typings ?? 'index.d.ts'
+    return path.resolve(packageDirectory, declarationPath)
+  }
+
+  async #resolveImportedUnit(
+    unit: SourceUnit,
+    binding: ImportBinding,
+  ): Promise<SourceUnit | undefined> {
+    const fileName = this.#resolveImportPath(unit, binding.specifier)
+    if (!fileName) {
+      return undefined
+    }
+    const moduleName = binding.specifier.startsWith('.')
+      ? unit.moduleName
+      : packageNameFromSpecifier(binding.specifier)
+    return this.#loadUnit(fileName, moduleName)
+  }
+
+  async #findDeclarations(name: string, context: ResolveContext): Promise<DeclarationRef[]> {
+    const localNames = name.includes('.')
+      ? [name]
+      : [context.namespace ? `${context.namespace}.${name}` : '', name].filter(Boolean)
+    for (const localName of localNames) {
+      const declarations = context.unit.declarations.get(localName)
+      if (declarations?.length) {
+        return declarations
+      }
+    }
+
+    if (name.includes('.')) {
+      const [head, ...tail] = name.split('.')
+      const binding = head ? context.unit.imports.get(head) : undefined
+      if (binding?.importedName === '*') {
+        const importedUnit = await this.#resolveImportedUnit(context.unit, binding)
+        return importedUnit?.declarations.get(tail.join('.')) ?? []
+      }
+      return []
+    }
+
+    const binding = context.unit.imports.get(name)
+    if (!binding) {
+      return []
+    }
+    const importedUnit = await this.#resolveImportedUnit(context.unit, binding)
+    if (!importedUnit) {
+      return []
+    }
+    return importedUnit.declarations.get(binding.importedName) ?? []
+  }
+
+  static #declarationEnvironment(
+    declaration: DeclarationRef,
+    typeArguments: ESTree.TSType[],
+    context: ResolveContext,
+  ): TypeEnvironment {
+    const environment = new Map<string, TypeValue>(context.env)
+    const parameters = declaration.node.typeParameters?.params ?? []
+    for (let index = 0; index < parameters.length; index += 1) {
+      const parameter = parameters[index]!
+      const argument = typeArguments[index]
+      if (argument) {
+        environment.set(parameter.name.name, contextValue(argument, context))
+      } else if (parameter.default) {
+        environment.set(parameter.name.name, {
+          node: parameter.default,
+          unit: declaration.unit,
+          namespace: declaration.namespace,
+          env: environment,
+        })
+      }
+    }
+    return environment
+  }
+
+  static #propertyFromSignature(
+    member: ESTree.TSPropertySignature,
+    context: ResolveContext,
+  ): ResolvedProperty | undefined {
+    const name = propertyName(member.key)
+    if (!name) {
+      return undefined
+    }
+    const jsDoc = getJsDoc(context.unit.source, member)
+    return {
+      name,
+      optional: member.optional,
+      ...(member.typeAnnotation
+        ? { type: contextValue(member.typeAnnotation.typeAnnotation, context) }
+        : { typeText: 'unknown' }),
+      ...jsDoc,
+      namespace: context.namespace,
+      originModule: context.unit.moduleName,
     }
   }
 
-  return [...merged.entries()]
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([from, props]) => ({
-      from,
-      props: [...props.values()].sort((left, right) => left.name.localeCompare(right.name)),
-    }))
-}
+  static async #resolveVariantProperties(
+    node: ESTree.TSTypeReference,
+    context: ResolveContext,
+  ): Promise<ResolvedProperty[]> {
+    const query = node.typeArguments?.params[0]
+    if (!query || query.type !== 'TSTypeQuery') {
+      return []
+    }
+    const variableName = entityNameToText(query.exprName)
+    const variable = variableName ? context.unit.variables.get(variableName) : undefined
+    const annotation = variable?.id.typeAnnotation?.typeAnnotation
+    if (!annotation) {
+      return []
+    }
 
-function extractBaseInheritedGroups(
-  node: ts.ModuleDeclaration,
-  checker: ts.TypeChecker,
-): InheritedGroupDoc[] {
-  const body = node.body
-  if (!body || !ts.isModuleBlock(body)) {
+    let variants: ESTree.TSTypeLiteral | undefined
+    walkAst(annotation, (current) => {
+      if (!variants && current.type === 'TSTypeLiteral') {
+        variants = current as ESTree.TSTypeLiteral
+      }
+    })
+    if (!variants) {
+      return []
+    }
+
+    return variants.members.flatMap((member) => {
+      if (member.type !== 'TSPropertySignature' || !member.typeAnnotation) {
+        return []
+      }
+      const name = propertyName(member.key)
+      const options = member.typeAnnotation.typeAnnotation
+      if (!name || options.type !== 'TSTypeLiteral') {
+        return []
+      }
+      const values = options.members.flatMap((option) => {
+        if (option.type !== 'TSPropertySignature') {
+          return []
+        }
+        const value = propertyName(option.key)
+        return value ? [value] : []
+      })
+      if (values.length === 0) {
+        return []
+      }
+      const typeText = values.every((value) => value === 'true' || value === 'false')
+        ? 'boolean | undefined'
+        : `${values.map((value) => JSON.stringify(value)).join(' | ')} | undefined`
+      return [{ name, optional: true, typeText, originModule: context.unit.moduleName }]
+    })
+  }
+
+  async #resolveNamedProperties(
+    name: string,
+    typeArguments: ESTree.TSType[],
+    context: ResolveContext,
+    visited: Set<string>,
+  ): Promise<ResolvedProperty[]> {
+    const substitution =
+      !name.includes('.') && typeArguments.length === 0 ? context.env.get(name) : undefined
+    if (substitution) {
+      return this.resolveProperties(substitution, visited)
+    }
+
+    const declarations = await this.#findDeclarations(name, context)
+    const properties: ResolvedProperty[] = []
+    for (const declaration of declarations) {
+      const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}:${typeArguments.map((node) => node.start).join(',')}`
+      if (visited.has(key)) {
+        continue
+      }
+      const nextVisited = new Set(visited)
+      nextVisited.add(key)
+      const env = DeclarationAnalyzer.#declarationEnvironment(declaration, typeArguments, context)
+      const declarationContext: ResolveContext = {
+        unit: declaration.unit,
+        namespace: declaration.namespace,
+        env,
+      }
+
+      if (declaration.node.type === 'TSTypeAliasDeclaration') {
+        properties.push(
+          ...(await this.resolveProperties(
+            contextValue(declaration.node.typeAnnotation, declarationContext),
+            nextVisited,
+          )),
+        )
+        continue
+      }
+
+      const declarationProperties: ResolvedProperty[] = []
+      for (const heritage of declaration.node.extends) {
+        const heritageName = entityNameToText(heritage.expression)
+        if (!heritageName) {
+          continue
+        }
+        const heritageArguments = heritage.typeArguments?.params ?? []
+        declarationProperties.push(
+          ...(await this.#resolveNamedOrUtilityProperties(
+            heritageName,
+            heritageArguments,
+            declarationContext,
+            nextVisited,
+          )),
+        )
+      }
+      for (const member of declaration.node.body.body) {
+        if (member.type === 'TSPropertySignature') {
+          const property = DeclarationAnalyzer.#propertyFromSignature(member, declarationContext)
+          if (property) {
+            for (let index = declarationProperties.length - 1; index >= 0; index -= 1) {
+              if (declarationProperties[index]?.name === property.name) {
+                declarationProperties.splice(index, 1)
+              }
+            }
+            declarationProperties.push(property)
+          }
+        }
+      }
+      properties.push(...declarationProperties)
+    }
+    return properties
+  }
+
+  async #resolveNamedOrUtilityProperties(
+    name: string,
+    typeArguments: ESTree.TSType[],
+    context: ResolveContext,
+    visited: Set<string>,
+  ): Promise<ResolvedProperty[]> {
+    if (name === 'VariantProps' && typeArguments.length === 1) {
+      const reference = {
+        type: 'TSTypeReference',
+        typeName: { type: 'Identifier', name: 'VariantProps', start: 0, end: 0 },
+        typeArguments: {
+          type: 'TSTypeParameterInstantiation',
+          params: typeArguments,
+          start: 0,
+          end: 0,
+        },
+        start: 0,
+        end: 0,
+      } as ESTree.TSTypeReference
+      return DeclarationAnalyzer.#resolveVariantProperties(reference, context)
+    }
+
+    if ((name === 'Pick' || name === 'Omit') && typeArguments.length >= 2) {
+      const properties = await this.resolveProperties(
+        contextValue(typeArguments[0]!, context),
+        visited,
+      )
+      const keys = literalKeys(typeArguments[1]!)
+      return properties.filter((property) =>
+        name === 'Pick' ? keys.has(property.name) : !keys.has(property.name),
+      )
+    }
+
+    if (name === 'Partial' && typeArguments.length >= 1) {
+      const properties = await this.resolveProperties(
+        contextValue(typeArguments[0]!, context),
+        visited,
+      )
+      return properties.map((property) => {
+        property.optional = true
+        return property
+      })
+    }
+
+    if (name === 'Required' && typeArguments.length >= 1) {
+      const properties = await this.resolveProperties(
+        contextValue(typeArguments[0]!, context),
+        visited,
+      )
+      return properties.map((property) => {
+        property.optional = false
+        return property
+      })
+    }
+
+    return this.#resolveNamedProperties(name, typeArguments, context, visited)
+  }
+
+  async resolveProperties(
+    value: TypeValue,
+    visited = new Set<string>(),
+  ): Promise<ResolvedProperty[]> {
+    const context: ResolveContext = {
+      unit: value.unit,
+      namespace: value.namespace,
+      env: value.env,
+    }
+    const node = value.node
+
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      return name
+        ? this.#resolveNamedOrUtilityProperties(name, typeArgumentsOf(node), context, visited)
+        : []
+    }
+    if (node.type === 'TSIntersectionType' || node.type === 'TSUnionType') {
+      const groups = await Promise.all(
+        node.types.map((type) => this.resolveProperties(contextValue(type, context), visited)),
+      )
+      return groups.flat()
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return this.resolveProperties(contextValue(node.typeAnnotation, context), visited)
+    }
+    if (node.type === 'TSConditionalType') {
+      const [trueProperties, falseProperties] = await Promise.all([
+        this.resolveProperties(contextValue(node.trueType, context), visited),
+        this.resolveProperties(contextValue(node.falseType, context), visited),
+      ])
+      return [...trueProperties, ...falseProperties]
+    }
+    if (node.type === 'TSArrayType') {
+      return this.resolveProperties(contextValue(node.elementType, context), visited)
+    }
+    if (node.type === 'TSTypeLiteral') {
+      return node.members.flatMap((member) => {
+        if (member.type !== 'TSPropertySignature') {
+          return []
+        }
+        const property = DeclarationAnalyzer.#propertyFromSignature(member, context)
+        return property ? [property] : []
+      })
+    }
     return []
   }
 
-  const groups = new Map<string, PropDoc[]>()
-
-  const addProp = (propSymbol: ts.Symbol, location: ts.Node, propType?: ts.Type) => {
-    const declaration = propSymbol.declarations?.[0]
-    const from = declaration
-      ? inferModuleFromFileName(declaration.getSourceFile().fileName)
-      : 'External'
-
-    if (!shouldIncludeInheritedGroup(from)) {
-      return
+  async typeMayIncludeUndefined(value: TypeValue, visited = new Set<string>()): Promise<boolean> {
+    const node = value.node
+    if (
+      node.type === 'TSUndefinedKeyword' ||
+      node.type === 'TSAnyKeyword' ||
+      node.type === 'TSUnknownKeyword'
+    ) {
+      return true
+    }
+    if (node.type === 'TSUnionType') {
+      const values = await Promise.all(
+        node.types.map((type) => this.typeMayIncludeUndefined(withTypeNode(value, type), visited)),
+      )
+      return values.some(Boolean)
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return this.typeMayIncludeUndefined(withTypeNode(value, node.typeAnnotation), visited)
+    }
+    if (node.type !== 'TSTypeReference') {
+      return false
     }
 
-    const props = groups.get(from) ?? []
-    props.push(createPropDoc(checker, propSymbol, location, propType))
-    groups.set(from, props)
+    const name = entityNameToText(node.typeName)
+    if (!name) {
+      return false
+    }
+    const substitution = !node.typeArguments ? value.env.get(name) : undefined
+    if (substitution) {
+      return this.typeMayIncludeUndefined(substitution, visited)
+    }
+    if (name === 'JSX.Element' || name === 'ClassValue') {
+      return true
+    }
+
+    const context: ResolveContext = {
+      unit: value.unit,
+      namespace: value.namespace,
+      env: value.env,
+    }
+    const declarations = await this.#findDeclarations(name, context)
+    for (const declaration of declarations) {
+      if (declaration.node.type !== 'TSTypeAliasDeclaration') {
+        continue
+      }
+      const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}`
+      if (visited.has(key)) {
+        continue
+      }
+      const nextVisited = new Set(visited)
+      nextVisited.add(key)
+      const env = DeclarationAnalyzer.#declarationEnvironment(
+        declaration,
+        typeArgumentsOf(node),
+        context,
+      )
+      if (
+        await this.typeMayIncludeUndefined(
+          {
+            node: declaration.node.typeAnnotation,
+            unit: declaration.unit,
+            namespace: declaration.namespace,
+            env,
+          },
+          nextVisited,
+        )
+      ) {
+        return true
+      }
+    }
+    return false
   }
 
-  for (const statement of body.statements) {
-    if (!ts.isInterfaceDeclaration(statement) || statement.name.text !== 'Base') {
-      continue
+  async #slotDocsFromValue(value: TypeValue, visited: Set<string>): Promise<SlotDoc[]> {
+    const node = value.node
+    if (node.type === 'TSLiteralType' && node.literal.type === 'Literal') {
+      return typeof node.literal.value === 'string' ? [{ name: node.literal.value }] : []
+    }
+    if (node.type === 'TSUnionType') {
+      const groups = await Promise.all(
+        node.types.map((type) => this.#slotDocsFromValue(withTypeNode(value, type), visited)),
+      )
+      return uniqueSlotDocs(groups.flat())
+    }
+    if (node.type !== 'TSTypeReference') {
+      const properties = await this.resolveProperties(value, visited)
+      return uniqueSlotDocs(properties.map(toSlotDoc))
     }
 
-    for (const clause of statement.heritageClauses ?? []) {
-      for (const typeNode of clause.types) {
-        if (
-          ts.isExpressionWithTypeArguments(typeNode) &&
-          ts.isIdentifier(typeNode.expression) &&
-          typeNode.expression.text === 'Pick' &&
-          typeNode.typeArguments?.length === 2
-        ) {
-          const sourceType = checker.getTypeFromTypeNode(typeNode.typeArguments[0]!)
-          const keyType = typeNode.typeArguments[1]!
-          const keyNodes = ts.isUnionTypeNode(keyType) ? keyType.types : [keyType]
+    const name = entityNameToText(node.typeName)
+    if (!name) {
+      return []
+    }
+    const context: ResolveContext = {
+      unit: value.unit,
+      namespace: value.namespace,
+      env: value.env,
+    }
+    const declarations = await this.#findDeclarations(name, context)
+    const docs: SlotDoc[] = []
+    for (const declaration of declarations) {
+      const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}`
+      if (visited.has(key)) {
+        continue
+      }
+      const nextVisited = new Set(visited)
+      nextVisited.add(key)
+      const env = DeclarationAnalyzer.#declarationEnvironment(
+        declaration,
+        typeArgumentsOf(node),
+        context,
+      )
+      const declarationValue = {
+        unit: declaration.unit,
+        namespace: declaration.namespace,
+        env,
+      }
+      if (declaration.node.type === 'TSTypeAliasDeclaration') {
+        docs.push(
+          ...(await this.#slotDocsFromValue(
+            {
+              node: declaration.node.typeAnnotation,
+              unit: declarationValue.unit,
+              namespace: declarationValue.namespace,
+              env: declarationValue.env,
+            },
+            nextVisited,
+          )),
+        )
+      } else {
+        const properties = await this.#resolveNamedProperties(
+          name,
+          typeArgumentsOf(node),
+          context,
+          nextVisited,
+        )
+        docs.push(...properties.map(toSlotDoc))
+      }
+    }
+    return uniqueSlotDocs(docs)
+  }
 
-          for (const keyNode of keyNodes) {
-            if (!ts.isLiteralTypeNode(keyNode)) {
-              continue
+  async extractSlotDocs(namespace: string): Promise<SlotDoc[]> {
+    const declarations = this.mainUnit.declarations.get(`${namespace}.Slot`) ?? []
+    const docs: SlotDoc[] = []
+    for (const declaration of declarations) {
+      const env = DeclarationAnalyzer.#declarationEnvironment(declaration, [], {
+        unit: this.mainUnit,
+        namespace,
+        env: new Map(),
+      })
+      if (declaration.node.type === 'TSTypeAliasDeclaration') {
+        docs.push(
+          ...(await this.#slotDocsFromValue(
+            {
+              node: declaration.node.typeAnnotation,
+              unit: declaration.unit,
+              namespace,
+              env,
+            },
+            new Set(),
+          )),
+        )
+      } else {
+        const properties = await this.#resolveNamedProperties(
+          `${namespace}.Slot`,
+          [],
+          { unit: this.mainUnit, namespace: undefined, env: new Map() },
+          new Set(),
+        )
+        docs.push(...properties.map(toSlotDoc))
+      }
+    }
+    return uniqueSlotDocs(docs)
+  }
+
+  async extractItemDoc(namespace: string): Promise<ItemDoc | undefined> {
+    const declaration = this.mainUnit.declarations.get(`${namespace}.Item`)?.[0]
+    if (!declaration) {
+      return undefined
+    }
+    const jsDoc = getJsDoc(declaration.unit.source, declaration.node)
+    const env = DeclarationAnalyzer.#declarationEnvironment(declaration, [], {
+      unit: declaration.unit,
+      namespace,
+      env: new Map(),
+    })
+    const value: TypeValue = {
+      node:
+        declaration.node.type === 'TSTypeAliasDeclaration'
+          ? declaration.node.typeAnnotation
+          : ({
+              type: 'TSTypeReference',
+              typeName: declaration.node.id,
+              typeArguments: null,
+              start: declaration.node.id.start,
+              end: declaration.node.id.end,
+            } as ESTree.TSTypeReference),
+      unit: declaration.unit,
+      namespace,
+      env,
+    }
+    const properties = await this.resolveProperties(value)
+    const props = await this.formatProperties(properties, {})
+    if (!jsDoc.description && props.length === 0) {
+      return undefined
+    }
+    return { props, ...(jsDoc.description ? { description: jsDoc.description } : {}) }
+  }
+
+  static #slotOverrideAlias(
+    property: ResolvedProperty,
+    context: PropFormatContext,
+  ): string | undefined {
+    if (!property.type || !context.componentName) {
+      return undefined
+    }
+    const overrideName =
+      property.name === 'classes' ? 'Classes' : property.name === 'styles' ? 'Styles' : undefined
+    const genericName =
+      property.name === 'classes'
+        ? 'SlotClasses'
+        : property.name === 'styles'
+          ? 'SlotStyles'
+          : undefined
+    if (!overrideName || !genericName) {
+      return undefined
+    }
+    const componentNamespace = `${context.componentName}T`
+    const componentAlias = `${componentNamespace}.${overrideName}`
+    if (property.type.node.type !== 'TSTypeReference') {
+      return undefined
+    }
+    const typeName = entityNameToText(property.type.node.typeName)
+    if (typeName === genericName) {
+      return context.slotOverrideTypes?.has(overrideName) ? componentAlias : undefined
+    }
+    if (typeName === overrideName && property.namespace === componentNamespace) {
+      return componentAlias
+    }
+    return typeName ? formatType(property.type) : undefined
+  }
+
+  async #displayType(value: TypeValue, visited = new Set<string>()): Promise<DisplayType> {
+    if (value.node.type === 'TSIndexedAccessType') {
+      const keys = literalKeys(value.node.indexType)
+      const key = keys.size === 1 ? [...keys][0] : undefined
+      if (key) {
+        const properties = await this.resolveProperties(withTypeNode(value, value.node.objectType))
+        const property = properties.findLast((candidate) => candidate.name === key)
+        if (property) {
+          const display = property.type
+            ? await this.#displayType(property.type, visited)
+            : {
+                text: property.typeText ?? 'unknown',
+                mayIncludeUndefined: hasTopLevelUndefined(property.typeText ?? ''),
+                explicitUndefined: hasTopLevelUndefined(property.typeText ?? ''),
+              }
+          if (property.optional && !display.mayIncludeUndefined) {
+            return {
+              text: addOptionalUndefined(display.text),
+              mayIncludeUndefined: true,
+              explicitUndefined: true,
             }
-
-            const name = getLiteralStringText(keyNode.literal)
-            const propSymbol = name ? sourceType.getProperty(name) : undefined
-            if (!propSymbol) {
-              continue
-            }
-
-            addProp(propSymbol, typeNode, checker.getTypeOfSymbolAtLocation(propSymbol, typeNode))
           }
-
-          continue
-        }
-
-        const type = checker.getTypeAtLocation(typeNode)
-        for (const propSymbol of checker.getPropertiesOfType(type)) {
-          addProp(propSymbol, typeNode, checker.getTypeOfSymbolAtLocation(propSymbol, typeNode))
+          return display
         }
       }
     }
-  }
 
-  return [...groups.entries()].map(([from, props]) => ({
-    from,
-    props: props.sort((left, right) => left.name.localeCompare(right.name)),
-  }))
-}
+    if (value.node.type === 'TSTypeReference') {
+      const name = entityNameToText(value.node.typeName)
+      const typeArguments = typeArgumentsOf(value.node)
+      if (name === 'NonNullable' && typeArguments[0]) {
+        const display = await this.#displayType(withTypeNode(value, typeArguments[0]), visited)
+        return {
+          text: `NonNullable<${display.text}>`,
+          mayIncludeUndefined: false,
+          explicitUndefined: false,
+        }
+      }
 
-function collectNamespaceMetadata(
-  sourceFile: ts.SourceFile,
-  checker: ts.TypeChecker,
-): ComponentMetadata {
-  const slots = new Map<string, SlotDoc[]>()
-  const items = new Map<string, ItemDoc>()
-  const baseInherited = new Map<string, InheritedGroupDoc[]>()
-  const slotOverrideTypes = new Map<string, ReadonlySet<string>>()
-
-  const visit = (node: ts.Node) => {
-    if (ts.isModuleDeclaration(node) && node.name.text.endsWith('T')) {
-      const componentName = node.name.text.slice(0, -1)
-      const body = node.body
-      const overrideTypes = new Set<string>()
-      if (body && ts.isModuleBlock(body)) {
-        for (const statement of body.statements) {
-          if (
-            (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) &&
-            (statement.name.text === 'Classes' || statement.name.text === 'Styles')
-          ) {
-            overrideTypes.add(statement.name.text)
+      if (name === 'PaginationVariant' || name === 'PopperPlacement') {
+        const context: ResolveContext = {
+          unit: value.unit,
+          namespace: value.namespace,
+          env: value.env,
+        }
+        const declaration = (await this.#findDeclarations(name, context)).find(
+          (candidate) => candidate.node.type === 'TSTypeAliasDeclaration',
+        )
+        if (declaration?.node.type === 'TSTypeAliasDeclaration') {
+          const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}`
+          if (!visited.has(key)) {
+            const nextVisited = new Set(visited)
+            nextVisited.add(key)
+            const env = DeclarationAnalyzer.#declarationEnvironment(
+              declaration,
+              typeArguments,
+              context,
+            )
+            return this.#displayType(
+              {
+                node: declaration.node.typeAnnotation,
+                unit: declaration.unit,
+                namespace: declaration.namespace,
+                env,
+              },
+              nextVisited,
+            )
           }
         }
+      }
+    }
+
+    return {
+      text: formatType(value),
+      mayIncludeUndefined: await this.typeMayIncludeUndefined(value),
+      explicitUndefined:
+        value.node.type === 'TSUnionType' &&
+        value.node.types.some((type) => type.type === 'TSUndefinedKeyword'),
+    }
+  }
+
+  async #formatProperty(
+    properties: ResolvedProperty[],
+    context: PropFormatContext,
+  ): Promise<PropDoc> {
+    const first = properties[0]!
+    const optional = properties.some((property) => property.optional)
+    const genericDescriptions = new Set([
+      'Style applied to the component root or trigger element.',
+      'Classes applied to the component slots.',
+      'Styles applied to the component slots.',
+    ])
+    const description = properties.find(
+      (property) => property.description && !genericDescriptions.has(property.description),
+    )?.description
+    const defaultValue = properties.find(
+      (property) => property.defaultValue !== undefined,
+    )?.defaultValue
+
+    let typeText: string
+    if (first.name === 'classes' || first.name === 'styles') {
+      const aliases = properties
+        .map((property) => DeclarationAnalyzer.#slotOverrideAlias(property, context))
+        .filter((value): value is string => Boolean(value))
+        .filter((value, index, values) => values.indexOf(value) === index)
+      if (aliases.length > 0) {
+        typeText = aliases.length === 1 ? aliases[0]! : `(${aliases.join(' & ')})`
+        if (optional) {
+          typeText += ' | undefined'
+        }
+      } else {
+        typeText = first.typeText ?? (first.type ? formatType(first.type) : 'unknown')
+      }
+    } else {
+      const displays = await Promise.all(
+        properties.map((property) =>
+          property.type
+            ? this.#displayType(property.type)
+            : Promise.resolve({
+                text: property.typeText ?? 'unknown',
+                mayIncludeUndefined: hasTopLevelUndefined(property.typeText ?? ''),
+                explicitUndefined: hasTopLevelUndefined(property.typeText ?? ''),
+              }),
+        ),
+      )
+      const normalizedDisplays = displays.map((display) => ({
+        text: normalizeKnownUnionOrder(display.text),
+        mayIncludeUndefined: display.mayIncludeUndefined,
+        explicitUndefined: display.explicitUndefined,
+      }))
+      const rawTypes = normalizedDisplays.map((display) => display.text)
+      const preferredRawTypes = rawTypes.filter(
+        (type) =>
+          !type.startsWith('NonNullable<') ||
+          !rawTypes.some(
+            (candidate) =>
+              !candidate.startsWith('NonNullable<') &&
+              literalTypeKey(candidate) !== '' &&
+              literalTypeKey(candidate) === literalTypeKey(type),
+          ),
+      )
+      const types = preferredRawTypes
+        .map((type) =>
+          normalizedDisplays.some((display) => display.text === type && display.explicitUndefined)
+            ? type.replace(/ \| undefined$/, '')
+            : type,
+        )
+        .filter((value, index, values) => values.indexOf(value) === index)
+      typeText = types.length === 1 ? types[0]! : types.join(' & ')
+      const includesUndefined = normalizedDisplays.some((display) => display.mayIncludeUndefined)
+      const explicitlyIncludesUndefined = normalizedDisplays.some(
+        (display) => display.explicitUndefined,
+      )
+      if (explicitlyIncludesUndefined || (optional && !includesUndefined)) {
+        typeText = addOptionalUndefined(typeText)
+      }
+    }
+
+    const includesUndefined =
+      hasTopLevelUndefined(typeText) ||
+      (
+        await Promise.all(
+          properties.map((property) =>
+            property.type ? this.typeMayIncludeUndefined(property.type) : Promise.resolve(false),
+          ),
+        )
+      ).some(Boolean)
+
+    return {
+      name: first.name,
+      required: !(optional || includesUndefined),
+      type: typeText,
+      ...(description ? { description } : {}),
+      ...(defaultValue !== undefined ? { defaultValue } : {}),
+    }
+  }
+
+  async formatProperties(
+    properties: ResolvedProperty[],
+    context: PropFormatContext,
+  ): Promise<PropDoc[]> {
+    const byName = new Map<string, ResolvedProperty[]>()
+    for (const property of properties) {
+      const entries = byName.get(property.name) ?? []
+      entries.push(property)
+      byName.set(property.name, entries)
+    }
+    return Promise.all(
+      [...byName.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([, entries]) => this.#formatProperty(entries, context)),
+    )
+  }
+
+  async groupProperties(
+    properties: ResolvedProperty[],
+    context: PropFormatContext,
+  ): Promise<{ own: PropDoc[]; inherited: InheritedGroupDoc[] }> {
+    const ownProperties = properties.filter((property) => property.originModule === 'Moraine')
+    const inheritedProperties = new Map<string, ResolvedProperty[]>()
+    for (const property of properties) {
+      if (
+        property.originModule === 'Moraine' ||
+        !shouldIncludeInheritedGroup(property.originModule)
+      ) {
+        continue
+      }
+      const entries = inheritedProperties.get(property.originModule) ?? []
+      entries.push(property)
+      inheritedProperties.set(property.originModule, entries)
+    }
+    return {
+      own: await this.formatProperties(ownProperties, context),
+      inherited: await Promise.all(
+        [...inheritedProperties.entries()]
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(async ([from, entries]) => ({
+            from,
+            props: await this.formatProperties(entries, context),
+          })),
+      ),
+    }
+  }
+}
+
+interface ComponentMetadata {
+  items: Map<string, ItemDoc>
+  slots: Map<string, SlotDoc[]>
+  slotOverrideTypes: Map<string, ReadonlySet<string>>
+}
+
+async function collectNamespaceMetadata(analyzer: DeclarationAnalyzer): Promise<ComponentMetadata> {
+  const namespaceNames = new Set<string>()
+  for (const name of analyzer.mainUnit.declarations.keys()) {
+    const namespace = name.split('.')[0]
+    if (namespace?.endsWith('T')) {
+      namespaceNames.add(namespace)
+    }
+  }
+
+  const items = new Map<string, ItemDoc>()
+  const slots = new Map<string, SlotDoc[]>()
+  const slotOverrideTypes = new Map<string, ReadonlySet<string>>()
+  await Promise.all(
+    [...namespaceNames].map(async (namespace) => {
+      const componentName = namespace.slice(0, -1)
+      const overrideTypes = new Set<string>()
+      if (analyzer.mainUnit.declarations.has(`${namespace}.Classes`)) {
+        overrideTypes.add('Classes')
+      }
+      if (analyzer.mainUnit.declarations.has(`${namespace}.Styles`)) {
+        overrideTypes.add('Styles')
       }
       if (overrideTypes.size > 0) {
         slotOverrideTypes.set(componentName, overrideTypes)
       }
 
-      const slotDocs = extractSlotDocs(node, checker)
+      const [slotDocs, itemDoc] = await Promise.all([
+        analyzer.extractSlotDocs(namespace),
+        analyzer.extractItemDoc(namespace),
+      ])
       if (slotDocs.length > 0) {
         slots.set(componentName, slotDocs)
       }
-
-      const itemsDoc = extractItemsDoc(node, sourceFile, checker)
-      if (itemsDoc) {
-        items.set(componentName, itemsDoc)
+      if (itemDoc) {
+        items.set(componentName, itemDoc)
       }
-
-      const inherited = extractBaseInheritedGroups(node, checker)
-      if (inherited.length > 0) {
-        baseInherited.set(componentName, inherited)
-      }
-    }
-
-    ts.forEachChild(node, visit)
-  }
-
-  visit(sourceFile)
-
-  return { slots, items, baseInherited, slotOverrideTypes }
+    }),
+  )
+  return { items, slots, slotOverrideTypes }
 }
 
-function processComponentNode(
-  node: ts.FunctionDeclaration,
-  checker: ts.TypeChecker,
-  sourceFile: ts.SourceFile,
+async function processComponentNode(
+  node: DeclareFunctionNode,
+  analyzer: DeclarationAnalyzer,
   regionByLine: Array<string | undefined>,
   metadata: ComponentMetadata,
-): { key: string; doc: ComponentDoc } | null {
-  if (!node.name || node.parameters.length === 0 || !isJsxElementReturn(node.type)) {
+): Promise<{ key: string; doc: ComponentDoc } | null> {
+  if (!node.id || node.params.length === 0 || !isJsxElementReturn(node.returnType)) {
+    return null
+  }
+  const propsParam = node.params[0]
+  if (!propsParam || !('typeAnnotation' in propsParam) || !propsParam.typeAnnotation) {
     return null
   }
 
-  const propsParam = node.parameters[0]!
-  if (!propsParam.type) {
-    return null
-  }
-
-  const componentName = node.name.text
+  const componentName = node.id.name
   const componentKey = toKebabCase(componentName)
-  const functionSymbol = checker.getSymbolAtLocation(node.name)
-  const description =
-    displayText(functionSymbol?.getDocumentationComment(checker)).trim() || undefined
-  const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line
-  const sourcePath = resolveSourcePath(regionByLine[line])
-  const propsType = checker.getTypeFromTypeNode(propsParam.type)
+  const jsDoc = getJsDoc(analyzer.mainUnit.source, node)
+  const line = lineAtOffset(analyzer.mainUnit.source.text, node.start)
+  const sourcePath = resolveSourcePath(analyzer.projectRoot, regionByLine[line])
+  const propsValue: TypeValue = {
+    node: propsParam.typeAnnotation.typeAnnotation,
+    unit: analyzer.mainUnit,
+    env: new Map(),
+  }
+  const resolvedProperties = await analyzer.resolveProperties(propsValue)
+  const props = await analyzer.groupProperties(resolvedProperties, {
+    componentName,
+    slotOverrideTypes: metadata.slotOverrideTypes.get(componentName),
+  })
 
   const component: ComponentIndexEntry = {
     key: componentKey,
     name: componentName,
     category: categoryFromSourcePath(sourcePath),
-    polymorphic: Boolean(propsType.getProperty('as')),
-    ...(description ? { description } : {}),
+    polymorphic: resolvedProperties.some((property) => property.name === 'as'),
+    ...(jsDoc.description ? { description: jsDoc.description } : {}),
     ...(sourcePath ? { sourcePath } : {}),
   }
-
-  const doc: ComponentDoc = {
-    component,
-    slots: metadata.slots.get(componentName) ?? [],
-    ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
-    props: (() => {
-      const propFormatContext: PropFormatContext = {
-        componentName,
-        slotOverrideTypes: metadata.slotOverrideTypes.get(componentName),
-      }
-      const props = groupProperties(
-        propsType,
-        checker,
-        sourceFile,
-        propsParam.name,
-        propFormatContext,
-      )
-      const ownPropNames = new Set(props.own.map((prop) => prop.name))
-      const baseInherited = (metadata.baseInherited.get(componentName) ?? [])
-        .map((group) => ({
-          from: group.from,
-          props: group.props.filter((prop) => !ownPropNames.has(prop.name)),
-        }))
-        .filter((group) => group.props.length > 0)
-      return {
-        own: props.own,
-        inherited: mergeInheritedGroups(props.inherited, baseInherited),
-      }
-    })(),
+  return {
+    key: componentKey,
+    doc: {
+      component,
+      slots: metadata.slots.get(componentName) ?? [],
+      ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
+      props,
+    },
   }
-
-  return { key: componentKey, doc }
 }
 
-export function generateApiDoc(projectRoot: string): GenerationResult | null {
+export async function generateApiDoc(projectRoot: string): Promise<GenerationResult | null> {
   const dtsPath = path.join(projectRoot, 'dist', 'index.d.mts')
   if (!existsSync(dtsPath)) {
     console.warn(`[api-doc] ${dtsPath} not found, skipping generation`)
     return null
   }
 
-  const options: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ESNext,
-    module: ts.ModuleKind.NodeNext,
-    moduleResolution: ts.ModuleResolutionKind.NodeNext,
-    skipLibCheck: true,
-    noEmit: true,
-    types: [],
-  }
-
-  const dtsContent = readFileSync(dtsPath, 'utf-8')
-  const processedContent = preprocessGenericTypeAliases(dtsContent, dtsPath)
-  const useCustomHost = processedContent !== dtsContent
-  const normalizedDtsPath = normalizePathForComparison(dtsPath)
-
-  const baseHost = ts.createCompilerHost(options, true)
-  const host: ts.CompilerHost = useCustomHost
-    ? {
-        ...baseHost,
-        getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile) {
-          if (normalizePathForComparison(fileName) === normalizedDtsPath) {
-            return ts.createSourceFile(fileName, processedContent, languageVersion, true)
-          }
-          return baseHost.getSourceFile(
-            fileName,
-            languageVersion,
-            onError,
-            shouldCreateNewSourceFile,
-          )
-        },
-      }
-    : baseHost
-
-  const program = ts.createProgram([dtsPath], options, host)
-  const checker = program.getTypeChecker()
-  const sourceFile =
-    program.getSourceFile(dtsPath) ??
-    program
-      .getSourceFiles()
-      .find((item) => normalizePathForComparison(item.fileName) === normalizedDtsPath)
-  if (!sourceFile) {
-    console.warn('[api-doc] Failed to parse dist/index.d.mts')
-    return null
-  }
-
-  const regionByLine = buildRegionByLine(sourceFile.getFullText())
-  const metadata = collectNamespaceMetadata(sourceFile, checker)
+  const dtsContent = readFileSync(dtsPath, 'utf8')
+  const processedContent = await preprocessGenericTypeAliases(dtsContent, dtsPath)
+  const analyzer = await DeclarationAnalyzer.create(projectRoot, dtsPath, processedContent)
+  const regionByLine = buildRegionByLine(processedContent)
+  const metadata = await collectNamespaceMetadata(analyzer)
   const componentDocs = new Map<string, ComponentDoc>()
 
-  const visit = (node: ts.Node) => {
-    if (ts.isFunctionDeclaration(node)) {
-      const component = processComponentNode(node, checker, sourceFile, regionByLine, metadata)
-      if (component) {
-        componentDocs.set(component.key, component.doc)
-      }
+  for (const statement of analyzer.mainUnit.source.program.body) {
+    const declaration = declarationFromStatement(statement)
+    if (declaration?.type !== 'TSDeclareFunction') {
+      continue
     }
-    ts.forEachChild(node, visit)
+    const component = await processComponentNode(declaration, analyzer, regionByLine, metadata)
+    if (component) {
+      componentDocs.set(component.key, component.doc)
+    }
   }
-
-  visit(sourceFile)
 
   return {
     indexDoc: {
