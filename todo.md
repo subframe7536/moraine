@@ -30,9 +30,12 @@
   - [x] when `descriptionPosition` prop is set to `trailing`, the description should be rendered at the end of item inside `itemLabel` slot and near to it, instead of the end of the whole item, and the description should be truncated if it exceeds the available space.
   - [x] remove `kbds` prop from item, make it customizable via new `item.trailingRender?: (ctx: ItemRenderContext) => JSX.Element` slot, which will be rendered at the end of item, and can be used to render kbd, badge, icon etc. rename `item.icon` to `item.leadingRender?: (ctx: ItemRenderContext) => JSX.Element`, which will be rendered at the start of item, and can be used to render icon, avatar etc.
   - [x] refresh doc, make example more real-world, and add more examples to show how to customize item render via `itemRender` prop, and how to customize item label and description position via `descriptionPosition` prop.
-- [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants, customizable divider, support keyboard event key matching (`listen?: true | ((event: KeyboardEvent) => boolean)`, only setup this will setup event listener; if is `true`, use default mapping behavior) and trigger function `onTrigger?: (event: KeyboardEvent) => void`.
-- [ ] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
-- [ ] refactor form / form-field to formisch, replace existing form context logic if possible
+- [x] split `avatar` component into `avatar` and `avatar-group`, and add new `avatar-group` component to group avatars together, and support different sizes and variants.
+- [ ] split `kbd` component into `kbd` and `kbd-group`, and add new `kbd-group` component to group kbd elements together, and support different sizes and variants
+  - [ ] kbd-group should also support customizable divider, sequence, alternatives
+  - [ ] display text and accessible label for each kbd element
+  - [ ] support both symbol and text to better adapt different platforms and devices
+- [ ] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
 - [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
 - [ ] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu`, which can be used to render a list of items with optional search and selection support, and support different sizes and variants.
 - [ ] find a way to add jsdoc for Variant 's props
