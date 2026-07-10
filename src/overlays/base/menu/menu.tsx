@@ -18,7 +18,8 @@ import { Portal } from 'solid-js/web'
 
 import { Icon } from '../../../elements/icon'
 import type { IconT } from '../../../elements/icon'
-import { Kbd } from '../../../elements/kbd'
+import { KbdGroup } from '../../../elements/kbd'
+import type { KbdGroupT } from '../../../elements/kbd'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
 import { cn, useId } from '../../../shared/utils'
@@ -62,6 +63,10 @@ import type {
 } from './types'
 
 export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils'
+
+function toKbdChord(value: string[] | undefined): KbdGroupT.Chord | undefined {
+  return value && value.length > 0 ? (value as unknown as KbdGroupT.Chord) : undefined
+}
 
 /** Shared overlay menu props used by the shell, root wrappers, and layers. */
 interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
@@ -419,14 +424,17 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           </Show>
 
           <Show when={!contentProps.hasChildren}>
-            <Kbd
-              size="sm"
-              slotPrefix="item"
-              value={contentProps.item.kbds}
-              classes={{
-                root: props.classes?.itemKbds,
-              }}
-            />
+            <Show when={toKbdChord(contentProps.item.kbds)}>
+              {(value) => (
+                <KbdGroup
+                  size="sm"
+                  value={value()}
+                  classes={{
+                    root: props.classes?.itemKbds,
+                  }}
+                />
+              )}
+            </Show>
           </Show>
 
           <Show

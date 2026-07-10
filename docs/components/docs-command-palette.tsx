@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
-import { CommandPalette, Kbd, cn } from '../../src'
+import { CommandPalette, KbdGroup, cn } from '../../src'
 import type { CommandPaletteT } from '../../src'
 
 import type { SidebarPage } from './sidebar'
@@ -75,7 +75,12 @@ export function DocsSearchTrigger(props: {
       <span class="i-lucide-search shrink-0 size-4 block" aria-hidden="true" />
       <Show when={variant() === 'desktop'}>
         <span class="text-left flex-1 truncate">Search...</span>
-        <Kbd size="xs" variant="outline" value={['⌘', 'K']} classes={{ item: 'text-[0.65rem]' }} />
+        <KbdGroup
+          value={['⌘', 'K']}
+          size="xs"
+          variant="outline"
+          classes={{ item: 'text-[0.65rem]' }}
+        />
       </Show>
     </button>
   )

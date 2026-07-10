@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Kbd } from '@src'
+import { Button, CommandPalette, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal, onCleanup, onMount } from 'solid-js'
 
@@ -82,22 +82,22 @@ export function Usage() {
         <div class="flex gap-4 items-center justify-between">
           <div class="flex flex-wrap gap-3 items-center">
             <div class="flex gap-2 items-center">
-              <Kbd value={['↑', '↓']} />
+              <KbdGroup value={['↑', '↓']} />
               <span class="text-xs">Navigate</span>
             </div>
             <div class="flex gap-2 items-center">
-              <Kbd value={['↵']} />
+              <Kbd value="↵" />
               <span class="text-xs">Open</span>
             </div>
           </div>
           <div class="flex gap-2 items-center">
-            <Kbd value={['Esc']} />
+            <Kbd value="Esc" />
             <span class="text-xs">Close</span>
           </div>
         </div>
       )}
     >
-      <Button variant="outline" trailing={<Kbd value={['⌘', 'K']} />}>
+      <Button variant="outline" trailing={<KbdGroup value={['⌘', 'K']} />}>
         Search...
       </Button>
     </CommandPalette>

@@ -14,19 +14,10 @@ import { Kbd } from 'moraine'
 
 ## Slot Structure
 
-Keyboard shortcut display with different structures for single vs. multiple keys.
-
-### Single key
+`Kbd` renders a single accessible keycap. Use [`KbdGroup`](/general/kbd-group) for shortcut chords and ordered sequences.
 
 ```text
 kbd
-```
-
-### Multiple keys
-
-```text
-kbds
-└── kbd (×n)
 ```
 
 ## Examples
@@ -43,8 +34,8 @@ Keycap sizes from xs to xl.
 
 <DemoKbdSizes />
 
-### Shortcut Composition
+### Inline Usage
 
-Inline command palette hints.
+Single-key inline hint.
 
 <DemoKbdShortcutComposition />

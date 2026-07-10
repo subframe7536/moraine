@@ -4,37 +4,24 @@
     "name": "Kbd",
     "category": "elements",
     "polymorphic": false,
-    "description": "Keyboard shortcut display component with configurable size and variant.",
+    "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
     "sourcePath": "src/elements/kbd/kbd.tsx"
   },
-  "slots": [
-    {
-      "name": "root",
-      "description": "Wrapper around multiple key tokens.\n\nSingle-value shortcuts render only the `item` slot, so top-level `class` and `style`\nare applied to that item instead."
-    },
-    {
-      "name": "item",
-      "description": "Individual key token inside the shortcut sequence."
-    }
-  ],
+  "slots": [{ "name": "item", "description": "Individual key token." }],
   "props": {
     "own": [
-      {
-        "name": "between",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Slot between kbds"
-      },
       {
         "name": "class",
         "required": false,
         "type": "ClassValue",
         "description": "Class applied to the component root or trigger element."
       },
+      { "name": "classes", "required": false, "type": "KbdT.Classes | undefined" },
       {
-        "name": "classes",
+        "name": "label",
         "required": false,
-        "type": "KbdT.Classes | undefined"
+        "type": "string | undefined",
+        "description": "Accessible label for assistive technology."
       },
       {
         "name": "size",
@@ -47,21 +34,19 @@
         "type": "string | undefined",
         "description": "Prefix for data-slot attributes."
       },
+      { "name": "style", "required": false, "type": "JSX.CSSProperties | undefined" },
+      { "name": "styles", "required": false, "type": "KbdT.Styles | undefined" },
       {
-        "name": "style",
+        "name": "text",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "KbdT.Styles | undefined"
+        "type": "JSX.Element",
+        "description": "Visible text for the key."
       },
       {
         "name": "value",
         "required": false,
-        "type": "string[] | undefined",
-        "description": "Array of keys to display."
+        "type": "string | undefined",
+        "description": "Fallback text value used when text is not provided."
       },
       {
         "name": "variant",
@@ -72,7 +57,14 @@
     "inherited": []
   },
   "attributes": {
-    "aria": [],
+    "aria": [
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "string",
+        "description": "Accessible label for keycaps."
+      }
+    ],
     "data": [
       {
         "name": "data-slot",

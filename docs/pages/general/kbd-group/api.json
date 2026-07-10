@@ -1,0 +1,86 @@
+{
+  "component": {
+    "key": "kbd-group",
+    "name": "KbdGroup",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+    "sourcePath": "src/elements/kbd/kbd-group.tsx"
+  },
+  "slots": [
+    { "name": "root", "description": "Container for one or more shortcut steps." },
+    { "name": "chord", "description": "Wrapper around keys pressed at the same time." },
+    { "name": "item", "description": "Individual key token." },
+    { "name": "divider", "description": "Divider between keys pressed at the same time." },
+    {
+      "name": "sequenceDivider",
+      "description": "Divider between shortcut steps pressed in sequence."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      { "name": "classes", "required": false, "type": "KbdGroupT.Classes | undefined" },
+      {
+        "name": "divider",
+        "required": false,
+        "type": "JSX.Element | ((ctx: KbdGroupT.DividerContext) => JSX.Element)",
+        "description": "Divider rendered between keys in the same chord."
+      },
+      {
+        "name": "sequence",
+        "required": false,
+        "type": "KbdGroupT.Sequence | undefined",
+        "description": "Chords pressed one after another, such as Ctrl+K then Ctrl+S."
+      },
+      {
+        "name": "sequenceDivider",
+        "required": false,
+        "type": "JSX.Element | ((ctx: KbdGroupT.SequenceDividerContext) => JSX.Element)",
+        "description": "Divider rendered between shortcut steps."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"xl\" | undefined"
+      },
+      {
+        "name": "slotPrefix",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Prefix for data-slot attributes."
+      },
+      { "name": "style", "required": false, "type": "JSX.CSSProperties | undefined" },
+      { "name": "styles", "required": false, "type": "KbdGroupT.Styles | undefined" },
+      {
+        "name": "value",
+        "required": false,
+        "type": "KbdGroupT.Chord | undefined",
+        "description": "Keys pressed at the same time, such as Ctrl+K."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"outline\" | \"invert\" | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": []
+  }
+}

@@ -1,0 +1,48 @@
+---
+header: true
+---
+
+import { DemoKbdGroupBasic } from './basic?example'
+import { DemoKbdGroupSequences } from './sequences?example'
+import { DemoKbdGroupCustomDividers } from './custom-dividers?example'
+import { DemoKbdGroupSizes } from './sizes?example'
+
+## Import
+
+```tsx
+import { KbdGroup } from 'moraine'
+```
+
+## Usage
+
+`KbdGroup` composes multiple [`Kbd`](/general/kbd) keycaps.
+Use `value` for keys pressed at the same time, such as `Ctrl + K`.
+Use `sequence` for chords pressed one after another, such as `Ctrl + K` then `Ctrl + S`.
+
+## Slot Structure
+
+```text
+root
+├── chord
+│   ├── kbd (×n)
+│   └── divider (between simultaneous keys)
+└── sequence-divider (between ordered chords)
+```
+
+## Examples
+
+### Basic
+
+<DemoKbdGroupBasic />
+
+### Sequences
+
+<DemoKbdGroupSequences />
+
+### Custom Dividers
+
+<DemoKbdGroupCustomDividers />
+
+### Sizes
+
+<DemoKbdGroupSizes />

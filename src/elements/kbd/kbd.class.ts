@@ -26,4 +26,21 @@ export const kbdItemVariants = cva(
   },
 )
 
+export const kbdGroupVariants = cva('inline-flex items-center', {
+  defaultVariants: {
+    size: 'md',
+  },
+  variants: {
+    size: {
+      xs: 'text-2 gap-1',
+      sm: 'text-2.5 gap-1',
+      md: 'text-3 gap-1',
+      lg: 'text-xs gap-1.5',
+      xl: 'text-sm gap-1.5',
+    },
+  },
+})
+
 export type KbdVariantProps = VariantProps<typeof kbdItemVariants>
+export type KbdGroupVariantProps = VariantProps<typeof kbdItemVariants> &
+  VariantProps<typeof kbdGroupVariants>

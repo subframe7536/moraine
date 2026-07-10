@@ -288,9 +288,7 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   groups: CommandPaletteT.Group<TItem>[],
-  getItemSearchText:
-    | ((item: TItem, group: CommandPaletteT.Group<TItem>) => string)
-    | undefined,
+  getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
   warnDuplicateValue: (value: string) => void,
 ): NormalizedGroup<TItem>[] {
   const seenValues = new Set<string>()
@@ -672,7 +670,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               onInput={(event) => {
                 const { defaultPrevented } = callHandler(
                   event,
-                  merged.inputProps?.onInput as JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
+                  merged.inputProps?.onInput as
+                    | JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
                     | undefined,
                 )
                 if (!defaultPrevented) {
