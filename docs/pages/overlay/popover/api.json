@@ -138,12 +138,6 @@
   "attributes": {
     "aria": [
       {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
         "name": "aria-checked",
         "required": false,
         "type": "boolean | string | undefined",
@@ -228,12 +222,6 @@
         "required": false,
         "type": "string | undefined",
         "description": "Present when the item is highlighted by pointer or keyboard navigation."
-      },
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
       },
       {
         "name": "data-placement",

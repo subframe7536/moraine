@@ -10,12 +10,10 @@ import type { IconButtonVariantProps } from './icon-button.class'
 
 export namespace IconButtonInnerT {
   export interface Slot<T = unknown> {
-    /**
-     * Internal icon-only button shell used by composed components.
-     */
+    /** Internal icon-only button element. */
     root?: T
 
-    /** Icon glyph rendered inside the internal button shell. */
+    /** Icon glyph rendered inside the internal button. */
     icon?: T
   }
   export type Variant = IconButtonVariantProps
@@ -28,22 +26,20 @@ export namespace IconButtonInnerT {
     ComponentProps<'button'>,
     'children' | 'class' | 'style' | 'classes' | 'styles' | 'name' | 'size'
   > {
-    /**
-     * Icon source. Strings should be Uno icon classes such as `i-lucide-search`.
-     */
+    /** Icon source. Strings should be Uno icon classes such as `i-lucide-search`. */
     name: IconT.Name
 
-    /**
-     * Root `data-slot` name.
-     * @default 'root'
-     */
+    /** Root `data-slot` name. */
     slotName?: string
 
-    /**
-     * Icon `data-slot` name.
-     * @default 'icon'
-     */
+    /** Icon `data-slot` name. */
     iconSlotName?: string
+
+    /** Explicit root slot name used by composed components. */
+    'data-slot'?: string
+
+    /** Present while the composed button is loading. */
+    'data-loading'?: string
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -51,7 +47,7 @@ export namespace IconButtonInnerT {
 
 export interface IconButtonInnerProps extends IconButtonInnerT.Props {}
 
-/** Internal icon-only button without loading behavior. */
+/** Internal icon-only button foundation without loading state management. */
 export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'classes',
@@ -62,11 +58,14 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
     'size',
     'slotName',
     'iconSlotName',
+    'data-slot',
+    'data-loading',
   ])
 
   return (
     <button
-      data-slot={local.slotName ?? 'root'}
+      data-slot={local['data-slot'] ?? local.slotName ?? 'root'}
+      data-loading={local['data-loading']}
       type="button"
       class={iconButtonVariants({ size: local.size }, local.classes?.root, local.class)}
       style={{ ...local.styles?.root, ...local.style }}
@@ -77,7 +76,7 @@ export function IconButtonInner(props: IconButtonInnerProps): JSX.Element {
         slotName={local.iconSlotName ?? 'icon'}
         class={iconVariants({ size: local.size }, local.classes?.icon)}
         style={local.styles?.icon}
-        data-loading={(rest as any)['data-loading']}
+        data-loading={local['data-loading']}
       />
     </button>
   )

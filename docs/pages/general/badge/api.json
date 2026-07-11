@@ -101,22 +101,10 @@
   "attributes": {
     "aria": [
       {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
         "name": "aria-hidden",
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
       }
     ],
     "data": [
