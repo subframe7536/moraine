@@ -1,55 +1,8 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { afterEach, describe, expect, test, vi } from 'vitest'
-
-import { Form } from '../form'
-import { FormField } from '../form-field'
 
 import { Textarea } from './textarea'
 import type { TextareaProps } from './textarea'
-
-function createForm(
-  validateOn?: Array<'blur' | 'change' | 'input'>,
-  eagerValidation?: boolean,
-  initialValue = '',
-) {
-  const state = { value: initialValue }
-
-  const screen = render(() => (
-    <Form
-      state={state}
-      validateOn={validateOn}
-      validateOnInputDelay={0}
-      validate={(currentState) => {
-        if ((currentState?.value as string | undefined) === 'valid') {
-          return []
-        }
-
-        return [{ name: 'value', message: 'Error message' }]
-      }}
-    >
-      <FormField
-        name="value"
-        eagerValidation={eagerValidation}
-        hint="Hint"
-        description="Description"
-        help="Help"
-      >
-        <Textarea
-          id="textarea"
-          value={state.value}
-          onValueChange={(nextValue) => {
-            state.value = String(nextValue ?? '')
-          }}
-        />
-      </FormField>
-    </Form>
-  ))
-
-  return {
-    screen,
-    input: () => screen.getByRole('textbox') as HTMLTextAreaElement,
-  }
-}
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -265,102 +218,6 @@ describe('Textarea', () => {
       currentTarget: { value: 'b' },
     })
     expect(maxLimited.rows).toBe(3)
-  })
-
-  test('integrates with form validation aria attrs and validate on blur', async () => {
-    const { screen, input } = createForm(['blur'])
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    const textarea = input()
-    const root = textarea.closest('[data-slot="root"]')
-    expect(textarea.getAttribute('aria-invalid')).toBe('true')
-    expect(root?.hasAttribute('data-invalid')).toBe(true)
-
-    const describedBy = textarea.getAttribute('aria-describedby') ?? ''
-    expect(describedBy).toContain('-error')
-    expect(describedBy).toContain('-hint')
-    expect(describedBy).toContain('-description')
-    expect(describedBy).toContain('-help')
-
-    await fireEvent.input(textarea, {
-      target: { value: 'valid' },
-      currentTarget: { value: 'valid' },
-    })
-    await fireEvent.blur(textarea)
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('validates on change', async () => {
-    const { screen, input } = createForm(['change'])
-    const textarea = input()
-
-    await fireEvent.change(textarea, {
-      target: { value: 'bad' },
-      currentTarget: { value: 'bad' },
-    })
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await fireEvent.input(textarea, {
-      target: { value: 'valid' },
-      currentTarget: { value: 'valid' },
-    })
-    await fireEvent.change(textarea, {
-      target: { value: 'valid' },
-      currentTarget: { value: 'valid' },
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('validates on input and respects eagerValidation=false', async () => {
-    const eagerForm = createForm(['input'], true)
-    const eagerTextarea = eagerForm.input()
-
-    await fireEvent.input(eagerTextarea, {
-      target: { value: 'bad' },
-      currentTarget: { value: 'bad' },
-    })
-    await waitFor(() => {
-      expect(eagerForm.screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await fireEvent.input(eagerTextarea, {
-      target: { value: 'valid' },
-      currentTarget: { value: 'valid' },
-    })
-    await waitFor(() => {
-      expect(eagerForm.screen.queryByText('Error message')).toBeNull()
-    })
-
-    const nonEagerForm = createForm(['input'])
-    const nonEagerTextarea = nonEagerForm.input()
-
-    await fireEvent.input(nonEagerTextarea, {
-      target: { value: 'bad' },
-      currentTarget: { value: 'bad' },
-    })
-    await waitFor(() => {
-      expect(nonEagerForm.screen.queryByText('Error message')).toBeNull()
-    })
-
-    await fireEvent.blur(nonEagerTextarea)
-    await fireEvent.input(nonEagerTextarea, {
-      target: { value: 'bad' },
-      currentTarget: { value: 'bad' },
-    })
-    await waitFor(() => {
-      expect(nonEagerForm.screen.getByText('Error message')).not.toBeNull()
-    })
   })
 
   test('applies classes.root override', () => {

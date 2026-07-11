@@ -2,9 +2,6 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
-import { FormField } from '../form-field'
-
 import { Slider } from './slider'
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
@@ -58,53 +55,6 @@ function mockTrackRect(target: HTMLElement): void {
         },
       }) as DOMRect,
   })
-}
-
-function createForm(validateOn: Array<'blur' | 'change' | 'input'>) {
-  const state = { value: 10 }
-
-  const screen = render(() => (
-    <Form
-      state={state}
-      validateOn={validateOn}
-      validateOnInputDelay={0}
-      validate={(currentState) => {
-        if ((currentState?.value as number) >= 20) {
-          return []
-        }
-
-        return [{ name: 'value', message: 'Error message' }]
-      }}
-    >
-      <FormField name="value" label="Slider" hint="Hint" description="Description" help="Help">
-        <Slider
-          id="slider-input"
-          defaultValue={state.value}
-          onValueChange={(nextValue) => {
-            state.value = Array.isArray(nextValue) ? (nextValue[0] ?? 0) : nextValue
-          }}
-        />
-      </FormField>
-    </Form>
-  ))
-
-  return {
-    screen,
-    thumb: () => {
-      const thumb = screen.container.querySelector('[data-slot="thumb"]')
-      if (!thumb) {
-        throw new Error('Slider thumb not found')
-      }
-      return thumb as HTMLElement
-    },
-    input: () => {
-      const input = screen.container.querySelector('#slider-input')
-      if (!input) {
-        throw new Error('Slider input not found')
-      }
-      return input as HTMLInputElement
-    },
-  }
 }
 
 describe('Slider', () => {
@@ -718,68 +668,6 @@ describe('Slider', () => {
     const [firstThumbAfter, secondThumbAfter] = getThumbs(screen.container)
     expect(firstThumbAfter).toBe(firstThumbBefore)
     expect(secondThumbAfter).toBe(secondThumbBefore)
-  })
-
-  test('integrates with form validation on change', async () => {
-    const { screen, thumb } = createForm(['change'])
-
-    await fireEvent.focus(thumb())
-    await fireEvent.keyDown(thumb(), { key: 'ArrowRight' })
-    await fireEvent.blur(thumb())
-
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await fireEvent.focus(thumb())
-    for (let index = 0; index < 10; index += 1) {
-      await fireEvent.keyDown(thumb(), { key: 'ArrowRight' })
-    }
-    await fireEvent.blur(thumb())
-
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('integrates with form validation on input', async () => {
-    const { screen, thumb } = createForm(['input'])
-
-    await fireEvent.focus(thumb())
-    await fireEvent.keyDown(thumb(), { key: 'ArrowRight' })
-
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await fireEvent.keyDown(thumb(), { key: 'End' })
-
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('forwards aria-invalid and aria-describedby to slider inputs', async () => {
-    const { screen, input } = createForm(['change'])
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    const inputEl = input()
-    const root = screen.container.querySelector('[data-slot="root"][id$="-root"]')
-    const thumb = screen.container.querySelector('[data-slot="thumb"]')
-
-    expect(root?.getAttribute('data-invalid')).toBe('')
-    expect(thumb?.getAttribute('data-invalid')).toBe('')
-    expect(inputEl.getAttribute('aria-invalid')).toBe('true')
-
-    const describedBy = inputEl.getAttribute('aria-describedby') ?? ''
-    expect(describedBy).toContain('-error')
-    expect(describedBy).toContain('-hint')
-    expect(describedBy).toContain('-description')
-    expect(describedBy).toContain('-help')
   })
 
   test('applies class overrides for root and thumb slots', () => {

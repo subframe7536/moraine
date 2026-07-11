@@ -4,23 +4,17 @@
     "name": "Form",
     "category": "forms",
     "polymorphic": false,
-    "description": "Form container with schema-based validation and submission handling.",
+    "description": "Styled Formisch form that provides its store to Moraine form fields.",
     "sourcePath": "src/forms/form/form.tsx"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Form element that owns validation, submission, and field context."
+      "description": "Native form element managed by Formisch."
     }
   ],
   "props": {
     "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element | ((props: FormT.RenderProps) => JSX.Element)",
-        "description": "Children of the form, can be a render function."
-      },
       {
         "name": "class",
         "required": false,
@@ -33,48 +27,10 @@
         "type": "FormT.Classes | undefined"
       },
       {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the entire form is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the form."
-      },
-      {
-        "name": "loadingAuto",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to automatically set the form to a loading state during submission.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "onError",
-        "required": false,
-        "type": "((event: FormT.ErrorEvent) => void) | undefined",
-        "description": "Callback when the form submission fails due to validation errors."
-      },
-      {
         "name": "onSubmit",
         "required": false,
-        "type": "((event: FormT.SubmitEvent<TState>) => void | Promise<void>) | undefined",
-        "description": "Callback when the form is submitted successfully."
-      },
-      {
-        "name": "schema",
-        "required": false,
-        "type": "StandardSchemaV1<TState> | undefined",
-        "description": "Standard Schema V1 for form validation."
-      },
-      {
-        "name": "state",
-        "required": false,
-        "type": "TState | undefined",
-        "description": "The state of the form (controlled)."
+        "type": "SubmitEventHandler<TSchema> | undefined",
+        "description": "Called with validated schema output and the native submit event."
       },
       {
         "name": "style",
@@ -85,38 +41,36 @@
         "name": "styles",
         "required": false,
         "type": "FormT.Styles | undefined"
-      },
-      {
-        "name": "validate",
-        "required": false,
-        "type": "((state: TState | undefined) => FormValidationError[] | Promise<FormValidationError[]>) | undefined",
-        "description": "Custom validation function."
-      },
-      {
-        "name": "validateOn",
-        "required": false,
-        "type": "FormInputEventType[] | undefined",
-        "description": "When to trigger validation.",
-        "defaultValue": "['input', 'blur', 'change']"
-      },
-      {
-        "name": "validateOnInputDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds before triggering validation on input events.",
-        "defaultValue": "300"
       }
     ],
-    "inherited": []
+    "inherited": [
+      {
+        "from": "@formisch/solid",
+        "props": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "The child elements to render within the form."
+          },
+          {
+            "name": "of",
+            "required": true,
+            "type": "FormStore<TSchema>",
+            "description": "The form store instance."
+          }
+        ]
+      }
+    ]
   },
   "attributes": {
     "aria": [],
     "data": [
       {
-        "name": "data-loading",
+        "name": "data-submitting",
         "required": false,
         "type": "string | undefined",
-        "description": "Present when the component is loading."
+        "description": "State or slot attribute exposed for styling hooks and selectors."
       }
     ],
     "slots": []

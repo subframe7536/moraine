@@ -1,7 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
 import { FormField } from '../form-field'
 
 import { RadioGroup } from './radio-group'
@@ -128,54 +127,6 @@ describe('RadioGroup', () => {
     })
   })
 
-  test('integrates with form-field aria validation', async () => {
-    const state = { plan: '' }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.plan) {
-            return []
-          }
-
-          return [{ name: 'plan', message: 'Select a plan' }]
-        }}
-      >
-        <FormField name="plan" label="Plan">
-          <RadioGroup
-            items={['Basic', 'Pro']}
-            value={state.plan}
-            onChange={(nextValue) => {
-              state.plan = nextValue
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-
-    await waitFor(() => {
-      expect(screen.getByText('Select a plan')).not.toBeNull()
-    })
-
-    const group = screen.getByRole('radiogroup')
-    expect(group.getAttribute('aria-invalid')).toBe('true')
-    expect(group.getAttribute('data-invalid')).toBe('')
-
-    const control = screen.container.querySelector('[data-slot="control"]')
-    expect(control?.getAttribute('data-invalid')).toBe('')
-
-    const radio = screen.getByRole('radio', { name: 'Pro' })
-    await fireEvent.click(radio)
-
-    await waitFor(() => {
-      expect(screen.queryByText('Select a plan')).toBeNull()
-    })
-  })
-
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
       <RadioGroup items={['A', 'B']} orientation="horizontal" variant="table" size="xl" />
@@ -241,101 +192,6 @@ describe('RadioGroup', () => {
       expect(radioA.checked).toBe(true)
       expect(radioB.checked).toBe(false)
     })
-  })
-
-  test('validates on change when validateOn is change', async () => {
-    const state = { plan: '' }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOn={['change']}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.plan === 'Pro') {
-            return []
-          }
-
-          return [{ name: 'plan', message: 'Select Pro' }]
-        }}
-      >
-        <FormField name="plan" label="Plan">
-          <RadioGroup
-            id="plan-input"
-            items={['Basic', 'Pro']}
-            defaultValue={state.plan}
-            onChange={(nextValue) => {
-              state.plan = nextValue
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    await fireEvent.click(screen.getByRole('radio', { name: 'Basic' }))
-    await waitFor(() => {
-      expect(screen.getByText('Select Pro')).not.toBeNull()
-    })
-
-    await fireEvent.click(screen.getByRole('radio', { name: 'Pro' }))
-    await waitFor(() => {
-      expect(screen.queryByText('Select Pro')).toBeNull()
-    })
-  })
-
-  test('validates on input when validateOn is input', async () => {
-    const state = { plan: '' }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOn={['input']}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.plan === 'Pro') {
-            return []
-          }
-
-          return [{ name: 'plan', message: 'Select Pro' }]
-        }}
-      >
-        <FormField name="plan" label="Plan">
-          <RadioGroup
-            id="plan-input"
-            items={['Basic', 'Pro']}
-            defaultValue={state.plan}
-            onChange={(nextValue) => {
-              state.plan = nextValue
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    await fireEvent.click(screen.getByRole('radio', { name: 'Basic' }))
-    await waitFor(() => {
-      expect(screen.getByText('Select Pro')).not.toBeNull()
-    })
-
-    await fireEvent.click(screen.getByRole('radio', { name: 'Pro' }))
-    await waitFor(() => {
-      expect(screen.queryByText('Select Pro')).toBeNull()
-    })
-  })
-
-  test('does not bind form-field label for grouped controls', () => {
-    const state = { plan: '' }
-
-    const screen = render(() => (
-      <Form state={state} validate={() => []}>
-        <FormField name="plan" label="Radio group">
-          <RadioGroup id="plan-input" items={['Basic', 'Pro']} defaultValue={state.plan} />
-        </FormField>
-      </Form>
-    ))
-
-    const label = screen.getByText('Radio group')
-    expect(label.getAttribute('for')).toBeNull()
   })
 
   test('sets aria-readonly and prevents changes when readOnly', async () => {

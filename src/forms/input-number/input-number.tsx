@@ -786,12 +786,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
 
     merged.onBlur?.(event)
-    field.emit('blur')
+    field.emit('blur', event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
     merged.onFocus?.(event)
-    field.emit('focus')
+    field.emit('focus', event)
   }
 
   const onWheel: JSX.EventHandler<HTMLInputElement, WheelEvent> = (event) => {

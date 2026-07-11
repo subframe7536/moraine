@@ -1,72 +1,28 @@
+import type { FieldStore, RequiredPath } from '@formisch/solid'
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { FormFieldRuntimeState, FormInputEventType } from '../form/form-context'
-import { useFormContext } from '../form/form-context'
 
-/**
- * Options for the FormField context.
- */
+export interface FormFieldRuntimeState {
+  touched: boolean
+  dirty: boolean
+  focused: boolean
+  validating: boolean
+  valid: boolean
+}
+
 export interface FormFieldContextOptions {
-  /**
-   * The current error message or element for the field.
-   */
   error?: boolean | string | JSX.Element
-
-  /**
-   * The name of the field (key in form state).
-   */
   name?: string
-
-  /**
-   * The path of the field in the form state.
-   */
-  path?: string[]
-
-  /**
-   * The size of the form field.
-   */
+  path?: RequiredPath
+  field?: FieldStore
   size?: FormFieldSize
-
-  /**
-   * Whether to trigger validation eagerly on input.
-   */
-  eagerValidation?: boolean
-
-  /**
-   * Delay in milliseconds for debounced input validation.
-   */
-  validateOnInputDelay?: number
-
-  /**
-   * Hint text shown near the label.
-   */
   hint?: JSX.Element
-
-  /**
-   * Description text shown below the label.
-   */
   description?: JSX.Element
-
-  /**
-   * Help text shown below the control (when no error).
-   */
   help?: JSX.Element
-
-  /**
-   * Base ID used for ARIA attributes.
-   */
   ariaId: string
-
-  /**
-   * The ID of the primary control element.
-   */
   controlId?: string
-
-  /**
-   * Register a control element with the field.
-   */
   registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
 }
 
@@ -79,7 +35,6 @@ export interface UseFormFieldProps {
 
 export interface UseFormFieldOptions {
   bind?: boolean
-  deferInputValidation?: boolean
   defaultId: string
   defaultSize: FormFieldSize
   defaultAriaAttrs?: Record<string, string | boolean | undefined>
@@ -96,7 +51,7 @@ export interface UseFormFieldReturn {
   ariaAttrs: Accessor<Record<string, string | boolean | undefined>>
   runtimeState: Accessor<FormFieldRuntimeState>
   setFormValue: (value: unknown) => void
-  emit: (type: FormInputEventType) => void
+  emit: (type: 'blur' | 'change' | 'focus' | 'input', event?: Event) => void
 }
 
 export type FormFieldSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -109,170 +64,86 @@ const EMPTY_RUNTIME_STATE: FormFieldRuntimeState = {
   dirty: false,
   focused: false,
   validating: false,
+  valid: true,
 }
 
 export function useFormField(
   props: Accessor<UseFormFieldProps> | undefined,
   opts: Accessor<UseFormFieldOptions>,
 ): UseFormFieldReturn {
-  const formContext = useFormContext()
   const formField = useFormFieldContext()
-
-  const options = createMemo(() => {
-    const value = opts()
-
-    return {
-      bind: value.bind ?? true,
-      deferInputValidation: value.deferInputValidation ?? false,
-      defaultId: value.defaultId,
-      defaultSize: value.defaultSize,
-      defaultAriaAttrs: value.defaultAriaAttrs,
-    }
-  })
-
+  const options = createMemo(() => opts())
   const fieldProps = createMemo(() => props?.() ?? {})
-  const bind = createMemo(() => options().bind)
+  const bind = createMemo(() => options().bind ?? true)
   const localId = createMemo(() => fieldProps().id ?? options().defaultId)
 
   if (formField?.registerControl) {
-    const unregister = formField.registerControl({
-      id: localId,
-      bind,
-    })
+    const unregister = formField.registerControl({ id: localId, bind })
     onCleanup(unregister)
   }
 
   const id = createMemo(() => fieldProps().id ?? formField?.controlId ?? options().defaultId)
-  const name = createMemo(() => fieldProps().name ?? formField?.name)
-  const value = createMemo(() => {
-    if (!formContext) {
-      return undefined
-    }
-
-    const fieldPath = formField?.path
-    if (fieldPath) {
-      return formContext.getFieldValue(fieldPath)
-    }
-
-    const fieldName = name()
-    if (!fieldName) {
-      return undefined
-    }
-
-    return formContext.getFieldValue(fieldName)
-  })
+  const name = createMemo(
+    () => fieldProps().name ?? formField?.field?.props.name ?? formField?.name,
+  )
+  const value = createMemo(() => formField?.field?.input)
   const size = createMemo(() => fieldProps().size ?? formField?.size ?? options().defaultSize)
-  const disabled = createMemo(() => Boolean(formContext?.disabled || fieldProps().disabled))
+  const disabled = createMemo(() => Boolean(fieldProps().disabled))
   const invalid = createMemo(() => Boolean(formField?.error))
-  const runtimeState = createMemo(() => formContext?.getFieldState(name()) ?? EMPTY_RUNTIME_STATE)
-
-  let inputTimer: ReturnType<typeof setTimeout> | undefined
-  onCleanup(() => {
-    if (inputTimer) {
-      clearTimeout(inputTimer)
-      inputTimer = undefined
-    }
-  })
-
-  function emitFormEvent(type: FormInputEventType, eager?: boolean): void {
-    if (!formContext) {
-      return
-    }
-
-    formContext.emitInputEvent({
-      type,
-      name: formField?.path,
-      eager,
-    })
-  }
-
-  function emit(type: FormInputEventType): void {
-    if (type !== 'input') {
-      emitFormEvent(type)
-      return
-    }
-
-    const delay = formField?.validateOnInputDelay ?? formContext?.validateOnInputDelay ?? 300
-    const eagerValidation = Boolean(!options().deferInputValidation || formField?.eagerValidation)
-
-    if (inputTimer) {
-      clearTimeout(inputTimer)
-    }
-
-    inputTimer = setTimeout(() => {
-      emitFormEvent('input', eagerValidation)
-    }, delay)
-  }
-
-  function setFormValue(value: unknown): void {
-    if (!formContext) {
-      return
-    }
-
-    const fieldPath = formField?.path
-    if (fieldPath) {
-      formContext.setFieldValue(fieldPath, value)
-      return
-    }
-
-    const fieldName = name()
-    if (!fieldName) {
-      return
-    }
-
-    formContext.setFieldValue(fieldName, value)
-  }
 
   onMount(() => {
-    const initValue = opts().initialValue
-    if (initValue === undefined || value() !== undefined) {
-      return
+    const field = formField?.field
+    const initialValue = options().initialValue
+    if (field && field.input === undefined && initialValue !== undefined) {
+      field.onInput(initialValue)
     }
-
-    setFormValue(initValue)
+  })
+  const runtimeState = createMemo<FormFieldRuntimeState>(() => {
+    const field = formField?.field
+    if (!field) {
+      return EMPTY_RUNTIME_STATE
+    }
+    return {
+      touched: field.isTouched,
+      dirty: field.isDirty,
+      focused: false,
+      validating: false,
+      valid: field.isValid,
+    }
   })
 
   const ariaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
     if (!formField) {
       return options().defaultAriaAttrs ?? {}
     }
-
-    const describedBy: string[] = []
-
-    if (formField.error) {
-      describedBy.push(`${formField.ariaId}-error`)
-    }
-    if (formField.hint) {
-      describedBy.push(`${formField.ariaId}-hint`)
-    }
-    if (formField.description) {
-      describedBy.push(`${formField.ariaId}-description`)
-    }
-    if (formField.help) {
-      describedBy.push(`${formField.ariaId}-help`)
-    }
-
-    const attrs: Record<string, string | boolean | undefined> = {
+    const describedBy = [
+      formField.error ? `${formField.ariaId}-error` : undefined,
+      formField.hint ? `${formField.ariaId}-hint` : undefined,
+      formField.description ? `${formField.ariaId}-description` : undefined,
+      formField.help ? `${formField.ariaId}-help` : undefined,
+    ].filter(Boolean)
+    return {
       'aria-invalid': Boolean(formField.error) || undefined,
+      'aria-describedby': describedBy.length > 0 ? describedBy.join(' ') : undefined,
     }
-
-    if (describedBy.length > 0) {
-      attrs['aria-describedby'] = describedBy.join(' ')
-    }
-
-    return attrs
   })
 
-  return {
-    id,
-    name,
-    value,
-    size,
-    disabled,
-    invalid,
-    ariaAttrs,
-    runtimeState,
-    setFormValue,
-    emit,
-  } satisfies UseFormFieldReturn
+  function setFormValue(value: unknown): void {
+    formField?.field?.onInput(value)
+  }
+
+  function emit(type: 'blur' | 'change' | 'focus' | 'input', event?: Event): void {
+    const field = formField?.field
+    if (!field || !event) {
+      return
+    }
+    if (type === 'blur') {
+      field.props.onBlur(event as Parameters<typeof field.props.onBlur>[0])
+    }
+    if (type === 'focus') {
+      field.props.onFocus(event as Parameters<typeof field.props.onFocus>[0])
+    }
+  }
+
+  return { id, name, value, size, disabled, invalid, ariaAttrs, runtimeState, setFormValue, emit }
 }

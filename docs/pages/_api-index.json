@@ -133,7 +133,7 @@
       "name": "Form",
       "category": "forms",
       "polymorphic": false,
-      "description": "Form container with schema-based validation and submission handling.",
+      "description": "Styled Formisch form that provides its store to Moraine form fields.",
       "sourcePath": "src/forms/form/form.tsx"
     },
     {

@@ -191,7 +191,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       disabled: merged.disabled,
     }),
     () => ({
-      deferInputValidation: true,
       defaultId: generatedId(),
       defaultSize: 'md',
       initialValue: merged.defaultValue ?? '',
@@ -208,6 +207,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   }>(() => {
     if (merged.value !== undefined) {
       return { value: merged.value }
+    }
+
+    if (field.value() !== undefined) {
+      return { value: field.value() as InputT.Value }
     }
 
     if (merged.defaultValue !== undefined) {
@@ -289,12 +292,12 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
-    field.emit('blur')
+    field.emit('blur', event)
     merged.onBlur?.(event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
-    field.emit('focus')
+    field.emit('focus', event)
     merged.onFocus?.(event)
   }
 

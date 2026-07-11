@@ -9,9 +9,34 @@ import { DemoFormAccessRequestReview } from './access-request-review?example'
 
 ## Import
 
+Create the Formisch store with a Valibot schema, then pass it to `Form`. Moraine fields and
+controls bind to the store automatically through `FormField.name`.
+
 ```tsx
-import { Form } from 'moraine'
+import { createForm, Form, Input, Switch } from 'moraine'
+
+export function NoticationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+  const save = (output) => {}
+
+  return (
+    <Form of={form} onSubmit={(output) => save(output)}>
+      <FormField name="email" label="Email">
+        <Input />
+      </FormField>
+      <FormField name="enabled" label="Enable notifications">
+        <Switch />
+      </FormField>
+    </Form>
+  )
+}
 ```
+
+For field arrays or custom rendering, import `Field`, `FieldArray`, `useField`, and Formisch
+methods directly from `@formisch/solid` and use the same store.
 
 ## Examples
 
@@ -23,7 +48,7 @@ Create a new workspace with owner identity, default role, and rollout target.
 
 ### Release Readiness Checklist
 
-Validate release metadata, rollout channels, and approval gate before deployment.
+Validate release metadata, rollout channels, and approval gate with a Formisch schema.
 
 <DemoFormReleaseReadinessChecklist />
 

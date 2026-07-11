@@ -1,81 +1,57 @@
-import { Button, CheckboxGroup, Form, FormField, Input, Switch, Textarea } from '@src'
-import { createSignal } from 'solid-js'
+import { Button, CheckboxGroup, createForm, Form, FormField, Input, Switch, Textarea } from '@src'
+import { Show, createSignal } from 'solid-js'
+import * as v from 'valibot'
+
+const AccessRequestSchema = v.object({
+  requester: v.pipe(v.string(), v.nonEmpty('Requester is required.')),
+  reason: v.pipe(v.string(), v.nonEmpty('Business reason is required.')),
+  temporary: v.boolean(),
+  scopes: v.pipe(v.array(v.string()), v.nonEmpty('Select at least one permission scope.')),
+  reviewers: v.pipe(v.array(v.string()), v.nonEmpty('Select at least one reviewer.')),
+})
 
 export function AccessRequestReview() {
-  const [accessState, setAccessState] = createSignal({
-    requester: '',
-    reason: '',
-    temporary: true,
-    scopes: ['repo:read'],
-    reviewers: ['security'],
+  const [submittedRequest, setSubmittedRequest] = createSignal<string>()
+  const form = createForm({
+    schema: AccessRequestSchema,
+    initialInput: {
+      requester: '',
+      reason: '',
+      temporary: true,
+      scopes: ['repo:read'],
+      reviewers: ['security'],
+    },
   })
-
-  const updateAccess = (field: string, value: string | boolean | string[]) => {
-    setAccessState((prev) => ({ ...prev, [field]: value }))
-  }
 
   return (
     <Form
-      state={accessState()}
-      validate={(state) => {
-        const errors: { name: string; message: string }[] = []
-
-        if (!state?.requester?.trim()) {
-          errors.push({ name: 'requester', message: 'Requester is required.' })
-        }
-
-        if (!state?.reason?.trim()) {
-          errors.push({ name: 'reason', message: 'Business reason is required.' })
-        }
-
-        if (!state?.scopes || state.scopes.length === 0) {
-          errors.push({ name: 'scopes', message: 'Select at least one permission scope.' })
-        }
-
-        if (!state?.reviewers || state.reviewers.length === 0) {
-          errors.push({ name: 'reviewers', message: 'Select at least one reviewer.' })
-        }
-
-        return errors
-      }}
+      of={form}
+      onSubmit={(output) => setSubmittedRequest(`Request submitted for ${output.requester}.`)}
       class="mx-auto max-w-2xl w-full space-y-4"
     >
-      <FormField name="requester" label="Requester" required>
-        <Input
-          value={accessState().requester}
-          onValueChange={(v) => updateAccess('requester', String(v))}
-          placeholder="alex.chen"
-        />
+      <FormField<typeof AccessRequestSchema> name="requester" label="Requester" required>
+        <Input placeholder="alex.chen" />
       </FormField>
 
-      <FormField name="reason" label="Business Reason" required>
+      <FormField<typeof AccessRequestSchema> name="reason" label="Business Reason" required>
         <Textarea
-          value={accessState().reason}
-          onValueChange={(v) => updateAccess('reason', String(v))}
           placeholder="Need short-term access for production incident mitigation."
           rows={3}
         />
       </FormField>
 
-      <FormField
+      <FormField<typeof AccessRequestSchema>
         name="temporary"
         label="Temporary Access"
         description="Enable automatic expiry for this permission grant."
       >
-        <Switch
-          checked={accessState().temporary}
-          onChange={(v) => updateAccess('temporary', Boolean(v))}
-        />
+        <Switch />
       </FormField>
 
-      <FormField name="scopes" label="Requested Scopes" required>
+      <FormField<typeof AccessRequestSchema> name="scopes" label="Requested Scopes" required>
         <CheckboxGroup
           items={[
-            {
-              value: 'repo:read',
-              label: 'Repository Read',
-              description: 'View code and PRs',
-            },
+            { value: 'repo:read', label: 'Repository Read', description: 'View code and PRs' },
             {
               value: 'repo:write',
               label: 'Repository Write',
@@ -87,13 +63,11 @@ export function AccessRequestReview() {
               description: 'Trigger release pipelines',
             },
           ]}
-          value={accessState().scopes}
-          onChange={(v) => updateAccess('scopes', v)}
           variant="card"
         />
       </FormField>
 
-      <FormField name="reviewers" label="Required Reviewers" required>
+      <FormField<typeof AccessRequestSchema> name="reviewers" label="Required Reviewers" required>
         <CheckboxGroup
           items={[
             {
@@ -106,18 +80,15 @@ export function AccessRequestReview() {
               label: 'Platform Team',
               description: 'Infrastructure and ops review',
             },
-            {
-              value: 'manager',
-              label: 'Line Manager',
-              description: 'Business ownership approval',
-            },
+            { value: 'manager', label: 'Line Manager', description: 'Business ownership approval' },
           ]}
-          value={accessState().reviewers}
-          onChange={(v) => updateAccess('reviewers', v)}
         />
       </FormField>
 
       <Button type="submit">Submit Access Request</Button>
+      <Show when={submittedRequest()}>
+        {(message) => <p class="text-success text-sm">{message()}</p>}
+      </Show>
     </Form>
   )
 }

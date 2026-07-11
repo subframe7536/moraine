@@ -206,7 +206,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       disabled: merged.disabled,
     }),
     () => ({
-      deferInputValidation: true,
       defaultId: generatedId(),
       defaultSize: 'md',
       initialValue: merged.defaultValue ?? '',
@@ -223,6 +222,10 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }>(() => {
     if (merged.value !== undefined) {
       return { value: merged.value }
+    }
+
+    if (field.value() !== undefined) {
+      return { value: field.value() as TextareaT.Value }
     }
 
     if (merged.defaultValue !== undefined) {
@@ -292,12 +295,12 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    field.emit('blur')
+    field.emit('blur', event)
     merged.onBlur?.(event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    field.emit('focus')
+    field.emit('focus', event)
     merged.onFocus?.(event)
   }
 

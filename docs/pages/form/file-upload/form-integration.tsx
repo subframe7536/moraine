@@ -1,6 +1,7 @@
-import { Button, FileUpload, Form, FormField } from '@src'
+import { Button, createForm, FileUpload, Form, FormField } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 
 export function FormIntegration() {
   const [formState, setFormState] = createSignal({
@@ -13,18 +14,13 @@ export function FormIntegration() {
   }
 
   type FileUploadValue = FileUploadT.Value
+  const form = createForm({
+    schema: v.object({ attachment: v.file('Please upload one attachment.') }),
+    initialInput: { attachment: undefined },
+  })
 
   return (
-    <Form
-      state={formState()}
-      validate={(state) => {
-        if (!state?.attachment) {
-          return [{ name: 'attachment', message: 'Please upload one attachment.' }]
-        }
-
-        return []
-      }}
-    >
+    <Form of={form}>
       <div class="max-w-xl space-y-4">
         <FormField
           name="attachment"

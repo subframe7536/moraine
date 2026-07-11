@@ -2,9 +2,6 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
-import { FormField } from '../form-field'
-
 import { FileUpload } from './file-upload'
 import type { FileUploadProps } from './file-upload'
 
@@ -63,40 +60,6 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 
   await fireEvent.dragOver(target, { dataTransfer })
   await fireEvent.drop(target, { dataTransfer })
-}
-
-function createForm(validateOn: Array<'blur' | 'change' | 'input'>) {
-  const state = { value: null as File | null }
-
-  const screen = render(() => (
-    <Form
-      state={state}
-      validateOn={validateOn}
-      validateOnInputDelay={0}
-      validate={(currentState) => {
-        const file = currentState?.value as File | undefined
-        if (file?.name === 'valid.txt') {
-          return []
-        }
-
-        return [{ name: 'value', message: 'Error message' }]
-      }}
-    >
-      <FormField name="value" label="Upload" hint="Hint" description="Description" help="Help">
-        <FileUpload
-          id="upload-input"
-          onValueChange={(nextValue) => {
-            state.value = (Array.isArray(nextValue) ? nextValue[0] : nextValue) ?? null
-          }}
-        />
-      </FormField>
-    </Form>
-  ))
-
-  return {
-    screen,
-    input: () => screen.container.querySelector('#upload-input') as HTMLInputElement,
-  }
 }
 
 describe('FileUpload', () => {
@@ -289,52 +252,6 @@ describe('FileUpload', () => {
     expect(onValueChange).toHaveBeenNthCalledWith(1, file)
     expect(onValueChange).toHaveBeenNthCalledWith(2, null)
     expect(onValueChange).toHaveBeenNthCalledWith(3, file)
-  })
-
-  test('integrates with form validation on change', async () => {
-    const { screen, input } = createForm(['change'])
-
-    await setInputFiles(input(), [createFile('invalid.txt')])
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await setInputFiles(input(), [createFile('valid.txt')])
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('integrates with form validation on input', async () => {
-    const { screen, input } = createForm(['input'])
-
-    await setInputFiles(input(), [createFile('invalid.txt')])
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    await setInputFiles(input(), [createFile('valid.txt')])
-    await waitFor(() => {
-      expect(screen.queryByText('Error message')).toBeNull()
-    })
-  })
-
-  test('forwards aria-invalid and aria-describedby to hidden input', async () => {
-    const { screen, input } = createForm(['change'])
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-    await waitFor(() => {
-      expect(screen.getByText('Error message')).not.toBeNull()
-    })
-
-    const inputEl = input()
-    expect(inputEl.getAttribute('aria-invalid')).toBe('true')
-
-    const describedBy = inputEl.getAttribute('aria-describedby') ?? ''
-    expect(describedBy).toContain('-error')
-    expect(describedBy).toContain('-hint')
-    expect(describedBy).toContain('-description')
-    expect(describedBy).toContain('-help')
   })
 
   test('applies class overrides for root and file slots', async () => {

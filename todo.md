@@ -35,7 +35,7 @@
   - [x] kbd-group should also support customizable divider, sequence, alternatives
   - [x] display text and accessible label for each kbd element
   - [x] support both symbol and text to better adapt different platforms and devices
-- [ ] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
+- [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
 - [ ] Add icon-button component doc page, refactor current `IconButtonInner` component
 - [ ] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu`, which can be used to render a list of items with optional search and selection support, and support different sizes and variants.
 - [ ] find a way to add jsdoc for Variant 's props

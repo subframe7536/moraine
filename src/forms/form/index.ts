@@ -1,4 +1,11 @@
 export * from './form'
-export { pathToKey, pathStartsWith, toFieldPath } from './form-path'
-export type { FormFieldPath } from './form-path'
-export type { StandardSchemaV1 } from './standard-schema'
+export { createForm } from '@formisch/solid'
+export type {
+  FormConfig,
+  FormSchema,
+  FormStore,
+  RequiredPath,
+  SubmitEventHandler,
+  SubmitHandler,
+  ValidationMode,
+} from '@formisch/solid'

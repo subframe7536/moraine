@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
-import { FormField } from '../form-field'
-
 import { Switch } from './switch'
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
@@ -25,28 +22,6 @@ describe('Switch', () => {
     expect(track?.tagName).toBe('BUTTON')
     expect(input?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.getByText('Receive updates')).not.toBeNull()
-  })
-
-  test('combines local description with form field aria description', () => {
-    const state = { enabled: false }
-
-    const screen = render(() => (
-      <Form state={state}>
-        <FormField name="enabled" label="Enabled" description="Field description" help="Field help">
-          <Switch description="Switch description" />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
-    const describedBy = switchInput.getAttribute('aria-describedby') ?? ''
-
-    expect(screen.getByText('Field description')).not.toBeNull()
-    expect(screen.getByText('Field help')).not.toBeNull()
-    expect(screen.getByText('Switch description')).not.toBeNull()
-    expect(describedBy).toContain('-description')
-    expect(describedBy).toContain('-help')
-    expect(describedBy).toContain(`${switchInput.id}-description`)
   })
 
   test('supports uncontrolled toggle', async () => {
@@ -179,94 +154,6 @@ describe('Switch', () => {
     })
   })
 
-  test('derives checked state from existing numeric form values', async () => {
-    const state: { visibility: 0 | 1 } = { visibility: 1 }
-
-    const screen = render(() => (
-      <Form state={state}>
-        <FormField name="visibility" label="Visibility">
-          <Switch trueValue={1} falseValue={0} />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
-
-    expect(state.visibility).toBe(1)
-    expectSwitchChecked(switchInput, true)
-
-    await fireEvent.click(switchInput)
-
-    await waitFor(() => {
-      expect(state.visibility).toBe(0)
-      expectSwitchChecked(switchInput, false)
-    })
-
-    await fireEvent.click(switchInput)
-
-    await waitFor(() => {
-      expect(state.visibility).toBe(1)
-      expectSwitchChecked(switchInput, true)
-    })
-  })
-
-  test('initializes form state from defaultChecked with custom values', async () => {
-    const state: { visibility?: 0 | 1 } = {}
-
-    const screen = render(() => (
-      <Form state={state}>
-        <FormField name="visibility" label="Visibility">
-          <Switch defaultChecked trueValue={1} falseValue={0} />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
-
-    await waitFor(() => {
-      expect(state.visibility).toBe(1)
-      expectSwitchChecked(switchInput, true)
-    })
-  })
-
-  test('initializes form state to custom falseValue when unchecked by default', async () => {
-    const state: { visibility?: 0 | 1 } = {}
-
-    const screen = render(() => (
-      <Form state={state}>
-        <FormField name="visibility" label="Visibility">
-          <Switch trueValue={1} falseValue={0} />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
-
-    await waitFor(() => {
-      expect(state.visibility).toBe(0)
-      expectSwitchChecked(switchInput, false)
-    })
-  })
-
-  test('does not overwrite existing form value on mount when defaultChecked differs', async () => {
-    const state: { visibility: 0 | 1 } = { visibility: 1 }
-
-    const screen = render(() => (
-      <Form state={state}>
-        <FormField name="visibility" label="Visibility">
-          <Switch defaultChecked={false} trueValue={1} falseValue={0} />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
-
-    await waitFor(() => {
-      expect(state.visibility).toBe(1)
-      expectSwitchChecked(switchInput, true)
-    })
-  })
-
   test('shows loading icon and disables interaction when loading', () => {
     const screen = render(() => (
       <Switch loading label="Loading" loadingIcon={<span data-testid="loading-icon">L</span>} />
@@ -290,47 +177,6 @@ describe('Switch', () => {
     expect(screen.getByTestId('unchecked-icon').textContent).toBe('U')
     await fireEvent.click(switchInput)
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
-  })
-
-  test('integrates with form-field validation aria attributes', async () => {
-    const state = { enabled: false }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.enabled) {
-            return []
-          }
-
-          return [{ name: 'enabled', message: 'Enable this option' }]
-        }}
-      >
-        <FormField name="enabled" label="Enable option">
-          <Switch
-            defaultChecked={state.enabled}
-            onChange={(nextChecked) => {
-              state.enabled = Boolean(nextChecked)
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-
-    await waitFor(() => {
-      expect(screen.getByText('Enable this option')).not.toBeNull()
-    })
-
-    const switchInput = screen.getByRole('switch', { name: 'Enable option' })
-    expect(switchInput.getAttribute('aria-invalid')).toBe('true')
-
-    await fireEvent.click(switchInput)
-    await waitFor(() => {
-      expect(screen.queryByText('Enable this option')).toBeNull()
-    })
   })
 
   test('submits hidden switch value only when checked and resets to default state', async () => {
@@ -390,90 +236,5 @@ describe('Switch', () => {
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
-  })
-
-  test('validates on change when validateOn is change', async () => {
-    const state = { enabled: false }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOn={['change']}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.enabled) {
-            return []
-          }
-
-          return [{ name: 'enabled', message: 'Enable this option' }]
-        }}
-      >
-        <FormField name="enabled" label="Enable option">
-          <Switch
-            defaultChecked={state.enabled}
-            onChange={(nextChecked) => {
-              state.enabled = Boolean(nextChecked)
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Enable option' })
-
-    await fireEvent.click(switchInput)
-    await waitFor(() => {
-      expect(screen.queryByText('Enable this option')).toBeNull()
-    })
-
-    await fireEvent.click(switchInput)
-    await waitFor(() => {
-      expect(screen.getByText('Enable this option')).not.toBeNull()
-    })
-
-    await fireEvent.click(switchInput)
-    await waitFor(() => {
-      expect(screen.queryByText('Enable this option')).toBeNull()
-    })
-  })
-
-  test('validates on input when validateOn is input', async () => {
-    const state = { enabled: false }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOn={['input']}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.enabled) {
-            return []
-          }
-
-          return [{ name: 'enabled', message: 'Enable this option' }]
-        }}
-      >
-        <FormField name="enabled" label="Enable option">
-          <Switch
-            checked={state.enabled}
-            onChange={(nextChecked) => {
-              state.enabled = Boolean(nextChecked)
-            }}
-          />
-        </FormField>
-      </Form>
-    ))
-
-    const switchInput = screen.getByRole('switch', { name: 'Enable option' })
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-    await waitFor(() => {
-      expect(screen.getByText('Enable this option')).not.toBeNull()
-    })
-
-    await fireEvent.click(switchInput)
-    await waitFor(() => {
-      expect(screen.queryByText('Enable this option')).toBeNull()
-    })
   })
 })

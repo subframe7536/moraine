@@ -1,12 +1,14 @@
+import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
+import { useField } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { Show, createMemo, createSignal, mergeProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
+import type { InferInput } from 'valibot'
 
 import { resolveRenderProp } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormContext } from '../form/form-context'
-import { pathStartsWith, pathToKey, toFieldPath } from '../form/form-path'
 
 import type { FormFieldContextOptions } from './form-field-context'
 import { FormFieldProvider } from './form-field-context'
@@ -18,6 +20,20 @@ import {
 } from './form-field.class'
 
 export namespace FormFieldT {
+  type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
+    ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
+    : TValue extends Record<PropertyKey, unknown>
+      ? {
+          [TKey in Extract<keyof TValue, string | number>]:
+            | readonly [TKey]
+            | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
+        }[Extract<keyof TValue, string | number>]
+      : never
+
+  export type Name<TSchema extends FormSchema | undefined = undefined> = TSchema extends FormSchema
+    ? Extract<keyof InferInput<TSchema>, string> | SchemaPath<InferInput<TSchema>>
+    : string | RequiredPath
+
   /**
    * Props passed to the children of FormField when provided as a render function.
    */
@@ -67,7 +83,7 @@ export namespace FormFieldT {
   /**
    * Base props for the FormField component.
    */
-  export interface Base {
+  export interface Base<TSchema extends FormSchema | undefined = undefined> {
     /**
      * The HTML element or component to render as.
      * @default 'div'
@@ -82,7 +98,7 @@ export namespace FormFieldT {
     /**
      * The name of the field (key in form state).
      */
-    name?: string | string[]
+    name?: Name<TSchema>
 
     /**
      * Label for the field.
@@ -116,17 +132,6 @@ export namespace FormFieldT {
     required?: boolean
 
     /**
-     * Whether to trigger validation eagerly on every input.
-     * @default false
-     */
-    eagerValidation?: boolean
-
-    /**
-     * Delay in milliseconds for debounced input validation.
-     */
-    validateOnInputDelay?: number
-
-    /**
      * Children of the field, can be a render function.
      */
     children?: JSX.Element | ((props: RenderContext) => JSX.Element)
@@ -135,23 +140,32 @@ export namespace FormFieldT {
   /**
    * Props for the FormField component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export interface Props<TSchema extends FormSchema | undefined = undefined> extends BaseProps<
+    Base<TSchema>,
+    Variant,
+    Slot
+  > {}
 }
 
 /**
  * Props for the FormField component.
  */
-export interface FormFieldProps extends FormFieldT.Props {}
+export interface FormFieldProps<
+  TSchema extends FormSchema | undefined = undefined,
+> extends FormFieldT.Props<TSchema> {}
+
+type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
 /** Form field wrapper providing label, description, and validation message layout. */
-export function FormField(props: FormFieldProps): JSX.Element {
+export function FormField<TSchema extends FormSchema | undefined = undefined>(
+  props: FormFieldProps<TSchema>,
+): JSX.Element {
   const merged = mergeProps(
     {
       as: 'div' as ValidComponent,
       orientation: 'vertical' as const,
       size: 'md' as const,
       required: false,
-      eagerValidation: false,
     },
     props,
   )
@@ -163,7 +177,20 @@ export function FormField(props: FormFieldProps): JSX.Element {
     { id: () => string; bind: () => boolean; key: symbol }[]
   >([])
 
-  const fieldPath = createMemo(() => toFieldPath(merged.name))
+  const fieldPath = createMemo<RequiredPath | undefined>(() => {
+    if (typeof merged.name === 'string') {
+      return merged.name ? [merged.name] : undefined
+    }
+    return merged.name?.length ? merged.name : undefined
+  })
+  const initialPath = untrack(fieldPath)
+  const field =
+    formContext && initialPath
+      ? // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks its getter config.
+        (useField as unknown as LooseUseField)(formContext, () => ({
+          path: fieldPath() as RequiredPath,
+        }))
+      : undefined
 
   const registerControl: NonNullable<FormFieldContextOptions['registerControl']> = (entry) => {
     const key = Symbol('form-field-control')
@@ -208,46 +235,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       return merged.error
     }
 
-    if (!formContext) {
-      return undefined
-    }
-
-    const fp = fieldPath()
-    if (!fp) {
-      return undefined
-    }
-
-    const error = formContext.errors.find((fieldError) => {
-      const errorPath = toFieldPath(fieldError.name)
-      if (!errorPath) {
-        return false
-      }
-
-      return pathStartsWith(errorPath, fp)
-    })
-
-    return error?.message
-  })
-
-  createEffect(() => {
-    const fp = fieldPath()
-
-    if (!formContext || !fp) {
-      return
-    }
-
-    formContext.registerInput(fp, {
-      id: resolvedLabelTargetId(),
-    })
-
-    onCleanup(() => {
-      formContext.unregisterInput(fp)
-    })
-  })
-
-  const nameKey = createMemo(() => {
-    const fp = fieldPath()
-    return fp ? pathToKey(fp) : undefined
+    return field?.errors?.[0]
   })
 
   const fieldContextValue: FormFieldContextOptions = {
@@ -255,7 +243,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       return resolvedError()
     },
     get name() {
-      return nameKey()
+      return field?.props.name ?? (typeof merged.name === 'string' ? merged.name : undefined)
     },
     get path() {
       return fieldPath()
@@ -263,11 +251,8 @@ export function FormField(props: FormFieldProps): JSX.Element {
     get size() {
       return merged.size
     },
-    get eagerValidation() {
-      return merged.eagerValidation
-    },
-    get validateOnInputDelay() {
-      return merged.validateOnInputDelay
+    get field() {
+      return field
     },
     get hint() {
       return merged.hint

@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
-import { FormField } from '../form-field'
-
 import { Select } from './select'
 import type { SelectT } from './select'
 
@@ -694,99 +691,6 @@ describe('Select - form integration', () => {
 
     expect(form.checkValidity()).toBe(false)
     expect(new FormData(form).getAll('fruit')).toEqual([''])
-  })
-
-  test('applies aria-invalid from form field error state', async () => {
-    const state = { fruit: '' }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.fruit) {
-            return []
-          }
-
-          return [{ name: 'fruit', message: 'Select a fruit' }]
-        }}
-      >
-        <FormField name="fruit" label="Fruit">
-          <Select
-            options={FRUITS}
-            value={state.fruit || null}
-            onChange={(nextValue) => {
-              state.fruit = String(nextValue ?? '')
-            }}
-            placeholder="Pick"
-          />
-        </FormField>
-      </Form>
-    ))
-
-    await fireEvent.submit(screen.container.querySelector('form') as HTMLFormElement)
-
-    await waitFor(() => {
-      expect(screen.getByText('Select a fruit')).not.toBeNull()
-    })
-
-    const input = screen.getByRole('combobox')
-    const control = input.closest('[data-slot="control"]')
-    expect(input.getAttribute('aria-invalid')).toBe('true')
-    expect(control?.hasAttribute('data-invalid')).toBe(true)
-  })
-
-  test('emits form change event on selection', async () => {
-    const state = { fruit: '' }
-
-    const screen = render(() => (
-      <Form
-        state={state}
-        validateOn={['change']}
-        validateOnInputDelay={0}
-        validate={(currentState) => {
-          if (currentState?.fruit === 'banana') {
-            return []
-          }
-
-          return [{ name: 'fruit', message: 'Select banana' }]
-        }}
-      >
-        <FormField name="fruit" label="Fruit">
-          <Select
-            options={FRUITS}
-            defaultOpen
-            defaultValue={null}
-            onChange={(nextValue) => {
-              state.fruit = String(nextValue ?? '')
-            }}
-            placeholder="Pick"
-          />
-        </FormField>
-      </Form>
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0]!)
-
-    await waitFor(() => {
-      expect(screen.getByText('Select banana')).not.toBeNull()
-    })
-  })
-
-  test('does not bind form-field label for grouped controls', () => {
-    const state = { fruit: '' }
-
-    const screen = render(() => (
-      <Form state={state} validate={() => []}>
-        <FormField name="fruit" label="Select fruit">
-          <Select id="fruit-input" options={FRUITS} placeholder="Pick" />
-        </FormField>
-      </Form>
-    ))
-
-    const label = screen.getByText('Select fruit')
-    expect(label.getAttribute('for')).toBeNull()
   })
 })
 

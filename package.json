@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
+    "@formisch/solid": "1.0.0-rc.0",
     "cls-variant": "^1.2.0"
   },
   "devDependencies": {

@@ -723,8 +723,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
             )}
             disabled={field.disabled()}
             aria-disabled={field.disabled() || readOnly() ? true : undefined}
-            onFocus={() => field.emit('focus')}
-            onBlur={() => field.emit('blur')}
+            onFocus={(event) => field.emit('focus', event)}
+            onBlur={(event) => field.emit('blur', event)}
             onClick={onControlClick}
           >
             <Content />
@@ -747,8 +747,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
             field.disabled() && 'bg-muted/32',
             merged.classes?.control,
           )}
-          onFocus={() => field.emit('focus')}
-          onBlur={() => field.emit('blur')}
+          onFocus={(event) => field.emit('focus', event)}
+          onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
           onKeyDown={onDropzoneKeyDown}
           onDragOver={onDropzoneDragOver}

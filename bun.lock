@@ -6,6 +6,7 @@
       "name": "moraine",
       "dependencies": {
         "@floating-ui/dom": "^1.7.6",
+        "@formisch/solid": "1.0.0-rc.0",
         "cls-variant": "^1.2.0",
       },
       "devDependencies": {
@@ -142,6 +143,8 @@
     "@floating-ui/dom": ["@floating-ui/dom@1.7.6", "https://registry.npmmirror.com/@floating-ui/dom/-/dom-1.7.6.tgz", { "dependencies": { "@floating-ui/core": "^1.7.5", "@floating-ui/utils": "^0.2.11" } }, "sha512-9gZSAI5XM36880PPMm//9dfiEngYoC6Am2izES1FF406YFsjvyBMmeJ2g4SAju3xWwtuynNRFL2s9hgxpLI5SQ=="],
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.11", "https://registry.npmmirror.com/@floating-ui/utils/-/utils-0.2.11.tgz", {}, "sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg=="],
+
+    "@formisch/solid": ["@formisch/solid@1.0.0-rc.0", "", { "peerDependencies": { "solid-js": "^1.6.0", "typescript": ">=5", "valibot": "^1.4.1" }, "optionalPeers": ["typescript"] }, "sha512-GNxLq59iC0qN2zlHIfQ8V1rSMrRVyadpxW7j8wQHReOxbicEaguLF2fYxZW+22tyBEVRAKiv/E63xzdl46yJPA=="],
 
     "@iconify-json/lucide": ["@iconify-json/lucide@1.2.116", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-mbwPmiUXaZyLMSeQOxiTqz2fmZikD9qiGnMBiev47UUNY9uGCEgMg9iUYwaJzCtJTDtAIyK4vokfIpqsVorgSw=="],
 

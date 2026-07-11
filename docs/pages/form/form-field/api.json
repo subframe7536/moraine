@@ -78,13 +78,6 @@
         "description": "Description text shown below the label."
       },
       {
-        "name": "eagerValidation",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to trigger validation eagerly on every input.",
-        "defaultValue": "false"
-      },
-      {
         "name": "error",
         "required": false,
         "type": "boolean | string | JSX.Element",
@@ -117,7 +110,7 @@
       {
         "name": "name",
         "required": false,
-        "type": "string | string[] | undefined",
+        "type": "FormFieldT.Name<TSchema> | undefined",
         "description": "The name of the field (key in form state)."
       },
       {
@@ -146,12 +139,6 @@
         "name": "styles",
         "required": false,
         "type": "FormFieldT.Styles | undefined"
-      },
-      {
-        "name": "validateOnInputDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds for debounced input validation."
       }
     ],
     "inherited": []

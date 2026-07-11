@@ -13,7 +13,19 @@ import { DemoFormFieldNestedPath } from './nested-path?example'
 ## Import
 
 ```tsx
-import { FormField } from 'moraine'
+import { createForm, Form, FormField } from 'moraine'
+```
+
+Inside `Form`, a named field automatically reads its value and validation state from Formisch.
+Top-level fields accept a string name; nested and array fields use a path such as
+`['users', 0, 'email']`. Outside `Form`, the component remains a standalone layout primitive.
+
+Pass the schema type to validate names at compile time:
+
+```tsx
+<FormField<typeof schema> name={['profile', 'email']} label="Email">
+  <Input />
+</FormField>
 ```
 
 ## Slot Structure
@@ -42,7 +54,7 @@ Label, hint, description, and help text with a single control.
 
 ### With Validation
 
-Bind to `Form` state and show validation feedback.
+Bind to a Formisch store and show validation feedback without a render prop.
 
 <DemoFormFieldWithValidation />
 

@@ -719,8 +719,8 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       'aria-disabled': field.disabled() || undefined,
       tabIndex: field.disabled() ? undefined : 0,
       onKeyDown: handleKeyDown,
-      onFocus: () => field.emit('focus'),
-      onBlur: () => field.emit('blur'),
+      onFocus: (event) => field.emit('focus', event),
+      onBlur: (event) => field.emit('blur', event),
       ...field.ariaAttrs(),
     }
   })
@@ -746,8 +746,8 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     value: currentInputText(),
     onInput: handleInput,
     onKeyDown: handleKeyDown,
-    onFocus: () => field.emit('focus'),
-    onBlur: () => field.emit('blur'),
+    onFocus: (event) => field.emit('focus', event),
+    onBlur: (event) => field.emit('blur', event),
     ...field.ariaAttrs(),
   }))
 

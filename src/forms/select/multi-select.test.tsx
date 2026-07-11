@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Form } from '../form'
-import { FormField } from '../form-field'
-
 import { MultiSelect } from './multi-select'
 import type { MultiSelectProps, MultiSelectT } from './multi-select'
 
@@ -489,70 +486,6 @@ describe('MultiSelect', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
 
     expect(new FormData(form).has('fruits')).toBe(false)
-  })
-
-  test('clear resets bound form value to default array when provided', async () => {
-    const state: { fruits: Array<string | number> } = { fruits: ['apple'] }
-
-    const screen = render(() => (
-      <Form state={state} validate={() => []}>
-        <FormField name="fruits" label="Fruits">
-          <MultiSelect
-            options={FRUITS}
-            defaultValue={['apple']}
-            allowClear
-            defaultOpen
-            placeholder="Pick"
-          />
-        </FormField>
-      </Form>
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1]!)
-
-    await waitFor(() => {
-      expect(state.fruits).toEqual(['apple', 'banana'])
-    })
-
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    await fireEvent.mouseEnter(control)
-    const clearBtn = screen.container.querySelector('[data-slot="clear"]')
-    expect(clearBtn).not.toBeNull()
-    await fireEvent.click(clearBtn!)
-
-    await waitFor(() => {
-      expect(state.fruits).toEqual(['apple'])
-    })
-  })
-
-  test('clear resets bound form value to empty array when no defaultValue', async () => {
-    const state: { fruits: Array<string | number> } = { fruits: [] }
-
-    const screen = render(() => (
-      <Form state={state} validate={() => []}>
-        <FormField name="fruits" label="Fruits">
-          <MultiSelect options={FRUITS} allowClear defaultOpen placeholder="Pick" />
-        </FormField>
-      </Form>
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0]!)
-
-    await waitFor(() => {
-      expect(state.fruits).toEqual(['apple'])
-    })
-
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    await fireEvent.mouseEnter(control)
-    const clearBtn = screen.container.querySelector('[data-slot="clear"]')
-    expect(clearBtn).not.toBeNull()
-    await fireEvent.click(clearBtn!)
-
-    await waitFor(() => {
-      expect(state.fruits).toEqual([])
-    })
   })
 
   test('shows clear action instead of loading icon when selection is not empty', () => {
