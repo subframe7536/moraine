@@ -1,0 +1,370 @@
+{
+  "component": {
+    "key": "list-box",
+    "name": "ListBox",
+    "category": "elements",
+    "polymorphic": false,
+    "sourcePath": "src/elements/list-box/list-box.tsx"
+  },
+  "slots": [
+    {
+      "name": "content"
+    },
+    {
+      "name": "label"
+    },
+    {
+      "name": "separator"
+    },
+    {
+      "name": "item"
+    },
+    {
+      "name": "itemLeading"
+    },
+    {
+      "name": "itemWrapper"
+    },
+    {
+      "name": "itemLabel"
+    },
+    {
+      "name": "itemDescription"
+    },
+    {
+      "name": "itemTrailing"
+    },
+    {
+      "name": "empty"
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "keywords",
+        "required": false,
+        "type": "string[] | undefined"
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element"
+      },
+      {
+        "name": "leadingRender",
+        "required": false,
+        "type": "((context: ListBoxT.ItemRenderContext<{ value: ListBoxT.Value; }>) => JSX.Element) | undefined"
+      },
+      {
+        "name": "trailingRender",
+        "required": false,
+        "type": "((context: ListBoxT.ItemRenderContext<{ value: ListBoxT.Value; }>) => JSX.Element) | undefined"
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"item\" | undefined"
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "ListBoxT.Value"
+      }
+    ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ListBoxT.Classes | undefined"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined"
+      },
+      {
+        "name": "emptyRender",
+        "required": false,
+        "type": "(() => JSX.Element) | undefined"
+      },
+      {
+        "name": "filterOption",
+        "required": false,
+        "type": "ListBoxT.FilterOption<TItem> | undefined"
+      },
+      {
+        "name": "getItemSearchText",
+        "required": false,
+        "type": "((item: TItem) => string) | undefined"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined"
+      },
+      {
+        "name": "itemProps",
+        "required": false,
+        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLLIElement>) | undefined"
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.Element) | undefined"
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "ListBoxT.Entry<TItem>[] | undefined"
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: ListBoxT.Value | ListBoxT.Value[] | null) => void) | undefined"
+      },
+      {
+        "name": "onSelect",
+        "required": false,
+        "type": "((item: TItem, context: ListBoxT.ItemRenderContext<TItem>) => void) | undefined"
+      },
+      {
+        "name": "scrollToItem",
+        "required": false,
+        "type": "((value: ListBoxT.Value) => void) | undefined"
+      },
+      {
+        "name": "searchValue",
+        "required": false,
+        "type": "string | undefined"
+      },
+      {
+        "name": "selectionMode",
+        "required": false,
+        "type": "ListBoxT.SelectionMode | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ListBoxT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined"
+      },
+      {
+        "name": "virtualized",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
+        "name": "virtualRender",
+        "required": false,
+        "type": "((context: ListBoxT.VirtualRenderContext<TItem>) => JSX.Element) | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-disabled",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-multiselectable",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
+        "name": "aria-selected",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Indicates the currently selected option or tab."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-disabled",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the component or item is disabled."
+      },
+      {
+        "name": "data-highlighted",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is highlighted by pointer or keyboard navigation."
+      },
+      {
+        "name": "data-selected",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is selected."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      }
+    ],
+    "slots": [
+      {
+        "name": "content",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "aria-multiselectable",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "empty",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "item",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-disabled",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the component or item is disabled."
+          },
+          {
+            "name": "data-highlighted",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          },
+          {
+            "name": "data-selected",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is selected."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-disabled",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates that the control is disabled."
+          },
+          {
+            "name": "aria-selected",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Indicates the currently selected option or tab."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "itemDescription",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLabel",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemLeading",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemTrailing",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "itemWrapper",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "label",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "separator",
+        "cssVariables": [],
+        "dataAttributes": [],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      }
+    ]
+  }
+}

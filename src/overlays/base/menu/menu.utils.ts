@@ -120,7 +120,6 @@ export interface OverlayMenuLayerState {
   focusContent: () => void
   focusFirstItem: () => void
   focusItemByOffset: (delta: number) => void
-  focusItemByTypeahead: (key: string) => { matched: boolean; preventDefault: boolean }
   focusLastItem: () => void
   highlightedItemId: Accessor<string | undefined>
   queuePointerEnter: (element: HTMLElement, callback: () => void) => void
@@ -292,14 +291,6 @@ export function focusElement(element: HTMLElement | undefined): void {
   element.scrollIntoView?.({ block: 'nearest' })
 }
 
-function getTypeaheadCharacter(key: string): string {
-  if (key.length === 1 || !/^[A-Z]/i.test(key)) {
-    return key
-  }
-
-  return ''
-}
-
 export function useOverlayMenuFloatingPosition(options: {
   contentElement: Accessor<HTMLElement | undefined>
   floatingElement: Accessor<HTMLElement | undefined>
@@ -414,8 +405,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
-  let typeaheadSearch = ''
-  let typeaheadTimeoutId = 0
   let queuedPointerEnter:
     | {
         callback: () => void
@@ -434,16 +423,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   }
 
   const getEnabledItems = () => items().filter((item) => item.element() && !item.disabled())
-
-  const getOrderedItemsForSearch = (enabledItems: OverlayMenuRegisteredItem[]) => {
-    const currentIndex = enabledItems.findIndex((item) => item.id === highlightedItemId())
-
-    if (currentIndex === -1) {
-      return enabledItems
-    }
-
-    return [...enabledItems.slice(currentIndex + 1), ...enabledItems.slice(0, currentIndex + 1)]
-  }
 
   const focusItem = (item: OverlayMenuRegisteredItem | undefined): void => {
     if (!item) {
@@ -529,50 +508,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     }
   }
 
-  const focusItemByTypeahead = (key: string): { matched: boolean; preventDefault: boolean } => {
-    const character = getTypeaheadCharacter(key)
-
-    if (!character) {
-      return { matched: false, preventDefault: false }
-    }
-
-    const preventDefault = character === ' ' && typeaheadSearch.trim().length > 0
-
-    if (character === ' ' && !preventDefault) {
-      return { matched: false, preventDefault: false }
-    }
-
-    typeaheadSearch += character.toLocaleLowerCase()
-
-    const orderedItems = getOrderedItemsForSearch(getEnabledItems())
-    const findItem = (query: string) =>
-      orderedItems.find((item) => item.textValue()?.trim().toLocaleLowerCase().startsWith(query))
-
-    let matchedItem = findItem(typeaheadSearch)
-
-    if (
-      !matchedItem &&
-      typeaheadSearch.split('').every((letter) => letter === typeaheadSearch[0])
-    ) {
-      typeaheadSearch = typeaheadSearch[0] ?? ''
-      matchedItem = findItem(typeaheadSearch)
-    }
-
-    window.clearTimeout(typeaheadTimeoutId)
-    typeaheadTimeoutId = window.setTimeout(() => {
-      typeaheadSearch = ''
-    }, 500)
-
-    if (!matchedItem) {
-      return { matched: false, preventDefault }
-    }
-
-    closeSubmenus(matchedItem.hasSubmenu ? matchedItem.id : undefined)
-    focusItem(matchedItem)
-
-    return { matched: true, preventDefault }
-  }
-
   const queuePointerEnter = (element: HTMLElement, callback: () => void): void => {
     queuedPointerEnter = { callback, element }
   }
@@ -635,7 +570,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
 
   onCleanup(() => {
     window.clearTimeout(pointerGraceTimeoutId)
-    window.clearTimeout(typeaheadTimeoutId)
     queuedPointerEnter = undefined
   })
 
@@ -647,7 +581,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusContent,
     focusFirstItem,
     focusItemByOffset,
-    focusItemByTypeahead,
     focusLastItem,
     highlightedItemId,
     queuePointerEnter,
@@ -809,16 +742,5 @@ export function onLayerKeyDown(
   if (closeParentKey && event.key === closeParentKey) {
     event.preventDefault()
     onClose()
-    return
-  }
-
-  if (event.ctrlKey || event.metaKey || event.altKey) {
-    return
-  }
-
-  const typeahead = layer.focusItemByTypeahead(event.key)
-
-  if (typeahead.preventDefault || typeahead.matched) {
-    event.preventDefault()
   }
 }

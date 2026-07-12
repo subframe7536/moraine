@@ -161,6 +161,13 @@
       "sourcePath": "src/forms/input-number/input-number.tsx"
     },
     {
+      "key": "list-box",
+      "name": "ListBox",
+      "category": "elements",
+      "polymorphic": false,
+      "sourcePath": "src/elements/list-box/list-box.tsx"
+    },
+    {
       "key": "radio-group",
       "name": "RadioGroup",
       "category": "forms",

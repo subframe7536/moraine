@@ -75,7 +75,7 @@ describe('DropdownMenu', () => {
     })
   })
 
-  test('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
+  test('focuses content on click open, ignores printable keys, and restores trigger focus on escape', async () => {
     const screen = render(() => (
       <DropdownMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
         <button type="button">Actions</button>
@@ -94,10 +94,7 @@ describe('DropdownMenu', () => {
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     await fireEvent.keyDown(content, { key: 'd' })
 
-    await waitFor(() => {
-      const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
-      expect(highlighted?.textContent).toContain('Duplicate')
-    })
+    expect(document.body.querySelector('[data-slot="item"][data-highlighted]')).toBeNull()
 
     await fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()
