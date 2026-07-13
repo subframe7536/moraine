@@ -4,6 +4,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { useEventListenerMap } from '../../../shared/use-event-listener'
+import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation'
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack'
 import type { OverlayStackEntry } from '../overlay-stack'
 import { focusWithoutScrolling, getTransformOrigin, resolveDirection } from '../utils'
@@ -422,8 +423,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     }
   }
 
-  const getEnabledItems = () => items().filter((item) => item.element() && !item.disabled())
-
   const focusItem = (item: OverlayMenuRegisteredItem | undefined): void => {
     if (!item) {
       setHighlightedItemId(undefined)
@@ -439,51 +438,33 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusWithoutScrolling(contentElement())
   }
 
+  const { focusBoundary, focusByOffset } = useSelectableCollectionNavigation<
+    OverlayMenuRegisteredItem,
+    string
+  >({
+    items,
+    getValue: (item) => item.id,
+    isDisabled: (item) => !item.element() || item.disabled(),
+    loop: () => true,
+    activationMode: () => 'manual',
+    focusValue: (id) => {
+      const item = items().find((candidate) => candidate.id === id)
+      closeSubmenus(item?.hasSubmenu ? item.id : undefined)
+      focusItem(item)
+    },
+    onSelect: () => undefined,
+  })
+
   const focusItemByOffset = (delta: number): void => {
-    const enabledItems = getEnabledItems()
-
-    if (enabledItems.length === 0) {
-      return
-    }
-
-    const currentIndex = enabledItems.findIndex((item) => item.id === highlightedItemId())
-    const nextIndex =
-      currentIndex === -1
-        ? delta > 0
-          ? 0
-          : enabledItems.length - 1
-        : (currentIndex + delta + enabledItems.length) % enabledItems.length
-    const nextItem = enabledItems[nextIndex]
-
-    if (!nextItem) {
-      return
-    }
-
-    closeSubmenus(nextItem.hasSubmenu ? nextItem.id : undefined)
-    focusItem(nextItem)
+    focusByOffset(highlightedItemId(), delta)
   }
 
   const focusFirstItem = (): void => {
-    const nextItem = getEnabledItems()[0]
-
-    if (!nextItem) {
-      return
-    }
-
-    closeSubmenus(nextItem.hasSubmenu ? nextItem.id : undefined)
-    focusItem(nextItem)
+    focusBoundary('first')
   }
 
   const focusLastItem = (): void => {
-    const enabledItems = getEnabledItems()
-    const nextItem = enabledItems[enabledItems.length - 1]
-
-    if (!nextItem) {
-      return
-    }
-
-    closeSubmenus(nextItem.hasSubmenu ? nextItem.id : undefined)
-    focusItem(nextItem)
+    focusBoundary('last')
   }
 
   const registerItem = (item: OverlayMenuRegisteredItem): (() => void) => {

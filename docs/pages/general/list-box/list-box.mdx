@@ -16,6 +16,8 @@ import { ListBox } from 'moraine'
 
 `ListBox` is a flat list. Add `label` and `separator` entries when the caller needs structural rows; filtering and search inputs remain outside the component.
 
+Selectable collections share navigation behavior with Select, Command Palette, and Menu. Printable keys are intentionally ignored; callers should provide filtering through `searchValue` when needed.
+
 ```text
 content
 ├── label (optional)

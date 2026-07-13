@@ -3,14 +3,23 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps } from 's
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, cn, useId } from '../../shared/utils'
 
 import type { ListBoxVariantProps } from './list-box.class'
 import { listBoxContentVariants, listBoxItemVariants } from './list-box.class'
 
 export namespace ListBoxT {
+  /** Value used to identify a selectable item. */
   export type Value = string | number
+
+  /** Determines whether the list is static or supports single/multiple selection. */
   export type SelectionMode = 'none' | 'single' | 'multiple'
+
+  /**
+   * Filtering strategy applied when `searchValue` is not empty.
+   * `true` uses substring matching and `false` disables filtering.
+   */
   export type FilterOption<TItem extends Item = Item> =
     | boolean
     | 'startsWith'
@@ -19,53 +28,84 @@ export namespace ListBoxT {
     | ((searchValue: string, item: TItem) => boolean)
 
   export interface Item<TValue extends Value = Value> {
+    /** Optional discriminator for item entries. */
     type?: 'item'
+    /** Unique value used for selection, highlighting, and element identity. */
     value: TValue
+    /** Primary item content. */
     label?: JSX.Element
+    /** Secondary item content displayed below the label. */
     description?: JSX.Element
+    /** Whether the item cannot be highlighted or selected. */
     disabled?: boolean
+    /** Additional terms included by the default filter. */
     keywords?: string[]
-    leadingRender?: (context: ItemRenderContext<{ value: Value }>) => JSX.Element
-    trailingRender?: (context: ItemRenderContext<{ value: Value }>) => JSX.Element
+    /** Renders content before the item label. */
+    leadingRender?: (context: ItemRenderContext<Item<TValue>>) => JSX.Element
+    /** Renders content after the item label and description. */
+    trailingRender?: (context: ItemRenderContext<Item<TValue>>) => JSX.Element
   }
 
   export interface LabelItem {
+    /** Discriminator for label entries. */
     type: 'label'
+    /** Optional stable key for virtual renderers. */
     key?: string
+    /** Label content. */
     label: JSX.Element
   }
 
   export interface SeparatorItem {
+    /** Discriminator for separator entries. */
     type: 'separator'
+    /** Optional stable key for virtual renderers. */
     key?: string
   }
 
   export type Entry<TItem extends Item = Item> = TItem | LabelItem | SeparatorItem
 
   export interface ItemRenderContext<TItem extends { value: Value } = Item> {
+    /** Source item being rendered. */
     item: TItem
+    /** Current index in the filtered entry list. */
     index: number
+    /** Whether keyboard or pointer navigation currently highlights the item. */
     highlighted: boolean
+    /** Whether the item value is currently selected. */
     selected: boolean
+    /** Whether the item cannot be highlighted or selected. */
     disabled: boolean
+    /** Selects or toggles the item according to `selectionMode`. */
     select: () => void
   }
 
   export interface VirtualRenderContext<TItem extends Item = Item> {
+    /** Filtered entries that should be rendered. */
     entries: Entry<TItem>[]
+    /** Renders an entry with the component's semantics and styles. */
     renderItem: (entry: Entry<TItem>, index: number) => JSX.Element
   }
 
   export interface Slot<T = unknown> {
+    /** Root list element. */
     content?: T
+    /** Structural label row. */
     label?: T
+    /** Structural separator row. */
     separator?: T
+    /** Selectable item row. */
     item?: T
+    /** Leading item content. */
     itemLeading?: T
+    /** Wrapper around the label and description. */
     itemWrapper?: T
+    /** Item label. */
     itemLabel?: T
+    /** Item description. */
     itemDescription?: T
+    /** Trailing item content. */
     itemTrailing?: T
+    /** Empty-state row. */
     empty?: T
   }
 
@@ -73,22 +113,45 @@ export namespace ListBoxT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
+  /** ListBox-specific props before shared styling props are applied. */
   export interface Base<TItem extends Item = Item> {
+    /** Root element ID used to derive option IDs. */
     id?: string
+    /** Items and structural rows to display. */
     items?: Entry<TItem>[]
+    /**
+     * Selection behavior for the list.
+     * @default 'none'
+     */
     selectionMode?: SelectionMode
+    /** Controlled selected value or values. */
     value?: Value | Value[] | null
+    /** Initial selected value or values for uncontrolled usage. */
     defaultValue?: Value | Value[] | null
+    /** Called when selection changes. */
     onChange?: (value: Value | Value[] | null) => void
+    /** Called after an item is selected or toggled. */
     onSelect?: (item: TItem, context: ItemRenderContext<TItem>) => void
+    /** External search text used to filter item entries. */
     searchValue?: string
+    /**
+     * Item filtering strategy.
+     * @default true
+     */
     filterOption?: FilterOption<TItem>
+    /** Returns searchable text when labels are not plain strings. */
     getItemSearchText?: (item: TItem) => string
+    /** Replaces the default contents of every item row. */
     itemRender?: (context: ItemRenderContext<TItem>) => JSX.Element
+    /** Renders the empty state when no item entries remain. */
     emptyRender?: () => JSX.Element
+    /** Returns additional attributes for an item row. */
     itemProps?: (context: ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLLIElement>
+    /** Enables delegation to `virtualRender`. */
     virtualized?: boolean
+    /** Renders filtered entries through a caller-provided virtualization layer. */
     virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    /** Called when keyboard navigation highlights an item. */
     scrollToItem?: (value: Value) => void
   }
 
@@ -98,6 +161,24 @@ export namespace ListBoxT {
 export interface ListBoxProps<
   TItem extends ListBoxT.Item = ListBoxT.Item,
 > extends ListBoxT.Props<TItem> {}
+
+function isItemEntry<TItem extends ListBoxT.Item>(entry: ListBoxT.Entry<TItem>): entry is TItem {
+  return entry.type === 'item' || entry.type === undefined
+}
+
+function toSelectedValues(
+  value: ListBoxT.Value | ListBoxT.Value[] | null | undefined,
+): ListBoxT.Value[] {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (value === null || value === undefined) {
+    return []
+  }
+
+  return [value]
+}
 
 function getItemText(item: ListBoxT.Item): string {
   if (typeof item.label === 'string') {
@@ -136,9 +217,19 @@ function matchesFilter<TItem extends ListBoxT.Item>(
   return text.includes(value)
 }
 
+/** Renders a flat semantic list with optional filtering and selection behavior. */
 export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
   props: ListBoxProps<TItem>,
 ): JSX.Element {
+  type EntryProps = {
+    entry: ListBoxT.Entry<TItem>
+    index: Accessor<number>
+  }
+  type OptionProps = {
+    item: TItem
+    index: Accessor<number>
+  }
+
   const merged = mergeProps(
     {
       selectionMode: 'none' as const,
@@ -156,29 +247,34 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
   const [highlightedValue, setHighlightedValue] = createSignal<ListBoxT.Value | undefined>()
   const items = createMemo(() => merged.items ?? [])
   const visibleEntries = createMemo(() =>
-    items().filter((entry) =>
-      entry.type === 'item' || entry.type === undefined
-        ? matchesFilter(
-            entry as TItem,
-            merged.searchValue ?? '',
-            merged.filterOption,
-            merged.getItemSearchText,
-          )
-        : true,
-    ),
+    items().filter((entry) => {
+      if (!isItemEntry(entry)) {
+        return true
+      }
+
+      return matchesFilter(
+        entry,
+        merged.searchValue ?? '',
+        merged.filterOption,
+        merged.getItemSearchText,
+      )
+    }),
   )
-  const visibleItems = createMemo(() =>
-    visibleEntries().filter(
-      (entry): entry is TItem => entry.type === 'item' || entry.type === undefined,
-    ),
-  )
-  const selectedValues = createMemo(() => {
-    const value = uncontrolledValue()
-    return new Set(
-      Array.isArray(value) ? value : value === null || value === undefined ? [] : [value],
-    )
-  })
+  const visibleItems = createMemo(() => visibleEntries().filter(isItemEntry))
+  const selectedValues = createMemo(() => new Set(toSelectedValues(uncontrolledValue())))
   const isInteractive = createMemo(() => merged.selectionMode !== 'none')
+  const activeDescendantId = createMemo(() => {
+    if (!isInteractive()) {
+      return undefined
+    }
+
+    const value = highlightedValue()
+    if (value === undefined) {
+      return undefined
+    }
+
+    return `${listBoxId()}-${value}`
+  })
 
   createEffect(() => {
     if (!isInteractive()) {
@@ -197,24 +293,26 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
   })
 
   function createItemContext(
-    item: TItem,
+    item: Accessor<TItem>,
     index: Accessor<number>,
   ): ListBoxT.ItemRenderContext<TItem> {
     return {
-      item,
+      get item() {
+        return item()
+      },
       get index() {
         return index()
       },
       get highlighted() {
-        return highlightedValue() === item.value
+        return highlightedValue() === item().value
       },
       get selected() {
-        return selectedValues().has(item.value)
+        return selectedValues().has(item().value)
       },
       get disabled() {
-        return Boolean(item.disabled)
+        return Boolean(item().disabled)
       },
-      select: () => selectItem(item, index()),
+      select: () => selectItem(item(), index()),
     }
   }
 
@@ -223,7 +321,10 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
       return
     }
 
-    const context = createItemContext(item, () => index)
+    const context = createItemContext(
+      () => item,
+      () => index,
+    )
     const currentValues = selectedValues()
     let nextValue: ListBoxT.Value | ListBoxT.Value[] | null
 
@@ -240,135 +341,73 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     merged.onSelect?.(item, context)
   }
 
-  function focusByOffset(offset: number): void {
-    const enabledItems = visibleItems().filter((item) => !item.disabled)
-    if (enabledItems.length === 0) {
-      return
-    }
-
-    const currentIndex = enabledItems.findIndex((item) => item.value === highlightedValue())
-    const nextIndex =
-      currentIndex === -1
-        ? offset > 0
-          ? 0
-          : enabledItems.length - 1
-        : (currentIndex + offset + enabledItems.length) % enabledItems.length
-    const item = enabledItems[nextIndex]
-    if (!item) {
-      return
-    }
-
-    setHighlightedValue(item.value)
-    merged.scrollToItem?.(item.value)
-  }
-
-  function focusBoundary(kind: 'first' | 'last'): void {
-    const enabledItems = visibleItems().filter((item) => !item.disabled)
-    const item = kind === 'first' ? enabledItems[0] : enabledItems[enabledItems.length - 1]
-    if (!item) {
-      return
-    }
-
-    setHighlightedValue(item.value)
-    merged.scrollToItem?.(item.value)
-  }
+  const { onNavigationKeyDown } = useSelectableCollectionNavigation<TItem, ListBoxT.Value>({
+    items: visibleItems,
+    getValue: (item) => item.value,
+    isDisabled: (item) => Boolean(item.disabled),
+    loop: () => true,
+    activationMode: () => 'manual',
+    focusValue: (value) => {
+      setHighlightedValue(value)
+      merged.scrollToItem?.(value)
+    },
+    onSelect: (value) => {
+      const item = visibleItems().find((candidate) => candidate.value === value)
+      if (item) {
+        selectItem(item, visibleEntries().indexOf(item))
+      }
+    },
+  })
 
   function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      focusByOffset(1)
+    if (!isInteractive()) {
       return
     }
 
-    if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      focusByOffset(-1)
-      return
-    }
-
-    if (event.key === 'Home') {
-      event.preventDefault()
-      focusBoundary('first')
-      return
-    }
-
-    if (event.key === 'End') {
-      event.preventDefault()
-      focusBoundary('last')
-      return
-    }
-
-    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
-      const item = visibleItems().find((candidate) => candidate.value === highlightedValue())
-      if (!item) {
-        return
-      }
-
-      event.preventDefault()
-      selectItem(item, visibleItems().indexOf(item))
-    }
+    onNavigationKeyDown(event, highlightedValue(), 'vertical')
   }
 
-  function renderEntry(entry: ListBoxT.Entry<TItem>, index: Accessor<number>): JSX.Element {
-    if (entry.type === 'label') {
-      return (
-        <li
-          data-slot="label"
-          style={merged.styles?.label}
-          class={cn('text-xs text-muted-foreground font-medium px-2 py-1.5', merged.classes?.label)}
-        >
-          {entry.label}
-        </li>
-      )
-    }
-
-    if (entry.type === 'separator') {
-      return (
-        <li
-          role="separator"
-          data-slot="separator"
-          style={merged.styles?.separator}
-          class={cn('my-1 bg-border h-px', merged.classes?.separator)}
-        />
-      )
-    }
-
-    const item = entry as TItem
-    const context = createItemContext(item, index)
-    const itemAttributes = merged.itemProps?.(context)
-    const selected = () => context.selected
-    const highlighted = () => context.highlighted
+  function ListBoxOption(optionProps: OptionProps): JSX.Element {
+    const context = createItemContext(
+      () => optionProps.item,
+      () => optionProps.index(),
+    )
+    const itemAttributes = createMemo(() => merged.itemProps?.(context))
+    const itemStyle = createMemo(() => {
+      const style = itemAttributes()?.style
+      return typeof style === 'object' ? style : {}
+    })
 
     return (
       <li
-        {...itemAttributes}
-        id={`${listBoxId()}-${item.value}`}
+        {...itemAttributes()}
+        id={`${listBoxId()}-${optionProps.item.value}`}
         role={isInteractive() ? 'option' : undefined}
-        aria-disabled={item.disabled || undefined}
-        aria-selected={isInteractive() ? selected() : undefined}
+        aria-disabled={optionProps.item.disabled || undefined}
+        aria-selected={isInteractive() ? context.selected : undefined}
         data-slot="item"
-        data-disabled={item.disabled ? '' : undefined}
-        data-highlighted={highlighted() ? '' : undefined}
-        data-selected={selected() ? '' : undefined}
+        data-disabled={optionProps.item.disabled ? '' : undefined}
+        data-highlighted={context.highlighted ? '' : undefined}
+        data-selected={context.selected ? '' : undefined}
         style={{
-          ...(typeof itemAttributes?.style === 'object' ? itemAttributes.style : {}),
+          ...itemStyle(),
           ...merged.styles?.item,
         }}
         class={listBoxItemVariants(
           { size: merged.size },
-          itemAttributes?.class,
+          itemAttributes()?.class,
           merged.classes?.item,
         )}
         onPointerMove={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes?.onPointerMove)
-          if (!defaultPrevented && isInteractive() && !item.disabled) {
-            setHighlightedValue(item.value)
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+          if (!defaultPrevented && isInteractive() && !optionProps.item.disabled) {
+            setHighlightedValue(optionProps.item.value)
           }
         }}
         onClick={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes?.onClick)
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
           if (!defaultPrevented) {
-            selectItem(item, index())
+            selectItem(optionProps.item, optionProps.index())
           }
         }}
       >
@@ -376,7 +415,7 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
           when={merged.itemRender}
           fallback={
             <>
-              <Show when={item.leadingRender}>
+              <Show when={optionProps.item.leadingRender}>
                 {(leadingRender) => (
                   <span
                     data-slot="itemLeading"
@@ -392,26 +431,26 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
                 style={merged.styles?.itemWrapper}
                 class={cn('flex flex-1 flex-col min-w-0', merged.classes?.itemWrapper)}
               >
-                <Show when={item.label}>
+                <Show when={optionProps.item.label}>
                   <span
                     data-slot="itemLabel"
                     style={merged.styles?.itemLabel}
                     class={cn(merged.classes?.itemLabel)}
                   >
-                    {item.label}
+                    {optionProps.item.label}
                   </span>
                 </Show>
-                <Show when={item.description}>
+                <Show when={optionProps.item.description}>
                   <span
                     data-slot="itemDescription"
                     style={merged.styles?.itemDescription}
                     class={cn('text-xs text-muted-foreground', merged.classes?.itemDescription)}
                   >
-                    {item.description}
+                    {optionProps.item.description}
                   </span>
                 </Show>
               </span>
-              <Show when={item.trailingRender}>
+              <Show when={optionProps.item.trailingRender}>
                 {(trailingRender) => (
                   <span
                     data-slot="itemTrailing"
@@ -431,61 +470,79 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     )
   }
 
-  const content = () => (
-    <Show
-      when={visibleItems().length > 0}
-      fallback={
-        <li
-          data-slot="empty"
-          style={merged.styles?.empty}
-          class={cn('text-muted-foreground p-3 text-center', merged.classes?.empty)}
-        >
-          {merged.emptyRender?.() ?? 'No results.'}
-        </li>
-      }
-    >
+  function ListBoxEntry(entryProps: EntryProps): JSX.Element {
+    return (
       <Show
-        when={merged.virtualized && merged.virtualRender}
-        fallback={<For each={visibleEntries()}>{(entry, index) => renderEntry(entry, index)}</For>}
+        when={entryProps.entry.type === 'label'}
+        fallback={
+          <Show
+            when={entryProps.entry.type === 'separator'}
+            fallback={<ListBoxOption item={entryProps.entry as TItem} index={entryProps.index} />}
+          >
+            <li
+              role={isInteractive() ? 'presentation' : 'separator'}
+              aria-hidden={isInteractive() || undefined}
+              data-slot="separator"
+              style={merged.styles?.separator}
+              class={cn('my-1 bg-border h-px', merged.classes?.separator)}
+            />
+          </Show>
+        }
       >
-        {merged.virtualRender!({
-          entries: visibleEntries(),
-          renderItem: (entry, index) => renderEntry(entry, () => index),
-        })}
+        <li
+          role={isInteractive() ? 'presentation' : undefined}
+          aria-hidden={isInteractive() || undefined}
+          data-slot="label"
+          style={merged.styles?.label}
+          class={cn('text-xs text-muted-foreground font-medium px-2 py-1.5', merged.classes?.label)}
+        >
+          {(entryProps.entry as ListBoxT.LabelItem).label}
+        </li>
       </Show>
-    </Show>
-  )
+    )
+  }
 
   return (
-    <Show
-      when={isInteractive()}
-      fallback={
-        <ul
-          id={listBoxId()}
-          data-slot="content"
-          style={{ ...merged.styles?.content, ...merged.style }}
-          class={listBoxContentVariants(
-            { size: merged.size },
-            merged.classes?.content,
-            merged.class,
-          )}
-        >
-          {content()}
-        </ul>
-      }
+    <ul
+      id={listBoxId()}
+      role={isInteractive() ? 'listbox' : undefined}
+      aria-multiselectable={merged.selectionMode === 'multiple' || undefined}
+      aria-activedescendant={activeDescendantId()}
+      tabIndex={isInteractive() ? 0 : undefined}
+      data-slot="content"
+      style={{ ...merged.styles?.content, ...merged.style }}
+      class={listBoxContentVariants({ size: merged.size }, merged.classes?.content, merged.class)}
+      onKeyDown={handleKeyDown}
     >
-      <ul
-        id={listBoxId()}
-        role="listbox"
-        aria-multiselectable={merged.selectionMode === 'multiple' || undefined}
-        tabIndex={0}
-        data-slot="content"
-        style={{ ...merged.styles?.content, ...merged.style }}
-        class={listBoxContentVariants({ size: merged.size }, merged.classes?.content, merged.class)}
-        onKeyDown={handleKeyDown}
+      <Show
+        when={visibleItems().length > 0}
+        fallback={
+          <li
+            role={isInteractive() ? 'presentation' : undefined}
+            data-slot="empty"
+            style={merged.styles?.empty}
+            class={cn('text-muted-foreground p-3 text-center', merged.classes?.empty)}
+          >
+            {merged.emptyRender?.() ?? 'No results.'}
+          </li>
+        }
       >
-        {content()}
-      </ul>
-    </Show>
+        <Show
+          when={merged.virtualized && merged.virtualRender}
+          fallback={
+            <For each={visibleEntries()}>
+              {(entry, index) => <ListBoxEntry entry={entry} index={index} />}
+            </For>
+          }
+        >
+          {(virtualRender) =>
+            virtualRender()({
+              entries: visibleEntries(),
+              renderItem: (entry, index) => <ListBoxEntry entry={entry} index={() => index} />,
+            })
+          }
+        </Show>
+      </Show>
+    </ul>
   )
 }

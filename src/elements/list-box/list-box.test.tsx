@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
+import { For } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { ListBox } from './list-box'
@@ -44,6 +45,9 @@ describe('ListBox', () => {
     const listbox = screen.getByRole('listbox')
 
     await fireEvent.keyDown(listbox, { key: 'ArrowDown' })
+
+    expect(listbox.getAttribute('aria-activedescendant')).toBe(`${listbox.id}-banana`)
+
     await fireEvent.keyDown(listbox, { key: 'Enter' })
 
     expect(onChange).toHaveBeenCalledWith('banana')
@@ -79,6 +83,22 @@ describe('ListBox', () => {
     expect(screen.container.querySelector('[data-highlighted]')?.textContent).toContain('Apple')
   })
 
+  test('hides structural entries from the interactive accessibility tree', () => {
+    const screen = render(() => (
+      <ListBox
+        selectionMode="single"
+        items={[{ type: 'label', label: 'Fruit' }, ITEMS[0]!, { type: 'separator' }]}
+      />
+    ))
+
+    expect(screen.container.querySelector('[data-slot="label"]')?.getAttribute('role')).toBe(
+      'presentation',
+    )
+    expect(screen.container.querySelector('[data-slot="separator"]')?.getAttribute('role')).toBe(
+      'presentation',
+    )
+  })
+
   test('delegates virtual rendering and scroll requests', async () => {
     const scrollToItem = vi.fn()
     const screen = render(() => (
@@ -87,7 +107,9 @@ describe('ListBox', () => {
         items={ITEMS}
         virtualized
         scrollToItem={scrollToItem}
-        virtualRender={({ entries, renderItem }) => <>{entries.map(renderItem)}</>}
+        virtualRender={({ entries, renderItem }) => (
+          <For each={entries}>{(entry) => renderItem(entry, entries.indexOf(entry))}</For>
+        )}
       />
     ))
 

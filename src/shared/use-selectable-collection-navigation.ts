@@ -7,9 +7,9 @@ type Orientation = 'horizontal' | 'vertical'
  * Options for the selectable collection navigation hook.
  *
  * @template TItem - The type of items in the collection
- * @template TValue - The type of the value identifier (must extend string)
+ * @template TValue - The string or number used to identify an item
  */
-export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string> {
+export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string | number> {
   /** Accessor returning the array of items in the collection */
   items: Accessor<TItem[]>
   /** Function to extract the unique value identifier from an item */
@@ -50,7 +50,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * Enter/Space, and supports both automatic and manual activation modes.
  *
  * @template TItem - The type of items in the collection
- * @template TValue - The type of the value identifier (must extend string)
+ * @template TValue - The string or number used to identify an item
  *
  * @param options - Configuration options for the navigation behavior
  * @returns Object with navigation methods
@@ -90,7 +90,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * - Automatic: Arrow keys immediately select and focus
  * - Manual: Arrow keys only focus, Enter/Space required to select
  */
-export function useSelectableCollectionNavigation<TItem, TValue extends string>(
+export function useSelectableCollectionNavigation<TItem, TValue extends string | number>(
   options: UseSelectableCollectionNavigationOptions<TItem, TValue>,
 ) {
   function getEnabledItems(): TItem[] {
