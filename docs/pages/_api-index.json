@@ -81,6 +81,14 @@
       "sourcePath": "src/elements/kbd/kbd-group.tsx"
     },
     {
+      "key": "list-box",
+      "name": "ListBox",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Renders a flat semantic list with optional filtering and selection behavior.",
+      "sourcePath": "src/elements/list-box/list-box.tsx"
+    },
+    {
       "key": "progress",
       "name": "Progress",
       "category": "elements",
@@ -159,13 +167,6 @@
       "polymorphic": false,
       "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
       "sourcePath": "src/forms/input-number/input-number.tsx"
-    },
-    {
-      "key": "list-box",
-      "name": "ListBox",
-      "category": "elements",
-      "polymorphic": false,
-      "sourcePath": "src/elements/list-box/list-box.tsx"
     },
     {
       "key": "radio-group",

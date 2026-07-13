@@ -4,38 +4,49 @@
     "name": "ListBox",
     "category": "elements",
     "polymorphic": false,
+    "description": "Renders a flat semantic list with optional filtering and selection behavior.",
     "sourcePath": "src/elements/list-box/list-box.tsx"
   },
   "slots": [
     {
-      "name": "content"
+      "name": "content",
+      "description": "Root list element."
     },
     {
-      "name": "label"
+      "name": "label",
+      "description": "Structural label row."
     },
     {
-      "name": "separator"
+      "name": "separator",
+      "description": "Structural separator row."
     },
     {
-      "name": "item"
+      "name": "item",
+      "description": "Selectable item row."
     },
     {
-      "name": "itemLeading"
+      "name": "itemLeading",
+      "description": "Leading item content."
     },
     {
-      "name": "itemWrapper"
+      "name": "itemWrapper",
+      "description": "Wrapper around the label and description."
     },
     {
-      "name": "itemLabel"
+      "name": "itemLabel",
+      "description": "Item label."
     },
     {
-      "name": "itemDescription"
+      "name": "itemDescription",
+      "description": "Item description."
     },
     {
-      "name": "itemTrailing"
+      "name": "itemTrailing",
+      "description": "Trailing item content."
     },
     {
-      "name": "empty"
+      "name": "empty",
+      "description": "Empty-state row."
     }
   ],
   "item": {
@@ -43,47 +54,67 @@
       {
         "name": "description",
         "required": false,
-        "type": "JSX.Element"
+        "type": "JSX.Element",
+        "description": "Secondary item content displayed below the label."
       },
       {
         "name": "disabled",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether the item cannot be highlighted or selected."
       },
       {
         "name": "keywords",
         "required": false,
-        "type": "string[] | undefined"
+        "type": "string[] | undefined",
+        "description": "Additional terms included by the default filter."
       },
       {
         "name": "label",
         "required": false,
-        "type": "JSX.Element"
+        "type": "JSX.Element",
+        "description": "Primary item content."
       },
       {
         "name": "leadingRender",
         "required": false,
-        "type": "((context: ListBoxT.ItemRenderContext<{ value: ListBoxT.Value; }>) => JSX.Element) | undefined"
+        "type": "((context: ListBoxT.ItemRenderContext<ListBoxT.Item<ListBoxT.Value>>) => JSX.Element) | undefined",
+        "description": "Renders content before the item label."
       },
       {
         "name": "trailingRender",
         "required": false,
-        "type": "((context: ListBoxT.ItemRenderContext<{ value: ListBoxT.Value; }>) => JSX.Element) | undefined"
+        "type": "((context: ListBoxT.ItemRenderContext<ListBoxT.Item<ListBoxT.Value>>) => JSX.Element) | undefined",
+        "description": "Renders content after the item label and description."
       },
       {
         "name": "type",
         "required": false,
-        "type": "\"item\" | undefined"
+        "type": "\"item\" | undefined",
+        "description": "Optional discriminator for item entries."
       },
       {
         "name": "value",
         "required": true,
-        "type": "ListBoxT.Value"
+        "type": "ListBoxT.Value",
+        "description": "Unique value used for selection, highlighting, and element identity."
       }
     ]
   },
   "props": {
     "own": [
+      {
+        "name": "ariaLabel",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible name for the interactive listbox element."
+      },
+      {
+        "name": "ariaLabelledby",
+        "required": false,
+        "type": "string | undefined",
+        "description": "IDs of elements that label the interactive listbox element."
+      },
       {
         "name": "class",
         "required": false,
@@ -98,67 +129,82 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined"
+        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined",
+        "description": "Initial selected value or values for uncontrolled usage."
       },
       {
         "name": "emptyRender",
         "required": false,
-        "type": "(() => JSX.Element) | undefined"
+        "type": "(() => JSX.Element) | undefined",
+        "description": "Renders the empty state when no item entries remain."
       },
       {
         "name": "filterOption",
         "required": false,
-        "type": "ListBoxT.FilterOption<TItem> | undefined"
+        "type": "ListBoxT.FilterOption<TItem> | undefined",
+        "description": "Item filtering strategy.",
+        "defaultValue": "true"
       },
       {
         "name": "getItemSearchText",
         "required": false,
-        "type": "((item: TItem) => string) | undefined"
+        "type": "((item: TItem) => string) | undefined",
+        "description": "Returns searchable text when labels are not plain strings."
       },
       {
         "name": "id",
         "required": false,
-        "type": "string | undefined"
+        "type": "string | undefined",
+        "description": "Root element ID used to derive option IDs."
       },
       {
         "name": "itemProps",
         "required": false,
-        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLLIElement>) | undefined"
+        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLLIElement>) | undefined",
+        "description": "Returns additional attributes for an item row."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.Element) | undefined"
+        "type": "((context: ListBoxT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
+        "description": "Replaces the default contents of every item row."
       },
       {
         "name": "items",
         "required": false,
-        "type": "ListBoxT.Entry<TItem>[] | undefined"
+        "type": "ListBoxT.Entry<TItem>[] | undefined",
+        "description": "Items and structural rows to display."
       },
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: ListBoxT.Value | ListBoxT.Value[] | null) => void) | undefined"
+        "type": "((value: ListBoxT.Value | ListBoxT.Value[] | null) => void) | undefined",
+        "description": "Called when selection changes."
       },
       {
         "name": "onSelect",
         "required": false,
-        "type": "((item: TItem, context: ListBoxT.ItemRenderContext<TItem>) => void) | undefined"
+        "type": "((item: TItem, context: ListBoxT.ItemRenderContext<TItem>) => void) | undefined",
+        "description": "Called after an item is selected or toggled."
       },
       {
         "name": "scrollToItem",
         "required": false,
-        "type": "((value: ListBoxT.Value) => void) | undefined"
+        "type": "((value: ListBoxT.Value) => void) | undefined",
+        "description": "Called when keyboard navigation highlights an item."
       },
       {
         "name": "searchValue",
         "required": false,
-        "type": "string | undefined"
+        "type": "string | undefined",
+        "description": "External search text used to filter item entries."
       },
       {
         "name": "selectionMode",
         "required": false,
-        "type": "ListBoxT.SelectionMode | undefined"
+        "type": "ListBoxT.SelectionMode | undefined",
+        "description": "Selection behavior for the list.",
+        "defaultValue": "none"
       },
       {
         "name": "size",
@@ -178,17 +224,20 @@
       {
         "name": "value",
         "required": false,
-        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined"
+        "type": "ListBoxT.Value | ListBoxT.Value[] | null | undefined",
+        "description": "Controlled selected value or values."
       },
       {
         "name": "virtualized",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Enables delegation to `virtualRender`."
       },
       {
         "name": "virtualRender",
         "required": false,
-        "type": "((context: ListBoxT.VirtualRenderContext<TItem>) => JSX.Element) | undefined"
+        "type": "((context: ListBoxT.VirtualRenderContext<TItem>) => JSX.Element) | undefined",
+        "description": "Renders filtered entries through a caller-provided virtualization layer."
       }
     ],
     "inherited": []
@@ -196,10 +245,34 @@
   "attributes": {
     "aria": [
       {
+        "name": "aria-activedescendant",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
         "name": "aria-disabled",
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Indicates that the control is disabled."
+      },
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-labelledby",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "References the element that labels the control or region."
       },
       {
         "name": "aria-multiselectable",
@@ -253,6 +326,24 @@
         "dataAttributes": [],
         "ariaAttributes": [
           {
+            "name": "aria-activedescendant",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          },
+          {
+            "name": "aria-labelledby",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "References the element that labels the control or region."
+          },
+          {
             "name": "aria-multiselectable",
             "required": false,
             "type": "boolean | string | undefined",
@@ -270,7 +361,14 @@
         "name": "empty",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "item",
@@ -350,13 +448,32 @@
         "name": "label",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          },
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "separator",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          },
           {
             "name": "role",
             "required": false,
