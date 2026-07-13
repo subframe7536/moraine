@@ -510,6 +510,8 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     <ul
       id={listBoxId()}
       role={isInteractive() ? 'listbox' : undefined}
+      aria-label={merged.ariaLabel}
+      aria-labelledby={merged.ariaLabelledby}
       aria-multiselectable={merged.selectionMode === 'multiple' || undefined}
       aria-activedescendant={activeDescendantId()}
       tabIndex={isInteractive() ? 0 : undefined}
