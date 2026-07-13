@@ -117,6 +117,10 @@ export namespace ListBoxT {
   export interface Base<TItem extends Item = Item> {
     /** Root element ID used to derive option IDs. */
     id?: string
+    /** Accessible name for the interactive listbox element. */
+    ariaLabel?: string
+    /** IDs of elements that label the interactive listbox element. */
+    ariaLabelledby?: string
     /** Items and structural rows to display. */
     items?: Entry<TItem>[]
     /**
