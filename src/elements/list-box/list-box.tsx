@@ -381,7 +381,7 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     return (
       <li
         {...itemAttributes()}
-        id={`${listBoxId()}-${optionProps.item.value}`}
+        id={`${listBoxId()}-${encodeURIComponent(String(optionProps.item.value))}`}
         role={isInteractive() ? 'option' : undefined}
         aria-disabled={optionProps.item.disabled || undefined}
         aria-selected={isInteractive() ? context.selected : undefined}
