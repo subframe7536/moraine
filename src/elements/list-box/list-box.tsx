@@ -273,7 +273,7 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
       return undefined
     }
 
-    return `${listBoxId()}-${value}`
+    return `${listBoxId()}-${encodeURIComponent(String(value))}`
   })
 
   createEffect(() => {
