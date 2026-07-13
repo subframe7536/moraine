@@ -151,7 +151,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('focuses content on open, supports typeahead, and restores trigger wrapper focus on escape', async () => {
+  test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
         <div>Row Item</div>
@@ -170,10 +170,7 @@ describe('ContextMenu', () => {
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     await fireEvent.keyDown(content, { key: 'd' })
 
-    await waitFor(() => {
-      const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
-      expect(highlighted?.textContent).toContain('Duplicate')
-    })
+    expect(document.body.querySelector('[data-slot="item"][data-highlighted]')).toBeNull()
 
     await fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()

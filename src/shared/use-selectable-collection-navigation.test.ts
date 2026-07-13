@@ -308,90 +308,20 @@ describe('useSelectableCollectionNavigation', () => {
     })
   })
 
-  describe('typeahead extension point', () => {
-    test('onKeyDown callback can intercept keys before navigation', () => {
-      const [items] = createSignal<TestItem[]>([
-        { value: 'apple' },
-        { value: 'banana' },
-        { value: 'cherry' },
-      ])
-      const onSelect = vi.fn()
-      const customKeyHandler = vi.fn(() => true)
-
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
-        items,
-        getValue: (item) => item.value,
-        onSelect,
-        onKeyDown: customKeyHandler,
-      })
-
-      const event = createMockKeyboardEvent('a')
-      onNavigationKeyDown(event, 'apple', 'horizontal')
-
-      expect(customKeyHandler).toHaveBeenCalledWith(event, 'apple')
-      expect(onSelect).not.toHaveBeenCalled()
+  test('ignores printable keys', () => {
+    const [items] = createSignal<TestItem[]>([{ value: 'apple' }, { value: 'banana' }])
+    const onSelect = vi.fn()
+    const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      items,
+      getValue: (item) => item.value,
+      onSelect,
     })
 
-    test('onKeyDown returning false allows default navigation', () => {
-      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
-      const onSelect = vi.fn()
-      const customKeyHandler = vi.fn(() => false)
+    const event = createMockKeyboardEvent('b')
+    onNavigationKeyDown(event, 'apple', 'horizontal')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
-        items,
-        getValue: (item) => item.value,
-        onSelect,
-        onKeyDown: customKeyHandler,
-      })
-
-      const rightEvent = createMockKeyboardEvent('ArrowRight')
-      onNavigationKeyDown(rightEvent, 'a', 'horizontal')
-
-      expect(customKeyHandler).toHaveBeenCalledWith(rightEvent, 'a')
-      expect(onSelect).toHaveBeenCalledWith('b')
-    })
-
-    test('onKeyDown can implement typeahead search', () => {
-      const [items] = createSignal<TestItem[]>([
-        { value: 'apple' },
-        { value: 'banana' },
-        { value: 'cherry' },
-      ])
-      const onSelect = vi.fn()
-
-      let searchBuffer = ''
-      const typeaheadHandler = (event: KeyboardEvent, _currentValue: string | undefined) => {
-        if (event.key.length === 1 && /[a-z]/i.test(event.key)) {
-          searchBuffer += event.key.toLowerCase()
-
-          const match = items().find((item) => item.value.toLowerCase().startsWith(searchBuffer))
-
-          if (match) {
-            onSelect(match.value)
-          }
-
-          setTimeout(() => {
-            searchBuffer = ''
-          }, 500)
-
-          return true
-        }
-
-        return false
-      }
-
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
-        items,
-        getValue: (item) => item.value,
-        onSelect,
-        onKeyDown: typeaheadHandler,
-      })
-
-      const bEvent = createMockKeyboardEvent('b')
-      onNavigationKeyDown(bEvent, 'apple', 'horizontal')
-
-      expect(onSelect).toHaveBeenCalledWith('banana')
-    })
+    expect(event.preventDefault).not.toHaveBeenCalled()
+    expect(onSelect).not.toHaveBeenCalled()
   })
 
   describe('looping behavior', () => {

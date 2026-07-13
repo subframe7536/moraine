@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { Button, IconButton, cn } from '../../src'
+import { Button, cn, Icon } from '../../src'
 
 const COPY_SUCCESS_TIMEOUT_MS = 3000
 const COLLAPSED_HEIGHT_PX = 150
@@ -116,16 +116,18 @@ export const ShikiCodeBlock = (props: ShikiCodeBlockProps) => {
       >
         {(html) => (
           <>
-            <IconButton
-              name="i-lucide:copy"
-              loadingIcon="i-lucide:check"
-              size="md"
+            <Button
+              loadingIcon={false}
+              size="icon-md"
+              variant="ghost"
               classes={{
                 root: 'text-muted-foreground p-1.5 end-2 top-2 absolute z-2 transition-colors duration-300 hover:(text-foreground bg-background)',
               }}
               loadingAuto
               onClick={() => copyCode(html())}
-            />
+            >
+              {(ctx) => <Icon name={ctx.loading ? 'i-lucide:check' : 'i-lucide:copy'} />}
+            </Button>
 
             <div
               class="transition-[height] duration-300 ease-in-out relative overflow-hidden"

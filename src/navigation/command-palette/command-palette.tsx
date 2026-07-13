@@ -13,6 +13,7 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
+import { listBoxItemVariants } from '../../elements/list-box/list-box.class'
 import { Modal } from '../../overlays/base/modal'
 import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
@@ -469,12 +470,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         activateItem(highlighted, () => {})
       }
     },
-    onKeyDown: (event) => {
-      if (event.key === ' ' || event.key === 'Spacebar') {
-        return true
-      }
-      return false
-    },
   })
 
   function activateItem(item: NormalizedItem<TItem>, close: () => void): void {
@@ -489,6 +484,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function handleKeyDown(event: KeyboardEvent, close: () => void): void {
+    if (event.key === ' ' || event.key === 'Spacebar') {
+      return
+    }
+
     if (event.key === 'Enter') {
       const highlighted = visibleItems().find((item) => item.key === activeKey())
       if (highlighted) {
@@ -769,8 +768,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                               ...toStyleObject(itemAttributes()?.style),
                               ...merged.styles?.item,
                             }}
-                            class={cn(
-                              'p-2 outline-none rounded-md flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
+                            class={listBoxItemVariants(
+                              { size: 'md' },
+                              'p-2 cursor-default select-none relative rounded-md',
                               itemAttributes()?.class,
                               merged.classes?.item,
                             )}

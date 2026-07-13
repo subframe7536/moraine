@@ -7,9 +7,9 @@ type Orientation = 'horizontal' | 'vertical'
  * Options for the selectable collection navigation hook.
  *
  * @template TItem - The type of items in the collection
- * @template TValue - The type of the value identifier (must extend string)
+ * @template TValue - The string or number used to identify an item
  */
-export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string> {
+export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string | number> {
   /** Accessor returning the array of items in the collection */
   items: Accessor<TItem[]>
   /** Function to extract the unique value identifier from an item */
@@ -29,30 +29,6 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
   focusValue?: (value: TValue) => void
   /** Callback when an item is selected */
   onSelect: (value: TValue) => void
-  /**
-   * Optional callback for handling keys not covered by standard navigation.
-   * Return true to prevent default navigation behavior.
-   * Useful for implementing typeahead search or custom key handlers.
-   *
-   * @example
-   * ```ts
-   * // Typeahead search implementation
-   * let searchBuffer = ''
-   * const onKeyDown = (event: KeyboardEvent, currentValue: string) => {
-   *   if (event.key.length === 1 && /[a-z]/i.test(event.key)) {
-   *     searchBuffer += event.key.toLowerCase()
-   *     const match = items().find(item =>
-   *       getValue(item).toLowerCase().startsWith(searchBuffer)
-   *     )
-   *     if (match) onSelect(getValue(match))
-   *     setTimeout(() => searchBuffer = '', 500)
-   *     return true // Prevent default navigation
-   *   }
-   *   return false // Allow default navigation
-   * }
-   * ```
-   */
-  onKeyDown?: (event: KeyboardEvent, currentValue: TValue | undefined) => boolean | void
   /**
    * Optional function to detect RTL direction.
    * If not provided, direction is detected from the event target's computed style.
@@ -74,7 +50,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * Enter/Space, and supports both automatic and manual activation modes.
  *
  * @template TItem - The type of items in the collection
- * @template TValue - The type of the value identifier (must extend string)
+ * @template TValue - The string or number used to identify an item
  *
  * @param options - Configuration options for the navigation behavior
  * @returns Object with navigation methods
@@ -114,7 +90,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * - Automatic: Arrow keys immediately select and focus
  * - Manual: Arrow keys only focus, Enter/Space required to select
  */
-export function useSelectableCollectionNavigation<TItem, TValue extends string>(
+export function useSelectableCollectionNavigation<TItem, TValue extends string | number>(
   options: UseSelectableCollectionNavigationOptions<TItem, TValue>,
 ) {
   function getEnabledItems(): TItem[] {
@@ -173,17 +149,25 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
     moveToBoundary(offset >= 0 ? 'first' : 'last')
   }
 
+  function focusByOffset(currentValue: TValue | undefined, offset: number): void {
+    if (currentValue === undefined) {
+      moveFromBoundaryForOffset(offset)
+      return
+    }
+
+    moveSelection(currentValue, offset)
+  }
+
+  function focusBoundary(kind: 'first' | 'last'): void {
+    moveToBoundary(kind)
+  }
+
   function onNavigationKeyDown(
     event: KeyboardEvent,
     currentValue: TValue | undefined,
     orientation: Orientation,
   ): void {
     const normalizedKey = event.key === 'Spacebar' ? ' ' : event.key
-
-    // Allow custom key handling to intercept before standard navigation
-    if (options.onKeyDown?.(event, currentValue)) {
-      return
-    }
 
     // Detect text direction for RTL-aware horizontal navigation
     const direction = options.getDirection?.() ?? getComputedDirection(event.target as Element)
@@ -204,33 +188,25 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
 
     if (normalizedKey === nextKey) {
       event.preventDefault()
-      if (currentValue === undefined) {
-        moveFromBoundaryForOffset(1)
-        return
-      }
-      moveSelection(currentValue, 1)
+      focusByOffset(currentValue, 1)
       return
     }
 
     if (normalizedKey === previousKey) {
       event.preventDefault()
-      if (currentValue === undefined) {
-        moveFromBoundaryForOffset(-1)
-        return
-      }
-      moveSelection(currentValue, -1)
+      focusByOffset(currentValue, -1)
       return
     }
 
     if (normalizedKey === 'Home') {
       event.preventDefault()
-      moveToBoundary('first')
+      focusBoundary('first')
       return
     }
 
     if (normalizedKey === 'End') {
       event.preventDefault()
-      moveToBoundary('last')
+      focusBoundary('last')
       return
     }
 
@@ -241,6 +217,8 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string>(
   }
 
   return {
+    focusBoundary,
+    focusByOffset,
     moveSelection,
     onNavigationKeyDown,
   }

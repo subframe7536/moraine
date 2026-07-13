@@ -3,6 +3,7 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps, on } fro
 import { Portal } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
+import { listBoxItemVariants } from '../../elements/list-box/list-box.class'
 import {
   overlayMenuContentVariants,
   useOverlayMenuDismiss,
@@ -10,6 +11,7 @@ import {
 } from '../../overlays/base/menu'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { cn, useId } from '../../shared/utils'
 import type { UseFormFieldReturn } from '../form-field/form-field-context'
@@ -20,7 +22,6 @@ import type {
 } from '../form-field/form-options'
 
 import type { SelectControlVariantProps } from './select.class'
-import { selectItemVariants } from './select.class'
 import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
 import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
@@ -260,41 +261,23 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   setHighlightedKey: (key: string | undefined) => void
   visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
 }) {
-  const enabledOptions = createMemo(() =>
-    options.visibleFlatOptions().filter((option) => !option.disabled),
-  )
-
-  function focusItemByOffset(delta: number): void {
-    const currentOptions = enabledOptions()
-    if (currentOptions.length === 0) {
-      return
-    }
-
-    const currentIndex = currentOptions.findIndex(
-      (option) => option.key === options.highlightedKey(),
-    )
-    const nextIndex =
-      currentIndex === -1
-        ? delta > 0
-          ? 0
-          : currentOptions.length - 1
-        : (currentIndex + delta + currentOptions.length) % currentOptions.length
-    options.setHighlightedKey(currentOptions[nextIndex]?.key)
-  }
-
-  function focusBoundaryItem(kind: 'first' | 'last'): void {
-    const currentOptions = enabledOptions()
-    if (currentOptions.length === 0) {
-      return
-    }
-
-    options.setHighlightedKey(
-      kind === 'first' ? currentOptions[0]?.key : currentOptions[currentOptions.length - 1]?.key,
-    )
-  }
+  const { focusBoundary, focusByOffset } = useSelectableCollectionNavigation<
+    NormalizedOption<TItem>,
+    string
+  >({
+    items: options.visibleFlatOptions,
+    getValue: (option) => option.key,
+    isDisabled: (option) => option.disabled,
+    activationMode: () => 'manual',
+    focusValue: options.setHighlightedKey,
+    onSelect: () => undefined,
+    loop: () => true,
+  })
 
   function getFocusedOption(): NormalizedOption<TItem> | undefined {
-    const key = options.highlightedKey() ?? enabledOptions()[0]?.key
+    const key =
+      options.highlightedKey() ??
+      options.visibleFlatOptions().find((option) => !option.disabled)?.key
     if (!key) {
       return undefined
     }
@@ -309,19 +292,20 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
     }
 
     const highlighted = options.highlightedKey()
-    if (highlighted && enabledOptions().some((option) => option.key === highlighted)) {
+    const enabledOptions = options.visibleFlatOptions().filter((option) => !option.disabled)
+    if (highlighted && enabledOptions.some((option) => option.key === highlighted)) {
       return
     }
 
     const selectedValueSet = new Set(options.selectedValues().map((value) => String(value)))
-    const selectedOption = enabledOptions().find((option) => selectedValueSet.has(option.value))
+    const selectedOption = enabledOptions.find((option) => selectedValueSet.has(option.value))
 
-    options.setHighlightedKey(selectedOption?.key ?? enabledOptions()[0]?.key)
+    options.setHighlightedKey(selectedOption?.key ?? enabledOptions[0]?.key)
   })
 
   return {
-    focusBoundaryItem,
-    focusItemByOffset,
+    focusBoundaryItem: focusBoundary,
+    focusItemByOffset: (delta: number) => focusByOffset(options.highlightedKey(), delta),
     getFocusedOption,
   }
 }
@@ -821,7 +805,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             setHighlightedKey(option.key)
           }
         }}
-        class={selectItemVariants(
+        class={listBoxItemVariants(
           {
             size: merged.size as 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined,
           },

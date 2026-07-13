@@ -36,7 +36,7 @@
   - [x] display text and accessible label for each kbd element
   - [x] support both symbol and text to better adapt different platforms and devices
 - [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
-- [ ] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu`, which can be used to render a list of items with optional search and selection support, and support different sizes and variants.
+- [x] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu` and others, sharing collection navigation behavior while preserving each component's semantics. It renders items with optional external search and selection support in different sizes. Menu navigation intentionally ignores printable keys instead of providing typeahead.
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
