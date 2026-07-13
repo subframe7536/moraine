@@ -61,7 +61,7 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.6",
+    "@floating-ui/dom": "^1.8.0",
     "@formisch/solid": "1.0.0-rc.0",
     "cls-variant": "^1.2.0"
   },
@@ -73,9 +73,11 @@
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.2.1",
     "@subf/unocss": "^0.3.0",
-    "@types/bun": "^1.3.14",
+    "@testing-library/dom": "*",
+    "@types/node": "^24",
     "bumpp": "^11.1.0",
     "jsdom": "^29.1.1",
+    "magic-string": "^0.30.21",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "rolldown-plugin-unocss": "^0.1.0",
@@ -84,7 +86,7 @@
     "solid-file-router": "^0.6.0",
     "solid-toaster": "^0.1.5",
     "tailwindcss": "^4.3.2",
-    "tsdown": "^0.22.4",
+    "tsdown": "^0.22.5",
     "typescript": "^7.0.2",
     "valibot": "^1.4.2",
     "vite": "^8.1.4",

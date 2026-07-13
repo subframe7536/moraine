@@ -19,6 +19,7 @@ export default defineConfig({
     },
     conditions: ['node', 'import', 'default'],
     dedupe: ['solid-js', '@solidjs/router'],
+    external: ['@unocss/transformer-compile-class'],
   },
   plugins: [solid({ hot: false })],
   test: {

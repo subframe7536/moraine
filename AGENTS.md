@@ -33,7 +33,7 @@ Use `bun` for all package management and script execution.
 
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
-- Use `cva` from `cls-variant/cva` to define variants.
+- Use `cva` from `src/shared/utils` to define variants.
 - Use `cn` from `src/shared/utils` to combine classes.
 - No need to create memo for classes, just write them inplace
 - State-based class should use pure class instead of adding a newn variant in cva
@@ -64,7 +64,7 @@ Use `bun` for all package management and script execution.
 
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
-- **Events:** Use lowercase event names (`onclick`, `oninput`) on HTML elements.
+- **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
 - **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
 - **Imports:** Organize imports: external lib -> internal shared -> component files.
 

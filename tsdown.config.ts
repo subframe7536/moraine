@@ -89,7 +89,7 @@ export default defineConfig([
       solid(),
     ],
     deps: {
-      neverBundle: ['@unocss/core', '@unocss/transformer-compile-class', 'tailwindcss'],
+      neverBundle: ['@subf/unocss', '@unocss/transformer-compile-class', 'tailwindcss'],
     },
     dts: {
       parallel: true,

@@ -1,4 +1,4 @@
-import type { Preset, SourceCodeTransformer } from '@unocss/core'
+import type { Preset, SourceCodeTransformer } from '@subf/unocss'
 
 import {
   MORAINE_ANIM_DUR_VAR_ENTER,
@@ -197,8 +197,9 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
 
     // 3. Try @unocss/transformer-compile-class (default export)
     try {
-      const mod = await import('@unocss/transformer-compile-class')
-      return mod.default(transformerCompileClassOptions)
+      const transformerPackage = '@unocss/transformer-compile-class'
+      const { default: transformerCompileClass } = await import(transformerPackage)
+      return transformerCompileClass(transformerCompileClassOptions)
     } catch {}
 
     throw new Error(
