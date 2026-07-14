@@ -162,7 +162,8 @@ describe('llms.txt generation', () => {
       expect(button).toContain('## API Reference')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('### ARIA')
-      expect(button).not.toContain('---\ntitle:')
+      expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
+      expect(button).toContain('\n---\n\n# Button\n')
       expect(button).not.toContain('<Example')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })

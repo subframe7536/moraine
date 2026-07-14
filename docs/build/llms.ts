@@ -113,6 +113,11 @@ function normalizeApiType(type: string): string {
   return type.replaceAll('cls_variant0.', '').replaceAll('_$', '')
 }
 
+function readFrontmatterBlock(source: string): string {
+  const match = source.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/)
+  return match?.[0].trimEnd() ?? ''
+}
+
 function stringOffsetFromUtf8ByteOffset(source: Buffer, offset: number): number {
   return source.subarray(0, offset).toString('utf8').length
 }
@@ -418,7 +423,8 @@ async function convertPageMarkdown(
   }
 
   const frontmatter = readFrontmatterData(source.slice(0, 4096), context.sourcePath)
-  output = output.replace(/^---\r?\n[\s\S]*?\r?\n---\s*(?:\r?\n|$)/, '')
+  const frontmatterBlock = readFrontmatterBlock(source)
+  output = output.replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, '')
   output = normalizeInternalLinks(output, context.siteUrl, context.routes)
   const header = `# ${frontmatter.title}\n\n> ${frontmatter.description}\n`
   const body = output.trim()
@@ -426,10 +432,9 @@ async function convertPageMarkdown(
     context.projectRoot,
     resolveDocsPageContext(context.sourcePath).pageKey,
   )
-  return `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`.replace(
-    /\n{3,}/g,
-    '\n\n',
-  )
+  const content = `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`
+  const normalizedContent = content.replace(/\n{3,}/g, '\n\n')
+  return `${frontmatterBlock ? `${frontmatterBlock}\n\n` : ''}${normalizedContent}`
 }
 
 function normalizeInternalLinks(

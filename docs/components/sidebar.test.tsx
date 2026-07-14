@@ -54,4 +54,21 @@ describe('Sidebar', () => {
 
     expect(setActivePage).toHaveBeenCalledWith('sidebar-frame')
   })
+
+  test('links to the LLM documentation index as Markdown', () => {
+    const [activePage] = createSignal('button')
+
+    const screen = render(() => (
+      <Sidebar
+        pages={[page('button', 'general')]}
+        activePage={activePage}
+        setActivePage={() => undefined}
+      />
+    ))
+
+    const link = screen.getByRole('link', { name: 'llms.txt' })
+    expect(link.getAttribute('href')).toBe('/llms.txt')
+    expect(link.getAttribute('rel')).toBe('alternate external')
+    expect(link.getAttribute('type')).toBe('text/markdown')
+  })
 })

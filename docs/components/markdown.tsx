@@ -112,39 +112,51 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
               {input.frontmatter.description}
             </p>
 
-            <Show when={githubSourceHref() || input.frontmatter.upstreamHref}>
-              <div class="text-xs mt-3 flex flex-wrap gap-3 items-center">
-                <Show when={githubSourceHref()}>
-                  {(href) => (
-                    <Button
-                      as="a"
-                      href={href()}
-                      target="_blank"
-                      rel="noreferrer"
-                      variant="outline"
-                      leading="i-lucide:github"
-                    >
-                      Source Code
-                    </Button>
-                  )}
-                </Show>
+            <div class="text-xs mt-3 flex flex-wrap gap-3 items-center">
+              <Show when={input.pageKey !== 'introduction'}>
+                <Button
+                  as="a"
+                  href={`/${input.pageKey}.md`}
+                  aria-label="View markdown source"
+                  rel="alternate external"
+                  type="text/markdown"
+                  variant="outline"
+                  size="sm"
+                  leading="i-lucide:file-text"
+                >
+                  View as Markdown
+                </Button>
+              </Show>
+              <Show when={githubSourceHref()}>
+                {(href) => (
+                  <Button
+                    as="a"
+                    href={href()}
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="outline"
+                    leading="i-lucide:github"
+                  >
+                    Source Code
+                  </Button>
+                )}
+              </Show>
 
-                <Show when={input.frontmatter.upstreamHref}>
-                  {(href) => (
-                    <Button
-                      as="a"
-                      href={href()}
-                      target="_blank"
-                      rel="noreferrer"
-                      variant="outline"
-                      leading="icon-external"
-                    >
-                      Upstream
-                    </Button>
-                  )}
-                </Show>
-              </div>
-            </Show>
+              <Show when={input.frontmatter.upstreamHref}>
+                {(href) => (
+                  <Button
+                    as="a"
+                    href={href()}
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="outline"
+                    leading="icon-external"
+                  >
+                    Upstream
+                  </Button>
+                )}
+              </Show>
+            </div>
           </header>
           <Dynamic component={input.Content} components={components} />
           <DocsApiReference apiDoc={input.apiDoc} />

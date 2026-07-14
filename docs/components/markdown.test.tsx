@@ -33,7 +33,7 @@ describe('Markdown', () => {
     const screen = render(() => (
       <Markdown
         pageKey="button"
-        frontmatter={{ ...FRONTMATTER, componentKey: 'button' }}
+        frontmatter={FRONTMATTER}
         Content={EmptyContent}
         examples={{}}
         codeTabs={{}}
@@ -42,6 +42,7 @@ describe('Markdown', () => {
 
     expect(screen.getByRole('heading', { name: 'Button' })).toBeDefined()
     expect(screen.getByText('Button description.')).toBeDefined()
+    expect(screen.queryByRole('link', { name: 'View markdown source' })).toBeNull()
   })
 
   test('uses api doc defaults and frontmatter display overrides for header', () => {
@@ -79,6 +80,10 @@ describe('Markdown', () => {
     expect(screen.getByText('Source Code').closest('a')?.getAttribute('href')).toContain(
       'src/elements/button/button.tsx',
     )
+    const markdownLink = screen.getByRole('link', { name: 'View markdown source' })
+    expect(markdownLink.getAttribute('href')).toBe('/button.md')
+    expect(markdownLink.getAttribute('rel')).toBe('alternate external')
+    expect(markdownLink.getAttribute('type')).toBe('text/markdown')
   })
 
   test('renders api reference from api doc automatically', () => {
