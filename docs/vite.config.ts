@@ -9,6 +9,7 @@ import solid from 'vite-plugin-solid'
 import {
   createDocsRouteSource,
   docsBuildPlugin,
+  llmsTxtPlugin,
   getDocsPrerenderRoutes,
   siteMetaPlugin,
 } from './build'
@@ -16,6 +17,12 @@ import unocfg from './unocss.config'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
+const site = {
+  siteName: 'Moraine',
+  description:
+    'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
+  siteUrl: 'https://ui.subf.dev/',
+}
 
 export default defineConfig({
   plugins: [
@@ -44,17 +51,15 @@ export default defineConfig({
     }),
     siteMetaPlugin({
       projectRoot,
-      siteName: 'Moraine',
+      ...site,
       title: 'Moraine Docs',
-      description:
-        'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
-      siteUrl: 'https://ui.subf.dev/',
       imagePath: '/og-image.png',
       imageAlt: 'Moraine Docs brand cover image',
       imageWidth: 1200,
       imageHeight: 630,
       twitterCard: 'summary_large_image',
     }),
+    llmsTxtPlugin({ projectRoot, ...site }),
   ],
   resolve: {
     alias: {

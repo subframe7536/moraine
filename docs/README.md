@@ -76,3 +76,13 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 - `fileRouter({ routeSource: createDocsRouteSource(projectRoot), ssg: { serverEntry: 'entry-server.tsx', id: 'app' } })`
 
 `bun run docs:build` emits the prerendered site under `docs/dist/client`.
+
+## LLM-Friendly Documentation
+
+The docs build emits an `llms.txt` index and a Markdown representation for every page:
+
+- `/llms.txt` lists all documentation pages by group with absolute Markdown URLs.
+- `/index.md` is the Markdown version of the introduction page.
+- `/<page>.md` contains the page prose, expanded example source, installation commands, and generated API reference when available.
+
+The same endpoints are served by the Vite development server. Markdown output is generated from the page frontmatter, MDX source, colocated examples, and API JSON, so it should not be edited by hand.

@@ -22,7 +22,7 @@ function isPathInside(parentPath: string, childPath: string): boolean {
   return relative !== '' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
 }
 
-function resolveExampleFile(id: string, examplePath: string): string {
+export function resolveExampleFile(id: string, examplePath: string): string {
   if (
     (!examplePath.startsWith('./') && !examplePath.startsWith('../')) ||
     examplePath.includes('\\')

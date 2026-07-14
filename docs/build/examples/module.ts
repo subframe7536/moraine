@@ -82,6 +82,10 @@ function resolveExampleExport(program: ProgramNode, id: string): ExampleExport {
   return exports[0]!
 }
 
+export function resolveExampleExportName(program: ProgramNode, id: string): string {
+  return resolveExampleExport(program, id).sourceName
+}
+
 export async function transformExampleModule(
   code: string,
   id: string,
