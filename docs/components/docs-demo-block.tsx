@@ -21,9 +21,3 @@ export function DocsDemoBlock(props: DocsDemoBlockProps) {
     </section>
   )
 }
-
-export function createDocsDemo(component: Component, source?: string): Component {
-  return function DocsDemo() {
-    return <DocsDemoBlock component={component} source={source} />
-  }
-}

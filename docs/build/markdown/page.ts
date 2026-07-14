@@ -9,6 +9,7 @@ import { resolveDocsPageContext, toImportPath } from '../core/paths'
 import { createPlainCodeBlockHtml, toSingleQuoted } from '../core/strings'
 
 import { createMdxCodeTabsPlugin } from './code-tabs'
+import { createMdxExamplesPlugin } from './examples'
 import { parseFrontmatterData } from './frontmatter'
 import { createDocsCodePlugin, createDocsHastPlugin, DOCS_MDX_FEATURES } from './plugins'
 import type { OnThisPageEntryLiteral } from './plugins'
@@ -57,7 +58,8 @@ export function compileMarkdownPage(
 ): string {
   const idWithoutQuery = id.split('?')[0] ?? id
   const page = resolveDocsPageContext(idWithoutQuery)
-  const scanPlugin = createMdxCodeTabsPlugin(idWithoutQuery)
+  const codeTabsPlugin = createMdxCodeTabsPlugin(idWithoutQuery)
+  const examplesPlugin = createMdxExamplesPlugin(idWithoutQuery)
   const onThisPageEntries: OnThisPageEntryLiteral[] = []
   const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
   const imports = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
@@ -75,15 +77,24 @@ export function compileMarkdownPage(
       features: DOCS_MDX_FEATURES,
       fileURL: pathToFileURL(idWithoutQuery),
       data: {} satisfies Data,
-      mdastPlugins: [scanPlugin.plugin, createDocsCodePlugin(options.highlightCode)],
+      mdastPlugins: [
+        examplesPlugin.plugin,
+        codeTabsPlugin.plugin,
+        createDocsCodePlugin(options.highlightCode),
+      ],
       hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
     }),
   )
   const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
+  const examples = examplesPlugin.result()
+
+  for (const [index, example] of examples.entries()) {
+    imports.push(`import __DocsExample${index} from ${toSingleQuoted(example.importPath)}`)
+  }
 
   const codeTabsCode = JSON.stringify(
     Object.fromEntries(
-      scanPlugin
+      codeTabsPlugin
         .result()
         .codeTabsPackages.map((packageName) => [
           packageName,
@@ -91,6 +102,9 @@ export function compileMarkdownPage(
         ]),
     ),
   )
+  const examplesCode = `{
+${examples.map((example, index) => `  ${JSON.stringify(example.path)}: __DocsExample${index},`).join('\n')}
+}`
   const frontmatterCode = JSON.stringify(parsedFrontmatter)
   const apiDocCode = apiJsonAvailable ? '__docsRawApiDoc' : 'undefined'
 
@@ -98,13 +112,14 @@ export function compileMarkdownPage(
     ...imports,
     '',
     stripMdxDefaultExport(mdxResult.code),
+    `const examples = ${examplesCode}`,
     `const codeTabs = ${codeTabsCode}`,
     `const frontmatter = ${frontmatterCode}`,
     `const apiDoc = ${apiDocCode}`,
     '',
     'export default function MarkdownPage() {',
     '  return Markdown({ frontmatter, apiDoc, onThisPageEntries: ' +
-      `${JSON.stringify(onThisPageEntries)}, Content: MDXContent, codeTabs })`,
+      `${JSON.stringify(onThisPageEntries)}, Content: MDXContent, examples, codeTabs })`,
     '}',
     '',
   ].join('\n')

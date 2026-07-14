@@ -8,9 +8,22 @@ vi.mock('./intro-components', () => ({
   IntroComponents: () => null,
 }))
 
-const renderMdxComponent = (name: string, props: { children?: JSX.Element } = {}) => {
-  const components = createDocsMdxComponents({ Content: () => null, codeTabs: {} })
-  const Comp = components[name as keyof typeof components] as Component<typeof props>
+vi.mock('./shiki-code-block', () => ({
+  ShikiCodeBlock: (props: { html?: string }) => <div>{props.html}</div>,
+}))
+
+interface TestProps {
+  children?: JSX.Element
+  path?: string
+}
+
+const renderMdxComponent = (
+  name: string,
+  props: TestProps = {},
+  examples: Parameters<typeof createDocsMdxComponents>[0]['examples'] = {},
+) => {
+  const components = createDocsMdxComponents({ Content: () => null, examples, codeTabs: {} })
+  const Comp = components[name as keyof typeof components] as Component<TestProps>
 
   return render(() => <Comp {...props} />)
 }
@@ -24,4 +37,26 @@ describe('createDocsMdxComponents', () => {
       expect(screen.container.querySelector(tag)?.textContent).toBe('Content')
     },
   )
+
+  test('renders a compiled example descriptor', () => {
+    const screen = renderMdxComponent(
+      'Example',
+      { path: './basic' },
+      {
+        './basic': {
+          component: () => <div>Example preview</div>,
+          source: '<pre><code>Example source</code></pre>',
+        },
+      },
+    )
+
+    expect(screen.getByText('Example preview')).toBeDefined()
+    expect(screen.getByText('<pre><code>Example source</code></pre>')).toBeDefined()
+  })
+
+  test('throws when a compiled example descriptor is missing', () => {
+    expect(() => renderMdxComponent('Example', { path: './missing' })).toThrow(
+      'compiled example not found for path: ./missing',
+    )
+  })
 })

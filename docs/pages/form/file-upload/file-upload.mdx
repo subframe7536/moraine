@@ -2,12 +2,6 @@
 header: true
 ---
 
-import { DemoFileUploadSingleUpload } from './single-upload?example'
-import { DemoFileUploadMultipleMaxFiles } from './multiple-max-files?example'
-import { DemoFileUploadSizes } from './sizes?example'
-import { DemoFileUploadTriggerModeNoDropzone } from './trigger-mode-no-dropzone?example'
-import { DemoFileUploadFormIntegration } from './form-integration?example'
-
 ## Import
 
 ```tsx
@@ -48,28 +42,28 @@ root
 
 Basic single-file mode with a live readout from onValueChange.
 
-<DemoFileUploadSingleUpload />
+<Example path="./single-upload" />
 
 ### Multiple + Max Files
 
 Append files across selections, reject overflow, and show selected names.
 
-<DemoFileUploadMultipleMaxFiles />
+<Example path="./multiple-max-files" />
 
 ### Sizes
 
 Size scale from `xs` to `xl` for trigger height, spacing, and file list density.
 
-<DemoFileUploadSizes />
+<Example path="./sizes" />
 
 ### Trigger Mode (No Dropzone)
 
 Use button-style trigger behavior by disabling dropzone interaction.
 
-<DemoFileUploadTriggerModeNoDropzone />
+<Example path="./trigger-mode-no-dropzone" />
 
 ### Form Integration
 
 Submit to validate a required attachment with Form + FormField.
 
-<DemoFileUploadFormIntegration />
+<Example path="./form-integration" />

@@ -37,14 +37,8 @@ async function createTempProject(): Promise<string> {
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/general/button'), { recursive: true })
-  await mkdir(path.join(projectRoot, 'docs/components'), { recursive: true })
 
   await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
-  await writeFile(
-    path.join(projectRoot, 'docs/components/docs-demo-block.tsx'),
-    'export function createDocsDemo(component, source) { return { component, source } }\n',
-    'utf8',
-  )
   await writeFile(
     path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
     `
@@ -53,11 +47,9 @@ header: true
 status: new
 ---
 
-import { DemoButtonBasicExample } from './basic-example?example'
-
 ## Button
 
-<DemoButtonBasicExample />
+<Example path="./basic-example" />
 `,
     'utf8',
   )
@@ -141,8 +133,16 @@ describe('docsBuildPlugin', () => {
         'export const BasicExample = () => <button>Basic</button>\n',
         path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
       )
-      expect(exampleModule).toContain('export const DemoButtonBasicExample')
+      expect(exampleModule).toContain('export default { component, source: __ExampleSource }')
       expect(exampleModule).toContain('?example-source&name=BasicExample')
+
+      const markdownModule = await transform?.handler.call(
+        TRANSFORM_CONTEXT,
+        await readFile(path.join(projectRoot, 'docs/pages/general/button/button.mdx'), 'utf8'),
+        path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
+      )
+      expect(markdownModule).toContain("import __DocsExample0 from './basic-example.tsx?example'")
+      expect(markdownModule).toContain('"./basic-example": __DocsExample0')
 
       const ssrExampleModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
@@ -150,8 +150,8 @@ describe('docsBuildPlugin', () => {
         path.join(projectRoot, 'docs/pages/general/button/basic-example.tsx?example'),
         { ssr: true },
       )
-      expect(ssrExampleModule).toContain('createDocsDemo(() => null')
-      expect(ssrExampleModule).not.toContain('import { BasicExample as __BasicExample }')
+      expect(ssrExampleModule).toContain('const component = () => null')
+      expect(ssrExampleModule).not.toContain('import { BasicExample as __Example }')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -177,7 +177,8 @@ describe('docsBuildPlugin', () => {
       const exampleModule = await server.transformRequest(
         '/pages/general/button/basic-example.tsx?example',
       )
-      expect(exampleModule?.code).toContain('export const DemoButtonBasicExample')
+      expect(exampleModule?.code).toContain('export default')
+      expect(exampleModule?.code).toContain('source: __ExampleSource')
       expect(exampleModule?.code).toContain('?example-source&name=BasicExample')
     } finally {
       await server?.close()

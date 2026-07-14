@@ -36,9 +36,16 @@ Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed
 - MDX page module generation lives in `docs/build/markdown/page.ts`.
 - Component docs pages use frontmatter for docs header rendering.
 - Component API reference sections render automatically from colocated `api.json`.
-- Demo imports still use `?example`.
-- Example modules are wrapped by `docs/build/examples/module.ts`.
-- During SSR, demo wrappers avoid importing browser-only demo modules; the client loads the interactive examples.
+- Examples use the built-in MDX component with a static relative path:
+
+  ```mdx
+  <Example path="./variants" />
+  <Example path="../shared/advanced.tsx" />
+  ```
+
+- Example paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
+- Each example file directly exports exactly one component. The internal `?example` module exposes its component and highlighted source as a default descriptor.
+- During SSR, example descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the example container and source.
 
 ## SSG
 

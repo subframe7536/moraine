@@ -37,6 +37,7 @@ describe('Markdown', () => {
           status: status as never,
         }}
         Content={EmptyContent}
+        examples={{}}
         codeTabs={{}}
       />
     ))
@@ -66,6 +67,7 @@ describe('Markdown', () => {
           props: { own: [], inherited: [] },
         }}
         Content={EmptyContent}
+        examples={{}}
         codeTabs={{}}
       />
     ))
@@ -96,6 +98,7 @@ describe('Markdown', () => {
           },
         }}
         Content={EmptyContent}
+        examples={{}}
         codeTabs={{}}
       />
     ))
@@ -107,7 +110,9 @@ describe('Markdown', () => {
   })
 
   test('renders mdx intrinsic component member expressions', () => {
-    const screen = render(() => <Markdown Content={MdxHeadingContent} codeTabs={{}} />)
+    const screen = render(() => (
+      <Markdown Content={MdxHeadingContent} examples={{}} codeTabs={{}} />
+    ))
 
     expect(screen.getByRole('heading', { name: 'Title' }).getAttribute('id')).toBe('title')
   })

@@ -2,10 +2,6 @@
 header: true
 ---
 
-import { DemoListBoxBasic } from './basic?example'
-import { DemoListBoxFilter } from './filter?example'
-import { DemoListBoxSelection } from './selection?example'
-
 ## Import
 
 ```tsx
@@ -37,16 +33,16 @@ content
 
 The default mode renders a semantic list without selection behavior.
 
-<DemoListBoxBasic />
+<Example path="./basic" />
 
 ### External Filter
 
 Keep the search input and its state in the caller, then pass `searchValue` to filter the list.
 
-<DemoListBoxFilter />
+<Example path="./filter" />
 
 ### Selection
 
 Use single or multiple selection when the list is an input control.
 
-<DemoListBoxSelection />
+<Example path="./selection" />

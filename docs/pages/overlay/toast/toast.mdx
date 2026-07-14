@@ -6,9 +6,6 @@ category: overlays
 upstreamHref: https://github.com/subframe7536/solid-toaster
 ---
 
-import { DemoToastBasicToasts } from './basic-toasts?example'
-import { DemoToastPromiseScopedInstances } from './promise-scoped-instances?example'
-
 A succinct message that is displayed temporarily.
 
 <ToastHosts />
@@ -42,10 +39,10 @@ export default function App() {
 
 Send status toasts to the global toaster instance, including loading to success update.
 
-<DemoToastBasicToasts />
+<Example path="./basic-toasts" />
 
 ### Promise + Scoped Instances
 
 Use toast.promise for async lifecycle and route toasts by toasterId.
 
-<DemoToastPromiseScopedInstances />
+<Example path="./promise-scoped-instances" />

@@ -2,14 +2,6 @@
 header: true
 ---
 
-import { DemoFormFieldBasic } from './basic?example'
-import { DemoFormFieldWithValidation } from './with-validation?example'
-import { DemoFormFieldHorizontalLayout } from './horizontal-layout?example'
-import { DemoFormFieldSizes } from './sizes?example'
-import { DemoFormFieldManualError } from './manual-error?example'
-import { DemoFormFieldRenderContext } from './render-context?example'
-import { DemoFormFieldNestedPath } from './nested-path?example'
-
 ## Import
 
 ```tsx
@@ -50,40 +42,40 @@ root
 
 Label, hint, description, and help text with a single control.
 
-<DemoFormFieldBasic />
+<Example path="./basic" />
 
 ### With Validation
 
 Bind to a Formisch store and show validation feedback without a render prop.
 
-<DemoFormFieldWithValidation />
+<Example path="./with-validation" />
 
 ### Horizontal Layout
 
 Use `orientation="horizontal"` for form-like row layouts.
 
-<DemoFormFieldHorizontalLayout />
+<Example path="./horizontal-layout" />
 
 ### Sizes
 
 Preview the field typography scale from xs to xl.
 
-<DemoFormFieldSizes />
+<Example path="./sizes" />
 
 ### Manual Error
 
 Force error state with a custom error message.
 
-<DemoFormFieldManualError />
+<Example path="./manual-error" />
 
 ### Render Context
 
 Use render-function children to react to `error` state.
 
-<DemoFormFieldRenderContext />
+<Example path="./render-context" />
 
 ### Nested Path
 
 Use array path names for nested form fields.
 
-<DemoFormFieldNestedPath />
+<Example path="./nested-path" />

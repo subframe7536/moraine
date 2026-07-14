@@ -2,16 +2,6 @@
 header: true
 ---
 
-import { DemoCommandPaletteUsage } from './usage?example'
-import { DemoCommandPaletteCustomEmptyState } from './custom-empty-state?example'
-import { DemoCommandPaletteLoading } from './loading?example'
-import { DemoCommandPaletteWithCloseButton } from './with-close-button?example'
-import { DemoCommandPaletteSubNavigation } from './sub-navigation?example'
-import { DemoCommandPalettePosition } from './position?example'
-import { DemoCommandPaletteCustomItemRender } from './custom-item-render?example'
-import { DemoCommandPaletteDescriptionPosition } from './description-position?example'
-import { DemoCommandPaletteRealWorldExample } from './real-world-example?example'
-
 ## Import
 
 ```tsx
@@ -55,52 +45,52 @@ root
 
 Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
 
-<DemoCommandPaletteUsage />
+<Example path="./usage" />
 
 ### Real-World Example
 
 Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned.
 
-<DemoCommandPaletteRealWorldExample />
+<Example path="./real-world-example" />
 
 ### Custom Item Render
 
 Use `itemRender` when the row layout needs richer metadata than the default label, description, leadingRender, and trailingRender item render hooks.
 
-<DemoCommandPaletteCustomItemRender />
+<Example path="./custom-item-render" />
 
 ### Description Position
 
 Set `descriptionPosition="trailing"` to keep descriptions inline near the label while reserving `item.trailingRender` for badges, shortcuts, or other metadata.
 
-<DemoCommandPaletteDescriptionPosition />
+<Example path="./description-position" />
 
 ### Custom Empty State
 
 Override the default 'No results.' message.
 
-<DemoCommandPaletteCustomEmptyState />
+<Example path="./custom-empty-state" />
 
 ### Loading
 
 Search icon becomes a spinner while loading.
 
-<DemoCommandPaletteLoading />
+<Example path="./loading" />
 
 ### With Close Button
 
 A close button in the input trailing slot.
 
-<DemoCommandPaletteWithCloseButton />
+<Example path="./with-close-button" />
 
 ### Sub-Navigation
 
 Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper.
 
-<DemoCommandPaletteSubNavigation />
+<Example path="./sub-navigation" />
 
 ### Position
 
 Fix the palette at a specific pixel offset and track its actual rendered position via `onPositionChange`.
 
-<DemoCommandPalettePosition />
+<Example path="./position" />

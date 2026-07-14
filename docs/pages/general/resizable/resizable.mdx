@@ -2,12 +2,6 @@
 header: true
 ---
 
-import { DemoResizableBasicHorizontal } from './basic-horizontal?example'
-import { DemoResizableControlledSizes } from './controlled-sizes?example'
-import { DemoResizableVerticalDisable } from './vertical-disable?example'
-import { DemoResizableNestedPanels } from './nested-panels?example'
-import { DemoResizableCollapsibleCollapsibleMin } from './collapsible-collapsible-min?example'
-
 ## Import
 
 ```tsx
@@ -33,28 +27,28 @@ root
 
 Two panels with auto-inserted divider and root-level handle rendering.
 
-<DemoResizableBasicHorizontal />
+<Example path="./basic-horizontal" />
 
 ### Controlled Sizes
 
 Use panel.size + onResize to sync external state. The callback now returns pixel sizes.
 
-<DemoResizableControlledSizes />
+<Example path="./controlled-sizes" />
 
 ### Vertical + Disable
 
 The root disable prop keeps dividers visible while turning off drag and keyboard resizing.
 
-<DemoResizableVerticalDisable />
+<Example path="./vertical-disable" />
 
 ### Nested Panels
 
 Use the root intersection prop to control whether crossed dividers become draggable.
 
-<DemoResizableNestedPanels />
+<Example path="./nested-panels" />
 
 ### Collapsible + Collapsible Min
 
 Clicking handle toggles collapse/expand while dragging divider still resizes. The collapsibleMin rail remains visible in collapsed state.
 
-<DemoResizableCollapsibleCollapsibleMin />
+<Example path="./collapsible-collapsible-min" />

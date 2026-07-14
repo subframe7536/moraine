@@ -2,14 +2,6 @@
 header: true
 ---
 
-import { DemoSliderControlledSingle } from './controlled-single?example'
-import { DemoSliderSizes } from './sizes?example'
-import { DemoSliderVariants } from './variants?example'
-import { DemoSliderDisabled } from './disabled?example'
-import { DemoSliderOrientations } from './orientations?example'
-import { DemoSliderRangeSlider } from './range-slider?example'
-import { DemoSliderFormIntegration } from './form-integration?example'
-
 ## Import
 
 ```tsx
@@ -34,7 +26,7 @@ root
 
 Input phase updates with onValueChange and commit phase updates with `onChange`.
 
-<DemoSliderControlledSingle />
+<Example path="./controlled-single" />
 
 ### Variants
 
@@ -42,34 +34,34 @@ Default and bold variants with visual step dividers.
 
 > There will be no effective if `divider` set to true but `step` does not set.
 
-<DemoSliderVariants />
+<Example path="./variants" />
 
 ### Sizes
 
 Track and thumb sizing from xs to xl.
 
-<DemoSliderSizes />
+<Example path="./sizes" />
 
 ### Disabled
 
 Disabled sliders keep values visible while preventing interaction.
 
-<DemoSliderDisabled />
+<Example path="./disabled" />
 
 ### Orientations and Invert
 
 Horizontal default layout and vertical layout with fixed container height.
 
-<DemoSliderOrientations />
+<Example path="./orientations" />
 
 ### Range Slider
 
 Two thumbs with controlled array value, optional minimum gap, and configurable thumb crossing.
 
-<DemoSliderRangeSlider />
+<Example path="./range-slider" />
 
 ### Form Integration
 
 Submit to validate required minimum value through Form + FormField.
 
-<DemoSliderFormIntegration />
+<Example path="./form-integration" />

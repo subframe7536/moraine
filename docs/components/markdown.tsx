@@ -70,11 +70,17 @@ export interface DocsMdxContentProps {
   components?: Record<string, unknown>
 }
 
+export interface DocsMdxExample {
+  component: Component
+  source?: string
+}
+
 export interface RenderExampleMarkdownPageInput {
   apiDoc?: ExamplePageApiDoc
   frontmatter?: FrontmatterData
   onThisPageEntries?: OnThisPageEntry[]
   Content: Component<DocsMdxContentProps>
+  examples: Record<string, DocsMdxExample>
   codeTabs: Record<string, DocsMdxCodeTabItem[]>
 }
 

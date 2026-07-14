@@ -2,14 +2,6 @@
 header: true
 ---
 
-import { DemoInputNumberVariants } from './variants?example'
-import { DemoInputNumberSizes } from './sizes?example'
-import { DemoInputNumberOrientations } from './orientations?example'
-import { DemoInputNumberControlled } from './controlled?example'
-import { DemoInputNumberDisabled } from './disabled?example'
-import { DemoInputNumberLongPress } from './long-press?example'
-import { DemoInputNumberMinMaxStep } from './min-max-step?example'
-
 ## Import
 
 ```tsx
@@ -45,40 +37,40 @@ root
 
 Visual style variants for the input shell.
 
-<DemoInputNumberVariants />
+<Example path="./variants" />
 
 ### Sizes
 
 Size scale from `xs` to `xl` for input height and control rail sizing.
 
-<DemoInputNumberSizes />
+<Example path="./sizes" />
 
 ### Orientations
 
 Horizontal (default) and vertical button layouts.
 
-<DemoInputNumberOrientations />
+<Example path="./orientations" />
 
 ### Controlled
 
 Value bound to a signal with live readout.
 
-<DemoInputNumberControlled />
+<Example path="./controlled" />
 
 ### Disabled
 
 Non-interactive disabled state.
 
-<DemoInputNumberDisabled />
+<Example path="./disabled" />
 
 ### Long Press
 
 Press and hold increment or decrement to continuously step the value. Set `holdRepeat={false}` to disable the repeat behavior.
 
-<DemoInputNumberLongPress />
+<Example path="./long-press" />
 
 ### Min / Max / Step
 
 Constrained ranges and custom step increments.
 
-<DemoInputNumberMinMaxStep />
+<Example path="./min-max-step" />

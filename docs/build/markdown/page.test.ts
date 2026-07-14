@@ -75,4 +75,76 @@ header: true
     expect(code).toContain('bun add moraine')
     expect(code).toContain('codeTabs')
   })
+
+  test('collects Example paths into precise descriptor imports', async () => {
+    const { projectRoot, pagePath } = await createTempPage()
+
+    try {
+      await writeFile(
+        path.join(path.dirname(pagePath), 'variants.tsx'),
+        'export function Variants() { return <div /> }',
+      )
+
+      const code = compileMarkdownPage(
+        '<Example path="./variants" />\n\n<Example path="./variants" />',
+        pagePath,
+      )
+
+      expect(code.match(/import __DocsExample0/g)).toHaveLength(1)
+      expect(code).toContain("from './variants.tsx?example'")
+      expect(code).toContain('"./variants": __DocsExample0')
+      expect(code).toContain('Content: MDXContent, examples, codeTabs')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('supports parent-relative paths and explicit TSX extensions', async () => {
+    const { projectRoot, pagePath } = await createTempPage()
+
+    try {
+      const sharedExample = path.join(projectRoot, 'docs/pages/shared/advanced.tsx')
+      await mkdir(path.dirname(sharedExample), { recursive: true })
+      await writeFile(sharedExample, 'export default function Advanced() { return <div /> }')
+
+      const code = compileMarkdownPage('<Example path="../../shared/advanced.tsx" />', pagePath)
+
+      expect(code).toContain("from '../../shared/advanced.tsx?example'")
+      expect(code).toContain('"../../shared/advanced.tsx": __DocsExample0')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test.each([
+    ['missing path', '<Example />', 'requires a static "path" string'],
+    ['dynamic path', '<Example path={examplePath} />', 'requires a static "path" string'],
+    ['absolute path', '<Example path="/variants" />', 'must be a relative POSIX path'],
+    ['query', '<Example path="./variants?raw" />', 'cannot contain a query or hash'],
+    ['unsupported extension', '<Example path="./variants.ts" />', 'must reference a TSX file'],
+    ['outside pages', '<Example path="../../../outside" />', 'must stay inside docs/pages'],
+    ['missing file', '<Example path="./missing" />', 'file not found'],
+  ])('rejects %s example references', async (_name, source, message) => {
+    const { projectRoot, pagePath } = await createTempPage()
+
+    try {
+      expect(() => compileMarkdownPage(source, pagePath)).toThrow(message)
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('rejects example paths that resolve to directories', async () => {
+    const { projectRoot, pagePath } = await createTempPage()
+
+    try {
+      await mkdir(path.join(path.dirname(pagePath), 'directory.tsx'))
+
+      expect(() => compileMarkdownPage('<Example path="./directory.tsx" />', pagePath)).toThrow(
+        'path is not a file',
+      )
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
 })

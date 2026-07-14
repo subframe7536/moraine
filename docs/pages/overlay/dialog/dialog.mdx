@@ -2,10 +2,6 @@
 header: true
 ---
 
-import { DemoDialogDefaultShell } from './default-shell?example'
-import { DemoDialogVariants } from './variants?example'
-import { DemoDialogScrollableDismissibleControl } from './scrollable-dismissible-control?example'
-
 ## Import
 
 ```tsx
@@ -35,16 +31,16 @@ trigger
 
 Header, description, actions, body, and footer slots.
 
-<DemoDialogDefaultShell />
+<Example path="./default-shell" />
 
 ### Variants
 
 `close` supports default button, hidden, and custom JSX content.
 
-<DemoDialogVariants />
+<Example path="./variants" />
 
 ### Scrollable + Dismissible Control
 
 Scrollable body with prevent-close callback when dismiss is disabled.
 
-<DemoDialogScrollableDismissibleControl />
+<Example path="./scrollable-dismissible-control" />

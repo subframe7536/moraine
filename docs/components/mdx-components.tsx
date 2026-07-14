@@ -2,6 +2,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Tabs } from '../../src'
 
+import { DocsDemoBlock } from './docs-demo-block'
 import { IntroCards } from './intro-cards'
 import { IntroComponents } from './intro-components'
 import type { RenderExampleMarkdownPageInput } from './markdown'
@@ -59,6 +60,20 @@ function toStringProp(value: unknown): string | undefined {
 export function createDocsMdxComponents(context: RenderExampleMarkdownPageInput) {
   return {
     ...createMdxIntrinsicComponents(),
+
+    Example(props: MdxProps) {
+      const example = () => {
+        const examplePath = toStringProp(props.path)
+        const descriptor = examplePath ? context.examples[examplePath] : undefined
+        if (!descriptor) {
+          throw new Error(
+            `[docs-mdx] compiled example not found for path: ${examplePath ?? '<missing>'}`,
+          )
+        }
+        return descriptor
+      }
+      return <DocsDemoBlock component={example().component} source={example().source} />
+    },
 
     CodeTabs(props: MdxProps) {
       const packageName = () => toStringProp(props.package)

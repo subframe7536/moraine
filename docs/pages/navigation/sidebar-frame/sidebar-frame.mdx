@@ -3,13 +3,6 @@ header: true
 status: new
 ---
 
-import { DemoSidebarFrameBasic } from './basic?example'
-import { DemoSidebarFrameVariants } from './variants?example'
-import { DemoSidebarFrameSides } from './sides?example'
-import { DemoSidebarFrameSheetResizableRender } from './sheet-resizable-render?example'
-import { DemoSidebarFrameForcedMobile } from './forced-mobile?example'
-import { DemoSidebarFrameHeaderFooterSlots } from './header-footer-slots?example'
-
 ## Import
 
 ```tsx
@@ -35,34 +28,34 @@ root
 
 Desktop fixed layout with a simple header/body/main composition. Use `--sidebar-width` to control sidebar width
 
-<DemoSidebarFrameBasic />
+<Example path="./basic" />
 
 ### Variants
 
 Compare `default`, `floating`, and `inset` visual variants with the same content.
 
-<DemoSidebarFrameVariants />
+<Example path="./variants" />
 
 ### Sides
 
 Compare `side="left"` and `side="right"` desktop layouts.
 
-<DemoSidebarFrameSides />
+<Example path="./sides" />
 
 ### SheetResizableRender
 
 Use `SidebarFrameSheetResizableRender` with external collapse button, `collapsibleMin`, and icon handle.
 
-<DemoSidebarFrameSheetResizableRender />
+<Example path="./sheet-resizable-render" />
 
 ### ForcedMobile
 
 Force mobile mode and open the sidebar sheet from main content via `ctx.toggle`.
 
-<DemoSidebarFrameForcedMobile />
+<Example path="./forced-mobile" />
 
 ### Header and Footer Slots
 
 Use optional `renderSidebarHeader` and `renderSidebarFooter` while keeping body as the scroll region.
 
-<DemoSidebarFrameHeaderFooterSlots />
+<Example path="./header-footer-slots" />

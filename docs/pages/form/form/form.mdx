@@ -2,11 +2,6 @@
 header: true
 ---
 
-import { DemoFormWorkspaceProvisioning } from './workspace-provisioning?example'
-import { DemoFormReleaseReadinessChecklist } from './release-readiness-checklist?example'
-import { DemoFormIncidentEscalationPolicy } from './incident-escalation-policy?example'
-import { DemoFormAccessRequestReview } from './access-request-review?example'
-
 ## Import
 
 Create the Formisch store with a Valibot schema, then pass it to `Form`. Moraine fields and
@@ -44,22 +39,22 @@ methods directly from `@formisch/solid` and use the same store.
 
 Create a new workspace with owner identity, default role, and rollout target.
 
-<DemoFormWorkspaceProvisioning />
+<Example path="./workspace-provisioning" />
 
 ### Release Readiness Checklist
 
 Validate release metadata, rollout channels, and approval gate with a Formisch schema.
 
-<DemoFormReleaseReadinessChecklist />
+<Example path="./release-readiness-checklist" />
 
 ### Incident Escalation Policy
 
 Configure nested policy fields for severity routing and automatic rollback behavior.
 
-<DemoFormIncidentEscalationPolicy />
+<Example path="./incident-escalation-policy" />
 
 ### Access Request Review
 
 Review temporary access requests with scoped permissions and required reviewers.
 
-<DemoFormAccessRequestReview />
+<Example path="./access-request-review" />

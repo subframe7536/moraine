@@ -45,36 +45,89 @@ export const BasicExample = () => <div>basic</div>
 })
 
 describe('transformExampleModule', () => {
-  test('wraps named exports with docs demo source imports', async () => {
+  test('creates a default descriptor for one named component export', async () => {
     const transformed = await transformExampleModule(
       'export function Variants() { return <div /> }',
       '/tmp/docs/pages/general/button/variants.tsx?example',
       parseExampleCode,
     )
 
-    expect(transformed).toContain("import { Variants as __Variants } from './variants.tsx'")
+    expect(transformed).toContain("import { Variants as __Example } from './variants.tsx'")
     expect(transformed).toContain(
-      "import __DemoButtonVariantsSource from './variants.tsx?example-source&name=Variants'",
+      "import __ExampleSource from './variants.tsx?example-source&name=Variants'",
     )
-    expect(transformed).toContain(
-      'export const DemoButtonVariants = createDocsDemo(__Variants, __DemoButtonVariantsSource)',
-    )
+    expect(transformed).toContain('const component = __Example')
+    expect(transformed).toContain('export default { component, source: __ExampleSource }')
   })
 
-  test('wraps default exports with default source imports', async () => {
+  test('creates a default descriptor for one default component export', async () => {
     const transformed = await transformExampleModule(
       'export default function Basic() { return <div /> }',
       '/tmp/docs/pages/general/button/basic.tsx?example',
       parseExampleCode,
     )
 
-    expect(transformed).toContain("import __DefaultExample from './basic.tsx'")
+    expect(transformed).toContain("import __Example from './basic.tsx'")
     expect(transformed).toContain(
-      "import __DemoButtonBasicSource from './basic.tsx?example-source&name=default'",
+      "import __ExampleSource from './basic.tsx?example-source&name=default'",
     )
-    expect(transformed).toContain(
-      'export default createDocsDemo(__DefaultExample, __DemoButtonBasicSource)',
+  })
+
+  test('ignores type-only exports when validating the component export', async () => {
+    const transformed = await transformExampleModule(
+      'export interface BasicProps { label: string }\nexport function Basic() { return <div /> }',
+      '/tmp/docs/pages/general/button/basic.tsx?example',
+      parseExampleCode,
     )
+
+    expect(transformed).toContain("import { Basic as __Example } from './basic.tsx'")
+  })
+
+  test('does not import the example component during SSR', async () => {
+    const transformed = await transformExampleModule(
+      'export function Variants() { return <div /> }',
+      '/tmp/docs/pages/general/button/variants.tsx?example',
+      parseExampleCode,
+      { ssr: true },
+    )
+
+    expect(transformed).not.toContain("from './variants.tsx'\n")
+    expect(transformed).toContain('const component = () => null')
+    expect(transformed).toContain('?example-source&name=Variants')
+  })
+
+  test.each([
+    ['no component exports', 'const Basic = () => <div />', 0],
+    [
+      'multiple component exports',
+      'export const Basic = () => <div />\nexport const Advanced = () => <div />',
+      2,
+    ],
+  ])('rejects %s', async (_name, source, count) => {
+    await expect(
+      transformExampleModule(
+        source,
+        '/tmp/docs/pages/general/button/basic.tsx?example',
+        parseExampleCode,
+      ),
+    ).rejects.toThrow(`expected exactly one component export in`)
+    await expect(
+      transformExampleModule(
+        source,
+        '/tmp/docs/pages/general/button/basic.tsx?example',
+        parseExampleCode,
+      ),
+    ).rejects.toThrow(`found ${count}`)
+  })
+
+  test('rejects component re-exports', async () => {
+    await expect(
+      transformExampleModule(
+        "export { Basic } from './basic-impl'",
+        '/tmp/docs/pages/general/button/basic.tsx?example',
+        parseExampleCode,
+      ),
+    ).rejects.toThrow('re-exported components are not supported')
   })
 })
 
