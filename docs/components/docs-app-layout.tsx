@@ -7,6 +7,7 @@ import { useTheme } from '../hooks/use-theme'
 
 import { ContentHeader } from './content-header'
 import { DocsCommandPalette, DocsSearchTrigger } from './docs-command-palette'
+import { DocsPageMeta } from './docs-page-meta'
 import { getDocsPages } from './docs-route'
 import { DocsShell } from './docs-shell'
 import { Sidebar, SidebarHeader } from './sidebar'
@@ -24,6 +25,7 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   })
 
   const pageTitle = createMemo(() => pages.find((page) => page.key === activePage())?.label ?? '')
+  const activePageEntry = createMemo(() => pages.find((page) => page.key === activePage()))
 
   const navigateToPage = (key: string) => {
     const path = pages.find((page) => page.key === key)?.path
@@ -34,6 +36,7 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   return (
     <>
+      <DocsPageMeta page={activePageEntry()} />
       <DocsShell
         sidebarHeader={(ctx) => (
           <SidebarHeader

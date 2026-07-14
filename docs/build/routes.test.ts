@@ -18,6 +18,18 @@ async function writeProjectFile(projectRoot: string, filePath: string, content: 
   await writeFile(absolutePath, content, 'utf8')
 }
 
+function pageSource(title: string, order: number, badge?: string): string {
+  return `---
+title: ${title}
+description: ${title} page description.
+sidebar:
+  order: ${order}${badge ? `\n  badge: ${badge}` : ''}
+search:
+  tags: [${title.toLowerCase()}, docs]
+---
+`
+}
+
 describe('docs route generation', () => {
   test('scans mdx pages into short file-router routes with metadata', async () => {
     const projectRoot = await createTempProject()
@@ -33,29 +45,44 @@ describe('docs route generation', () => {
           ],
         }),
       )
-      await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', '# Intro\n')
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/introduction.mdx',
+        pageSource('Getting Started', 10),
+      )
       await writeProjectFile(
         projectRoot,
         'docs/pages/general/button/button.mdx',
-        '---\nstatus: new\n---\n',
+        pageSource('Action Button', 20, 'New'),
       )
-      await writeProjectFile(projectRoot, 'docs/pages/form/input/input.mdx', '# Input\n')
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/form/input/input.mdx',
+        pageSource('Text Input', 10),
+      )
 
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
         {
-          info: { key: 'introduction', title: 'Introduction' },
+          info: {
+            key: 'introduction',
+            title: 'Getting Started',
+            description: 'Getting Started page description.',
+            order: 10,
+            tags: ['getting started', 'docs'],
+          },
           routePath: 'index.tsx',
         },
         {
-          info: { key: 'input', title: 'Input', group: 'form', api: 'input' },
+          info: { key: 'input', title: 'Text Input', group: 'form', order: 10, api: 'input' },
           routePath: path.join('(form)', 'input.tsx'),
         },
         {
           info: {
             key: 'button',
-            title: 'Button',
+            title: 'Action Button',
             group: 'general',
-            status: 'new',
+            order: 20,
+            badge: 'New',
             api: 'button',
           },
           routePath: path.join('(general)', 'button.tsx'),
@@ -71,8 +98,12 @@ describe('docs route generation', () => {
 
     try {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', '# Intro\n')
-      await writeProjectFile(projectRoot, 'docs/pages/general/button/button.mdx', '# Button\n')
+      await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', pageSource('Intro', 10))
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/general/button/button.mdx',
+        pageSource('Button', 10),
+      )
 
       const routeSource = createDocsRouteSource(projectRoot)
       const routes =
@@ -148,7 +179,11 @@ describe('docs route generation', () => {
 
     try {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      await writeProjectFile(projectRoot, 'docs/pages/general/button/button.mdx', '# Button\n')
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/general/button/button.mdx',
+        pageSource('Button', 10),
+      )
 
       const routeSource = createDocsRouteSource(projectRoot)
       if (typeof routeSource.scan === 'function') {
@@ -167,6 +202,30 @@ describe('docs route generation', () => {
       })
 
       expect(buttonRoute).toContain('key": "button')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('rejects duplicate sidebar orders within a group', async () => {
+    const projectRoot = await createTempProject()
+
+    try {
+      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/general/button/button.mdx',
+        pageSource('Button', 10),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/general/card/card.mdx',
+        pageSource('Card', 10),
+      )
+
+      expect(() => scanDocsRoutes(projectRoot)).toThrow(
+        'duplicate sidebar.order 10 in group general',
+      )
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

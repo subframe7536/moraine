@@ -1,24 +1,35 @@
 import { routeInfo } from 'virtual:routes'
 
-export type DocsPageStatus = 'new' | 'update' | 'unreleased'
-
 export interface DocsRouteInfo {
   key: string
   title: string
+  description: string
+  order: number
+  tags: string[]
   group?: string
-  status?: DocsPageStatus
+  badge?: string
   api?: string
 }
 
 export interface DocsPageEntry {
   key: string
   label: string
+  description: string
+  order: number
+  tags: string[]
   group?: string
-  status?: DocsPageStatus
+  badge?: string
   path: string
 }
 
 const ROOT_PAGE_KEY = 'introduction'
+const GROUP_ORDER = new Map<string, number>([
+  ['', 0],
+  ['form', 1],
+  ['general', 2],
+  ['navigation', 3],
+  ['overlay', 4],
+])
 
 function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   if (!value || typeof value !== 'object') {
@@ -26,7 +37,13 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   }
 
   const route = value as Partial<DocsRouteInfo>
-  return typeof route.key === 'string' && typeof route.title === 'string'
+  return (
+    typeof route.key === 'string' &&
+    typeof route.title === 'string' &&
+    typeof route.description === 'string' &&
+    typeof route.order === 'number' &&
+    Array.isArray(route.tags)
+  )
 }
 
 export function getDocsPages(): DocsPageEntry[] {
@@ -39,30 +56,32 @@ export function getDocsPages(): DocsPageEntry[] {
       const page: DocsPageEntry = {
         key: info.key,
         label: info.title,
+        description: info.description,
+        order: info.order,
+        tags: info.tags,
         path: info.key === ROOT_PAGE_KEY ? '/' : path,
       }
       if (info.group) {
         page.group = info.group
       }
-      if (info.status) {
-        page.status = info.status
+      if (info.badge) {
+        page.badge = info.badge
       }
       return page
     })
     .filter((page): page is DocsPageEntry => Boolean(page))
     .sort((left, right) => {
-      if (left.key === ROOT_PAGE_KEY) {
-        return -1
+      const leftGroup = left.group ?? ''
+      const rightGroup = right.group ?? ''
+      const groupDifference =
+        (GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
+        (GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
+      if (groupDifference !== 0) {
+        return groupDifference
       }
-      if (right.key === ROOT_PAGE_KEY) {
-        return 1
+      if (leftGroup !== rightGroup) {
+        return leftGroup.localeCompare(rightGroup)
       }
-      if (!left.group && right.group) {
-        return -1
-      }
-      if (left.group && !right.group) {
-        return 1
-      }
-      return left.path.localeCompare(right.path)
+      return left.order - right.order
     })
 }

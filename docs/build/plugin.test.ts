@@ -41,10 +41,13 @@ async function seedDocsProject(projectRoot: string): Promise<void> {
   await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
   await writeFile(
     path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
-    `
----
-header: true
-status: new
+    `---
+title: Button
+description: Test button page.
+sidebar:
+  order: 10
+search:
+  tags: [action]
 ---
 
 ## Button

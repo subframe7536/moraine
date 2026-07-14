@@ -15,7 +15,7 @@ export interface DocsCommandPaletteProps {
   setOpen: (open: boolean) => void
 }
 
-function buildItems(
+export function buildDocsCommandItems(
   pages: SidebarPage[],
   onNavigate: (key: string) => void,
 ): CommandPaletteT.Group[] {
@@ -26,7 +26,8 @@ function buildItems(
     const item: CommandPaletteT.Item = {
       value: page.key,
       label: page.label,
-      description: page.status?.toUpperCase(),
+      description: page.description,
+      keywords: page.tags,
       onSelect: () => onNavigate(page.key),
     }
     const group = page.group?.trim()
@@ -95,7 +96,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
     setSearchTerm('')
   }
 
-  const items = createMemo(() => buildItems(props.pages, navigate))
+  const items = createMemo(() => buildDocsCommandItems(props.pages, navigate))
 
   onMount(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

@@ -17,7 +17,11 @@ describe('writeJsonFiles', () => {
     await mkdir(pageDir, { recursive: true })
     await mkdir(path.join(projectRoot, 'src'), { recursive: true })
     await writeFile(path.join(projectRoot, 'src/demo.tsx'), '<div data-slot="root" />', 'utf8')
-    await writeFile(path.join(pageDir, 'demo.mdx'), '---\nheader: true\n---\n', 'utf8')
+    await writeFile(
+      path.join(pageDir, 'demo.mdx'),
+      '---\ntitle: Demo\ndescription: Demo page.\nsidebar:\n  order: 10\nsearch:\n  tags: [demo]\n---\n',
+      'utf8',
+    )
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
     const result: GenerationResult = {
@@ -77,7 +81,11 @@ describe('writeJsonFiles', () => {
     const pageDir = path.join(pagesRoot, 'general/demo')
     const stalePath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
-    await writeFile(path.join(pageDir, 'demo.mdx'), '---\nheader: true\n---\n', 'utf8')
+    await writeFile(
+      path.join(pageDir, 'demo.mdx'),
+      '---\ntitle: Demo\ndescription: Demo page.\nsidebar:\n  order: 10\nsearch:\n  tags: [demo]\n---\n',
+      'utf8',
+    )
     await writeFile(stalePath, '{"stale":true}', 'utf8')
 
     await writeJsonFiles(pagesRoot, {

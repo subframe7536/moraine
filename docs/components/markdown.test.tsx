@@ -6,6 +6,8 @@ import { describe, expect, test, vi } from 'vitest'
 import type { DocsMdxContentProps } from './markdown'
 import { Markdown } from './markdown'
 
+vi.mock('./docs-page-navigation', () => ({ DocsPageNavigation: () => null }))
+
 vi.mock('./mdx-components', () => ({
   createDocsMdxComponents: () => ({
     h1: (props: { id?: string; children?: JSX.Element }) => <h1 {...props} />,
@@ -13,6 +15,12 @@ vi.mock('./mdx-components', () => ({
 }))
 
 const EmptyContent = () => <div>Body content</div>
+const FRONTMATTER = {
+  title: 'Button',
+  description: 'Button description.',
+  sidebar: { order: 10 },
+  search: { tags: ['action'] },
+}
 const MdxHeadingContent = (props: DocsMdxContentProps) => {
   // oxlint-disable-next-line subf/solid-reactivity -- mirrors generated MDX component setup.
   const Components = props.components as Record<string, unknown>
@@ -21,36 +29,28 @@ const MdxHeadingContent = (props: DocsMdxContentProps) => {
 }
 
 describe('Markdown', () => {
-  test.each([
-    ['new', 'NEW'],
-    ['update', 'UPDATE'],
-    ['unreleased', 'UNRELEASED'],
-    ['unrelease', 'UNRELEASED'],
-    ['NeW', 'NEW'],
-  ])('renders frontmatter status %s as %s', (status, label) => {
+  test('renders the explicit frontmatter title and description', () => {
     const screen = render(() => (
       <Markdown
-        frontmatter={{
-          header: true,
-          name: 'Button',
-          componentKey: 'button',
-          status: status as never,
-        }}
+        pageKey="button"
+        frontmatter={{ ...FRONTMATTER, componentKey: 'button' }}
         Content={EmptyContent}
         examples={{}}
         codeTabs={{}}
       />
     ))
 
-    expect(screen.getByText(label)).toBeDefined()
+    expect(screen.getByRole('heading', { name: 'Button' })).toBeDefined()
+    expect(screen.getByText('Button description.')).toBeDefined()
   })
 
   test('uses api doc defaults and frontmatter display overrides for header', () => {
     const screen = render(() => (
       <Markdown
+        pageKey="button"
         frontmatter={{
-          header: true,
-          name: 'Custom Button',
+          ...FRONTMATTER,
+          title: 'Custom Button',
           category: 'custom',
           description: 'Custom description.',
         }}
@@ -84,6 +84,8 @@ describe('Markdown', () => {
   test('renders api reference from api doc automatically', () => {
     const screen = render(() => (
       <Markdown
+        pageKey="button"
+        frontmatter={FRONTMATTER}
         apiDoc={{
           component: {
             key: 'button',
@@ -111,7 +113,13 @@ describe('Markdown', () => {
 
   test('renders mdx intrinsic component member expressions', () => {
     const screen = render(() => (
-      <Markdown Content={MdxHeadingContent} examples={{}} codeTabs={{}} />
+      <Markdown
+        pageKey="button"
+        frontmatter={FRONTMATTER}
+        Content={MdxHeadingContent}
+        examples={{}}
+        codeTabs={{}}
+      />
     ))
 
     expect(screen.getByRole('heading', { name: 'Title' }).getAttribute('id')).toBe('title')

@@ -8,6 +8,19 @@ import { describe, expect, test } from 'vitest'
 
 import { compileMarkdownPage } from './page'
 
+function withFrontmatter(content = ''): string {
+  return `---
+title: Test Page
+description: Test page description.
+sidebar:
+  order: 10
+search:
+  tags: [test]
+---
+
+${content}`
+}
+
 async function createTempPage(): Promise<{ projectRoot: string; pagePath: string }> {
   const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-mdx-page-'))
   const pageDir = path.join(projectRoot, 'docs/pages/general/button')
@@ -21,20 +34,14 @@ async function createTempPage(): Promise<{ projectRoot: string; pagePath: string
 describe('compileMarkdownPage', () => {
   test('compiles mdx to JSX and passes frontmatter to Markdown runtime', () => {
     const code = compileMarkdownPage(
-      `---
-header: true
-status: new
----
-
-## Usage
-`,
+      withFrontmatter('## Usage'),
       '/tmp/docs/pages/general/button/button.mdx',
     )
 
     expect(code).toContain('const frontmatter =')
-    expect(code).toContain('Markdown({ frontmatter, apiDoc')
-    expect(code).toContain('"header":true')
-    expect(code).toContain('"status":"new"')
+    expect(code).toContain('Markdown({ pageKey: "button", frontmatter, apiDoc')
+    expect(code).toContain('"title":"Test Page"')
+    expect(code).toContain('"order":10')
     expect(code).toContain('Content: MDXContent')
     expect(code).toContain('return <_components.h2')
     expect(code).not.toContain('solid-js/h')
@@ -50,13 +57,7 @@ status: new
         '{"component":{"key":"button"}}',
       )
 
-      const code = compileMarkdownPage(
-        `---
-header: true
----
-`,
-        pagePath,
-      )
+      const code = compileMarkdownPage(withFrontmatter(), pagePath)
 
       expect(code).toContain("import __docsRawApiDoc from './api.json'")
       expect(code).toContain('const apiDoc = __docsRawApiDoc')
@@ -68,7 +69,7 @@ header: true
 
   test('collects CodeTabs packages only', () => {
     const code = compileMarkdownPage(
-      '<CodeTabs package="moraine" />',
+      withFrontmatter('<CodeTabs package="moraine" />'),
       '/tmp/docs/pages/introduction.mdx',
     )
 
@@ -86,7 +87,7 @@ header: true
       )
 
       const code = compileMarkdownPage(
-        '<Example path="./variants" />\n\n<Example path="./variants" />',
+        withFrontmatter('<Example path="./variants" />\n\n<Example path="./variants" />'),
         pagePath,
       )
 
@@ -107,7 +108,10 @@ header: true
       await mkdir(path.dirname(sharedExample), { recursive: true })
       await writeFile(sharedExample, 'export default function Advanced() { return <div /> }')
 
-      const code = compileMarkdownPage('<Example path="../../shared/advanced.tsx" />', pagePath)
+      const code = compileMarkdownPage(
+        withFrontmatter('<Example path="../../shared/advanced.tsx" />'),
+        pagePath,
+      )
 
       expect(code).toContain("from '../../shared/advanced.tsx?example'")
       expect(code).toContain('"../../shared/advanced.tsx": __DocsExample0')
@@ -128,7 +132,7 @@ header: true
     const { projectRoot, pagePath } = await createTempPage()
 
     try {
-      expect(() => compileMarkdownPage(source, pagePath)).toThrow(message)
+      expect(() => compileMarkdownPage(withFrontmatter(source), pagePath)).toThrow(message)
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -140,9 +144,9 @@ header: true
     try {
       await mkdir(path.join(path.dirname(pagePath), 'directory.tsx'))
 
-      expect(() => compileMarkdownPage('<Example path="./directory.tsx" />', pagePath)).toThrow(
-        'path is not a file',
-      )
+      expect(() =>
+        compileMarkdownPage(withFrontmatter('<Example path="./directory.tsx" />'), pagePath),
+      ).toThrow('path is not a file')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

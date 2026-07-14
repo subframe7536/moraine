@@ -9,16 +9,17 @@ import type {
 
 import { loadApiDocIndex } from './api-doc/load'
 import { collectMarkdownFiles, resolveDocsPageContext, toImportPath } from './core/paths'
-import { toTitleCaseFromKey } from './core/strings'
 import { readFrontmatterData } from './markdown/frontmatter'
-
-export type DocsRouteStatus = 'new' | 'update' | 'unreleased'
+import type { FrontmatterData } from './markdown/types'
 
 export interface DocsRouteInfo {
   key: string
   title: string
+  description: string
+  order: number
+  tags: string[]
   group?: string
-  status?: DocsRouteStatus
+  badge?: string
   api?: string
 }
 
@@ -28,24 +29,10 @@ export interface DocsRouteEntry {
   routePath: string
 }
 
-const STATUS_ALIASES = new Map<string, DocsRouteStatus>([
-  ['new', 'new'],
-  ['update', 'update'],
-  ['unreleased', 'unreleased'],
-  ['unrelease', 'unreleased'],
-])
-
 const ROOT_ROUTE_KEY = 'introduction'
 const APP_ROUTE_ID = 'routes/_app.tsx'
 const NOT_FOUND_ROUTE_ID = '404.tsx'
 const FRONTMATTER_READ_BYTES = 4096
-
-function normalizeStatus(value: unknown): DocsRouteStatus | undefined {
-  if (typeof value !== 'string') {
-    return undefined
-  }
-  return STATUS_ALIASES.get(value.trim().toLowerCase())
-}
 
 function readFrontmatterPrefix(sourcePath: string): string {
   const descriptor = openSync(sourcePath, 'r')
@@ -58,58 +45,61 @@ function readFrontmatterPrefix(sourcePath: string): string {
   }
 }
 
-function readRouteStatus(sourcePath: string): DocsRouteStatus | undefined {
-  try {
-    return normalizeStatus(
-      readFrontmatterData(readFrontmatterPrefix(sourcePath), sourcePath).status,
-    )
-  } catch {
-    return undefined
-  }
+function readRouteFrontmatter(sourcePath: string): FrontmatterData {
+  return readFrontmatterData(readFrontmatterPrefix(sourcePath), sourcePath)
 }
 
-function createComponentNameMap(projectRoot: string): Map<string, string> {
+function createComponentKeySet(projectRoot: string): Set<string> {
   const indexDoc = loadApiDocIndex(projectRoot)
   if (!indexDoc) {
-    return new Map()
+    return new Set()
   }
 
-  return new Map(indexDoc.components.map((component) => [component.key, component.name]))
+  return new Set(indexDoc.components.map((component) => component.key))
 }
 
+const GROUP_ORDER = new Map<string, number>([
+  ['', 0],
+  ['form', 1],
+  ['general', 2],
+  ['navigation', 3],
+  ['overlay', 4],
+])
+
 function compareRoutes(left: DocsRouteEntry, right: DocsRouteEntry): number {
-  if (left.info.key === ROOT_ROUTE_KEY) {
-    return -1
+  const leftGroup = left.info.group ?? ''
+  const rightGroup = right.info.group ?? ''
+  const groupDifference =
+    (GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
+    (GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
+  if (groupDifference !== 0) {
+    return groupDifference
   }
-  if (right.info.key === ROOT_ROUTE_KEY) {
-    return 1
+  if (leftGroup !== rightGroup) {
+    return leftGroup.localeCompare(rightGroup)
   }
-  if (!left.info.group && right.info.group) {
-    return -1
-  }
-  if (left.info.group && !right.info.group) {
-    return 1
-  }
-  return left.sourcePath.localeCompare(right.sourcePath)
+  return left.info.order - right.info.order
 }
 
 export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
   const pagesRoot = path.join(projectRoot, 'docs/pages')
-  const componentNameMap = createComponentNameMap(projectRoot)
+  const componentKeys = createComponentKeySet(projectRoot)
 
-  return collectMarkdownFiles(pagesRoot)
+  const routes = collectMarkdownFiles(pagesRoot)
     .map((sourcePath) => {
       const page = resolveDocsPageContext(sourcePath)
       const key = page.pageKey
       const isRoot = key === ROOT_ROUTE_KEY && !page.group
-      const title = componentNameMap.get(key) ?? toTitleCaseFromKey(key)
-      const status = readRouteStatus(sourcePath)
+      const frontmatter = readRouteFrontmatter(sourcePath)
       const info: DocsRouteInfo = {
         key,
-        title,
+        title: frontmatter.title,
+        description: frontmatter.description,
+        order: frontmatter.sidebar.order,
+        tags: frontmatter.search.tags,
         ...(page.group ? { group: page.group } : {}),
-        ...(status ? { status } : {}),
-        ...(componentNameMap.has(key) ? { api: key } : {}),
+        ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
+        ...(componentKeys.has(key) ? { api: key } : {}),
       }
 
       return {
@@ -121,6 +111,22 @@ export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
       }
     })
     .sort(compareRoutes)
+
+  const ordersByGroup = new Map<string, Map<number, string>>()
+  for (const route of routes) {
+    const group = route.info.group ?? ''
+    const orders = ordersByGroup.get(group) ?? new Map<number, string>()
+    const duplicatePath = orders.get(route.info.order)
+    if (duplicatePath) {
+      throw new Error(
+        `[docs-routes] duplicate sidebar.order ${route.info.order} in group ${group || '<root>'}: ${duplicatePath} and ${route.sourcePath}`,
+      )
+    }
+    orders.set(route.info.order, route.sourcePath)
+    ordersByGroup.set(group, orders)
+  }
+
+  return routes
 }
 
 function serializeRouteInfo(info: DocsRouteInfo): string {

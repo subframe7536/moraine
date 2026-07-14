@@ -31,10 +31,28 @@ docs/pages/introduction.mdx -> /
 
 Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed by the sidebar and command palette.
 
+Every MDX page owns its navigation and discovery metadata:
+
+```yaml
+---
+title: Button
+description: Button component with polymorphic rendering and automatic loading state.
+sidebar:
+  order: 2
+  badge: New # optional
+search:
+  tags: [action, click, submit, loading]
+---
+```
+
+`title`, `description`, `sidebar.order`, and a non-empty `search.tags` array are required.
+Orders must be unique within a path-derived group. The visible group order is root, form, general,
+navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
+
 ## MDX And Examples
 
 - MDX page module generation lives in `docs/build/markdown/page.ts`.
-- Component docs pages use frontmatter for docs header rendering.
+- All docs pages use frontmatter for the visible header, route metadata, search, and per-route SEO.
 - Component API reference sections render automatically from colocated `api.json`.
 - Examples use the built-in MDX component with a static relative path:
 
@@ -46,6 +64,7 @@ Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed
 - Example paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
 - Each example file directly exports exactly one component. The internal `?example` module exposes its component and highlighted source as a default descriptor.
 - During SSR, example descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the example container and source.
+- Previous/next cards use the flattened sidebar order and continue across group boundaries.
 
 ## SSG
 

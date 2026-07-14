@@ -118,7 +118,7 @@ ${examples.map((example, index) => `  ${JSON.stringify(example.path)}: __DocsExa
     `const apiDoc = ${apiDocCode}`,
     '',
     'export default function MarkdownPage() {',
-    '  return Markdown({ frontmatter, apiDoc, onThisPageEntries: ' +
+    `  return Markdown({ pageKey: ${JSON.stringify(page.pageKey)}, frontmatter, apiDoc, onThisPageEntries: ` +
       `${JSON.stringify(onThisPageEntries)}, Content: MDXContent, examples, codeTabs })`,
     '}',
     '',

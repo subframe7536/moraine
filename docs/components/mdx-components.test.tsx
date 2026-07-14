@@ -22,7 +22,18 @@ const renderMdxComponent = (
   props: TestProps = {},
   examples: Parameters<typeof createDocsMdxComponents>[0]['examples'] = {},
 ) => {
-  const components = createDocsMdxComponents({ Content: () => null, examples, codeTabs: {} })
+  const components = createDocsMdxComponents({
+    pageKey: 'test',
+    frontmatter: {
+      title: 'Test',
+      description: 'Test page.',
+      sidebar: { order: 10 },
+      search: { tags: ['test'] },
+    },
+    Content: () => null,
+    examples,
+    codeTabs: {},
+  })
   const Comp = components[name as keyof typeof components] as Component<TestProps>
 
   return render(() => <Comp {...props} />)

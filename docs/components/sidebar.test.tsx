@@ -4,47 +4,46 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Sidebar } from './sidebar'
 
+const page = (key: string, group: string, badge?: string) => ({
+  key,
+  label: key,
+  description: `${key} description`,
+  order: 10,
+  tags: [key],
+  path: `/${key}`,
+  group,
+  ...(badge ? { badge } : {}),
+})
+
 describe('Sidebar', () => {
-  test('renders optional status labels for pages', () => {
+  test('renders optional badge labels for pages', () => {
     const [activePage] = createSignal('button')
 
     const screen = render(() => (
       <Sidebar
         pages={[
-          { key: 'button', label: 'Button', group: 'general', status: 'new' },
-          { key: 'tabs', label: 'Tabs', group: 'navigation', status: 'update' },
-          {
-            key: 'sidebar-frame',
-            label: 'Sidebar Frame',
-            group: 'navigation',
-            status: 'unreleased',
-          },
-          { key: 'card', label: 'Card', group: 'general' },
+          { ...page('button', 'general', 'New'), label: 'Button' },
+          { ...page('tabs', 'navigation', 'Updated'), label: 'Tabs' },
+          { ...page('sidebar-frame', 'navigation', 'Preview'), label: 'Sidebar Frame' },
+          { ...page('card', 'general'), label: 'Card' },
         ]}
         activePage={activePage}
         setActivePage={() => undefined}
       />
     ))
 
-    expect(screen.getByText('NEW')).toBeDefined()
-    expect(screen.getByText('UPDATE')).toBeDefined()
-    expect(screen.getByText('UNRELEASED')).toBeDefined()
+    expect(screen.getByText('New')).toBeDefined()
+    expect(screen.getByText('Updated')).toBeDefined()
+    expect(screen.getByText('Preview')).toBeDefined()
   })
 
-  test('keeps unreleased pages clickable', async () => {
+  test('keeps badged pages clickable', async () => {
     const [activePage] = createSignal('button')
     const setActivePage = vi.fn()
 
     const screen = render(() => (
       <Sidebar
-        pages={[
-          {
-            key: 'sidebar-frame',
-            label: 'Sidebar Frame',
-            group: 'navigation',
-            status: 'unreleased',
-          },
-        ]}
+        pages={[{ ...page('sidebar-frame', 'navigation', 'New'), label: 'Sidebar Frame' }]}
         activePage={activePage}
         setActivePage={setActivePage}
       />

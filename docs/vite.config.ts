@@ -19,18 +19,6 @@ const projectRoot = path.resolve(docsRoot, '..')
 
 export default defineConfig({
   plugins: [
-    siteMetaPlugin({
-      siteName: 'Moraine',
-      title: 'Moraine Docs',
-      description:
-        'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
-      siteUrl: 'https://ui.subf.dev/',
-      imagePath: '/og-image.png',
-      imageAlt: 'Moraine Docs brand cover image',
-      imageWidth: 1200,
-      imageHeight: 630,
-      twitterCard: 'summary_large_image',
-    }),
     docsBuildPlugin({ projectRoot }),
     uno(unocfg),
     solid({ ssr: true, extensions: ['.mdx'] }),
@@ -46,10 +34,26 @@ export default defineConfig({
       infoDts: {
         key: 'string',
         title: 'string',
+        description: 'string',
+        order: 'number',
+        tags: 'string[]',
         group: 'string',
-        status: "'new' | 'update' | 'unreleased'",
+        badge: 'string',
         api: 'string',
       },
+    }),
+    siteMetaPlugin({
+      projectRoot,
+      siteName: 'Moraine',
+      title: 'Moraine Docs',
+      description:
+        'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
+      siteUrl: 'https://ui.subf.dev/',
+      imagePath: '/og-image.png',
+      imageAlt: 'Moraine Docs brand cover image',
+      imageWidth: 1200,
+      imageHeight: 630,
+      twitterCard: 'summary_large_image',
     }),
   ],
   resolve: {

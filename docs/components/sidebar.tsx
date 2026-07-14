@@ -4,20 +4,9 @@ import { For, Show, createMemo } from 'solid-js'
 import { version } from '../../package.json'
 import { Badge, Button, cn } from '../../src'
 
-type SidebarPageStatus = 'new' | 'update' | 'unreleased'
+import type { DocsPageEntry } from './docs-route'
 
-const SIDEBAR_PAGE_STATUS_LABELS: Record<SidebarPageStatus, string> = {
-  new: 'NEW',
-  update: 'UPDATE',
-  unreleased: 'UNRELEASED',
-}
-
-export interface SidebarPage {
-  key: string
-  label: string
-  group?: string
-  status?: SidebarPageStatus
-}
+export type SidebarPage = DocsPageEntry
 
 export interface SidebarProps {
   pages: SidebarPage[]
@@ -85,10 +74,10 @@ export const Sidebar = (props: SidebarProps) => {
                     >
                       <span class="flex gap-2 min-w-0 w-full items-center justify-between">
                         <span class="truncate">{page.label}</span>
-                        <Show when={page.status}>
-                          {(status) => (
+                        <Show when={page.badge}>
+                          {(badge) => (
                             <span class="text-[0.6rem] leading-none font-semibold px-1.25 py-0.75 border rounded-sm bg-background/70 shrink-0 uppercase">
-                              {SIDEBAR_PAGE_STATUS_LABELS[status()]}
+                              {badge()}
                             </span>
                           )}
                         </Show>

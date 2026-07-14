@@ -18,12 +18,15 @@ function decodeHashAnchor(hash: string): string {
 }
 
 export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
-  const [activeId, setActiveId] = createSignal('')
+  const [activeIds, setActiveIds] = createSignal<string[]>([])
 
-  const setActiveIdIfChanged = (nextId: string) => {
-    if (nextId !== activeId()) {
-      setActiveId(nextId)
-    }
+  const setActiveIdsIfChanged = (nextIds: string[]) => {
+    setActiveIds((currentIds) =>
+      currentIds.length === nextIds.length &&
+      currentIds.every((currentId, index) => currentId === nextIds[index])
+        ? currentIds
+        : nextIds,
+    )
   }
 
   const scrollToAnchor = () => {
@@ -43,18 +46,23 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
 
   onMount(() => {
     const entries = getEntries()
+    const entryIds = new Set(entries.map((entry) => entry.id))
+    const visibleIds = new Set<string>()
 
-    const syncActiveIdWithHashWithEntries = () => {
-      const hash = decodeHashAnchor(location.hash.slice(1))
-      if (!hash) {
-        setActiveIdIfChanged(entries[0]?.id ?? '')
-        return
-      }
-
-      setActiveIdIfChanged(hash)
+    const syncVisibleIds = () => {
+      setActiveIdsIfChanged(
+        entries.filter((entry) => visibleIds.has(entry.id)).map((entry) => entry.id),
+      )
     }
 
-    syncActiveIdWithHashWithEntries()
+    const syncActiveIdsWithHash = () => {
+      const hash = decodeHashAnchor(location.hash.slice(1))
+      setActiveIdsIfChanged(
+        hash && entryIds.has(hash) ? [hash] : entries.slice(0, 1).map((entry) => entry.id),
+      )
+    }
+
+    syncActiveIdsWithHash()
 
     let initialAnchorFrame = 0
     if (location.hash) {
@@ -67,27 +75,22 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
       typeof IntersectionObserver === 'function' && entries.length > 0
         ? new IntersectionObserver(
             (intersectingEntries) => {
-              let bestId = ''
-              let bestTop = Number.POSITIVE_INFINITY
-
               for (const entry of intersectingEntries) {
-                if (!entry.isIntersecting) {
+                const id = (entry.target as HTMLElement)?.id ?? ''
+                if (!entryIds.has(id)) {
                   continue
                 }
-                const top = entry.boundingClientRect.top
-                if (top < bestTop) {
-                  bestTop = top
-                  bestId = (entry.target as HTMLElement)?.id ?? ''
+                if (entry.isIntersecting) {
+                  visibleIds.add(id)
+                } else {
+                  visibleIds.delete(id)
                 }
               }
-
-              if (bestId) {
-                setActiveIdIfChanged(bestId)
-              }
+              syncVisibleIds()
             },
             {
-              root: document.body,
-              rootMargin: '-80px 0px -66% 0px',
+              root: null,
+              rootMargin: '-52px 0px 0px 0px',
               threshold: 0,
             },
           )
@@ -104,7 +107,7 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
 
     const handleHashChange = () => {
       scrollToAnchor()
-      syncActiveIdWithHashWithEntries()
+      syncActiveIdsWithHash()
     }
 
     window.addEventListener('hashchange', handleHashChange)
@@ -117,5 +120,8 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
     })
   })
 
-  return { activeId }
+  return {
+    activeIds,
+    primaryActiveId: () => activeIds()[0] ?? '',
+  }
 }

@@ -2,16 +2,24 @@ import type { DocsHighlightLang } from '../core/shiki'
 
 export type MarkdownHighlightLang = DocsHighlightLang
 
+export interface FrontmatterSidebar {
+  order: number
+  badge?: string
+}
+
+export interface FrontmatterSearch {
+  tags: string[]
+}
+
 export interface FrontmatterData {
+  title: string
+  description: string
+  sidebar: FrontmatterSidebar
+  search: FrontmatterSearch
   category?: string
   component?: string
   componentKey?: string
-  description?: string
-  header?: boolean
-  keywords?: string[]
-  name?: string
   related?: string[]
-  status?: 'new' | 'update' | 'unreleased'
   upstreamHref?: string
 }
 

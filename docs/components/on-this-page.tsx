@@ -9,7 +9,7 @@ function getOnThisPageIndentStyle(level: number) {
 }
 
 export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
-  const { activeId } = useTableOfContents(() => props.entries)
+  const { activeIds, primaryActiveId } = useTableOfContents(() => props.entries)
 
   return (
     <aside class="p-4 shrink-0 max-h-[calc(100vh-4rem)] w-60 hidden self-start top-13 sticky overflow-y-auto xl:block">
@@ -25,8 +25,9 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
             {(entry) => (
               <a
                 href={`#${entry.id}`}
-                aria-current={activeId() === entry.id ? 'location' : undefined}
-                class="text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 aria-current:text-primary hover:text-foreground"
+                aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
+                data-active={activeIds().includes(entry.id) ? '' : undefined}
+                class="text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 data-active:text-primary hover:text-foreground"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show
