@@ -1,5 +1,3 @@
-import type { DocsHighlightLang } from '../core/shiki'
-
 import type { ParseExampleCode, ProgramNode, StatementNode } from './ast'
 
 interface ComponentDeclaration {
@@ -149,7 +147,7 @@ export async function transformExampleSourceModule(
   code: string,
   id: string,
   parseExampleCode: ParseExampleCode,
-  toHtml: (src: string, lang: Extract<DocsHighlightLang, 'tsx' | 'bash'>) => string,
+  toHtml: (src: string, lang: 'tsx') => Promise<string>,
 ): Promise<string | null> {
   const query = parseExampleSourceQuery(id)
   if (!query) {
@@ -162,5 +160,5 @@ export async function transformExampleSourceModule(
     return 'export default ""\n'
   }
 
-  return `export default ${JSON.stringify(toHtml(sourceText, 'tsx'))}\n`
+  return `export default ${JSON.stringify(await toHtml(sourceText, 'tsx'))}\n`
 }

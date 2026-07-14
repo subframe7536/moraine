@@ -136,7 +136,7 @@ describe('transformExampleSourceModule', () => {
     const source = `
 export const BasicExample = () => <div>basic</div>
 `
-    const toHtml = vi.fn((value: string, lang: 'tsx' | 'bash') => `<pre ${lang}>${value}</pre>`)
+    const toHtml = vi.fn(async (value: string, lang: 'tsx') => `<pre ${lang}>${value}</pre>`)
 
     const transformed = await transformExampleSourceModule(
       source,
@@ -154,14 +154,14 @@ export const BasicExample = () => <div>basic</div>
       'export const BasicExample = () => <div>basic</div>',
       '/tmp/docs/examples/button/basic.tsx',
       parseExampleCode,
-      vi.fn(() => '<pre>code</pre>'),
+      vi.fn(async () => '<pre>code</pre>'),
     )
 
     expect(transformed).toBeNull()
   })
 
   test('returns empty html module when component does not exist', async () => {
-    const toHtml = vi.fn(() => '<pre>code</pre>')
+    const toHtml = vi.fn(async () => '<pre>code</pre>')
 
     const transformed = await transformExampleSourceModule(
       'export const BasicExample = () => <div>basic</div>',

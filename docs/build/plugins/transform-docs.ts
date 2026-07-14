@@ -1,7 +1,7 @@
 import { normalizePath } from 'vite'
 
+import { renderDocsCodeHtml } from '../core/expressive-code'
 import { DOCS_PAGE_FILE_RE } from '../core/paths'
-import { DOCS_HIGHLIGHT_THEMES, getDocsHighlighter } from '../core/shiki'
 import { parseExampleCode } from '../examples/ast'
 import { transformExampleModule } from '../examples/module'
 import { transformExampleSourceModule } from '../examples/source'
@@ -22,9 +22,7 @@ function isDocsPageRequest(id: string): boolean {
 export const DOCS_TRANSFORM_FILTER =
   /(?:\?example(?:&|$)|\?example-source(?:&|$)|[\\/]docs[\\/]pages[\\/].*\.mdx$)/
 
-export function createDocsTransformHandler(projectRootProvider: () => string) {
-  const highlighterPromise = getDocsHighlighter()
-
+export function createDocsTransformHandler() {
   return async function transformDocs(
     code: string,
     id: string,
@@ -34,12 +32,23 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
       return null
     }
 
-    const highlighter = await highlighterPromise
     const sourceModule = await transformExampleSourceModule(
       code,
       id,
       parseExampleCode,
-      (source, lang) => highlighter.codeToHtml(source, { lang, themes: DOCS_HIGHLIGHT_THEMES }),
+      (source, lang) => {
+        const sourceFilePath = id.split('?')[0] ?? id
+        return renderDocsCodeHtml({
+          code: source,
+          language: lang,
+          sourceFilePath,
+          stickyCopyButton: true,
+          props: {
+            frame: 'none',
+            showLineNumbers: true,
+          },
+        })
+      },
     )
     if (sourceModule) {
       return sourceModule
@@ -57,10 +66,6 @@ export function createDocsTransformHandler(projectRootProvider: () => string) {
       return null
     }
 
-    return compileMarkdownPage(code, idWithoutQuery, {
-      projectRoot: projectRootProvider(),
-      highlightCode: (source, lang) =>
-        highlighter.codeToHtml(source, { lang, themes: DOCS_HIGHLIGHT_THEMES }),
-    })
+    return compileMarkdownPage(code, idWithoutQuery)
   }
 }

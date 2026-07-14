@@ -131,6 +131,26 @@ describe('docsBuildPlugin', () => {
       expect(apiModule).toContain('export default')
       expect(apiModule).toContain('"button"')
 
+      const resolvedCssId =
+        typeof resolveId === 'function'
+          ? resolveId('virtual:docs-expressive-code.css')
+          : resolveId?.handler('virtual:docs-expressive-code.css')
+      const expressiveCodeCss =
+        typeof load === 'function'
+          ? await load(resolvedCssId as string)
+          : await load?.handler(resolvedCssId as string)
+      expect(expressiveCodeCss).toContain(':root.dark')
+
+      const resolvedClientId =
+        typeof resolveId === 'function'
+          ? resolveId('virtual:docs-expressive-code-client')
+          : resolveId?.handler('virtual:docs-expressive-code-client')
+      const expressiveCodeClient =
+        typeof load === 'function'
+          ? await load(resolvedClientId as string)
+          : await load?.handler(resolvedClientId as string)
+      expect(expressiveCodeClient).toContain('MutationObserver')
+
       const exampleModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
         'export const BasicExample = () => <button>Basic</button>\n',
@@ -176,6 +196,11 @@ describe('docsBuildPlugin', () => {
 
       const apiModule = await server.pluginContainer.load('\0moraine-api-doc')
       expect(String(apiModule)).toContain('"button"')
+
+      const expressiveCodeCss = await server.pluginContainer.load(
+        '\0moraine-docs-expressive-code.css',
+      )
+      expect(String(expressiveCodeCss)).toContain(':root.dark')
 
       const exampleModule = await server.transformRequest(
         '/pages/general/button/basic-example.tsx?example',

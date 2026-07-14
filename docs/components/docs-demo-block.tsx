@@ -2,7 +2,8 @@ import type { Component } from 'solid-js'
 import { Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { ShikiCodeBlock } from './shiki-code-block'
+import { DocsCodeBlock } from './docs-code-block'
+import { DOCS_DEMO_BLOCK_CLASS, DOCS_DEMO_BLOCK_PREVIEW_CLASS } from './docs-demo-block.class'
 
 export interface DocsDemoBlockProps {
   component: Component
@@ -11,12 +12,12 @@ export interface DocsDemoBlockProps {
 
 export function DocsDemoBlock(props: DocsDemoBlockProps) {
   return (
-    <section class="mb-6 mt-4 border border-border/80 rounded-lg bg-background shadow-xs overflow-hidden">
-      <div class="p-6 flex items-center justify-center">
+    <section class={DOCS_DEMO_BLOCK_CLASS}>
+      <div class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}>
         <Dynamic component={props.component} />
       </div>
       <Show when={props.source}>
-        {(source) => <ShikiCodeBlock variant="source" html={source()} />}
+        {(source) => <DocsCodeBlock variant="source" html={source()} />}
       </Show>
     </section>
   )

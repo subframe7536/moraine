@@ -22,16 +22,3 @@ export function toTitleCaseFromKey(key: string): string {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
 }
-
-export function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-}
-
-export function createPlainCodeBlockHtml(source: string): string {
-  return `<pre><code>${escapeHtml(source)}</code></pre>`
-}

@@ -2,11 +2,18 @@ import { Dynamic } from 'solid-js/web'
 
 import { Tabs } from '../../src'
 
+import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block'
 import { DocsDemoBlock } from './docs-demo-block'
 import { IntroCards } from './intro-cards'
 import { IntroComponents } from './intro-components'
 import type { RenderExampleMarkdownPageInput } from './markdown'
-import { ShikiCodeBlock } from './shiki-code-block'
+import {
+  DOCS_INSTALL_TABS_CONTENT_CLASS,
+  DOCS_INSTALL_TABS_INDICATOR_CLASS,
+  DOCS_INSTALL_TABS_LIST_CLASS,
+  DOCS_INSTALL_TABS_ROOT_CLASS,
+  DOCS_INSTALL_TABS_TRIGGER_CLASS,
+} from './mdx-components.class'
 import { ToastHosts } from './toast-hosts'
 
 interface MdxProps {
@@ -85,17 +92,18 @@ export function createDocsMdxComponents(context: RenderExampleMarkdownPageInput)
       return (
         <Tabs
           defaultValue={items()[0]?.value}
-          variant="link"
           size="sm"
+          class={DOCS_INSTALL_TABS_ROOT_CLASS}
           classes={{
-            list: 'w-fit',
-            content: 'pt-1 [&_pre]:rounded-lg',
-            trigger: 'flex-none',
+            list: DOCS_INSTALL_TABS_LIST_CLASS,
+            indicator: DOCS_INSTALL_TABS_INDICATOR_CLASS,
+            content: DOCS_INSTALL_TABS_CONTENT_CLASS,
+            trigger: DOCS_INSTALL_TABS_TRIGGER_CLASS,
           }}
           items={items().map((item) => ({
             label: item.label,
             value: item.value,
-            content: <ShikiCodeBlock html={item.html} />,
+            content: <DocsCodeBlockView variant="install" html={item.html} />,
           }))}
         />
       )
@@ -113,8 +121,15 @@ export function createDocsMdxComponents(context: RenderExampleMarkdownPageInput)
       return <ToastHosts {...props} />
     },
 
-    ShikiCodeBlock(props: MdxProps) {
-      return <ShikiCodeBlock html={toStringProp(props.html)} />
+    DocsCodeBlock(props: MdxProps) {
+      const html = () => {
+        const value = toStringProp(props.html)
+        if (!value) {
+          throw new Error('[docs-mdx] compiled code block is missing rendered HTML')
+        }
+        return value
+      }
+      return <DocsCodeBlockView html={html()} />
     },
   }
 }

@@ -32,8 +32,8 @@ async function createTempPage(): Promise<{ projectRoot: string; pagePath: string
 }
 
 describe('compileMarkdownPage', () => {
-  test('compiles mdx to JSX and passes frontmatter to Markdown runtime', () => {
-    const code = compileMarkdownPage(
+  test('compiles mdx to JSX and passes frontmatter to Markdown runtime', async () => {
+    const code = await compileMarkdownPage(
       withFrontmatter('## Usage'),
       '/tmp/docs/pages/general/button/button.mdx',
     )
@@ -57,7 +57,7 @@ describe('compileMarkdownPage', () => {
         '{"component":{"key":"button"}}',
       )
 
-      const code = compileMarkdownPage(withFrontmatter(), pagePath)
+      const code = await compileMarkdownPage(withFrontmatter(), pagePath)
 
       expect(code).toContain("import __docsRawApiDoc from './api.json'")
       expect(code).toContain('const apiDoc = __docsRawApiDoc')
@@ -67,14 +67,32 @@ describe('compileMarkdownPage', () => {
     }
   })
 
-  test('collects CodeTabs packages only', () => {
-    const code = compileMarkdownPage(
+  test('collects CodeTabs packages only', async () => {
+    const code = await compileMarkdownPage(
       withFrontmatter('<CodeTabs package="moraine" />'),
       '/tmp/docs/pages/introduction.mdx',
     )
 
     expect(code).toContain('bun add moraine')
     expect(code).toContain('codeTabs')
+    expect(code).toContain('expressive-code')
+    expect(code).not.toContain('is-terminal')
+    expect(code).toContain('data-language=\\"bash\\"')
+    expect(code).not.toContain('class=\\"ln\\"')
+  })
+
+  test('renders fenced code and metadata through Expressive Code', async () => {
+    const code = await compileMarkdownPage(
+      withFrontmatter('```tsx title="value.tsx" ins={1}\nconst value = 1\n```'),
+      '/tmp/docs/pages/typescript.mdx',
+    )
+
+    expect(code).toContain('expressive-code')
+    expect(code).toContain('value.tsx')
+    expect(code).not.toContain('class=\\"ln\\"')
+    expect(code).toContain('highlight ins')
+    expect(code).not.toContain('ShikiCodeBlock')
+    expect(code).not.toContain('<script')
   })
 
   test('collects Example paths into precise descriptor imports', async () => {
@@ -86,7 +104,7 @@ describe('compileMarkdownPage', () => {
         'export function Variants() { return <div /> }',
       )
 
-      const code = compileMarkdownPage(
+      const code = await compileMarkdownPage(
         withFrontmatter('<Example path="./variants" />\n\n<Example path="./variants" />'),
         pagePath,
       )
@@ -108,7 +126,7 @@ describe('compileMarkdownPage', () => {
       await mkdir(path.dirname(sharedExample), { recursive: true })
       await writeFile(sharedExample, 'export default function Advanced() { return <div /> }')
 
-      const code = compileMarkdownPage(
+      const code = await compileMarkdownPage(
         withFrontmatter('<Example path="../../shared/advanced.tsx" />'),
         pagePath,
       )
@@ -132,7 +150,7 @@ describe('compileMarkdownPage', () => {
     const { projectRoot, pagePath } = await createTempPage()
 
     try {
-      expect(() => compileMarkdownPage(withFrontmatter(source), pagePath)).toThrow(message)
+      await expect(compileMarkdownPage(withFrontmatter(source), pagePath)).rejects.toThrow(message)
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -144,9 +162,9 @@ describe('compileMarkdownPage', () => {
     try {
       await mkdir(path.join(path.dirname(pagePath), 'directory.tsx'))
 
-      expect(() =>
+      await expect(
         compileMarkdownPage(withFrontmatter('<Example path="./directory.tsx" />'), pagePath),
-      ).toThrow('path is not a file')
+      ).rejects.toThrow('path is not a file')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

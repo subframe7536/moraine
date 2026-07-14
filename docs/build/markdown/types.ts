@@ -1,7 +1,3 @@
-import type { DocsHighlightLang } from '../core/shiki'
-
-export type MarkdownHighlightLang = DocsHighlightLang
-
 export interface FrontmatterSidebar {
   order: number
   badge?: string
@@ -21,9 +17,4 @@ export interface FrontmatterData {
   componentKey?: string
   related?: string[]
   upstreamHref?: string
-}
-
-export interface CompileMarkdownOptions {
-  projectRoot?: string
-  highlightCode?: (source: string, lang: MarkdownHighlightLang) => string | null
 }

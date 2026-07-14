@@ -63,6 +63,8 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 
 - Example paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
 - Each example file directly exports exactly one component. The internal `?example` module exposes its component and highlighted source as a default descriptor.
+- Fenced blocks, example sources, and package-manager tabs are rendered by the shared Expressive Code instance in `docs/build/core/expressive-code.ts`.
+- Expressive Code base CSS, theme CSS, and copy interaction code are emitted once through docs virtual modules; individual rendered blocks only contain their block-specific styles.
 - During SSR, example descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the example container and source.
 - Previous/next cards use the flattened sidebar order and continue across group boundaries.
 

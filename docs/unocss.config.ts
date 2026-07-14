@@ -23,12 +23,6 @@ const markdownShortCuts = {
   'docs-hr': 'border-t border-border my-6',
   'docs-inline-code':
     'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border-2 border-border rounded-md text-sm text-destructive font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
-  'docs-pre': 'docs-code-block p-4',
-  'docs-code-block': 'relative my-4 overflow-hidden rounded-lg border border-border/80 text-sm',
-  'docs-code-block-source':
-    'relative my-0 overflow-hidden rounded-b-lg rounded-t-none border-t border-border/80 text-sm',
-  'docs-code-block-inner':
-    'text-sm leading-relaxed bg-muted/55 overflow-x-auto font-mono [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,
@@ -152,14 +146,6 @@ export default defineConfig<PresetWind4Theme>({
   --spacing: 0.25rem;
 }
 
-.docs-code-block pre,
-.docs-code-block-source pre {
-  margin: 0;
-  min-width: max-content;
-  padding: 1rem;
-  background: transparent !important;
-}
-
 .dark {
   --background: hsl(222.2 84% 4.9%);
   --foreground: hsl(210 40% 98%);
@@ -213,14 +199,6 @@ export default defineConfig<PresetWind4Theme>({
   animation-duration: 180ms;
 }
 
-html.dark .shiki,
-html.dark .shiki span {
-  color: var(--shiki-dark) !important;
-  background-color: transparent !important;
-  font-style: var(--shiki-dark-font-style) !important;
-  font-weight: var(--shiki-dark-font-weight) !important;
-  text-decoration: var(--shiki-dark-text-decoration) !important;
-}
       `,
     },
   ],

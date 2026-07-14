@@ -15,3 +15,6 @@ declare module 'virtual:api-doc' {
   const data: IndexDoc
   export default data
 }
+
+declare module 'virtual:docs-expressive-code.css'
+declare module 'virtual:docs-expressive-code-client'

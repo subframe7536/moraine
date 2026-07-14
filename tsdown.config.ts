@@ -1,12 +1,18 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from '@subf/unocss'
+import { createJiti } from 'jiti'
 import type { UnoCSSPluginOptions } from 'rolldown-plugin-unocss'
 import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-import { DEFAULT_ICON_SHORTCUTS, presetMoraine } from './src/unocss'
-import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax'
+const jiti = createJiti(import.meta.url)
+const { DEFAULT_ICON_SHORTCUTS, presetMoraine } =
+  await jiti.import<typeof import('./src/unocss/index.ts')>('./src/unocss/index.ts')
+const { createMigrateSyntaxTransformer } = await jiti.import<
+  typeof import('./src/unocss/migrate-syntax.ts')
+>('./src/unocss/migrate-syntax.ts')
+
 function hasShortcutSuffix(token: string, shortcuts: Iterable<string>): boolean {
   for (const shortcut of shortcuts) {
     if (token.endsWith(shortcut)) {
