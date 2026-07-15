@@ -107,6 +107,8 @@ describe('createDocsMdxComponents', () => {
     expect(
       screen.getByRole('tabpanel').querySelector('[data-code-variant="install"]'),
     ).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="indicator"]')?.className).toContain('hidden')
+    expect(screen.container.querySelector('[data-slot="indicator"]')?.className).toContain(
+      'bg-background',
+    )
   })
 })

@@ -1,4 +1,4 @@
-import { Badge, Button, CommandPalette } from '@src'
+import { Badge, Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -41,7 +41,7 @@ export function CustomItemRender() {
         groups={GROUPS}
         itemRender={(ctx) => (
           <div class="flex flex-1 gap-3 min-w-0 items-center">
-            <span class="i-lucide-folder-kanban text-muted-foreground shrink-0" />
+            <Icon name="i-lucide-folder-kanban text-muted-foreground shrink-0" />
             <span class="flex flex-1 flex-col min-w-0">
               <span class="text-sm font-medium truncate">{ctx.item.label}</span>
               <span class="text-xs text-muted-foreground truncate">

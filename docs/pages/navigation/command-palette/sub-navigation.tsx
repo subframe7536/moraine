@@ -1,4 +1,4 @@
-import { Button, CommandPalette } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
 
@@ -11,19 +11,19 @@ export function SubNavigation() {
         {
           value: 'create',
           label: 'Create',
-          leadingRender: () => <span class="i-lucide-plus-circle" />,
+          leadingRender: () => <Icon name="i-lucide-plus-circle" />,
           description: 'Create new resources',
         },
         {
           value: 'share',
           label: 'Share',
-          leadingRender: () => <span class="i-lucide-share-2" />,
+          leadingRender: () => <Icon name="i-lucide-share-2" />,
           description: 'Share with others',
         },
         {
           value: 'delete',
           label: 'Delete',
-          leadingRender: () => <span class="i-lucide-trash-2" />,
+          leadingRender: () => <Icon name="i-lucide-trash-2" />,
         },
       ],
     },
@@ -36,17 +36,17 @@ export function SubNavigation() {
         {
           value: 'create-new-file',
           label: 'New File',
-          leadingRender: () => <span class="i-lucide-file-plus" />,
+          leadingRender: () => <Icon name="i-lucide-file-plus" />,
         },
         {
           value: 'create-new-folder',
           label: 'New Folder',
-          leadingRender: () => <span class="i-lucide-folder-plus" />,
+          leadingRender: () => <Icon name="i-lucide-folder-plus" />,
         },
         {
           value: 'create-new-project',
           label: 'New Project',
-          leadingRender: () => <span class="i-lucide-git-branch" />,
+          leadingRender: () => <Icon name="i-lucide-git-branch" />,
         },
       ],
     },
@@ -59,13 +59,13 @@ export function SubNavigation() {
         {
           value: 'share-copy-link',
           label: 'Copy Link',
-          leadingRender: () => <span class="i-lucide-link" />,
+          leadingRender: () => <Icon name="i-lucide-link" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">⌘L</span>,
         },
         {
           value: 'share-send-email',
           label: 'Send via Email',
-          leadingRender: () => <span class="i-lucide-mail" />,
+          leadingRender: () => <Icon name="i-lucide-mail" />,
         },
       ],
     },

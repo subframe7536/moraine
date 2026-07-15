@@ -1,4 +1,4 @@
-import { Button, CommandPalette } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -12,19 +12,19 @@ export function WithCloseButton() {
         {
           value: 'new-issue',
           label: 'New Issue',
-          leadingRender: () => <span class="i-lucide-circle-plus" />,
+          leadingRender: () => <Icon name="i-lucide-circle-plus" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
         },
         {
           value: 'open-inbox',
           label: 'Open Inbox',
-          leadingRender: () => <span class="i-lucide-inbox" />,
+          leadingRender: () => <Icon name="i-lucide-inbox" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
         },
         {
           value: 'sync-roadmap',
           label: 'Sync Roadmap',
-          leadingRender: () => <span class="i-lucide-refresh-cw" />,
+          leadingRender: () => <Icon name="i-lucide-refresh-cw" />,
           description: 'Pull the latest planning updates',
         },
       ],
@@ -36,23 +36,23 @@ export function WithCloseButton() {
         {
           value: 'go-dashboard',
           label: 'Dashboard',
-          leadingRender: () => <span class="i-lucide-layout-dashboard" />,
+          leadingRender: () => <Icon name="i-lucide-layout-dashboard" />,
         },
         {
           value: 'go-projects',
           label: 'Projects',
-          leadingRender: () => <span class="i-lucide-folder-kanban" />,
+          leadingRender: () => <Icon name="i-lucide-folder-kanban" />,
         },
         {
           value: 'go-settings',
           label: 'Settings',
-          leadingRender: () => <span class="i-lucide-settings" />,
+          leadingRender: () => <Icon name="i-lucide-settings" />,
           description: 'Preferences',
         },
         {
           value: 'go-billing',
           label: 'Billing',
-          leadingRender: () => <span class="i-lucide-credit-card" />,
+          leadingRender: () => <Icon name="i-lucide-credit-card" />,
           disabled: true,
         },
       ],

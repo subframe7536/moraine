@@ -1,6 +1,6 @@
 import { Show, createMemo } from 'solid-js'
 
-import { cn } from '../../src'
+import { Button, Icon, cn } from '../../src'
 
 import { getAdjacentDocsPages } from './docs-page-navigation.utils'
 import { getDocsPages } from './docs-route'
@@ -14,19 +14,21 @@ function NavigationCard(props: {
   const isNext = () => props.direction === 'next'
 
   return (
-    <a
+    <Button
+      as="a"
       href={props.page.path}
       aria-label={`${isNext() ? 'Next' : 'Previous'} page: ${props.page.label}`}
+      variant="outline"
       class={cn(
-        'group px-4 py-3.5 border border-border rounded-lg bg-background flex gap-3 min-h-20 w-full transition-([background-color,border-color,transform] duration-180 ease-out) items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:(border-primary/40 bg-accent/35) active:translate-y-px',
+        'group px-4 py-3.5 rounded-lg bg-background gap-3 h-auto min-h-20 w-full transition-([background-color,border-color,transform] duration-180 ease-out) hover:(border-primary/40 bg-accent/35) active:translate-y-px',
         isNext() ? 'text-right justify-end' : 'text-left',
         props.class,
       )}
     >
       <Show when={!isNext()}>
-        <span
-          class="i-lucide-arrow-left text-muted-foreground shrink-0 size-4 transition-transform duration-180 ease-out group-hover:-translate-x-0.5"
-          aria-hidden="true"
+        <Icon
+          name="i-lucide-arrow-left"
+          class="text-muted-foreground shrink-0 size-4 transition-transform duration-180 ease-out group-hover:-translate-x-0.5"
         />
       </Show>
       <span class="min-w-0">
@@ -36,12 +38,12 @@ function NavigationCard(props: {
         </span>
       </span>
       <Show when={isNext()}>
-        <span
-          class="i-lucide-arrow-right text-muted-foreground shrink-0 size-4 transition-transform duration-180 ease-out group-hover:translate-x-0.5"
-          aria-hidden="true"
+        <Icon
+          name="i-lucide-arrow-right"
+          class="text-muted-foreground shrink-0 size-4 transition-transform duration-180 ease-out group-hover:translate-x-0.5"
         />
       </Show>
-    </a>
+    </Button>
   )
 }
 

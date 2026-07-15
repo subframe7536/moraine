@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js'
-import { createMemo, Show } from 'solid-js'
+import { createMemo, createSignal, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Button } from '../../src'
@@ -70,6 +70,7 @@ export interface RenderExampleMarkdownPageInput {
   Content: Component<DocsMdxContentProps>
   examples: Record<string, DocsMdxExample>
   codeTabs: Record<string, DocsMdxCodeTabItem[]>
+  markdownSource?: string
 }
 
 export function Markdown(input: RenderExampleMarkdownPageInput) {
@@ -81,6 +82,24 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
     const sourcePath = component()?.sourcePath
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}` : undefined
   }
+  const [copyState, setCopyState] = createSignal<'idle' | 'copied' | 'failed'>('idle')
+
+  const copyMarkdownSource = async () => {
+    const markdownSource = input.markdownSource
+    if (!markdownSource) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(markdownSource)
+      setCopyState('copied')
+      window.setTimeout(() => setCopyState('idle'), 1600)
+    } catch {
+      setCopyState('failed')
+      window.setTimeout(() => setCopyState('idle'), 1600)
+    }
+  }
+
   const onThisPageEntries = createMemo(() => [
     ...(input.onThisPageEntries ?? []),
     ...getDocsApiReferenceTocEntries(input.apiDoc),
@@ -113,7 +132,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             </p>
 
             <div class="text-xs mt-3 flex flex-wrap gap-3 items-center">
-              <Show when={input.pageKey !== 'introduction'}>
+              <Show when={input.pageKey !== 'introduction' && input.markdownSource}>
                 <Button
                   as="a"
                   href={`/${input.pageKey}.md`}
@@ -121,10 +140,22 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                   rel="alternate external"
                   type="text/markdown"
                   variant="outline"
-                  size="sm"
                   leading="i-lucide:file-text"
                 >
                   View as Markdown
+                </Button>
+                <Button
+                  aria-label="Copy markdown source"
+                  variant="outline"
+                  leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
+                  disabled={!input.markdownSource}
+                  onClick={copyMarkdownSource}
+                >
+                  {copyState() === 'copied'
+                    ? 'Copied Markdown'
+                    : copyState() === 'failed'
+                      ? 'Copy Failed'
+                      : 'Copy as Markdown'}
                 </Button>
               </Show>
               <Show when={githubSourceHref()}>

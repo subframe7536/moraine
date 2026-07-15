@@ -1,4 +1,4 @@
-import { Button, CommandPalette } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -12,18 +12,18 @@ export function Position() {
         {
           value: 'new-file',
           label: 'New File',
-          leadingRender: () => <span class="i-lucide-file-plus" />,
+          leadingRender: () => <Icon name="i-lucide-file-plus" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
         },
         {
           value: 'new-folder',
           label: 'New Folder',
-          leadingRender: () => <span class="i-lucide-folder-plus" />,
+          leadingRender: () => <Icon name="i-lucide-folder-plus" />,
         },
         {
           value: 'settings',
           label: 'Settings',
-          leadingRender: () => <span class="i-lucide-settings" />,
+          leadingRender: () => <Icon name="i-lucide-settings" />,
         },
       ],
     },

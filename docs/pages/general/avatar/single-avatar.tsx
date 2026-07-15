@@ -1,4 +1,4 @@
-import { Avatar } from '@src'
+import { Avatar, Button } from '@src'
 import { createSignal } from 'solid-js'
 
 export function SingleAvatar() {
@@ -23,15 +23,14 @@ export function SingleAvatar() {
         }}
       />
 
-      <button
-        type="button"
-        class="text-sm px-3 py-2 b-1 b-border border-border rounded-md bg-background hover:bg-muted"
+      <Button
+        variant="outline"
         onClick={() => {
           setSource((current) => (current === IMAGE_A ? IMAGE_B : IMAGE_A))
         }}
       >
         Swap Source
-      </button>
+      </Button>
     </div>
   )
 }
