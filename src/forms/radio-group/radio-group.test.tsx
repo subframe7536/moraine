@@ -158,6 +158,38 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('not-first-of-type:-mt-px')
   })
 
+  test.each(['card', 'table'] as const)(
+    'marks the selected %s item for state styles',
+    async (variant) => {
+      const screen = render(() => (
+        <RadioGroup items={['A', 'B']} variant={variant} defaultValue="A" />
+      ))
+      const items = screen.container.querySelectorAll('[data-slot="item"]')
+      const firstItem = items[0]!
+      const secondItem = items[1]!
+
+      expect(items).toHaveLength(2)
+      expect(firstItem.getAttribute('data-checked')).toBe('')
+      expect(secondItem.getAttribute('data-checked')).toBeNull()
+
+      await fireEvent.click(secondItem)
+
+      await waitFor(() => {
+        expect(firstItem.getAttribute('data-checked')).toBeNull()
+        expect(secondItem.getAttribute('data-checked')).toBe('')
+      })
+    },
+  )
+
+  test('prevents the default radio control from shrinking into an oval', () => {
+    const screen = render(() => <RadioGroup items={['A']} />)
+    const control = screen.container.querySelector('[data-slot="control"]')
+
+    expect(control?.className).toContain('rounded-full')
+    expect(control?.className).toContain('size-4')
+    expect(control?.className).toContain('shrink-0')
+  })
+
   test('selects option when clicking table item container', async () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
 

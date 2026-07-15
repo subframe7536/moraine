@@ -38,7 +38,7 @@
 - [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
 - [x] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu` and others, sharing collection navigation behavior while preserving each component's semantics. It renders items with optional external search and selection support in different sizes. Menu navigation intentionally ignores printable keys instead of providing typeahead.
 - [ ] refactor list box component: improve perf, correct focus behavior of items, correct highlight state between interactions, and rename `renderItem` to `render` in `VirtualRenderContext`. use it across components if possible to make it support virtualized list rendering, and make it more flexible to customize item render, and support different sizes and variants.
-- [ ] fix broken styles of `Radio` component: no border highlight when actived in card and table variant; default indicator is changed from circle to oval.
+- [x] fix broken styles of `Radio` component: no border highlight when actived in card and table variant; default indicator is changed from circle to oval.
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.

@@ -88,7 +88,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
 })
 
 export const radioGroupBaseVariants = cva(
-  'outline-none border border-input rounded-full bg-background inline-flex transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/30',
+  'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',

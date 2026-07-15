@@ -250,6 +250,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={merged.variant === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="item"
+              data-checked={merged.variant === 'list' ? undefined : selected() ? '' : undefined}
               style={merged.styles?.item}
               class={radioGroupItemVariants(
                 {
