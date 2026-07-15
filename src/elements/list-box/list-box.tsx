@@ -249,6 +249,7 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     defaultValue: () => merged.defaultValue ?? (merged.selectionMode === 'multiple' ? [] : null),
   })
   const [highlightedValue, setHighlightedValue] = createSignal<ListBoxT.Value | undefined>()
+  let contentRef: HTMLUListElement | undefined
   const items = createMemo(() => merged.items ?? [])
   const visibleEntries = createMemo(() =>
     items().filter((entry) => {
@@ -371,6 +372,12 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
     onNavigationKeyDown(event, highlightedValue(), 'vertical')
   }
 
+  function focusContent(): void {
+    if (isInteractive() && document.activeElement !== contentRef) {
+      contentRef?.focus({ preventScroll: true })
+    }
+  }
+
   function ListBoxOption(optionProps: OptionProps): JSX.Element {
     const context = createItemContext(
       () => optionProps.item,
@@ -409,6 +416,7 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
           }
         }}
         onClick={(event) => {
+          focusContent()
           const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
           if (!defaultPrevented) {
             selectItem(optionProps.item, optionProps.index())
@@ -508,6 +516,9 @@ export function ListBox<TItem extends ListBoxT.Item = ListBoxT.Item>(
 
   return (
     <ul
+      ref={(element) => {
+        contentRef = element
+      }}
       id={listBoxId()}
       role={isInteractive() ? 'listbox' : undefined}
       aria-label={merged.ariaLabel}

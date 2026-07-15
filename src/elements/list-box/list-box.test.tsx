@@ -56,6 +56,16 @@ describe('ListBox', () => {
     )
   })
 
+  test('keeps DOM focus on the listbox after pointer selection', async () => {
+    const screen = render(() => <ListBox selectionMode="single" items={ITEMS} />)
+    const listbox = screen.getByRole('listbox')
+
+    await fireEvent.click(screen.getByRole('option', { name: 'Banana' }))
+
+    expect(document.activeElement).toBe(listbox)
+    expect(listbox.getAttribute('aria-activedescendant')).toBe(`${listbox.id}-apple`)
+  })
+
   test('supports multiple selection and skips disabled items', async () => {
     const onChange = vi.fn()
     const screen = render(() => (

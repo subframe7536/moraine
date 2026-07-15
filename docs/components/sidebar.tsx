@@ -97,7 +97,7 @@ export const Sidebar = (props: SidebarProps) => {
             content: 'gap-0',
             label:
               'text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase',
-            item: 'text-sm text-muted-foreground px-2.5 py-1.75 min-h-0 rounded-md transition-([background-color,color] duration-150 ease-out) data-highlighted:(text-muted-foreground bg-transparent) data-selected:(text-accent-foreground font-medium bg-accent) hover:(text-foreground bg-accent/30)',
+            item: 'text-sm text-muted-foreground px-2.5 py-1.75 min-h-0 rounded-md transition-colors duration-100 data-selected:(text-accent-foreground font-medium bg-accent) hover:(text-foreground bg-accent/30)',
             itemWrapper: 'min-w-0',
             itemLabel: 'truncate',
           }}
