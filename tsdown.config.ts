@@ -1,17 +1,12 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import { presetIcons, presetWind3, presetWind4, transformerVariantGroup } from '@subf/unocss'
-import { createJiti } from 'jiti'
 import type { UnoCSSPluginOptions } from 'rolldown-plugin-unocss'
 import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-const jiti = createJiti(import.meta.url)
-const { DEFAULT_ICON_SHORTCUTS, presetMoraine } =
-  await jiti.import<typeof import('./src/unocss/index.ts')>('./src/unocss/index.ts')
-const { createMigrateSyntaxTransformer } = await jiti.import<
-  typeof import('./src/unocss/migrate-syntax.ts')
->('./src/unocss/migrate-syntax.ts')
+import { presetMoraine, DEFAULT_ICON_SHORTCUTS } from './src/unocss'
+import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax'
 
 function hasShortcutSuffix(token: string, shortcuts: Iterable<string>): boolean {
   for (const shortcut of shortcuts) {
@@ -22,7 +17,7 @@ function hasShortcutSuffix(token: string, shortcuts: Iterable<string>): boolean 
   return false
 }
 
-const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
+export const baseUnocssConfig = (wind3: boolean): UnoCSSPluginOptions => {
   const theme = presetMoraine()
   return {
     filter: { id: ['src/**/*.tsx', 'src/**/*.ts'] },
