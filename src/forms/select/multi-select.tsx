@@ -38,6 +38,10 @@ export namespace MultiSelectT {
   export type Value = string | number
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
+  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
+  export type VirtualRenderContext<TItem extends Value = Value> = BaseSelectT.VirtualRenderContext<
+    Item<TItem>
+  >
   export interface ControlSlot<T = unknown> {
     /** Multi-select control that displays selected tags and opens the popup. */
     control?: T
@@ -106,6 +110,8 @@ export namespace MultiSelectT {
         | 'selectedValues'
         | 'multiple'
         | 'tabSelectionBehavior'
+        | 'virtualRender'
+        | 'scrollToItem'
       >,
       FormIdentityOptions,
       FormValueOptions<TItem[]>,
@@ -113,6 +119,10 @@ export namespace MultiSelectT {
       FormDisableOption {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem[]>) => void
+    /** Renders flattened group labels and options through a virtualization layer. */
+    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    /** Scrolls a highlighted option into view using its flattened entry index. */
+    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /**
      * Show a clear button when a value is selected.
      * @default false

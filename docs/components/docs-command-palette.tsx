@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
-import { Button, CommandPalette, Icon, KbdGroup, cn } from '../../src'
+import { Button, CommandPalette, Icon, KbdGroup } from '../../src'
 import type { CommandPaletteT } from '../../src'
 
 import type { SidebarPage } from './sidebar'
@@ -64,26 +64,19 @@ export function DocsSearchTrigger(props: {
   return (
     <Button
       aria-label="Open search"
+      aria-keyshortcuts="Meta+K Control+K"
       onClick={() => props.onOpen()}
-      variant="ghost"
-      size={variant() === 'mobile' ? 'icon-sm' : 'sm'}
-      class={cn(
-        variant() === 'mobile'
-          ? 'text-muted-foreground hover:(text-foreground bg-accent/50)'
-          : 'text-sm text-muted-foreground px-3 b-1 b-border bg-background/70 flex-1 gap-2 max-w-xs justify-start hover:(border-border bg-background)',
-        props.class,
-      )}
+      variant="outline"
+      size={variant() === 'mobile' ? 'icon-sm' : 'md'}
+      leading="i-lucide-search"
+      trailing={
+        <Show when={variant() === 'desktop'}>
+          <KbdGroup items={['⌘', 'K']} variant="outline" />
+        </Show>
+      }
+      class={props.class}
     >
-      <Icon name="i-lucide-search" class="shrink-0 size-4" />
-      <Show when={variant() === 'desktop'}>
-        <span class="text-left flex-1 truncate">Search...</span>
-        <KbdGroup
-          items={['⌘', 'K']}
-          size="xs"
-          variant="outline"
-          // classes={{ item: 'text-[0.65rem]' }}
-        />
-      </Show>
+      <Show when={variant() === 'desktop'}>Search docs</Show>
     </Button>
   )
 }
@@ -135,13 +128,42 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       placeholder="Search components, hooks, and pages..."
       searchTerm={searchTerm()}
       onSearchTermChange={setSearchTerm}
-      emptyRender={() => 'No matching pages.'}
-      classes={{
-        content: 'p-0 overflow-hidden',
-        root: 'rounded-xl',
-        inputWrapper: 'b-(b border) h-12',
-        listbox: 'max-h-[min(60vh,30rem)] py-2',
-      }}
+      showClose
+      emptyRender={(ctx) => (
+        <div class="flex flex-col gap-2 items-center">
+          <Icon name="i-lucide-search-x" class="size-5" />
+          <span>
+            No pages found for <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.
+          </span>
+        </div>
+      )}
+      footerRender={(ctx) => (
+        <div class="flex gap-4 items-center justify-between">
+          <span>
+            {ctx.visibleGroups.reduce((count, group) => count + (group.items?.length ?? 0), 0)}{' '}
+            matches
+          </span>
+          <div class="flex gap-3 items-center" aria-label="Keyboard shortcuts">
+            <span class="flex gap-1.5 items-center">
+              <KbdGroup
+                items={['arrowup', 'arrowdown']}
+                size="xs"
+                variant="outline"
+                dividerRender={() => '/'}
+              />
+              Navigate
+            </span>
+            <span class="flex gap-1.5 items-center">
+              <KbdGroup items={['enter']} size="xs" variant="outline" />
+              Open
+            </span>
+            <span class="flex gap-1.5 items-center">
+              <KbdGroup items={['escape']} size="xs" variant="outline" />
+              Close
+            </span>
+          </div>
+        </div>
+      )}
     />
   )
 }

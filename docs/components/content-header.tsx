@@ -33,15 +33,8 @@ export function ContentHeader(props: ContentHeaderProps) {
           {props.pageTitle()}
         </span>
       </div>
-      <div class="flex shrink-0 gap-3 items-center" aria-label="Page actions">
+      <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
         {props.search}
-        <Switch
-          size="sm"
-          checked={props.theme() === 'dark'}
-          onChange={(next) => props.setTheme(next ? 'dark' : 'light')}
-          checkedIcon="i-lucide-moon"
-          uncheckedIcon="i-lucide-sun"
-        />
         <Button
           as="a"
           href="https://github.com/subframe7536/moraine"
@@ -50,9 +43,19 @@ export function ContentHeader(props: ContentHeaderProps) {
           variant="ghost"
           size="icon-sm"
           aria-label="GitHub repository"
+          class="text-muted-foreground hover:text-foreground"
         >
           <Icon name="i-lucide-github" />
         </Button>
+        <Switch
+          size="sm"
+          label="Toggle color theme"
+          classes={{ wrapper: 'sr-only' }}
+          checked={props.theme() === 'dark'}
+          onChange={(next) => props.setTheme(next ? 'dark' : 'light')}
+          checkedIcon="i-lucide-moon"
+          uncheckedIcon="i-lucide-sun"
+        />
       </div>
     </header>
   )

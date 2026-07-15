@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -751,6 +751,57 @@ describe('CommandPalette', () => {
       expect(input.getAttribute('aria-autocomplete')).toBe('list')
       expect(input.getAttribute('aria-activedescendant')).toBe(activeItem?.id)
       expect(activeItem?.getAttribute('aria-selected')).toBe('true')
+    })
+  })
+
+  test('renders a virtual window while the input keeps active-descendant focus', async () => {
+    const [entryIndex, setEntryIndex] = createSignal(1)
+    const scrollToItem = vi.fn()
+    render(() => (
+      <CommandPalette
+        open
+        groups={GROUPS}
+        virtualized
+        scrollToItem={(item, index) => {
+          scrollToItem(item, index)
+          setEntryIndex(index)
+        }}
+        virtualRender={(context) => (
+          <For each={[context.entries[entryIndex()]!]}>
+            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+          </For>
+        )}
+      />
+    ))
+
+    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
+    input.focus()
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(1)
+      expect(document.body.querySelector('[role="option"]')?.textContent).toContain('New File')
+    })
+
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      expect(option?.textContent).toContain('Open Folder')
+      expect(option?.getAttribute('data-index')).toBe('2')
+      expect(option?.getAttribute('aria-posinset')).toBe('2')
+      expect(option?.getAttribute('aria-setsize')).toBe('5')
+      expect(input.getAttribute('aria-activedescendant')).toBe(option?.id)
+    })
+    expect(document.activeElement).toBe(input)
+    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPS[0]?.items?.[1], 2)
+  })
+
+  test('applies local command row size variants', async () => {
+    render(() => <CommandPalette open groups={GROUPS} size="xl" />)
+
+    await waitFor(() => {
+      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      expect(option?.className).toContain('text-base')
+      expect(option?.className).toContain('min-h-10')
     })
   })
 

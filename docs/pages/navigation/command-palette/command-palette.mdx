@@ -15,7 +15,7 @@ import { CommandPalette } from 'moraine'
 
 ## Slot Structure
 
-Command palette wraps a Modal dialog with a search input, a scrollable listbox of grouped items, and an optional footer.
+Command palette wraps a Modal dialog with a search input, a scrollable listbox of grouped commands, and an optional footer. The input keeps DOM focus and owns `aria-activedescendant`, while CommandPalette manages its option semantics, pointer cancellation, sizes, and rendering.
 
 ### Input area
 
@@ -99,3 +99,7 @@ Compose multi-step flows outside the component by swapping the `groups` prop in 
 Fix the palette at a specific pixel offset and track its actual rendered position via `onPositionChange`.
 
 <Example path="./position" />
+
+## Sizes and Virtual Rendering
+
+Use `size="xs" | "sm" | "md" | "lg" | "xl"` to size command rows. For large collections, pass `virtualized`, `virtualRender`, and `scrollToItem`; CommandPalette uses the shared `useVirtualRender` protocol to expose type-safe flattened entries and its scroll element, while `scrollToItem` receives the source command plus its flattened entry index.

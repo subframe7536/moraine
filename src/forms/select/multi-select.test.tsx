@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MultiSelect } from './multi-select'
@@ -42,6 +43,40 @@ describe('MultiSelect', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
+  })
+
+  test('forwards virtual rendering and scroll callbacks', async () => {
+    const [entryIndex, setEntryIndex] = createSignal(0)
+    const scrollToItem = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        options={FRUITS}
+        defaultOpen
+        virtualized
+        scrollToItem={(item, index) => {
+          scrollToItem(item, index)
+          setEntryIndex(index)
+        }}
+        virtualRender={(context) => (
+          <For each={[context.entries[entryIndex()]!]}>
+            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+          </For>
+        )}
+      />
+    ))
+    const combobox = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    combobox.focus()
+
+    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const item = queryBody('[data-slot="item"]')
+      expect(queryAllBody('[data-slot="item"]').length).toBe(1)
+      expect(item?.textContent).toContain('Banana')
+      expect(item?.getAttribute('data-index')).toBe('1')
+    })
+    expect(scrollToItem).toHaveBeenLastCalledWith(FRUITS[1], 1)
+    expect(document.activeElement).toBe(combobox)
   })
 
   test('respects maxCount limit', async () => {

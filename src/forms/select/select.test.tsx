@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Select } from './select'
@@ -394,6 +395,46 @@ describe('Select - groups', () => {
     expect(items.length).toBe(4)
     expect(items[0]?.getAttribute('aria-posinset')).toBe('1')
     expect(items[0]?.getAttribute('aria-setsize')).toBe('4')
+  })
+
+  test('renders a virtual window and scrolls keyboard highlights by flattened entry index', async () => {
+    const [entryIndex, setEntryIndex] = createSignal(1)
+    const scrollToItem = vi.fn()
+    const screen = render(() => (
+      <Select
+        options={GROUPED_OPTIONS}
+        defaultOpen
+        virtualized
+        scrollToItem={(item, index) => {
+          scrollToItem(item, index)
+          setEntryIndex(index)
+        }}
+        virtualRender={(context) => (
+          <For each={[context.entries[entryIndex()]!]}>
+            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+          </For>
+        )}
+        placeholder="Pick"
+      />
+    ))
+    const combobox = screen.getByRole('combobox')
+    combobox.focus()
+
+    await waitFor(() => {
+      expect(queryAllBody('[data-slot="item"]').length).toBe(1)
+      expect(queryBody('[data-slot="item"]')?.textContent).toContain('Apple')
+    })
+
+    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const item = queryBody('[data-slot="item"]')
+      expect(item?.textContent).toContain('Banana')
+      expect(item?.getAttribute('data-index')).toBe('2')
+      expect(combobox.getAttribute('aria-activedescendant')).toBe(item?.id)
+    })
+    expect(document.activeElement).toBe(combobox)
+    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPED_OPTIONS[0]?.children?.[1], 2)
   })
 
   test('treats empty children as a normal option', () => {

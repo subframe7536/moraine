@@ -68,3 +68,9 @@ Type a new value and press Enter or click Create in the empty state.
 Limit selections and visible chips.
 
 <Example path="./max-count-max-tag-count" />
+
+## Virtual Rendering
+
+Pass `virtualized`, `virtualRender`, and `scrollToItem` to render only visible entries. The context exposes the complete reactive collection, the mounted listbox through `scrollElement`, and `render(entry, index, props)` for forwarding measurement and positioning attributes to the final option row. `scrollToItem` receives the source MultiSelect item and its flattened entry index.
+
+<Example path="./virtualization" />

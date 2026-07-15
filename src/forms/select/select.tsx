@@ -33,6 +33,10 @@ export namespace SelectT {
   export type Value = string | number
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
+  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
+  export type VirtualRenderContext<TItem extends Value = Value> = BaseSelectT.VirtualRenderContext<
+    Item<TItem>
+  >
   export interface ControlSlot<T = unknown> {
     /** Closed select control that displays the current value and opens the popup. */
     control?: T
@@ -86,6 +90,8 @@ export namespace SelectT {
         | 'selectedValues'
         | 'multiple'
         | 'tabSelectionBehavior'
+        | 'virtualRender'
+        | 'scrollToItem'
       >,
       FormIdentityOptions,
       FormValueOptions<TItem | null>,
@@ -93,6 +99,10 @@ export namespace SelectT {
       FormDisableOption {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem | null>) => void
+    /** Renders flattened group labels and options through a virtualization layer. */
+    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    /** Scrolls a highlighted option into view using its flattened entry index. */
+    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
     optionRender?: (option: (SelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
     /** Custom renderer for the option label text. */

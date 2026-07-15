@@ -3,7 +3,6 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps, on } fro
 import { Portal } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
-import { listBoxItemVariants } from '../../elements/list-box/list-box.class'
 import {
   overlayMenuContentVariants,
   useOverlayMenuDismiss,
@@ -13,7 +12,9 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
+import type { VirtualRenderT } from '../../shared/use-virtual-render'
+import { useVirtualRender } from '../../shared/use-virtual-render'
+import { callHandler, cn, useId } from '../../shared/utils'
 import type { UseFormFieldReturn } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -22,6 +23,7 @@ import type {
 } from '../form-field/form-options'
 
 import type { SelectControlVariantProps } from './select.class'
+import { selectItemVariants } from './select.class'
 import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
 import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
@@ -81,6 +83,34 @@ export namespace BaseSelectT {
     setInputValue: (value: string) => void
   }
 
+  export interface VirtualLabelEntry {
+    /** Structural entry rendered before a grouped option collection. */
+    type: 'label'
+    /** Stable key used by a virtualizer. */
+    key: string
+    /** Group label content. */
+    label: JSX.Element
+  }
+
+  export interface VirtualItemEntry<TItem extends Item> {
+    /** Selectable option entry. */
+    type: 'item'
+    /** Stable normalized option key. */
+    key: string
+    /** Source option passed to Select or MultiSelect. */
+    item: TItem
+    /** Whether the option cannot be selected. */
+    disabled: boolean
+  }
+
+  export type VirtualEntry<TItem extends Item> = VirtualLabelEntry | VirtualItemEntry<TItem>
+
+  export type VirtualRenderContext<TItem extends Item> = VirtualRenderT.Context<
+    VirtualEntry<TItem>,
+    HTMLDivElement,
+    HTMLDivElement
+  >
+
   export interface Slot<T = unknown> {
     /**
      * Select root that owns open state, value display, and popup positioning.
@@ -120,8 +150,12 @@ export namespace BaseSelectT {
     defaultOpen?: boolean
     /** Called whenever the popup open state changes. */
     onOpenChange?: (open: boolean) => void
-    /** Enables virtualized-like aria metadata on options. */
+    /** Enables virtualized ARIA metadata and caller-controlled window rendering. */
     virtualized?: boolean
+    /** Renders flattened group labels and options through a caller-provided virtualization layer. */
+    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    /** Scrolls a highlighted raw option into view using its flattened entry index. */
+    scrollToItem?: (item: TItem, entryIndex: number) => void
     /**
      * Enable search input.
      * @default false
@@ -252,6 +286,12 @@ function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
   )
 
   highlightedItem?.scrollIntoView?.({ block: 'nearest' })
+}
+
+function toStyleObject(
+  style: string | JSX.CSSProperties | undefined,
+): JSX.CSSProperties | undefined {
+  return typeof style === 'object' ? style : undefined
 }
 
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
@@ -506,13 +546,45 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const visibleFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
     flattenOptions(visibleOptions()),
   )
-  const virtualizedPositions = createMemo<Map<string, number> | undefined>(() => {
-    if (!merged.virtualized) {
-      return undefined
+  const visibleOptionByKey = createMemo(
+    () => new Map(visibleFlatOptions().map((option) => [option.key, option])),
+  )
+  const visibleOptionPositionByKey = createMemo(
+    () => new Map(visibleFlatOptions().map((option, index) => [option.key, index + 1])),
+  )
+  const virtualEntries = createMemo<BaseSelectT.VirtualEntry<TItem>[]>(() => {
+    const entries: BaseSelectT.VirtualEntry<TItem>[] = []
+
+    for (const [index, item] of visibleOptions().entries()) {
+      if (!item.isGroup) {
+        entries.push({
+          type: 'item',
+          key: item.key,
+          item: item.raw,
+          disabled: item.disabled,
+        })
+        continue
+      }
+
+      entries.push({
+        type: 'label',
+        key: `group-${index}`,
+        label: item.label,
+      })
+
+      for (const option of item.options) {
+        entries.push({
+          type: 'item',
+          key: option.key,
+          item: option.raw,
+          disabled: option.disabled,
+        })
+      }
     }
 
-    return new Map(visibleFlatOptions().map((option, index) => [option.key, index + 1] as const))
+    return entries
   })
+  const selectedValueSet = createMemo(() => new Set(selectedValues()))
 
   function setMenuOpen(nextOpen: boolean): void {
     if (field.disabled()) {
@@ -668,7 +740,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   }
 
   const activeDescendantId = createMemo(() =>
-    highlightedKey() ? `${listboxId()}-${highlightedKey()}` : undefined,
+    highlightedKey() ? `${listboxId()}-${encodeURIComponent(String(highlightedKey()))}` : undefined,
   )
 
   const controlProps = createMemo<JSX.HTMLAttributes<HTMLDivElement>>(() => {
@@ -751,8 +823,24 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   })
 
   createEffect(() => {
-    if (!isOpen() || !highlightedKey() || !contentElement() || !listboxRef) {
+    const key = highlightedKey()
+    if (!isOpen() || !key || !contentElement() || !listboxRef) {
       return
+    }
+
+    const option = visibleOptionByKey().get(key)
+    if (!option) {
+      return
+    }
+
+    if (merged.virtualized && merged.virtualRender && merged.scrollToItem) {
+      const entryIndex = virtualEntries().findIndex(
+        (entry) => entry.type === 'item' && entry.key === key,
+      )
+      if (entryIndex >= 0) {
+        merged.scrollToItem(option.raw, entryIndex)
+        return
+      }
     }
 
     queueMicrotask(() => {
@@ -780,14 +868,16 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     hasReachedScrollBottom = false
   }
 
-  function renderVisibleOption(option: NormalizedOption<TItem>): JSX.Element {
-    const isSelected = createMemo(() =>
-      (merged.selectedValues ?? []).map((value) => String(value)).includes(option.value),
-    )
+  function renderVisibleOption(
+    option: NormalizedOption<TItem>,
+    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+  ): JSX.Element {
+    const isSelected = createMemo(() => selectedValueSet().has(option.value))
 
     return (
       <div
-        id={`${listboxId()}-${option.key}`}
+        {...virtualProps}
+        id={`${listboxId()}-${encodeURIComponent(option.key)}`}
         role="option"
         tabIndex={-1}
         data-slot="item"
@@ -795,24 +885,38 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         data-highlighted={highlightedKey() === option.key ? '' : undefined}
         aria-disabled={option.disabled || undefined}
         aria-selected={isSelected() ? 'true' : 'false'}
-        aria-posinset={virtualizedPositions()?.get(option.key)}
+        aria-posinset={
+          merged.virtualized ? visibleOptionPositionByKey().get(option.key) : undefined
+        }
         aria-setsize={merged.virtualized ? visibleFlatOptions().length : undefined}
-        style={props.styles?.item}
-        onClick={() => selectOption(option)}
-        onPointerDown={(event) => event.preventDefault()}
-        onPointerMove={() => {
-          if (!option.disabled) {
+        style={{
+          ...merged.styles?.item,
+          ...toStyleObject(virtualProps?.style),
+        }}
+        class={selectItemVariants({ size: merged.size }, merged.classes?.item, virtualProps?.class)}
+        onPointerMove={(event) => {
+          callHandler(event, virtualProps?.onPointerMove)
+          if (!event.defaultPrevented && event.pointerType === 'mouse' && !option.disabled) {
             setHighlightedKey(option.key)
           }
         }}
-        class={listBoxItemVariants(
-          {
-            size: merged.size as 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined,
-          },
-          props.classes?.item,
-        )}
+        onPointerDown={(event) => {
+          callHandler(event, virtualProps?.onPointerDown)
+          if (!event.defaultPrevented) {
+            event.preventDefault()
+          }
+        }}
+        onClick={(event) => {
+          callHandler(event, virtualProps?.onClick)
+          if (event.defaultPrevented || option.disabled) {
+            return
+          }
+
+          setHighlightedKey(option.key)
+          selectOption(option)
+        }}
       >
-        {props.optionRender({
+        {merged.optionRender({
           ...option.raw,
           isSelected: isSelected(),
           isHighlighted: highlightedKey() === option.key,
@@ -821,6 +925,53 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       </div>
     )
   }
+
+  function renderVirtualEntry(
+    entry: BaseSelectT.VirtualEntry<TItem>,
+    _index: number,
+    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+  ): JSX.Element {
+    if (entry.type === 'label') {
+      return (
+        <div
+          {...virtualProps}
+          role="presentation"
+          data-slot="group"
+          style={{
+            ...merged.styles?.group,
+            ...toStyleObject(virtualProps?.style),
+          }}
+          class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group, virtualProps?.class)}
+        >
+          <span
+            data-slot="label"
+            style={merged.styles?.label}
+            class={cn(
+              'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
+              merged.classes?.label,
+            )}
+          >
+            {entry.label}
+          </span>
+        </div>
+      )
+    }
+
+    return (
+      <Show when={visibleOptionByKey().get(entry.key)}>
+        {(option) => renderVisibleOption(option(), virtualProps)}
+      </Show>
+    )
+  }
+
+  const virtualRendering = useVirtualRender<
+    BaseSelectT.VirtualEntry<TItem>,
+    HTMLDivElement,
+    HTMLDivElement
+  >({
+    entries: virtualEntries,
+    render: renderVirtualEntry,
+  })
 
   return (
     <div
@@ -905,7 +1056,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                 role="listbox"
                 ref={(element) => {
                   listboxRef = element
+                  virtualRendering.setScrollElement(element)
                 }}
+                aria-multiselectable={merged.multiple || undefined}
                 data-slot="listbox"
                 style={merged.styles?.listbox}
                 class={cn(
@@ -916,39 +1069,44 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               >
                 <Show
                   when={visibleFlatOptions().length > 0}
-                  fallback={props.emptyRender?.(stateApi) ?? props.optionRender(null)}
+                  fallback={merged.emptyRender?.(stateApi) ?? merged.optionRender(null)}
                 >
-                  <For each={visibleOptions()}>
-                    {(item) => (
-                      <Show
-                        when={item.isGroup}
-                        fallback={renderVisibleOption(item as NormalizedOption<TItem>)}
-                      >
-                        <div>
-                          <div
-                            data-slot="group"
-                            role="group"
-                            style={props.styles?.group}
-                            class={cn('[&:not(:first-child)]:mt-1.5', props.classes?.group)}
+                  <Show
+                    when={merged.virtualized && merged.virtualRender}
+                    fallback={
+                      <For each={visibleOptions()}>
+                        {(item) => (
+                          <Show
+                            when={item.isGroup}
+                            fallback={renderVisibleOption(item as NormalizedOption<TItem>)}
                           >
-                            <span
-                              data-slot="label"
-                              style={props.styles?.label}
-                              class={cn(
-                                'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-                                props.classes?.label,
-                              )}
+                            <div
+                              data-slot="group"
+                              role="group"
+                              style={merged.styles?.group}
+                              class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
                             >
-                              {(item as NormalizedGroup<TItem>).label}
-                            </span>
-                          </div>
-                          <For each={(item as NormalizedGroup<TItem>).options}>
-                            {(option) => renderVisibleOption(option)}
-                          </For>
-                        </div>
-                      </Show>
-                    )}
-                  </For>
+                              <span
+                                data-slot="label"
+                                style={merged.styles?.label}
+                                class={cn(
+                                  'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
+                                  merged.classes?.label,
+                                )}
+                              >
+                                {(item as NormalizedGroup<TItem>).label}
+                              </span>
+                              <For each={(item as NormalizedGroup<TItem>).options}>
+                                {(option) => renderVisibleOption(option)}
+                              </For>
+                            </div>
+                          </Show>
+                        )}
+                      </For>
+                    }
+                  >
+                    {(virtualRender) => virtualRender()(virtualRendering.context)}
+                  </Show>
                 </Show>
               </div>
             </div>

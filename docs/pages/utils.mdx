@@ -13,6 +13,7 @@ Import shared helpers from the dedicated subpath:
 
 ```tsx
 import {
+  type VirtualRenderT,
   createContextProvider,
   createMediaQuery,
   useControllableValue,
@@ -23,6 +24,7 @@ import {
   useLoadingAutoClick,
   useSelectableCollectionNavigation,
   useTransitionPresence,
+  useVirtualRender,
 } from 'moraine/utils'
 ```
 
@@ -108,6 +110,27 @@ const { isLoading, onClick } = useLoadingAutoClick({
   loadingAuto: () => true,
   onClick: () => props.onSubmit,
 })
+```
+
+## `useVirtualRender`
+
+Expose a component-owned reactive collection and row renderer to a caller-provided virtualizer. The returned context keeps stable identity while `entries` and `scrollElement` remain reactive; `render` forwards measurement, positioning, ref, and `data-index` attributes to the component's final row element.
+
+Use `VirtualRenderT.Context<Entry, ScrollElement, RowElement>` when a component exposes the context in its public API, and `VirtualRenderT.RowProps<RowElement>` when typing its row renderer.
+
+```tsx
+const virtualRendering = useVirtualRender({
+  entries: () => props.items,
+  render: (item, index, rowProps) => (
+    <div {...rowProps} data-index={index}>
+      {item.label}
+    </div>
+  ),
+})
+
+<div ref={virtualRendering.setScrollElement}>
+  {props.virtualRender?.(virtualRendering.context)}
+</div>
 ```
 
 ## `createContextProvider`

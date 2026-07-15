@@ -15,7 +15,7 @@ import { Select } from 'moraine'
 
 ## Slot Structure
 
-Trigger control and a floating listbox with grouped options.
+Trigger control and a floating listbox with grouped options. The control or search input keeps focus while options provide selection, highlight, and active-descendant semantics.
 
 ### Control
 
@@ -84,3 +84,9 @@ Options organized in sections.
 Scroll to the bottom to load more options.
 
 <Example path="./infinite-scroll" />
+
+## Virtual Rendering
+
+Pass `virtualized`, `virtualRender`, and `scrollToItem` to render only visible entries. The context exposes the complete reactive collection, the mounted listbox through `scrollElement`, and `render(entry, index, props)` for forwarding measurement and positioning attributes to the final option row. `scrollToItem` receives the source Select item and its flattened entry index.
+
+<Example path="./virtualization" />

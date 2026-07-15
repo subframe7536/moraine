@@ -44,7 +44,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown --config-loader unrun",
     "dev": "bun run docs:dev",
     "docs": "bun run docs:dev",
     "docs:dev": "bun run build && vite serve docs",
@@ -74,6 +74,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.2.1",
     "@subf/unocss": "^0.3.0",
+    "@tanstack/solid-virtual": "^3.13.33",
     "@testing-library/dom": "*",
     "@types/node": "^24",
     "bumpp": "^11.1.0",
