@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Kbd, KbdGroup } from '@src'
+import { Button, CommandPalette, Icon, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
@@ -50,7 +50,7 @@ export function RealWorldExample() {
           value: 'open-project-switcher',
           label: 'Open project switcher',
           description: 'Jump between projects, teams, and recent workspaces.',
-          leadingRender: () => <span class="i-lucide-search-check" />,
+          leadingRender: () => <Icon name="i-lucide-search-check" />,
           trailingRender: () => (
             <KbdGroup
               items={[modifierLabel(), 'Shift', 'P']}
@@ -68,7 +68,7 @@ export function RealWorldExample() {
           value: 'go-issues',
           label: 'Go to issues',
           description: 'Open the active team issue board.',
-          leadingRender: () => <span class="i-lucide-circle-dot" />,
+          leadingRender: () => <Icon name="i-lucide-circle-dot" />,
           trailingRender: () => (
             <KbdGroup items={[modifierLabel(), 'I']} size="sm" class="text-muted-foreground" />
           ),
@@ -88,7 +88,7 @@ export function RealWorldExample() {
           value: 'new-issue',
           label: 'Create issue',
           description: 'Capture a bug or task without leaving the current page.',
-          leadingRender: () => <span class="i-lucide-file-plus-2" />,
+          leadingRender: () => <Icon name="i-lucide-file-plus-2" />,
           trailingRender: () => (
             <KbdGroup items={[modifierLabel(), 'N']} size="sm" class="text-muted-foreground" />
           ),
@@ -102,7 +102,7 @@ export function RealWorldExample() {
           value: 'toggle-sidebar',
           label: 'Toggle sidebar',
           description: 'Collapse navigation to focus on the current editor.',
-          leadingRender: () => <span class="i-lucide-panel-left-close" />,
+          leadingRender: () => <Icon name="i-lucide-panel-left-close" />,
           trailingRender: () => (
             <KbdGroup items={[modifierLabel(), 'B']} size="sm" class="text-muted-foreground" />
           ),
@@ -116,7 +116,7 @@ export function RealWorldExample() {
           value: 'open-billing',
           label: 'Open billing',
           description: 'Restricted to workspace owners.',
-          leadingRender: () => <span class="i-lucide-credit-card" />,
+          leadingRender: () => <Icon name="i-lucide-credit-card" />,
           disabled: true,
           trailingRender: () => <span class="text-xs text-muted-foreground">Owner only</span>,
         },

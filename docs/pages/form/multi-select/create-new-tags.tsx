@@ -1,4 +1,4 @@
-import { MultiSelect } from '@src'
+import { Button, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -26,13 +26,9 @@ export function CreateNewTags() {
         placeholder="Type to create tags..."
         emptyRender={(ctx) => (
           <div class="p-2 text-center">
-            <button
-              type="button"
-              class="text-sm text-primary cursor-pointer hover:underline"
-              onClick={() => ctx.create()}
-            >
+            <Button variant="link" size="sm" class="text-primary" onClick={() => ctx.create()}>
               Create &ldquo;{ctx.inputValue}&rdquo;
-            </button>
+            </Button>
           </div>
         )}
       />

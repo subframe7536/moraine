@@ -1,4 +1,4 @@
-import { Badge, Button, CommandPalette } from '@src'
+import { Badge, Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -11,14 +11,14 @@ const GROUPS: CommandPaletteT.Group[] = [
         value: 'inbox',
         label: 'Inbox',
         description: '24 unread messages across all teams',
-        leadingRender: () => <span class="i-lucide-inbox" />,
+        leadingRender: () => <Icon name="i-lucide-inbox" />,
         trailingRender: () => <Badge variant="default">24</Badge>,
       },
       {
         value: 'settings',
         label: 'Settings',
         description: 'Workspace preferences and billing',
-        leadingRender: () => <span class="i-lucide-settings" />,
+        leadingRender: () => <Icon name="i-lucide-settings" />,
       },
     ],
   },

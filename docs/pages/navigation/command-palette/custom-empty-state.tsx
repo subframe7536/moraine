@@ -1,4 +1,4 @@
-import { Button, CommandPalette } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import { createSignal } from 'solid-js'
 
 export function CustomEmptyState() {
@@ -12,7 +12,7 @@ export function CustomEmptyState() {
         groups={[]}
         emptyRender={() => (
           <span class="flex flex-col gap-2 items-center">
-            <span class="i-lucide-search-x text-muted-foreground size-6" aria-hidden="true" />
+            <Icon name="i-lucide-search-x" class="text-muted-foreground size-6" />
             <span class="text-foreground font-medium">No commands found</span>
             <span class="text-xs">Try a different keyword or clear the search.</span>
           </span>

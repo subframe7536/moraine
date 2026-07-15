@@ -1,8 +1,9 @@
 import type { Accessor } from 'solid-js'
-import { For, Show, createMemo } from 'solid-js'
+import { Show, createMemo } from 'solid-js'
 
 import { version } from '../../package.json'
-import { Badge, Button, cn } from '../../src'
+import { Badge, Button, ListBox, cn } from '../../src'
+import type { ListBoxT } from '../../src'
 
 import type { DocsPageEntry } from './docs-route'
 
@@ -47,48 +48,60 @@ export const Sidebar = (props: SidebarProps) => {
     ]
   })
 
+  const items = createMemo<ListBoxT.Entry[]>(() => {
+    const entries: ListBoxT.Entry[] = []
+
+    for (const section of grouped()) {
+      if (section.group) {
+        entries.push({
+          type: 'label',
+          key: `group-${section.group}`,
+          label: section.group,
+        })
+      }
+
+      for (const page of section.pages) {
+        entries.push({
+          value: page.key,
+          label: page.label,
+          trailingRender: () => (
+            <Show when={page.badge}>
+              {(badge) => (
+                <span class="text-[0.6rem] leading-none font-semibold px-1.25 py-0.75 border rounded-sm bg-background/70 shrink-0 uppercase">
+                  {badge()}
+                </span>
+              )}
+            </Show>
+          ),
+        })
+      }
+    }
+
+    return entries
+  })
+
   return (
     <div class="px-3 pb-10 pt-3 h-full min-h-0 overflow-y-auto">
       <nav class="pb-2 flex flex-col gap-5">
-        <For each={grouped()}>
-          {(section) => (
-            <section>
-              <Show when={section.group}>
-                <div class="text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
-                  {section.group}
-                </div>
-              </Show>
-
-              <div class="flex flex-col gap-0.5">
-                <For each={section.pages}>
-                  {(page) => (
-                    <button
-                      type="button"
-                      class={cn(
-                        'text-sm text-muted-foreground px-2.5 py-1.75 text-left rounded-md transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
-                        props.activePage() === page.key
-                          ? 'text-accent-foreground font-medium bg-accent'
-                          : 'hover:text-foreground hover:bg-accent/30',
-                      )}
-                      onClick={() => props.setActivePage(page.key)}
-                    >
-                      <span class="flex gap-2 min-w-0 w-full items-center justify-between">
-                        <span class="truncate">{page.label}</span>
-                        <Show when={page.badge}>
-                          {(badge) => (
-                            <span class="text-[0.6rem] leading-none font-semibold px-1.25 py-0.75 border rounded-sm bg-background/70 shrink-0 uppercase">
-                              {badge()}
-                            </span>
-                          )}
-                        </Show>
-                      </span>
-                    </button>
-                  )}
-                </For>
-              </div>
-            </section>
-          )}
-        </For>
+        <ListBox
+          ariaLabel="Documentation pages"
+          items={items()}
+          selectionMode="single"
+          value={props.activePage()}
+          onChange={(value) => {
+            if (typeof value === 'string' || typeof value === 'number') {
+              props.setActivePage(String(value))
+            }
+          }}
+          classes={{
+            content: 'gap-0',
+            label:
+              'text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase',
+            item: 'text-sm text-muted-foreground px-2.5 py-1.75 min-h-0 rounded-md transition-colors duration-100 data-selected:(text-accent-foreground font-medium bg-accent) hover:(text-foreground bg-accent/30)',
+            itemWrapper: 'min-w-0',
+            itemLabel: 'truncate',
+          }}
+        />
 
         <Show when={grouped().length === 0}>
           <p class="text-xs text-muted-foreground px-2 py-3">No results</p>
@@ -98,15 +111,18 @@ export const Sidebar = (props: SidebarProps) => {
           <div class="text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
             Resources
           </div>
-          <a
+          <Button
+            as="a"
             href="/llms.txt"
             rel="alternate external"
             type="text/markdown"
-            class="text-sm text-muted-foreground px-2.5 py-1.75 rounded-md flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-accent/30) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            variant="ghost"
+            size="sm"
+            leading="i-lucide-file-text"
+            class="text-muted-foreground w-full justify-start hover:(text-foreground bg-accent/30)"
           >
-            <span class="i-lucide-file-text shrink-0 size-4" aria-hidden="true" />
             <span class="truncate">llms.txt</span>
-          </a>
+          </Button>
         </section>
       </nav>
     </div>

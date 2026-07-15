@@ -1,4 +1,4 @@
-import { Input } from '@src'
+import { Icon, Input } from '@src'
 
 export function InputWithIcons() {
   return (
@@ -16,7 +16,7 @@ export function InputWithIcons() {
       <Input
         leading={
           <div class="text-muted-foreground flex gap-1 items-center">
-            <div class="i-lucide-globe" />
+            <Icon name="i-lucide-globe" />
             https://
           </div>
         }

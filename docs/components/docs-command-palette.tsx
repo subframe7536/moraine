@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
-import { CommandPalette, KbdGroup, cn } from '../../src'
+import { Button, CommandPalette, Icon, KbdGroup, cn } from '../../src'
 import type { CommandPaletteT } from '../../src'
 
 import type { SidebarPage } from './sidebar'
@@ -62,18 +62,19 @@ export function DocsSearchTrigger(props: {
   const variant = () => props.variant ?? 'desktop'
 
   return (
-    <button
-      type="button"
+    <Button
       aria-label="Open search"
       onClick={() => props.onOpen()}
+      variant="ghost"
+      size={variant() === 'mobile' ? 'icon-sm' : 'sm'}
       class={cn(
         variant() === 'mobile'
-          ? 'text-muted-foreground p-2 rounded-md inline-flex h-9 w-9 cursor-pointer items-center justify-center hover:(text-foreground bg-accent/50)'
-          : 'text-sm text-muted-foreground px-3 py-1.5 b-1 b-border rounded-md bg-background/70 flex flex-1 gap-2 h-9 max-w-xs cursor-pointer transition-colors items-center hover:(border-border bg-background)',
+          ? 'text-muted-foreground hover:(text-foreground bg-accent/50)'
+          : 'text-sm text-muted-foreground px-3 b-1 b-border bg-background/70 flex-1 gap-2 max-w-xs justify-start hover:(border-border bg-background)',
         props.class,
       )}
     >
-      <span class="i-lucide-search shrink-0 size-4 block" aria-hidden="true" />
+      <Icon name="i-lucide-search" class="shrink-0 size-4" />
       <Show when={variant() === 'desktop'}>
         <span class="text-left flex-1 truncate">Search...</span>
         <KbdGroup
@@ -83,7 +84,7 @@ export function DocsSearchTrigger(props: {
           // classes={{ item: 'text-[0.65rem]' }}
         />
       </Show>
-    </button>
+    </Button>
   )
 }
 

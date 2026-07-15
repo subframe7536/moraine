@@ -1,7 +1,6 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import { Switch, cn } from '../../src'
-import { buttonVariants } from '../../src/elements/button/button.class'
+import { Button, Icon, Switch, cn } from '../../src'
 
 export interface ContentHeaderProps {
   pageTitle: Accessor<string>
@@ -43,15 +42,17 @@ export function ContentHeader(props: ContentHeaderProps) {
           checkedIcon="i-lucide-moon"
           uncheckedIcon="i-lucide-sun"
         />
-        <a
+        <Button
+          as="a"
           href="https://github.com/subframe7536/moraine"
           target="_blank"
           rel="noopener noreferrer"
-          class={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+          variant="ghost"
+          size="icon-sm"
           aria-label="GitHub repository"
         >
-          <span class="i-lucide-github block" />
-        </a>
+          <Icon name="i-lucide-github" />
+        </Button>
       </div>
     </header>
   )

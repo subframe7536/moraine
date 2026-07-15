@@ -1,4 +1,4 @@
-import { Textarea } from '@src'
+import { Button, Icon, Textarea } from '@src'
 import { createSignal } from 'solid-js'
 
 export function HeaderFooter() {
@@ -11,7 +11,7 @@ export function HeaderFooter() {
         header={
           <>
             <span class="font-semibold">Info text</span>
-            <span class="i-lucide-info text-base ms-auto" />
+            <Icon name="i-lucide-info" class="text-base ms-auto" />
           </>
         }
         classes={{
@@ -28,12 +28,9 @@ export function HeaderFooter() {
         footer={
           <>
             <span>{composerValue().length}/280 characters</span>
-            <button
-              type="button"
-              class="text-xs text-primary-foreground ms-auto px-2 py-1 rounded-md bg-primary"
-            >
+            <Button size="xs" class="ms-auto">
               Send
-            </button>
+            </Button>
           </>
         }
         classes={{
@@ -46,7 +43,7 @@ export function HeaderFooter() {
         placeholder="console.log('Hello, world!');"
         header={
           <>
-            <span class="i-lucide-code text-base" />
+            <Icon name="i-lucide-code" class="text-base" />
             <span>script.js</span>
           </>
         }

@@ -1,5 +1,5 @@
 // oxlint-disable class-methods-use-this
-import { render } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import type { Component, JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -70,6 +70,7 @@ describe('Markdown', () => {
         Content={EmptyContent}
         examples={{}}
         codeTabs={{}}
+        markdownSource="# Button docs"
       />
     ))
 
@@ -84,6 +85,31 @@ describe('Markdown', () => {
     expect(markdownLink.getAttribute('href')).toBe('/button.md')
     expect(markdownLink.getAttribute('rel')).toBe('alternate external')
     expect(markdownLink.getAttribute('type')).toBe('text/markdown')
+    expect(markdownLink.className).toBe(screen.getByText('Source Code').closest('a')?.className)
+    expect(screen.getByRole('button', { name: 'Copy markdown source' })).toBeDefined()
+  })
+
+  test('copies markdown source from the header action', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { clipboard: { writeText } })
+
+    const screen = render(() => (
+      <Markdown
+        pageKey="button"
+        frontmatter={FRONTMATTER}
+        Content={EmptyContent}
+        examples={{}}
+        codeTabs={{}}
+        markdownSource="# Button docs"
+      />
+    ))
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Copy markdown source' }))
+
+    expect(writeText).toHaveBeenCalledWith('# Button docs')
+    expect(screen.getByText('Copied Markdown')).toBeDefined()
+
+    vi.unstubAllGlobals()
   })
 
   test('renders api reference from api doc automatically', () => {

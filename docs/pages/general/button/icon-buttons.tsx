@@ -21,11 +21,7 @@ export function IconButtons() {
           </Button>
         )}
       </For>
-      <Button
-        variant="outline"
-        leading={<div class="i-lucide:arrow-left" />}
-        trailing={<div class="i-lucide:arrow-right" />}
-      >
+      <Button variant="outline" leading="i-lucide:arrow-left" trailing="i-lucide:arrow-right">
         Leading + trailing
       </Button>
     </div>

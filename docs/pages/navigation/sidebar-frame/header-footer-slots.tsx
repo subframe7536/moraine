@@ -1,5 +1,4 @@
-import { Button, SidebarFrame } from '@src'
-import { For } from 'solid-js'
+import { Button, ListBox, SidebarFrame } from '@src'
 
 const TASKS = [
   'Release checklist',
@@ -29,18 +28,13 @@ export function HeaderFooterSlots() {
         )}
         sidebarBodyRender={() => (
           <div class="p-2">
-            <div class="flex flex-col gap-1">
-              <For each={TASKS}>
-                {(task) => (
-                  <button
-                    type="button"
-                    class="text-sm px-2.5 py-1.5 text-left rounded-md hover:bg-accent"
-                  >
-                    {task}
-                  </button>
-                )}
-              </For>
-            </div>
+            <ListBox
+              items={TASKS.map((item) => ({ value: item, label: item }))}
+              classes={{
+                content: 'gap-1',
+                item: 'text-sm px-2.5 py-1.5 min-h-0 rounded-md hover:bg-accent data-highlighted:bg-transparent',
+              }}
+            />
           </div>
         )}
         sidebarFooterRender={() => (

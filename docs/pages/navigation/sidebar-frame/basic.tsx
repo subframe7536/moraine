@@ -1,5 +1,4 @@
-import { Button, Icon, SidebarFrame } from '@src'
-import { For } from 'solid-js'
+import { Button, Icon, ListBox, SidebarFrame } from '@src'
 
 const PAGES = [
   'Introduction',
@@ -22,18 +21,13 @@ export function Basic() {
         sidebarHeaderRender={() => <div class="text-sm font-semibold p-4">Documentation</div>}
         sidebarBodyRender={() => (
           <div class="p-2 h-full overflow-y-auto">
-            <div class="flex flex-col gap-1">
-              <For each={PAGES}>
-                {(item) => (
-                  <button
-                    type="button"
-                    class="text-sm px-2.5 py-1.5 text-left rounded-md hover:bg-accent"
-                  >
-                    {item}
-                  </button>
-                )}
-              </For>
-            </div>
+            <ListBox
+              items={PAGES.map((item) => ({ value: item, label: item }))}
+              classes={{
+                content: 'gap-1',
+                item: 'text-sm px-2.5 py-1.5 min-h-0 rounded-md hover:bg-accent data-highlighted:bg-transparent',
+              }}
+            />
           </div>
         )}
         mainRender={(ctx) => (

@@ -1,4 +1,4 @@
-import { Button, CommandPalette } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -12,19 +12,19 @@ export function Loading() {
         {
           value: 'new-issue',
           label: 'New Issue',
-          leadingRender: () => <span class="i-lucide-circle-plus" />,
+          leadingRender: () => <Icon name="i-lucide-circle-plus" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
         },
         {
           value: 'open-inbox',
           label: 'Open Inbox',
-          leadingRender: () => <span class="i-lucide-inbox" />,
+          leadingRender: () => <Icon name="i-lucide-inbox" />,
           trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
         },
         {
           value: 'sync-roadmap',
           label: 'Sync Roadmap',
-          leadingRender: () => <span class="i-lucide-refresh-cw" />,
+          leadingRender: () => <Icon name="i-lucide-refresh-cw" />,
           description: 'Pull the latest planning updates',
         },
       ],

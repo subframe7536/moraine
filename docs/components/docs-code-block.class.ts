@@ -1,4 +1,5 @@
-export const DOCS_CODE_BLOCK_ROOT_CLASS = '[&_.expressive-code_.copy_button]:rounded-md!'
+export const DOCS_CODE_BLOCK_ROOT_CLASS =
+  '[&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:-translate-y-1/2!'
 
 export const DOCS_CODE_BLOCK_SOURCE_CLASS =
   'group relative my-0 border-t border-border/80 overflow-hidden'

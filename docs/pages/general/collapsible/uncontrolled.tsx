@@ -1,4 +1,4 @@
-import { Card, Collapsible, Icon, Switch } from '@src'
+import { Button, Card, Collapsible, Icon, Switch } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Uncontrolled() {
@@ -18,9 +18,10 @@ export function Uncontrolled() {
           <Collapsible
             transition={transition()}
             renderTrigger={(context) => (
-              <button
+              <Button
                 {...context.triggerProps}
-                class="text-sm flex w-full cursor-pointer items-center justify-between"
+                variant="ghost"
+                class="text-sm w-full justify-between"
               >
                 <span>How do I reset my password?</span>
                 <Icon
@@ -28,7 +29,7 @@ export function Uncontrolled() {
                   aria-hidden="true"
                   class={`text-muted-foreground shrink-0 size-4 transition-transform ${context.isOpen ? 'rotate-180' : ''}`}
                 />
-              </button>
+              </Button>
             )}
           >
             <div class="text-sm text-muted-foreground pt-3">

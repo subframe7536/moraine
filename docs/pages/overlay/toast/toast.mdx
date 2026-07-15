@@ -23,12 +23,13 @@ Then import styles, mount a `Toaster` instance.
 ```tsx
 import 'solid-toaster/style.css'
 
+import { Button } from '@subframe7536/moraine'
 import { Toaster, toast } from 'solid-toaster'
 
 export default function App() {
   return (
     <>
-      <button onClick={() => toast.success('Saved!')}>Toast</button>
+      <Button onClick={() => toast.success('Saved!')}>Toast</Button>
       <Toaster />
     </>
   )
