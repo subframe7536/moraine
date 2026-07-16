@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
 import { fileRouter } from 'solid-file-router/plugin'
+import type { PluginOption } from 'vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
@@ -26,7 +27,7 @@ const site = {
 
 export default defineConfig({
   plugins: [
-    docsBuildPlugin({ projectRoot }),
+    docsBuildPlugin({ projectRoot }) as unknown as PluginOption,
     uno(unocfg),
     solid({ ssr: true, extensions: ['.mdx'] }),
     fileRouter({
