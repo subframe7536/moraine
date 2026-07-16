@@ -30,3 +30,9 @@ Providing `virtualRender` replaces normal iteration. The component receives reac
 Lifecycle-based integrations such as `createVirtualizer` can be created directly inside the `virtualRender` component.
 
 <Example path="./virtualization" />
+
+### Dynamic Heights
+
+For variable-height rows, omit an explicit row height and forward both `data-index` and `measureElement` to the final row. Measurement is deferred until Solid finishes mounting the row and applies its forwarded attributes. TanStack Virtual then observes each connected row and updates its measured size when the content changes.
+
+<Example path="./dynamic-height" />
