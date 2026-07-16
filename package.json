@@ -44,7 +44,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown --config-loader unrun",
+    "build": "tsdown",
     "dev": "bun run docs:dev",
     "docs": "bun run docs:dev",
     "docs:dev": "bun run build && vite serve docs",

@@ -253,6 +253,12 @@
         "description": "Unique identifier used to derive the content id."
       },
       {
+        "name": "inputProps",
+        "required": false,
+        "type": "JSX.HTMLAttributes<HTMLInputElement> | undefined",
+        "description": "Additional props of input"
+      },
+      {
         "name": "itemRender",
         "required": false,
         "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",

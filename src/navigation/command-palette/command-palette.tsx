@@ -269,6 +269,8 @@ export namespace CommandPaletteT {
     position?: Partial<Position>
     /** Callback triggered when the modal content position changes. */
     onPositionChange?: (position: Position) => void
+    /** Additional props of input */
+    inputProps?: JSX.HTMLAttributes<HTMLInputElement>
     /** Optional trigger element that opens the command palette. */
     children?: JSX.Element
   }
@@ -298,12 +300,6 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
-}
-
-function callRef<T extends Element>(ref: T | ((element: T) => void) | undefined, element: T): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
 }
 
 function buildItemSearchText<TItem extends CommandPaletteT.Item>(
@@ -750,7 +746,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <div
         {...virtualProps}
         ref={(element) => {
-          callRef(virtualProps?.ref, element)
+          if (virtualProps) {
+            virtualProps.ref = element
+          }
         }}
         id={`${listboxId()}-${encodeURIComponent(item.key)}`}
         role="option"
@@ -906,6 +904,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               />
 
               <input
+                {...merged.inputProps}
                 ref={(el) => {
                   setInputElement(el)
                 }}
@@ -927,12 +926,17 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 maxLength={merged.searchMaxLength}
                 value={currentSearchTerm()}
                 onInput={(event) => {
-                  if (!event.defaultPrevented) {
+                  const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput as any)
+                  if (!defaultPrevented) {
                     applySearchValue(event.currentTarget.value)
                   }
                 }}
                 onKeyDown={(event) => {
-                  if (!event.defaultPrevented) {
+                  const { defaultPrevented } = callHandler(
+                    event,
+                    merged.inputProps?.onKeyDown as any,
+                  )
+                  if (!defaultPrevented) {
                     handleKeyDown(event, context.close)
                   }
                 }}

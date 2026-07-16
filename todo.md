@@ -36,8 +36,13 @@
   - [x] display text and accessible label for each kbd element
   - [x] support both symbol and text to better adapt different platforms and devices
 - [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
-- [x] extract a public, style-free `useVirtualRender` hook and use it across Select, MultiSelect, and CommandPalette while each component keeps its own listbox semantics, rendering, focus, and styles. Menu keeps its dedicated menuitem and submenu behavior.
 - [x] fix broken styles of `Radio` component: no border highlight when actived in card and table variant; default indicator is changed from circle to oval.
+- [ ] extract a public, headless `list` component to render list with virtualization interface support for select/multi-select
+  - [ ] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
+  - [ ] fix virtualization not render any items in select/multi-select
+  - [ ] remove `virtualized` prop, just follow `virtualRender`
+- [ ] fix textarea footer/header interaction priority
+- [ ] add transition for button interaction like shadcn
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
