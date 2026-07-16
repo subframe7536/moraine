@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import type { Plugin } from 'vite'
+import type { PluginOption } from 'vite'
 
 import { loadApiDocIndex } from './api-doc/load'
 import { getDocsExpressiveCodeAssets } from './core/expressive-code'
@@ -24,7 +24,7 @@ export interface DocsBuildPluginOptions {
 
 const API_DOC_GENERATION_BY_PROJECT = new Map<string, Promise<void>>()
 
-export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
+export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): PluginOption {
   let projectRoot = ''
   const transformHandler = createDocsTransformHandler()
   const ensureApiDocs = async () => {

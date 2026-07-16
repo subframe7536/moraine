@@ -41,6 +41,7 @@
   - [x] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
   - [x] fix virtualization not render any items in select/multi-select
   - [x] remove `virtualized` prop, just follow `virtualRender`
+- [ ] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
 - [ ] fix textarea footer/header interaction priority
 - [ ] add transition for button interaction like shadcn
 - [ ] find a way to add jsdoc for Variant 's props
