@@ -761,7 +761,6 @@ describe('CommandPalette', () => {
       <CommandPalette
         open
         groups={GROUPS}
-        virtualized
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
           setEntryIndex(index)
@@ -896,7 +895,9 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('forwards inputProps and listboxProps', async () => {
+  test('forwards input, listbox, and item props', async () => {
+    const listboxRef = vi.fn()
+    const itemRef = vi.fn()
     render(() => (
       <CommandPalette
         open
@@ -908,6 +909,18 @@ describe('CommandPalette', () => {
             'data-track': 'command-input',
           } as JSX.InputHTMLAttributes<HTMLInputElement>
         }
+        listboxProps={{
+          ref: listboxRef,
+          'data-track': 'command-list',
+          class: 'listbox-prop',
+          style: { height: '200px' },
+        }}
+        itemProps={(context) => ({
+          ref: context.item.value === 'new-file' ? itemRef : undefined,
+          'data-value': context.item.value,
+          class: 'item-prop',
+          style: { height: '40px' },
+        })}
       />
     ))
 
@@ -918,7 +931,18 @@ describe('CommandPalette', () => {
       expect(input.getAttribute('data-track')).toBe('command-input')
     })
 
-    await fireEvent.scroll(document.body.querySelector('[data-slot="listbox"]') as HTMLElement)
+    const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement
+    const item = document.body.querySelector('[data-value="new-file"]') as HTMLElement
+
+    expect(listboxRef).toHaveBeenCalledWith(listbox)
+    expect(itemRef).toHaveBeenCalledWith(item)
+    expect(listbox.getAttribute('data-track')).toBe('command-list')
+    expect(listbox.className).toContain('listbox-prop')
+    expect(listbox.style.height).toBe('200px')
+    expect(item.className).toContain('item-prop')
+    expect(item.style.height).toBe('40px')
+
+    await fireEvent.scroll(listbox)
   })
 
   test('requires value in item type contract', () => {

@@ -81,6 +81,14 @@
       "sourcePath": "src/elements/kbd/kbd-group.tsx"
     },
     {
+      "key": "list",
+      "name": "List",
+      "category": "elements",
+      "polymorphic": true,
+      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
+      "sourcePath": "src/elements/list/list.tsx"
+    },
+    {
       "key": "progress",
       "name": "Progress",
       "category": "elements",

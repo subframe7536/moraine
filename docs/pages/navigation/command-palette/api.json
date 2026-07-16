@@ -259,6 +259,12 @@
         "description": "Additional props of input"
       },
       {
+        "name": "itemProps",
+        "required": false,
+        "type": "((context: CommandPaletteT.ItemRenderContext<TItem>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional attributes for a command row."
+      },
+      {
         "name": "itemRender",
         "required": false,
         "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
@@ -270,6 +276,12 @@
         "type": "IconT.Name",
         "description": "Icon name of input's leading icon.",
         "defaultValue": "icon-search"
+      },
+      {
+        "name": "listboxProps",
+        "required": false,
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional attributes for the command listbox."
       },
       {
         "name": "loading",
@@ -379,12 +391,6 @@
         "name": "styles",
         "required": false,
         "type": "CommandPaletteT.Styles | undefined"
-      },
-      {
-        "name": "virtualized",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Enables virtualized ARIA metadata and caller-controlled window rendering."
       },
       {
         "name": "virtualRender",

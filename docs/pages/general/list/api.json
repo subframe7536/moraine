@@ -1,0 +1,46 @@
+{
+  "component": {
+    "key": "list",
+    "name": "List",
+    "category": "elements",
+    "polymorphic": true,
+    "description": "Headless polymorphic list with optional caller-controlled virtualization.",
+    "sourcePath": "src/elements/list/list.tsx"
+  },
+  "slots": [],
+  "props": {
+    "own": [
+      {
+        "name": "as",
+        "required": false,
+        "type": "T | undefined",
+        "description": "Root element or component.",
+        "defaultValue": "ul"
+      },
+      {
+        "name": "itemRender",
+        "required": true,
+        "type": "(context: ListT.ItemRenderContext<TItem, TItemElement>) => JSX.Element",
+        "description": "Renders one collection item."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "readonly TItem[] | undefined",
+        "description": "Reactive collection rendered by the list."
+      },
+      {
+        "name": "virtualRender",
+        "required": false,
+        "type": "((context: ListT.VirtualRenderContext<TItem, HTMLElement, TItemElement>) => JSX.Element) | undefined",
+        "description": "Replaces normal iteration with caller-controlled virtual rendering."
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [],
+    "data": [],
+    "slots": []
+  }
+}

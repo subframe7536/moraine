@@ -217,6 +217,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "itemProps",
+        "required": false,
+        "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional attributes for an option row."
+      },
+      {
         "name": "labelRender",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem>) => JSX.Element) | undefined",
@@ -227,6 +233,12 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Icon shown before the input/value area."
+      },
+      {
+        "name": "listboxProps",
+        "required": false,
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional attributes for the listbox element."
       },
       {
         "name": "loading",
@@ -410,12 +422,6 @@
         "name": "variant",
         "required": false,
         "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
-      },
-      {
-        "name": "virtualized",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Enables virtualized ARIA metadata and caller-controlled window rendering."
       },
       {
         "name": "virtualRender",

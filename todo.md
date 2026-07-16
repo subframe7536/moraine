@@ -37,10 +37,10 @@
   - [x] support both symbol and text to better adapt different platforms and devices
 - [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
 - [x] fix broken styles of `Radio` component: no border highlight when actived in card and table variant; default indicator is changed from circle to oval.
-- [ ] extract a public, headless `list` component to render list with virtualization interface support for select/multi-select
-  - [ ] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
-  - [ ] fix virtualization not render any items in select/multi-select
-  - [ ] remove `virtualized` prop, just follow `virtualRender`
+- [x] extract a public, headless `list` component to render list with virtualization interface support for select/multi-select
+  - [x] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
+  - [x] fix virtualization not render any items in select/multi-select
+  - [x] remove `virtualized` prop, just follow `virtualRender`
 - [ ] fix textarea footer/header interaction priority
 - [ ] add transition for button interaction like shadcn
 - [ ] find a way to add jsdoc for Variant 's props

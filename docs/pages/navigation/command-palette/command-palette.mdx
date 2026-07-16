@@ -102,4 +102,4 @@ Fix the palette at a specific pixel offset and track its actual rendered positio
 
 ## Sizes and Virtual Rendering
 
-Use `size="xs" | "sm" | "md" | "lg" | "xl"` to size command rows. For large collections, pass `virtualized`, `virtualRender`, and `scrollToItem`; CommandPalette uses the shared `useVirtualRender` protocol to expose type-safe flattened entries and its scroll element, while `scrollToItem` receives the source command plus its flattened entry index.
+Use `size="xs" | "sm" | "md" | "lg" | "xl"` to size command rows. For large collections, pass `virtualRender` and `scrollToItem`; CommandPalette exposes type-safe flattened entries and its mounted scroll element, while `scrollToItem` receives the source command plus its flattened entry index.

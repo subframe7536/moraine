@@ -1,0 +1,30 @@
+---
+title: List
+description: Headless collection renderer with polymorphic roots and caller-controlled virtualization.
+sidebar:
+  order: 11
+search:
+  tags: [list, collection, virtualization, headless]
+---
+
+## Import
+
+```tsx
+import { List } from 'moraine'
+```
+
+`List` owns collection traversal and the scroll-element bridge used by virtual renderers. Item markup, semantics, styling, filtering, focus, and selection remain under caller control.
+
+## Examples
+
+### Object List
+
+Render arbitrary objects with a semantic `ul` root by default. Use `as` and native root attributes when another element or role is required.
+
+<Example path="./basic" />
+
+### Virtualization
+
+Providing `virtualRender` replaces normal iteration. The renderer receives the mounted scroll element, the complete reactive collection, and `render(item, index, props)` for forwarding measurement and positioning attributes to the final row.
+
+<Example path="./virtualization" />

@@ -5,6 +5,10 @@ export type SlotClassValue = ClassValue
 
 export type SlotStyleValue = JSX.CSSProperties
 
+export type ElementProps<T extends HTMLElement> = JSX.HTMLAttributes<T> & {
+  [key: `data-${string}`]: string | number | boolean | undefined
+}
+
 export type SlotClasses<TSlot> = [TSlot] extends [string]
   ? Partial<Record<TSlot, ClassValue>>
   : {

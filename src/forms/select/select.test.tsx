@@ -376,7 +376,48 @@ describe('Select - groups', () => {
     expect(items.length).toBe(4)
   })
 
-  test('does not force virtualized mode for grouped options by default', () => {
+  test('forwards listbox and item props and lets item events prevent selection', async () => {
+    const listboxRef = vi.fn()
+    const itemRef = vi.fn()
+    const onChange = vi.fn()
+    render(() => (
+      <Select
+        options={FRUITS}
+        defaultOpen
+        onChange={onChange}
+        listboxProps={{
+          ref: listboxRef,
+          'aria-label': 'Fruit options',
+          'data-track': 'fruit-list',
+          class: 'listbox-prop',
+          style: { width: '240px' },
+        }}
+        itemProps={(option) => ({
+          ref: option.value === 'apple' ? itemRef : undefined,
+          'data-value': option.value,
+          class: 'item-prop',
+          style: { height: '40px' },
+          onClick: (event) => event.preventDefault(),
+        })}
+      />
+    ))
+    const listbox = queryBody('[data-slot="listbox"]') as HTMLElement
+    const apple = queryBody('[data-value="apple"]') as HTMLElement
+
+    expect(listboxRef).toHaveBeenCalledWith(listbox)
+    expect(itemRef).toHaveBeenCalledWith(apple)
+    expect(listbox.getAttribute('data-track')).toBe('fruit-list')
+    expect(listbox.className).toContain('listbox-prop')
+    expect(listbox.style.width).toBe('240px')
+    expect(apple.className).toContain('item-prop')
+    expect(apple.style.height).toBe('40px')
+
+    await fireEvent.click(apple)
+
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('does not add virtual ARIA metadata without virtualRender', () => {
     render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
     const items = queryAllBody('[data-slot="item"]')
@@ -385,8 +426,19 @@ describe('Select - groups', () => {
     expect(items[0]?.getAttribute('aria-setsize')).toBeNull()
   })
 
-  test('renders grouped options with virtualized mode when explicitly enabled', () => {
-    render(() => <Select options={GROUPED_OPTIONS} virtualized defaultOpen placeholder="Pick" />)
+  test('renders grouped options through virtualRender when provided', () => {
+    render(() => (
+      <Select
+        options={GROUPED_OPTIONS}
+        defaultOpen
+        placeholder="Pick"
+        virtualRender={(context) => (
+          <For each={context.entries}>
+            {(entry) => context.render(entry, context.entries.indexOf(entry))}
+          </For>
+        )}
+      />
+    ))
 
     const sectionLabels = queryAllBody('[data-slot="label"]')
     const items = queryAllBody('[data-slot="item"]')
@@ -404,7 +456,6 @@ describe('Select - groups', () => {
       <Select
         options={GROUPED_OPTIONS}
         defaultOpen
-        virtualized
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
           setEntryIndex(index)
@@ -583,9 +634,18 @@ describe('Select - keyboard and ARIA', () => {
     expect(input.getAttribute('aria-activedescendant')).toContain('Banana')
   })
 
-  test('keeps selected highlight metadata when virtualized', async () => {
+  test('keeps selected highlight metadata when virtually rendered', async () => {
     const screen = render(() => (
-      <Select options={GROUPED_OPTIONS} value="daikon" virtualized placeholder="Pick" />
+      <Select
+        options={GROUPED_OPTIONS}
+        value="daikon"
+        placeholder="Pick"
+        virtualRender={(context) => (
+          <For each={context.entries}>
+            {(entry) => context.render(entry, context.entries.indexOf(entry))}
+          </For>
+        )}
+      />
     ))
     const input = screen.getByRole('combobox') as HTMLElement
 

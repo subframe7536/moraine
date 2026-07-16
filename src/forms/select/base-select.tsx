@@ -3,17 +3,18 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps, on } fro
 import { Portal } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
+import { List } from '../../elements/list'
+import type { ListT } from '../../elements/list'
 import {
   overlayMenuContentVariants,
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
 } from '../../overlays/base/menu'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import type { VirtualRenderT } from '../../shared/use-virtual-render'
-import { useVirtualRender } from '../../shared/use-virtual-render'
 import { callHandler, cn, useId } from '../../shared/utils'
 import type { UseFormFieldReturn } from '../form-field/form-field-context'
 import type {
@@ -150,12 +151,14 @@ export namespace BaseSelectT {
     defaultOpen?: boolean
     /** Called whenever the popup open state changes. */
     onOpenChange?: (open: boolean) => void
-    /** Enables virtualized ARIA metadata and caller-controlled window rendering. */
-    virtualized?: boolean
     /** Renders flattened group labels and options through a caller-provided virtualization layer. */
     virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
     /** Scrolls a highlighted raw option into view using its flattened entry index. */
     scrollToItem?: (item: TItem, entryIndex: number) => void
+    /** Additional attributes for the listbox element. */
+    listboxProps?: ElementProps<HTMLDivElement>
+    /** Additional attributes for an option row. */
+    itemProps?: (option: TItem & OptionRenderState) => ElementProps<HTMLDivElement> | undefined
     /**
      * Enable search input.
      * @default false
@@ -292,6 +295,15 @@ function toStyleObject(
   style: string | JSX.CSSProperties | undefined,
 ): JSX.CSSProperties | undefined {
   return typeof style === 'object' ? style : undefined
+}
+
+function callRef<T extends HTMLElement>(
+  ref: T | ((element: T) => void) | undefined,
+  element: T,
+): void {
+  if (typeof ref === 'function') {
+    ref(element)
+  }
 }
 
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
@@ -833,7 +845,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       return
     }
 
-    if (merged.virtualized && merged.virtualRender && merged.scrollToItem) {
+    if (merged.virtualRender && merged.scrollToItem) {
       const entryIndex = virtualEntries().findIndex(
         (entry) => entry.type === 'item' && entry.key === key,
       )
@@ -873,10 +885,16 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     const isSelected = createMemo(() => selectedValueSet().has(option.value))
+    const renderContext = createMemo(() => ({
+      ...option.raw,
+      isSelected: isSelected(),
+      isHighlighted: highlightedKey() === option.key,
+      isDisabled: option.disabled,
+    }))
+    const itemAttributes = createMemo(() => merged.itemProps?.(renderContext()))
 
     return (
       <div
-        {...virtualProps}
         id={`${listboxId()}-${encodeURIComponent(option.key)}`}
         role="option"
         tabIndex={-1}
@@ -886,27 +904,42 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         aria-disabled={option.disabled || undefined}
         aria-selected={isSelected() ? 'true' : 'false'}
         aria-posinset={
-          merged.virtualized ? visibleOptionPositionByKey().get(option.key) : undefined
+          merged.virtualRender ? visibleOptionPositionByKey().get(option.key) : undefined
         }
-        aria-setsize={merged.virtualized ? visibleFlatOptions().length : undefined}
+        aria-setsize={merged.virtualRender ? visibleFlatOptions().length : undefined}
+        {...itemAttributes()}
+        {...virtualProps}
+        ref={(element) => {
+          callRef(itemAttributes()?.ref, element)
+          virtualProps?.ref?.(element)
+        }}
         style={{
           ...merged.styles?.item,
+          ...toStyleObject(itemAttributes()?.style),
           ...toStyleObject(virtualProps?.style),
         }}
-        class={selectItemVariants({ size: merged.size }, merged.classes?.item, virtualProps?.class)}
+        class={selectItemVariants(
+          { size: merged.size },
+          merged.classes?.item,
+          itemAttributes()?.class,
+          virtualProps?.class,
+        )}
         onPointerMove={(event) => {
+          callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
           if (!event.defaultPrevented && event.pointerType === 'mouse' && !option.disabled) {
             setHighlightedKey(option.key)
           }
         }}
         onPointerDown={(event) => {
+          callHandler(event, itemAttributes()?.onPointerDown)
           callHandler(event, virtualProps?.onPointerDown)
           if (!event.defaultPrevented) {
             event.preventDefault()
           }
         }}
         onClick={(event) => {
+          callHandler(event, itemAttributes()?.onClick)
           callHandler(event, virtualProps?.onClick)
           if (event.defaultPrevented || option.disabled) {
             return
@@ -916,12 +949,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           selectOption(option)
         }}
       >
-        {merged.optionRender({
-          ...option.raw,
-          isSelected: isSelected(),
-          isHighlighted: highlightedKey() === option.key,
-          isDisabled: option.disabled,
-        })}
+        {merged.optionRender(renderContext())}
       </div>
     )
   }
@@ -934,9 +962,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     if (entry.type === 'label') {
       return (
         <div
-          {...virtualProps}
           role="presentation"
           data-slot="group"
+          {...virtualProps}
           style={{
             ...merged.styles?.group,
             ...toStyleObject(virtualProps?.style),
@@ -964,14 +992,50 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     )
   }
 
-  const virtualRendering = useVirtualRender<
-    BaseSelectT.VirtualEntry<TItem>,
-    HTMLDivElement,
-    HTMLDivElement
-  >({
-    entries: virtualEntries,
-    render: renderVirtualEntry,
-  })
+  type SelectListEntry =
+    | BaseSelectT.VirtualEntry<TItem>
+    | NormalizedOption<TItem>
+    | NormalizedGroup<TItem>
+
+  const listEntries = createMemo<readonly SelectListEntry[]>(() =>
+    merged.virtualRender ? virtualEntries() : visibleOptions(),
+  )
+
+  function renderListEntry(
+    entry: SelectListEntry,
+    index: number,
+    rowProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+  ): JSX.Element {
+    if (merged.virtualRender) {
+      return renderVirtualEntry(entry as BaseSelectT.VirtualEntry<TItem>, index, rowProps)
+    }
+
+    const option = entry as NormalizedOption<TItem> | NormalizedGroup<TItem>
+    if (!option.isGroup) {
+      return renderVisibleOption(option)
+    }
+
+    return (
+      <div
+        data-slot="group"
+        role="group"
+        style={merged.styles?.group}
+        class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
+      >
+        <span
+          data-slot="label"
+          style={merged.styles?.label}
+          class={cn(
+            'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
+            merged.classes?.label,
+          )}
+        >
+          {option.label}
+        </span>
+        <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -1051,64 +1115,53 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                 merged.classes?.content,
               )}
             >
-              <div
-                id={listboxId()}
-                role="listbox"
-                ref={(element) => {
-                  listboxRef = element
-                  virtualRendering.setScrollElement(element)
-                }}
-                aria-multiselectable={merged.multiple || undefined}
-                data-slot="listbox"
-                style={merged.styles?.listbox}
-                class={cn(
-                  'outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
-                  merged.classes?.listbox,
-                )}
-                onScroll={handleListboxScroll}
+              <Show
+                when={visibleFlatOptions().length > 0}
+                fallback={merged.emptyRender?.(stateApi) ?? merged.optionRender(null)}
               >
-                <Show
-                  when={visibleFlatOptions().length > 0}
-                  fallback={merged.emptyRender?.(stateApi) ?? merged.optionRender(null)}
-                >
-                  <Show
-                    when={merged.virtualized && merged.virtualRender}
-                    fallback={
-                      <For each={visibleOptions()}>
-                        {(item) => (
-                          <Show
-                            when={item.isGroup}
-                            fallback={renderVisibleOption(item as NormalizedOption<TItem>)}
-                          >
-                            <div
-                              data-slot="group"
-                              role="group"
-                              style={merged.styles?.group}
-                              class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
-                            >
-                              <span
-                                data-slot="label"
-                                style={merged.styles?.label}
-                                class={cn(
-                                  'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-                                  merged.classes?.label,
-                                )}
-                              >
-                                {(item as NormalizedGroup<TItem>).label}
-                              </span>
-                              <For each={(item as NormalizedGroup<TItem>).options}>
-                                {(option) => renderVisibleOption(option)}
-                              </For>
-                            </div>
-                          </Show>
-                        )}
-                      </For>
+                <List<SelectListEntry, 'div', HTMLDivElement>
+                  as="div"
+                  items={listEntries()}
+                  itemRender={(context) =>
+                    renderListEntry(context.item, context.index, context.props)
+                  }
+                  virtualRender={
+                    merged.virtualRender as
+                      | ((
+                          context: ListT.VirtualRenderContext<
+                            SelectListEntry,
+                            HTMLElement,
+                            HTMLDivElement
+                          >,
+                        ) => JSX.Element)
+                      | undefined
+                  }
+                  id={listboxId()}
+                  role="listbox"
+                  aria-multiselectable={merged.multiple || undefined}
+                  data-slot="listbox"
+                  {...merged.listboxProps}
+                  ref={(element) => {
+                    listboxRef = element
+                    callRef(merged.listboxProps?.ref, element)
+                  }}
+                  style={{
+                    ...merged.styles?.listbox,
+                    ...toStyleObject(merged.listboxProps?.style),
+                  }}
+                  class={cn(
+                    'outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
+                    merged.classes?.listbox,
+                    merged.listboxProps?.class,
+                  )}
+                  onScroll={(event) => {
+                    const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
+                    if (!defaultPrevented) {
+                      handleListboxScroll(event)
                     }
-                  >
-                    {(virtualRender) => virtualRender()(virtualRendering.context)}
-                  </Show>
-                </Show>
-              </div>
+                  }}
+                />
+              </Show>
             </div>
           </div>
         </Portal>

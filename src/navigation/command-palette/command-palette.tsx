@@ -13,13 +13,14 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
+import { List } from '../../elements/list'
+import type { ListT } from '../../elements/list'
 import { Modal } from '../../overlays/base/modal'
 import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import type { VirtualRenderT } from '../../shared/use-virtual-render'
-import { useVirtualRender } from '../../shared/use-virtual-render'
 import { callHandler, cn, useId } from '../../shared/utils'
 import { useEventListener } from '../../utils'
 
@@ -254,12 +255,14 @@ export namespace CommandPaletteT {
     footerRender?: (ctx: BaseContext<TItem>) => JSX.Element
     /** Custom command row content renderer. */
     itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
-    /** Enables virtualized ARIA metadata and caller-controlled window rendering. */
-    virtualized?: boolean
     /** Renders flattened group labels and commands through a virtualization layer. */
     virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
     /** Scrolls a highlighted command into view using its flattened entry index. */
     scrollToItem?: (item: TItem, entryIndex: number) => void
+    /** Additional attributes for the command listbox. */
+    listboxProps?: ElementProps<HTMLDivElement>
+    /** Additional attributes for a command row. */
+    itemProps?: (context: ItemRenderContext<TItem>) => ElementProps<HTMLDivElement> | undefined
     /**
      * Whether to close the command palette when an enabled item is selected.
      * @default true
@@ -296,6 +299,21 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   source: CommandPaletteT.Group<TItem>
   label: string
   items: NormalizedItem<TItem>[]
+}
+
+function toStyleObject(
+  style: string | JSX.CSSProperties | undefined,
+): JSX.CSSProperties | undefined {
+  return typeof style === 'object' ? style : undefined
+}
+
+function callRef<T extends HTMLElement>(
+  ref: T | ((element: T) => void) | undefined,
+  element: T,
+): void {
+  if (typeof ref === 'function') {
+    ref(element)
+  }
 }
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
@@ -529,7 +547,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       return
     }
 
-    if (merged.virtualized && merged.virtualRender && merged.scrollToItem) {
+    if (merged.virtualRender && merged.scrollToItem) {
       const entryIndex = virtualEntries().findIndex(
         (entry) => entry.type === 'item' && entry.key === key,
       )
@@ -741,15 +759,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     const itemContext = getItemContext(item)
+    const itemAttributes = createMemo(() => merged.itemProps?.(itemContext))
 
     return (
       <div
-        {...virtualProps}
-        ref={(element) => {
-          if (virtualProps) {
-            virtualProps.ref = element
-          }
-        }}
         id={`${listboxId()}-${encodeURIComponent(item.key)}`}
         role="option"
         tabIndex={-1}
@@ -758,27 +771,41 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         data-highlighted={activeKey() === item.key ? '' : undefined}
         aria-selected={activeKey() === item.key}
         aria-disabled={item.disabled || undefined}
-        aria-posinset={merged.virtualized ? visibleItemPositionByKey().get(item.key) : undefined}
-        aria-setsize={merged.virtualized ? visibleItems().length : undefined}
-        style={merged.styles?.item}
+        aria-posinset={merged.virtualRender ? visibleItemPositionByKey().get(item.key) : undefined}
+        aria-setsize={merged.virtualRender ? visibleItems().length : undefined}
+        {...itemAttributes()}
+        {...virtualProps}
+        ref={(element) => {
+          callRef(itemAttributes()?.ref, element)
+          virtualProps?.ref?.(element)
+        }}
+        style={{
+          ...merged.styles?.item,
+          ...toStyleObject(itemAttributes()?.style),
+          ...toStyleObject(virtualProps?.style),
+        }}
         class={commandPaletteItemVariants(
           { size: merged.size },
           merged.classes?.item,
+          itemAttributes()?.class,
           virtualProps?.class,
         )}
         onPointerMove={(event) => {
+          callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
           if (!event.defaultPrevented && event.pointerType === 'mouse' && !item.disabled) {
             setActiveKey(item.key)
           }
         }}
         onPointerDown={(event) => {
+          callHandler(event, itemAttributes()?.onPointerDown)
           callHandler(event, virtualProps?.onPointerDown)
           if (!event.defaultPrevented) {
             event.preventDefault()
           }
         }}
         onClick={(event) => {
+          callHandler(event, itemAttributes()?.onClick)
           callHandler(event, virtualProps?.onClick)
           if (event.defaultPrevented || item.disabled) {
             return
@@ -808,10 +835,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         }
       >
         <div
-          {...virtualProps}
           role="presentation"
           data-slot="group"
-          style={merged.styles?.group}
+          {...virtualProps}
+          style={{
+            ...merged.styles?.group,
+            ...toStyleObject(virtualProps?.style),
+          }}
           class={cn('mt-2 p-1', merged.classes?.group, virtualProps?.class)}
         >
           <span
@@ -826,14 +856,41 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     )
   }
 
-  const virtualRendering = useVirtualRender<
-    CommandPaletteT.VirtualEntry<TItem>,
-    HTMLDivElement,
-    HTMLDivElement
-  >({
-    entries: virtualEntries,
-    render: renderVirtualEntry,
-  })
+  type CommandListEntry = CommandPaletteT.VirtualEntry<TItem> | NormalizedGroup<TItem>
+  const listEntries = createMemo<readonly CommandListEntry[]>(() =>
+    merged.virtualRender ? virtualEntries() : visibleGroups(),
+  )
+
+  function renderListEntry(
+    entry: CommandListEntry,
+    index: number,
+    rowProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+  ): JSX.Element {
+    if (merged.virtualRender) {
+      return renderVirtualEntry(entry as CommandPaletteT.VirtualEntry<TItem>, index, rowProps)
+    }
+
+    const group = entry as NormalizedGroup<TItem>
+    return (
+      <div
+        data-slot="group"
+        style={merged.styles?.group}
+        class={cn('mt-2 p-1', merged.classes?.group)}
+      >
+        <Show when={group.label}>
+          <span
+            data-slot="label"
+            style={merged.styles?.label}
+            class={cn('text-sm text-muted-foreground font-semibold px-1.5', merged.classes?.label)}
+          >
+            {group.label}
+          </span>
+        </Show>
+
+        <For each={group.items}>{(item) => renderVisibleItem(item)}</For>
+      </div>
+    )
+  }
 
   return (
     <Modal
@@ -972,52 +1029,41 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 </div>
               }
             >
-              <div
-                ref={(element) => {
-                  listboxElement = element
-                  virtualRendering.setScrollElement(element)
-                }}
+              <List<CommandListEntry, 'div', HTMLDivElement>
+                as="div"
+                items={listEntries()}
+                itemRender={(context) =>
+                  renderListEntry(context.item, context.index, context.props)
+                }
+                virtualRender={
+                  merged.virtualRender as
+                    | ((
+                        context: ListT.VirtualRenderContext<
+                          CommandListEntry,
+                          HTMLElement,
+                          HTMLDivElement
+                        >,
+                      ) => JSX.Element)
+                    | undefined
+                }
                 id={listboxId()}
                 role="listbox"
                 data-slot="listbox"
-                style={merged.styles?.listbox}
+                {...merged.listboxProps}
+                ref={(element) => {
+                  listboxElement = element
+                  callRef(merged.listboxProps?.ref, element)
+                }}
+                style={{
+                  ...merged.styles?.listbox,
+                  ...toStyleObject(merged.listboxProps?.style),
+                }}
                 class={cn(
                   'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
                   merged.classes?.listbox,
+                  merged.listboxProps?.class,
                 )}
-              >
-                <Show
-                  when={merged.virtualized && merged.virtualRender}
-                  fallback={
-                    <For each={visibleGroups()}>
-                      {(group) => (
-                        <div
-                          data-slot="group"
-                          style={merged.styles?.group}
-                          class={cn('mt-2 p-1', merged.classes?.group)}
-                        >
-                          <Show when={group.label}>
-                            <span
-                              data-slot="label"
-                              style={merged.styles?.label}
-                              class={cn(
-                                'text-sm text-muted-foreground font-semibold px-1.5',
-                                merged.classes?.label,
-                              )}
-                            >
-                              {group.label}
-                            </span>
-                          </Show>
-
-                          <For each={group.items}>{(item) => renderVisibleItem(item)}</For>
-                        </div>
-                      )}
-                    </For>
-                  }
-                >
-                  {(virtualRender) => virtualRender()(virtualRendering.context)}
-                </Show>
-              </div>
+              />
             </Show>
 
             <Show when={merged.footerRender}>

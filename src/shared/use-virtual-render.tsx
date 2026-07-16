@@ -3,10 +3,13 @@ import { createSignal, onCleanup } from 'solid-js'
 
 export namespace VirtualRenderT {
   /** Attributes forwarded to the final virtual row element. */
-  export type RowProps<TItemElement extends HTMLElement = HTMLElement> =
-    JSX.HTMLAttributes<TItemElement> & {
-      'data-index'?: number | string
-    }
+  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
+    JSX.HTMLAttributes<TItemElement>,
+    'ref'
+  > & {
+    ref?: (element: TItemElement) => void
+    'data-index'?: number | string
+  }
 
   /** Reactive context passed to a caller-provided virtual renderer. */
   export interface Context<

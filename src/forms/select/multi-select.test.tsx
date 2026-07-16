@@ -52,7 +52,6 @@ describe('MultiSelect', () => {
       <MultiSelect
         options={FRUITS}
         defaultOpen
-        virtualized
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
           setEntryIndex(index)

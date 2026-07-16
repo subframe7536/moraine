@@ -211,6 +211,12 @@
         "description": "Content rendered after the resolved item groups."
       },
       {
+        "name": "contentProps",
+        "required": false,
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional attributes for each menu layer content element."
+      },
+      {
         "name": "contentTop",
         "required": false,
         "type": "OverlayMenuContentSlot | undefined",
@@ -242,6 +248,12 @@
         "required": false,
         "type": "string | undefined",
         "description": "Unique base id used to derive trigger and content ids."
+      },
+      {
+        "name": "itemProps",
+        "required": false,
+        "type": "((context: OverlayMenuSharedItemRenderContext<ContextMenuT.Item>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional attributes for an interactive menu item."
       },
       {
         "name": "itemRender",

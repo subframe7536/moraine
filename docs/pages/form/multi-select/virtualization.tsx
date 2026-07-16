@@ -48,7 +48,6 @@ export function Virtualization() {
       <MultiSelect
         options={OPTIONS}
         placeholder="Pick from 10,000 options..."
-        virtualized
         virtualRender={renderVirtualOptions}
         scrollToItem={(_, entryIndex) => scrollToIndex?.(entryIndex)}
         classes={{ listbox: 'h-80 max-h-80' }}
