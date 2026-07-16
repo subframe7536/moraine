@@ -1,7 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
+import { createVirtualizer, observeElementRect } from '@tanstack/solid-virtual'
 import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import type { ListT } from './list'
 import { List } from './list'
 
 describe('List', () => {
@@ -77,5 +79,55 @@ describe('List', () => {
     expect(row.className).toBe('virtual-row')
     expect(row.style.position).toBe('absolute')
     expect(row.getAttribute('data-index')).toBe('0')
+  })
+
+  test('renders visible virtual rows on the initial mount and after scrolling', async () => {
+    const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
+
+    function VirtualizedContent(props: {
+      context: ListT.VirtualRenderContext<string, HTMLElement, HTMLDivElement>
+    }) {
+      const virtualizer = createVirtualizer<HTMLElement, HTMLDivElement>({
+        count: items.length,
+        getScrollElement: () => props.context.scrollElement ?? null,
+        initialRect: { width: 320, height: 288 },
+        observeElementRect: (instance, callback) =>
+          observeElementRect(instance, (rect) => {
+            if (rect.height > 0) {
+              callback(rect)
+            }
+          }),
+        estimateSize: () => 36,
+        overscan: 8,
+      })
+
+      return (
+        <For each={virtualizer.getVirtualItems()}>
+          {(virtualRow) =>
+            props.context.render(items[virtualRow.index]!, virtualRow.index, {
+              'data-index': virtualRow.index,
+            })
+          }
+        </For>
+      )
+    }
+
+    const screen = render(() => (
+      <List<string, 'div', HTMLDivElement>
+        as="div"
+        role="list"
+        items={items}
+        virtualRender={(context) => <VirtualizedContent context={context} />}
+        itemRender={(context) => <div {...context.props}>{context.item}</div>}
+      />
+    ))
+
+    expect(screen.getByText('Result 1').getAttribute('data-index')).toBe('0')
+
+    const list = screen.getByRole('list')
+    Object.defineProperty(list, 'scrollTop', { configurable: true, value: 1440 })
+    await fireEvent.scroll(list)
+
+    expect(screen.getByText('Result 41').getAttribute('data-index')).toBe('40')
   })
 })

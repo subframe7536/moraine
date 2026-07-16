@@ -2,7 +2,7 @@ import type { Accessor } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
 import { version } from '../../package.json'
-import { Badge, Button, cn } from '../../src'
+import { Badge, Button, cn, List } from '../../src'
 
 import type { DocsPageEntry } from './docs-route'
 
@@ -59,33 +59,30 @@ export const Sidebar = (props: SidebarProps) => {
                 </div>
               </Show>
 
-              <div class="flex flex-col gap-0.5">
-                <For each={section.pages}>
-                  {(page) => (
-                    <button
-                      type="button"
-                      class={cn(
-                        'text-sm text-muted-foreground px-2.5 py-1.75 text-left rounded-md transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
-                        props.activePage() === page.key
-                          ? 'text-accent-foreground font-medium bg-accent'
-                          : 'hover:text-foreground hover:bg-accent/30',
-                      )}
-                      onClick={() => props.setActivePage(page.key)}
-                    >
-                      <span class="flex gap-2 min-w-0 w-full items-center justify-between">
-                        <span class="truncate">{page.label}</span>
-                        <Show when={page.badge}>
-                          {(badge) => (
-                            <span class="text-[0.6rem] leading-none font-semibold px-1.25 py-0.75 border rounded-sm bg-background/70 shrink-0 uppercase">
-                              {badge()}
-                            </span>
-                          )}
-                        </Show>
-                      </span>
-                    </button>
-                  )}
-                </For>
-              </div>
+              <List<SidebarPage, 'div'>
+                as="div"
+                class="flex flex-col gap-0.5"
+                items={section.pages}
+                itemRender={(context) => (
+                  <button
+                    type="button"
+                    class={cn(
+                      'text-sm text-muted-foreground px-2.5 py-1.75 text-left rounded-md transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
+                      props.activePage() === context.item.key
+                        ? 'text-accent-foreground font-medium bg-accent'
+                        : 'hover:text-foreground hover:bg-accent/30',
+                    )}
+                    onClick={() => props.setActivePage(context.item.key)}
+                  >
+                    <span class="flex gap-2 min-w-0 w-full items-center justify-between">
+                      <span class="truncate">{context.item.label}</span>
+                      <Show when={context.item.badge}>
+                        {(badge) => <Badge variant="outline">{badge()}</Badge>}
+                      </Show>
+                    </span>
+                  </button>
+                )}
+              />
             </section>
           )}
         </For>
