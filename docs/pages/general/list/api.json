@@ -32,7 +32,7 @@
       {
         "name": "virtualRender",
         "required": false,
-        "type": "((context: ListT.VirtualRenderContext<TItem, HTMLElement, TItemElement>) => JSX.Element) | undefined",
+        "type": "Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>> | undefined",
         "description": "Replaces normal iteration with caller-controlled virtual rendering."
       }
     ],

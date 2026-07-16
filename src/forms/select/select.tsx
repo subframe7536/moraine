@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
@@ -34,7 +34,7 @@ export namespace SelectT {
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
   export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderContext<TItem extends Value = Value> = BaseSelectT.VirtualRenderContext<
+  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
     Item<TItem>
   >
   export interface ControlSlot<T = unknown> {
@@ -100,7 +100,7 @@ export namespace SelectT {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem | null>) => void
     /** Renders flattened group labels and options through a virtualization layer. */
-    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted option into view using its flattened entry index. */
     scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -154,7 +154,7 @@ export namespace CommandPaletteT {
     | VirtualLabelEntry<TItem>
     | VirtualItemEntry<TItem>
 
-  export type VirtualRenderContext<TItem extends Item = Item> = VirtualRenderT.Context<
+  export type VirtualRenderProps<TItem extends Item = Item> = VirtualRenderT.Context<
     VirtualEntry<TItem>,
     HTMLDivElement,
     HTMLDivElement
@@ -256,7 +256,7 @@ export namespace CommandPaletteT {
     /** Custom command row content renderer. */
     itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
     /** Renders flattened group labels and commands through a virtualization layer. */
-    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted command into view using its flattened entry index. */
     scrollToItem?: (item: TItem, entryIndex: number) => void
     /** Additional attributes for the command listbox. */
@@ -1037,13 +1037,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 }
                 virtualRender={
                   merged.virtualRender as
-                    | ((
-                        context: ListT.VirtualRenderContext<
-                          CommandListEntry,
-                          HTMLElement,
-                          HTMLDivElement
-                        >,
-                      ) => JSX.Element)
+                    | Component<
+                        ListT.VirtualRenderProps<CommandListEntry, HTMLElement, HTMLDivElement>
+                      >
                     | undefined
                 }
                 id={listboxId()}

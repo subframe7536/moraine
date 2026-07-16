@@ -395,7 +395,7 @@
       {
         "name": "virtualRender",
         "required": false,
-        "type": "((context: CommandPaletteT.VirtualRenderContext<TItem>) => JSX.Element) | undefined",
+        "type": "Component<CommandPaletteT.VirtualRenderProps<TItem>> | undefined",
         "description": "Renders flattened group labels and commands through a virtualization layer."
       }
     ],

@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
@@ -106,7 +106,7 @@ export namespace BaseSelectT {
 
   export type VirtualEntry<TItem extends Item> = VirtualLabelEntry | VirtualItemEntry<TItem>
 
-  export type VirtualRenderContext<TItem extends Item> = VirtualRenderT.Context<
+  export type VirtualRenderProps<TItem extends Item> = VirtualRenderT.Context<
     VirtualEntry<TItem>,
     HTMLDivElement,
     HTMLDivElement
@@ -152,7 +152,7 @@ export namespace BaseSelectT {
     /** Called whenever the popup open state changes. */
     onOpenChange?: (open: boolean) => void
     /** Renders flattened group labels and options through a caller-provided virtualization layer. */
-    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted raw option into view using its flattened entry index. */
     scrollToItem?: (item: TItem, entryIndex: number) => void
     /** Additional attributes for the listbox element. */
@@ -1127,13 +1127,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                   }
                   virtualRender={
                     merged.virtualRender as
-                      | ((
-                          context: ListT.VirtualRenderContext<
-                            SelectListEntry,
-                            HTMLElement,
-                            HTMLDivElement
-                          >,
-                        ) => JSX.Element)
+                      | Component<
+                          ListT.VirtualRenderProps<SelectListEntry, HTMLElement, HTMLDivElement>
+                        >
                       | undefined
                   }
                   id={listboxId()}

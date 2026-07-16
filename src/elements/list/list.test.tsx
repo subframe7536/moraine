@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createVirtualizer, observeElementRect } from '@tanstack/solid-virtual'
-import { For, createSignal } from 'solid-js'
+import { createVirtualizer } from '@tanstack/solid-virtual'
+import { For, createEffect, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import type { ListT } from './list'
@@ -49,17 +49,20 @@ describe('List', () => {
     expect(list.style.color).toBe('red')
   })
 
-  test('mounts the scroll element before invoking virtualRender and forwards row props', () => {
-    const virtualRender = vi.fn((context) => {
-      expect(context.scrollElement).toBeInstanceOf(HTMLDivElement)
+  test('creates virtual content before mount and reactively exposes the scroll element', () => {
+    let virtualScrollElement: HTMLElement | undefined
+    const VirtualRender = vi.fn((props: ListT.VirtualRenderProps<string>) => {
+      createEffect(() => {
+        virtualScrollElement = props.scrollElement
+      })
 
       return (
-        <For each={context.entries}>
+        <For each={props.entries}>
           {(item) =>
-            context.render(item, context.entries.indexOf(item), {
+            props.render(item, props.entries.indexOf(item), {
               class: 'virtual-row',
               style: { position: 'absolute' },
-              'data-index': context.entries.indexOf(item),
+              'data-index': props.entries.indexOf(item),
             })
           }
         </For>
@@ -68,14 +71,16 @@ describe('List', () => {
     const screen = render(() => (
       <List
         as="div"
+        role="feed"
         items={['Apple']}
-        virtualRender={virtualRender}
+        virtualRender={VirtualRender}
         itemRender={(context) => <div {...context.props}>{context.item}</div>}
       />
     ))
     const row = screen.getByText('Apple')
 
-    expect(virtualRender).toHaveBeenCalledTimes(1)
+    expect(VirtualRender).toHaveBeenCalledTimes(1)
+    expect(virtualScrollElement).toBe(screen.getByRole('feed'))
     expect(row.className).toBe('virtual-row')
     expect(row.style.position).toBe('absolute')
     expect(row.getAttribute('data-index')).toBe('0')
@@ -84,19 +89,14 @@ describe('List', () => {
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
 
-    function VirtualizedContent(props: {
-      context: ListT.VirtualRenderContext<string, HTMLElement, HTMLDivElement>
-    }) {
+    function VirtualRender(props: ListT.VirtualRenderProps<string, HTMLElement, HTMLDivElement>) {
       const virtualizer = createVirtualizer<HTMLElement, HTMLDivElement>({
         count: items.length,
-        getScrollElement: () => props.context.scrollElement ?? null,
-        initialRect: { width: 320, height: 288 },
-        observeElementRect: (instance, callback) =>
-          observeElementRect(instance, (rect) => {
-            if (rect.height > 0) {
-              callback(rect)
-            }
-          }),
+        getScrollElement: () => props.scrollElement ?? null,
+        observeElementRect: (instance, callback) => {
+          expect(instance.scrollElement?.isConnected).toBe(true)
+          callback({ width: 320, height: 288 })
+        },
         estimateSize: () => 36,
         overscan: 8,
       })
@@ -104,7 +104,7 @@ describe('List', () => {
       return (
         <For each={virtualizer.getVirtualItems()}>
           {(virtualRow) =>
-            props.context.render(items[virtualRow.index]!, virtualRow.index, {
+            props.render(items[virtualRow.index]!, virtualRow.index, {
               'data-index': virtualRow.index,
             })
           }
@@ -117,7 +117,7 @@ describe('List', () => {
         as="div"
         role="list"
         items={items}
-        virtualRender={(context) => <VirtualizedContent context={context} />}
+        virtualRender={VirtualRender}
         itemRender={(context) => <div {...context.props}>{context.item}</div>}
       />
     ))

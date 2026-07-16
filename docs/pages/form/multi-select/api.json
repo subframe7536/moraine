@@ -426,7 +426,7 @@
       {
         "name": "virtualRender",
         "required": false,
-        "type": "((context: MultiSelectT.VirtualRenderContext<TItem>) => JSX.Element) | undefined",
+        "type": "Component<MultiSelectT.VirtualRenderProps<TItem>> | undefined",
         "description": "Renders flattened group labels and options through a virtualization layer."
       }
     ],

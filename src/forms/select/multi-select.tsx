@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal } from 'solid-js'
 
 import { Badge } from '../../elements/badge'
@@ -39,7 +39,7 @@ export namespace MultiSelectT {
 
   export type OptionRenderState = BaseSelectT.OptionRenderState
   export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderContext<TItem extends Value = Value> = BaseSelectT.VirtualRenderContext<
+  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
     Item<TItem>
   >
   export interface ControlSlot<T = unknown> {
@@ -120,7 +120,7 @@ export namespace MultiSelectT {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem[]>) => void
     /** Renders flattened group labels and options through a virtualization layer. */
-    virtualRender?: (context: VirtualRenderContext<TItem>) => JSX.Element
+    virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted option into view using its flattened entry index. */
     scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /**

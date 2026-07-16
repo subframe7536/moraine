@@ -11,7 +11,7 @@ const OPTIONS: SelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index
 export function Virtualization() {
   let scrollToIndex: ((index: number) => void) | undefined
 
-  function renderVirtualOptions(context: SelectT.VirtualRenderContext<string>) {
+  function VirtualRender(context: SelectT.VirtualRenderProps<string>) {
     const virtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
       get count() {
         return context.entries.length
@@ -48,7 +48,7 @@ export function Virtualization() {
       <Select
         options={OPTIONS}
         placeholder="Pick one of 10,000 options..."
-        virtualRender={renderVirtualOptions}
+        virtualRender={VirtualRender}
         scrollToItem={(_, entryIndex) => scrollToIndex?.(entryIndex)}
         classes={{ listbox: 'h-80 max-h-80' }}
       />

@@ -25,6 +25,8 @@ Render arbitrary objects with a semantic `ul` root by default. Use `as` and nati
 
 ### Virtualization
 
-Providing `virtualRender` replaces normal iteration. The renderer receives the mounted scroll element, the complete reactive collection, and `render(item, index, props)` for forwarding measurement and positioning attributes to the final row.
+Providing `virtualRender` replaces normal iteration. The component receives reactive `entries`, `scrollElement`, and `render` props. The scroll element is initially `undefined` and populated after mount; `render(item, index, props)` forwards measurement and positioning attributes to the final row.
+
+Lifecycle-based integrations such as `createVirtualizer` can be created directly inside the `virtualRender` component.
 
 <Example path="./virtualization" />

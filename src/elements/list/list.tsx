@@ -1,5 +1,5 @@
-import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
-import { For, Show, splitProps } from 'solid-js'
+import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
+import { For, Show, createEffect, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { VirtualRenderT } from '../../shared/use-virtual-render'
@@ -15,7 +15,7 @@ export namespace ListT {
     readonly props: VirtualRenderT.RowProps<TItemElement> | undefined
   }
 
-  export type VirtualRenderContext<
+  export type VirtualRenderProps<
     TItem,
     TScrollElement extends HTMLElement = HTMLElement,
     TItemElement extends HTMLElement = HTMLElement,
@@ -36,7 +36,7 @@ export namespace ListT {
     /** Renders one collection item. */
     itemRender: (context: ItemRenderContext<TItem, TItemElement>) => JSX.Element
     /** Replaces normal iteration with caller-controlled virtual rendering. */
-    virtualRender?: (context: VirtualRenderContext<TItem, HTMLElement, TItemElement>) => JSX.Element
+    virtualRender?: Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>
   }
 
   export type Props<
@@ -75,6 +75,7 @@ export function List<
     'ref',
   ])
   const items = () => local.items ?? []
+  const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
   const virtualRendering = useVirtualRender<TItem, HTMLElement, TItemElement>({
     entries: items,
     render: (item, index, rowProps) =>
@@ -90,13 +91,14 @@ export function List<
         },
       }),
   })
+  createEffect(() => virtualRendering.setScrollElement(scrollElement()))
 
   return (
     <Dynamic
       {...rest}
       component={(local.as as ValidComponent) ?? 'ul'}
       ref={(element: HTMLElement) => {
-        virtualRendering.setScrollElement(element)
+        setScrollElement(() => element)
         callRef(local.ref as HTMLElement | ((element: HTMLElement) => void) | undefined, element)
       }}
     >
@@ -121,9 +123,12 @@ export function List<
         }
       >
         {(virtualRender) => (
-          <Show when={virtualRendering.context.scrollElement}>
-            {virtualRender()(virtualRendering.context)}
-          </Show>
+          <Dynamic
+            component={virtualRender()}
+            entries={virtualRendering.context.entries}
+            scrollElement={virtualRendering.context.scrollElement}
+            render={virtualRendering.context.render}
+          />
         )}
       </Show>
     </Dynamic>
