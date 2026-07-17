@@ -20,6 +20,7 @@ import {
   useEventListener,
   useEventListenerMap,
   useId,
+  useListVirtualizer,
   useLoadingAutoClick,
   useSelectableCollectionNavigation,
   useTransitionPresence,
@@ -80,6 +81,10 @@ Create a reactive boolean accessor from a media query.
 ```tsx
 const isMobile = createMediaQuery('(max-width: 768px)', false)
 ```
+
+## `useListVirtualizer`
+
+Create a `virtualRender` adapter for `List`, `Select`, or `MultiSelect` based on `@tanstack/virtual-core`. Configure row measurement with `estimateSize`, pass `virtualRender` to the component, and forward `scrollToIndex` through Select or MultiSelect's `scrollToItem` prop when keyboard navigation needs to reveal an off-screen entry.
 
 ## `useId`
 

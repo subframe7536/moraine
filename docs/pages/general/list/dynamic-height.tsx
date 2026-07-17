@@ -1,4 +1,5 @@
-import { List, createListVirtualizer } from '@src'
+import { List } from '@src'
+import { useListVirtualizer } from '@src/utils'
 import { For } from 'solid-js'
 
 export function DynamicHeight() {
@@ -13,7 +14,7 @@ export function DynamicHeight() {
 
   type Item = (typeof ITEMS)[number]
 
-  const virtualizer = createListVirtualizer<Item, HTMLElement, HTMLDivElement>({
+  const virtualizer = useListVirtualizer<Item, HTMLElement, HTMLDivElement>({
     estimateSize: () => 96,
     getItemKey: (item) => item.id,
     gap: 8,

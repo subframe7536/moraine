@@ -11,6 +11,7 @@ search:
 
 ```tsx
 import { List } from 'moraine'
+import { useListVirtualizer } from 'moraine/utils'
 ```
 
 `List` owns collection traversal and the scroll-element bridge used by virtual renderers. Item markup, semantics, styling, filtering, focus, and selection remain under caller control.
@@ -25,7 +26,7 @@ Render arbitrary objects with a semantic `ul` root by default. Use `as` and nati
 
 ### Virtualization
 
-`createListVirtualizer` provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
+Import `useListVirtualizer` from `moraine/utils`. It provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
 
 Provide a custom `virtualRender` component when the built-in absolute row layout is not suitable.
 

@@ -2,15 +2,12 @@ import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-export namespace ListT {
-  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
-    JSX.HTMLAttributes<TItemElement>,
-    'ref'
-  > & {
-    ref?: (element: TItemElement) => void
-    'data-index'?: number | string
-  }
+import type {
+  RowProps,
+  VirtualRenderProps as BaseVirtualRenderProps,
+} from '../../shared/use-list-virtualizer'
 
+export namespace ListT {
   export interface ItemRenderContext<TItem, TItemElement extends HTMLElement = HTMLElement> {
     /** Source item being rendered. */
     readonly item: TItem
@@ -24,14 +21,7 @@ export namespace ListT {
     TItem,
     TScrollElement extends HTMLElement = HTMLElement,
     TItemElement extends HTMLElement = HTMLElement,
-  > {
-    /** Complete reactive collection, including structural entries such as group labels. */
-    readonly entries: readonly TItem[]
-    /** Current scroll container, or undefined while it is not mounted. */
-    readonly scrollElement: TScrollElement | undefined
-    /** Renders an item and forwards optional attributes to its final row element. */
-    render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
-  }
+  > extends BaseVirtualRenderProps<TItem, TScrollElement, TItemElement> {}
 
   export type Base<
     TItem,

@@ -1,5 +1,6 @@
-import { Select, createListVirtualizer } from '@src'
+import { Select } from '@src'
 import type { SelectT } from '@src'
+import { useListVirtualizer } from '@src/utils'
 
 const OPTIONS: SelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index) => ({
   value: `option-${index}`,
@@ -7,7 +8,7 @@ const OPTIONS: SelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index
 }))
 
 export function Virtualization() {
-  const virtualizer = createListVirtualizer<
+  const virtualizer = useListVirtualizer<
     SelectT.VirtualEntry<string>,
     HTMLDivElement,
     HTMLDivElement

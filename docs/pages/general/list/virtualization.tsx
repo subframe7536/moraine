@@ -1,4 +1,5 @@
-import { List, createListVirtualizer } from '@src'
+import { List } from '@src'
+import { useListVirtualizer } from '@src/utils'
 
 export function Virtualization() {
   const ITEMS = Array.from({ length: 10_000 }, (_, index) => ({
@@ -8,7 +9,7 @@ export function Virtualization() {
 
   type Item = (typeof ITEMS)[number]
 
-  const virtualizer = createListVirtualizer<Item, HTMLElement, HTMLDivElement>({
+  const virtualizer = useListVirtualizer<Item, HTMLElement, HTMLDivElement>({
     estimateSize: () => 36,
     getItemKey: (item) => item.id,
     overscan: 8,
