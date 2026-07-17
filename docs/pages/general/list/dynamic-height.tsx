@@ -32,13 +32,7 @@ export function DynamicHeight() {
           {(virtualRow) =>
             props.render(props.entries[virtualRow.index]!, virtualRow.index, {
               'data-index': virtualRow.index,
-              ref: (element) => {
-                queueMicrotask(() => {
-                  if (element.isConnected) {
-                    virtualizer.measureElement(element)
-                  }
-                })
-              },
+              ref: virtualizer.measureElement,
               class: 'w-full left-0 top-0 absolute',
               style: { transform: `translateY(${virtualRow.start}px)` },
             })
