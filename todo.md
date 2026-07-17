@@ -41,7 +41,7 @@
   - [x] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
   - [x] fix virtualization not render any items in select/multi-select
   - [x] remove `virtualized` prop, just follow `virtualRender`
-  - [ ] directly use `@tanstack/virtual-core` to fix list load timing and dynamic height issues : item spacing are not balanced
+  - [x] inline `@tanstack/virtual-core` as dep, optimize virtualization interface and provide builtin helper to improve dx, implement solidjs adapter manually to fix list ref load timing and dynamic height issues (item spacing are not balanced)
 - [ ] debug toast icon postion misalignment
 - [ ] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
 - [ ] fix textarea footer/header interaction priority

@@ -1,5 +1,5 @@
 import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
-import { For, Show, createSignal, onMount, splitProps } from 'solid-js'
+import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 export namespace ListT {
@@ -77,19 +77,14 @@ export function List<
     'virtualRender',
     'ref',
   ])
-  let rootElement: HTMLElement | undefined
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
-
-  onMount(() => {
-    setScrollElement(rootElement)
-  })
 
   return (
     <Dynamic
       {...rest}
       component={(local.as as ValidComponent) ?? 'ul'}
-      ref={(element: any) => {
-        rootElement = element
+      ref={(element: HTMLUListElement) => {
+        setScrollElement(() => element)
         if (typeof local.ref === 'function') {
           local.ref(element)
         }

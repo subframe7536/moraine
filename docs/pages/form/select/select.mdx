@@ -87,6 +87,6 @@ Scroll to the bottom to load more options.
 
 ## Virtual Rendering
 
-Pass `virtualRender` and `scrollToItem` to render only visible entries. The context exposes the complete reactive collection, the mounted listbox through `scrollElement`, and `render(entry, index, props)` for forwarding measurement and positioning attributes to the final option row. `scrollToItem` receives the source Select item and its flattened entry index.
+Use `createListVirtualizer` to render only visible entries. Pass its `virtualRender` to Select and forward `scrollToItem` to its `scrollToIndex` method so keyboard highlighting can reveal off-screen options.
 
 <Example path="./virtualization" />

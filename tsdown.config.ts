@@ -90,7 +90,9 @@ export default defineConfig([
       solid(),
     ],
     deps: {
+      alwaysBundle: ['@tanstack/virtual-core'],
       neverBundle: ['@subf/unocss', '@unocss/transformer-compile-class', 'tailwindcss'],
+      onlyBundle: ['@tanstack/virtual-core', 'valibot'],
     },
     dts: {
       parallel: true,
@@ -145,6 +147,10 @@ export default defineConfig([
         exports['./utils'] = './dist/utils.mjs'
         return exports
       },
+    },
+    deps: {
+      alwaysBundle: ['@tanstack/virtual-core'],
+      onlyBundle: ['@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,

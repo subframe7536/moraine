@@ -25,14 +25,14 @@ Render arbitrary objects with a semantic `ul` root by default. Use `as` and nati
 
 ### Virtualization
 
-Providing `virtualRender` replaces normal iteration. The component receives reactive `entries`, `scrollElement`, and `render` props. The scroll element is initially `undefined` and populated after mount; `render(item, index, props)` forwards measurement and positioning attributes to the final row.
+`createListVirtualizer` provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
 
-Lifecycle-based integrations such as `createVirtualizer` can be created directly inside the `virtualRender` component.
+Provide a custom `virtualRender` component when the built-in absolute row layout is not suitable.
 
 <Example path="./virtualization" />
 
 ### Dynamic Heights
 
-For variable-height rows, omit an explicit row height and forward both `data-index` and `measureElement` to the final row. Measurement is deferred until Solid finishes mounting the row and applies its forwarded attributes. TanStack Virtual then observes each connected row and updates its measured size when the content changes.
+For variable-height rows, provide a reasonable estimate and let the built-in renderer measure connected rows. TanStack Virtual observes later content size changes and recalculates positions; `gap` remains consistent between measured rows.
 
 <Example path="./dynamic-height" />

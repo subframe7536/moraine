@@ -1,8 +1,8 @@
-import { fireEvent, render } from '@solidjs/testing-library'
-import { createVirtualizer } from '@tanstack/solid-virtual'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createListVirtualizer } from './hook'
 import type { ListT } from './list'
 import { List } from './list'
 
@@ -88,36 +88,22 @@ describe('List', () => {
 
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
-
-    function VirtualRender(props: ListT.VirtualRenderProps<string, HTMLElement, HTMLDivElement>) {
-      const virtualizer = createVirtualizer<HTMLElement, HTMLDivElement>({
-        count: items.length,
-        getScrollElement: () => props.scrollElement ?? null,
-        observeElementRect: (instance, callback) => {
-          expect(instance.scrollElement?.isConnected).toBe(true)
-          callback({ width: 320, height: 288 })
-        },
-        estimateSize: () => 36,
-        overscan: 8,
-      })
-
-      return (
-        <For each={virtualizer.getVirtualItems()}>
-          {(virtualRow) =>
-            props.render(items[virtualRow.index]!, virtualRow.index, {
-              'data-index': virtualRow.index,
-            })
-          }
-        </For>
-      )
-    }
+    const virtualRendering = createListVirtualizer<string, HTMLElement, HTMLDivElement>({
+      estimateSize: () => 36,
+      measureElement: () => 36,
+      observeElementRect: (instance, callback) => {
+        expect(instance.scrollElement?.isConnected).toBe(true)
+        callback({ width: 320, height: 288 })
+      },
+      overscan: 8,
+    })
 
     const screen = render(() => (
       <List<string, 'div', HTMLDivElement>
         as="div"
         role="list"
         items={items}
-        virtualRender={VirtualRender}
+        virtualRender={virtualRendering.virtualRender}
         itemRender={(context) => <div {...context.props}>{context.item}</div>}
       />
     ))
@@ -129,5 +115,56 @@ describe('List', () => {
     await fireEvent.scroll(list)
 
     expect(screen.getByText('Result 41').getAttribute('data-index')).toBe('40')
+  })
+
+  test('provides measured dynamic rows with consistent gaps', async () => {
+    const items = [
+      { id: 'first', label: 'First', size: 24 },
+      { id: 'second', label: 'Second', size: 48 },
+      { id: 'third', label: 'Third', size: 30 },
+    ]
+    const virtualRendering = createListVirtualizer<
+      (typeof items)[number],
+      HTMLElement,
+      HTMLDivElement
+    >({
+      estimateSize: (item) => item.size,
+      getItemKey: (item) => item.id,
+      gap: 6,
+      observeElementRect: (_instance, callback) => callback({ width: 320, height: 120 }),
+      measureElement: (element) => Number(element.dataset.size),
+    })
+    const screen = render(() => (
+      <List<(typeof items)[number], 'div', HTMLDivElement>
+        as="div"
+        role="list"
+        items={items}
+        virtualRender={virtualRendering.virtualRender}
+        itemRender={(context) => (
+          <div {...context.props} role="listitem" data-size={context.item.size}>
+            {context.item.label}
+          </div>
+        )}
+      />
+    ))
+
+    await waitFor(() => {
+      expect(screen.getByText('First').style.transform).toBe('translateY(0px)')
+      expect(screen.getByText('Second').style.transform).toBe('translateY(30px)')
+      expect(screen.getByText('Third').style.transform).toBe('translateY(84px)')
+      expect(screen.getByRole('list').firstElementChild?.getAttribute('style')).toContain(
+        'height: 114px',
+      )
+    })
+
+    virtualRendering.instance()?.resizeItem(0, 36)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second').style.transform).toBe('translateY(42px)')
+      expect(screen.getByText('Third').style.transform).toBe('translateY(96px)')
+      expect(screen.getByRole('list').firstElementChild?.getAttribute('style')).toContain(
+        'height: 126px',
+      )
+    })
   })
 })
