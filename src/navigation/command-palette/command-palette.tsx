@@ -20,7 +20,6 @@ import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import type { VirtualRenderT } from '../../shared/use-virtual-render'
 import { callHandler, cn, useId } from '../../shared/utils'
 import { useEventListener } from '../../utils'
 
@@ -154,7 +153,7 @@ export namespace CommandPaletteT {
     | VirtualLabelEntry<TItem>
     | VirtualItemEntry<TItem>
 
-  export type VirtualRenderProps<TItem extends Item = Item> = VirtualRenderT.Context<
+  export type VirtualRenderProps<TItem extends Item = Item> = ListT.VirtualRenderProps<
     VirtualEntry<TItem>,
     HTMLDivElement,
     HTMLDivElement
@@ -756,7 +755,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   function renderVisibleItem(
     item: NormalizedItem<TItem>,
-    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     const itemContext = getItemContext(item)
     const itemAttributes = createMemo(() => merged.itemProps?.(itemContext))
@@ -823,7 +822,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   function renderVirtualEntry(
     entry: CommandPaletteT.VirtualEntry<TItem>,
     _index: number,
-    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     return (
       <Show
@@ -864,7 +863,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   function renderListEntry(
     entry: CommandListEntry,
     index: number,
-    rowProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    rowProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     if (merged.virtualRender) {
       return renderVirtualEntry(entry as CommandPaletteT.VirtualEntry<TItem>, index, rowProps)

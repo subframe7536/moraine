@@ -1,25 +1,37 @@
 import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
-import { For, Show, createEffect, createSignal, splitProps } from 'solid-js'
+import { For, Show, createSignal, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { VirtualRenderT } from '../../shared/use-virtual-render'
-import { useVirtualRender } from '../../shared/use-virtual-render'
-
 export namespace ListT {
+  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
+    JSX.HTMLAttributes<TItemElement>,
+    'ref'
+  > & {
+    ref?: (element: TItemElement) => void
+    'data-index'?: number | string
+  }
+
   export interface ItemRenderContext<TItem, TItemElement extends HTMLElement = HTMLElement> {
     /** Source item being rendered. */
     readonly item: TItem
     /** Current index in the complete item collection. */
     readonly index: number
     /** Attributes supplied by a virtual renderer for the final row element. */
-    readonly props: VirtualRenderT.RowProps<TItemElement> | undefined
+    readonly props?: RowProps<TItemElement>
   }
 
-  export type VirtualRenderProps<
+  export interface VirtualRenderProps<
     TItem,
     TScrollElement extends HTMLElement = HTMLElement,
     TItemElement extends HTMLElement = HTMLElement,
-  > = VirtualRenderT.Context<TItem, TScrollElement, TItemElement>
+  > {
+    /** Complete reactive collection, including structural entries such as group labels. */
+    readonly entries: readonly TItem[]
+    /** Current scroll container, or undefined while it is not mounted. */
+    readonly scrollElement: TScrollElement | undefined
+    /** Renders an item and forwards optional attributes to its final row element. */
+    render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
+  }
 
   export type Base<
     TItem,
@@ -52,15 +64,6 @@ export type ListProps<
   TItemElement extends HTMLElement = HTMLElement,
 > = ListT.Props<TItem, T, TItemElement>
 
-function callRef<T extends HTMLElement>(
-  ref: T | ((element: T) => void) | undefined,
-  element: T,
-): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
-}
-
 /** Headless polymorphic list with optional caller-controlled virtualization. */
 export function List<
   TItem,
@@ -74,38 +77,28 @@ export function List<
     'virtualRender',
     'ref',
   ])
-  const items = () => local.items ?? []
+  let rootElement: HTMLElement | undefined
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
-  const virtualRendering = useVirtualRender<TItem, HTMLElement, TItemElement>({
-    entries: items,
-    render: (item, index, rowProps) =>
-      local.itemRender({
-        get item() {
-          return item
-        },
-        get index() {
-          return index
-        },
-        get props() {
-          return rowProps
-        },
-      }),
+
+  onMount(() => {
+    setScrollElement(rootElement)
   })
-  createEffect(() => virtualRendering.setScrollElement(scrollElement()))
 
   return (
     <Dynamic
       {...rest}
       component={(local.as as ValidComponent) ?? 'ul'}
-      ref={(element: HTMLElement) => {
-        setScrollElement(() => element)
-        callRef(local.ref as HTMLElement | ((element: HTMLElement) => void) | undefined, element)
+      ref={(element: any) => {
+        rootElement = element
+        if (typeof local.ref === 'function') {
+          local.ref(element)
+        }
       }}
     >
       <Show
         when={local.virtualRender}
         fallback={
-          <For each={items()}>
+          <For each={local.items}>
             {(item, index) =>
               local.itemRender({
                 get item() {
@@ -125,9 +118,21 @@ export function List<
         {(virtualRender) => (
           <Dynamic
             component={virtualRender()}
-            entries={virtualRendering.context.entries}
-            scrollElement={virtualRendering.context.scrollElement}
-            render={virtualRendering.context.render}
+            entries={local.items ?? []}
+            scrollElement={scrollElement()}
+            render={(item, index, rowProps) =>
+              local.itemRender({
+                get item() {
+                  return item
+                },
+                get index() {
+                  return index
+                },
+                get props() {
+                  return rowProps
+                },
+              })
+            }
           />
         )}
       </Show>

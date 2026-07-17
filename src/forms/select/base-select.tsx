@@ -14,7 +14,6 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import type { VirtualRenderT } from '../../shared/use-virtual-render'
 import { callHandler, cn, useId } from '../../shared/utils'
 import type { UseFormFieldReturn } from '../form-field/form-field-context'
 import type {
@@ -106,7 +105,7 @@ export namespace BaseSelectT {
 
   export type VirtualEntry<TItem extends Item> = VirtualLabelEntry | VirtualItemEntry<TItem>
 
-  export type VirtualRenderProps<TItem extends Item> = VirtualRenderT.Context<
+  export type VirtualRenderProps<TItem extends Item> = ListT.VirtualRenderProps<
     VirtualEntry<TItem>,
     HTMLDivElement,
     HTMLDivElement
@@ -882,7 +881,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   function renderVisibleOption(
     option: NormalizedOption<TItem>,
-    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     const isSelected = createMemo(() => selectedValueSet().has(option.value))
     const renderContext = createMemo(() => ({
@@ -957,7 +956,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   function renderVirtualEntry(
     entry: BaseSelectT.VirtualEntry<TItem>,
     _index: number,
-    virtualProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     if (entry.type === 'label') {
       return (
@@ -1004,7 +1003,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   function renderListEntry(
     entry: SelectListEntry,
     index: number,
-    rowProps?: VirtualRenderT.RowProps<HTMLDivElement>,
+    rowProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     if (merged.virtualRender) {
       return renderVirtualEntry(entry as BaseSelectT.VirtualEntry<TItem>, index, rowProps)
