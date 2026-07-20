@@ -90,9 +90,13 @@ export default defineConfig([
       solid(),
     ],
     deps: {
-      alwaysBundle: ['@tanstack/virtual-core'],
-      neverBundle: ['@subf/unocss', '@unocss/transformer-compile-class', 'tailwindcss'],
-      onlyBundle: ['@tanstack/virtual-core', 'valibot'],
+      neverBundle: [
+        '@subf/unocss',
+        '@tanstack/virtual-core',
+        '@unocss/transformer-compile-class',
+        'tailwindcss',
+      ],
+      onlyBundle: ['valibot'],
     },
     dts: {
       parallel: true,
@@ -149,8 +153,7 @@ export default defineConfig([
       },
     },
     deps: {
-      alwaysBundle: ['@tanstack/virtual-core'],
-      onlyBundle: ['@tanstack/virtual-core'],
+      neverBundle: ['@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,

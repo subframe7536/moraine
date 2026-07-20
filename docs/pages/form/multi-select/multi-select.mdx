@@ -73,4 +73,10 @@ Limit selections and visible chips.
 
 Import `useListVirtualizer` from `moraine/utils` to render only visible entries. Pass its `virtualRender` to MultiSelect and forward `scrollToItem` to its `scrollToIndex` method so keyboard highlighting can reveal off-screen options.
 
+Install the adapter's optional peer dependency before using it:
+
+```bash
+bun add @tanstack/virtual-core
+```
+
 <Example path="./virtualization" />

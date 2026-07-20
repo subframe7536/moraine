@@ -28,6 +28,12 @@ Render arbitrary objects with a semantic `ul` root by default. Use `as` and nati
 
 Import `useListVirtualizer` from `moraine/utils`. It provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
 
+The built-in adapter requires `@tanstack/virtual-core` as an optional peer dependency. Install a compatible version in your application before using it.
+
+```bash
+bun add @tanstack/virtual-core
+```
+
 Provide a custom `virtualRender` component when the built-in absolute row layout is not suitable.
 
 <Example path="./virtualization" />

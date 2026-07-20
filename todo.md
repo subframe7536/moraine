@@ -42,7 +42,7 @@
   - [x] fix virtualization not render any items in select/multi-select
   - [x] remove `virtualized` prop, just follow `virtualRender`
   - [x] inline `@tanstack/virtual-core` as dep, optimize virtualization interface and provide builtin helper to improve dx, implement solidjs adapter manually to fix list ref load timing and dynamic height issues (item spacing are not balanced)
-  - [ ] make `@tanstack/virtual-core` a peer dependency, and provide a solidjs adapter for it, so that user can use their own version of `@tanstack/virtual-core` if needed.
+  - [x] make `@tanstack/virtual-core` a peer dependency, and provide a solidjs adapter for it, so that user can use their own version of `@tanstack/virtual-core` if needed.
 - [ ] debug toast icon postion misalignment
 - [ ] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
 - [ ] fix textarea footer/header interaction priority

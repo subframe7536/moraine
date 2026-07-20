@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createListVirtualizer } from './hook'
+import { useListVirtualizer } from '../../utils'
 import type { ListT } from './list'
 import { List } from './list'
 
@@ -88,7 +88,7 @@ describe('List', () => {
 
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
-    const virtualRendering = createListVirtualizer<string, HTMLElement, HTMLDivElement>({
+    const virtualRendering = useListVirtualizer<string, HTMLElement, HTMLDivElement>({
       estimateSize: () => 36,
       measureElement: () => 36,
       observeElementRect: (instance, callback) => {
@@ -123,7 +123,7 @@ describe('List', () => {
       { id: 'second', label: 'Second', size: 48 },
       { id: 'third', label: 'Third', size: 30 },
     ]
-    const virtualRendering = createListVirtualizer<
+    const virtualRendering = useListVirtualizer<
       (typeof items)[number],
       HTMLElement,
       HTMLDivElement

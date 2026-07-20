@@ -3,11 +3,14 @@ import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type {
-  RowProps,
+  RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
 } from '../../shared/use-list-virtualizer'
 
 export namespace ListT {
+  export type RowProps<TItemElement extends HTMLElement = HTMLElement> =
+    BaseRowProps<TItemElement>
+
   export interface ItemRenderContext<TItem, TItemElement extends HTMLElement = HTMLElement> {
     /** Source item being rendered. */
     readonly item: TItem
