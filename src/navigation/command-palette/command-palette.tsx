@@ -18,6 +18,8 @@ import type { ListT } from '../../elements/list'
 import { Modal } from '../../overlays/base/modal'
 import type { ModalProps } from '../../overlays/base/modal'
 import { popupOverlayVariants } from '../../overlays/popup/popup.class'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, cn, useId } from '../../shared/utils'
@@ -114,9 +116,9 @@ export namespace CommandPaletteT {
     /** Where the item description is rendered. Overrides the root setting. */
     descriptionPosition?: DescriptionPosition
     /** Custom visual rendered at the start of the item. */
-    leadingRender?: (ctx: ItemRenderContext) => JSX.Element
+    leadingRender?: ComponentOrElement<ItemRenderProps>
     /** Custom visual rendered at the end of the item. */
-    trailingRender?: (ctx: ItemRenderContext) => JSX.Element
+    trailingRender?: ComponentOrElement<ItemRenderProps>
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
@@ -167,7 +169,7 @@ export namespace CommandPaletteT {
     visibleGroups: Group<TItem>[]
   }
 
-  export interface ItemRenderContext<TItem extends Item = Item> extends BaseContext<TItem> {
+  export interface ItemRenderProps<TItem extends Item = Item> extends BaseContext<TItem> {
     item: TItem
     group: Group<TItem>
     focused: boolean
@@ -176,6 +178,9 @@ export namespace CommandPaletteT {
     selected: boolean
     disabled: boolean
   }
+
+  export type EmptyRenderProps<TItem extends Item = Item> = BaseContext<TItem>
+  export type FooterRenderProps<TItem extends Item = Item> = BaseContext<TItem>
 
   export interface Position {
     top: number
@@ -249,11 +254,11 @@ export namespace CommandPaletteT {
      */
     descriptionPosition?: DescriptionPosition
     /** Custom empty state renderer. */
-    emptyRender?: (ctx: BaseContext<TItem>) => JSX.Element
+    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Custom footer renderer. */
-    footerRender?: (ctx: BaseContext<TItem>) => JSX.Element
+    footerRender?: ComponentOrElement<FooterRenderProps<TItem>>
     /** Custom command row content renderer. */
-    itemRender?: (ctx: ItemRenderContext<TItem>) => JSX.Element
+    itemRender?: ComponentOrElement<ItemRenderProps<TItem>>
     /** Renders flattened group labels and commands through a virtualization layer. */
     virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted command into view using its flattened entry index. */
@@ -261,7 +266,7 @@ export namespace CommandPaletteT {
     /** Additional attributes for the command listbox. */
     listboxProps?: ElementProps<HTMLDivElement>
     /** Additional attributes for a command row. */
-    itemProps?: (context: ItemRenderContext<TItem>) => ElementProps<HTMLDivElement> | undefined
+    itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
     /**
      * Whether to close the command palette when an enabled item is selected.
      * @default true
@@ -650,10 +655,25 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function getItemContext(item: NormalizedItem<TItem>): CommandPaletteT.ItemRenderContext<TItem> {
+  function getItemContext(item: NormalizedItem<TItem>): CommandPaletteT.ItemRenderProps<TItem> {
     const isActive = () => activeKey() === item.key
+    const context = getContext()
     return {
-      ...getContext(),
+      get searchTerm() {
+        return context.searchTerm
+      },
+      get loading() {
+        return context.loading
+      },
+      get hasItems() {
+        return context.hasItems
+      },
+      get groups() {
+        return context.groups
+      },
+      get visibleGroups() {
+        return context.visibleGroups
+      },
       item: item.item,
       group: item.group,
       get focused() {
@@ -693,19 +713,17 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
     return (
       <Show
-        when={merged.itemRender}
+        when={merged.itemRender !== undefined}
         fallback={
           <>
-            <Show when={item.item.leadingRender}>
-              {(leadingRender) => (
-                <span
-                  data-slot="itemLeading"
-                  style={merged.styles?.itemLeading}
-                  class={cn('text-muted-foreground shrink-0', merged.classes?.itemLeading)}
-                >
-                  {leadingRender()(itemContext)}
-                </span>
-              )}
+            <Show when={item.item.leadingRender !== undefined}>
+              <span
+                data-slot="itemLeading"
+                style={merged.styles?.itemLeading}
+                class={cn('text-muted-foreground shrink-0', merged.classes?.itemLeading)}
+              >
+                {renderComponentOrElement(item.item.leadingRender, itemContext)}
+              </span>
             </Show>
 
             <span
@@ -734,21 +752,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               <Show when={descriptionPosition() === 'bottom'}>{renderItemDescription(item)}</Show>
             </span>
 
-            <Show when={item.item.trailingRender}>
-              {(trailingRender) => (
-                <span
-                  data-slot="itemTrailing"
-                  style={merged.styles?.itemTrailing}
-                  class={cn('flex shrink-0 gap-2 items-center', merged.classes?.itemTrailing)}
-                >
-                  {trailingRender()(itemContext)}
-                </span>
-              )}
+            <Show when={item.item.trailingRender !== undefined}>
+              <span
+                data-slot="itemTrailing"
+                style={merged.styles?.itemTrailing}
+                class={cn('flex shrink-0 gap-2 items-center', merged.classes?.itemTrailing)}
+              >
+                {renderComponentOrElement(item.item.trailingRender, itemContext)}
+              </span>
             </Show>
           </>
         }
       >
-        {(itemRender) => itemRender()(itemContext)}
+        {renderComponentOrElement(merged.itemRender, itemContext)}
       </Show>
     )
   }
@@ -1024,7 +1040,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   style={merged.styles?.empty}
                   class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
                 >
-                  {merged.emptyRender?.(getContext()) ?? 'No results.'}
+                  <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                    {renderComponentOrElement(merged.emptyRender, getContext())}
+                  </Show>
                 </div>
               }
             >
@@ -1061,13 +1079,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               />
             </Show>
 
-            <Show when={merged.footerRender}>
+            <Show when={merged.footerRender !== undefined}>
               <div
                 data-slot="footer"
                 style={merged.styles?.footer}
                 class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
               >
-                {merged.footerRender?.(getContext())}
+                {renderComponentOrElement(merged.footerRender, getContext())}
               </div>
             </Show>
           </div>

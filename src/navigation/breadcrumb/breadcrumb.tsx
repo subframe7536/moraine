@@ -1,9 +1,11 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
@@ -14,7 +16,7 @@ export namespace BreadcrumbT {
   /**
    * Context provided to the item secondary renderer.
    */
-  export interface ItemRenderContext {
+  export interface ItemRenderProps {
     /**
      * The original item object.
      */
@@ -144,7 +146,7 @@ export namespace BreadcrumbT {
     /**
      * Custom renderer for individual breadcrumb items.
      */
-    itemRender?: (context: ItemRenderContext) => ValidComponent
+    itemRender?: ComponentOrElement<ItemRenderProps>
   }
 
   /**
@@ -191,9 +193,6 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             const isDisabled = createMemo(() => Boolean(item.disabled || isCurrent()))
             const href = createMemo(() => {
               const defaultHref = item.to ?? item.href
-              if (merged.itemRender) {
-                return defaultHref
-              }
               return isDisabled() ? undefined : defaultHref
             })
 
@@ -204,38 +203,47 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                   style={merged.styles?.item}
                   class={cn('flex min-w-0 items-center', merged.classes?.item)}
                 >
-                  <Button
-                    as={
-                      merged.itemRender
-                        ? merged.itemRender({
-                            item,
-                            index: index(),
-                            current: isCurrent(),
-                            disabled: isDisabled(),
-                          })
-                        : 'a'
+                  <Show
+                    when={merged.itemRender !== undefined}
+                    fallback={
+                      <Button
+                        as="a"
+                        data-slot="link"
+                        style={merged.styles?.link}
+                        variant="ghost"
+                        size={merged.size}
+                        role="link"
+                        href={href()}
+                        target={item.target}
+                        rel={item.rel}
+                        aria-current={isCurrent() ? 'page' : undefined}
+                        data-current={isCurrent() ? '' : undefined}
+                        disabled={isDisabled()}
+                        onClick={item.onClick}
+                        leading={item.icon}
+                        class={cn(!merged.wrap && 'truncate', merged.classes?.link)}
+                        classes={{
+                          leading: merged.classes?.leading,
+                          label: merged.classes?.label,
+                        }}
+                      >
+                        {item.label}
+                      </Button>
                     }
-                    data-slot="link"
-                    style={merged.styles?.link}
-                    variant="ghost"
-                    size={merged.size}
-                    role="link"
-                    href={href()}
-                    target={item.target}
-                    rel={item.rel}
-                    aria-current={isCurrent() ? 'page' : undefined}
-                    data-current={isCurrent() ? '' : undefined}
-                    disabled={isDisabled()}
-                    onClick={item.onClick}
-                    leading={item.icon}
-                    class={cn(!merged.wrap && 'truncate', merged.classes?.link)}
-                    classes={{
-                      leading: merged.classes?.leading,
-                      label: merged.classes?.label,
-                    }}
                   >
-                    {item.label}
-                  </Button>
+                    {renderComponentOrElement(merged.itemRender, {
+                      item,
+                      get index() {
+                        return index()
+                      },
+                      get current() {
+                        return isCurrent()
+                      },
+                      get disabled() {
+                        return isDisabled()
+                      },
+                    })}
+                  </Show>
                 </li>
 
                 <Show when={!isLast()}>

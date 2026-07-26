@@ -160,7 +160,7 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "((context: SelectT.EmptyRenderContext<TItem>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SelectT.EmptyRenderProps<TItem>> | undefined",
         "description": "Custom renderer for the empty state when current filtered result has no matches."
       },
       {
@@ -192,7 +192,7 @@
       {
         "name": "labelRender",
         "required": false,
-        "type": "((option: SelectT.Item<TItem>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SelectT.LabelRenderProps<TItem>> | undefined",
         "description": "Custom renderer for the option label text."
       },
       {
@@ -259,7 +259,7 @@
       {
         "name": "optionRender",
         "required": false,
-        "type": "((option: (SelectT.Item<TItem> & SelectT.OptionRenderState) | null) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SelectT.OptionRenderProps<TItem>> | undefined",
         "description": "Custom renderer for each option in the dropdown. Passes `null` for empty state."
       },
       {

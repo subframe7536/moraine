@@ -2,6 +2,8 @@ import { Show, createSignal } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
 import { Icon } from '../../../elements/icon'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { SlotClasses, SlotStyles } from '../../../shared/types'
 import { cn, useId } from '../../../shared/utils'
 import { useFormField } from '../../form-field/form-field-context'
@@ -28,12 +30,12 @@ interface RenderDefaultSelectOptionOptions<TItem> {
     | null
   classes?: SlotClasses<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
   styles?: SlotStyles<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
-  labelRender?: (option: TItem) => JSX.Element
+  labelRender?: ComponentOrElement<{ option: TItem }>
 }
 
-interface CreateEmptyRendererOptions<TApi, TCtx> {
-  emptyRender?: (context: TCtx) => JSX.Element
-  buildContext: (api: TApi) => TCtx
+interface CreateEmptyRendererOptions<TApi, TProps extends Record<string, unknown>> {
+  emptyRender?: ComponentOrElement<TProps>
+  buildProps: (api: TApi) => TProps
 }
 
 /**
@@ -234,8 +236,8 @@ export function renderDefaultSelectOption<TItem>(
       style={options.styles?.itemLabel}
       class={cn('truncate', options.classes?.itemLabel)}
     >
-      <Show when={options.labelRender} keyed fallback={option.label}>
-        {(render) => render(option)}
+      <Show when={options.labelRender !== undefined} fallback={option.label}>
+        {renderComponentOrElement(options.labelRender, { option })}
       </Show>
     </span>
   )
@@ -276,11 +278,11 @@ export function renderDefaultSelectOption<TItem>(
   )
 }
 
-export function createEmptyRenderer<TContext, TCtx>(
-  options: CreateEmptyRendererOptions<TContext, TCtx>,
+export function createEmptyRenderer<TContext, TProps extends Record<string, unknown>>(
+  options: CreateEmptyRendererOptions<TContext, TProps>,
 ): ((context: TContext) => JSX.Element) | undefined {
-  if (!options.emptyRender) {
+  if (options.emptyRender === undefined) {
     return undefined
   }
-  return (context) => options.emptyRender?.(options.buildContext(context))
+  return (context) => renderComponentOrElement(options.emptyRender, options.buildProps(context))
 }

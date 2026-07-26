@@ -73,12 +73,6 @@
         "description": "Whether the collapsible is open (controlled)."
       },
       {
-        "name": "renderTrigger",
-        "required": false,
-        "type": "JSX.Element | Component<CollapsibleT.RenderTriggerContext>",
-        "description": "Custom trigger content or render function.\n- When component has no prop, the whole component will be wrapped with `<button>`\n- When component has props, uncontrolled state must be setup manually via `CollapsibleT.RenderTriggerContext`"
-      },
-      {
         "name": "style",
         "required": false,
         "type": "JSX.CSSProperties | undefined"
@@ -94,6 +88,12 @@
         "type": "boolean | undefined",
         "description": "Whether to keep content mounted until its height transition completes.",
         "defaultValue": "false"
+      },
+      {
+        "name": "triggerRender",
+        "required": true,
+        "type": "ComponentOrElement<CollapsibleT.TriggerRenderProps>",
+        "description": "Custom trigger renderer. Spread `triggerProps` onto the interactive trigger element."
       }
     ],
     "inherited": []
@@ -144,12 +144,6 @@
       },
       {
         "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trigger",
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": []

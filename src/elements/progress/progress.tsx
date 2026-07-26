@@ -1,6 +1,8 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps } from 'solid-js'
 
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { ProgressVariantProps } from './progress.class'
@@ -14,14 +16,14 @@ import {
 } from './progress.class'
 
 export namespace ProgressT {
-  export interface StatusRenderContext {
+  export interface StatusRenderProps {
     /**
      * Current progress percentage (0-100).
      */
     percent?: number
   }
 
-  export interface StepRenderContext {
+  export interface StepRenderProps {
     /**
      * The label of the current step.
      */
@@ -92,12 +94,12 @@ export namespace ProgressT {
     /**
      * Custom render function for the status label.
      */
-    renderStatus?: (context: StatusRenderContext) => JSX.Element
+    statusRender?: ComponentOrElement<StatusRenderProps>
 
     /**
      * Custom render function for each step when `max` is an array.
      */
-    renderStep?: (context: StepRenderContext) => JSX.Element
+    stepRender?: ComponentOrElement<StepRenderProps>
   }
 
   export interface Props extends BaseProps<Base, Variant, Slot> {}
@@ -216,7 +218,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     }
   })
 
-  function stepState(index: number): ProgressT.StepRenderContext['state'] {
+  function stepState(index: number): ProgressT.StepRenderProps['state'] {
     const activeIndex = Number.isFinite(resolvedValue()) ? Math.round(resolvedValue()) : 0
     const isActive = !isIndeterminate() && index === activeIndex
     const lastIndex = steps().length - 1
@@ -255,7 +257,7 @@ export function Progress(props: ProgressProps): JSX.Element {
         merged.class,
       )}
     >
-      <Show when={!isIndeterminate() && (merged.status || merged.renderStatus)}>
+      <Show when={!isIndeterminate() && (merged.status || merged.statusRender !== undefined)}>
         <div
           data-slot="status"
           class={progressStatusVariants(
@@ -270,7 +272,13 @@ export function Progress(props: ProgressProps): JSX.Element {
             ...merged.styles?.status,
           }}
         >
-          {merged.renderStatus ? merged.renderStatus({ percent: percent() }) : `${percent() ?? 0}%`}
+          <Show when={merged.statusRender !== undefined} fallback={`${percent() ?? 0}%`}>
+            {renderComponentOrElement(merged.statusRender, {
+              get percent() {
+                return percent()
+              },
+            })}
+          </Show>
         </div>
       </Show>
 
@@ -328,14 +336,18 @@ export function Progress(props: ProgressProps): JSX.Element {
                   merged.classes?.step,
                 )}
               >
-                <Show when={merged.renderStep} fallback={step}>
-                  {(renderStep) =>
-                    renderStep()({
-                      step,
-                      index: index(),
-                      state: stepState(index()),
-                    })
-                  }
+                <Show when={merged.stepRender !== undefined} fallback={step}>
+                  {renderComponentOrElement(merged.stepRender, {
+                    get step() {
+                      return step
+                    },
+                    get index() {
+                      return index()
+                    },
+                    get state() {
+                      return stepState(index())
+                    },
+                  })}
                 </Show>
               </div>
             )}

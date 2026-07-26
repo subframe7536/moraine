@@ -2,7 +2,8 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, mergeProps, onCleanup, onMount, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -11,6 +12,7 @@ import type {
   OverlayMenuItemVariantProps,
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
+  OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
 } from '../base/menu'
 
@@ -20,11 +22,16 @@ export namespace ContextMenuT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item extends OverlayMenuSharedItem<Item> {}
+  export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
 
   /**
    * Base props for the ContextMenu component.
    */
-  export interface Base extends OverlayMenuRootProps<Item> {
+  export interface Base extends Omit<OverlayMenuRootProps<Item>, 'itemProps' | 'itemRender'> {
+    /** Custom renderer for individual items. */
+    itemRender?: ComponentOrElement<ItemRenderProps>
+    /** Additional attributes for an interactive menu item. */
+    itemProps?: (props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined
     /**
      * Target area that opens the context menu on right-click or long press.
      */

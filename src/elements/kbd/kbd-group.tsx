@@ -1,6 +1,8 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
@@ -30,7 +32,7 @@ export namespace KbdGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type Item = KbdT.Key | KbdT.Base
-  export interface DividerRenderContext {
+  export interface DividerRenderProps {
     /** Zero-based divider index in the current collection. */
     index: number
   }
@@ -44,10 +46,10 @@ export namespace KbdGroupT {
     sequence?: Item[][]
 
     /** Custom divider rendered between keys in the same group. */
-    dividerRender?: (ctx: DividerRenderContext) => JSX.Element
+    dividerRender?: ComponentOrElement<DividerRenderProps>
 
     /** Custom divider rendered between shortcut steps. */
-    sequenceDividerRender?: (ctx: DividerRenderContext) => JSX.Element
+    sequenceDividerRender?: ComponentOrElement<DividerRenderProps>
   }
 
   /** Props for the KbdGroup component. */
@@ -58,11 +60,15 @@ export namespace KbdGroupT {
 export interface KbdGroupProps extends KbdGroupT.Props {}
 
 function resolveDivider(
-  dividerRender: ((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined,
-  ctx: KbdGroupT.DividerRenderContext,
+  dividerRender: ComponentOrElement<KbdGroupT.DividerRenderProps>,
+  props: KbdGroupT.DividerRenderProps,
   fallback: JSX.Element,
 ): JSX.Element {
-  return dividerRender?.(ctx) ?? fallback
+  return (
+    <Show when={dividerRender !== undefined} fallback={fallback}>
+      {renderComponentOrElement(dividerRender, props)}
+    </Show>
+  )
 }
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {

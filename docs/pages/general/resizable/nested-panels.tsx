@@ -18,7 +18,7 @@ export function NestedPanels() {
         </p>
         <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
           <Resizable
-            renderHandle
+            handle
             intersection
             panels={[
               {
@@ -36,7 +36,7 @@ export function NestedPanels() {
                 content: (
                   <Resizable
                     orientation="vertical"
-                    renderHandle
+                    handle
                     intersection
                     panels={[
                       {
@@ -77,7 +77,7 @@ export function NestedPanels() {
         </p>
         <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
           <Resizable
-            renderHandle
+            handle
             intersection={false}
             panels={[
               {
@@ -86,7 +86,7 @@ export function NestedPanels() {
                 content: (
                   <Resizable
                     orientation="vertical"
-                    renderHandle={<Icon name="i-lucide:activity" />}
+                    handleRender={() => <Icon name="i-lucide:activity" />}
                     intersection={false}
                     panels={[
                       {

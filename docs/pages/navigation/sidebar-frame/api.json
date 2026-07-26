@@ -49,7 +49,7 @@
       {
         "name": "frameRender",
         "required": false,
-        "type": "((ctx: SidebarFrameT.FrameContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SidebarFrameT.FrameRenderProps> | undefined",
         "description": "Optional frame renderer used to compose sidebar/main layout.",
         "defaultValue": "SidebarFrameSheetOnlyRender"
       },
@@ -62,7 +62,7 @@
       {
         "name": "mainRender",
         "required": true,
-        "type": "(ctx: SidebarFrameT.BaseContext) => JSX.Element",
+        "type": "ComponentOrElement<SidebarFrameT.MainRenderProps>",
         "description": "Render function for main content section."
       },
       {
@@ -80,19 +80,19 @@
       {
         "name": "sidebarBodyRender",
         "required": true,
-        "type": "(ctx: SidebarFrameT.BaseContext) => JSX.Element",
+        "type": "ComponentOrElement<SidebarFrameT.SidebarBodyRenderProps>",
         "description": "Render function for sidebar body section."
       },
       {
         "name": "sidebarFooterRender",
         "required": false,
-        "type": "((ctx: SidebarFrameT.BaseContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SidebarFrameT.SidebarFooterRenderProps> | undefined",
         "description": "Optional render function for sidebar footer section."
       },
       {
         "name": "sidebarHeaderRender",
         "required": false,
-        "type": "((ctx: SidebarFrameT.BaseContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<SidebarFrameT.SidebarHeaderRenderProps> | undefined",
         "description": "Optional render function for sidebar header section."
       },
       {

@@ -252,13 +252,13 @@
       {
         "name": "itemProps",
         "required": false,
-        "type": "((context: OverlayMenuSharedItemRenderContext<DropdownMenuT.Item>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((props: DropdownMenuT.ItemRenderProps) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional attributes for an interactive menu item."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "((context: OverlayMenuSharedItemRenderContext<DropdownMenuT.Item>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<DropdownMenuT.ItemRenderProps> | undefined",
         "description": "Custom renderer for individual items."
       },
       {

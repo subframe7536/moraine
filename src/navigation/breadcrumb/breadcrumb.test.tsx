@@ -199,7 +199,11 @@ describe('Breadcrumb', () => {
   })
 
   test('supports itemRender with @solidjs/router A component', () => {
-    const itemRender = vi.fn<(context: BreadcrumbT.ItemRenderContext) => typeof A>((_) => A)
+    const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (
+      <A data-slot="link" href={props.item.href ?? props.item.to ?? '#'}>
+        {props.item.label}
+      </A>
+    ))
 
     const screen = render(() => (
       <Router url="/">
@@ -228,7 +232,7 @@ describe('Breadcrumb', () => {
 
     const contexts = itemRender.mock.calls
       .map(([context]) => context)
-      .filter((context): context is BreadcrumbT.ItemRenderContext => context !== undefined)
+      .filter((context): context is BreadcrumbT.ItemRenderProps => context !== undefined)
     expect(
       contexts.some(
         (context) => context.index === 0 && context.current === false && context.disabled === false,

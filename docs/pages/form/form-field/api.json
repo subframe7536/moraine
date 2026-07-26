@@ -57,7 +57,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element | ((props: FormFieldT.RenderContext) => JSX.Element)",
+        "type": "ComponentOrElement<FormFieldT.RenderContext> | undefined",
         "description": "Children of the field, can be a render function."
       },
       {

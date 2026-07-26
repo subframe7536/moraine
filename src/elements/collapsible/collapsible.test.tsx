@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Collapsible } from './collapsible'
+import type { CollapsibleProps } from './collapsible'
 
 function renderCollapsible(props?: {
   open?: boolean
@@ -29,7 +30,7 @@ function renderCollapsible(props?: {
       onOpenChange={props?.onOpenChange}
       classes={props?.classes}
       styles={props?.styles}
-      renderTrigger={(context) => (
+      triggerRender={(context) => (
         <button data-testid="trigger-control" {...context.triggerProps}>
           <span data-testid="trigger-state">{context.isOpen ? 'open' : 'closed'}</span>
         </button>
@@ -41,6 +42,35 @@ function renderCollapsible(props?: {
 }
 
 describe('Collapsible', () => {
+  test('wraps static trigger content in the built-in trigger button', async () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen={false} triggerRender={<span>Static trigger</span>}>
+        <span>Content</span>
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Static trigger' })
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(root?.hasAttribute('data-closed')).toBe(true)
+
+    await fireEvent.click(trigger)
+
+    expect(root?.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  test('exposes only the component-based trigger render contract', () => {
+    const triggerRender: CollapsibleProps['triggerRender'] = (props) => (
+      <button {...props.triggerProps}>Trigger</button>
+    )
+    const validProps: CollapsibleProps = { triggerRender }
+    // @ts-expect-error renderTrigger has been replaced by triggerRender
+    const legacyProps: CollapsibleProps = { renderTrigger: 'Trigger' }
+
+    expect(validProps.triggerRender).toBe(triggerRender)
+    expect(legacyProps).toBeDefined()
+  })
+
   test('renders open state with content', () => {
     const screen = renderCollapsible({ open: true })
 
@@ -87,7 +117,7 @@ describe('Collapsible', () => {
     const screen = render(() => (
       <Collapsible
         defaultOpen={false}
-        renderTrigger={(context) => (
+        triggerRender={(context) => (
           <>
             <span data-testid="trigger-label">Quick panel</span>
             <button data-testid="trigger-control" {...context.triggerProps}>
@@ -121,7 +151,7 @@ describe('Collapsible', () => {
     const screen = render(() => (
       <Collapsible
         defaultOpen={false}
-        renderTrigger={(context) => (
+        triggerRender={(context) => (
           <button type="button" data-testid="trigger-control" onClick={context.toggle}>
             {context.isOpen ? 'open' : 'closed'}
           </button>
@@ -148,7 +178,11 @@ describe('Collapsible', () => {
     const screen = render(() => (
       <Collapsible
         defaultOpen={false}
-        renderTrigger={<span data-testid="plain-trigger">Plain trigger</span>}
+        triggerRender={(context) => (
+          <button {...context.triggerProps} data-testid="plain-trigger">
+            Plain trigger
+          </button>
+        )}
       >
         <span data-testid="content">Content</span>
       </Collapsible>
@@ -301,7 +335,10 @@ describe('Collapsible', () => {
 
   test('forwards id to root', async () => {
     const screen = render(() => (
-      <Collapsible id="collapsible-root" renderTrigger="Trigger">
+      <Collapsible
+        id="collapsible-root"
+        triggerRender={(context) => <button {...context.triggerProps}>Trigger</button>}
+      >
         content
       </Collapsible>
     ))

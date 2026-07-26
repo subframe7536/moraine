@@ -312,6 +312,36 @@ export interface ExternalProps {
     await rm(projectRoot, { recursive: true, force: true })
   })
 
+  test('preserves readable local names for minified relative declaration imports', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+import { m as ComponentOrElement } from './chunk.mjs'
+
+declare namespace RenderAliasT {
+  interface RenderProps {
+    active: boolean
+  }
+}
+
+interface RenderAliasProps {
+  itemRender?: ComponentOrElement<RenderAliasT.RenderProps>
+}
+
+declare function RenderAlias(props: RenderAliasProps): JSX.Element
+`,
+    )
+
+    const props = resultProps(await generateApiDoc(projectRoot), 'render-alias')
+
+    expect(props.find((prop) => prop.name === 'itemRender')?.type).toBe(
+      'ComponentOrElement<RenderAliasT.RenderProps> | undefined',
+    )
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
   test('resolves generic defaults via AST transform for top-level aliases used by declarations', async () => {
     const projectRoot = await createTempProject()
     await writeProjectDts(

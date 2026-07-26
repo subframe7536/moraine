@@ -416,8 +416,8 @@ describe('MultiSelect', () => {
         search
         options={FRUITS}
         defaultOpen
-        optionRender={(option) => {
-          receivedEmptyOption = option === null
+        optionRender={(props) => {
+          receivedEmptyOption = props.option === null
           return <div data-testid="empty">Empty</div>
         }}
       />
@@ -454,7 +454,7 @@ describe('MultiSelect', () => {
         value={['apple']}
         tagRender={(props) => (
           <span data-testid="custom-tag">
-            {props.label}
+            {props.option.label}
             <button onClick={props.onClose}>x</button>
           </span>
         )}

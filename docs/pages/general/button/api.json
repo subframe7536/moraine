@@ -41,7 +41,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "MaybeRenderProp<{ loading: boolean; }>",
+        "type": "ComponentOrElement<{ loading: boolean; }> | undefined",
         "description": "Children of the button. Supports render function form."
       },
       {

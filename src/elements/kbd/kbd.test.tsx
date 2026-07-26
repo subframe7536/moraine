@@ -126,6 +126,14 @@ describe('Kbd', () => {
 })
 
 describe('KbdGroup', () => {
+  test('accepts static JSX for divider renderers', () => {
+    const view = render(() => (
+      <KbdGroup items={['Ctrl', 'K']} dividerRender={<span data-testid="divider">and</span>} />
+    ))
+
+    expect(view.getByTestId('divider').textContent).toBe('and')
+  })
+
   test('renders simultaneous items with dividers', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
     const items = view.container.querySelectorAll('[data-slot="item"]')

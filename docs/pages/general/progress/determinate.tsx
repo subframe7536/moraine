@@ -14,7 +14,7 @@ export function Determinate() {
 
   return (
     <div class="w-xl space-y-3">
-      <Progress value={value()} status renderStatus={({ percent }) => `Completed ${percent}%`} />
+      <Progress value={value()} status statusRender={(props) => <>Completed {props.percent}%</>} />
       <div class="flex gap-2">
         <Button size="sm" variant="outline" onclick={increment}>
           +10%

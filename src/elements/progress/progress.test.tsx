@@ -6,6 +6,14 @@ import { Progress } from './progress'
 import type { ProgressProps } from './progress'
 
 describe('Progress', () => {
+  test('accepts static JSX for statusRender', () => {
+    const screen = render(() => (
+      <Progress value={40} statusRender={<span data-testid="status">Working</span>} />
+    ))
+
+    expect(screen.getByTestId('status').textContent).toBe('Working')
+  })
+
   test('uses css variable classes for base thickness', () => {
     const horizontal = render(() => <Progress value={20} size="xs" />)
     const vertical = render(() => <Progress value={20} size="xl" orientation="vertical" />)
@@ -30,7 +38,7 @@ describe('Progress', () => {
     expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
   })
 
-  test('renders status text and supports renderStatus callback', () => {
+  test('renders status text and supports statusRender callback', () => {
     const withStatus = render(() => <Progress value={40} status />)
     const status = withStatus.container.querySelector('[data-slot="status"]') as HTMLElement
 
@@ -38,7 +46,7 @@ describe('Progress', () => {
     expect(status.style.width).toBe('40%')
 
     const withRenderStatus = render(() => (
-      <Progress value={25} renderStatus={({ percent }) => `Done ${percent}%`} />
+      <Progress value={25} statusRender={(props) => <>Done {props.percent}%</>} />
     ))
     expect(withRenderStatus.getByText('Done 25%')).not.toBeNull()
   })
@@ -55,10 +63,10 @@ describe('Progress', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('3 of 10 completed')
   })
 
-  test('updates renderStatus content when value changes', () => {
+  test('updates statusRender content when value changes', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => (
-      <Progress value={value()} renderStatus={({ percent }) => `Done ${percent}%`} />
+      <Progress value={value()} statusRender={(props) => <>Done {props.percent}%</>} />
     ))
 
     expect(screen.getByText('Done 25%')).not.toBeNull()
@@ -91,13 +99,17 @@ describe('Progress', () => {
     expect(stepNodes[2]?.className).toContain('opacity-0')
   })
 
-  test('supports renderStep callback with state metadata', () => {
+  test('supports stepRender callback with state metadata', () => {
     const steps = ['Waiting...', 'Cloning...', 'Done!']
     const screen = render(() => (
       <Progress
         value={2}
         max={steps}
-        renderStep={({ step, index, state }) => `${index}-${step}-${state}`}
+        stepRender={(props) => (
+          <>
+            {props.index}-{props.step}-{props.state}
+          </>
+        )}
       />
     ))
 
@@ -222,7 +234,13 @@ describe('Progress', () => {
     const invertedProps: ProgressProps = { inverted: true }
     // @ts-expect-error color has been removed from Progress props
     const colorProps: ProgressProps = { color: 'secondary' }
+    // @ts-expect-error renderStatus has been replaced by statusRender
+    const legacyStatusProps: ProgressProps = { renderStatus: () => 'status' }
+    // @ts-expect-error renderStep has been replaced by stepRender
+    const legacyStepProps: ProgressProps = { renderStep: () => 'step' }
     expect(invertedProps).toBeDefined()
     expect(colorProps).toBeDefined()
+    expect(legacyStatusProps).toBeDefined()
+    expect(legacyStepProps).toBeDefined()
   })
 })

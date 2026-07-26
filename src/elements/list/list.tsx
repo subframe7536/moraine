@@ -2,16 +2,17 @@ import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
 } from '../../shared/use-list-virtualizer'
 
 export namespace ListT {
-  export type RowProps<TItemElement extends HTMLElement = HTMLElement> =
-    BaseRowProps<TItemElement>
+  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = BaseRowProps<TItemElement>
 
-  export interface ItemRenderContext<TItem, TItemElement extends HTMLElement = HTMLElement> {
+  export interface ItemRenderProps<TItem, TItemElement extends HTMLElement = HTMLElement> {
     /** Source item being rendered. */
     readonly item: TItem
     /** Current index in the complete item collection. */
@@ -39,7 +40,7 @@ export namespace ListT {
     /** Reactive collection rendered by the list. */
     items?: readonly TItem[]
     /** Renders one collection item. */
-    itemRender: (context: ItemRenderContext<TItem, TItemElement>) => JSX.Element
+    itemRender: ComponentOrElement<ItemRenderProps<TItem, TItemElement>>
     /** Replaces normal iteration with caller-controlled virtual rendering. */
     virtualRender?: Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>
   }
@@ -88,7 +89,7 @@ export function List<
         fallback={
           <For each={local.items}>
             {(item, index) =>
-              local.itemRender({
+              renderComponentOrElement(local.itemRender, {
                 get item() {
                   return item
                 },
@@ -109,7 +110,7 @@ export function List<
             entries={local.items ?? []}
             scrollElement={scrollElement()}
             render={(item, index, rowProps) =>
-              local.itemRender({
+              renderComponentOrElement(local.itemRender, {
                 get item() {
                   return item
                 },

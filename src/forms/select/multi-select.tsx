@@ -6,6 +6,8 @@ import type { BadgeProps } from '../../elements/badge'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { cn } from '../../shared/utils'
@@ -74,7 +76,24 @@ export namespace MultiSelectT {
     itemTrailing?: T
   }
 
-  export interface EmptyRenderContext<TItem extends Value = Value> {
+  export interface OptionRenderProps<TItem extends Value = Value> {
+    /** Option and interaction state, or null when no option matches. */
+    option: (Item<TItem> & OptionRenderState) | null
+  }
+
+  export interface LabelRenderProps<TItem extends Value = Value> {
+    /** Option whose label is being rendered. */
+    option: Item<TItem>
+  }
+
+  export interface TagRenderProps<TItem extends Value = Value> {
+    /** Selected option represented by the tag. */
+    option: Item<TItem>
+    /** Removes this option from the selection. */
+    onClose: () => void
+  }
+
+  export interface EmptyRenderProps<TItem extends Value = Value> {
     /** Current input/search text. */
     inputValue: string
     /** Whether the current filter has any matches. */
@@ -141,13 +160,13 @@ export namespace MultiSelectT {
     /** Maximum visible tags before showing +N (visual only). */
     maxTagCount?: number
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: (option: (MultiSelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
+    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
     /** Custom renderer for each selected tag (multiple/tags). */
-    tagRender?: (option: MultiSelectT.Item<TItem> & { onClose: () => void }) => JSX.Element
+    tagRender?: ComponentOrElement<TagRenderProps<TItem>>
     /** Custom renderer for the option label text. */
-    labelRender?: (option: MultiSelectT.Item<TItem>) => JSX.Element
+    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: (context: EmptyRenderContext<TItem>) => JSX.Element
+    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -539,18 +558,35 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       onInputKeyDown={handleEnterKey}
       emptyRender={createEmptyRenderer({
         emptyRender: props.emptyRender,
-        buildContext: (ctx: BaseSelectT.StateApi<Item>) => ({
-          inputValue: ctx.inputValue(),
-          hasMatches: ctx.visibleFlatOptions().length > 0,
-          selectedValues: getSelectedOptions(ctx).map(
-            (option) => mapNormalizedToRawValue(option) as TItem,
-          ),
-          isAtMaxCount: isAtMaxCount(),
+        buildProps: (ctx: BaseSelectT.StateApi<Item>) => ({
+          get inputValue() {
+            return ctx.inputValue()
+          },
+          get hasMatches() {
+            return ctx.visibleFlatOptions().length > 0
+          },
+          get selectedValues() {
+            return getSelectedOptions(ctx).map((option) => mapNormalizedToRawValue(option) as TItem)
+          },
+          get isAtMaxCount() {
+            return isAtMaxCount()
+          },
           create: (value?: string) => createTag(value, ctx),
           close: ctx.close,
         }),
       })}
-      optionRender={(option) => props.optionRender?.(option) ?? renderDefaultOption(option)}
+      optionRender={(renderProps) => (
+        <Show
+          when={props.optionRender !== undefined}
+          fallback={renderDefaultOption(renderProps.option)}
+        >
+          {renderComponentOrElement(props.optionRender, {
+            get option() {
+              return renderProps.option
+            },
+          })}
+        </Show>
+      )}
     >
       {(api) => {
         const selectedOptions = createMemo(() => getSelectedOptions(api))
@@ -612,8 +648,11 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                   const onClose = () => toggleOption(option, api)
                   return (
                     <Show
-                      when={!props.tagRender}
-                      fallback={props.tagRender?.({ ...option.raw, onClose })}
+                      when={props.tagRender === undefined}
+                      fallback={renderComponentOrElement(props.tagRender, {
+                        option: option.raw,
+                        onClose,
+                      })}
                     >
                       <Badge
                         slotName="tag"

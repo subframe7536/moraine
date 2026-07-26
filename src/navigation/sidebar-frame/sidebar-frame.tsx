@@ -5,6 +5,8 @@ import { Show, createEffect, createMemo, createSignal, mergeProps, on, untrack }
 import { Resizable } from '../../elements/resizable'
 import type { ResizableT } from '../../elements/resizable'
 import { Sheet } from '../../overlays/sheet'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { cn } from '../../shared/utils'
@@ -56,6 +58,12 @@ export namespace SidebarFrameT {
     main: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
   }
 
+  export type SidebarHeaderRenderProps = BaseContext
+  export type SidebarBodyRenderProps = BaseContext
+  export type SidebarFooterRenderProps = BaseContext
+  export type MainRenderProps = BaseContext
+  export type FrameRenderProps = FrameContext
+
   /**
    * Slot keys for classes/styles overrides.
    */
@@ -101,24 +109,24 @@ export namespace SidebarFrameT {
     /**
      * Optional render function for sidebar header section.
      */
-    sidebarHeaderRender?: (ctx: BaseContext) => JSX.Element
+    sidebarHeaderRender?: ComponentOrElement<SidebarHeaderRenderProps>
     /**
      * Render function for sidebar body section.
      */
-    sidebarBodyRender: (ctx: BaseContext) => JSX.Element
+    sidebarBodyRender: ComponentOrElement<SidebarBodyRenderProps>
     /**
      * Optional render function for sidebar footer section.
      */
-    sidebarFooterRender?: (ctx: BaseContext) => JSX.Element
+    sidebarFooterRender?: ComponentOrElement<SidebarFooterRenderProps>
     /**
      * Render function for main content section.
      */
-    mainRender: (ctx: BaseContext) => JSX.Element
+    mainRender: ComponentOrElement<MainRenderProps>
     /**
      * Optional frame renderer used to compose sidebar/main layout.
      * @default SidebarFrameSheetOnlyRender
      */
-    frameRender?: (ctx: FrameContext) => JSX.Element
+    frameRender?: ComponentOrElement<FrameRenderProps>
   }
 
   /**
@@ -294,9 +302,19 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
     >
-      <merged.frameRender
-        {...context}
-        sidebar={(props) => (
+      {renderComponentOrElement(merged.frameRender, {
+        isMobile: context.isMobile,
+        scrolled: context.scrolled,
+        isOpen: context.isOpen,
+        setOpen: context.setOpen,
+        toggle: context.toggle,
+        get variant() {
+          return context.variant
+        },
+        get side() {
+          return context.side
+        },
+        sidebar: (props) => (
           <div
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
@@ -313,16 +331,14 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               merged.classes?.sidebar,
             )}
           >
-            <Show when={merged.sidebarHeaderRender}>
-              {(renderSidebarHeader) => (
-                <div
-                  data-slot="sidebarHeader"
-                  style={merged.styles?.sidebarHeader}
-                  class={cn(merged.classes?.sidebarHeader)}
-                >
-                  {renderSidebarHeader()(context)}
-                </div>
-              )}
+            <Show when={merged.sidebarHeaderRender !== undefined}>
+              <div
+                data-slot="sidebarHeader"
+                style={merged.styles?.sidebarHeader}
+                class={cn(merged.classes?.sidebarHeader)}
+              >
+                {renderComponentOrElement(merged.sidebarHeaderRender, context)}
+              </div>
             </Show>
 
             <div
@@ -330,23 +346,21 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               style={merged.styles?.sidebarBody}
               class={cn('flex-1 min-h-0 overflow-y-auto', merged.classes?.sidebarBody)}
             >
-              {merged.sidebarBodyRender(context)}
+              {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
 
-            <Show when={merged.sidebarFooterRender}>
-              {(renderSidebarFooter) => (
-                <div
-                  data-slot="sidebarFooter"
-                  style={merged.styles?.sidebarFooter}
-                  class={cn(merged.classes?.sidebarFooter)}
-                >
-                  {renderSidebarFooter()(context)}
-                </div>
-              )}
+            <Show when={merged.sidebarFooterRender !== undefined}>
+              <div
+                data-slot="sidebarFooter"
+                style={merged.styles?.sidebarFooter}
+                class={cn(merged.classes?.sidebarFooter)}
+              >
+                {renderComponentOrElement(merged.sidebarFooterRender, context)}
+              </div>
             </Show>
           </div>
-        )}
-        main={(props) => (
+        ),
+        main: (props) => (
           <div
             data-slot="main"
             {...props}
@@ -364,10 +378,10 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}
           >
-            {merged.mainRender(context)}
+            {renderComponentOrElement(merged.mainRender, context)}
           </div>
-        )}
-      />
+        ),
+      })}
     </div>
   )
 }

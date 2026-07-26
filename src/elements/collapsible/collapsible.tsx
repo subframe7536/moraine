@@ -1,6 +1,8 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
@@ -14,6 +16,15 @@ export namespace CollapsibleT {
 
     /** Native button type. */
     type: 'button'
+
+    /** Slot identity for the rendered trigger element. */
+    'data-slot': 'trigger'
+
+    /** Trigger class overrides. */
+    class?: string
+
+    /** Trigger style overrides. */
+    style: JSX.CSSProperties | undefined
 
     /** Content id while the collapsible is open. */
     'aria-controls'?: string
@@ -38,9 +49,9 @@ export namespace CollapsibleT {
   }
 
   /**
-   * Props passed to the trigger render function.
+   * Props passed to the trigger render component.
    */
-  export interface RenderTriggerContext {
+  export interface TriggerRenderProps {
     /**
      * Whether the collapsible is open.
      */
@@ -120,12 +131,8 @@ export namespace CollapsibleT {
      */
     transition?: boolean
 
-    /**
-     * Custom trigger content or render function.
-     * - When component has no prop, the whole component will be wrapped with `<button>`
-     * - When component has props, uncontrolled state must be setup manually via `CollapsibleT.RenderTriggerContext`
-     */
-    renderTrigger: JSX.Element | Component<RenderTriggerContext>
+    /** Custom trigger renderer. Spread `triggerProps` onto the interactive trigger element. */
+    triggerRender: ComponentOrElement<TriggerRenderProps>
 
     /**
      * Content to render inside the collapsible.
@@ -190,6 +197,13 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       return triggerId()
     },
     type: 'button',
+    'data-slot': 'trigger',
+    get class() {
+      return cn('w-full cursor-pointer', props.classes?.trigger)
+    },
+    get style() {
+      return props.styles?.trigger
+    },
     get 'aria-controls'() {
       return resolvedOpen() ? contentId() : undefined
     },
@@ -211,7 +225,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     onClick: onTriggerClick,
   }
 
-  const triggerContext: CollapsibleT.RenderTriggerContext = {
+  const triggerRenderProps: CollapsibleT.TriggerRenderProps = {
     get isOpen() {
       return resolvedOpen()
     },
@@ -224,6 +238,11 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     triggerProps,
   }
 
+  const staticTrigger = (): JSX.Element => {
+    const triggerRender = props.triggerRender
+    return typeof triggerRender === 'function' ? undefined : triggerRender
+  }
+
   return (
     <div
       id={rootId()}
@@ -233,28 +252,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       {...dataAttrs()}
     >
       <Show
-        when={typeof props.renderTrigger === 'function' && props.renderTrigger.length > 0}
-        fallback={
-          <Show when={props.renderTrigger}>
-            <button
-              {...triggerProps}
-              data-slot="trigger"
-              style={props.styles?.trigger}
-              class={cn('w-full cursor-pointer', props.classes?.trigger)}
-            >
-              {props.renderTrigger as JSX.Element}
-            </button>
-          </Show>
-        }
+        when={typeof props.triggerRender === 'function'}
+        fallback={<button {...triggerProps}>{staticTrigger()}</button>}
       >
-        <div
-          data-slot="trigger"
-          style={props.styles?.trigger}
-          class={cn(props.classes?.trigger)}
-          {...dataAttrs()}
-        >
-          {(props.renderTrigger as Component<CollapsibleT.RenderTriggerContext>)(triggerContext)}
-        </div>
+        {renderComponentOrElement(props.triggerRender, triggerRenderProps)}
       </Show>
 
       <Show when={shouldRenderContent()}>

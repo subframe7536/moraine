@@ -155,9 +155,9 @@ export type OverlayMenuSharedClasses = OverlayMenuSharedSlots<SlotClassValue>
 export type OverlayMenuSharedStyles = OverlayMenuSharedSlots<SlotStyleValue>
 
 /**
- * Context provided to custom menu item render functions.
+ * Props provided to custom menu item render components.
  */
-export interface OverlayMenuSharedItemRenderContext<TItem> {
+export interface OverlayMenuSharedItemRenderProps<TItem> {
   /**
    * The menu item object being rendered.
    */

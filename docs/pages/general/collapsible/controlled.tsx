@@ -30,16 +30,16 @@ export function Controlled() {
             'w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between data-disabled:opacity-60',
           content: 'px-4 pb-4 text-sm text-foreground',
         }}
-        renderTrigger={
-          <>
+        triggerRender={(context) => (
+          <button {...context.triggerProps} class="flex w-full items-center justify-between">
             <span>June invoice #INV-2048</span>
             <Icon
               name="i-lucide-chevron-down"
               aria-label="Toggle invoice details"
               class={cn('text-muted-foreground transition-transform', open() ? 'rotate-180' : '')}
             />
-          </>
-        }
+          </button>
+        )}
       >
         <div class="space-y-2">
           <div class="flex items-center justify-between">

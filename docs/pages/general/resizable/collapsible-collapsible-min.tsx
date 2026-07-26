@@ -34,7 +34,7 @@ export function CollapsibleCollapsibleMin() {
       <div class="b-1 b-border border-border rounded-xl h-56 overflow-hidden">
         <Resizable
           handleAction="collapse"
-          renderHandle={(state) => (
+          handleRender={(state) => (
             <Icon name={state.collapsed ? 'i-lucide:align-justify' : 'i-lucide:align-left'} />
           )}
           onResize={handleExternalResize}

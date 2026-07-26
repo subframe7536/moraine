@@ -119,7 +119,7 @@
       {
         "name": "itemRender",
         "required": false,
-        "type": "((context: BreadcrumbT.ItemRenderContext) => ValidComponent) | undefined",
+        "type": "ComponentOrElement<BreadcrumbT.ItemRenderProps> | undefined",
         "description": "Custom renderer for individual breadcrumb items."
       },
       {

@@ -74,6 +74,20 @@ test('uses css variable classes for input sizing in single mode', () => {
 })
 
 describe('Select - single mode', () => {
+  test('accepts static JSX for the empty state', () => {
+    render(() => (
+      <Select
+        options={[]}
+        defaultOpen
+        emptyRender={<span data-testid="static-empty">Nothing available</span>}
+      />
+    ))
+
+    expect(document.body.querySelector('[data-testid="static-empty"]')?.textContent).toBe(
+      'Nothing available',
+    )
+  })
+
   test('supports xs and xl size classes', () => {
     const screen = render(() => (
       <>
@@ -538,8 +552,10 @@ describe('Select - render hooks', () => {
       <Select
         options={FRUITS}
         defaultOpen
-        labelRender={(option) => (
-          <span data-testid={`custom-label-${String(option.value)}`}>{option.label}</span>
+        labelRender={(props) => (
+          <span data-testid={`custom-label-${String(props.option.value)}`}>
+            {props.option.label}
+          </span>
         )}
         placeholder="Pick"
       />
@@ -554,7 +570,9 @@ describe('Select - render hooks', () => {
       <Select
         options={FRUITS}
         defaultOpen
-        optionRender={(option) => <span data-testid="custom-option">{option?.label} (custom)</span>}
+        optionRender={(props) => (
+          <span data-testid="custom-option">{props.option?.label} (custom)</span>
+        )}
         placeholder="Pick"
       />
     ))
@@ -564,7 +582,7 @@ describe('Select - render hooks', () => {
   })
 
   test('passes selected state for normal items to optionRender', () => {
-    const renderCalls: Array<Parameters<NonNullable<SelectT.Base['optionRender']>>[0]> = []
+    const renderCalls: SelectT.OptionRenderProps[] = []
 
     render(() => (
       <Select
@@ -573,15 +591,15 @@ describe('Select - render hooks', () => {
         defaultOpen
         optionRender={(props) => {
           renderCalls.push(props)
-          return <span data-testid="custom-option">{props?.label}</span>
+          return <span data-testid="custom-option">{props.option?.label}</span>
         }}
         placeholder="Pick"
       />
     ))
 
-    const appleState = renderCalls.find((call) => call?.value === 'apple')
+    const appleState = renderCalls.find((call) => call.option?.value === 'apple')
     expect(appleState).toBeDefined()
-    expect(appleState?.isSelected).toBe(true)
+    expect(appleState?.option?.isSelected).toBe(true)
   })
 })
 
@@ -802,9 +820,9 @@ describe('Select - empty state', () => {
         options={FRUITS}
         search
         defaultOpen
-        optionRender={(option) =>
-          option ? (
-            <span>{option.label}</span>
+        optionRender={(props) =>
+          props.option ? (
+            <span>{props.option.label}</span>
           ) : (
             <div data-slot="empty" data-testid="custom-empty">
               Nothing here!

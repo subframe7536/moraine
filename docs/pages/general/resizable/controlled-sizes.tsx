@@ -52,7 +52,7 @@ export function ControlledSizes() {
   return (
     <div class="space-y-3">
       <div class="b-1 b-border border-border rounded-xl h-48 overflow-hidden">
-        <Resizable renderHandle onResize={handleControlledResize} panels={controlledPanels} />
+        <Resizable handle onResize={handleControlledResize} panels={controlledPanels} />
       </div>
       <p class="text-xs text-muted-foreground">
         Current sizes: {formatPixelSizes(controlledSizes())}

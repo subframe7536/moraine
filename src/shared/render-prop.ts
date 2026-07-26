@@ -1,25 +1,28 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
+import { createComponent } from 'solid-js'
 
 /**
- * A type that can be either a JSX element or a function that returns a JSX element given some props.
+ * A Solid component that receives render props, or static JSX content.
  */
-export type MaybeRenderProp<TProps> = JSX.Element | ((props: TProps) => JSX.Element)
+export type ComponentOrElement<TProps extends object = Record<never, never>> =
+  | Component<TProps>
+  | JSX.Element
 
 /**
- * Resolves a maybe-render prop into a JSX element.
- * If the value is a function, it is called with the provided props.
+ * Mounts component values with the provided props and returns static JSX unchanged.
  */
-export function resolveRenderProp<TProps>(
-  value: MaybeRenderProp<TProps> | undefined,
-  propsInput: TProps,
+export function renderComponentOrElement<TProps extends object>(
+  value: ComponentOrElement<TProps>,
+  props: TProps,
 ): JSX.Element {
-  if (typeof value !== 'function') {
-    return value as JSX.Element
+  if (typeof value === 'function') {
+    const mountComponent = createComponent as unknown as <TComponentProps extends object>(
+      component: (componentProps: TComponentProps) => JSX.Element,
+      componentProps: TComponentProps,
+    ) => JSX.Element
+
+    return mountComponent(value, props)
   }
 
-  if (value.length === 0) {
-    return (value as () => JSX.Element)()
-  }
-
-  return value(propsInput)
+  return value
 }

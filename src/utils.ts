@@ -1,4 +1,5 @@
 export * from './shared/create-context-provider'
+export * from './shared/render-prop'
 export * from './shared/use-controllable-value'
 export * from './shared/use-disclosure-state'
 export * from './shared/use-event-listener'

@@ -5,7 +5,8 @@ import { Show, createMemo, createSignal, mergeProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
-import { resolveRenderProp } from '../../shared/render-prop'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 import { useFormContext } from '../form/form-context'
@@ -134,7 +135,7 @@ export namespace FormFieldT {
     /**
      * Children of the field, can be a render function.
      */
-    children?: JSX.Element | ((props: RenderContext) => JSX.Element)
+    children?: ComponentOrElement<RenderContext>
   }
 
   /**
@@ -364,7 +365,7 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
               : cn(merged.classes?.container)
           }
         >
-          {resolveRenderProp<FormFieldT.RenderContext>(merged.children, {
+          {renderComponentOrElement<FormFieldT.RenderContext>(merged.children, {
             get error() {
               return resolvedError()
             },

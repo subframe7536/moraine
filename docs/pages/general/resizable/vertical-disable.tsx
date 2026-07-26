@@ -19,7 +19,7 @@ export function VerticalDisable() {
         <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
           <Resizable
             orientation="vertical"
-            renderHandle
+            handle
             classes={{ divider: 'bg-accent/80' }}
             panels={[
               {
@@ -56,7 +56,7 @@ export function VerticalDisable() {
           <Resizable
             disable
             orientation="vertical"
-            renderHandle
+            handle
             classes={{ divider: 'bg-accent/80 opacity-80' }}
             panels={[
               {

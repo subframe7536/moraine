@@ -10,6 +10,8 @@ import {
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
 } from '../../overlays/base/menu'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
@@ -39,6 +41,11 @@ export namespace BaseSelectT {
     isDisabled: boolean
   }
 
+  export interface OptionRenderProps<TItem extends Item> {
+    /** Option and interaction state, or null when no option matches. */
+    option: (TItem & OptionRenderState) | null
+  }
+
   export interface Item<Val extends Value = Value> extends BaseSelectItems<Item<Val>> {
     /** Label to display for the option, or the option group title. */
     label?: string | JSX.Element
@@ -66,6 +73,8 @@ export namespace BaseSelectT {
     setInputValue: (value: string) => void
     visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
   }
+
+  export type EmptyRenderProps<TItem extends Item> = StateApi<TItem>
 
   export interface ControlApi<TItem extends Item> extends StateApi<TItem> {
     controlProps: Accessor<JSX.HTMLAttributes<HTMLDivElement>>
@@ -196,9 +205,9 @@ export namespace BaseSelectT {
     /** Render the trigger/control surface. */
     children: (api: ControlApi<TItem>) => JSX.Element
     /** Renderer for each option in the dropdown. Receives `null` when no option matches. */
-    optionRender: (option: (TItem & OptionRenderState) | null) => JSX.Element
+    optionRender: ComponentOrElement<OptionRenderProps<TItem>>
     /** Custom rendered empty state. */
-    emptyRender?: (context: StateApi<TItem>) => JSX.Element | undefined
+    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Called when an option is selected by pointer or keyboard. */
     onOptionSelect: (option: NormalizedOption<TItem>, context: OptionSelectContext<TItem>) => void
     /**
@@ -948,7 +957,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           selectOption(option)
         }}
       >
-        {merged.optionRender(renderContext())}
+        {renderComponentOrElement(merged.optionRender, {
+          get option() {
+            return renderContext()
+          },
+        })}
       </div>
     )
   }
@@ -1116,7 +1129,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             >
               <Show
                 when={visibleFlatOptions().length > 0}
-                fallback={merged.emptyRender?.(stateApi) ?? merged.optionRender(null)}
+                fallback={
+                  merged.emptyRender !== undefined
+                    ? renderComponentOrElement(merged.emptyRender, stateApi)
+                    : renderComponentOrElement(merged.optionRender, { option: null })
+                }
               >
                 <List<SelectListEntry, 'div', HTMLDivElement>
                   as="div"

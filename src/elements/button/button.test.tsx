@@ -1,5 +1,6 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { Show } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from './button'
@@ -216,9 +217,15 @@ describe('Button', () => {
     expect(leading?.className).toContain('effect-loading')
   })
 
-  test('supports function children with loading state', () => {
+  test('supports component children with loading state', () => {
     const screen = render(() => (
-      <Button loading>{({ loading }) => (loading ? 'Saving' : 'Save')}</Button>
+      <Button loading>
+        {(props) => (
+          <Show when={props.loading} fallback="Save">
+            Saving
+          </Show>
+        )}
+      </Button>
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
@@ -328,12 +335,16 @@ describe('Button', () => {
     })
   })
 
-  test('updates function children during auto loading lifecycle', async () => {
+  test('updates component children during auto loading lifecycle', async () => {
     const deferred = createDeferred()
     const onclick = vi.fn(() => deferred.promise)
     const screen = render(() => (
       <Button loadingAuto onClick={onclick}>
-        {({ loading }) => (loading ? 'Submitting' : 'Submit')}
+        {(props) => (
+          <Show when={props.loading} fallback="Submit">
+            Submitting
+          </Show>
+        )}
       </Button>
     ))
 

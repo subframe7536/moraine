@@ -3,10 +3,17 @@ import { For, createEffect, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useListVirtualizer } from '../../utils'
+
 import type { ListT } from './list'
 import { List } from './list'
 
 describe('List', () => {
+  test('accepts static JSX for itemRender', () => {
+    const screen = render(() => <List items={['ignored']} itemRender={<li>Static item</li>} />)
+
+    expect(screen.getByRole('list').textContent).toBe('Static item')
+  })
+
   test('renders arbitrary reactive items with ul semantics by default', async () => {
     const [items, setItems] = createSignal([{ name: 'Engineer' }])
     const screen = render(() => (

@@ -104,6 +104,15 @@ function packageNameFromSpecifier(specifier: string): string {
   return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : (parts[0] ?? specifier)
 }
 
+function displayImportName(localName: string, binding: ImportBinding): string {
+  const isMinifiedRelativeImport =
+    binding.specifier.startsWith('.') &&
+    binding.importedName.length <= 2 &&
+    localName.length > binding.importedName.length
+
+  return isMinifiedRelativeImport ? localName : binding.importedName
+}
+
 function resolveSourcePath(
   projectRoot: string,
   regionPath: string | undefined,
@@ -422,7 +431,7 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
         edits.push({
           start: reference.typeName.start,
           end: reference.typeName.end,
-          text: binding.importedName,
+          text: displayImportName(name, binding),
         })
       }
     }

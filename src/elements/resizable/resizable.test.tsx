@@ -4,6 +4,7 @@ import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { Resizable } from './resizable'
+import type { ResizableProps } from './resizable'
 
 type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -115,6 +116,30 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
+  test('accepts static JSX for handleRender', () => {
+    const screen = render(() => (
+      <Resizable
+        handle
+        handleRender={<span data-testid="handle-content">Resize</span>}
+        panels={[{ content: 'Left' }, { content: 'Right' }]}
+      />
+    ))
+
+    expect(screen.getByTestId('handle-content').textContent).toBe('Resize')
+  })
+
+  test('exposes separate handle visibility and render contracts', () => {
+    const validProps: ResizableProps = {
+      handle: true,
+      handleRender: (props) => <span>{props.orientation}</span>,
+    }
+    // @ts-expect-error renderHandle has been replaced by handle and handleRender
+    const legacyProps: ResizableProps = { renderHandle: true }
+
+    expect(validProps.handle).toBe(true)
+    expect(legacyProps).toBeDefined()
+  })
+
   test('renders panels and auto inserts handles between panels', () => {
     const screen = render(() => (
       <Resizable panels={[{ content: 'Left' }, { content: 'Center' }, { content: 'Right' }]} />
@@ -130,7 +155,7 @@ describe('Resizable', () => {
 
   test('keeps built-in handle content and hidden handle behavior stable', () => {
     const builtIn = render(() => (
-      <Resizable renderHandle panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <Resizable handle panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(builtIn.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -139,7 +164,7 @@ describe('Resizable', () => {
     builtIn.unmount()
 
     const hidden = render(() => (
-      <Resizable renderHandle={false} panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <Resizable handle={false} panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(hidden.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -191,7 +216,7 @@ describe('Resizable', () => {
   test('applies class overrides and supports root-level custom handle rendering', () => {
     const screen = render(() => (
       <Resizable
-        renderHandle={<span data-slot="custom-handle-icon" class="i-lucide-grip-vertical" />}
+        handleRender={() => <span data-slot="custom-handle-icon" class="i-lucide-grip-vertical" />}
         classes={{
           root: 'root-override',
           panel: 'panel-override',
@@ -218,11 +243,11 @@ describe('Resizable', () => {
     expect(customHandleIcons).toHaveLength(2)
   })
 
-  test('supports function renderHandle with state fields and interaction updates', async () => {
+  test('supports function handle with state fields and interaction updates', async () => {
     const screen = render(() => (
       <Resizable
         handleAction="collapse"
-        renderHandle={(state) => (
+        handleRender={(state) => (
           <span
             data-slot="state-handle"
             data-action={state.action}
@@ -271,11 +296,11 @@ describe('Resizable', () => {
     expect(getStateHandle().getAttribute('data-dragging')).toBe('false')
   })
 
-  test('updates function renderHandle output when collapse state changes', async () => {
+  test('updates function handle output when collapse state changes', async () => {
     const screen = render(() => (
       <Resizable
         handleAction="collapse"
-        renderHandle={(state) => (
+        handleRender={(state) => (
           <span data-slot="state-collapsed-label">
             {state.collapsed ? 'collapsed' : 'expanded'}
           </span>
@@ -304,12 +329,12 @@ describe('Resizable', () => {
     expect(getCollapsedLabel().textContent).toBe('expanded')
   })
 
-  test('marks function renderHandle state as disabled when root is disabled', () => {
+  test('marks function handle state as disabled when root is disabled', () => {
     const screen = render(() => (
       <Resizable
         disable
         handleAction="collapse"
-        renderHandle={(state) => (
+        handleRender={(state) => (
           <span data-slot="state-disabled-label">{state.disabled ? 'disabled' : 'enabled'}</span>
         )}
         panels={[
@@ -764,7 +789,7 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         handleAction="collapse"
-        renderHandle
+        handle
         panels={[
           {
             content: 'Sidebar',
@@ -936,7 +961,7 @@ describe('Resizable', () => {
 
   test('supports dragging when pointer down starts on handle visual area', async () => {
     const screen = render(() => (
-      <Resizable renderHandle panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <Resizable handle panels={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     const handleVisual = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
@@ -1093,7 +1118,7 @@ describe('Resizable', () => {
   test('supports nested resizable panels and root-level intersection config', async () => {
     const screen = render(() => (
       <Resizable
-        renderHandle
+        handle
         intersection
         panels={[
           { content: 'Outer Left' },
@@ -1101,7 +1126,7 @@ describe('Resizable', () => {
             content: (
               <Resizable
                 orientation="vertical"
-                renderHandle
+                handle
                 intersection
                 panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
@@ -1135,7 +1160,7 @@ describe('Resizable', () => {
     const screen = render(() => (
       <Resizable
         disable
-        renderHandle
+        handle
         intersection
         panels={[
           { content: 'Outer Left' },
@@ -1143,7 +1168,7 @@ describe('Resizable', () => {
             content: (
               <Resizable
                 orientation="vertical"
-                renderHandle
+                handle
                 intersection
                 panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
@@ -1169,7 +1194,7 @@ describe('Resizable', () => {
   test('marks all affected handles as active when hovering a cross-target', async () => {
     const screen = render(() => (
       <Resizable
-        renderHandle
+        handle
         intersection
         panels={[
           { content: 'Outer Left' },
@@ -1177,7 +1202,7 @@ describe('Resizable', () => {
             content: (
               <Resizable
                 orientation="vertical"
-                renderHandle
+                handle
                 intersection
                 panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
@@ -1300,7 +1325,7 @@ describe('Resizable', () => {
   test('locks document text selection while dragging from cross target and restores afterwards', async () => {
     const screen = render(() => (
       <Resizable
-        renderHandle
+        handle
         intersection
         panels={[
           { content: 'Outer Left' },
@@ -1308,7 +1333,7 @@ describe('Resizable', () => {
             content: (
               <Resizable
                 orientation="vertical"
-                renderHandle
+                handle
                 intersection
                 panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
@@ -1340,7 +1365,7 @@ describe('Resizable', () => {
   test('keeps divider in cross-hovered state through press and release on cross target', async () => {
     const screen = render(() => (
       <Resizable
-        renderHandle
+        handle
         intersection
         panels={[
           { content: 'Outer Left' },
@@ -1348,7 +1373,7 @@ describe('Resizable', () => {
             content: (
               <Resizable
                 orientation="vertical"
-                renderHandle
+                handle
                 intersection
                 panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />

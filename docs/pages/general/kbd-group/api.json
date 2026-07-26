@@ -74,7 +74,7 @@
       {
         "name": "dividerRender",
         "required": false,
-        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps> | undefined",
         "description": "Custom divider rendered between keys in the same group."
       },
       {
@@ -92,7 +92,7 @@
       {
         "name": "sequenceDividerRender",
         "required": false,
-        "type": "((ctx: KbdGroupT.DividerRenderContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps> | undefined",
         "description": "Custom divider rendered between shortcut steps."
       },
       {

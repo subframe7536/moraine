@@ -10,7 +10,7 @@ export function Stateful() {
           trigger: 'w-xl px-3 py-2 text-left text-sm flex items-center justify-between',
           content: 'px-3 pb-3 text-sm text-foreground',
         }}
-        renderTrigger={(context) => (
+        triggerRender={(context) => (
           <>
             <div class="min-w-0">
               <div class="flex gap-2 items-center">

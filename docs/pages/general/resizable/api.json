@@ -143,11 +143,24 @@
         "defaultValue": "false"
       },
       {
+        "name": "handle",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render handles between panels.",
+        "defaultValue": "true"
+      },
+      {
         "name": "handleAction",
         "required": false,
         "type": "\"resize\" | \"collapse\" | undefined",
         "description": "Handle interaction behavior.\n- `resize`: handle area follows divider resize interactions.\n- `collapse`: handle click toggles the nearest collapsible panel.",
         "defaultValue": "resize"
+      },
+      {
+        "name": "handleRender",
+        "required": false,
+        "type": "ComponentOrElement<ResizableT.HandleRenderProps> | undefined",
+        "description": "Custom component rendered inside each handle."
       },
       {
         "name": "id",
@@ -203,13 +216,6 @@
         "required": false,
         "type": "ResizableT.Item[] | undefined",
         "description": "Array of panels to render."
-      },
-      {
-        "name": "renderHandle",
-        "required": false,
-        "type": "boolean | MaybeRenderProp<ResizableT.HandleState>",
-        "description": "Custom handle to render.\n- `true`: render built-in handle.\n- `JSX.Element`: render static custom handle content.\n- `(state) => JSX.Element`: render dynamic content by handle state.",
-        "defaultValue": "true"
       },
       {
         "name": "style",

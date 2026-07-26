@@ -2,8 +2,8 @@ import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { MaybeRenderProp } from '../../shared/render-prop'
-import { resolveRenderProp } from '../../shared/render-prop'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { callHandler, cn } from '../../shared/utils'
@@ -101,7 +101,7 @@ export namespace ButtonT {
     /**
      * Children of the button. Supports render function form.
      */
-    children?: MaybeRenderProp<{
+    children?: ComponentOrElement<{
       /**
        * Whether the button is currently in loading state.
        */
@@ -291,7 +291,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           style={local.styles?.label}
           class={cn('min-w-0 truncate', local.classes?.label)}
         >
-          {resolveRenderProp(local.children, {
+          {renderComponentOrElement(local.children, {
             get loading() {
               return isLoading()
             },

@@ -10,8 +10,8 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { MaybeRenderProp } from '../../shared/render-prop'
-import { resolveRenderProp } from '../../shared/render-prop'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
 
@@ -44,7 +44,7 @@ import {
 import type { ResizableVariantProps } from './resizable.class'
 
 export namespace ResizableT {
-  export interface HandleState {
+  export interface HandleRenderProps {
     orientation: ResizableOrientation
     disabled: boolean
     action: 'resize' | 'collapse'
@@ -122,13 +122,13 @@ export namespace ResizableT {
     disable?: boolean
 
     /**
-     * Custom handle to render.
-     * - `true`: render built-in handle.
-     * - `JSX.Element`: render static custom handle content.
-     * - `(state) => JSX.Element`: render dynamic content by handle state.
+     * Whether to render handles between panels.
      * @default true
      */
-    renderHandle?: boolean | MaybeRenderProp<HandleState>
+    handle?: boolean
+
+    /** Custom component rendered inside each handle. */
+    handleRender?: ComponentOrElement<HandleRenderProps>
 
     /**
      * Handle interaction behavior.
@@ -178,7 +178,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     {
       orientation: 'horizontal' as ResizableOrientation,
       keyboardDelta: '10%' as ResizableSize,
-      renderHandle: true,
+      handle: true,
       handleAction: 'resize' as const,
     },
     props,
@@ -787,37 +787,29 @@ export function Resizable(props: ResizableProps): JSX.Element {
             toggleHandleCollapse(index)
           }
 
-          const handleContent = createMemo(() => {
-            const renderHandle = local.renderHandle
-
-            if (renderHandle === true) {
-              return null
-            }
-
-            return resolveRenderProp<ResizableT.HandleState>(renderHandle, {
-              get orientation() {
-                return orientation()
-              },
-              get disabled() {
-                return handleRenderDisabled()
-              },
-              get action() {
-                return local.handleAction
-              },
-              get active() {
-                return bindings.active()
-              },
-              get dragging() {
-                return bindings.dragging()
-              },
-              get canCollapse() {
-                return collapseState().canCollapse
-              },
-              get collapsed() {
-                return collapseState().collapsed
-              },
-            })
-          })
+          const handleRenderProps: ResizableT.HandleRenderProps = {
+            get orientation() {
+              return orientation()
+            },
+            get disabled() {
+              return handleRenderDisabled()
+            },
+            get action() {
+              return local.handleAction
+            },
+            get active() {
+              return bindings.active()
+            },
+            get dragging() {
+              return bindings.dragging()
+            },
+            get canCollapse() {
+              return collapseState().canCollapse
+            },
+            get collapsed() {
+              return collapseState().collapsed
+            },
+          }
 
           const isTransitioning = createMemo(() => transitioningPanelIndexes().includes(index))
 
@@ -892,7 +884,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     />
                   </Show>
 
-                  <Show when={local.renderHandle !== false}>
+                  <Show when={local.handle}>
                     <button
                       type="button"
                       data-slot="handle"
@@ -903,14 +895,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       class={cn(
                         'rounded flex cursor-inherit items-center justify-center z-10 focus-visible:effect-fv',
                         handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
-                        local.renderHandle === true && [
+                        !local.handleRender && [
                           'bg-border/90 flex shrink-0',
                           orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
                         ],
                         local.classes?.handle,
                       )}
                     >
-                      {handleContent()}
+                      <Show when={local.handleRender !== undefined}>
+                        {renderComponentOrElement(local.handleRender, handleRenderProps)}
+                      </Show>
                     </button>
                   </Show>
 

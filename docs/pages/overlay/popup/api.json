@@ -43,7 +43,7 @@
       {
         "name": "content",
         "required": false,
-        "type": "MaybeRenderProp<ModalContentContext>",
+        "type": "ComponentOrElement<ModalContentContext> | undefined",
         "description": "Modal content rendered inside the content surface."
       },
       {

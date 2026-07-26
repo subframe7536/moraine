@@ -20,7 +20,7 @@
       {
         "name": "itemRender",
         "required": true,
-        "type": "(context: ListT.ItemRenderContext<TItem, TItemElement>) => JSX.Element",
+        "type": "ComponentOrElement<ListT.ItemRenderProps<TItem, TItemElement>>",
         "description": "Renders one collection item."
       },
       {

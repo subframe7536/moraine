@@ -17,7 +17,7 @@ export function Uncontrolled() {
         >
           <Collapsible
             transition={transition()}
-            renderTrigger={(context) => (
+            triggerRender={(context) => (
               <Button
                 {...context.triggerProps}
                 variant="ghost"

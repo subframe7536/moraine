@@ -3,6 +3,8 @@ import { Show } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import type {
@@ -59,7 +61,17 @@ export namespace SelectT {
     itemTrailing?: T
   }
 
-  export interface EmptyRenderContext<TItem extends Value = Value> {
+  export interface OptionRenderProps<TItem extends Value = Value> {
+    /** Option and interaction state, or null when no option matches. */
+    option: (Item<TItem> & OptionRenderState) | null
+  }
+
+  export interface LabelRenderProps<TItem extends Value = Value> {
+    /** Option whose label is being rendered. */
+    option: Item<TItem>
+  }
+
+  export interface EmptyRenderProps<TItem extends Value = Value> {
     /** Current input/search text. */
     inputValue: string
     /** Whether the current filter has any matches. */
@@ -104,11 +116,11 @@ export namespace SelectT {
     /** Scrolls a highlighted option into view using its flattened entry index. */
     scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: (option: (SelectT.Item<TItem> & OptionRenderState) | null) => JSX.Element
+    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
     /** Custom renderer for the option label text. */
-    labelRender?: (option: SelectT.Item<TItem>) => JSX.Element
+    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
     /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: (context: EmptyRenderContext<TItem>) => JSX.Element
+    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**
      * Placeholder text shown when no value is selected.
      * @default ''
@@ -205,17 +217,34 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       onOptionSelect={(option, api) => updateSelection(option, api)}
       emptyRender={createEmptyRenderer({
         emptyRender: props.emptyRender,
-        buildContext: (api: BaseSelectT.StateApi<Item>) => {
-          const selected = findSelectedOption(api)
+        buildProps: (api: BaseSelectT.StateApi<Item>) => {
           return {
-            inputValue: api.inputValue(),
-            hasMatches: api.visibleFlatOptions().length > 0,
-            selectedValue: selected ? (mapNormalizedToRawValue(selected) as TItem) : null,
+            get inputValue() {
+              return api.inputValue()
+            },
+            get hasMatches() {
+              return api.visibleFlatOptions().length > 0
+            },
+            get selectedValue() {
+              const selected = findSelectedOption(api)
+              return selected ? (mapNormalizedToRawValue(selected) as TItem) : null
+            },
             close: api.close,
           }
         },
       })}
-      optionRender={(option) => props.optionRender?.(option) ?? renderDefaultOption(option)}
+      optionRender={(renderProps) => (
+        <Show
+          when={props.optionRender !== undefined}
+          fallback={renderDefaultOption(renderProps.option)}
+        >
+          {renderComponentOrElement(props.optionRender, {
+            get option() {
+              return renderProps.option
+            },
+          })}
+        </Show>
+      )}
     >
       {(api) => {
         return (

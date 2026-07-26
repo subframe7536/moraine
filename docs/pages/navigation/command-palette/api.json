@@ -126,7 +126,7 @@
       {
         "name": "leadingRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps> | undefined",
         "description": "Custom visual rendered at the start of the item."
       },
       {
@@ -138,7 +138,7 @@
       {
         "name": "trailingRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemRenderContext) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps> | undefined",
         "description": "Custom visual rendered at the end of the item."
       },
       {
@@ -218,7 +218,7 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.EmptyRenderProps<TItem>> | undefined",
         "description": "Custom empty state renderer."
       },
       {
@@ -230,7 +230,7 @@
       {
         "name": "footerRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.BaseContext<TItem>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.FooterRenderProps<TItem>> | undefined",
         "description": "Custom footer renderer."
       },
       {
@@ -261,13 +261,13 @@
       {
         "name": "itemProps",
         "required": false,
-        "type": "((context: CommandPaletteT.ItemRenderContext<TItem>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((context: CommandPaletteT.ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional attributes for a command row."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.Element) | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps<TItem>> | undefined",
         "description": "Custom command row content renderer."
       },
       {

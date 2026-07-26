@@ -13,7 +13,7 @@ export function BasicHorizontal() {
   return (
     <div class="b-1 b-border border-border rounded-xl h-52 overflow-hidden">
       <Resizable
-        renderHandle
+        handle
         panels={[
           {
             defaultSize: '40%',

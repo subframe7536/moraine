@@ -36,6 +36,19 @@ function createBaseProps(): SidebarFrameProps {
 }
 
 describe('SidebarFrame', () => {
+  test('accepts static JSX for sidebar and main renderers', () => {
+    const screen = render(() => (
+      <SidebarFrame
+        isMobile={false}
+        sidebarBodyRender={<div data-testid="static-sidebar">Static sidebar</div>}
+        mainRender={<div data-testid="static-main">Static main</div>}
+      />
+    ))
+
+    expect(screen.getByTestId('static-sidebar').textContent).toBe('Static sidebar')
+    expect(screen.getByTestId('static-main').textContent).toBe('Static main')
+  })
+
   test('uses SheetOnly as default frame and does not render resizable on desktop', () => {
     const screen = render(() => <SidebarFrame {...createBaseProps()} />)
 

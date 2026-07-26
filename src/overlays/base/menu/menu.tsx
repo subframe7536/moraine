@@ -20,6 +20,8 @@ import { Icon } from '../../../elements/icon'
 import type { IconT } from '../../../elements/icon'
 import { KbdGroup } from '../../../elements/kbd'
 import { List } from '../../../elements/list'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
@@ -57,7 +59,7 @@ import type {
 import type {
   OverlayMenuSharedClasses,
   OverlayMenuSharedItem,
-  OverlayMenuSharedItemRenderContext,
+  OverlayMenuSharedItemRenderProps,
   OverlayMenuContentSlot,
   OverlayMenuPlacement,
   OverlayMenuSharedStyles,
@@ -92,14 +94,14 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
   gutter?: number
 
   /** Custom renderer for individual items. */
-  itemRender?: (context: OverlayMenuSharedItemRenderContext<TItem>) => JSX.Element
+  itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
 
   /** Additional attributes for each menu layer content element. */
   contentProps?: ElementProps<HTMLDivElement>
 
   /** Additional attributes for an interactive menu item. */
   itemProps?: (
-    context: OverlayMenuSharedItemRenderContext<TItem>,
+    context: OverlayMenuSharedItemRenderProps<TItem>,
   ) => ElementProps<HTMLDivElement> | undefined
 
   /** Items rendered in the menu body. */
@@ -387,12 +389,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
-  function getItemRenderContext(
+  function getItemRenderProps(
     item: TItem,
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
-  ): OverlayMenuSharedItemRenderContext<TItem> {
+  ): OverlayMenuSharedItemRenderProps<TItem> {
     return {
       item,
       depth: props.depth,
@@ -411,9 +413,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }): JSX.Element {
     return (
       <Show
-        when={!props.itemRender}
-        fallback={props.itemRender!(
-          getItemRenderContext(
+        when={props.itemRender === undefined}
+        fallback={renderComponentOrElement(
+          props.itemRender,
+          getItemRenderProps(
             contentProps.item,
             contentProps.hasChildren,
             contentProps.isCheckbox,
@@ -511,7 +514,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     const itemId = useId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderContext(itemProps.item, false, false, false)),
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, false)),
     )
 
     onMount(() => {
@@ -660,7 +663,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     })
     const checked = createMemo(() => Boolean(checkedState()))
     const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderContext(itemProps.item, false, true, false)),
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, true, false)),
     )
 
     onMount(() => {
@@ -823,7 +826,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       return Boolean(checkedState())
     })
     const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderContext(itemProps.item, false, false, true)),
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, true)),
     )
 
     onMount(() => {
@@ -995,7 +998,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       open: isOpen,
     })
     const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderContext(itemProps.item, true, false, false)),
+      props.itemProps?.(getItemRenderProps(itemProps.item, true, false, false)),
     )
     let openTimeoutId = 0
     let submenuLayerState: OverlayMenuLayerState | undefined

@@ -2,7 +2,8 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, mergeProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -12,6 +13,7 @@ import type {
   OverlayMenuPlacement,
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
+  OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
 } from '../base/menu'
 
@@ -21,11 +23,16 @@ export namespace DropdownMenuT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item extends OverlayMenuSharedItem<Item> {}
+  export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
 
   /**
    * Base props for the DropdownMenu component.
    */
-  export interface Base extends OverlayMenuRootProps<Item> {
+  export interface Base extends Omit<OverlayMenuRootProps<Item>, 'itemProps' | 'itemRender'> {
+    /** Custom renderer for individual items. */
+    itemRender?: ComponentOrElement<ItemRenderProps>
+    /** Additional attributes for an interactive menu item. */
+    itemProps?: (props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined
     /**
      * Trigger content used to open the dropdown menu.
      */

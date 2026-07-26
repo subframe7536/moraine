@@ -70,18 +70,6 @@
         "type": "\"horizontal\" | \"vertical\" | undefined"
       },
       {
-        "name": "renderStatus",
-        "required": false,
-        "type": "((context: ProgressT.StatusRenderContext) => JSX.Element) | undefined",
-        "description": "Custom render function for the status label."
-      },
-      {
-        "name": "renderStep",
-        "required": false,
-        "type": "((context: ProgressT.StepRenderContext) => JSX.Element) | undefined",
-        "description": "Custom render function for each step when `max` is an array."
-      },
-      {
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
@@ -92,6 +80,18 @@
         "type": "boolean | undefined",
         "description": "Whether to show the status label.",
         "defaultValue": "false"
+      },
+      {
+        "name": "statusRender",
+        "required": false,
+        "type": "ComponentOrElement<ProgressT.StatusRenderProps> | undefined",
+        "description": "Custom render function for the status label."
+      },
+      {
+        "name": "stepRender",
+        "required": false,
+        "type": "ComponentOrElement<ProgressT.StepRenderProps> | undefined",
+        "description": "Custom render function for each step when `max` is an array."
       },
       {
         "name": "style",
