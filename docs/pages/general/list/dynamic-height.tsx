@@ -28,10 +28,10 @@ export function DynamicHeight() {
       virtualRender={virtualizer.virtualRender}
       role="list"
       aria-label="Variable-height results"
-      class="border border-border rounded-md h-80 w-full overflow-y-auto"
+      class="py-2 border border-border rounded-md h-80 w-full overflow-y-auto"
       itemRender={(context) => (
         <div {...context.props} role="listitem">
-          <div class="px-3 py-2 border border-border rounded-md">
+          <div class="mx-2 px-3 py-2 border border-border rounded-md">
             <div class="font-medium">{context.item.label}</div>
             <div class="text-sm text-muted-foreground">
               <For each={context.item.details}>
