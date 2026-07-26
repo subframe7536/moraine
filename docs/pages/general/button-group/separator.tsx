@@ -6,11 +6,7 @@ export function Separator() {
 
   return (
     <div class="flex flex-col gap-4 items-start">
-      <Switch
-        label="Show separators"
-        checked={showSeparator()}
-        onChange={setShowSeparator}
-      />
+      <Switch label="Show separators" checked={showSeparator()} onChange={setShowSeparator} />
 
       <ButtonGroup separator={showSeparator()} aria-label="Document actions">
         <Button leading="i-lucide:download">Export</Button>

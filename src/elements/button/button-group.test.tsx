@@ -134,9 +134,7 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain(
       '[&>[data-slot=trigger]:not(:first-child)>*]:(border-s-0 rounded-s-none)',
     )
-    expect(group.className).toContain(
-      '[&>[data-slot=trigger]:not(:last-child)>*]:rounded-e-none',
-    )
+    expect(group.className).toContain('[&>[data-slot=trigger]:not(:last-child)>*]:rounded-e-none')
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
@@ -235,9 +233,7 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain(
       '[&>[data-slot=trigger]:not(:first-child)>*]:(border-t-0 rounded-t-none)',
     )
-    expect(group.className).toContain(
-      '[&>[data-slot=trigger]:not(:last-child)>*]:rounded-b-none',
-    )
+    expect(group.className).toContain('[&>[data-slot=trigger]:not(:last-child)>*]:rounded-b-none')
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
