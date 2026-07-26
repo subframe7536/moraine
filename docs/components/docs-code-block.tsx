@@ -112,7 +112,7 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
               variant="outline"
               aria-label="Expand code"
               onClick={() => setIsExpanded(true)}
-              class="translate--1/2 bottom-2 left-1/2 absolute"
+              class="bottom-2 left-1/2 absolute !translate--1/2"
             >
               Expand code
             </Button>

@@ -31,15 +31,54 @@ export const MORAINE_FONT = {
 
 /** Design-token color map shared by UnoCSS and Tailwind. */
 export const MORAINE_COLORS = {
-  background: 'var(--background)',
+  background: {
+    DEFAULT: 'var(--background)',
+    hover: 'var(--background-hover, var(--background))',
+    active: 'var(--background-active, var(--background-hover, var(--background)))',
+  },
   foreground: 'var(--foreground)',
-  primary: { DEFAULT: 'var(--primary)', foreground: 'var(--primary-foreground)' },
-  secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
-  card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
-  popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
-  muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
-  accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
-  destructive: { DEFAULT: 'var(--destructive)', foreground: 'var(--destructive-foreground)' },
+  primary: {
+    DEFAULT: 'var(--primary)',
+    foreground: 'var(--primary-foreground)',
+    hover: 'var(--primary-hover, var(--primary))',
+    active: 'var(--primary-active, var(--primary-hover, var(--primary)))',
+  },
+  secondary: {
+    DEFAULT: 'var(--secondary)',
+    foreground: 'var(--secondary-foreground)',
+    hover: 'var(--secondary-hover, var(--secondary))',
+    active: 'var(--secondary-active, var(--secondary-hover, var(--secondary)))',
+  },
+  card: {
+    DEFAULT: 'var(--card)',
+    foreground: 'var(--card-foreground)',
+    hover: 'var(--card-hover, var(--card))',
+    active: 'var(--card-active, var(--card-hover, var(--card)))',
+  },
+  popover: {
+    DEFAULT: 'var(--popover)',
+    foreground: 'var(--popover-foreground)',
+    hover: 'var(--popover-hover, var(--popover))',
+    active: 'var(--popover-active, var(--popover-hover, var(--popover)))',
+  },
+  muted: {
+    DEFAULT: 'var(--muted)',
+    foreground: 'var(--muted-foreground)',
+    hover: 'var(--muted-hover, var(--muted))',
+    active: 'var(--muted-active, var(--muted-hover, var(--muted)))',
+  },
+  accent: {
+    DEFAULT: 'var(--accent)',
+    foreground: 'var(--accent-foreground)',
+    hover: 'var(--accent-hover, var(--accent))',
+    active: 'var(--accent-active, var(--accent-hover, var(--accent)))',
+  },
+  destructive: {
+    DEFAULT: 'var(--destructive)',
+    foreground: 'var(--destructive-foreground)',
+    hover: 'var(--destructive-hover, var(--destructive))',
+    active: 'var(--destructive-active, var(--destructive-hover, var(--destructive)))',
+  },
   border: 'var(--border)',
   input: 'var(--input)',
   ring: 'var(--ring)',

@@ -36,6 +36,114 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetMoraine({
+      colorVariables: {
+        light: {
+          background: {
+            DEFAULT: 'hsl(0 0% 100%)',
+            hover: 'hsl(210 40% 98%)',
+            active: 'hsl(210 40% 96.1%)',
+          },
+          foreground: 'hsl(222.2 84% 4.9%)',
+          card: {
+            DEFAULT: 'hsl(220 4% 99%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            hover: 'hsl(220 4% 97%)',
+            active: 'hsl(220 4% 95%)',
+          },
+          popover: {
+            DEFAULT: 'hsl(0 0% 100%)',
+            foreground: 'hsl(222.2 84% 4.9%)',
+            hover: 'hsl(210 40% 98%)',
+            active: 'hsl(210 40% 96.1%)',
+          },
+          primary: {
+            DEFAULT: 'hsl(221.2 63.2% 58.3%)',
+            foreground: 'hsl(210 40% 98%)',
+            hover: 'hsl(221.2 63.2% 53.3%)',
+            active: 'hsl(221.2 63.2% 48.3%)',
+          },
+          secondary: {
+            DEFAULT: 'hsl(221.2 40% 90.1%)',
+            foreground: 'hsl(222.2 47.4% 11.2%)',
+            hover: 'hsl(221.2 40% 86.1%)',
+            active: 'hsl(221.2 40% 82.1%)',
+          },
+          muted: {
+            DEFAULT: 'hsl(210 40% 96.1%)',
+            foreground: 'hsl(215.4 16.3% 46.9%)',
+            hover: 'hsl(210 40% 92.1%)',
+            active: 'hsl(210 40% 88.1%)',
+          },
+          accent: {
+            DEFAULT: 'hsl(210 40% 88.1%)',
+            foreground: 'hsl(222.2 47.4% 11.2%)',
+            hover: 'hsl(210 40% 83.1%)',
+            active: 'hsl(210 40% 78.1%)',
+          },
+          destructive: {
+            DEFAULT: 'hsl(351.74 100% 40.54%)',
+            foreground: 'hsl(359.81 59.23% 96.94%)',
+            hover: 'hsl(351.74 100% 35.54%)',
+            active: 'hsl(351.74 100% 30.54%)',
+          },
+          border: 'hsl(214.3 31.8% 91.4%)',
+          input: 'hsl(214.3 31.8% 91.4%)',
+          ring: 'hsl(221.2 43.2% 58.3%)',
+        },
+        dark: {
+          background: {
+            DEFAULT: 'hsl(222.2 84% 4.9%)',
+            hover: 'hsl(222.2 70% 8.9%)',
+            active: 'hsl(222.2 60% 12.9%)',
+          },
+          foreground: 'hsl(210 40% 98%)',
+          card: {
+            DEFAULT: 'hsl(222.2 84% 4.9%)',
+            foreground: 'hsl(210 40% 98%)',
+            hover: 'hsl(222.2 70% 8.9%)',
+            active: 'hsl(222.2 60% 12.9%)',
+          },
+          popover: {
+            DEFAULT: 'hsl(222.2 84% 4.9%)',
+            foreground: 'hsl(210 40% 98%)',
+            hover: 'hsl(222.2 70% 8.9%)',
+            active: 'hsl(222.2 60% 12.9%)',
+          },
+          primary: {
+            DEFAULT: 'hsl(217.2 51.2% 55.8%)',
+            foreground: 'hsl(222.2 47.4% 96.2%)',
+            hover: 'hsl(217.2 51.2% 60.8%)',
+            active: 'hsl(217.2 51.2% 65.8%)',
+          },
+          secondary: {
+            DEFAULT: 'hsl(217.2 46.6% 17.5%)',
+            foreground: 'hsl(210 40% 90%)',
+            hover: 'hsl(217.2 46.6% 22.5%)',
+            active: 'hsl(217.2 46.6% 27.5%)',
+          },
+          muted: {
+            DEFAULT: 'hsl(217.2 32.6% 17.5%)',
+            foreground: 'hsl(215 20.2% 65.1%)',
+            hover: 'hsl(217.2 32.6% 22.5%)',
+            active: 'hsl(217.2 32.6% 27.5%)',
+          },
+          accent: {
+            DEFAULT: 'hsl(217.2 32.6% 32.5%)',
+            foreground: 'hsl(210 40% 98%)',
+            hover: 'hsl(217.2 32.6% 37.5%)',
+            active: 'hsl(217.2 32.6% 42.5%)',
+          },
+          destructive: {
+            DEFAULT: 'hsl(358.77 100% 69.84%)',
+            foreground: 'hsl(0 0% 100%)',
+            hover: 'hsl(358.77 100% 74.84%)',
+            active: 'hsl(358.77 100% 79.84%)',
+          },
+          border: 'hsl(217.2 32.6% 24.5%)',
+          input: 'hsl(217.2 32.6% 20.5%)',
+          ring: 'hsl(224.3 76.3% 58%)',
+        },
+      },
       globalStyles: true,
       enableComponentLayer: {
         strategy: 'prefix',
@@ -95,25 +203,6 @@ export default defineConfig<PresetWind4Theme>({
     {
       getCSS: () => `
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
-  --card: hsl(220 4% 99%);
-  --card-foreground: hsl(222.2 84% 4.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222.2 84% 4.9%);
-  --primary: hsl(221.2 63.2% 58.3%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(221.2 40% 90.1%);
-  --secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-  --accent: hsl(210 40% 88.1%);
-  --accent-foreground: hsl(222.2 47.4% 11.2%);
-  --destructive: hsl(351.74 100% 40.54%);
-  --destructive-foreground: hsl(359.81 59.23% 96.94%);
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(221.2 43.2% 58.3%);
   --chart-1: hsl(221.2 83.2% 53.3%);
   --chart-2: hsl(212 95% 68%);
   --chart-3: hsl(216 92% 60%);
@@ -147,25 +236,6 @@ export default defineConfig<PresetWind4Theme>({
 }
 
 .dark {
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(217.2 51.2% 55.8%);
-  --primary-foreground: hsl(222.2 47.4% 96.2%);
-  --secondary: hsl(217.2 46.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 90%);
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  --accent: hsl(217.2 32.6% 32.5%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(358.77 100% 69.84%);
-  --destructive-foreground: hsl(358.88 74.66% 50.36%);
-  --border: hsl(217.2 32.6% 24.5%);
-  --input: hsl(217.2 32.6% 20.5%);
-  --ring: hsl(224.3 76.3% 58%);
   --chart-1: hsl(224.3 76.3% 48%);
   --chart-2: hsl(221 83% 53%);
   --chart-3: hsl(199 89% 48%);

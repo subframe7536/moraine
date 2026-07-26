@@ -239,13 +239,16 @@ describe('Select - single mode', () => {
   })
 
   test('shows options when opened', () => {
-    render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+    render(() => <Select options={FRUITS} defaultOpen defaultValue="apple" placeholder="Pick" />)
 
     const listbox = queryBody('[data-slot="listbox"]')
     expect(listbox).not.toBeNull()
 
     const options = queryAllBody('[data-slot="item"]')
     expect(options.length).toBe(3)
+    expect(options[0]?.hasAttribute('data-selected')).toBe(true)
+    expect(options[1]?.hasAttribute('data-selected')).toBe(false)
+    expect(options[0]?.className).toContain('bg-accent-active')
   })
 
   test('selects an option and calls onChange', async () => {

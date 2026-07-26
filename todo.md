@@ -46,8 +46,7 @@
 - [x] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
 - [x] fix textarea footer/header interaction priority
 - [x] add transition for button interaction like shadcn
-- [ ] find a way to add jsdoc for Variant 's props
-- [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
+- [x] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover} color tokens, avoid using alpha channel in interaction color tokens
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
 - [ ] scrollarea component with fade edge support
 

@@ -214,7 +214,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             aria-label="Close"
             style={merged.styles?.close}
             class={cn(
-              'text-muted-foreground p-1 rounded-sm inline-flex shrink-0 size-7 cursor-pointer transition-colors items-center right-4 top-4 justify-center absolute focus-visible:effect-fv hover:bg-accent',
+              'text-muted-foreground p-1 rounded-sm inline-flex shrink-0 size-7 cursor-pointer transition-colors items-center right-4 top-4 justify-center absolute focus-visible:effect-fv active:bg-accent-active hover:bg-accent-hover',
               merged.classes?.close,
             )}
             onClick={() => {

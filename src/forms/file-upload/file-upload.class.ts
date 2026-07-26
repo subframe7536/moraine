@@ -183,7 +183,7 @@ export const fileUploadSizeVariants = cva('text-muted-foreground truncate', {
 })
 
 export const fileUploadRemoveVariants = cva(
-  'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:(text-foreground bg-muted) focus-visible:effect-fv-border',
+  'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:(text-foreground bg-muted-hover) focus-visible:effect-fv-border active:bg-muted-active',
   {
     defaultVariants: {
       size: 'md',

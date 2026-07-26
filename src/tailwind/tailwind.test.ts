@@ -126,6 +126,33 @@ describe('colors', () => {
     expect(css).toContain('color: var(--destructive-foreground)')
   })
 
+  test('semantic hover and active colors resolve with base fallbacks', async () => {
+    const css = await compileCSS([
+      'bg-background-hover',
+      'bg-card-active',
+      'bg-popover-hover',
+      'bg-primary-active',
+      'bg-secondary-hover',
+      'bg-muted-active',
+      'bg-accent-hover',
+      'bg-destructive-active',
+    ])
+
+    expect(css).toContain('background-color: var(--background-hover, var(--background))')
+    expect(css).toContain('background-color: var(--card-active, var(--card-hover, var(--card)))')
+    expect(css).toContain('background-color: var(--popover-hover, var(--popover))')
+    expect(css).toContain(
+      'background-color: var(--primary-active, var(--primary-hover, var(--primary)))',
+    )
+    expect(css).toContain('background-color: var(--secondary-hover, var(--secondary))')
+    expect(css).toContain('background-color: var(--muted-active, var(--muted-hover, var(--muted)))')
+    expect(css).toContain('background-color: var(--accent-hover, var(--accent))')
+    expect(css).toContain(
+      'background-color: var(--destructive-active, var(--destructive-hover, var(--destructive)))',
+    )
+    expect(css).not.toContain('-focus')
+  })
+
   test('border/ring/input tokens resolve', async () => {
     const css = await compileCSS(['border-border', 'ring-ring', 'bg-input'])
     expect(css).toContain('border-color: var(--border)')

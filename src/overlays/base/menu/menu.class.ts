@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../../shared/utils'
 
 export const overlayMenuItemVariants = cva(
-  'text-sm px-1.5 py-1 outline-none rounded-md gap-1.5 grid grid-cols-[auto_1fr_auto] cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
+  'text-sm px-1.5 py-1 outline-none rounded-md gap-1.5 grid grid-cols-[auto_1fr_auto] cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent-hover) data-selected:(text-accent-foreground bg-accent-active) data-disabled:effect-dis',
   {
     defaultVariants: {
       color: 'default',
@@ -13,7 +13,7 @@ export const overlayMenuItemVariants = cva(
       color: {
         default: 'text-foreground',
         destructive:
-          'text-destructive data-highlighted:(text-destructive bg-destructive/10 dark:bg-destructive/20)',
+          'text-destructive data-highlighted:(text-destructive-foreground bg-destructive-hover) data-selected:(text-destructive-foreground bg-destructive-active)',
       },
       size: {
         sm: 'text-xs min-h-7',

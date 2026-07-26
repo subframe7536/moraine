@@ -49,6 +49,7 @@ export namespace ButtonT {
     | 'classes'
     | 'styles'
     | 'slotName'
+    | 'disableActiveTransform'
     | 'loading'
     | 'loadingAuto'
     | 'loadingIcon'
@@ -248,11 +249,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       component={tag()}
       data-slot={local.slotName || 'root'}
       style={{ ...local.styles?.root, ...local.style }}
-      class={buttonVariants(
-        {
+      class={cn(
+        buttonVariants({
           variant: local.variant,
           size: local.size,
-        },
+        }),
         local.classes?.root,
         local.class,
       )}

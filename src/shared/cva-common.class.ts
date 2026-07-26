@@ -1,7 +1,7 @@
 export const INPUT_VARIANT = {
   outline: 'border border-input bg-transparent',
   subtle: 'border border-input bg-input/30',
-  ghost: 'hover:bg-muted/50 focus-within:bg-muted/50',
+  ghost: 'hover:bg-muted-hover focus-within:bg-muted-hover',
   none: 'focus-within:ring-0',
 } as const
 

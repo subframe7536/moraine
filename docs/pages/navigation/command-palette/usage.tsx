@@ -11,13 +11,13 @@ const GROUPS: CommandPaletteT.Group[] = [
         value: 'new-issue',
         label: 'New Issue',
         leadingRender: () => <Icon name="i-lucide-circle-plus" />,
-        trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+        trailingRender: () => <KbdGroup items={['⌘', 'N']} />,
       },
       {
         value: 'open-inbox',
         label: 'Open Inbox',
         leadingRender: () => <Icon name="i-lucide-inbox" />,
-        trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
+        trailingRender: () => <KbdGroup items={['⌘', 'I']} />,
       },
       {
         value: 'sync-roadmap',

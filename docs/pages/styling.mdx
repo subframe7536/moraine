@@ -7,28 +7,86 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
+## Interactive State Color Tokens
+
+Moraine uses semantic `hover` and `active` color tokens for interactive surfaces instead of applying translucent overlays. Defining opaque colors for each state keeps contrast predictable when controls appear on different backgrounds.
+
+State tokens are available for `background`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, and `destructive`. Use them through the same color utilities as the base token:
+
+```tsx
+<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
+  Continue
+</button>
+```
+
+Each state has a built-in fallback, so themes can adopt the tokens incrementally:
+
+| Utility             | CSS variable fallback                                         |
+| ------------------- | ------------------------------------------------------------- |
+| `bg-primary-hover`  | `var(--primary-hover, var(--primary))`                        |
+| `bg-primary-active` | `var(--primary-active, var(--primary-hover, var(--primary)))` |
+
+The same fallback applies to every supported color family: `hover` falls back to the base color, while `active` falls back to `hover` and then the base color. There is no separate `focus` color token; focused or keyboard-highlighted interactions reuse the hover color where applicable, while focus visibility remains controlled by ring and border styles.
+
+You can define the variables directly in CSS or generate them with UnoCSS's [`colorVariables`](#color-variables) option. Moraine's Tailwind plugin exposes the same utility names.
+
 ## UnoCSS
 
-Use either `presetWind3` or `presetWind4`, then add `presetTheme` from Moraine. Built-in component animations are included in `presetTheme`, so no extra animation preset is needed.
+Use either `presetWind3` or `presetWind4`, then add `presetMoraine`. Built-in component animations are included in the preset, so no extra animation preset is needed.
 
 [`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS that optimizes for `solid-js` + `oxlint`'s use case. It is recommended for use with Moraine, but the full `unocss` can also be used if desired.
 
 ```tsx
 // unocss.config.ts
 import { presetWind3, presetWind4 } from '@subf/unocss'
-import { presetTheme } from 'moraine/unocss'
+import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [
     // presetWind3(),
     presetWind4(),
-    presetTheme({
+    presetMoraine({
       enableComponentLayer: true,
     }),
     // ...other presets
   ],
 })
 ```
+
+### Color variables
+
+The preset can generate light and dark semantic variables from the same grouped shape used by Moraine's color utilities. Nothing is generated unless `colorVariables` is configured. Light and dark selectors default to `:root` and `.dark`.
+
+```ts
+presetMoraine({
+  colorVariables: {
+    light: {
+      foreground: 'oklch(20% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(55% 0.2 260)',
+        foreground: 'white',
+        hover: 8,
+        active: ({ base, foreground }) => `color-mix(in oklch, ${base}, ${foreground} 16%)`,
+      },
+      border: 'oklch(90% 0 0)',
+    },
+    dark: {
+      foreground: 'oklch(96% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(70% 0.16 260)',
+        foreground: 'oklch(18% 0 0)',
+      },
+      border: 'oklch(32% 0 0)',
+    },
+    hoverAdjustment: 6,
+    activeAdjustment: 12,
+    // lightSelector: ':root',
+    // darkSelector: '.dark',
+  },
+})
+```
+
+Exact state colors override the global adjustments. Numeric state values generate an opaque `color-mix()` against the group's foreground color; missing state variables continue to fall back through Moraine's existing utility tokens.
 
 ## Tailwind CSS
 

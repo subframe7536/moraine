@@ -909,6 +909,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         data-slot="item"
         data-disabled={option.disabled ? '' : undefined}
         data-highlighted={highlightedKey() === option.key ? '' : undefined}
+        data-selected={isSelected() ? '' : undefined}
         aria-disabled={option.disabled || undefined}
         aria-selected={isSelected() ? 'true' : 'false'}
         aria-posinset={

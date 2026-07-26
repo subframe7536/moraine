@@ -410,6 +410,12 @@
         "description": "State or slot attribute exposed for styling hooks and selectors."
       },
       {
+        "name": "data-selected",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is selected."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
@@ -490,6 +496,12 @@
             "required": false,
             "type": "string | undefined",
             "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          },
+          {
+            "name": "data-selected",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is selected."
           }
         ],
         "ariaAttributes": [

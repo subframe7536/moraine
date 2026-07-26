@@ -232,7 +232,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         data-slot="close"
                         style={merged.styles?.close}
                         class={cn(
-                          'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent) focus-visible:effect-fv-border',
+                          'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) focus-visible:effect-fv-border active:bg-accent-active',
                           merged.classes?.close,
                         )}
                         aria-label="Close"

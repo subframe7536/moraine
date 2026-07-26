@@ -560,8 +560,10 @@ describe('DropdownMenu', () => {
     ))
 
     const checkboxItem = document.body.querySelector('[data-slot="item"]') as HTMLElement
+    expect(checkboxItem.hasAttribute('data-selected')).toBe(false)
     checkboxItem.focus()
     await fireEvent.keyDown(checkboxItem, { key: 'Enter' })
+    expect(checkboxItem.hasAttribute('data-selected')).toBe(true)
 
     const disabledItem = Array.from(document.body.querySelectorAll('[data-slot="item"]')).find(
       (el) => el.textContent?.includes('Disabled action'),
@@ -621,13 +623,17 @@ describe('DropdownMenu', () => {
     ]
 
     expect(compactItem.getAttribute('aria-checked')).toBe('true')
+    expect(compactItem.hasAttribute('data-selected')).toBe(true)
     expect(comfortableItem.getAttribute('aria-checked')).toBe('false')
+    expect(comfortableItem.hasAttribute('data-selected')).toBe(false)
     expect(disabledItem.getAttribute('aria-disabled')).toBe('true')
 
     await fireEvent.click(comfortableItem)
 
     expect(compactItem.getAttribute('aria-checked')).toBe('false')
+    expect(compactItem.hasAttribute('data-selected')).toBe(false)
     expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
+    expect(comfortableItem.hasAttribute('data-selected')).toBe(true)
     expect(onComfortableValueChange).toHaveBeenCalledWith('comfortable')
 
     await fireEvent.click(disabledItem)

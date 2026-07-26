@@ -11,14 +11,16 @@ export const buttonVariants = cva(
     },
     variants: {
       variant: {
-        default: 'text-primary-foreground bg-primary hover:bg-primary/90',
-        secondary: 'text-secondary-foreground bg-secondary hover:bg-secondary/80',
+        default:
+          'text-primary-foreground bg-primary active:bg-primary-active hover:bg-primary-hover',
+        secondary:
+          'text-secondary-foreground bg-secondary active:bg-secondary-active hover:bg-secondary-hover',
         outline:
-          'surface-border bg-background hover:text-foreground dark:border-input dark:bg-input/30 hover:bg-muted dark:hover:bg-input/50',
-        ghost: 'hover:(text-foreground bg-muted dark:bg-muted/50)',
+          'surface-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
+        ghost: 'active:(text-foreground bg-muted-active) hover:(text-foreground bg-muted-hover)',
         link: 'text-primary underline-offset-4 hover:underline',
         destructive:
-          'text-destructive bg-destructive/10 focus-visible:border-destructive/40 dark:bg-destructive/20 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
+          'text-destructive-foreground bg-destructive focus-visible:border-destructive/40 active:bg-destructive-active hover:bg-destructive-hover focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
       },
       size: {
         xs: 'text-xs px-1.5 py-1 rounded-md gap-1 h-6',

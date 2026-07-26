@@ -706,6 +706,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+        data-selected={checked() ? '' : undefined}
         data-disabled={itemProps.item.disabled ? '' : undefined}
         data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
         {...itemAttributes()}
@@ -879,6 +880,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+        data-selected={checked() ? '' : undefined}
         data-disabled={itemProps.item.disabled ? '' : undefined}
         data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
         {...itemAttributes()}
@@ -1094,7 +1096,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }}
           class={getItemClass(
             itemProps.item,
-            'data-expanded:(bg-accent text-accent-foreground)',
+            'data-expanded:(bg-accent-active text-accent-foreground)',
             props.classes?.item,
             itemAttributes()?.class,
           )}

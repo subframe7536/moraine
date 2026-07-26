@@ -4,6 +4,7 @@ import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
 import { presetMoraine, resolvePresetThemeOptions } from './theme'
+import type { PresetThemeOptions } from './theme'
 
 vi.mock('./shared', async () => {
   const actual = await vi.importActual('./shared')
@@ -94,7 +95,162 @@ async function generateComponentLayerCss(
   }
 }
 
+async function generatePreflightCSS(options?: PresetThemeOptions): Promise<string> {
+  const generator = await createGenerator({
+    presets: [presetWind4(), presetMoraine(options)],
+  })
+  const { css } = await generator.generate(new Set(), { preflights: true })
+  return css
+}
+
 describe('presetTheme component layer', () => {
+  test('does not emit color variables without colorVariables configuration', async () => {
+    const css = await generatePreflightCSS()
+
+    expect(css).not.toContain('--primary:')
+    expect(css).not.toContain('--background-hover:')
+  })
+
+  test('emits partial grouped palettes with the default light and dark selectors', async () => {
+    const css = await generatePreflightCSS({
+      colorVariables: {
+        light: {
+          foreground: '#111',
+          primary: {
+            DEFAULT: '#246',
+            foreground: '#fff',
+            hover: '#357',
+          },
+          border: '#ddd',
+        },
+        dark: {
+          foreground: '#eee',
+          primary: {
+            DEFAULT: '#8ac',
+            foreground: '#123',
+          },
+        },
+      },
+    })
+
+    expect(css).toContain(`:root {
+  --foreground: #111;
+  --primary: #246;
+  --primary-foreground: #fff;
+  --primary-hover: #357;
+  --border: #ddd;
+}`)
+    expect(css).toContain(`.dark {
+  --foreground: #eee;
+  --primary: #8ac;
+  --primary-foreground: #123;
+}`)
+    expect(css).not.toContain('--primary-active:')
+    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
+  })
+
+  test('supports flat adjustments, group overrides, resolvers, and custom selectors', async () => {
+    const activeResolver = vi.fn(() => '#135')
+    const preset = presetMoraine({
+      colorVariables: {
+        light: {
+          background: { DEFAULT: '#fff' },
+          foreground: '#111',
+          primary: {
+            DEFAULT: '#246',
+            foreground: '#fff',
+            hover: '#357',
+            active: activeResolver,
+          },
+        },
+        dark: {
+          primary: {
+            DEFAULT: '#8ac',
+            foreground: '#123',
+            hover: 8,
+          },
+        },
+        lightSelector: 'html[data-theme=light]',
+        darkSelector: 'html[data-theme=dark]',
+        hoverAdjustment: 6,
+        activeAdjustment: 12,
+      },
+      globalStyles: false,
+    })
+    const generator = await createGenerator({ presets: [presetWind4(), preset] })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+
+    expect(activeResolver).toHaveBeenCalledWith({
+      adjustment: 12,
+      base: '#246',
+      color: 'primary',
+      foreground: '#fff',
+      selector: 'html[data-theme=light]',
+      state: 'active',
+      theme: 'light',
+    })
+    expect(css).toContain('html[data-theme=light] {')
+    expect(css).toContain(
+      '--background-hover: color-mix(in oklch, var(--background), var(--foreground) 6%);',
+    )
+    expect(css).toContain('--primary-hover: #357;')
+    expect(css).toContain('--primary-active: #135;')
+    expect(css).toContain('html[data-theme=dark] {')
+    expect(css).toContain(
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground) 8%);',
+    )
+    expect(css).toContain(
+      '--primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground) 12%);',
+    )
+    expect(css).not.toContain('\nhtml {\n  background-color: var(--background);')
+  })
+
+  test('rejects invalid global and group state adjustments', () => {
+    expect(() =>
+      presetMoraine({ colorVariables: { hoverAdjustment: Number.POSITIVE_INFINITY } }),
+    ).toThrow('[preset-moraine] colorVariables.hoverAdjustment')
+
+    expect(() =>
+      presetMoraine({
+        colorVariables: {
+          light: {
+            primary: { hover: -1 },
+          },
+        },
+      }),
+    ).toThrow('[preset-moraine] primary.hover adjustment')
+  })
+
+  test('provides semantic hover and active colors with base fallbacks', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(
+      new Set([
+        'bg-background-hover',
+        'bg-card-active',
+        'bg-popover-hover',
+        'bg-primary-active',
+        'bg-secondary-hover',
+        'bg-muted-active',
+        'bg-accent-hover',
+        'bg-destructive-active',
+      ]),
+      { preflights: false },
+    )
+
+    expect(css).toContain('var(--background-hover, var(--background))')
+    expect(css).toContain('var(--card-active, var(--card-hover, var(--card)))')
+    expect(css).toContain('var(--popover-hover, var(--popover))')
+    expect(css).toContain('var(--primary-active, var(--primary-hover, var(--primary)))')
+    expect(css).toContain('var(--secondary-hover, var(--secondary))')
+    expect(css).toContain('var(--muted-active, var(--muted-hover, var(--muted)))')
+    expect(css).toContain('var(--accent-hover, var(--accent))')
+    expect(css).toContain('var(--destructive-active, var(--destructive-hover, var(--destructive)))')
+    expect(css).not.toContain('-focus')
+  })
+
   test('defaults enableComponentLayer to prefix strategy with mo- utility prefix', () => {
     expect(resolvePresetThemeOptions({ enableComponentLayer: true })).toMatchObject({
       enableComponentLayer: true,

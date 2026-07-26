@@ -446,6 +446,12 @@
         "description": "Present when the field is required."
       },
       {
+        "name": "data-selected",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Present when the item is selected."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
@@ -525,6 +531,12 @@
             "required": false,
             "type": "string | undefined",
             "description": "Present when the item is highlighted by pointer or keyboard navigation."
+          },
+          {
+            "name": "data-selected",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Present when the item is selected."
           }
         ],
         "ariaAttributes": [

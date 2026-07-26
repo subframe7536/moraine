@@ -77,7 +77,7 @@ export const selectLeadingIconVariants = cva('text-muted-foreground shrink-0', {
 })
 
 export const selectItemVariants = cva(
-  'py-1 pe-2 ps-3 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between data-highlighted:(text-accent-foreground bg-accent) data-disabled:effect-dis',
+  'py-1 pe-2 ps-3 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between data-highlighted:(text-accent-foreground bg-accent-hover) data-selected:(text-accent-foreground bg-accent-active) data-disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',

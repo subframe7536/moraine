@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Icon } from '@src'
+import { Button, CommandPalette, Icon, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -13,13 +13,13 @@ export function Loading() {
           value: 'new-issue',
           label: 'New Issue',
           leadingRender: () => <Icon name="i-lucide-circle-plus" />,
-          trailingRender: () => <span class="text-xs text-muted-foreground">⌘N</span>,
+          trailingRender: () => <KbdGroup items={['⌘', 'N']} />,
         },
         {
           value: 'open-inbox',
           label: 'Open Inbox',
           leadingRender: () => <Icon name="i-lucide-inbox" />,
-          trailingRender: () => <span class="text-xs text-muted-foreground">GI</span>,
+          trailingRender: () => <KbdGroup items={['⌘', 'I']} />,
         },
         {
           value: 'sync-roadmap',

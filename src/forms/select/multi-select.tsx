@@ -662,7 +662,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                         style={props.styles?.tag}
                         class={cn('pe-0 max-w-50%', props.classes?.tag)}
                         classes={{
-                          trailing: ['rounded hover:bg-accent scale-85', props.classes?.tagRemove],
+                          trailing: [
+                            'rounded hover:bg-accent-hover active:bg-accent-active scale-85',
+                            props.classes?.tagRemove,
+                          ],
                         }}
                         trailing={props.closeIcon ?? 'icon-close'}
                         onTrailingClick={(event) => {
@@ -737,7 +740,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               tabIndex={-1}
               classes={{
                 root: [
-                  'me-2 transition-colors hover:bg-muted/40',
+                  'me-2 transition-colors hover:bg-muted-hover active:bg-muted-active',
                   isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
                   props.classes?.trigger,
                   isClearAction() ? props.classes?.clear : undefined,
