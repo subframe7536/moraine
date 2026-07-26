@@ -81,12 +81,12 @@
       "sourcePath": "src/elements/kbd/kbd-group.tsx"
     },
     {
-      "key": "list-box",
-      "name": "ListBox",
+      "key": "list",
+      "name": "List",
       "category": "elements",
-      "polymorphic": false,
-      "description": "Renders a flat semantic list with optional filtering and selection behavior.",
-      "sourcePath": "src/elements/list-box/list-box.tsx"
+      "polymorphic": true,
+      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
+      "sourcePath": "src/elements/list/list.tsx"
     },
     {
       "key": "progress",

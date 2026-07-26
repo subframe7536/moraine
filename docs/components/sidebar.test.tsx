@@ -49,8 +49,8 @@ describe('Sidebar', () => {
       />
     ))
 
-    const row = screen.getByRole('option', { name: /Sidebar Frame/ })
-    await fireEvent.click(row)
+    const rowButton = screen.getByText('Sidebar Frame').closest('button') as HTMLButtonElement
+    await fireEvent.click(rowButton)
 
     expect(setActivePage).toHaveBeenCalledWith('sidebar-frame')
   })

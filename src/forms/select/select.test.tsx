@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Select } from './select'
@@ -375,7 +376,48 @@ describe('Select - groups', () => {
     expect(items.length).toBe(4)
   })
 
-  test('does not force virtualized mode for grouped options by default', () => {
+  test('forwards listbox and item props and lets item events prevent selection', async () => {
+    const listboxRef = vi.fn()
+    const itemRef = vi.fn()
+    const onChange = vi.fn()
+    render(() => (
+      <Select
+        options={FRUITS}
+        defaultOpen
+        onChange={onChange}
+        listboxProps={{
+          ref: listboxRef,
+          'aria-label': 'Fruit options',
+          'data-track': 'fruit-list',
+          class: 'listbox-prop',
+          style: { width: '240px' },
+        }}
+        itemProps={(option) => ({
+          ref: option.value === 'apple' ? itemRef : undefined,
+          'data-value': option.value,
+          class: 'item-prop',
+          style: { height: '40px' },
+          onClick: (event) => event.preventDefault(),
+        })}
+      />
+    ))
+    const listbox = queryBody('[data-slot="listbox"]') as HTMLElement
+    const apple = queryBody('[data-value="apple"]') as HTMLElement
+
+    expect(listboxRef).toHaveBeenCalledWith(listbox)
+    expect(itemRef).toHaveBeenCalledWith(apple)
+    expect(listbox.getAttribute('data-track')).toBe('fruit-list')
+    expect(listbox.className).toContain('listbox-prop')
+    expect(listbox.style.width).toBe('240px')
+    expect(apple.className).toContain('item-prop')
+    expect(apple.style.height).toBe('40px')
+
+    await fireEvent.click(apple)
+
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('does not add virtual ARIA metadata without virtualRender', () => {
     render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
     const items = queryAllBody('[data-slot="item"]')
@@ -384,8 +426,19 @@ describe('Select - groups', () => {
     expect(items[0]?.getAttribute('aria-setsize')).toBeNull()
   })
 
-  test('renders grouped options with virtualized mode when explicitly enabled', () => {
-    render(() => <Select options={GROUPED_OPTIONS} virtualized defaultOpen placeholder="Pick" />)
+  test('renders grouped options through virtualRender when provided', () => {
+    render(() => (
+      <Select
+        options={GROUPED_OPTIONS}
+        defaultOpen
+        placeholder="Pick"
+        virtualRender={(context) => (
+          <For each={context.entries}>
+            {(entry) => context.render(entry, context.entries.indexOf(entry))}
+          </For>
+        )}
+      />
+    ))
 
     const sectionLabels = queryAllBody('[data-slot="label"]')
     const items = queryAllBody('[data-slot="item"]')
@@ -394,6 +447,45 @@ describe('Select - groups', () => {
     expect(items.length).toBe(4)
     expect(items[0]?.getAttribute('aria-posinset')).toBe('1')
     expect(items[0]?.getAttribute('aria-setsize')).toBe('4')
+  })
+
+  test('renders a virtual window and scrolls keyboard highlights by flattened entry index', async () => {
+    const [entryIndex, setEntryIndex] = createSignal(1)
+    const scrollToItem = vi.fn()
+    const screen = render(() => (
+      <Select
+        options={GROUPED_OPTIONS}
+        defaultOpen
+        scrollToItem={(item, index) => {
+          scrollToItem(item, index)
+          setEntryIndex(index)
+        }}
+        virtualRender={(context) => (
+          <For each={[context.entries[entryIndex()]!]}>
+            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+          </For>
+        )}
+        placeholder="Pick"
+      />
+    ))
+    const combobox = screen.getByRole('combobox')
+    combobox.focus()
+
+    await waitFor(() => {
+      expect(queryAllBody('[data-slot="item"]').length).toBe(1)
+      expect(queryBody('[data-slot="item"]')?.textContent).toContain('Apple')
+    })
+
+    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const item = queryBody('[data-slot="item"]')
+      expect(item?.textContent).toContain('Banana')
+      expect(item?.getAttribute('data-index')).toBe('2')
+      expect(combobox.getAttribute('aria-activedescendant')).toBe(item?.id)
+    })
+    expect(document.activeElement).toBe(combobox)
+    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPED_OPTIONS[0]?.children?.[1], 2)
   })
 
   test('treats empty children as a normal option', () => {
@@ -542,9 +634,18 @@ describe('Select - keyboard and ARIA', () => {
     expect(input.getAttribute('aria-activedescendant')).toContain('Banana')
   })
 
-  test('keeps selected highlight metadata when virtualized', async () => {
+  test('keeps selected highlight metadata when virtually rendered', async () => {
     const screen = render(() => (
-      <Select options={GROUPED_OPTIONS} value="daikon" virtualized placeholder="Pick" />
+      <Select
+        options={GROUPED_OPTIONS}
+        value="daikon"
+        placeholder="Pick"
+        virtualRender={(context) => (
+          <For each={context.entries}>
+            {(entry) => context.render(entry, context.entries.indexOf(entry))}
+          </For>
+        )}
+      />
     ))
     const input = screen.getByRole('combobox') as HTMLElement
 

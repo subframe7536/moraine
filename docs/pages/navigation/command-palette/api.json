@@ -255,14 +255,14 @@
       {
         "name": "inputProps",
         "required": false,
-        "type": "JSX.InputHTMLAttributes<HTMLInputElement> | undefined",
-        "description": "Additional attributes applied to the search input."
+        "type": "JSX.HTMLAttributes<HTMLInputElement> | undefined",
+        "description": "Additional props of input"
       },
       {
         "name": "itemProps",
         "required": false,
-        "type": "((ctx: CommandPaletteT.ItemRenderContext<TItem>) => JSX.HTMLAttributes<HTMLDivElement>) | undefined",
-        "description": "Additional attributes applied to each item container."
+        "type": "((context: CommandPaletteT.ItemRenderContext<TItem>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional attributes for a command row."
       },
       {
         "name": "itemRender",
@@ -280,8 +280,8 @@
       {
         "name": "listboxProps",
         "required": false,
-        "type": "JSX.HTMLAttributes<HTMLDivElement> | undefined",
-        "description": "Additional attributes applied to the listbox container."
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional attributes for the command listbox."
       },
       {
         "name": "loading",
@@ -353,6 +353,12 @@
         "description": "Fixed content position in pixels. Missing axes keep the default centered placement."
       },
       {
+        "name": "scrollToItem",
+        "required": false,
+        "type": "((item: TItem, entryIndex: number) => void) | undefined",
+        "description": "Scrolls a highlighted command into view using its flattened entry index."
+      },
+      {
         "name": "searchMaxLength",
         "required": false,
         "type": "number | undefined",
@@ -372,6 +378,11 @@
         "defaultValue": "false"
       },
       {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+      },
+      {
         "name": "style",
         "required": false,
         "type": "JSX.CSSProperties | undefined"
@@ -380,6 +391,12 @@
         "name": "styles",
         "required": false,
         "type": "CommandPaletteT.Styles | undefined"
+      },
+      {
+        "name": "virtualRender",
+        "required": false,
+        "type": "Component<CommandPaletteT.VirtualRenderProps<TItem>> | undefined",
+        "description": "Renders flattened group labels and commands through a virtualization layer."
       }
     ],
     "inherited": []
@@ -459,10 +476,22 @@
         "description": "Identifies modal content that traps interaction outside the dialog."
       },
       {
+        "name": "aria-posinset",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
+      },
+      {
         "name": "aria-selected",
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Indicates the currently selected option or tab."
+      },
+      {
+        "name": "aria-setsize",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
         "name": "role",
@@ -558,7 +587,14 @@
         "name": "group",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "input",
@@ -634,10 +670,22 @@
             "description": "Indicates that the control is disabled."
           },
           {
+            "name": "aria-posinset",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
+          {
             "name": "aria-selected",
             "required": false,
             "type": "boolean | string | undefined",
             "description": "Indicates the currently selected option or tab."
+          },
+          {
+            "name": "aria-setsize",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
           },
           {
             "name": "role",

@@ -217,6 +217,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "itemProps",
+        "required": false,
+        "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional attributes for an option row."
+      },
+      {
         "name": "labelRender",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem>) => JSX.Element) | undefined",
@@ -227,6 +233,12 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Icon shown before the input/value area."
+      },
+      {
+        "name": "listboxProps",
+        "required": false,
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional attributes for the listbox element."
       },
       {
         "name": "loading",
@@ -336,6 +348,12 @@
         "defaultValue": "20"
       },
       {
+        "name": "scrollToItem",
+        "required": false,
+        "type": "((item: MultiSelectT.Item<TItem>, entryIndex: number) => void) | undefined",
+        "description": "Scrolls a highlighted option into view using its flattened entry index."
+      },
+      {
         "name": "search",
         "required": false,
         "type": "boolean | undefined",
@@ -406,10 +424,10 @@
         "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
       },
       {
-        "name": "virtualized",
+        "name": "virtualRender",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Enables virtualized-like aria metadata on options."
+        "type": "Component<MultiSelectT.VirtualRenderProps<TItem>> | undefined",
+        "description": "Renders flattened group labels and options through a virtualization layer."
       }
     ],
     "inherited": []
@@ -439,6 +457,12 @@
         "required": false,
         "type": "boolean | string | undefined",
         "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
+        "name": "aria-multiselectable",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Accessibility attribute forwarded by the rendered component."
       },
       {
         "name": "aria-posinset",
@@ -646,6 +670,12 @@
         "cssVariables": [],
         "dataAttributes": [],
         "ariaAttributes": [
+          {
+            "name": "aria-multiselectable",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Accessibility attribute forwarded by the rendered component."
+          },
           {
             "name": "role",
             "required": false,

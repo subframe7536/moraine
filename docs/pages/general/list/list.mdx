@@ -1,0 +1,45 @@
+---
+title: List
+description: Headless collection renderer with polymorphic roots and caller-controlled virtualization.
+sidebar:
+  order: 11
+search:
+  tags: [list, collection, virtualization, headless]
+---
+
+## Import
+
+```tsx
+import { List } from 'moraine'
+import { useListVirtualizer } from 'moraine/utils'
+```
+
+`List` owns collection traversal and the scroll-element bridge used by virtual renderers. Item markup, semantics, styling, filtering, focus, and selection remain under caller control.
+
+## Examples
+
+### Object List
+
+Render arbitrary objects with a semantic `ul` root by default. Use `as` and native root attributes when another element or role is required.
+
+<Example path="./basic" />
+
+### Virtualization
+
+Import `useListVirtualizer` from `moraine/utils`. It provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
+
+The built-in adapter requires `@tanstack/virtual-core` as an optional peer dependency. Install a compatible version in your application before using it.
+
+```bash
+bun add @tanstack/virtual-core
+```
+
+Provide a custom `virtualRender` component when the built-in absolute row layout is not suitable.
+
+<Example path="./virtualization" />
+
+### Dynamic Heights
+
+For variable-height rows, provide a reasonable estimate and let the built-in renderer measure connected rows. TanStack Virtual observes later content size changes and recalculates positions; `gap` remains consistent between measured rows.
+
+<Example path="./dynamic-height" />

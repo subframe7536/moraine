@@ -829,6 +829,52 @@ describe('DropdownMenu', () => {
     expect(content?.style.width).toBe('200px')
   })
 
+  test('forwards content and item props and lets item events prevent selection', async () => {
+    const contentRef = vi.fn()
+    const itemRef = vi.fn()
+    const onSelect = vi.fn()
+    render(() => (
+      <DropdownMenu
+        defaultOpen
+        items={[{ label: 'Archive', onSelect }]}
+        contentProps={{
+          ref: contentRef,
+          'data-track': 'actions-menu',
+          class: 'content-prop',
+          style: { width: '240px' },
+        }}
+        itemProps={(context) => ({
+          ref: itemRef,
+          'data-label': context.item.label as string,
+          class: 'item-prop',
+          style: { height: '40px' },
+          onClick: (event) => event.preventDefault(),
+        })}
+      >
+        <button type="button">Actions</button>
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-track="actions-menu"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-track="actions-menu"]') as HTMLElement
+    const item = document.body.querySelector('[data-label="Archive"]') as HTMLElement
+
+    expect(contentRef).toHaveBeenCalledWith(content)
+    expect(itemRef).toHaveBeenCalledWith(item)
+    expect(content.className).toContain('content-prop')
+    expect(content.style.width).toBe('240px')
+    expect(item.className).toContain('item-prop')
+    expect(item.style.height).toBe('40px')
+
+    await fireEvent.click(item)
+
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+  })
+
   test('locks body scroll and renders an overlay layer while open', async () => {
     render(() => (
       <DropdownMenu defaultOpen items={[{ label: 'Archive' }]}>

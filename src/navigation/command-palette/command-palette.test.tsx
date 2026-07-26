@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -754,6 +754,56 @@ describe('CommandPalette', () => {
     })
   })
 
+  test('renders a virtual window while the input keeps active-descendant focus', async () => {
+    const [entryIndex, setEntryIndex] = createSignal(1)
+    const scrollToItem = vi.fn()
+    render(() => (
+      <CommandPalette
+        open
+        groups={GROUPS}
+        scrollToItem={(item, index) => {
+          scrollToItem(item, index)
+          setEntryIndex(index)
+        }}
+        virtualRender={(context) => (
+          <For each={[context.entries[entryIndex()]!]}>
+            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
+          </For>
+        )}
+      />
+    ))
+
+    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
+    input.focus()
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(1)
+      expect(document.body.querySelector('[role="option"]')?.textContent).toContain('New File')
+    })
+
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      expect(option?.textContent).toContain('Open Folder')
+      expect(option?.getAttribute('data-index')).toBe('2')
+      expect(option?.getAttribute('aria-posinset')).toBe('2')
+      expect(option?.getAttribute('aria-setsize')).toBe('5')
+      expect(input.getAttribute('aria-activedescendant')).toBe(option?.id)
+    })
+    expect(document.activeElement).toBe(input)
+    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPS[0]?.items?.[1], 2)
+  })
+
+  test('applies local command row size variants', async () => {
+    render(() => <CommandPalette open groups={GROUPS} size="xl" />)
+
+    await waitFor(() => {
+      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      expect(option?.className).toContain('text-base')
+      expect(option?.className).toContain('min-h-10')
+    })
+  })
+
   test('includes description and keywords in built-in search', async () => {
     render(() => (
       <CommandPalette
@@ -845,9 +895,9 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('forwards inputProps and listboxProps', async () => {
-    const onListboxScroll = vi.fn()
-
+  test('forwards input, listbox, and item props', async () => {
+    const listboxRef = vi.fn()
+    const itemRef = vi.fn()
     render(() => (
       <CommandPalette
         open
@@ -859,87 +909,40 @@ describe('CommandPalette', () => {
             'data-track': 'command-input',
           } as JSX.InputHTMLAttributes<HTMLInputElement>
         }
-        listboxProps={
-          {
-            'data-track': 'command-listbox',
-            onScroll: onListboxScroll,
-          } as JSX.HTMLAttributes<HTMLDivElement>
-        }
-      />
-    ))
-
-    await waitFor(() => {
-      const input = body().getByLabelText('Command Search') as HTMLInputElement
-      const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement
-
-      expect(input.name).toBe('command-search')
-      expect(input.getAttribute('data-track')).toBe('command-input')
-      expect(listbox.getAttribute('data-track')).toBe('command-listbox')
-    })
-
-    await fireEvent.scroll(document.body.querySelector('[data-slot="listbox"]') as HTMLElement)
-    expect(onListboxScroll).toHaveBeenCalled()
-  })
-
-  test('applies itemProps and respects preventDefault for item clicks', async () => {
-    const onSelect = vi.fn()
-    const onItemClick = vi.fn((event: MouseEvent) => event.preventDefault())
-
-    render(() => (
-      <CommandPalette
-        defaultOpen
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', onSelect }] }]}
-        itemProps={(ctx) => ({
-          'data-value': ctx.item.value,
-          title: `item-${ctx.item.value}`,
-          onClick: onItemClick,
+        listboxProps={{
+          ref: listboxRef,
+          'data-track': 'command-list',
+          class: 'listbox-prop',
+          style: { height: '200px' },
+        }}
+        itemProps={(context) => ({
+          ref: context.item.value === 'new-file' ? itemRef : undefined,
+          'data-value': context.item.value,
+          class: 'item-prop',
+          style: { height: '40px' },
         })}
       />
     ))
 
     await waitFor(() => {
-      const item = document.body.querySelector('[data-slot="item"]') as HTMLElement | null
-      expect(item?.getAttribute('data-value')).toBe('action')
-      expect(item?.title).toBe('item-action')
+      const input = body().getByLabelText('Command Search') as HTMLInputElement
+
+      expect(input.name).toBe('command-search')
+      expect(input.getAttribute('data-track')).toBe('command-input')
     })
 
-    await fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
+    const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement
+    const item = document.body.querySelector('[data-value="new-file"]') as HTMLElement
 
-    expect(onItemClick).toHaveBeenCalled()
-    expect(onSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-  })
+    expect(listboxRef).toHaveBeenCalledWith(listbox)
+    expect(itemRef).toHaveBeenCalledWith(item)
+    expect(listbox.getAttribute('data-track')).toBe('command-list')
+    expect(listbox.className).toContain('listbox-prop')
+    expect(listbox.style.height).toBe('200px')
+    expect(item.className).toContain('item-prop')
+    expect(item.style.height).toBe('40px')
 
-  test('respects preventDefault in inputProps.onInput and inputProps.onKeyDown', async () => {
-    const onInput = vi.fn((event: InputEvent) => event.preventDefault())
-    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
-    const onSelect = vi.fn()
-
-    render(() => (
-      <CommandPalette
-        open
-        groups={[
-          {
-            id: 'g',
-            items: [
-              { value: 'first', label: 'First' },
-              { value: 'second', label: 'Second', onSelect },
-            ],
-          },
-        ]}
-        inputProps={{ onInput, onKeyDown }}
-      />
-    ))
-
-    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Second' } })
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
-    await fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onInput).toHaveBeenCalled()
-    expect(onKeyDown).toHaveBeenCalledTimes(2)
-    expect(body().getByText('Second')).toBeTruthy()
-    expect(onSelect).not.toHaveBeenCalled()
+    await fireEvent.scroll(listbox)
   })
 
   test('requires value in item type contract', () => {

@@ -19,9 +19,11 @@ import { Portal } from 'solid-js/web'
 import { Icon } from '../../../elements/icon'
 import type { IconT } from '../../../elements/icon'
 import { KbdGroup } from '../../../elements/kbd'
+import { List } from '../../../elements/list'
+import type { ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { cn, useId } from '../../../shared/utils'
+import { callHandler, cn, useId } from '../../../shared/utils'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -92,6 +94,14 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
   /** Custom renderer for individual items. */
   itemRender?: (context: OverlayMenuSharedItemRenderContext<TItem>) => JSX.Element
 
+  /** Additional attributes for each menu layer content element. */
+  contentProps?: ElementProps<HTMLDivElement>
+
+  /** Additional attributes for an interactive menu item. */
+  itemProps?: (
+    context: OverlayMenuSharedItemRenderContext<TItem>,
+  ) => ElementProps<HTMLDivElement> | undefined
+
   /** Items rendered in the menu body. */
   items?: TItem[]
 
@@ -128,6 +138,31 @@ interface OverlayMenuScrollLockProps {
    * @default true
    */
   preventScroll?: boolean
+}
+
+interface OverlayMenuResolvedGroup<TItem> {
+  label?: JSX.Element
+  items: TItem[]
+}
+
+type OverlayMenuListEntry<TItem> =
+  | { type: 'contentTop' }
+  | { type: 'group'; group: OverlayMenuResolvedGroup<TItem> }
+  | { type: 'contentBottom' }
+
+function toStyleObject(
+  style: string | JSX.CSSProperties | undefined,
+): JSX.CSSProperties | undefined {
+  return typeof style === 'object' ? style : undefined
+}
+
+function callRef<T extends HTMLElement>(
+  ref: T | ((element: T) => void) | undefined,
+  element: T,
+): void {
+  if (typeof ref === 'function') {
+    ref(element)
+  }
 }
 
 interface OverlayMenuLayerProps<
@@ -219,6 +254,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     {},
   )
   const groups = createMemo(() => resolveMenuGroups(props.items))
+  const listEntries = createMemo<OverlayMenuListEntry<TItem>[]>(() => [
+    { type: 'contentTop' },
+    ...groups().map((group) => ({ type: 'group' as const, group })),
+    { type: 'contentBottom' },
+  ])
   const subtreeBranches = new Set<HTMLElement>()
 
   /** Track this layer's own positioner plus all descendant submenu branches while forwarding registration upward. */
@@ -347,6 +387,21 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
+  function getItemRenderContext(
+    item: TItem,
+    hasChildren: boolean,
+    isCheckbox: boolean,
+    isRadio: boolean,
+  ): OverlayMenuSharedItemRenderContext<TItem> {
+    return {
+      item,
+      depth: props.depth,
+      hasChildren,
+      isCheckbox,
+      isRadio,
+    }
+  }
+
   function RenderItemContent(contentProps: {
     checked?: Accessor<boolean>
     hasChildren: boolean
@@ -357,13 +412,14 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <Show
         when={!props.itemRender}
-        fallback={props.itemRender!({
-          item: contentProps.item,
-          depth: props.depth,
-          hasChildren: contentProps.hasChildren,
-          isCheckbox: contentProps.isCheckbox,
-          isRadio: contentProps.isRadio,
-        })}
+        fallback={props.itemRender!(
+          getItemRenderContext(
+            contentProps.item,
+            contentProps.hasChildren,
+            contentProps.isCheckbox,
+            contentProps.isRadio,
+          ),
+        )}
       >
         <Show when={contentProps.item.icon}>
           <span
@@ -454,6 +510,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   function LeafItem(itemProps: { item: TItem }): JSX.Element {
     const itemId = useId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderContext(itemProps.item, false, false, false)),
+    )
 
     onMount(() => {
       onCleanup(
@@ -484,21 +543,43 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
-        ref={setElement}
         data-slot="item"
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         data-disabled={itemProps.item.disabled ? '' : undefined}
         data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
-        style={props.styles?.item}
-        class={getItemClass(itemProps.item, props.classes?.item)}
-        onClick={activate}
-        onFocus={() => {
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        style={{
+          ...props.styles?.item,
+          ...toStyleObject(itemAttributes()?.style),
+        }}
+        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        onClick={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+          if (!defaultPrevented) {
+            activate()
+          }
+        }}
+        onFocus={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.closeSubmenus()
           layer.setHighlightedItemId(itemId())
         }}
         onKeyDown={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+          if (defaultPrevented) {
+            return
+          }
+
           if (event.repeat) {
             return
           }
@@ -513,6 +594,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }
         }}
         onPointerEnter={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -527,6 +613,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerMove={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -541,6 +632,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerLeave={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.clearQueuedPointerEnter(event.currentTarget)
           layer.focusContent()
         }}
@@ -563,6 +659,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       defaultValue: () => itemProps.item.defaultChecked ?? false,
     })
     const checked = createMemo(() => Boolean(checkedState()))
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderContext(itemProps.item, false, true, false)),
+    )
 
     onMount(() => {
       onCleanup(
@@ -599,7 +698,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
-        ref={setElement}
         data-slot="item"
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
@@ -607,14 +705,37 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         data-disabled={itemProps.item.disabled ? '' : undefined}
         data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
-        style={props.styles?.item}
-        class={getItemClass(itemProps.item, props.classes?.item)}
-        onClick={toggle}
-        onFocus={() => {
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        style={{
+          ...props.styles?.item,
+          ...toStyleObject(itemAttributes()?.style),
+        }}
+        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        onClick={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+          if (!defaultPrevented) {
+            toggle()
+          }
+        }}
+        onFocus={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.closeSubmenus()
           layer.setHighlightedItemId(itemId())
         }}
         onKeyDown={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+          if (defaultPrevented) {
+            return
+          }
+
           if (event.repeat) {
             return
           }
@@ -629,6 +750,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }
         }}
         onPointerEnter={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -643,6 +769,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerMove={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -657,6 +788,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerLeave={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.clearQueuedPointerEnter(event.currentTarget)
           layer.focusContent()
         }}
@@ -686,6 +822,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
       return Boolean(checkedState())
     })
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderContext(itemProps.item, false, false, true)),
+    )
 
     onMount(() => {
       onCleanup(
@@ -732,7 +871,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
-        ref={setElement}
         data-slot="item"
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
@@ -740,14 +878,37 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         data-disabled={itemProps.item.disabled ? '' : undefined}
         data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
-        style={props.styles?.item}
-        class={getItemClass(itemProps.item, props.classes?.item)}
-        onClick={select}
-        onFocus={() => {
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        style={{
+          ...props.styles?.item,
+          ...toStyleObject(itemAttributes()?.style),
+        }}
+        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        onClick={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+          if (!defaultPrevented) {
+            select()
+          }
+        }}
+        onFocus={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.closeSubmenus()
           layer.setHighlightedItemId(itemId())
         }}
         onKeyDown={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+          if (defaultPrevented) {
+            return
+          }
+
           if (event.repeat) {
             return
           }
@@ -762,6 +923,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }
         }}
         onPointerEnter={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -776,6 +942,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerMove={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+          if (defaultPrevented) {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -790,6 +961,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           onPointerMove()
         }}
         onPointerLeave={(event) => {
+          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+          if (defaultPrevented) {
+            return
+          }
+
           layer.clearQueuedPointerEnter(event.currentTarget)
           layer.focusContent()
         }}
@@ -818,6 +994,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     const contentPresence = useTransitionPresence({
       open: isOpen,
     })
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderContext(itemProps.item, true, false, false)),
+    )
     let openTimeoutId = 0
     let submenuLayerState: OverlayMenuLayerState | undefined
 
@@ -891,7 +1070,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <>
         <div
-          ref={setTriggerElement}
           data-slot="item"
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
@@ -902,30 +1080,50 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           data-disabled={itemProps.item.disabled ? '' : undefined}
           data-highlighted={layer.highlightedItemId() === submenuId() ? '' : undefined}
           data-expanded={isOpen() ? '' : undefined}
-          style={props.styles?.item}
+          {...itemAttributes()}
+          ref={(itemElement) => {
+            setTriggerElement(itemElement)
+            callRef(itemAttributes()?.ref, itemElement)
+          }}
+          style={{
+            ...props.styles?.item,
+            ...toStyleObject(itemAttributes()?.style),
+          }}
           class={getItemClass(
             itemProps.item,
             'data-expanded:(bg-accent text-accent-foreground)',
             props.classes?.item,
+            itemAttributes()?.class,
           )}
           onClick={(event) => {
-            if (event.defaultPrevented || itemProps.item.disabled) {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+            if (defaultPrevented || itemProps.item.disabled) {
               return
             }
 
             event.preventDefault()
             openSubmenu('content')
           }}
-          onFocus={() => {
+          onFocus={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+            if (defaultPrevented) {
+              return
+            }
+
             layer.closeSubmenus(submenuId())
             layer.setHighlightedItemId(submenuId())
           }}
           onKeyDown={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+            if (defaultPrevented) {
+              return
+            }
+
             if (event.repeat) {
               return
             }
 
-            if (event.defaultPrevented || itemProps.item.disabled) {
+            if (itemProps.item.disabled) {
               return
             }
 
@@ -938,6 +1136,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             }
           }}
           onPointerEnter={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+            if (defaultPrevented) {
+              return
+            }
+
             if (itemProps.item.disabled || event.pointerType !== 'mouse') {
               if (itemProps.item.disabled) {
                 layer.focusContent()
@@ -955,6 +1158,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             onPointerMove()
           }}
           onPointerMove={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+            if (defaultPrevented) {
+              return
+            }
+
             if (itemProps.item.disabled || event.pointerType !== 'mouse') {
               if (itemProps.item.disabled) {
                 layer.focusContent()
@@ -972,6 +1180,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             onPointerMove()
           }}
           onPointerLeave={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+            if (defaultPrevented) {
+              return
+            }
+
             if (event.pointerType !== 'mouse') {
               return
             }
@@ -1024,6 +1237,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
               itemRender={props.itemRender}
+              contentProps={props.contentProps}
+              itemProps={props.itemProps}
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
@@ -1057,6 +1272,65 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined,
   )
 
+  function renderListEntry(entry: OverlayMenuListEntry<TItem>): JSX.Element {
+    if (entry.type === 'contentTop') {
+      return <Show when={props.contentTop}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
+    }
+
+    if (entry.type === 'contentBottom') {
+      return <Show when={props.contentBottom}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
+    }
+
+    return (
+      <div
+        data-slot="group"
+        role="group"
+        style={props.styles?.group}
+        class={cn(props.classes?.group)}
+      >
+        <Show when={entry.group.label}>
+          <div
+            data-slot="label"
+            style={props.styles?.label}
+            class={cn(
+              'text-xs text-muted-foreground font-medium px-1.5 py-1 inline-flex',
+              props.classes?.label,
+            )}
+          >
+            {entry.group.label}
+          </div>
+        </Show>
+
+        <For each={entry.group.items}>
+          {(item) => (
+            <Switch fallback={<LeafItem item={item} />}>
+              <Match when={item.type === 'separator'}>
+                <div
+                  data-slot="separator"
+                  role="separator"
+                  style={props.styles?.separator}
+                  class={cn('mx--1 my-1 border-t border-foreground/15', props.classes?.separator)}
+                />
+              </Match>
+
+              <Match when={item.type === 'checkbox'}>
+                <CheckboxMenuItem item={item} />
+              </Match>
+
+              <Match when={item.type === 'radio'}>
+                <RadioMenuItem item={item} />
+              </Match>
+
+              <Match when={hasOverlayMenuChildren(item)}>
+                <SubmenuItem item={item} />
+              </Match>
+            </Switch>
+          )}
+        </For>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={(element) => {
@@ -1073,11 +1347,21 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       data-slot="positioner"
       class="left-0 top-0 fixed"
     >
-      <div
+      <List<OverlayMenuListEntry<TItem>, 'div'>
+        as="div"
+        items={listEntries()}
+        itemRender={(context) => renderListEntry(context.item)}
         {...props.presenceDataAttrs()}
+        id={props.id}
+        data-slot="content"
+        data-placement={layer.currentPlacement()}
+        role="menu"
+        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
+        {...props.contentProps}
         ref={(element) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)
+          callRef(props.contentProps?.ref, element)
 
           if (!element) {
             return
@@ -1088,16 +1372,33 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             getTransformOrigin(resolvedPlacement(), resolveDirection()),
           )
         }}
-        id={props.id}
-        data-slot="content"
-        data-placement={layer.currentPlacement()}
-        role="menu"
-        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
-        style={props.styles?.content}
-        class={overlayMenuContentVariants({ side: side() }, props.classes?.content)}
-        onPointerDown={(event) => props.onContentPointerDown?.(event)}
-        onContextMenu={(event) => props.onContextMenu?.(event)}
+        style={{
+          ...props.styles?.content,
+          ...toStyleObject(props.contentProps?.style),
+        }}
+        class={overlayMenuContentVariants(
+          { side: side() },
+          props.classes?.content,
+          props.contentProps?.class,
+        )}
+        onPointerDown={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
+          if (!defaultPrevented) {
+            props.onContentPointerDown?.(event)
+          }
+        }}
+        onContextMenu={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onContextMenu)
+          if (!defaultPrevented) {
+            props.onContextMenu?.(event)
+          }
+        }}
         onFocusIn={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onFocusIn)
+          if (defaultPrevented) {
+            return
+          }
+
           if (!event.currentTarget.contains(event.target as Node)) {
             return
           }
@@ -1107,6 +1408,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }
         }}
         onFocusOut={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onFocusOut)
+          if (defaultPrevented) {
+            return
+          }
+
           if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
             return
           }
@@ -1114,67 +1420,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           layer.setHighlightedItemId(undefined)
         }}
         onKeyDown={(event) => {
-          if (!event.defaultPrevented) {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onKeyDown)
+          if (!defaultPrevented) {
             onLayerKeyDown(event, layer, props.close, closeParentKey())
           }
         }}
-      >
-        <Show when={props.contentTop}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
-        <For each={groups()}>
-          {(group) => (
-            <div
-              data-slot="group"
-              role="group"
-              style={props.styles?.group}
-              class={cn(props.classes?.group)}
-            >
-              <Show when={group.label}>
-                <div
-                  data-slot="label"
-                  style={props.styles?.label}
-                  class={cn(
-                    'text-xs text-muted-foreground font-medium px-1.5 py-1 inline-flex',
-                    props.classes?.label,
-                  )}
-                >
-                  {group.label}
-                </div>
-              </Show>
-
-              <For each={group.items}>
-                {(item) => (
-                  <Switch fallback={<LeafItem item={item} />}>
-                    <Match when={item.type === 'separator'}>
-                      <div
-                        data-slot="separator"
-                        role="separator"
-                        style={props.styles?.separator}
-                        class={cn(
-                          'mx--1 my-1 border-t border-foreground/15',
-                          props.classes?.separator,
-                        )}
-                      />
-                    </Match>
-
-                    <Match when={item.type === 'checkbox'}>
-                      <CheckboxMenuItem item={item} />
-                    </Match>
-
-                    <Match when={item.type === 'radio'}>
-                      <RadioMenuItem item={item} />
-                    </Match>
-
-                    <Match when={hasOverlayMenuChildren(item)}>
-                      <SubmenuItem item={item} />
-                    </Match>
-                  </Switch>
-                )}
-              </For>
-            </div>
-          )}
-        </For>
-        <Show when={props.contentBottom}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
-      </div>
+      />
     </div>
   )
 }
@@ -1309,6 +1560,8 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           checkedIcon={merged.checkedIcon}
           submenuIcon={merged.submenuIcon}
           itemRender={merged.itemRender}
+          contentProps={merged.contentProps}
+          itemProps={merged.itemProps}
           contentTop={merged.contentTop}
           contentBottom={merged.contentBottom}
           getReferenceElement={getReferenceElement}

@@ -36,9 +36,17 @@
   - [x] display text and accessible label for each kbd element
   - [x] support both symbol and text to better adapt different platforms and devices
 - [x] refactor form / form-field to `formisch`, replace existing form context logic if possible. https://ui.shadcn.com/docs/forms/formisch.md
-- [x] extract a new `ListBox` component from `Select` / `CommandPalette` / `Menu` and others, sharing collection navigation behavior while preserving each component's semantics. It renders items with optional external search and selection support in different sizes. Menu navigation intentionally ignores printable keys instead of providing typeahead.
-- [ ] refactor list box component: improve perf, correct focus behavior of items, correct highlight state between interactions, and rename `renderItem` to `render` in `VirtualRenderContext`. use it across components if possible to make it support virtualized list rendering, and make it more flexible to customize item render, and support different sizes and variants.
 - [x] fix broken styles of `Radio` component: no border highlight when actived in card and table variant; default indicator is changed from circle to oval.
+- [x] extract a public, headless `list` component to render list with virtualization interface support for select/multi-select
+  - [x] basic should be a normal list component that can render normal object list (goods list, job descriptions, etc.), preserve interface to make it selectable, for select / command palette / menu.
+  - [x] fix virtualization not render any items in select/multi-select
+  - [x] remove `virtualized` prop, just follow `virtualRender`
+  - [x] inline `@tanstack/virtual-core` as dep, optimize virtualization interface and provide builtin helper to improve dx, implement solidjs adapter manually to fix list ref load timing and dynamic height issues (item spacing are not balanced)
+  - [x] make `@tanstack/virtual-core` a peer dependency, and provide a solidjs adapter for it, so that user can use their own version of `@tanstack/virtual-core` if needed.
+- [ ] debug toast icon postion misalignment
+- [ ] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
+- [ ] fix textarea footer/header interaction priority
+- [ ] add transition for button interaction like shadcn
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
 - [ ] button group component, which can be used to group buttons together, and support different sizes and variants.

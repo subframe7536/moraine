@@ -98,7 +98,10 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
               contentRef = element
               updateExpandable()
             }}
-            class={DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS}
+            class={cn(
+              DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS,
+              isExpandable() && !isExpanded() && 'pointer-events-none',
+            )}
             // oxlint-disable-next-line subf/solid-no-innerhtml
             innerHTML={props.html}
           />

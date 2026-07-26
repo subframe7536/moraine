@@ -15,7 +15,7 @@ import { Select } from 'moraine'
 
 ## Slot Structure
 
-Trigger control and a floating listbox with grouped options.
+Trigger control and a floating listbox with grouped options. The control or search input keeps focus while options provide selection, highlight, and active-descendant semantics.
 
 ### Control
 
@@ -84,3 +84,15 @@ Options organized in sections.
 Scroll to the bottom to load more options.
 
 <Example path="./infinite-scroll" />
+
+## Virtual Rendering
+
+Import `useListVirtualizer` from `moraine/utils` to render only visible entries. Pass its `virtualRender` to Select and forward `scrollToItem` to its `scrollToIndex` method so keyboard highlighting can reveal off-screen options.
+
+Install the adapter's optional peer dependency before using it:
+
+```bash
+bun add @tanstack/virtual-core
+```
+
+<Example path="./virtualization" />
