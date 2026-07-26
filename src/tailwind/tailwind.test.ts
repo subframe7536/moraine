@@ -420,6 +420,17 @@ describe('attribute variants', () => {
     expect(css).toContain('pointer-events: none')
   })
 
+  test('compiles the button press interaction selector', async () => {
+    const css = await compileCSS([
+      'transition-all',
+      '[&:active:not([aria-haspopup])]:translate-y-px',
+    ])
+
+    expect(css).toContain('transition-property: all')
+    expect(css).toContain('&:active:not([aria-haspopup])')
+    expect(css).toContain('--tw-translate-y: 1px')
+  })
+
   test('data variants compose with hover', async () => {
     const css = await compileCSS(['hover:data-active:bg-primary'])
     expect(css).toContain('[data-active]')

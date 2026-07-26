@@ -260,6 +260,21 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('transition-timing-function:cubic-bezier(0.7,0,0.84,0)')
   })
 
+  test('compiles the button press interaction selector', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(
+      new Set(['transition-all', '[&:active:not([aria-haspopup])]:translate-y-px']),
+      { preflights: false },
+    )
+
+    expect(css).toContain('transition-property:all')
+    expect(css).toContain(':active:not([aria-haspopup])')
+    expect(css).toContain('--un-translate-y:1px')
+  })
+
   test('removes carousel inverse utilities while keeping base carousel utilities', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine()],

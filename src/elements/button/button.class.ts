@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils'
 
 export const buttonVariants = cva(
-  'inline-flex cursor-pointer select-none whitespace-nowrap transition items-center justify-center bg-clip-padding focus-visible:effect-fv-border aria-invalid:effect-invalid aria-disabled:effect-dis disabled:effect-dis active:shadow-none',
+  'inline-flex cursor-pointer select-none whitespace-nowrap transition-all items-center justify-center bg-clip-padding focus-visible:effect-fv-border aria-invalid:effect-invalid aria-disabled:effect-dis disabled:effect-dis [&:active:not([aria-haspopup])]:translate-y-px',
   {
     defaultVariants: {
       size: 'md',
@@ -11,10 +11,10 @@ export const buttonVariants = cva(
     },
     variants: {
       variant: {
-        default: 'text-primary-foreground bg-primary shadow hover:bg-primary/90',
-        secondary: 'text-secondary-foreground bg-secondary shadow hover:bg-secondary/80',
+        default: 'text-primary-foreground bg-primary hover:bg-primary/90',
+        secondary: 'text-secondary-foreground bg-secondary hover:bg-secondary/80',
         outline:
-          'surface-border bg-background shadow-xs hover:text-foreground dark:border-input dark:bg-input/30 hover:bg-muted dark:hover:bg-input/50',
+          'surface-border bg-background hover:text-foreground dark:border-input dark:bg-input/30 hover:bg-muted dark:hover:bg-input/50',
         ghost: 'hover:(text-foreground bg-muted dark:bg-muted/50)',
         link: 'text-primary underline-offset-4 hover:underline',
         destructive:

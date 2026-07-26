@@ -71,6 +71,26 @@ describe('Button', () => {
     expect(button.className).toContain('h-7')
   })
 
+  test('applies press interaction classes', () => {
+    const screen = render(() => <Button>Press</Button>)
+    const button = screen.getByRole('button', { name: 'Press' })
+
+    expect(button.className).toContain('transition-all')
+    expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
+  })
+
+  test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const)(
+    'does not apply a built-in shadow to the %s variant',
+    (variant) => {
+      const screen = render(() => <Button variant={variant}>{variant}</Button>)
+      const button = screen.getByRole('button', { name: variant })
+
+      expect(
+        button.className.split(' ').some((className) => /(?:^|:)shadow(?:-|$)/.test(className)),
+      ).toBe(false)
+    },
+  )
+
   test('renders leading and trailing icon slots for xs size', () => {
     const screen = render(() => (
       <Button size="xs" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
