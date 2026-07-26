@@ -1,0 +1,169 @@
+{
+  "component": {
+    "key": "button-group",
+    "name": "ButtonGroup",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Joins related buttons and provides shared size and visual variant defaults.",
+    "sourcePath": "src/elements/button/button-group.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Container that joins the edges of its direct button children."
+    },
+    {
+      "name": "separator",
+      "description": "Separator element between buttons."
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Buttons or compatible controls rendered as a cohesive group."
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ButtonGroupT.Classes | undefined"
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "separator",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render a decorative separator between adjacent controls."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ButtonGroupT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "attributes": {
+    "aria": [
+      {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Hides decorative content from assistive technology."
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "string",
+        "description": "Defines the semantic role exposed to assistive technology."
+      }
+    ],
+    "data": [
+      {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-size",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved size variant."
+      },
+      {
+        "name": "data-slot",
+        "required": false,
+        "type": "string",
+        "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-variant",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved visual variant."
+      }
+    ],
+    "slots": [
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          },
+          {
+            "name": "data-size",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved size variant."
+          },
+          {
+            "name": "data-variant",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved visual variant."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "separator",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
+          }
+        ]
+      }
+    ]
+  }
+}

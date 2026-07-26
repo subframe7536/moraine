@@ -56,13 +56,6 @@
         "type": "ButtonT.Classes | undefined"
       },
       {
-        "name": "disableActiveTransform",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Disables pressed-state color and movement styles without disabling interaction.",
-        "defaultValue": "false"
-      },
-      {
         "name": "disabled",
         "required": false,
         "type": "boolean | undefined",

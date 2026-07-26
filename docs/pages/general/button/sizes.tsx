@@ -9,8 +9,8 @@ export function Sizes() {
     <div class="flex flex-wrap gap-3 items-center">
       <For each={SIZES}>
         {(size) => (
-          <Button size={size} variant="outline" leading="i-lucide:square">
-            {size}
+          <Button size={size} variant="outline" leading="i-lucide:plus">
+            Add item ({size})
           </Button>
         )}
       </For>

@@ -29,9 +29,9 @@ export function LoadingStates() {
       <Button
         loading={controlledLoading()}
         onClick={runControlledLoading}
-        leading="i-lucide:arrow-big-down"
+        leading="i-lucide:download"
       >
-        {controlledLoading() ? 'Processing...' : 'Controlled loading'}
+        {controlledLoading() ? 'Downloading...' : 'Download report'}
       </Button>
 
       <Button
@@ -40,25 +40,24 @@ export function LoadingStates() {
         variant="outline"
         onClick={runCustomLoading}
       >
-        {customLoading() ? 'Syncing...' : 'Custom loading icon'}
+        {customLoading() ? 'Syncing...' : 'Sync workspace'}
       </Button>
 
       <Button
         loadingAuto
         variant="outline"
-        leading="i-lucide:a-arrow-up"
-        trailing="i-lucide:timer"
+        leading="i-lucide:send"
         onClick={() => {
           return wait(2000).then(() => {
             setAutoRuns((value) => value + 1)
           })
         }}
       >
-        Async auto-loading ({autoRuns()})
+        Send invite ({autoRuns()})
       </Button>
 
       <Button disabled variant="ghost">
-        Disabled
+        Archive project
       </Button>
     </div>
   )

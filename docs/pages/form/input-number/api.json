@@ -360,10 +360,28 @@
         "description": "Present when the component is loading."
       },
       {
+        "name": "data-orientation",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Stores the rendered orientation."
+      },
+      {
+        "name": "data-size",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved size variant."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
         "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-variant",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved visual variant."
       }
     ],
     "slots": [
@@ -444,13 +462,52 @@
       {
         "name": "root",
         "cssVariables": [],
-        "dataAttributes": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          },
+          {
+            "name": "data-size",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved size variant."
+          },
+          {
+            "name": "data-variant",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved visual variant."
+          }
+        ],
         "ariaAttributes": [
           {
             "name": "role",
             "required": false,
             "type": "string",
             "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
+      },
+      {
+        "name": "separator",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-orientation",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Stores the rendered orientation."
+          }
+        ],
+        "ariaAttributes": [
+          {
+            "name": "aria-hidden",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Hides decorative content from assistive technology."
           }
         ]
       },

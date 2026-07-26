@@ -49,6 +49,14 @@
       "sourcePath": "src/elements/button/button.tsx"
     },
     {
+      "key": "button-group",
+      "name": "ButtonGroup",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Joins related buttons and provides shared size and visual variant defaults.",
+      "sourcePath": "src/elements/button/button-group.tsx"
+    },
+    {
       "key": "card",
       "name": "Card",
       "category": "elements",

@@ -3,12 +3,12 @@ import { Button } from '@src/elements/button/button'
 export function LoadingPlacement() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Button loading>Loading (default leading)</Button>
+      <Button loading>Creating project</Button>
       <Button loading trailing="i-lucide:timer">
-        Loading replaces trailing
+        Scheduling publish
       </Button>
       <Button loading leading="i-lucide:download" trailing="i-lucide:arrow-right">
-        Loading replaces leading
+        Preparing download
       </Button>
     </div>
   )

@@ -2,7 +2,7 @@
 title: Button
 description: Button component with polymorphic rendering and automatic loading state.
 sidebar:
-  order: 2
+  order: 0
 search:
   tags: [action, click, submit, loading]
 ---
@@ -28,21 +28,13 @@ root
 
 ### Variants
 
-Visual variants from the Moraine button class contract.
+Visual variants for primary, secondary, subtle, and destructive actions.
 
 <Example path="./variants" />
 
-### Disable Active Style
-
-Use `disableActiveTransform` to keep hover feedback while removing the pressed-state color and movement styles. The button remains interactive.
-
-```tsx
-<Button disableActiveTransform>Continue</Button>
-```
-
 ### Sizes
 
-Text button sizes with a leading icon to preview spacing.
+Text button sizes with a leading icon to preview label and icon spacing.
 
 <Example path="./sizes" />
 
@@ -60,7 +52,7 @@ When loading, the icon replaces `leading` first. If no `leading` is set, it repl
 
 ### Icon Buttons
 
-Icon-only sizes and variants.
+Icon-only sizes using decrease and increase actions. Always provide an accessible label when a button has no visible text.
 
 <Example path="./icon-buttons" />
 

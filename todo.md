@@ -47,8 +47,9 @@
 - [x] fix textarea footer/header interaction priority
 - [x] add transition for button interaction like shadcn
 - [x] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover} color tokens, avoid using alpha channel in interaction color tokens
-- [ ] button group component, which can be used to group buttons together, and support different sizes and variants.
+- [x] button group component, which can be used to group buttons together, and support different sizes and variants.
 - [ ] scrollarea component with fade edge support
+- [ ] fix: when multiple `popover` components are opened, and one of them is closed, the others will be closed as well during transition, which is not expected behavior.
 
 # V1
 

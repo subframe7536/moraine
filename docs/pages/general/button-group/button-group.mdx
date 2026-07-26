@@ -1,0 +1,77 @@
+---
+title: ButtonGroup
+description: Cohesive group of related buttons with shared size, variant, and orientation.
+sidebar:
+  order: 1
+search:
+  tags: [button, actions, toolbar, group]
+---
+
+## Import
+
+```tsx
+import { Button, ButtonGroup } from 'moraine'
+```
+
+## Usage
+
+`ButtonGroup` joins the edges of direct button children and provides shared `size` and `variant`
+defaults. A child `Button` can override either default when needed.
+
+Add an accessible label when the surrounding content does not already name the group.
+
+Set `separator` to render a decorative separator between adjacent controls. Customize its root
+with the `separator` slot in `classes` or `styles`.
+
+```tsx
+<ButtonGroup separator classes={{ separator: 'text-primary' }}>
+  <Button>Export</Button>
+  <Button>Share</Button>
+</ButtonGroup>
+```
+
+## Slot Structure
+
+```text
+root
+├── Button (x n)
+└── separator (between adjacent children, optional)
+```
+
+## Examples
+
+### Basic
+
+<Example path="./basic" />
+
+### Variants
+
+<Example path="./variants" />
+
+### Sizes
+
+<Example path="./sizes" />
+
+### Orientations
+
+Horizontal and vertical groups using compact quantity controls.
+
+<Example path="./vertical" />
+
+### Separators
+
+Toggle separators between adjacent controls with a switch.
+
+<Example path="./separator" />
+
+### Popover
+
+Compose a primary button with a Popover trigger inside the same group.
+
+<Example path="./button-popover" />
+
+### Dropdown
+
+A report export action composed from a button trigger and a dropdown menu.
+
+<Example path="./button-dropdown" />

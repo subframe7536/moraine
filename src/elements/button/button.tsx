@@ -1,5 +1,5 @@
 import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import { Show, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
@@ -10,6 +10,7 @@ import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
+import { ButtonGroupContext } from './button-group-context'
 import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
 
@@ -125,6 +126,7 @@ export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
  * Button component with polymorphic `as` support and loading state.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
+  const group = useContext(ButtonGroupContext)
   const [local, rest] = splitProps(props as ButtonProps, [
     'as',
     'variant',
@@ -160,9 +162,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     !isNativeBtn() && typeof tag() === 'string' && tag() === 'a' && (rest as any).href !== undefined
   const needsButtonRole = () => typeof tag() === 'string' && !isNativeBtn() && !isNativeLink()
   const isDisabledOrLoading = () => isLoading() || local.disabled
+  const size = () => local.size ?? group?.size ?? 'md'
+  const variant = () => local.variant ?? group?.variant ?? 'default'
 
   const iconSize = createMemo(() =>
-    local.size?.startsWith('icon-') ? local.size.replace('icon-', '') : undefined,
+    size().startsWith('icon-') ? size().replace('icon-', '') : undefined,
   )
 
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
@@ -251,8 +255,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       style={{ ...local.styles?.root, ...local.style }}
       class={cn(
         buttonVariants({
-          variant: local.variant,
-          size: local.size,
+          variant: variant(),
+          size: size(),
         }),
         local.classes?.root,
         local.class,

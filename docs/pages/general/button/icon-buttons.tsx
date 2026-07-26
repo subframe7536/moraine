@@ -13,17 +13,19 @@ export function IconButtons() {
   ]
 
   return (
-    <div class="flex flex-wrap gap-3 items-center">
+    <div class="flex flex-wrap gap-4 items-center">
       <For each={ICON_SIZES}>
         {(size) => (
-          <Button size={size} variant="secondary" aria-label={`Icon ${size}`}>
-            <Icon name="i-lucide:star" />
-          </Button>
+          <div class="flex gap-1.5 items-center">
+            <Button size={size} variant="outline" aria-label={`Decrease, ${size} button`}>
+              <Icon name="i-lucide:minus" />
+            </Button>
+            <Button size={size} variant="outline" aria-label={`Increase, ${size} button`}>
+              <Icon name="i-lucide:plus" />
+            </Button>
+          </div>
         )}
       </For>
-      <Button variant="outline" leading="i-lucide:arrow-left" trailing="i-lucide:arrow-right">
-        Leading + trailing
-      </Button>
     </div>
   )
 }
