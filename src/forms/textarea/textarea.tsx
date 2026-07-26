@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, on, onMount } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, mergeProps, on, onMount } from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
@@ -213,6 +213,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   )
 
   let textareaEl: HTMLTextAreaElement | undefined
+  const [isFocused, setIsFocused] = createSignal(false)
 
   const isLazy = createMemo(() => Boolean(merged.modelModifiers?.lazy))
 
@@ -295,11 +296,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
+    setIsFocused(false)
     field.emit('blur', event)
     merged.onBlur?.(event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
+    setIsFocused(true)
     field.emit('focus', event)
     merged.onFocus?.(event)
   }
@@ -354,6 +357,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         merged.class,
       )}
       onPointerDown={onRootPointerDown}
+      data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
     >
       <Show when={merged.header}>

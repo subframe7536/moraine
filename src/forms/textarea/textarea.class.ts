@@ -4,7 +4,7 @@ import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
 import { cva } from '../../shared/utils'
 
 export const textareaRootVariants = cva(
-  'rounded-md inline-flex flex-col w-full transition-[color,box-shadow] overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
+  'rounded-md inline-flex flex-col w-full transition-[color,box-shadow] overflow-hidden data-focused:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis data-focused:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',

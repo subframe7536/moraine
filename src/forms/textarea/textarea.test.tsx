@@ -110,6 +110,31 @@ describe('Textarea', () => {
     expect(focusSpy).toHaveBeenCalledTimes(0)
   })
 
+  test('shows root focus state only while the textarea is focused', () => {
+    const screen = render(() => (
+      <Textarea
+        header={<button type="button">Header Action</button>}
+        footer={<button type="button">Footer Action</button>}
+      >
+        <button type="button">Child Action</button>
+      </Textarea>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+    const controls = screen.getAllByRole('button') as HTMLButtonElement[]
+
+    expect(root.getAttribute('data-focused')).toBeNull()
+
+    for (const control of controls) {
+      textarea.focus()
+      expect(root.getAttribute('data-focused')).toBe('')
+
+      control.focus()
+      expect(root.getAttribute('data-focused')).toBeNull()
+    }
+  })
+
   test('applies trim, number, lazy and empty value strategy modifiers', async () => {
     const onTrim = vi.fn()
     const onLazy = vi.fn()
@@ -224,7 +249,8 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('focus-within:effect-fv-border')
+    expect(root?.className).toContain('data-focused:effect-fv-border')
+    expect(root?.className).not.toContain('focus-within:effect-fv-border')
     expect(root?.className).toContain('effect-invalid')
     expect(root?.className).toContain('root-override')
   })

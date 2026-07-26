@@ -44,7 +44,7 @@
   - [x] inline `@tanstack/virtual-core` as dep, optimize virtualization interface and provide builtin helper to improve dx, implement solidjs adapter manually to fix list ref load timing and dynamic height issues (item spacing are not balanced)
   - [x] make `@tanstack/virtual-core` a peer dependency, and provide a solidjs adapter for it, so that user can use their own version of `@tanstack/virtual-core` if needed.
 - [x] unify all `xxRender` 's type: `xxRender?: Component<xxRenderProps>`
-- [ ] fix textarea footer/header interaction priority
+- [x] fix textarea footer/header interaction priority
 - [ ] add transition for button interaction like shadcn
 - [ ] find a way to add jsdoc for Variant 's props
 - [ ] reference from https://ink-ui.com , add primary/secondary/background/\*-{active,hover,focus} color tokens, avoid using alpha channel in color tokens. and think of `mix-blend-multiply` for item + badge when hovering, and `mix-blend-difference` for item + badge when selected, to have better contrast and accessibility.
