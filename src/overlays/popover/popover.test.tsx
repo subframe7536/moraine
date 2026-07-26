@@ -10,9 +10,9 @@ import type { PopoverProps } from './popover'
 let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
 
-async function finishExitMotion(): Promise<void> {
-  const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
-
+async function finishExitMotion(
+  content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null,
+): Promise<void> {
   if (content) {
     await fireEvent.animationEnd(content)
     await fireEvent.transitionEnd(content)
@@ -275,6 +275,81 @@ describe('Popover', () => {
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('keeps lower popovers open when the top popover finishes closing', async () => {
+    const onFirstOpenChange = vi.fn()
+    const onSecondOpenChange = vi.fn()
+
+    render(() => (
+      <>
+        <Popover defaultOpen onOpenChange={onFirstOpenChange} content="First content">
+          <button type="button">First trigger</button>
+        </Popover>
+        <Popover defaultOpen onOpenChange={onSecondOpenChange} content="Second content">
+          <button type="button">Second trigger</button>
+        </Popover>
+      </>
+    ))
+
+    const secondContent = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+    ).find((content) => content.textContent?.includes('Second content')) as HTMLElement
+
+    secondContent.focus()
+    await fireEvent.keyDown(secondContent, { key: 'Escape' })
+    const closingContent = document.body.querySelector<HTMLElement>(
+      '[data-slot="content"][data-closed]',
+    )
+    await finishExitMotion(closingContent)
+
+    await waitFor(() => {
+      expect(onFirstOpenChange).not.toHaveBeenCalled()
+      expect(onSecondOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.textContent).toContain('First content')
+      expect(document.body.textContent).not.toContain('Second content')
+    })
+  })
+
+  test('does not restore focus when a non-top popover finishes closing', async () => {
+    const [firstOpen, setFirstOpen] = createSignal(true)
+    const onSecondOpenChange = vi.fn()
+
+    render(() => (
+      <>
+        <Popover open={firstOpen()} content="First content">
+          <button type="button">First trigger</button>
+        </Popover>
+        <Popover defaultOpen onOpenChange={onSecondOpenChange} content="Second content">
+          <button type="button">Second trigger</button>
+        </Popover>
+      </>
+    ))
+
+    const contents = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+    )
+    const firstContent = contents.find((content) =>
+      content.textContent?.includes('First content'),
+    ) as HTMLElement
+    const secondContent = contents.find((content) =>
+      content.textContent?.includes('Second content'),
+    ) as HTMLElement
+
+    secondContent.focus()
+    setFirstOpen(false)
+    const closingContent = document.body.querySelector<HTMLElement>(
+      '[data-slot="content"][data-closed]',
+    )
+    expect(closingContent?.textContent).toContain(firstContent.textContent)
+    await finishExitMotion(closingContent)
+
+    await waitFor(() => {
+      expect(onSecondOpenChange).not.toHaveBeenCalled()
+      expect(document.activeElement).toBe(secondContent)
+      expect(document.body.textContent).not.toContain('First content')
+      expect(document.body.textContent).toContain('Second content')
     })
   })
 

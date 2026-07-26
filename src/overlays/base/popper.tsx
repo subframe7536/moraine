@@ -500,12 +500,14 @@ export function Popper(props: PopperProps): JSX.Element {
     )
 
     onCleanup(() => {
-      releaseStack()
-      releaseScrollLock?.()
-
-      if (merged.restoreFocusOnClose) {
+      // Restore focus while this entry is still topmost so lower overlays
+      // treat the resulting focus event as owned by the closing layer.
+      if (merged.restoreFocusOnClose && isTopOverlay(stackEntry)) {
         focusTrigger(triggerElement())
       }
+
+      releaseStack()
+      releaseScrollLock?.()
     })
   })
 
