@@ -11,12 +11,12 @@ Treat SSR safety as a required component acceptance gate, not a later bug fix. D
 
 Before implementation, list every prop that can contain JSX, a component, or a render function. Classify each value exactly once:
 
-| Kind | Examples | Resolution rule |
-| --- | --- | --- |
-| Actual children | `children` | Render directly if consumed once; use `children as resolveChildren` if inspected, normalized, or rendered from multiple paths |
-| Arbitrary JSX slot | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `Icon.name` | Cache with `createMemo`; never pass to `children()` |
-| Component/render prop | `itemRender`, `triggerRender` | Name with the `Render` suffix and preserve its component boundary |
-| Preconstructed item data | `items[].label`, `items[].content` | Do not resolve globally unless a reactive getter is repeatedly evaluated by the owning component |
+| Kind                     | Examples                                                                             | Resolution rule                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Actual children          | `children`                                                                           | Render directly if consumed once; use `children as resolveChildren` if inspected, normalized, or rendered from multiple paths |
+| Arbitrary JSX slot       | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `Icon.name` | Cache with `createMemo`; never pass to `children()`                                                                           |
+| Component/render prop    | `itemRender`, `triggerRender`                                                        | Name with the `Render` suffix and preserve its component boundary                                                             |
+| Preconstructed item data | `items[].label`, `items[].content`                                                   | Do not resolve globally unless a reactive getter is repeatedly evaluated by the owning component                              |
 
 Reject the API design if a value has ambiguous semantics. A function must not sometimes mean a component and sometimes mean ordinary data.
 
@@ -191,7 +191,7 @@ If production hydration fails:
 3. When available, use this conditional breakpoint:
 
    ```js
-   typeof template !== "function" &&
+   typeof template !== 'function' &&
      !sharedConfig.registry.has(getContextId(sharedConfig.context.count))
    ```
 
