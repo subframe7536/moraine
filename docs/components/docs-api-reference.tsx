@@ -412,12 +412,7 @@ function SlotTabLabel(props: { slot: SlotReferenceDoc }): JSX.Element {
     <span class="flex gap-2 min-w-0 w-full items-center justify-between">
       <span class="font-mono truncate">{props.slot.name}</span>
       <Show when={metadataCount() > 0}>
-        <span
-          aria-hidden="true"
-          class="text-[0.65rem] text-muted-foreground leading-none font-sans px-1.5 py-1 b-1 b-border rounded bg-muted shrink-0"
-        >
-          {metadataCount()}
-        </span>
+        <Badge size="sm">{metadataCount()}</Badge>
       </Show>
     </span>
   )
@@ -448,16 +443,6 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
           onChange={setSelectedSlotName}
           orientation="vertical"
           variant="pill"
-          size="md"
-          classes={{
-            root: 'mt-5 b-1 b-border rounded-xl bg-muted/25 overflow-hidden gap-0 md:grid md:grid-cols-[14rem_minmax(0,1fr)]',
-            list: 'w-full h-full rounded-none bg-muted/80 p-2 md:border-r md:border-border items-stretch justify-start',
-            indicator: 'hidden',
-            trigger:
-              'w-full justify-between text-xs rounded-md px-2.5 py-2 data-selected:(bg-background text-foreground shadow-xs) hover:bg-background/70',
-            label: 'w-full min-w-0',
-            content: 'bg-background px-4 py-4 md:px-5 md:py-5',
-          }}
           items={slotOptions().map((slot) => ({
             label: <SlotTabLabel slot={slot} />,
             value: slot.name,

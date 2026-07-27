@@ -454,7 +454,7 @@ describe('attribute variants', () => {
     ])
 
     expect(css).toContain('transition-property: all')
-    expect(css).toContain('&:active:not([aria-haspopup])')
+    expect(css).toContain('\\&\\:active\\:not\\(\\[aria-haspopup\\]\\)')
     expect(css).toContain('--tw-translate-y: 1px')
   })
 
