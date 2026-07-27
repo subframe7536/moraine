@@ -1,6 +1,6 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent } from 'solid-js'
+import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from './button'
@@ -267,6 +267,23 @@ describe('Button', () => {
 
     expect(reads).toBe(1)
     expect(screen.getByRole('button', { name: 'Resolved once' })).not.toBeNull()
+  })
+
+  test('resolves reactive JSX accessors without treating them as render components', async () => {
+    const [visible, setVisible] = createSignal(true)
+    const screen = render(() => (
+      <Button>
+        <Show when={visible()}>Reactive label</Show>
+      </Button>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Reactive label' })).not.toBeNull()
+
+    setVisible(false)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button').querySelector('[data-slot="label"]')).toBeNull()
+    })
   })
 
   test('omits the label slot when component children resolve to a falsy value', () => {

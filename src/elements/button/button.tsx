@@ -250,31 +250,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     callHandler(event, local.onPointerDown)
   }
 
-  function renderLabel(): JSX.Element {
-    const resolvedChildren = resolveChildren(() => {
-      const body = local.children
-
-      return renderComponentOrElement(body, {
-        get loading() {
-          return isLoading()
-        },
-      })
-    })
-
-    return (
-      <Show when={resolvedChildren()}>
-        {(body) => (
-          <span
-            data-slot="label"
-            style={local.styles?.label}
-            class={cn('min-w-0 truncate', local.classes?.label)}
-          >
-            {body()}
-          </span>
-        )}
-      </Show>
-    )
-  }
+  const child = resolveChildren(() => local.children as JSX.Element)
+  const resolvedChildren = createMemo(() =>
+    renderComponentOrElement(child() as ButtonT.Base['children'], {
+      get loading() {
+        return isLoading()
+      },
+    }),
+  )
 
   return (
     <Dynamic
@@ -318,7 +301,17 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         )}
       </Show>
 
-      {renderLabel()}
+      <Show when={resolvedChildren()}>
+        {(body) => (
+          <span
+            data-slot="label"
+            style={local.styles?.label}
+            class={cn('min-w-0 truncate', local.classes?.label)}
+          >
+            {body()}
+          </span>
+        )}
+      </Show>
 
       <Show when={resolvedTrailing()}>
         {(trailing) => (

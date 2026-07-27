@@ -28,6 +28,12 @@
   "props": {
     "own": [
       {
+        "name": "aria-hidden",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Hides the badge from the accessibility tree when it is purely decorative."
+      },
+      {
         "name": "children",
         "required": false,
         "type": "JSX.Element",

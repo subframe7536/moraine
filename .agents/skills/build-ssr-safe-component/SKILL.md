@@ -40,23 +40,32 @@ const resolvedChildren = resolveChildren(() => props.children)
 
 Use the `Show` callback accessor so the resolved value is not re-resolved. Never read `props.children` or `local.children` again after creating the accessor.
 
-For Moraine render-prop children, read the body once inside the resolver and keep `renderComponentOrElement`:
+For Moraine `ComponentOrElement` children, use two-stage resolution:
 
 ```tsx
-const resolvedChildren = resolveChildren(() => {
-  const body = local.children
-
-  return renderComponentOrElement(body, {
+const body = resolveChildren(() => local.children as JSX.Element)
+const resolvedChildren = createMemo(() =>
+  renderComponentOrElement(body() as ButtonT.Base['children'], {
     get loading() {
       return isLoading()
     },
-  })
-})
+  }),
+)
 ```
 
-Do not use only `createMemo(() => local.children)`. Do not call `body(state)` directly because Moraine types these values as `ComponentOrElement` and relies on the renderer's `createComponent` boundary.
+The first stage resolves zero-argument Solid accessors returned by JSX control flow. The second stage
+mounts a remaining state render prop through `renderComponentOrElement` and preserves its
+`createComponent` boundary. This order matters because the same child can be a client-side signal
+accessor but an SSR value on the server. Passing the unresolved accessor directly to
+`renderComponentOrElement` adds a client-only component boundary and shifts hydration keys.
+
+Do not use only `createMemo(() => local.children)`. Do not call the state render prop directly.
+Do not special-case child resolution by size, variant, or visual child type.
 
 Allow a falsy render result to omit its optional wrapper instead of creating an empty label/content element.
+Keep this resolution in the existing owner unless component ownership or context requires another
+boundary. Do not introduce an internal component only to manipulate hydration keys; that component
+adds its own boundary and can hide the actual asymmetry.
 
 ### Arbitrary JSX props
 
@@ -86,11 +95,16 @@ const resolvedError = createMemo(() => {
 
 ## Gate 3: Preserve Hydration Creation Order
 
-Solid hydration keys follow node creation order, not eventual DOM nesting. A child created before its parent root can consume the parent's key.
+Solid hydration keys follow node creation order, not eventual DOM nesting. Require the server and
+client to create the same nodes and component boundaries in the same order.
 
-Review the component top to bottom and reject it if any eager computation can instantiate JSX before the root `Dynamic`, intrinsic element, or required provider consumes its key.
+Do not impose parent-first creation as a universal rule. Resolving children before a root `Dynamic`
+is valid when both environments follow the same sequence. Focus on asymmetric values, such as a
+client-side signal accessor corresponding to an SSR value, and on helpers that interpret those
+values as components in only one environment.
 
-`createMemo` evaluates immediately. If reading a getter constructs fresh JSX, defer the memo and resolution into a function invoked from the root's children expression:
+`createMemo` evaluates immediately. If production evidence shows that an eager getter creates a
+different sequence, defer the memo and resolution into the root's children expression:
 
 ```tsx
 function renderContent(): JSX.Element {
@@ -101,9 +115,11 @@ function renderContent(): JSX.Element {
 return <Dynamic component={tag()}>{renderContent()}</Dynamic>
 ```
 
-Apply the same rule to providers. Resolve nested children inside the provider's children expression, then reuse the resolved value for every branch.
+Resolve children inside a provider when they depend on that provider's context, then reuse the
+resolved value for every branch.
 
-Do not add wrapper components only to alter hydration order. Preserve existing owner and `createComponent` boundaries.
+Do not add DOM wrappers or helper components only to alter hydration order. Preserve existing owner
+and intentional `createComponent` boundaries.
 
 ## Gate 4: Control Conditional Trees
 
@@ -165,6 +181,9 @@ Add applicable coverage for:
 
 JSDOM does not validate hydration key order. Unit tests are necessary but insufficient.
 
+Hydration can silently remove a mismatched descendant without logging an error. For critical JSX,
+also assert in a production browser that the hydrated node still exists under its intended parent.
+
 ## Gate 6: Validate Production SSG
 
 Run:
@@ -178,7 +197,14 @@ bun run docs:preview
 
 Use a real browser against the production preview. Listen for both uncaught exceptions and error-level console messages. Verify the new component's docs route and representative shared routes, at minimum `/`, `/button`, `/dialog`, and `/form-field` when shared component infrastructure changed.
 
+Reload at mobile, tablet, and desktop widths. Responsive branches can consume different hydration
+keys and expose a mismatch only at one breakpoint.
+
 Reject completion if the console contains a hydration error or `template is not a function`, even when `docs:dev` is clean.
+
+Do not treat a clean console as sufficient. Compare critical SSR nodes with the hydrated DOM and
+verify that visual nodes remain nested, have non-zero bounds, and retain their effective icon or
+background style.
 
 Do not manually edit `dist`. Run `git diff --check` and confirm no unintended dependency, lockfile, generated output, or user configuration changes.
 
@@ -214,11 +240,16 @@ Do not approve the new component until all answers are yes:
 
 - Every JSX-capable prop has one documented semantic category.
 - Every inspected/rendered JSX value has one cached accessor.
+- `ComponentOrElement` children resolve Solid accessors before component/render-prop mounting.
 - No original prop is reread after resolution.
-- Parent roots and providers consume hydration keys before nested JSX is instantiated.
+- Server and client create the same nodes and component boundaries in the same order.
+- No helper component or DOM wrapper exists only to manipulate hydration keys.
+- No empty wrapper, visual variant branch, or leaf-element substitution masks key-order drift.
 - Closed/client-only branches do not create SSR-absent trees during hydration.
 - Getter-backed tests prove single evaluation.
 - Stateful render props remain reactive without reinvocation.
 - Focused tests, QA, and relevant full tests pass or unrelated failures are recorded.
 - Production SSG has zero hydration console errors.
+- Production refresh preserves critical JSX at mobile, tablet, and desktop widths.
+- Critical SSR nodes remain present, nested, and visible after hydration.
 - No `dist` file was edited manually.
