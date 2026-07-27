@@ -42,6 +42,11 @@ export namespace BadgeT {
    */
   export interface Base {
     /**
+     * Hides the badge from the accessibility tree when it is purely decorative.
+     */
+    'aria-hidden'?: boolean
+
+    /**
      * Data slot for styling.
      * @default 'root'
      */
@@ -103,6 +108,7 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-slot={merged.slotName}
       data-size={merged.size}
       data-variant={merged.variant}
+      aria-hidden={merged['aria-hidden']}
       title={merged.title}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={badgeVariants(

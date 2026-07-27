@@ -412,7 +412,9 @@ function SlotTabLabel(props: { slot: SlotReferenceDoc }): JSX.Element {
     <span class="flex gap-2 min-w-0 w-full items-center justify-between">
       <span class="font-mono truncate">{props.slot.name}</span>
       <Show when={metadataCount() > 0}>
-        <Badge size="sm">{metadataCount()}</Badge>
+        <Badge size="sm" aria-hidden>
+          {metadataCount()}
+        </Badge>
       </Show>
     </span>
   )

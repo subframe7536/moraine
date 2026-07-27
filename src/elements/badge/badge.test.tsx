@@ -17,6 +17,13 @@ describe('Badge', () => {
     expect(label?.textContent).toBe('New')
   })
 
+  test('supports hiding decorative badges from the accessibility tree', () => {
+    const screen = render(() => <Badge aria-hidden>2</Badge>)
+    const badge = screen.container.querySelector('[data-slot="root"]')
+
+    expect(badge?.getAttribute('aria-hidden')).toBe('true')
+  })
+
   test('applies variant and size classes', () => {
     const solid = render(() => (
       <Badge variant="solid" size="lg">
