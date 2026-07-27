@@ -403,6 +403,8 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
     },
     props,
   )
+  const label = createMemo(() => merged.label)
+  const description = createMemo(() => merged.description)
 
   const generatedId = useId(() => merged.id, 'file-upload')
   const field = useFormField(
@@ -608,7 +610,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
           )}
         />
 
-        <Show when={merged.label}>
+        <Show when={label()}>
           <span
             data-slot="label"
             style={merged.styles?.label}
@@ -619,11 +621,11 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
               merged.classes?.label,
             )}
           >
-            {merged.label}
+            {label()}
           </span>
         </Show>
 
-        <Show when={merged.description}>
+        <Show when={description()}>
           <span
             data-slot="description"
             style={merged.styles?.description}
@@ -634,7 +636,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
               merged.classes?.description,
             )}
           >
-            {merged.description}
+            {description()}
           </span>
         </Show>
       </div>

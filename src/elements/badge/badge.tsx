@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, mergeProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -94,7 +94,9 @@ export function Badge(props: BadgeProps): JSX.Element {
     props,
   )
 
-  const hasLabel = createMemo(() => merged.children !== undefined && merged.children !== null)
+  const leading = createMemo(() => merged.leading)
+  const trailing = createMemo(() => merged.trailing)
+  const resolvedChildren = resolveChildren(() => merged.children)
 
   return (
     <span
@@ -116,7 +118,7 @@ export function Badge(props: BadgeProps): JSX.Element {
         e.stopPropagation()
       }}
     >
-      <Show when={merged.leading}>
+      <Show when={leading()}>
         {(leading) => (
           <Icon
             name={leading()}
@@ -127,17 +129,19 @@ export function Badge(props: BadgeProps): JSX.Element {
         )}
       </Show>
 
-      <Show when={hasLabel()}>
-        <span
-          data-slot="label"
-          style={merged.styles?.label}
-          class={cn('min-w-0 truncate', merged.classes?.label)}
-        >
-          {merged.children}
-        </span>
+      <Show when={resolvedChildren()}>
+        {(body) => (
+          <span
+            data-slot="label"
+            style={merged.styles?.label}
+            class={cn('min-w-0 truncate', merged.classes?.label)}
+          >
+            {body()}
+          </span>
+        )}
       </Show>
 
-      <Show when={merged.trailing}>
+      <Show when={trailing()}>
         {(trailing) => (
           <Show
             when={merged.onTrailingClick}

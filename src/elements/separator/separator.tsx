@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, mergeProps } from 'solid-js'
+import { Show, children as resolveChildren, mergeProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
@@ -71,6 +71,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
     },
     props,
   )
+  const resolvedChildren = resolveChildren(() => merged.children)
 
   return (
     <div
@@ -99,31 +100,35 @@ export function Separator(props: SeparatorProps): JSX.Element {
         )}
       />
 
-      <Show when={merged.children}>
-        <div
-          data-slot="content"
-          style={merged.styles?.content}
-          class={separatorContentVariants(
-            {
-              orientation: merged.orientation,
-            },
-            merged.classes?.content,
-          )}
-        >
-          {merged.children}
-        </div>
-        <div
-          data-slot="border"
-          style={merged.styles?.border}
-          class={separatorBorderVariants(
-            {
-              orientation: merged.orientation,
-              size: merged.size,
-              type: merged.type,
-            },
-            merged.classes?.border,
-          )}
-        />
+      <Show when={resolvedChildren()}>
+        {(body) => (
+          <>
+            <div
+              data-slot="content"
+              style={merged.styles?.content}
+              class={separatorContentVariants(
+                {
+                  orientation: merged.orientation,
+                },
+                merged.classes?.content,
+              )}
+            >
+              {body()}
+            </div>
+            <div
+              data-slot="border"
+              style={merged.styles?.border}
+              class={separatorBorderVariants(
+                {
+                  orientation: merged.orientation,
+                  size: merged.size,
+                  type: merged.type,
+                },
+                merged.classes?.border,
+              )}
+            />
+          </>
+        )}
       </Show>
     </div>
   )

@@ -97,6 +97,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
     props,
   )
+  const content = createMemo(() => merged.content)
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
@@ -131,7 +132,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         class={popoverContentVariants({ side: resolvedSide() }, merged.classes?.content)}
         {...context.contentProps}
       >
-        <Show when={merged.content !== undefined && merged.content !== null}>
+        <Show when={content() !== undefined && content() !== null}>
           <div
             data-slot="body"
             style={merged.styles?.body}
@@ -140,7 +141,7 @@ export function Popover(props: PopoverProps): JSX.Element {
               merged.classes?.body,
             )}
           >
-            {merged.content}
+            {content()}
           </div>
         </Show>
       </div>

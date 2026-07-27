@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Modal } from '../base'
@@ -25,6 +26,29 @@ async function finishExitMotion(): Promise<void> {
 }
 
 describe('Modal', () => {
+  test('evaluates getter-backed trigger and content props once', () => {
+    let triggerReads = 0
+    let contentReads = 0
+
+    render(() =>
+      createComponent(Modal, {
+        open: true,
+        get trigger() {
+          triggerReads += 1
+          return <button type="button">Open modal</button>
+        },
+        get content() {
+          contentReads += 1
+          return () => <span>Cached content</span>
+        },
+      }),
+    )
+
+    expect(triggerReads).toBe(1)
+    expect(contentReads).toBe(1)
+    expect(document.body.textContent).toContain('Cached content')
+  })
+
   test('renders default shell with title, description, body, footer and close button', () => {
     render(() => (
       <Dialog

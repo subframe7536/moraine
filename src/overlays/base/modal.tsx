@@ -57,6 +57,8 @@ export interface ModalProps {
 export function Modal(props: ModalProps): JSX.Element {
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
+  const trigger = createMemo(() => props.trigger)
+  const content = createMemo(() => props.content)
   const [open, setOpen] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
@@ -85,17 +87,11 @@ export function Modal(props: ModalProps): JSX.Element {
     trapFocusInContainer(event, contentElement())
   }
 
-  const resolvedContent = createMemo(() =>
-    renderComponentOrElement(props.content, {
-      close: () => updateOpen(false),
-    }),
-  )
-
   const overlayPresence = useTransitionPresence({
     open: () => Boolean(open() && props.overlay),
   })
   const contentPresence = useTransitionPresence({
-    open: () => Boolean(open() && resolvedContent()),
+    open: () => Boolean(open() && content()),
   })
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
 
@@ -232,7 +228,7 @@ export function Modal(props: ModalProps): JSX.Element {
     })
   })
 
-  function renderContent(content: () => JSX.Element): JSX.Element {
+  function renderContent(): JSX.Element {
     return (
       <Show when={contentPresence.present()}>
         <div
@@ -254,7 +250,9 @@ export function Modal(props: ModalProps): JSX.Element {
           class={cn(props.classes?.content)}
           onKeyDown={onContentKeyDown}
         >
-          {content()}
+          {renderComponentOrElement(content(), {
+            close: () => updateOpen(false),
+          })}
         </div>
       </Show>
     )
@@ -262,27 +260,26 @@ export function Modal(props: ModalProps): JSX.Element {
 
   return (
     <>
-      <Show when={props.trigger}>
-        <span
-          ref={setTriggerElement}
-          tabIndex={-1}
-          data-slot="trigger"
-          style={props.styles?.trigger}
-          class={cn('outline-none', props.classes?.trigger)}
-          onClick={() => {
-            updateOpen(true)
-          }}
-        >
-          {props.trigger}
-        </span>
+      <Show when={trigger()}>
+        {(body) => (
+          <span
+            ref={setTriggerElement}
+            tabIndex={-1}
+            data-slot="trigger"
+            style={props.styles?.trigger}
+            class={cn('outline-none', props.classes?.trigger)}
+            onClick={() => {
+              updateOpen(true)
+            }}
+          >
+            {body()}
+          </span>
+        )}
       </Show>
 
       <Show when={isPresent()}>
         <Portal>
-          <Show
-            when={props.overlay}
-            fallback={<Show when={resolvedContent()}>{(content) => renderContent(content)}</Show>}
-          >
+          <Show when={props.overlay} fallback={renderContent()}>
             <Show when={overlayPresence.present() || contentPresence.present()}>
               <div
                 data-slot="overlay"
@@ -293,7 +290,7 @@ export function Modal(props: ModalProps): JSX.Element {
                 style={props.styles?.overlay}
                 class={cn(props.classes?.overlay)}
               >
-                <Show when={resolvedContent()}>{(content) => renderContent(content)}</Show>
+                {renderContent()}
               </div>
             </Show>
           </Show>

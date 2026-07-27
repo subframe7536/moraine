@@ -156,6 +156,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     props,
   )
+  const text = createMemo(() => merged.text)
 
   const tooltipId = useId(() => merged.id, 'tooltip')
   const timers: TooltipTimers = {}
@@ -277,13 +278,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         )}
         {...context.contentProps}
       >
-        <Show when={typeof merged.text === 'string'} fallback={merged.text}>
+        <Show when={typeof text() === 'string'} fallback={text()}>
           <span
             data-slot="text"
             style={merged.styles?.text}
             class={cn('leading-4 text-pretty', merged.classes?.text)}
           >
-            {merged.text}
+            {text()}
           </span>
         </Show>
 
@@ -293,7 +294,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              class={cn(merged.text && 'ms-1', merged.classes?.kbds)}
+              class={cn(text() && 'ms-1', merged.classes?.kbds)}
               classes={{ item: merged.classes?.kbd }}
             />
           )}

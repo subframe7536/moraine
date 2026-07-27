@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show } from 'solid-js'
+import { Show, children as resolveChildren, createMemo } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -88,6 +88,13 @@ export interface CardProps extends CardT.Props {}
 
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {
+  const header = createMemo(() => props.header)
+  const title = createMemo(() => props.title)
+  const description = createMemo(() => props.description)
+  const action = createMemo(() => props.action)
+  const footer = createMemo(() => props.footer)
+  const resolvedChildren = resolveChildren(() => props.children)
+
   return (
     <div
       data-slot="root"
@@ -98,37 +105,37 @@ export function Card(props: CardProps): JSX.Element {
         props.class,
       )}
     >
-      <Show when={props.header || props.title || props.description}>
+      <Show when={header() || title() || description()}>
         <div
           data-slot="header"
           style={props.styles?.header}
           class={cn(
             'grid auto-rows-min items-start',
-            !props.header && (props.compact ? 'p-4 gap-1' : 'p-6 gap-2'),
-            props.action && 'grid-cols-[1fr_auto]',
+            !header() && (props.compact ? 'p-4 gap-1' : 'p-6 gap-2'),
+            action() && 'grid-cols-[1fr_auto]',
             props.classes?.header,
           )}
         >
-          <Show when={props.title || props.description} fallback={props.header}>
-            <Show when={props.title}>
+          <Show when={title() || description()} fallback={header()}>
+            <Show when={title()}>
               <div
                 data-slot="title"
                 style={props.styles?.title}
                 class={cn('text-lg leading-none font-semibold', props.classes?.title)}
               >
-                {props.title}
+                {title()}
               </div>
             </Show>
-            <Show when={props.description}>
+            <Show when={description()}>
               <p
                 data-slot="description"
                 style={props.styles?.description}
                 class={cn('text-sm text-muted-foreground', props.classes?.description)}
               >
-                {props.description}
+                {description()}
               </p>
             </Show>
-            <Show when={props.action}>
+            <Show when={action()}>
               <div
                 data-slot="action"
                 style={props.styles?.action}
@@ -137,35 +144,37 @@ export function Card(props: CardProps): JSX.Element {
                   props.classes?.action,
                 )}
               >
-                {props.action}
+                {action()}
               </div>
             </Show>
           </Show>
         </div>
       </Show>
 
-      <Show when={props.children}>
-        <div
-          data-slot="body"
-          style={props.styles?.body}
-          class={cn(
-            'flex-1',
-            props.compact ? 'px-4' : 'px-6',
-            !props.footer && (props.compact ? 'mb-4' : 'mb-6'),
-            props.classes?.body,
-          )}
-        >
-          {props.children}
-        </div>
+      <Show when={resolvedChildren()}>
+        {(body) => (
+          <div
+            data-slot="body"
+            style={props.styles?.body}
+            class={cn(
+              'flex-1',
+              props.compact ? 'px-4' : 'px-6',
+              !footer() && (props.compact ? 'mb-4' : 'mb-6'),
+              props.classes?.body,
+            )}
+          >
+            {body()}
+          </div>
+        )}
       </Show>
 
-      <Show when={props.footer}>
+      <Show when={footer()}>
         <div
           data-slot="footer"
           style={props.styles?.footer}
           class={cn(props.compact ? 'p-4' : 'p-6', props.classes?.footer)}
         >
-          {props.footer}
+          {footer()}
         </div>
       </Show>
     </div>

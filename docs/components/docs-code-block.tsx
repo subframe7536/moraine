@@ -96,7 +96,6 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
           <div
             ref={(element) => {
               contentRef = element
-              updateExpandable()
             }}
             class={cn(
               DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS,

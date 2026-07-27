@@ -1,5 +1,5 @@
 import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
-import { Show, createMemo, splitProps, useContext } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
@@ -164,6 +164,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const isDisabledOrLoading = () => isLoading() || local.disabled
   const size = () => local.size ?? group?.size ?? 'md'
   const variant = () => local.variant ?? group?.variant ?? 'default'
+  const leading = createMemo(() => local.leading)
+  const trailing = createMemo(() => local.trailing)
 
   const iconSize = createMemo(() =>
     size().startsWith('icon-') ? size().replace('icon-', '') : undefined,
@@ -171,15 +173,15 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
 
-  const isLeadingLoading = createMemo(() => isLoading() && (local.leading || !local.trailing))
-  const isTrailingLoading = createMemo(() => isLoading() && !(local.leading && local.trailing))
+  const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
+  const isTrailingLoading = createMemo(() => isLoading() && !(leading() && trailing()))
 
   const resolvedLeading = createMemo(() => {
     if (!isLoading()) {
-      return local.leading
+      return leading()
     }
 
-    if (local.leading || !local.trailing) {
+    if (leading() || !trailing()) {
       return loadingIconName()
     }
 
@@ -188,14 +190,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const resolvedTrailing = createMemo(() => {
     if (!isLoading()) {
-      return local.trailing
+      return trailing()
     }
 
-    if (!local.leading && local.trailing) {
+    if (!leading() && trailing()) {
       return loadingIconName()
     }
 
-    return local.trailing
+    return trailing()
   })
 
   // Handle keyboard activation for non-native buttons
@@ -248,6 +250,32 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     callHandler(event, local.onPointerDown)
   }
 
+  function renderLabel(): JSX.Element {
+    const resolvedChildren = resolveChildren(() => {
+      const body = local.children
+
+      return renderComponentOrElement(body, {
+        get loading() {
+          return isLoading()
+        },
+      })
+    })
+
+    return (
+      <Show when={resolvedChildren()}>
+        {(body) => (
+          <span
+            data-slot="label"
+            style={local.styles?.label}
+            class={cn('min-w-0 truncate', local.classes?.label)}
+          >
+            {body()}
+          </span>
+        )}
+      </Show>
+    )
+  }
+
   return (
     <Dynamic
       component={tag()}
@@ -290,19 +318,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         )}
       </Show>
 
-      <Show when={local.children}>
-        <span
-          data-slot="label"
-          style={local.styles?.label}
-          class={cn('min-w-0 truncate', local.classes?.label)}
-        >
-          {renderComponentOrElement(local.children, {
-            get loading() {
-              return isLoading()
-            },
-          })}
-        </span>
-      </Show>
+      {renderLabel()}
 
       <Show when={resolvedTrailing()}>
         {(trailing) => (

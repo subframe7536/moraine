@@ -67,30 +67,21 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'style',
     'children',
   ])
-  const resolvedChildren = resolveChildren(() => local.children)
-  const childArray = createMemo(() =>
-    resolvedChildren
-      .toArray()
-      .filter(
-        (child) =>
-          typeof child === 'object' &&
-          child !== null &&
-          'nodeType' in child &&
-          child.nodeType === 1,
-      ),
-  )
+  function renderContent(): JSX.Element {
+    const resolvedChildren = resolveChildren(() => local.children)
+    const childArray = createMemo(() =>
+      resolvedChildren
+        .toArray()
+        .filter(
+          (child) =>
+            typeof child === 'object' &&
+            child !== null &&
+            'nodeType' in child &&
+            child.nodeType === 1,
+        ),
+    )
 
-  return (
-    <ButtonGroupContext.Provider
-      value={{
-        get size() {
-          return local.size
-        },
-        get variant() {
-          return local.variant
-        },
-      }}
-    >
+    return (
       <div
         role={local.role}
         data-slot="root"
@@ -105,7 +96,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         )}
         {...rest}
       >
-        <Show when={local.separator} fallback={local.children}>
+        <Show when={local.separator} fallback={resolvedChildren()}>
           <For each={childArray()}>
             {(child, index) => (
               <>
@@ -130,6 +121,21 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
           </For>
         </Show>
       </div>
+    )
+  }
+
+  return (
+    <ButtonGroupContext.Provider
+      value={{
+        get size() {
+          return local.size
+        },
+        get variant() {
+          return local.variant
+        },
+      }}
+    >
+      {renderContent()}
     </ButtonGroupContext.Provider>
   )
 }

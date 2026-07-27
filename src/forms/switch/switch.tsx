@@ -160,6 +160,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     },
     props,
   )
+  const label = createMemo(() => merged.label)
+  const description = createMemo(() => merged.description)
 
   const generatedId = useId(() => merged.id, 'switch')
   const field = useFormField(
@@ -319,13 +321,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
   }
 
-  function resolvedIconName(): IconT.Name | undefined {
+  const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
       return merged.loadingIcon
     }
 
     return checked() ? merged.checkedIcon : merged.uncheckedIcon
-  }
+  })
 
   return (
     <div
@@ -420,7 +422,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         </span>
       </button>
 
-      <Show when={merged.label || merged.description}>
+      <Show when={label() || description()}>
         <span
           data-slot="wrapper"
           style={merged.styles?.wrapper}
@@ -431,7 +433,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             merged.classes?.wrapper,
           )}
         >
-          <Show when={merged.label}>
+          <Show when={label()}>
             <label
               for={field.id()}
               id={labelId()}
@@ -443,18 +445,18 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 merged.classes?.label,
               )}
             >
-              {merged.label}
+              {label()}
             </label>
           </Show>
 
-          <Show when={merged.description}>
+          <Show when={description()}>
             <span
               id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
               class={cn('text-muted-foreground block', merged.classes?.description)}
             >
-              {merged.description}
+              {description()}
             </span>
           </Show>
         </span>

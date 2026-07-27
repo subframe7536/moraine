@@ -170,6 +170,11 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
     },
     props,
   )
+  const label = createMemo(() => merged.label)
+  const description = createMemo(() => merged.description)
+  const hint = createMemo(() => merged.hint)
+  const help = createMemo(() => merged.help)
+  const error = createMemo(() => merged.error)
 
   const formContext = useFormContext()
 
@@ -228,12 +233,14 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
   })
 
   const resolvedError = createMemo(() => {
-    if (merged.error === false) {
+    const value = error()
+
+    if (value === false) {
       return false
     }
 
-    if (merged.error !== undefined && merged.error !== null) {
-      return merged.error
+    if (value !== undefined && value !== null) {
+      return value
     }
 
     return field?.errors?.[0]
@@ -308,7 +315,7 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
           style={merged.styles?.wrapper}
           class={cn(merged.orientation === 'horizontal' && 'flex-1', merged.classes?.wrapper)}
         >
-          <Show when={merged.label}>
+          <Show when={label()}>
             <div
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
@@ -325,37 +332,37 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
                   merged.classes?.label,
                 )}
               >
-                {merged.label}
+                {label()}
               </label>
 
-              <Show when={merged.hint}>
+              <Show when={hint()}>
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
                   style={merged.styles?.hint}
                   class={cn('text-muted-foreground ms-1', merged.classes?.hint)}
                 >
-                  {merged.hint}
+                  {hint()}
                 </span>
               </Show>
             </div>
           </Show>
 
-          <Show when={merged.description}>
+          <Show when={description()}>
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
               style={merged.styles?.description}
               class={cn('text-muted-foreground', merged.classes?.description)}
             >
-              {merged.description}
+              {description()}
             </p>
           </Show>
         </div>
 
         <div
           class={
-            merged.label || merged.description
+            label() || description()
               ? formFieldContainerVariants(
                   {
                     orientation: merged.orientation,
@@ -372,16 +379,16 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
           })}
 
           <Show
-            when={merged.error !== false && shouldShowError()}
+            when={error() !== false && shouldShowError()}
             fallback={
-              <Show when={merged.help}>
+              <Show when={help()}>
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
                   style={merged.styles?.help}
                   class={cn('text-muted-foreground mt-2', merged.classes?.help)}
                 >
-                  {merged.help}
+                  {help()}
                 </div>
               </Show>
             }

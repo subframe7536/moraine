@@ -66,7 +66,7 @@ describe('createDocsMdxComponents', () => {
     },
   )
 
-  test('renders a compiled example descriptor', () => {
+  test('renders a compiled example descriptor', async () => {
     const screen = renderMdxComponent(
       'Example',
       { path: './basic' },
@@ -78,7 +78,8 @@ describe('createDocsMdxComponents', () => {
       },
     )
 
-    expect(screen.getByText('Example preview')).toBeDefined()
+    expect(screen.queryByText('Example preview')).toBeNull()
+    expect(await screen.findByText('Example preview')).toBeDefined()
     expect(screen.getByText('<pre><code>Example source</code></pre>')).toBeDefined()
   })
 

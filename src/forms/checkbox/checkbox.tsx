@@ -173,6 +173,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     },
     props,
   )
+  const label = createMemo(() => merged.label)
+  const description = createMemo(() => merged.description)
 
   const generatedId = useId(() => merged.id, 'checkbox')
 
@@ -474,7 +476,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         </Show>
       </button>
 
-      <Show when={merged.label || merged.description}>
+      <Show when={label() || description()}>
         <div
           data-slot="wrapper"
           style={merged.styles?.wrapper}
@@ -486,7 +488,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             merged.classes?.wrapper,
           )}
         >
-          <Show when={merged.label}>
+          <Show when={label()}>
             <Show
               when={merged.variant === 'card'}
               fallback={
@@ -500,7 +502,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                     merged.classes?.label,
                   )}
                 >
-                  {merged.label}
+                  {label()}
                 </label>
               }
             >
@@ -510,19 +512,19 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 style={merged.styles?.label}
                 class={checkboxLabelVariants({ required: merged.required }, merged.classes?.label)}
               >
-                {merged.label}
+                {label()}
               </p>
             </Show>
           </Show>
 
-          <Show when={merged.description}>
+          <Show when={description()}>
             <p
               id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
               class={cn('text-muted-foreground', merged.classes?.description)}
             >
-              {merged.description}
+              {description()}
             </p>
           </Show>
         </div>

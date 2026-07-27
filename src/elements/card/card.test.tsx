@@ -1,5 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
+import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Card } from './card'
@@ -45,6 +46,28 @@ describe('Card', () => {
 
     expect(header?.textContent).toBe('Header content')
     expect(footer?.textContent).toBe('Footer content')
+  })
+
+  test('evaluates getter-backed JSX slots once', () => {
+    let titleReads = 0
+    let footerReads = 0
+    const screen = render(() =>
+      createComponent(Card, {
+        get title() {
+          titleReads += 1
+          return <span>Cached title</span>
+        },
+        get footer() {
+          footerReads += 1
+          return <span>Cached footer</span>
+        },
+      }),
+    )
+
+    expect(titleReads).toBe(1)
+    expect(footerReads).toBe(1)
+    expect(screen.getByText('Cached title')).not.toBeNull()
+    expect(screen.getByText('Cached footer')).not.toBeNull()
   })
 
   test('applies classes.root/classes.header/classes.body/classes.footer overrides', () => {

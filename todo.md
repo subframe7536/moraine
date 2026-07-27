@@ -1,5 +1,6 @@
 ## Fix
 
+- [x] fix Button SSR hydration by resolving JSX children once before using them as both the `Show` condition and rendered value; audit other components for repeated JSX prop evaluation.
 - [x] polish switch component's indicator position in different sizes
 - [x] add new divider slot for slider to indicate step visually, enable via prop `divider?: boolean`.
   - [x] introduce a new variant `bold`, which will make the track thicker than thumb.

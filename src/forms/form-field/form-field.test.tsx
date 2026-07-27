@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
@@ -81,6 +82,23 @@ describe('FormField', () => {
     expect(screen.getByText('Manual error')).not.toBeNull()
     await fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(screen.queryByText('Schema error')).toBeNull())
+  })
+
+  test('evaluates a getter-backed JSX error once before normalization', () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(FormField, {
+        label: 'Field',
+        children: <Input />,
+        get error() {
+          reads += 1
+          return <span>Cached error</span>
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(screen.getByText('Cached error')).not.toBeNull()
   })
 
   test('applies root class and style priority', () => {

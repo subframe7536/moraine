@@ -181,6 +181,9 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     },
     props,
   )
+  const leading = createMemo(() => merged.leading)
+  const trailing = createMemo(() => merged.trailing)
+  const loadingIcon = createMemo(() => merged.loadingIcon)
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(
@@ -220,11 +223,11 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     return {}
   })
   const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
-    if (merged.leading) {
+    if (leading()) {
       return 'leading'
     }
 
-    if (merged.trailing) {
+    if (trailing()) {
       return 'trailing'
     }
 
@@ -233,17 +236,17 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
   const resolvedLeading = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading && loadingTarget() === 'leading') {
-      return merged.loadingIcon
+      return loadingIcon()
     }
 
-    return merged.leading
+    return leading()
   })
   const resolvedTrailing = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading && loadingTarget() === 'trailing') {
-      return merged.loadingIcon
+      return loadingIcon()
     }
 
-    return merged.trailing
+    return trailing()
   })
 
   const isLeadingLoading = createMemo(() =>

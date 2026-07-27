@@ -1,6 +1,6 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show } from 'solid-js'
+import { Show, createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from './button'
@@ -254,6 +254,28 @@ describe('Button', () => {
     expect(button.textContent).toBe('Saving')
   })
 
+  test('resolves getter-backed JSX children once', () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(Button, {
+        get children() {
+          reads += 1
+          return <span>Resolved once</span>
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(screen.getByRole('button', { name: 'Resolved once' })).not.toBeNull()
+  })
+
+  test('omits the label slot when component children resolve to a falsy value', () => {
+    const screen = render(() => <Button>{() => false}</Button>)
+    const button = screen.getByRole('button')
+
+    expect(button.querySelector('[data-slot="label"]')).toBeNull()
+  })
+
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
       <Button loading loadingIcon="i-lucide-loader-circle">
@@ -360,30 +382,34 @@ describe('Button', () => {
   test('updates component children during auto loading lifecycle', async () => {
     const deferred = createDeferred()
     const onclick = vi.fn(() => deferred.promise)
+    const children = vi.fn((props: { loading: boolean }) => (
+      <Show when={props.loading} fallback="Submit">
+        Submitting
+      </Show>
+    ))
     const screen = render(() => (
       <Button loadingAuto onClick={onclick}>
-        {(props) => (
-          <Show when={props.loading} fallback="Submit">
-            Submitting
-          </Show>
-        )}
+        {children}
       </Button>
     ))
 
     const button = screen.getByRole('button', { name: 'Submit' })
     expect(button.textContent).toBe('Submit')
+    expect(children).toHaveBeenCalledTimes(1)
 
     await fireEvent.click(button)
 
     await waitFor(() => {
       expect(button.textContent).toBe('Submitting')
     })
+    expect(children).toHaveBeenCalledTimes(1)
 
     deferred.resolve()
 
     await waitFor(() => {
       expect(button.textContent).toBe('Submit')
     })
+    expect(children).toHaveBeenCalledTimes(1)
   })
 
   test('does not auto load for synchronous onclick handler', async () => {

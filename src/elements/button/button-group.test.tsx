@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { DropdownMenu } from '../../overlays/dropdown-menu'
@@ -22,6 +22,21 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain('[&>*:not(:first-child)]:(border-s-0 rounded-s-none)')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
     expect(group.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
+    expect(screen.getAllByRole('button')).toHaveLength(2)
+  })
+
+  test('reuses resolved getter-backed children without a separator', () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(ButtonGroup, {
+        get children() {
+          reads += 1
+          return [<Button>Back</Button>, <Button>Forward</Button>]
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 

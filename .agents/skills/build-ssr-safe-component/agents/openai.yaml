@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build SSR-Safe Component"
+  short_description: "Gate new Solid components for SSR hydration safety"
+  default_prompt: "Use $build-ssr-safe-component to implement this new Moraine component with SSR-safe JSX resolution."

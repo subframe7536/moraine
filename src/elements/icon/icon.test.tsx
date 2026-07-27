@@ -1,4 +1,5 @@
 import { render } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Icon } from './icon'
@@ -24,6 +25,21 @@ describe('Icon', () => {
     const screen = render(() => <Icon name={<span data-testid="custom-icon">X</span>} />)
 
     expect(screen.getByTestId('custom-icon').textContent).toBe('X')
+  })
+
+  test('evaluates a getter-backed JSX name once', () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(Icon, {
+        get name() {
+          reads += 1
+          return <span data-testid="cached-icon">C</span>
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(screen.getByTestId('cached-icon').textContent).toBe('C')
   })
 
   test('supports component/render-function icons', () => {

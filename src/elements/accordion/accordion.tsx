@@ -166,6 +166,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   )
 
   const rootId = useId(() => merged.id, 'accordion')
+  const trailing = createMemo(() => merged.trailing)
   const [selectedValues, setSelectedValues] = useControllableValue<string[]>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
@@ -416,9 +417,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     </span>
                   </Show>
 
-                  <Show when={merged.trailing}>
+                  <Show when={trailing()}>
                     <Icon
-                      name={merged.trailing}
+                      name={trailing()}
                       slotName="trailing"
                       style={merged.styles?.trailing}
                       class={cn(

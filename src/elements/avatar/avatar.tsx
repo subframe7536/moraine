@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
@@ -109,6 +109,8 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     },
     props,
   )
+  const fallback = createMemo(() => merged.fallback)
+  const badge = createMemo(() => merged.badge)
   const [status, setStatusSignal] = createSignal<AvatarStatus>('idle')
   const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 
@@ -197,7 +199,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
           merged.classes?.fallback,
         )}
       >
-        <Show when={merged.fallback} fallback={resolveFallbackText(merged.text, merged.alt)}>
+        <Show when={fallback()} fallback={resolveFallbackText(merged.text, merged.alt)}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}
@@ -212,7 +214,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         </Show>
       </span>
 
-      <Show when={merged.badge}>
+      <Show when={badge()}>
         {(badge) => (
           <span
             data-slot="badge"

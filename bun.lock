@@ -29,7 +29,7 @@
         "rolldown-plugin-unocss": "^0.1.0",
         "satteri": "^0.9.5",
         "satteri-expressive-code": "^0.1.18",
-        "solid-file-router": "^0.6.0",
+        "solid-file-router": "^0.6.1",
         "solid-toaster": "^0.1.5",
         "tailwindcss": "^4.3.2",
         "tsdown": "^0.22.7",
@@ -762,7 +762,7 @@
 
     "siginfo": ["siginfo@2.0.0", "https://registry.npmmirror.com/siginfo/-/siginfo-2.0.0.tgz", {}, "sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g=="],
 
-    "solid-file-router": ["solid-file-router@0.6.0", "https://registry.npmmirror.com/solid-file-router/-/solid-file-router-0.6.0.tgz", { "peerDependencies": { "@babel/core": "^7.29.7", "@solidjs/router": ">=0.10.0 <0.17.0", "solid-js": "^1.9.13", "tinyglobby": "0.2.17", "vite": "^8.0.16" } }, "sha512-7bxgXsHM19UBXuWkRGTZokKYcJ9drJT8JS+EihUohfmSYguVPICcAeUM7FluBbbchhl0KGjmzEz+0I90FiX6zQ=="],
+    "solid-file-router": ["solid-file-router@0.6.1", "https://registry.npmmirror.com/solid-file-router/-/solid-file-router-0.6.1.tgz", { "peerDependencies": { "@babel/core": "^7.29.7", "@solidjs/router": ">=0.16.2", "solid-js": "^1.9.14", "tinyglobby": "0.2.17", "vite": "^8.1.5" } }, "sha512-Qe+tlxL82ZoLy8Nv3TMrhPWakAxJ/td2VD2X+Ak5mfxyPjUqoY5szDvPjnXEyKMeCioVIqxU3N1HPWi9VXoPww=="],
 
     "solid-js": ["solid-js@1.9.14", "https://registry.npmmirror.com/solid-js/-/solid-js-1.9.14.tgz", { "dependencies": { "csstype": "^3.1.0", "seroval": "~1.5.4", "seroval-plugins": "~1.5.4" } }, "sha512-sAEXC0Kk0S1EDg+8ysEWJDbYhA3RRoEjwuySUGlKIemeo0I5YZfOyumNjNs9Sv3y2nmhD+0rW66ag2HsMuQiGQ=="],
 

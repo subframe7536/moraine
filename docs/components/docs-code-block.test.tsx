@@ -65,6 +65,7 @@ describe('DocsCodeBlock', () => {
         html='<div class="expressive-code"><pre><code>long</code></pre></div>'
       />
     ))
+    expect(screen.queryByRole('button', { name: 'Expand code' })).toBeNull()
     await Promise.resolve()
 
     const button = screen.getByRole('button', { name: 'Expand code' })

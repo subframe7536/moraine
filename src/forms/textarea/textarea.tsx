@@ -196,6 +196,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     },
     props,
   )
+  const header = createMemo(() => merged.header)
+  const footer = createMemo(() => merged.footer)
 
   const generatedId = useId(() => merged.id, 'textarea')
   const field = useFormField(
@@ -360,7 +362,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
     >
-      <Show when={merged.header}>
+      <Show when={header()}>
         <div
           data-slot="header"
           style={merged.styles?.header}
@@ -371,7 +373,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
             merged.classes?.header,
           )}
         >
-          {merged.header}
+          {header()}
         </div>
       </Show>
 
@@ -408,7 +410,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
       {merged.children}
 
-      <Show when={merged.footer}>
+      <Show when={footer()}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
@@ -419,7 +421,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
             merged.classes?.footer,
           )}
         >
-          {merged.footer}
+          {footer()}
         </div>
       </Show>
     </div>

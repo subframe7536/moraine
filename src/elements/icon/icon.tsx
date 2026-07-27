@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { Component, JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -68,6 +68,24 @@ export interface IconProps extends IconT.Props {}
 /** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])
+  const name = createMemo(() => local.name)
+  const component = createMemo<ValidComponent>(() => {
+    const value = name()
+
+    if (typeof value === 'string') {
+      return 'div'
+    }
+
+    if (typeof value === 'function') {
+      return value
+    }
+
+    return () => value as JSX.Element
+  })
+  const iconClass = createMemo(() => {
+    const value = name()
+    return typeof value === 'string' ? value : undefined
+  })
 
   const style = createMemo(() => {
     if (!local.size) {
@@ -81,15 +99,9 @@ export function Icon(props: IconProps): JSX.Element {
 
   return (
     <Dynamic
-      component={
-        typeof local.name === 'string'
-          ? 'div'
-          : typeof local.name === 'function'
-            ? local.name
-            : () => local.name as JSX.Element
-      }
+      component={component()}
       data-slot={local.slotName ?? 'icon'}
-      class={cn(typeof local.name === 'string' && local.name, local.class)}
+      class={cn(iconClass(), local.class)}
       style={style()}
       {...rest}
       aria-hidden={rest['aria-label'] ? undefined : true}

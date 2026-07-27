@@ -178,6 +178,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     },
     props,
   )
+  const legend = createMemo(() => merged.legend)
 
   const groupId = useId(() => merged.id, 'checkbox-group')
   const field = useFormField(
@@ -255,7 +256,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }
 
     function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity
       queueMicrotask(() => {
         const nextValue = merged.defaultValue ?? []
         setUncontrolledValue(nextValue)
@@ -280,7 +280,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         id={groupId()}
         data-slot="fieldset"
         style={merged.styles?.fieldset}
-        aria-labelledby={merged.legend ? legendId() : undefined}
+        aria-labelledby={legend() ? legendId() : undefined}
         class={checkboxGroupFieldsetVariants(
           {
             orientation: merged.orientation,
@@ -290,7 +290,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         )}
         {...field.ariaAttrs()}
       >
-        <Show when={merged.legend}>
+        <Show when={legend()}>
           <legend
             id={legendId()}
             data-slot="legend"
@@ -303,7 +303,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
               merged.classes?.legend,
             )}
           >
-            {merged.legend}
+            {legend()}
           </legend>
         </Show>
 

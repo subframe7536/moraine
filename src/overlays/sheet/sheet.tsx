@@ -130,14 +130,18 @@ export function Sheet(props: SheetProps): JSX.Element {
     },
     props,
   )
+  const title = createMemo(() => merged.title)
+  const description = createMemo(() => merged.description)
+  const header = createMemo(() => merged.header)
+  const action = createMemo(() => merged.action)
+  const closeContent = createMemo(() => merged.close)
+  const body = createMemo(() => merged.body)
+  const footer = createMemo(() => merged.footer)
   const rootId = useId(() => merged.id, 'sheet')
-  const titleId = createMemo(() => (merged.title ? `${rootId()}-title` : undefined))
-  const descriptionId = createMemo(() =>
-    merged.description ? `${rootId()}-description` : undefined,
-  )
+  const titleId = createMemo(() => (title() ? `${rootId()}-title` : undefined))
+  const descriptionId = createMemo(() => (description() ? `${rootId()}-description` : undefined))
 
-  const hasDefaultHeader = () =>
-    Boolean(merged.title || merged.description || merged.action || merged.close)
+  const hasDefaultHeader = () => Boolean(title() || description() || action() || closeContent())
 
   return (
     <Modal
@@ -175,14 +179,14 @@ export function Sheet(props: SheetProps): JSX.Element {
       ariaDescribedBy={descriptionId()}
       content={({ close }) => (
         <>
-          <Show when={merged.header || hasDefaultHeader()}>
+          <Show when={header() || hasDefaultHeader()}>
             <div
               data-slot="header"
               style={merged.styles?.header}
               class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
             >
               <Show
-                when={merged.header}
+                when={header()}
                 fallback={
                   <>
                     <div
@@ -190,30 +194,30 @@ export function Sheet(props: SheetProps): JSX.Element {
                       style={merged.styles?.wrapper}
                       class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
                     >
-                      <Show when={merged.title}>
+                      <Show when={title()}>
                         <h2
                           id={titleId()}
                           data-slot="title"
                           style={merged.styles?.title}
                           class={cn('text-base text-foreground font-medium', merged.classes?.title)}
                         >
-                          {merged.title}
+                          {title()}
                         </h2>
                       </Show>
 
-                      <Show when={merged.description}>
+                      <Show when={description()}>
                         <p
                           id={descriptionId()}
                           data-slot="description"
                           style={merged.styles?.description}
                           class={cn('text-sm text-muted-foreground', merged.classes?.description)}
                         >
-                          {merged.description}
+                          {description()}
                         </p>
                       </Show>
                     </div>
 
-                    <Show when={merged.action}>
+                    <Show when={action()}>
                       <div
                         data-slot="actions"
                         style={merged.styles?.actions}
@@ -222,11 +226,11 @@ export function Sheet(props: SheetProps): JSX.Element {
                           merged.classes?.actions,
                         )}
                       >
-                        {merged.action}
+                        {action()}
                       </div>
                     </Show>
 
-                    <Show when={merged.close !== false}>
+                    <Show when={closeContent() !== false}>
                       <button
                         type="button"
                         data-slot="close"
@@ -240,7 +244,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           close()
                         }}
                       >
-                        <Show when={merged.close === true} fallback={merged.close}>
+                        <Show when={closeContent() === true} fallback={closeContent()}>
                           <Icon name="icon-close" />
                         </Show>
                       </button>
@@ -248,32 +252,32 @@ export function Sheet(props: SheetProps): JSX.Element {
                   </>
                 }
               >
-                {merged.header}
+                {header()}
               </Show>
             </div>
           </Show>
 
-          <Show when={merged.body}>
+          <Show when={body()}>
             <div
               data-slot="body"
               style={merged.styles?.body}
               class={cn(
                 'flex-1 overflow-auto',
-                (merged.header || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
+                (header() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
                 merged.classes?.body,
               )}
             >
-              {merged.body}
+              {body()}
             </div>
           </Show>
 
-          <Show when={merged.footer}>
+          <Show when={footer()}>
             <div
               data-slot="footer"
               style={merged.styles?.footer}
               class={cn('mt-auto p-4 flex flex-col gap-2', merged.classes?.footer)}
             >
-              {merged.footer}
+              {footer()}
             </div>
           </Show>
         </>

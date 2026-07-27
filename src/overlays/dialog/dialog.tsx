@@ -145,11 +145,12 @@ export function Dialog(props: DialogProps): JSX.Element {
     },
     props,
   )
+  const title = createMemo(() => merged.title)
+  const description = createMemo(() => merged.description)
+  const header = createMemo(() => merged.header)
   const rootId = useId(() => merged.id, 'dialog')
-  const titleId = createMemo(() => (merged.title ? `${rootId()}-title` : undefined))
-  const descriptionId = createMemo(() =>
-    merged.description ? `${rootId()}-description` : undefined,
-  )
+  const titleId = createMemo(() => (title() ? `${rootId()}-title` : undefined))
+  const descriptionId = createMemo(() => (description() ? `${rootId()}-description` : undefined))
 
   const popupLayout = () => {
     if (merged.fullscreen) {
@@ -164,23 +165,23 @@ export function Dialog(props: DialogProps): JSX.Element {
   }
 
   const headerContent = (close: () => void) => {
-    if (merged.header) {
-      return merged.header
+    if (header()) {
+      return header()
     }
 
-    if (!merged.title && !merged.description && !merged.close) {
+    if (!title() && !description() && !merged.close) {
       return undefined
     }
 
     return (
       <>
-        <Show when={merged.title || merged.description}>
+        <Show when={title() || description()}>
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
             class={cn('flex-1 gap-1.5 grid min-w-0', merged.classes?.wrapper)}
           >
-            <Show when={merged.title}>
+            <Show when={title()}>
               <h2
                 id={titleId()}
                 data-slot="title"
@@ -190,18 +191,18 @@ export function Dialog(props: DialogProps): JSX.Element {
                   merged.classes?.title,
                 )}
               >
-                {merged.title}
+                {title()}
               </h2>
             </Show>
 
-            <Show when={merged.description}>
+            <Show when={description()}>
               <p
                 id={descriptionId()}
                 data-slot="description"
                 style={merged.styles?.description}
                 class={cn('text-sm text-muted-foreground', merged.classes?.description)}
               >
-                {merged.description}
+                {description()}
               </p>
             </Show>
           </div>
