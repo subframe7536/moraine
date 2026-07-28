@@ -68,6 +68,9 @@ export namespace ProgressT {
    * Base props for the Progress component.
    */
   export interface Base {
+    /** Accessible label for the progress indicator. */
+    'aria-label'?: string
+
     /**
      * The current value of the progress bar. If null/undefined, it is indeterminate.
      * @default null
@@ -241,6 +244,7 @@ export function Progress(props: ProgressProps): JSX.Element {
   return (
     <div
       role="progressbar"
+      aria-label={merged['aria-label']}
       aria-valuemin={isIndeterminate() ? undefined : minValue}
       aria-valuemax={isIndeterminate() ? undefined : resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}

@@ -38,6 +38,12 @@ describe('Progress', () => {
     expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
   })
 
+  test('supports an accessible label', () => {
+    const screen = render(() => <Progress aria-label="Loading page" />)
+
+    expect(screen.getByRole('progressbar', { name: 'Loading page' })).not.toBeNull()
+  })
+
   test('renders status text and supports statusRender callback', () => {
     const withStatus = render(() => <Progress value={40} status />)
     const status = withStatus.container.querySelector('[data-slot="status"]') as HTMLElement

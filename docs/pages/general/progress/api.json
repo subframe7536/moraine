@@ -41,6 +41,12 @@
         "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined"
       },
       {
+        "name": "aria-label",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible label for the progress indicator."
+      },
+      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -116,6 +122,12 @@
   "attributes": {
     "aria": [
       {
+        "name": "aria-label",
+        "required": false,
+        "type": "boolean | string | undefined",
+        "description": "Provides an accessible label when visible text is not sufficient."
+      },
+      {
         "name": "aria-valuemax",
         "required": false,
         "type": "boolean | string | undefined",
@@ -179,6 +191,12 @@
           }
         ],
         "ariaAttributes": [
+          {
+            "name": "aria-label",
+            "required": false,
+            "type": "boolean | string | undefined",
+            "description": "Provides an accessible label when visible text is not sufficient."
+          },
           {
             "name": "aria-valuemax",
             "required": false,
