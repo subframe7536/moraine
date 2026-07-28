@@ -75,6 +75,8 @@ export function List<
 
   return (
     <Dynamic
+      role="list"
+      data-slot="root"
       {...rest}
       component={(local.as as ValidComponent) ?? 'ul'}
       ref={(element: HTMLUListElement) => {

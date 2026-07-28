@@ -32,6 +32,30 @@ describe('List', () => {
     expect(screen.getByRole('list').textContent).toBe('Designer')
   })
 
+  test('applies default root role and slot while allowing overrides', () => {
+    const defaultScreen = render(() => (
+      <List items={['Engineer']} itemRender={(context) => <li>{context.item}</li>} />
+    ))
+    const defaultRoot = defaultScreen.getByRole('list')
+
+    expect(defaultRoot.getAttribute('role')).toBe('list')
+    expect(defaultRoot.getAttribute('data-slot')).toBe('root')
+
+    const overrideScreen = render(() => (
+      <List
+        as="div"
+        role="feed"
+        data-slot="content"
+        items={['Engineer']}
+        itemRender={(context) => <div>{context.item}</div>}
+      />
+    ))
+    const overrideRoot = overrideScreen.getByRole('feed')
+
+    expect(overrideRoot.getAttribute('role')).toBe('feed')
+    expect(overrideRoot.getAttribute('data-slot')).toBe('content')
+  })
+
   test('supports polymorphic roots and forwards native attributes, style, class, and ref', () => {
     const ref = vi.fn()
     const screen = render(() => (
