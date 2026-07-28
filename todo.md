@@ -1,6 +1,7 @@
 ## Fix
 
 - [ ] breaking change: rollback to remove dialog and trigger in command-palette component, enforce user to use dialog and trigger (give example in docs)
+- [ ] implement ./plan.md , get rid of `RuntimeRootProps`, complete todo)), pass type check
 
 # V1
 
