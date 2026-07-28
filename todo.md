@@ -1,6 +1,6 @@
 ## Fix
 
-- [ ] breaking change: rollback to remove dialog and trigger in command-palette component, enforce user to use dialog and trigger (give example in docs)
+- [x] breaking change: rollback to remove dialog and trigger in command-palette component, enforce user to use dialog and trigger (give example in docs)
 
 # V1
 

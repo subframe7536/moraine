@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Icon } from '@src'
+import { Button, CommandPalette, Dialog, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -59,22 +59,17 @@ export function WithCloseButton() {
     },
   ]
 
-  const [closeCount, setCloseCount] = createSignal(0)
-
   return (
-    <>
-      <div class="max-w-full w-lg">
-        <CommandPalette
-          open={open()}
-          onOpenChange={setOpen}
-          groups={BASIC_GROUPS}
-          showClose
-          onClose={() => setCloseCount((c) => c + 1)}
-        >
-          <Button variant="outline">Open palette</Button>
-        </CommandPalette>
-      </div>
-      <p class="text-sm text-muted-foreground mt-2">Close clicked: {closeCount()} time(s)</p>
-    </>
+    <div class="max-w-full w-lg">
+      <Dialog
+        open={open()}
+        onOpenChange={setOpen}
+        close={false}
+        classes={{ body: 'p-0 mb-0' }}
+        body={<CommandPalette groups={BASIC_GROUPS} showClose onClose={() => setOpen(false)} />}
+      >
+        <Button variant="outline">Open palette</Button>
+      </Dialog>
+    </div>
   )
 }

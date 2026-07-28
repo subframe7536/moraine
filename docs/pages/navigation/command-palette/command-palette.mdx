@@ -10,12 +10,12 @@ search:
 ## Import
 
 ```tsx
-import { CommandPalette } from 'moraine'
+import { CommandPalette, Dialog } from 'moraine'
 ```
 
 ## Slot Structure
 
-Command palette wraps a Modal dialog with a search input, a scrollable listbox of grouped commands, and an optional footer. The input keeps DOM focus and owns `aria-activedescendant`, while CommandPalette manages its option semantics, pointer cancellation, sizes, and rendering.
+CommandPalette renders a searchable grouped list with keyboard navigation, active-descendant semantics, and optional footer content. Compose it with `Dialog` when it should appear in an overlay; the caller owns the trigger, open state, positioning, and closing behavior.
 
 ### Input area
 
@@ -48,7 +48,7 @@ root
 
 ### Basic
 
-Pass a `children` trigger (e.g. a Button) to open the modal, or use `open` / `onOpenChange` for full control. Press ⌘K to toggle.
+Compose `Dialog` around CommandPalette and put the trigger in Dialog's children. Handle the selected item with CommandPalette's `onSelect` callback; enabled selections request closing by default through `onClose`.
 
 <Example path="./usage" />
 
@@ -90,15 +90,9 @@ A close button in the input trailing slot.
 
 ### Sub-Navigation
 
-Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper.
+Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper and set `closeOnSelect={false}` while the palette remains open between steps.
 
 <Example path="./sub-navigation" />
-
-### Position
-
-Fix the palette at a specific pixel offset and track its actual rendered position via `onPositionChange`.
-
-<Example path="./position" />
 
 ## Sizes and Virtual Rendering
 

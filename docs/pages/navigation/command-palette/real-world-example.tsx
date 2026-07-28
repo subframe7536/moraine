@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Icon, Kbd, KbdGroup } from '@src'
+import { Button, CommandPalette, Dialog, Icon, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
@@ -9,6 +9,7 @@ interface ShortcutBinding {
 
 interface AppCommand extends CommandPaletteT.Item {
   binding?: ShortcutBinding
+  result?: string
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -37,7 +38,9 @@ function matchesBinding(event: KeyboardEvent, binding: ShortcutBinding): boolean
 export function RealWorldExample() {
   const [open, setOpen] = createSignal(false)
   const [isMac, setIsMac] = createSignal(true)
-  const [lastAction, setLastAction] = createSignal('Ready. Press Cmd/Ctrl + K to open the palette.')
+  const [lastAction, setLastAction] = createSignal(
+    'Ready. Open the palette from the trigger below.',
+  )
 
   const modifierLabel = createMemo(() => (isMac() ? '⌘' : 'Ctrl'))
 
@@ -59,10 +62,7 @@ export function RealWorldExample() {
             />
           ),
           binding: { key: 'p', shiftKey: true },
-          onSelect: () => {
-            setLastAction('Opened the project switcher.')
-            setOpen(false)
-          },
+          result: 'Opened the project switcher.',
         },
         {
           value: 'go-issues',
@@ -73,10 +73,7 @@ export function RealWorldExample() {
             <KbdGroup items={[modifierLabel(), 'I']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'i' },
-          onSelect: () => {
-            setLastAction('Navigated to the issue board.')
-            setOpen(false)
-          },
+          result: 'Navigated to the issue board.',
         },
       ],
     },
@@ -93,10 +90,7 @@ export function RealWorldExample() {
             <KbdGroup items={[modifierLabel(), 'N']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'n' },
-          onSelect: () => {
-            setLastAction('Created a new issue draft.')
-            setOpen(false)
-          },
+          result: 'Created a new issue draft.',
         },
         {
           value: 'toggle-sidebar',
@@ -107,10 +101,7 @@ export function RealWorldExample() {
             <KbdGroup items={[modifierLabel(), 'B']} size="sm" class="text-muted-foreground" />
           ),
           binding: { key: 'b' },
-          onSelect: () => {
-            setLastAction('Toggled the workspace sidebar.')
-            setOpen(false)
-          },
+          result: 'Toggled the workspace sidebar.',
         },
         {
           value: 'open-billing',
@@ -126,17 +117,16 @@ export function RealWorldExample() {
 
   const commands = createMemo(() => groups().flatMap((group) => group.items ?? []))
 
+  const onSelect = (item: AppCommand) => {
+    setLastAction(item.result ?? `Selected ${item.label ?? item.value}.`)
+    setOpen(false)
+  }
+
   onMount(() => {
     setIsMac(/Mac|iPhone|iPad/.test(window.navigator.platform))
 
     const handler = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target)) {
-        return
-      }
-
-      if (matchesBinding(event, { key: 'k' })) {
-        event.preventDefault()
-        setOpen((current) => !current)
         return
       }
 
@@ -149,7 +139,7 @@ export function RealWorldExample() {
       }
 
       event.preventDefault()
-      matchedCommand.onSelect?.()
+      onSelect(matchedCommand)
     }
 
     window.addEventListener('keydown', handler)
@@ -163,34 +153,36 @@ export function RealWorldExample() {
         <p class="text-sm text-muted-foreground mt-1">{lastAction()}</p>
       </div>
 
-      <CommandPalette<AppCommand>
+      <Dialog
         open={open()}
         onOpenChange={setOpen}
-        groups={groups()}
-        showClose
-        footerRender={() => (
-          <div class="flex flex-wrap gap-3 items-center justify-between">
-            <div class="flex flex-wrap gap-3 items-center">
-              <span class="flex gap-2 items-center">
-                <KbdGroup items={['↑', '↓']} size="sm" />
-                <span class="text-xs">Navigate</span>
-              </span>
-              <span class="flex gap-2 items-center">
-                <Kbd value="↵" size="sm" />
-                <span class="text-xs">Run command</span>
-              </span>
-            </div>
-            <span class="flex gap-2 items-center">
-              <KbdGroup items={[modifierLabel(), 'K']} size="sm" />
-              <span class="text-xs">Toggle palette</span>
-            </span>
-          </div>
-        )}
+        close={false}
+        classes={{ body: 'p-0 mb-0' }}
+        body={
+          <CommandPalette<AppCommand>
+            groups={groups()}
+            showClose
+            onSelect={onSelect}
+            onClose={() => setOpen(false)}
+            footerRender={() => (
+              <div class="flex flex-wrap gap-3 items-center justify-between">
+                <div class="flex flex-wrap gap-3 items-center">
+                  <span class="flex gap-2 items-center">
+                    <KbdGroup items={['↑', '↓']} size="sm" />
+                    <span class="text-xs">Navigate</span>
+                  </span>
+                  <span class="flex gap-2 items-center">
+                    <Kbd value="↵" size="sm" />
+                    <span class="text-xs">Run command</span>
+                  </span>
+                </div>
+              </div>
+            )}
+          />
+        }
       >
-        <Button variant="outline" trailing={<KbdGroup items={[modifierLabel(), 'K']} size="sm" />}>
-          Search projects, issues, and actions
-        </Button>
-      </CommandPalette>
+        <Button variant="outline">Search projects, issues, and actions</Button>
+      </Dialog>
     </div>
   )
 }

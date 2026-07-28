@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Icon } from '@src'
+import { Button, CommandPalette, Dialog, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
 
@@ -80,24 +80,17 @@ export function SubNavigation() {
       case 'share':
         return SHARE_GROUPS
       default:
-        return ROOT_GROUPS.map((group) =>
-          Object.assign(group, {
-            items: group.items?.map((item) => ({
-              ...item,
-              onSelect: () => {
-                if (item.value === 'create') {
-                  setView('create')
-                  return
-                }
-                if (item.value === 'share') {
-                  setView('share')
-                }
-              },
-            })),
-          }),
-        )
+        return ROOT_GROUPS
     }
   })
+
+  const onSelect = (item: CommandPaletteT.Item) => {
+    if (item.value === 'create') {
+      setView('create')
+    } else if (item.value === 'share') {
+      setView('share')
+    }
+  }
 
   return (
     <div class="flex flex-col gap-3 max-w-full w-lg">
@@ -114,9 +107,15 @@ export function SubNavigation() {
           Back
         </Button>
       </div>
-      <CommandPalette open={open()} onOpenChange={setOpen} closeOnSelect={false} groups={groups()}>
+      <Dialog
+        open={open()}
+        onOpenChange={setOpen}
+        close={false}
+        classes={{ body: 'p-0 mb-0' }}
+        body={<CommandPalette groups={groups()} closeOnSelect={false} onSelect={onSelect} />}
+      >
         <Button variant="outline">Open palette</Button>
-      </CommandPalette>
+      </Dialog>
     </div>
   )
 }

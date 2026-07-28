@@ -3,8 +3,10 @@ import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Dialog } from '../../overlays/dialog'
+
 import { CommandPalette } from './command-palette'
-import type { CommandPaletteT } from './command-palette'
+import type { CommandPaletteProps, CommandPaletteT } from './command-palette'
 
 const body = () => within(document.body)
 
@@ -57,161 +59,20 @@ async function finishExitMotion(): Promise<void> {
 }
 
 describe('CommandPalette', () => {
-  test('forces input focus in modal when autofocus is enabled', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+  test('focuses the standalone input without a native autofocus attribute', async () => {
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement | null
+      const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement
 
       expect(input).not.toBeNull()
+      expect(input.hasAttribute('autofocus')).toBe(false)
       expect(document.activeElement).toBe(input)
     })
   })
 
-  test('opens from optional trigger children', async () => {
-    const screen = render(() => (
-      <CommandPalette groups={GROUPS}>
-        <button type="button">Open palette</button>
-      </CommandPalette>
-    ))
-
-    expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
-
-    await fireEvent.click(screen.getByText('Open palette'))
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
-    })
-  })
-
-  test('supports controlled open and onOpenChange close flow', async () => {
-    const onOpenChange = vi.fn()
-
-    function ControlledPalette() {
-      const [open, setOpen] = createSignal(true)
-
-      return (
-        <CommandPalette
-          open={open()}
-          onOpenChange={(nextOpen) => {
-            onOpenChange(nextOpen)
-            setOpen(nextOpen)
-          }}
-          groups={GROUPS}
-          showClose
-        />
-      )
-    }
-
-    render(() => <ControlledPalette />)
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-    })
-
-    await fireEvent.click(document.body.querySelector('[data-slot="close"]') as HTMLElement)
-    await finishExitMotion()
-
-    await waitFor(() => {
-      expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-    })
-  })
-
-  test('closes by default when an enabled item is selected', async () => {
-    const onOpenChange = vi.fn()
-    const onSelect = vi.fn()
-
-    render(() => (
-      <CommandPalette
-        defaultOpen
-        onOpenChange={onOpenChange}
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', onSelect }] }]}
-      />
-    ))
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="item"]')).not.toBeNull()
-    })
-
-    await fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
-    await finishExitMotion()
-
-    await waitFor(() => {
-      expect(onSelect).toHaveBeenCalledTimes(1)
-      expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-    })
-  })
-
-  test('keeps modal open after item selection when closeOnSelect=false', async () => {
-    const onOpenChange = vi.fn()
-    const onSelect = vi.fn()
-
-    render(() => (
-      <CommandPalette
-        defaultOpen
-        closeOnSelect={false}
-        onOpenChange={onOpenChange}
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', onSelect }] }]}
-      />
-    ))
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="item"]')).not.toBeNull()
-    })
-
-    await fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
-
-    expect(onSelect).toHaveBeenCalledTimes(1)
-    expect(onOpenChange).not.toHaveBeenCalledWith(false)
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-  })
-
-  test('applies fixed modal content position and removes centered axes', async () => {
-    render(() => <CommandPalette open groups={GROUPS} position={{ top: 72, left: 96 }} />)
-
-    await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
-
-      expect(content?.style.top).toBe('72px')
-      expect(content?.style.left).toBe('96px')
-      expect(content?.className).not.toContain('-translate-x-1/2')
-      expect(content?.className).not.toContain('-translate-y-1/2')
-    })
-  })
-
-  test('keeps horizontal centering when only top position is provided', async () => {
-    render(() => <CommandPalette open groups={GROUPS} position={{ top: 72 }} />)
-
-    await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
-
-      expect(content?.style.top).toBe('72px')
-      expect(content?.className).toContain('-translate-x-1/2')
-      expect(content?.className).not.toContain('-translate-y-1/2')
-    })
-  })
-
-  test('notifies actual modal content position after mount', async () => {
-    const onPositionChange = vi.fn()
-
-    render(() => (
-      <CommandPalette
-        open
-        groups={GROUPS}
-        position={{ top: 72, left: 96 }}
-        onPositionChange={onPositionChange}
-      />
-    ))
-
-    await waitFor(() => {
-      expect(onPositionChange).toHaveBeenCalledWith({ top: 0, left: 0 })
-    })
-  })
-
   test('applies fixed listbox max height', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain(
@@ -221,7 +82,7 @@ describe('CommandPalette', () => {
   })
 
   test('adjusts item trailing spacing via classes.itemTrailing', async () => {
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
+    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
@@ -230,7 +91,7 @@ describe('CommandPalette', () => {
       expect(trailing.some((el) => el.classList.contains('gap-1'))).toBe(true)
     })
 
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
+    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
@@ -239,7 +100,7 @@ describe('CommandPalette', () => {
       expect(trailing.some((el) => el.classList.contains('gap-1.5'))).toBe(true)
     })
 
-    render(() => <CommandPalette open groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
+    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(
@@ -250,7 +111,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps item gap classes for icon and non-icon entries', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const withIcon = body().getByText('New File').closest('[data-slot="item"]')
@@ -263,7 +124,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders input and item labels', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByPlaceholderText('Search...')).toBeTruthy()
@@ -273,7 +134,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders group labels', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByText('Actions')).toBeTruthy()
@@ -282,7 +143,7 @@ describe('CommandPalette', () => {
   })
 
   test('shows empty state when no groups', async () => {
-    render(() => <CommandPalette open groups={[]} />)
+    render(() => <CommandPalette groups={[]} />)
 
     await waitFor(() => {
       expect(body().getByText('No results.')).toBeTruthy()
@@ -290,7 +151,7 @@ describe('CommandPalette', () => {
   })
 
   test('custom trailing content renders in item', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByText('⌘N')).toBeTruthy()
@@ -298,13 +159,17 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('fires onSelect when a leaf item is activated', async () => {
+  test('fires item and palette selection callbacks and closes by default', async () => {
+    const onItemSelect = vi.fn()
     const onSelect = vi.fn()
+    const onClose = vi.fn()
+    const selectedItem = { value: 'action', label: 'Action', onSelect: onItemSelect }
 
     render(() => (
       <CommandPalette
-        open
-        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', onSelect }] }]}
+        groups={[{ id: 'g', items: [selectedItem] }]}
+        onSelect={onSelect}
+        onClose={onClose}
       />
     ))
 
@@ -313,7 +178,30 @@ describe('CommandPalette', () => {
     const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
     await fireEvent.click(item)
 
+    expect(onItemSelect).toHaveBeenCalledTimes(1)
+    expect(onSelect).toHaveBeenCalledWith(selectedItem)
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  test('keeps the palette open when closeOnSelect is false', async () => {
+    const onSelect = vi.fn()
+    const onClose = vi.fn()
+
+    render(() => (
+      <CommandPalette
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        closeOnSelect={false}
+        onSelect={onSelect}
+        onClose={onClose}
+      />
+    ))
+
+    await waitFor(() => body().getByText('Action'))
+    await fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
+
     expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(onClose).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="item"]')).not.toBeNull()
   })
 
   test('activates the highlighted item on Enter', async () => {
@@ -321,16 +209,16 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        open
         groups={[
           {
             id: 'g',
             items: [
               { value: 'first', label: 'First' },
-              { value: 'second', label: 'Second', onSelect },
+              { value: 'second', label: 'Second' },
             ],
           },
         ]}
+        onSelect={onSelect}
       />
     ))
 
@@ -344,7 +232,6 @@ describe('CommandPalette', () => {
   test('supports overriding built-in icons', async () => {
     render(() => (
       <CommandPalette
-        open
         showClose
         leadingIcon="icon-hash"
         loadingIcon="icon-reload"
@@ -368,16 +255,7 @@ describe('CommandPalette', () => {
 
   test('close button renders and calls onClose', async () => {
     const onClose = vi.fn()
-    const onOpenChange = vi.fn()
-    render(() => (
-      <CommandPalette
-        defaultOpen
-        groups={GROUPS}
-        showClose
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-      />
-    ))
+    render(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
 
     await waitFor(() => {
       const closeBtn = document.body.querySelector('[data-slot="close"]') as HTMLElement
@@ -385,14 +263,41 @@ describe('CommandPalette', () => {
       fireEvent.click(closeBtn)
     })
 
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  test('composes with Dialog for trigger and controlled close behavior', async () => {
+    const [open, setOpen] = createSignal(false)
+
+    render(() => (
+      <Dialog
+        open={open()}
+        onOpenChange={setOpen}
+        close={false}
+        body={<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
+      >
+        <button type="button">Open palette</button>
+      </Dialog>
+    ))
+
+    expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
+    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
+      expect(document.activeElement).toBe(document.body.querySelector('[data-slot="input"]'))
+    })
+
+    await fireEvent.click(document.body.querySelector('[data-slot="close"]') as HTMLElement)
     await finishExitMotion()
 
-    expect(onClose).toHaveBeenCalledTimes(1)
-    expect(onOpenChange).toHaveBeenCalledWith(false)
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
+    })
   })
 
   test('disabled item has data-disabled attribute', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const items = document.body.querySelectorAll('[data-slot="item"]')
@@ -402,7 +307,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders custom placeholder', async () => {
-    render(() => <CommandPalette open groups={GROUPS} placeholder="Type a command..." />)
+    render(() => <CommandPalette groups={GROUPS} placeholder="Type a command..." />)
 
     await waitFor(() => {
       expect(body().getByPlaceholderText('Type a command...')).toBeTruthy()
@@ -412,7 +317,6 @@ describe('CommandPalette', () => {
   test('applies classes overrides to root and slots', async () => {
     render(() => (
       <CommandPalette
-        open
         showClose
         groups={GROUPS}
         classes={{
@@ -467,7 +371,7 @@ describe('CommandPalette', () => {
 
   test('renders footer content when footer is provided', async () => {
     render(() => (
-      <CommandPalette open groups={GROUPS} footerRender={() => <span>Palette Footer</span>} />
+      <CommandPalette groups={GROUPS} footerRender={() => <span>Palette Footer</span>} />
     ))
 
     await waitFor(() => {
@@ -477,7 +381,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies classes.empty override', async () => {
-    render(() => <CommandPalette open groups={[]} classes={{ empty: 'empty-override' }} />)
+    render(() => <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="empty"]')?.className).toContain(
@@ -487,7 +391,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies styles.empty override', async () => {
-    render(() => <CommandPalette open groups={[]} styles={{ empty: { width: '200px' } }} />)
+    render(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
 
     await waitFor(() => {
       expect(
@@ -497,7 +401,7 @@ describe('CommandPalette', () => {
   })
 
   test('filters by controlled searchTerm', async () => {
-    render(() => <CommandPalette open groups={GROUPS} searchTerm="Settings" />)
+    render(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
 
     await waitFor(() => {
       expect(body().getByText('Go to Settings')).toBeTruthy()
@@ -510,7 +414,6 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        open
         groups={[
           {
             id: 'g',
@@ -536,7 +439,6 @@ describe('CommandPalette', () => {
   test('renders footerRender and emptyRender with current state', async () => {
     render(() => (
       <CommandPalette
-        open
         groups={[]}
         searchTerm="missing"
         emptyRender={(ctx) => <span>Empty {ctx.searchTerm}</span>}
@@ -551,7 +453,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps the list unchanged on Backspace with an empty input', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     const input = body().getByPlaceholderText('Search...') as HTMLInputElement
     await fireEvent.keyDown(input, { key: 'Backspace' })
@@ -565,7 +467,6 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to footerRender', async () => {
     render(() => (
       <CommandPalette
-        open
         groups={GROUPS}
         searchTerm="Settings"
         footerRender={(ctx) => (
@@ -582,7 +483,6 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to emptyRender', async () => {
     render(() => (
       <CommandPalette
-        open
         groups={GROUPS}
         searchTerm="missing"
         emptyRender={(ctx) => (
@@ -601,7 +501,6 @@ describe('CommandPalette', () => {
   test('supports custom itemRender with runtime item context', async () => {
     render(() => (
       <CommandPalette
-        open
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', description: 'Run it' }] }]}
         itemRender={(ctx) => (
           <span data-testid="custom-item">
@@ -619,7 +518,6 @@ describe('CommandPalette', () => {
   test('passes filtered visibleGroups to itemRender', async () => {
     render(() => (
       <CommandPalette
-        open
         groups={GROUPS}
         searchTerm="Settings"
         itemRender={(ctx) => (
@@ -642,7 +540,6 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette<CustomItem>
-        open
         groups={[
           {
             id: 'g',
@@ -665,7 +562,6 @@ describe('CommandPalette', () => {
   test('supports root and item-level search and description position options', async () => {
     render(() => (
       <CommandPalette
-        open
         searchTerm="zzz"
         descriptionPosition="trailing"
         groups={[
@@ -702,7 +598,6 @@ describe('CommandPalette', () => {
   test('passes runtime state to leadingRender and trailingRender', async () => {
     render(() => (
       <CommandPalette
-        open
         searchTerm="run"
         groups={[
           {
@@ -736,7 +631,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies combobox and active descendant accessibility attributes', async () => {
-    render(() => <CommandPalette open groups={GROUPS} />)
+    render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const input = body().getByPlaceholderText('Search...') as HTMLInputElement
@@ -759,7 +654,6 @@ describe('CommandPalette', () => {
     const scrollToItem = vi.fn()
     render(() => (
       <CommandPalette
-        open
         groups={GROUPS}
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
@@ -794,8 +688,32 @@ describe('CommandPalette', () => {
     expect(scrollToItem).toHaveBeenLastCalledWith(GROUPS[0]?.items?.[1], 2)
   })
 
+  test('renders virtual group labels with virtual row props', async () => {
+    render(() => (
+      <CommandPalette
+        groups={GROUPS}
+        virtualRender={(context) => {
+          const firstEntry = context.entries[0]
+          return (
+            <For each={firstEntry ? [firstEntry] : []}>
+              {(entry) => context.render(entry, 0, { 'data-index': 'virtual-label' })}
+            </For>
+          )
+        }}
+      />
+    ))
+
+    await waitFor(() => {
+      const group = document.body.querySelector('[data-slot="group"]')
+
+      expect(group?.getAttribute('role')).toBe('presentation')
+      expect(group?.getAttribute('data-index')).toBe('virtual-label')
+      expect(group?.querySelector('[data-slot="label"]')?.textContent).toBe('Actions')
+    })
+  })
+
   test('applies local command row size variants', async () => {
-    render(() => <CommandPalette open groups={GROUPS} size="xl" />)
+    render(() => <CommandPalette groups={GROUPS} size="xl" />)
 
     await waitFor(() => {
       const option = document.body.querySelector('[role="option"]') as HTMLElement | null
@@ -807,7 +725,6 @@ describe('CommandPalette', () => {
   test('includes description and keywords in built-in search', async () => {
     render(() => (
       <CommandPalette
-        open
         searchTerm="alias"
         groups={[
           {
@@ -828,7 +745,6 @@ describe('CommandPalette', () => {
 
     render(() => (
       <CommandPalette
-        open
         searchTerm="description"
         groups={[
           {
@@ -847,7 +763,6 @@ describe('CommandPalette', () => {
   test('supports getItemSearchText override', async () => {
     render(() => (
       <CommandPalette
-        open
         searchTerm="custom-hit"
         getItemSearchText={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
         groups={[
@@ -871,7 +786,6 @@ describe('CommandPalette', () => {
   test('supports filterItems override and keeps visibleGroups in sync', async () => {
     render(() => (
       <CommandPalette
-        open
         searchTerm="ignored"
         groups={GROUPS}
         filterItems={({ groups }) => groups.filter((group) => group.id === 'navigation')}
@@ -887,7 +801,7 @@ describe('CommandPalette', () => {
   })
 
   test('skips built-in filtering when disableFilter is enabled', async () => {
-    render(() => <CommandPalette open groups={GROUPS} searchTerm="missing" disableFilter />)
+    render(() => <CommandPalette groups={GROUPS} searchTerm="missing" disableFilter />)
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
@@ -900,7 +814,6 @@ describe('CommandPalette', () => {
     const itemRef = vi.fn()
     render(() => (
       <CommandPalette
-        open
         groups={GROUPS}
         inputProps={
           {
@@ -949,6 +862,12 @@ describe('CommandPalette', () => {
     // @ts-expect-error value is required
     const item: CommandPaletteT.Item = { label: 'No value' }
     expect(item).toBeDefined()
+  })
+
+  test('rejects removed dialog props in the type contract', () => {
+    // @ts-expect-error CommandPalette no longer owns dialog state.
+    const props: CommandPaletteProps = { groups: [], open: true }
+    expect(props).toBeDefined()
   })
 
   test('rejects legacy item shortcut prop in type contract', () => {
