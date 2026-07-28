@@ -36,6 +36,23 @@ function createBaseProps(): SidebarFrameProps {
 }
 
 describe('SidebarFrame', () => {
+  test('initializes the desktop sidebar open before effects run', () => {
+    let initialOpen: boolean | undefined
+
+    render(() => (
+      <SidebarFrame
+        isMobile={false}
+        sidebarBodyRender={(ctx) => {
+          initialOpen ??= ctx.isOpen()
+          return <div>Sidebar body</div>
+        }}
+        mainRender={() => <div>Main content</div>}
+      />
+    ))
+
+    expect(initialOpen).toBe(true)
+  })
+
   test('accepts static JSX for sidebar and main renderers', () => {
     const screen = render(() => (
       <SidebarFrame

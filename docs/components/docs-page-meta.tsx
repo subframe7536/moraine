@@ -16,7 +16,7 @@ export function DocsPageMeta(props: { page?: DocsPageEntry }) {
       return
     }
 
-    const title = page.path === '/' ? 'Moraine Docs' : `${page.label} | ${SITE_NAME}`
+    const title = page.path === '/' ? 'Moraine Docs' : `${page.label} - ${SITE_NAME}`
     const url = new URL(page.path.replace(/^\//, ''), SITE_URL).toString()
     document.title = title
     document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', url)

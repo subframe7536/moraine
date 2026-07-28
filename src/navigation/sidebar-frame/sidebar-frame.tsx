@@ -260,7 +260,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   )
 
   const [internalIsMobile, setInternalIsMobile] = createSignal(false)
-  const [isOpen, setOpen] = createSignal(false)
+  const [isOpen, setOpen] = createSignal(untrack(() => merged.isMobile !== true))
   const [scrolled, setScrolled] = createSignal(false)
   const isMobile = createMediaQuery('(max-width: 768px)', false)
   createEffect(

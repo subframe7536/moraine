@@ -1,14 +1,19 @@
-import { useLocation, useNavigate } from '@solidjs/router'
+import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal } from 'solid-js'
+import { Show, Suspense, createEffect, createMemo, createSignal, onMount, untrack } from 'solid-js'
 
-import { Button } from '../../src'
+import { Button, Progress } from '../../src'
 import { useTheme } from '../hooks/use-theme'
 
 import { ContentHeader } from './content-header'
 import { DocsCommandPalette, DocsSearchTrigger } from './docs-command-palette'
 import { DocsPageMeta } from './docs-page-meta'
 import { getDocsPages } from './docs-route'
+import {
+  docsPageLoadingFromPath,
+  isDocsPageLoading,
+  markDocsNavigationReady,
+} from './docs-route-loading'
 import { DocsShell } from './docs-shell'
 import { Sidebar, SidebarHeader } from './sidebar'
 
@@ -16,8 +21,10 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()
   const location = useLocation()
   const navigate = useNavigate()
+  const isRouting = useIsRouting()
   const { theme, updateTheme } = useTheme()
   const [paletteOpen, setPaletteOpen] = createSignal(false)
+  const [routingFromPath, setRoutingFromPath] = createSignal<string>()
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
@@ -26,6 +33,22 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   const pageTitle = createMemo(() => pages.find((page) => page.key === activePage())?.label ?? '')
   const activePageEntry = createMemo(() => pages.find((page) => page.key === activePage()))
+  const navigationLoading = createMemo(
+    () =>
+      (isRouting() && location.pathname === routingFromPath()) ||
+      (isDocsPageLoading() && location.pathname === docsPageLoadingFromPath()),
+  )
+
+  createEffect(() => {
+    if (!isRouting()) {
+      setRoutingFromPath(undefined)
+      return
+    }
+
+    setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
+  })
+
+  onMount(markDocsNavigationReady)
 
   const navigateToPage = (key: string) => {
     const path = pages.find((page) => page.key === key)?.path
@@ -36,6 +59,17 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   return (
     <>
+      <Show when={navigationLoading()}>
+        <Progress
+          aria-label="Loading page"
+          size="xs"
+          class="pointer-events-none inset-x-0 top-0 fixed z-50"
+          classes={{
+            track: 'rounded-none bg-transparent',
+            indicator: 'rounded-none motion-reduce:animate-none',
+          }}
+        />
+      </Show>
       <DocsPageMeta page={activePageEntry()} />
       <DocsShell
         sidebarHeader={(ctx) => (
@@ -81,7 +115,7 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                 />
               }
             />
-            {props.children}
+            <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
           </>
         )}
       />

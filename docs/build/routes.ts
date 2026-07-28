@@ -144,22 +144,15 @@ function toRouteSourcePath(projectRoot: string, sourcePath: string): string {
 function routeModuleCode(entry: DocsRouteEntry, context: RouteSourceLoadContext): string {
   const importPath = toImportPath(context.moduleId, entry.sourcePath)
   return [
-    "import { Suspense, lazy } from 'solid-js'",
+    "import { lazy } from 'solid-js'",
     "import { createRoute } from 'solid-file-router'",
+    "import { loadDocsPage } from '/components/docs-route-loading'",
     '',
-    `const Page = lazy(() => import('${importPath}'))`,
-    '',
-    'function DocsPageRoute() {',
-    '  return (',
-    '    <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>',
-    '      <Page />',
-    '    </Suspense>',
-    '  )',
-    '}',
+    `const Page = lazy(() => loadDocsPage(() => import('${importPath}')))`,
     '',
     'export default createRoute({',
     `  info: ${serializeRouteInfo(entry.info)},`,
-    '  component: DocsPageRoute,',
+    '  component: Page,',
     '})',
     '',
   ].join('\n')

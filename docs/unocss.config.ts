@@ -269,6 +269,12 @@ export default defineConfig<PresetWind4Theme>({
   animation-duration: 180ms;
 }
 
+@media (max-width: 768px) {
+  .docs-ssr-desktop-sidebar {
+    display: none;
+  }
+}
+
       `,
     },
   ],

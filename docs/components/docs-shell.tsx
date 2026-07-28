@@ -1,6 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
+import { Show, createComponent } from 'solid-js'
 
-import { SidebarFrame } from '../../src'
+import { SidebarFrame, SidebarFrameSheetOnlyRender } from '../../src'
 
 export interface DocsShellRenderContext {
   isMobile: Accessor<boolean>
@@ -19,6 +20,19 @@ export interface DocsShellProps {
 export function DocsShell(props: DocsShellProps) {
   return (
     <SidebarFrame
+      frameRender={(ctx) => (
+        <Show
+          when={ctx.isMobile()}
+          fallback={
+            <div data-slot="layout" class="flex h-full min-h-0">
+              <ctx.sidebar classes="docs-ssr-desktop-sidebar" />
+              <ctx.main />
+            </div>
+          }
+        >
+          {createComponent(SidebarFrameSheetOnlyRender, ctx)}
+        </Show>
+      )}
       sidebarHeaderRender={(ctx) =>
         props.sidebarHeader({
           isMobile: ctx.isMobile,
