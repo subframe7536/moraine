@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, mergeProps, onMount } from 'solid-js'
+import { For, mergeProps, onMount, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -112,7 +112,7 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export interface Props<TValue = Value> extends BaseProps<Base<TValue>, Variant, Slot> {}
+  export type Props<TValue = Value> = BaseProps<'div', Base<TValue>, Variant, Slot>
 }
 
 /**
@@ -124,6 +124,31 @@ export interface SliderProps<TValue = SliderT.Value> extends SliderT.Props<TValu
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'min',
+    'max',
+    'step',
+    'minStepsBetweenThumbs',
+    'divider',
+    'allowThumbCrossing',
+    'onValueChange',
+    'onChange',
+    'orientation',
+    'inverted',
+    'variant',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       min: 0,
@@ -134,7 +159,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       size: 'md' as const,
       inverted: false,
     },
-    props,
+    local,
   )
 
   const generatedId = useId(() => merged.id, 'slider')
@@ -193,6 +218,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         merged.classes?.root,
         merged.class,
       )}
+      {...rest}
     >
       <div
         ref={(element) => {

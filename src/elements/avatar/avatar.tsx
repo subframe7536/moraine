@@ -1,5 +1,13 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
@@ -67,7 +75,7 @@ export namespace AvatarT {
   export interface Base extends Item {}
 
   /** Props for the Avatar component. */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /** Props for the Avatar component. */
@@ -102,12 +110,28 @@ export interface AvatarFaceProps extends AvatarT.Item {
 }
 
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'src',
+    'alt',
+    'badge',
+    'badgePosition',
+    'text',
+    'fallback',
+    'onStatusChange',
+    'class',
+    'style',
+    'classes',
+    'styles',
+    'size',
+    'transition',
+    'rootSlot',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
       transition: 'normal' as const,
     },
-    props,
+    local,
   )
   const fallback = createMemo(() => merged.fallback)
   const badge = createMemo(() => merged.badge)
@@ -167,6 +191,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     <span
       data-slot={merged.rootSlot ?? 'root'}
       data-status={status()}
+      {...rest}
       style={
         merged.rootSlot === 'item' ? merged.style : { ...merged.styles?.root, ...merged.style }
       }

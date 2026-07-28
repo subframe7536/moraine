@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input'
@@ -109,7 +109,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -128,6 +128,25 @@ interface NormalizedRadioGroupItem {
 
 /** Single-select radio group with card, list, and table layout variants. */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'orientation',
+    'items',
+    'onChange',
+    'variant',
+    'indicator',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       orientation: 'vertical' as const,
@@ -135,7 +154,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       indicator: 'start' as const,
       size: 'md' as const,
     },
-    props,
+    local,
   )
 
   const groupId = useId(() => merged.id, 'radio-group')
@@ -239,6 +258,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       )}
       {...dataAttrs()}
       {...field.ariaAttrs()}
+      {...rest}
     >
       <For each={normalizedItems()}>
         {(item) => {

@@ -47,13 +47,6 @@
         "defaultValue": "outline"
       },
       {
-        "name": "aria-label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessibility label for the navigation element.",
-        "defaultValue": "Pagination"
-      },
-      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -138,11 +131,9 @@
         "description": "Text to display in the previous button."
       },
       {
-        "name": "role",
+        "name": "ref",
         "required": false,
-        "type": "JSX.HTMLAttributes<HTMLElement>[\"role\"] | undefined",
-        "description": "ARIA role for the navigation element.",
-        "defaultValue": "navigation"
+        "type": "JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "showControls",

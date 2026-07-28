@@ -10,14 +10,22 @@ import {
 } from '@floating-ui/dom'
 import type { Middleware, Placement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack'
 import type { OverlayStackEntry } from './overlay-stack'
@@ -111,6 +119,7 @@ export interface PopperProps {
   toggleOnClick?: boolean
   transitionMode?: TransitionPresenceMotion
   trigger: JSX.Element
+  triggerProps?: JSX.HTMLAttributes<HTMLSpanElement>
   triggerClass?: string
   triggerStyle?: JSX.CSSProperties
 }
@@ -126,6 +135,17 @@ export function setPopperTestPlacementAccessor(accessor: Accessor<string> | unde
 }
 
 export function Popper(props: PopperProps): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- trigger props remain a reactive Solid proxy.
+  const [triggerLocal, triggerRest] = splitProps(props.triggerProps ?? {}, [
+    'class',
+    'style',
+    'ref',
+    'onBlur',
+    'onClick',
+    'onFocus',
+    'onPointerEnter',
+    'onPointerLeave',
+  ])
   const merged = mergeProps(
     {
       closeOnOutsideFocus: true,
@@ -522,31 +542,56 @@ export function Popper(props: PopperProps): JSX.Element {
   return (
     <>
       <span
-        ref={setTriggerElement}
-        tabIndex={-1}
         data-slot="trigger"
+        ref={(element) => {
+          setTriggerElement(element)
+          callRef(triggerLocal.ref, element)
+        }}
+        tabIndex={-1}
         aria-controls={contentPresence.present() ? contentId() : undefined}
         aria-describedby={
           merged.describeTrigger && contentPresence.present() ? contentId() : undefined
         }
         aria-expanded={isOpen()}
-        style={merged.triggerStyle}
-        class={cn('outline-none', merged.triggerClass)}
-        onBlur={() => {
+        {...triggerRest}
+        style={
+          typeof triggerLocal.style === 'object'
+            ? { ...merged.triggerStyle, ...triggerLocal.style }
+            : merged.triggerStyle
+        }
+        class={cn('outline-none', merged.triggerClass, triggerLocal.class)}
+        onBlur={(event) => {
+          const { defaultPrevented } = callHandler(event, triggerLocal.onBlur)
+          if (defaultPrevented) {
+            return
+          }
           merged.onTriggerBlur?.(getControls())
         }}
-        onClick={() => {
-          if (merged.toggleOnClick) {
+        onClick={(event) => {
+          const { defaultPrevented } = callHandler(event, triggerLocal.onClick)
+          if (!defaultPrevented && merged.toggleOnClick) {
             getControls().toggle()
           }
         }}
-        onFocus={() => {
+        onFocus={(event) => {
+          const { defaultPrevented } = callHandler(event, triggerLocal.onFocus)
+          if (defaultPrevented) {
+            return
+          }
           merged.onTriggerFocus?.(getControls())
         }}
-        onPointerEnter={() => {
+        onPointerEnter={(event) => {
+          const { defaultPrevented } = callHandler(event, triggerLocal.onPointerEnter)
+          if (defaultPrevented) {
+            return
+          }
           merged.onTriggerPointerEnter?.(getControls())
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(event) => {
+          const { defaultPrevented } = callHandler(event, triggerLocal.onPointerLeave)
+          if (defaultPrevented) {
+            return
+          }
           merged.onTriggerPointerLeave?.(getControls())
         }}
       >

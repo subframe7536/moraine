@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, mergeProps } from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
@@ -52,7 +52,7 @@ export namespace SeparatorT {
   /**
    * Props for the Separator component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -62,6 +62,17 @@ export interface SeparatorProps extends SeparatorT.Props {}
 
 /** Visual divider with configurable orientation, style, and optional label content. */
 export function Separator(props: SeparatorProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'decorative',
+    'orientation',
+    'size',
+    'type',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       decorative: false,
@@ -69,7 +80,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       size: 'xs' as const,
       type: 'solid' as const,
     },
-    props,
+    local,
   )
   const resolvedChildren = resolveChildren(() => merged.children)
 
@@ -80,6 +91,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       data-orientation={merged.orientation}
       aria-orientation={merged.orientation === 'vertical' ? 'vertical' : undefined}
       aria-hidden={merged.decorative ? true : undefined}
+      {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={separatorRootVariants(
         { orientation: merged.orientation },

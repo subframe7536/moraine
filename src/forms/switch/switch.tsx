@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
@@ -7,7 +7,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -59,7 +59,7 @@ export namespace SwitchT {
     /**
      * Pointer down handler for the switch root container.
      */
-    onPointerDown?: JSX.EventHandler<HTMLButtonElement, PointerEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the switch is checked.
@@ -130,11 +130,12 @@ export namespace SwitchT {
   /**
    * Props for the Switch component.
    */
-  export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
+  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
+    'div',
     Base<TTrue, TFalse>,
     Variant,
     Slot
-  > {}
+  >
 }
 
 /**
@@ -149,6 +150,31 @@ export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'disabled',
+    'required',
+    'readOnly',
+    'value',
+    'checked',
+    'defaultChecked',
+    'trueValue',
+    'falseValue',
+    'loading',
+    'loadingIcon',
+    'checkedIcon',
+    'uncheckedIcon',
+    'label',
+    'description',
+    'onChange',
+    'onPointerDown',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -158,7 +184,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    props,
+    local,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -314,7 +340,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   function onPointerDown(
     event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
   ): void {
-    merged.onPointerDown?.(event)
+    const { defaultPrevented } = callHandler(event, merged.onPointerDown)
+    if (defaultPrevented) {
+      return
+    }
 
     if (document.activeElement === inputEl) {
       event.preventDefault()
@@ -332,6 +361,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       data-slot="root"
+      {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('flex flex-row', merged.classes?.root, merged.class)}
     >

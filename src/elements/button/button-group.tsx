@@ -29,7 +29,11 @@ export namespace ButtonGroupT {
 
   export interface Item {}
   /** Base props for the ButtonGroup component. */
-  export type Base = Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children' | 'class' | 'style'> & {
+  export interface Base {
+    /** Optional identifier for the group root. */
+    id?: string
+    /** ARIA role for the group root. */
+    role?: JSX.AriaAttributes['role']
     /** Buttons or compatible controls rendered as a cohesive group. */
     children?: JSX.Element
     /** Whether to render a decorative separator between adjacent controls. */
@@ -37,7 +41,7 @@ export namespace ButtonGroupT {
   }
 
   /** Props for the ButtonGroup component. */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /** Props for the ButtonGroup component. */

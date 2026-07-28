@@ -35,7 +35,7 @@ There is no runtime configuration object or function.
 Implement the following internal helpers in `src/shared/types.ts`:
 
 - `Tags = keyof JSX.HTMLElementTags`.
-- `DataAttributes` accepts ``data-${string}`` values supported by Solid.
+- `DataAttributes` accepts `data-${string}` values supported by Solid.
 - `CommonRootProps = JSX.AriaAttributes & DataAttributes`.
 - `StrictedAttributes<T>` starts from `JSX.HTMLElementTags[T]` and removes lowercase event aliases and Solid directive prefixes: `on:`, `oncapture:`, `use:`, `prop:`, `attr:`, and `bool:`.
 - `Override<A, B> = Omit<A, keyof B> & B`, so component-owned fields win over inherited root fields.

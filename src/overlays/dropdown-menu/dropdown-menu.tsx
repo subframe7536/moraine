@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, mergeProps } from 'solid-js'
+import { createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type {
   OverlayMenuFocusStrategy,
@@ -37,12 +37,16 @@ export namespace DropdownMenuT {
      * Trigger content used to open the dropdown menu.
      */
     children: JSX.Element
+    /** Root trigger click handler. */
+    onClick?: JSX.EventHandlerUnion<HTMLSpanElement, MouseEvent>
+    /** Root trigger keyboard handler. */
+    onKeyDown?: JSX.EventHandlerUnion<HTMLSpanElement, KeyboardEvent>
   }
 
   /**
    * Props for the DropdownMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -54,6 +58,33 @@ export interface DropdownMenuProps extends DropdownMenuT.Props {}
  * Triggered action menu anchored to its child content.
  */
 export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'items',
+    'itemRender',
+    'itemProps',
+    'contentProps',
+    'contentTop',
+    'contentBottom',
+    'placement',
+    'gutter',
+    'preventScroll',
+    'overflowPadding',
+    'checkedIcon',
+    'submenuIcon',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'children',
+    'onClick',
+    'onKeyDown',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -62,7 +93,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       placement: 'bottom-start' as OverlayMenuPlacement,
       gutter: 0,
     },
-    props,
+    local,
   )
   const resolvedId = useId(() => merged.id, 'dropdownmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
@@ -116,7 +147,9 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         aria-expanded={isOpen() ? 'true' : 'false'}
         style={{ ...merged.styles?.trigger, ...merged.style }}
         class={cn('outline-none', merged.classes?.trigger, merged.class)}
+        {...rest}
         onClick={(event) => {
+          callHandler(event, local.onClick)
           if (event.defaultPrevented || merged.disabled) {
             return
           }
@@ -129,6 +162,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
           openWithStrategy('content')
         }}
         onKeyDown={(event) => {
+          callHandler(event, local.onKeyDown)
           if (event.defaultPrevented || merged.disabled) {
             return
           }

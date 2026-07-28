@@ -41,12 +41,6 @@
         "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined"
       },
       {
-        "name": "aria-label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible label for the progress indicator."
-      },
-      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -74,6 +68,11 @@
         "name": "orientation",
         "required": false,
         "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "size",
@@ -121,12 +120,6 @@
   },
   "attributes": {
     "aria": [
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
       {
         "name": "aria-valuemax",
         "required": false,
@@ -191,12 +184,6 @@
           }
         ],
         "ariaAttributes": [
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          },
           {
             "name": "aria-valuemax",
             "required": false,

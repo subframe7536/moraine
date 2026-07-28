@@ -193,11 +193,7 @@ export namespace MultiSelectT {
     closeIcon?: IconT.Name
   }
 
-  export interface Props<TItem extends Value = Value> extends BaseProps<
-    Base<TItem>,
-    Variant,
-    Slot
-  > {}
+  export type Props<TItem extends Value = Value> = BaseProps<'div', Base<TItem>, Variant, Slot>
 }
 
 export interface MultiSelectProps<
@@ -655,7 +651,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       })}
                     >
                       <Badge
-                        slotName="tag"
+                        data-slot="tag"
                         size={api.field.size()}
                         title={option.key}
                         variant={props.tagVariant}

@@ -143,7 +143,7 @@
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandler<HTMLButtonElement, PointerEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent> | undefined",
         "description": "Pointer down handler for the checkbox control."
       },
       {
@@ -152,6 +152,11 @@
         "type": "boolean | undefined",
         "description": "Whether the input is read-only.",
         "defaultValue": "false"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "required",

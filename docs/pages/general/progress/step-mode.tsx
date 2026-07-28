@@ -24,13 +24,13 @@ export function StepMode() {
         Current: {STEPS[value()]} ({value() + 1}/{STEPS.length})
       </div>
       <div class="flex gap-2">
-        <Button size="sm" variant="outline" onclick={previous}>
+        <Button size="sm" variant="outline" onClick={previous}>
           Back
         </Button>
-        <Button size="sm" variant="outline" onclick={next}>
+        <Button size="sm" variant="outline" onClick={next}>
           Next
         </Button>
-        <Button size="sm" variant="ghost" onclick={reset}>
+        <Button size="sm" variant="ghost" onClick={reset}>
           Reset
         </Button>
       </div>

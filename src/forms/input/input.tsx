@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, onMount } from 'solid-js'
+import { Show, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -134,17 +134,17 @@ export namespace InputT {
     /**
      * Event handler for the input event.
      */
-    onInput?: JSX.EventHandler<HTMLInputElement, InputEvent>
+    onInput?: JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>
 
     /**
      * Event handler for the blur event.
      */
-    onBlur?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
      * Event handler for the focus event.
      */
-    onFocus?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
      * Additional content to render inside the input container.
@@ -155,9 +155,12 @@ export namespace InputT {
   /**
    * Props for the Input component.
    */
-  export interface Props<
-    M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, Slot> {}
+  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
+    'div',
+    Base<M>,
+    Variant,
+    Slot
+  >
 }
 
 /**
@@ -171,6 +174,42 @@ export interface InputProps<
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,
 ): JSX.Element {
+  type RootProps = InputProps<M> & {
+    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'readOnly',
+    'disabled',
+    'size',
+    'type',
+    'placeholder',
+    'autocomplete',
+    'autofocus',
+    'autofocusDelay',
+    'maxLength',
+    'leading',
+    'trailing',
+    'loading',
+    'loadingIcon',
+    'modelModifiers',
+    'onValueChange',
+    'onChange',
+    'onInput',
+    'onBlur',
+    'onFocus',
+    'children',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onPointerDown',
+  ])
   const merged = mergeProps(
     {
       type: 'text',
@@ -179,7 +218,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       variant: 'outlined' as InputVariantProps['variant'],
       loadingIcon: 'icon-loading' as IconT.Name,
     },
-    props,
+    local,
   )
   const leading = createMemo(() => merged.leading)
   const trailing = createMemo(() => merged.trailing)
@@ -272,7 +311,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   }
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
-    merged.onInput?.(event)
+    const { defaultPrevented } = callHandler(event, merged.onInput)
+    if (defaultPrevented) {
+      return
+    }
 
     if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
@@ -295,16 +337,26 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onBlur)
+    if (defaultPrevented) {
+      return
+    }
     field.emit('blur', event)
-    merged.onBlur?.(event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onFocus)
+    if (defaultPrevented) {
+      return
+    }
     field.emit('focus', event)
-    merged.onFocus?.(event)
   }
 
   const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onPointerDown)
+    if (defaultPrevented) {
+      return
+    }
     if (event.button !== 0 || event.defaultPrevented || event.target === inputEl) {
       return
     }
@@ -336,6 +388,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
+      {...rest}
     >
       <Show when={resolvedLeading()}>
         {(iconName) => (

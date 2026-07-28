@@ -66,6 +66,11 @@
         "description": "Render function for main content section."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "scrollThreshold",
         "required": false,
         "type": "number | undefined",

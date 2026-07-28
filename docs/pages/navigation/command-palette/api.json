@@ -287,6 +287,11 @@
         "defaultValue": "Search..."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "scrollToItem",
         "required": false,
         "type": "((item: TItem, entryIndex: number) => void) | undefined",
@@ -633,14 +638,7 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
+        "ariaAttributes": []
       },
       {
         "name": "search",

@@ -28,6 +28,21 @@ describe('Button', () => {
     expect(button.getAttribute('data-slot')).toBe('root')
   })
 
+  test('calls pointer handlers without replacing internal interaction behavior', async () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => (
+      <Button data-slot="save" data-testid="save" onPointerDown={onPointerDown}>
+        Save
+      </Button>
+    ))
+    const button = screen.getByTestId('save')
+
+    await fireEvent.pointerDown(button)
+
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(button.getAttribute('data-slot')).toBe('save')
+  })
+
   test('supports anchor rendering via as prop', () => {
     const screen = render(() => (
       <Button as="a" href="https://example.com">
@@ -430,9 +445,9 @@ describe('Button', () => {
   })
 
   test('does not auto load for synchronous onclick handler', async () => {
-    const onclick = vi.fn(() => 'ok')
+    const onClick = vi.fn(() => 'ok')
     const screen = render(() => (
-      <Button loadingAuto onclick={onclick}>
+      <Button loadingAuto onClick={onClick}>
         Sync
       </Button>
     ))
@@ -440,15 +455,15 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Sync' })
     await fireEvent.click(button)
 
-    expect(onclick).toHaveBeenCalledTimes(1)
+    expect(onClick).toHaveBeenCalledTimes(1)
     expect(button.hasAttribute('data-loading')).toBe(false)
     expect(button.hasAttribute('aria-busy')).toBe(false)
   })
 
   test('does not invoke click handler when disabled and loading', async () => {
-    const onclick = vi.fn()
+    const onClick = vi.fn()
     const screen = render(() => (
-      <Button disabled loading onclick={onclick}>
+      <Button disabled loading onClick={onClick}>
         Busy
       </Button>
     ))
@@ -457,7 +472,7 @@ describe('Button', () => {
     await fireEvent.click(button)
 
     expect(button.hasAttribute('disabled')).toBe(true)
-    expect(onclick).not.toHaveBeenCalled()
+    expect(onClick).not.toHaveBeenCalled()
   })
 
   describe('non-native button keyboard activation', () => {

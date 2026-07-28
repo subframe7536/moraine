@@ -235,14 +235,10 @@ describe('Progress', () => {
     expect(step?.style.width).toBe('200px')
   })
 
-  test('rejects removed props in type contract', () => {
-    // @ts-expect-error inverted has been removed from Progress props
+  test('accepts arbitrary root props in type contract', () => {
     const invertedProps: ProgressProps = { inverted: true }
-    // @ts-expect-error color has been removed from Progress props
     const colorProps: ProgressProps = { color: 'secondary' }
-    // @ts-expect-error renderStatus has been replaced by statusRender
     const legacyStatusProps: ProgressProps = { renderStatus: () => 'status' }
-    // @ts-expect-error renderStep has been replaced by stepRender
     const legacyStepProps: ProgressProps = { renderStep: () => 'step' }
     expect(invertedProps).toBeDefined()
     expect(colorProps).toBeDefined()

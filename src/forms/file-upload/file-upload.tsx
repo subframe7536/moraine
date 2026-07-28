@@ -1,5 +1,14 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
@@ -99,13 +108,13 @@ export namespace FileUploadT {
   /**
    * Base props for the FileUpload component.
    */
-  export interface Base
+  export interface Base<T extends ValidComponent = 'div'>
     extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
     /**
      * The HTML element or component to render as.
      * @default 'div'
      */
-    as?: ValidComponent
+    as?: T
 
     /**
      * Click handler for the upload control.
@@ -207,13 +216,13 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props<T extends ValidComponent = 'div'> = BaseProps<T, Base<T>, Variant, Slot>
 }
 
 /**
  * Props for the FileUpload component.
  */
-export interface FileUploadProps extends FileUploadT.Props {}
+export type FileUploadProps<T extends ValidComponent = 'div'> = FileUploadT.Props<T>
 
 function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')
@@ -389,10 +398,43 @@ function constrainSingleFile(accepted: File[]): {
 }
 
 /** Drag-and-drop file upload component with progress tracking and file list management. */
-export function FileUpload(props: FileUploadProps): JSX.Element {
+export function FileUpload<T extends ValidComponent = 'div'>(
+  props: FileUploadProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'as',
+    'id',
+    'name',
+    'required',
+    'disabled',
+    'readOnly',
+    'onClick',
+    'onKeyDown',
+    'onDragOver',
+    'onDragLeave',
+    'onDrop',
+    'accept',
+    'multiple',
+    'dropzone',
+    'preview',
+    'label',
+    'description',
+    'icon',
+    'fileIcon',
+    'maxFiles',
+    'minSize',
+    'maxSize',
+    'onValueChange',
+    'onFileReject',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
-      as: 'div' as ValidComponent,
+      as: 'div' as T,
       accept: '*',
       multiple: false,
       dropzone: true,
@@ -401,7 +443,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       icon: 'icon-upload' as IconT.Name,
       fileIcon: 'icon-file' as IconT.Name,
     },
-    props,
+    local,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -691,7 +733,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
 
   return (
     <Dynamic
-      component={merged.as ?? 'div'}
+      component={(merged.as ?? 'div') as ValidComponent}
       id={`${field.id()}-root`}
       role="group"
       disabled={field.disabled()}
@@ -706,6 +748,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
         merged.classes?.root,
         merged.class,
       )}
+      {...(rest as Record<string, unknown>)}
     >
       <Show
         when={merged.dropzone}

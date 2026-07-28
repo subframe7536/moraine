@@ -268,6 +268,18 @@
         "description": "Items rendered in the menu body."
       },
       {
+        "name": "onClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLSpanElement, MouseEvent> | undefined",
+        "description": "Root trigger click handler."
+      },
+      {
+        "name": "onKeyDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<HTMLSpanElement, KeyboardEvent> | undefined",
+        "description": "Root trigger keyboard handler."
+      },
+      {
         "name": "onOpenChange",
         "required": false,
         "type": "((open: boolean) => void) | undefined",
@@ -298,6 +310,11 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the menu is open.",
         "defaultValue": "true"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "size",
@@ -601,14 +618,7 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
+        "ariaAttributes": []
       },
       {
         "name": "separator",

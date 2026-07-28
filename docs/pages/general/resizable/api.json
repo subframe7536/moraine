@@ -218,6 +218,11 @@
         "description": "Array of panels to render."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "style",
         "required": false,
         "type": "JSX.CSSProperties | undefined"

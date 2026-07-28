@@ -99,13 +99,6 @@
   "props": {
     "own": [
       {
-        "name": "aria-label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessibility label for the navigation element.",
-        "defaultValue": "Breadcrumbs"
-      },
-      {
         "name": "class",
         "required": false,
         "type": "ClassValue",
@@ -127,6 +120,11 @@
         "required": false,
         "type": "BreadcrumbT.Item[] | undefined",
         "description": "Array of breadcrumb items to display."
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "separator",

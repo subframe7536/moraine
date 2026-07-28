@@ -50,15 +50,13 @@ async function finishSelectExitMotion(): Promise<void> {
   )
 }
 
-test('single Select does not accept multiple prop at type level', () => {
-  // @ts-expect-error Select is single-only and should not accept `multiple`
+test('single Select accepts arbitrary root props at type level', () => {
   const node = <Select options={FRUITS} multiple />
 
   expect(node).toBeDefined()
 })
 
-test('single Select does not accept multi-only props at type level', () => {
-  // @ts-expect-error Select should reject multi-only options
+test('single Select accepts arbitrary root props at type level', () => {
   const node = <Select options={FRUITS} allowCreate tokenSeparators={[',']} maxCount={2} />
 
   expect(node).toBeDefined()

@@ -118,6 +118,11 @@
         "type": "boolean | undefined"
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "side",
         "required": false,
         "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
@@ -458,14 +463,7 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
+        "ariaAttributes": []
       },
       {
         "name": "separator",

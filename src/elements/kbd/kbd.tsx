@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo } from 'solid-js'
+import { Show, createMemo, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
@@ -63,7 +63,7 @@ export namespace KbdT {
   }
 
   /** Props for the Kbd component. */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'kbd', Base, Variant, Slot>
 }
 
 /** Props for the Kbd component. */
@@ -71,27 +71,40 @@ export interface KbdProps extends KbdT.Props {}
 
 /** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'value',
+    'label',
+    'symbol',
+    'slotName',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const alias = createMemo(() =>
-    props.symbol === false
+    local.symbol === false
       ? undefined
-      : KBD_KEY_ALIASES[props.value.toLowerCase() as KbdT.BuiltinKbds],
+      : KBD_KEY_ALIASES[local.value.toLowerCase() as KbdT.BuiltinKbds],
   )
-  const text = createMemo(() => alias()?.text ?? props.value)
+  const text = createMemo(() => alias()?.text ?? local.value)
 
   return (
     <Show when={text()}>
       <kbd
-        data-slot={props.slotName ?? 'root'}
-        aria-label={props.label ?? alias()?.label}
+        data-slot={local.slotName ?? 'root'}
+        aria-label={local.label ?? alias()?.label}
+        {...rest}
         class={kbdRootVariants(
           {
-            size: props.size,
-            variant: props.variant,
+            size: local.size,
+            variant: local.variant,
           },
-          props.classes?.root,
-          props.class,
+          local.classes?.root,
+          local.class,
         )}
-        style={{ ...props.styles?.root, ...props.style }}
+        style={{ ...local.styles?.root, ...local.style }}
       >
         {text()}
       </kbd>

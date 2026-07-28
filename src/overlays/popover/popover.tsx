@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, onCleanup } from 'solid-js'
+import { Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -75,7 +75,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -87,6 +87,27 @@ type PopoverSide = OverlayMenuSide
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'placement',
+    'forceMount',
+    'modal',
+    'preventScroll',
+    'dismissible',
+    'onClosePrevent',
+    'mode',
+    'openDelay',
+    'closeDelay',
+    'content',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       mode: 'click' as const,
@@ -95,7 +116,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       closeDelay: 100,
       dismissible: true,
     },
-    props,
+    local,
   )
   const content = createMemo(() => merged.content)
 
@@ -164,6 +185,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       role="dialog"
       toggleOnClick={merged.mode === 'click'}
       trigger={merged.children}
+      triggerProps={rest}
       triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
       triggerClass={cn(merged.classes?.trigger, merged.class)}
       onTriggerPointerEnter={

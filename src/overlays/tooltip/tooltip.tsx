@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -76,7 +76,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -147,6 +147,27 @@ function shouldOpenImmediately(): boolean {
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
 export function Tooltip(props: TooltipProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'placement',
+    'forceMount',
+    'openDelay',
+    'closeDelay',
+    'instantOpenDelay',
+    'side',
+    'invert',
+    'text',
+    'kbds',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       placement: 'top' as const,
@@ -154,7 +175,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       closeDelay: 200,
       instantOpenDelay: 300,
     },
-    props,
+    local,
   )
   const text = createMemo(() => merged.text)
 
@@ -324,6 +345,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       restoreFocusOnClose={false}
       describeTrigger
       trigger={merged.children}
+      triggerProps={rest}
       triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
       triggerClass={cn(merged.classes?.trigger, merged.class)}
       positionerClass={

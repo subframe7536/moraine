@@ -34,6 +34,28 @@ function PrimaryButton(props: PrimaryButtonProps) {
 }
 ```
 
+## Root props
+
+Every public component owns a documented root element. In the default type mode, that root accepts arbitrary attributes, while component business props stay separate from the DOM surface and `ref` remains typed to the concrete root element.
+
+```tsx
+<Card aria-describedby="details" data-testid="card" />
+```
+
+Full intrinsic attributes are opt-in because including every HTML attribute in every component makes editor completion slower and allows control props to be mistaken for wrapper props. Enable the expanded surface with a type-only package-root augmentation:
+
+```tsx
+declare module 'moraine' {
+  interface MoraineTypeConfig {
+    enableRootAutocomplete: true
+  }
+}
+```
+
+The augmentation has no runtime effect. It enables the exact attributes for the documented root tag, including camelCase Solid handlers, and preserves required props for custom Solid components passed through polymorphic `as` APIs such as `Button`, `List`, `FormField`, and `FileUpload`. Lowercase event aliases and Solid directive prefixes remain excluded from the autocomplete surface.
+
+Root attributes are forwarded at runtime even when the expanded type mode is disabled. Generated state metadata is emitted before user rest props, so caller values override `data-slot`, state `data-*`, and generated `aria-*` attributes. Wrapper components forward root props to their wrapper or trigger, while form control props and secondary APIs such as `listboxProps` stay on their documented internal elements.
+
 ## Component Namespace (`XxxT`)
 
 The `XxxT` namespace groups all supporting types for a component under a single import. This keeps the top-level exports focused and avoids polluting the global type space.

@@ -46,6 +46,12 @@
         "required": false,
         "type": "JSX.CSSProperties | undefined",
         "description": "Custom style overrides."
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible title for the rendered icon element."
       }
     ],
     "inherited": []

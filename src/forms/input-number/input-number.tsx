@@ -6,6 +6,7 @@ import {
   mergeProps,
   onCleanup,
   onMount,
+  splitProps,
   Show,
 } from 'solid-js'
 
@@ -343,7 +344,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -353,6 +354,49 @@ export interface InputNumberProps extends InputNumberT.Props {}
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
 export function InputNumber(props: InputNumberProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'rawValue',
+    'minValue',
+    'maxValue',
+    'step',
+    'largeStep',
+    'locale',
+    'onChange',
+    'onRawValueChange',
+    'orientation',
+    'placeholder',
+    'increment',
+    'incrementIcon',
+    'incrementDisabled',
+    'decrement',
+    'decrementIcon',
+    'decrementDisabled',
+    'autofocus',
+    'wheel',
+    'autofocusDelay',
+    'onBlur',
+    'onFocus',
+    'onIncrementClick',
+    'onDecrementClick',
+    'holdRepeat',
+    'repeatDelayMs',
+    'repeatIntervalMs',
+    'repeatThrottleMs',
+    'repeatPointerTypes',
+    'disabled',
+    'required',
+    'readOnly',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       variant: 'outline' as const,
@@ -366,7 +410,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
-    props,
+    local,
   )
 
   const generatedId = useId(() => merged.id, 'input-number')
@@ -844,6 +888,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         merged.class,
       )}
       {...dataAttrs()}
+      {...rest}
     >
       <Show when={!isVertical() && merged.decrement}>
         <DecrementControl />

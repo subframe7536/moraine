@@ -16,10 +16,7 @@ export namespace IconT {
   /**
    * Base props for the Icon component.
    */
-  export interface Base extends Omit<
-    JSX.HTMLAttributes<HTMLElement>,
-    'aria-hidden' | 'children' | 'style' | 'size' | 'class' | 'id'
-  > {
+  export interface Base {
     /**
      * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
      * or app-config aliases such as `icon-search`.
@@ -52,6 +49,9 @@ export namespace IconT {
      * Unique identifier.
      */
     id?: string
+
+    /** Accessible title for the rendered icon element. */
+    title?: string
   }
 
   /**
@@ -96,6 +96,7 @@ export function Icon(props: IconProps): JSX.Element {
       ...local.style,
     }
   })
+  const ariaLabel = (rest as { 'aria-label'?: string })['aria-label']
 
   return (
     <Dynamic
@@ -104,7 +105,7 @@ export function Icon(props: IconProps): JSX.Element {
       class={cn(iconClass(), local.class)}
       style={style()}
       {...rest}
-      aria-hidden={rest['aria-label'] ? undefined : true}
+      aria-hidden={ariaLabel ? undefined : true}
     />
   )
 }

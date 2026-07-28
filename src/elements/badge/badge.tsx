@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, mergeProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { callHandler, cn } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 import { IconButtonInner } from '../icon/icon-button-inner'
@@ -41,20 +41,7 @@ export namespace BadgeT {
    * Base props for the Badge component.
    */
   export interface Base {
-    /**
-     * Hides the badge from the accessibility tree when it is purely decorative.
-     */
-    'aria-hidden'?: boolean
-
-    /**
-     * Data slot for styling.
-     * @default 'root'
-     */
-    slotName?: string
-
-    /**
-     * Accessible title for the badge.
-     */
+    /** Accessible title shown by the browser for the badge root. */
     title?: string
 
     /**
@@ -81,7 +68,7 @@ export namespace BadgeT {
   /**
    * Props for the Badge component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -90,36 +77,51 @@ export namespace BadgeT {
 export interface BadgeProps extends BadgeT.Props {}
 /** Compact label component with leading/trailing icon slots and variant styles. */
 export function Badge(props: BadgeProps): JSX.Element {
-  const merged = mergeProps(
-    {
-      slotName: 'root',
-      size: 'md' as const,
-      variant: 'default' as const,
-    },
-    props,
-  )
+  type RootProps = BadgeProps & {
+    onPointerDown?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'leading',
+    'trailing',
+    'onTrailingClick',
+    'children',
+    'title',
+    'onPointerDown',
+  ])
+  const size = () => local.size ?? 'md'
+  const variant = () => local.variant ?? 'default'
 
-  const leading = createMemo(() => merged.leading)
-  const trailing = createMemo(() => merged.trailing)
-  const resolvedChildren = resolveChildren(() => merged.children)
+  const leading = createMemo(() => local.leading)
+  const trailing = createMemo(() => local.trailing)
+  const resolvedChildren = resolveChildren(() => local.children)
 
   return (
     <span
-      data-slot={merged.slotName}
-      data-size={merged.size}
-      data-variant={merged.variant}
-      aria-hidden={merged['aria-hidden']}
-      title={merged.title}
-      style={{ ...merged.styles?.root, ...merged.style }}
+      data-slot="root"
+      data-size={size()}
+      data-variant={variant()}
+      title={local.title}
+      {...rest}
+      style={{ ...local.styles?.root, ...local.style }}
       class={badgeVariants(
         {
-          size: merged.size,
-          variant: merged.variant,
+          size: size(),
+          variant: variant(),
         },
-        merged.classes?.root,
-        merged.class,
+        local.classes?.root,
+        local.class,
       )}
       onPointerDown={(e) => {
+        const { defaultPrevented } = callHandler(e, local.onPointerDown)
+        if (defaultPrevented) {
+          return
+        }
         e.preventDefault()
         e.stopPropagation()
       }}
@@ -129,8 +131,8 @@ export function Badge(props: BadgeProps): JSX.Element {
           <Icon
             name={leading()}
             slotName="leading"
-            style={merged.styles?.leading}
-            class={cn('me-.5', merged.classes?.leading)}
+            style={local.styles?.leading}
+            class={cn('me-.5', local.classes?.leading)}
           />
         )}
       </Show>
@@ -139,8 +141,8 @@ export function Badge(props: BadgeProps): JSX.Element {
         {(body) => (
           <span
             data-slot="label"
-            style={merged.styles?.label}
-            class={cn('min-w-0 truncate', merged.classes?.label)}
+            style={local.styles?.label}
+            class={cn('min-w-0 truncate', local.classes?.label)}
           >
             {body()}
           </span>
@@ -150,23 +152,23 @@ export function Badge(props: BadgeProps): JSX.Element {
       <Show when={trailing()}>
         {(trailing) => (
           <Show
-            when={merged.onTrailingClick}
+            when={local.onTrailingClick}
             fallback={
               <Icon
                 name={trailing()}
                 slotName="trailing"
-                style={merged.styles?.trailing}
-                class={cn('ms-.5', merged.classes?.trailing)}
+                style={local.styles?.trailing}
+                class={cn('ms-.5', local.classes?.trailing)}
               />
             }
           >
             <IconButtonInner
               name={trailing()}
-              size={merged.size}
+              size={size()}
               data-slot="trailing"
-              style={merged.styles?.trailing}
-              class={cn('ms-.5', merged.classes?.trailing)}
-              onClick={merged.onTrailingClick}
+              style={local.styles?.trailing}
+              class={cn('ms-.5', local.classes?.trailing)}
+              onClick={local.onTrailingClick}
             />
           </Show>
         )}

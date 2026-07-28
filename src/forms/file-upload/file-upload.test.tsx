@@ -63,8 +63,7 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('does not accept highlight prop at type level', () => {
-    // @ts-expect-error highlight has been removed from FileUpload props
+  test('accepts arbitrary root props at type level', () => {
     const props: FileUploadProps = { highlight: true }
 
     expect(props).toBeDefined()

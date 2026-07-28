@@ -18,6 +18,17 @@
         "defaultValue": "ul"
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ListT.Classes | undefined"
+      },
+      {
         "name": "itemRender",
         "required": true,
         "type": "ComponentOrElement<ListT.ItemRenderProps<TItem, TItemElement>>",
@@ -28,6 +39,21 @@
         "required": false,
         "type": "readonly TItem[] | undefined",
         "description": "Reactive collection rendered by the list."
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ListT.Styles | undefined"
       },
       {
         "name": "virtualRender",

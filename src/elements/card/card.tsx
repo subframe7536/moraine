@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -78,7 +78,7 @@ export namespace CardT {
   /**
    * Props for the Card component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -88,6 +88,19 @@ export interface CardProps extends CardT.Props {}
 
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {
+  const [, rest] = splitProps(props, [
+    'header',
+    'title',
+    'description',
+    'action',
+    'footer',
+    'compact',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const header = createMemo(() => props.header)
   const title = createMemo(() => props.title)
   const description = createMemo(() => props.description)
@@ -98,6 +111,7 @@ export function Card(props: CardProps): JSX.Element {
   return (
     <div
       data-slot="root"
+      {...rest}
       style={{ ...props.styles?.root, ...props.style }}
       class={cn(
         'text-card-foreground surface-border rounded-2xl bg-card flex flex-col shadow-xs/5 relative not-dark:bg-clip-padding',

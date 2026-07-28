@@ -334,6 +334,11 @@
         "defaultValue": ""
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "required",
         "required": false,
         "type": "boolean | undefined",
@@ -723,16 +728,21 @@
             "required": false,
             "type": "string | undefined",
             "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": [
+          },
           {
-            "name": "role",
+            "name": "data-size",
             "required": false,
             "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
+            "description": "Stores the resolved size variant."
+          },
+          {
+            "name": "data-variant",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved visual variant."
           }
-        ]
+        ],
+        "ariaAttributes": []
       },
       {
         "name": "tag",

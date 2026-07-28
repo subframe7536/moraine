@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
@@ -7,7 +7,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListener } from '../../shared/use-event-listener'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, cn, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -66,7 +66,7 @@ export namespace CheckboxT {
     /**
      * Pointer down handler for the checkbox control.
      */
-    onPointerDown?: JSX.EventHandler<HTMLButtonElement, PointerEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
 
     /**
      * Native value submitted when the checkbox is checked.
@@ -140,11 +140,12 @@ export namespace CheckboxT {
   /**
    * Props for the Checkbox component.
    */
-  export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
+  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
+    'div',
     Base<TTrue, TFalse>,
     Variant,
     Slot
-  > {}
+  >
 }
 
 /**
@@ -159,6 +160,37 @@ export interface CheckboxProps<TTrue = boolean, TFalse = boolean> extends Checkb
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
 ): JSX.Element {
+  type RootProps = CheckboxProps<TTrue, TFalse> & {
+    onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
+    'id',
+    'name',
+    'disabled',
+    'required',
+    'readOnly',
+    'value',
+    'checked',
+    'defaultChecked',
+    'trueValue',
+    'falseValue',
+    'label',
+    'description',
+    'formFieldBind',
+    'onChange',
+    'indeterminate',
+    'checkedIcon',
+    'indeterminateIcon',
+    'onPointerDown',
+    'size',
+    'variant',
+    'indicator',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onClick',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -171,7 +203,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    props,
+    local,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -355,7 +387,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
-    merged.onPointerDown?.(event)
+    const { defaultPrevented } = callHandler(event, merged.onPointerDown)
+    if (defaultPrevented) {
+      return
+    }
 
     if (document.activeElement === inputEl) {
       event.preventDefault()
@@ -363,6 +398,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onClick)
+    if (defaultPrevented) {
+      return
+    }
     if (merged.variant !== 'card') {
       return
     }
@@ -378,6 +417,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       data-slot="root"
+      {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={checkboxRootVariants(
         {

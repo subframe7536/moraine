@@ -28,12 +28,6 @@
   "props": {
     "own": [
       {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Hides the badge from the accessibility tree when it is purely decorative."
-      },
-      {
         "name": "children",
         "required": false,
         "type": "JSX.Element",
@@ -63,16 +57,14 @@
         "description": "Callback when the trailing icon/button is clicked."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
-      },
-      {
-        "name": "slotName",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Data slot for styling.",
-        "defaultValue": "root"
       },
       {
         "name": "style",
@@ -88,7 +80,7 @@
         "name": "title",
         "required": false,
         "type": "string | undefined",
-        "description": "Accessible title for the badge."
+        "description": "Accessible title shown by the browser for the badge root."
       },
       {
         "name": "trailing",
@@ -150,6 +142,25 @@
         "name": "leading",
         "cssVariables": [],
         "dataAttributes": [],
+        "ariaAttributes": []
+      },
+      {
+        "name": "root",
+        "cssVariables": [],
+        "dataAttributes": [
+          {
+            "name": "data-size",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved size variant."
+          },
+          {
+            "name": "data-variant",
+            "required": false,
+            "type": "string",
+            "description": "Stores the resolved visual variant."
+          }
+        ],
         "ariaAttributes": []
       },
       {

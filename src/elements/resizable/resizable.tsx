@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  splitProps,
   onCleanup,
   onMount,
 } from 'solid-js'
@@ -154,7 +155,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -174,6 +175,25 @@ const EMPTY_PANELS: ResizablePanelItem[] = []
 
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
+  const [localProps, rest] = splitProps(props, [
+    'id',
+    'panels',
+    'onResize',
+    'onResizeStart',
+    'onResizeEnd',
+    'onHandleKeyDown',
+    'disable',
+    'handle',
+    'handleRender',
+    'handleAction',
+    'intersection',
+    'keyboardDelta',
+    'orientation',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const local = mergeProps(
     {
       orientation: 'horizontal' as ResizableOrientation,
@@ -181,7 +201,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       handle: true,
       handleAction: 'resize' as const,
     },
-    props,
+    localProps,
   )
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
@@ -731,6 +751,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       ref={rootRef}
       id={local.id}
       data-slot="root"
+      {...rest}
       style={{ ...local.styles?.root, ...local.style }}
       data-resizable-root
       data-orientation={orientation()}

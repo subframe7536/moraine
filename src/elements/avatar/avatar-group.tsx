@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -50,7 +50,7 @@ export namespace AvatarGroupT {
   }
 
   /** Props for the AvatarGroup component. */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /** Props for the AvatarGroup component. */
@@ -76,6 +76,16 @@ function resolveMax(max: AvatarGroupProps['max']): number | undefined {
 
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'items',
+    'max',
+    'size',
+    'transition',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -83,7 +93,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
       items: [] as AvatarGroupT.Item[],
       max: undefined as number | string | undefined,
     },
-    props,
+    local,
   )
 
   const visibleItems = createMemo(() => {
@@ -106,6 +116,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     <Show when={merged.items.length > 0}>
       <div
         data-slot="root"
+        {...rest}
         style={{ ...merged.styles?.root, ...merged.style }}
         class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
       >

@@ -292,8 +292,7 @@ describe('Textarea', () => {
     expect(footer?.style.width).toBe('200px')
   })
 
-  test('rejects as in type contract', () => {
-    // @ts-expect-error as has been removed from Textarea props
+  test('accepts arbitrary root props in type contract', () => {
     const props: TextareaProps = { as: 'section' }
     expect(props).toBeDefined()
   })

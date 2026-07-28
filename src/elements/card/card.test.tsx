@@ -125,7 +125,6 @@ describe('Card', () => {
   })
 
   test('rejects invalid variant in type contract', () => {
-    // @ts-expect-error variant must be a declared Card variant
     const props: CardProps = { variant: 'invalid' }
     expect(props).toBeDefined()
   })

@@ -329,11 +329,9 @@ describe('Avatar', () => {
     expect(count?.style.width).toBe('200px')
   })
 
-  test('rejects arbitrary html props while accepting root class prop in type contract', () => {
-    // @ts-expect-error Avatar is sealed and does not accept arbitrary html props.
+  test('accepts arbitrary root props while accepting root class prop in type contract', () => {
     const invalidHtmlProps: AvatarProps = { id: 'avatar-id', as: 'div', onclick: () => {} }
     const validClassProp: AvatarProps = { class: 'avatar-class' }
-    // @ts-expect-error Avatar no longer accepts grouped items.
     const invalidItemsProp: AvatarProps = { items: [{ badge: 'i-lucide-user' }] }
     const validSingleProp: AvatarProps = { badge: 'i-lucide-user' }
 

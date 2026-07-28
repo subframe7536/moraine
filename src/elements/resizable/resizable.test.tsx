@@ -133,7 +133,6 @@ describe('Resizable', () => {
       handle: true,
       handleRender: (props) => <span>{props.orientation}</span>,
     }
-    // @ts-expect-error renderHandle has been replaced by handle and handleRender
     const legacyProps: ResizableProps = { renderHandle: true }
 
     expect(validProps.handle).toBe(true)

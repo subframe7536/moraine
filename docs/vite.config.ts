@@ -3,8 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
 import { fileRouter } from 'solid-file-router/plugin'
-import type { PluginOption } from 'vite'
-import { defineConfig } from 'vite'
+import type { UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
 import {
@@ -25,11 +24,11 @@ const site = {
   siteUrl: 'https://ui.subf.dev/',
 }
 
-export default defineConfig({
+const config = {
   plugins: [
-    docsBuildPlugin({ projectRoot }) as unknown as PluginOption,
-    uno(unocfg),
-    solid({ ssr: true, extensions: ['.mdx'] }),
+    docsBuildPlugin({ projectRoot }) as unknown,
+    uno(unocfg) as unknown,
+    solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
     fileRouter({
       routeSource: createDocsRouteSource(projectRoot),
       output: 'routes.d.ts',
@@ -49,7 +48,7 @@ export default defineConfig({
         badge: 'string',
         api: 'string',
       },
-    }),
+    }) as unknown,
     siteMetaPlugin({
       projectRoot,
       ...site,
@@ -59,13 +58,15 @@ export default defineConfig({
       imageWidth: 1200,
       imageHeight: 630,
       twitterCard: 'summary_large_image',
-    }),
-    llmsTxtPlugin({ projectRoot, ...site }),
-  ],
+    }) as unknown,
+    llmsTxtPlugin({ projectRoot, ...site }) as unknown,
+  ] as unknown as UserConfig['plugins'],
   resolve: {
     alias: {
       '@src': path.resolve(docsRoot, '../src'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
-})
+} as unknown as UserConfig
+
+export default config

@@ -121,6 +121,11 @@
         "description": "Callback when the loading status of the avatar changes."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"

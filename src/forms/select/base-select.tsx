@@ -1,10 +1,19 @@
 import type { Accessor, Component, JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  splitProps,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
 import { List } from '../../elements/list'
-import type { ListT } from '../../elements/list'
+import type { ListProps, ListT } from '../../elements/list'
 import {
   overlayMenuContentVariants,
   useOverlayMenuDismiss,
@@ -240,7 +249,7 @@ export namespace BaseSelectT {
     closeOnSelect?: boolean
   }
 
-  export interface Props<TItem extends Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
+  export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Slot>
 }
 
 export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {}
@@ -430,6 +439,63 @@ function useBaseSelectOverlay(options: {
 export function BaseSelect<TItem extends BaseSelectT.Item>(
   props: BaseSelectProps<TItem>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props as BaseSelectProps<TItem> & Record<string, unknown>, [
+    'id',
+    'name',
+    'required',
+    'disabled',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'options',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'virtualRender',
+    'scrollToItem',
+    'listboxProps',
+    'itemProps',
+    'search',
+    'searchValue',
+    'defaultSearchValue',
+    'onSearch',
+    'searchMaxLength',
+    'filterOption',
+    'selectedValues',
+    'multiple',
+    'initialValue',
+    'children',
+    'optionRender',
+    'emptyRender',
+    'onOptionSelect',
+    'onInputKeyDown',
+    'onScrollBottom',
+    'scrollBottomThreshold',
+    'overflowPadding',
+    'gutter',
+    'closeOnSelect',
+    'value',
+    'defaultValue',
+    'onChange',
+    'placeholder',
+    'loading',
+    'loadingIcon',
+    'leadingIcon',
+    'trailingIcon',
+    'closeIcon',
+    'labelRender',
+    'tagRender',
+    'allowClear',
+    'onClear',
+    'tagVariant',
+    'tokenSeparators',
+    'allowCreate',
+    'maxCount',
+    'maxTagCount',
+  ])
   const merged = mergeProps(
     {
       variant: 'outline',
@@ -437,7 +503,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       overflowPadding: 4,
       closeOnSelect: true,
     },
-    props,
+    local as BaseSelectProps<TItem>,
   )
   const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'base-select-listbox')
 
@@ -1013,6 +1079,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const listEntries = createMemo<readonly SelectListEntry[]>(() =>
     merged.virtualRender ? virtualEntries() : visibleOptions(),
   )
+  const RuntimeList = List as unknown as Component<
+    ListProps<SelectListEntry, 'div', HTMLDivElement> & JSX.HTMLAttributes<HTMLDivElement>
+  >
 
   function renderListEntry(
     entry: SelectListEntry,
@@ -1058,6 +1127,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-required={merged.required ? '' : undefined}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
+      {...rest}
     >
       <select
         ref={(element) => {
@@ -1136,7 +1206,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     : renderComponentOrElement(merged.optionRender, { option: null })
                 }
               >
-                <List<SelectListEntry, 'div', HTMLDivElement>
+                <RuntimeList
                   as="div"
                   items={listEntries()}
                   itemRender={(context) =>
@@ -1154,7 +1224,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                   aria-multiselectable={merged.multiple || undefined}
                   data-slot="listbox"
                   {...merged.listboxProps}
-                  ref={(element) => {
+                  ref={(element: HTMLDivElement) => {
                     listboxRef = element
                     callRef(merged.listboxProps?.ref, element)
                   }}
@@ -1167,7 +1237,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     merged.classes?.listbox,
                     merged.listboxProps?.class,
                   )}
-                  onScroll={(event) => {
+                  onScroll={(event: Event) => {
                     const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
                     if (!defaultPrevented) {
                       handleListboxScroll(event)

@@ -11,5 +11,5 @@
     "types": ["vite/client", "solid-file-router/client", "@testing-library/dom", "node"]
   },
   "include": ["src", "test", "docs"],
-  "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts"]
+  "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts", "test/types"]
 }

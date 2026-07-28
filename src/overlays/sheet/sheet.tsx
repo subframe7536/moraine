@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps } from 'solid-js'
+import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -109,7 +109,7 @@ export namespace SheetT {
   /**
    * Props for the Sheet component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -119,6 +119,30 @@ export interface SheetProps extends SheetT.Props {}
 
 /** Slide-in panel overlay from any screen edge with header, body, and footer slots. */
 export function Sheet(props: SheetProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'overlay',
+    'dismissible',
+    'onClosePrevent',
+    'title',
+    'description',
+    'side',
+    'inset',
+    'transition',
+    'close',
+    'header',
+    'body',
+    'footer',
+    'action',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       overlay: true,
@@ -128,7 +152,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       close: true,
       dismissible: true,
     },
-    props,
+    local,
   )
   const title = createMemo(() => merged.title)
   const description = createMemo(() => merged.description)
@@ -153,6 +177,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       trigger={merged.children}
+      triggerProps={rest}
       classes={{
         trigger: cn(merged.classes?.trigger, merged.class),
         overlay: cn(

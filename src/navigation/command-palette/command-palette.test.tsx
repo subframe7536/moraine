@@ -864,8 +864,7 @@ describe('CommandPalette', () => {
     expect(item).toBeDefined()
   })
 
-  test('rejects removed dialog props in the type contract', () => {
-    // @ts-expect-error CommandPalette no longer owns dialog state.
+  test('accepts arbitrary root props in the type contract', () => {
     const props: CommandPaletteProps = { groups: [], open: true }
     expect(props).toBeDefined()
   })

@@ -31,13 +31,13 @@ export function ControlledNonLinear() {
         linear={false}
       />
       <div class="flex flex-wrap gap-2 items-center">
-        <Button size="sm" variant="outline" onclick={() => setReleaseStep('draft')}>
+        <Button size="sm" variant="outline" onClick={() => setReleaseStep('draft')}>
           Go to draft
         </Button>
-        <Button size="sm" variant="outline" onclick={() => setReleaseStep('review')}>
+        <Button size="sm" variant="outline" onClick={() => setReleaseStep('review')}>
           Go to review
         </Button>
-        <Button size="sm" variant="outline" onclick={() => setReleaseStep('ship')}>
+        <Button size="sm" variant="outline" onClick={() => setReleaseStep('ship')}>
           Go to ship
         </Button>
         <p class="text-xs text-muted-foreground">Current step: {releaseStep()}</p>
