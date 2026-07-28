@@ -725,7 +725,14 @@
             "description": "Present when the field is required."
           }
         ],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "tag",

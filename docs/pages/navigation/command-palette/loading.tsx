@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Icon, KbdGroup } from '@src'
+import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -33,9 +33,15 @@ export function Loading() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette open={open()} onOpenChange={setOpen} groups={BASIC_GROUPS} loading>
+      <Dialog
+        open={open()}
+        onOpenChange={setOpen}
+        close={false}
+        classes={{ body: 'p-0 mb-0' }}
+        body={<CommandPalette groups={BASIC_GROUPS} loading onClose={() => setOpen(false)} />}
+      >
         <Button variant="outline">Open palette</Button>
-      </CommandPalette>
+      </Dialog>
     </div>
   )
 }

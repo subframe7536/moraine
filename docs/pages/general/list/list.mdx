@@ -20,7 +20,7 @@ import { useListVirtualizer } from 'moraine/utils'
 
 ### Object List
 
-Render arbitrary objects with a semantic `ul` root by default. Use `as` and native root attributes when another element or role is required.
+Render arbitrary objects with a semantic `ul` root, `role="list"`, and `data-slot="root"` by default. Use `as` and native root attributes when another element or role is required; explicit attributes override the defaults.
 
 <Example path="./basic" />
 

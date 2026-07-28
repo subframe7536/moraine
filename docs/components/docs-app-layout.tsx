@@ -6,7 +6,7 @@ import { Button, Progress } from '../../src'
 import { useTheme } from '../hooks/use-theme'
 
 import { ContentHeader } from './content-header'
-import { DocsCommandPalette, DocsSearchTrigger } from './docs-command-palette'
+import { DocsCommandPalette } from './docs-command-palette'
 import { DocsPageMeta } from './docs-page-meta'
 import { getDocsPages } from './docs-route'
 import {
@@ -109,21 +109,18 @@ export function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               theme={theme}
               setTheme={updateTheme}
               search={
-                <DocsSearchTrigger
+                <DocsCommandPalette
+                  pages={pages}
+                  open={paletteOpen}
+                  setOpen={setPaletteOpen}
+                  onNavigate={navigateToPage}
                   variant={ctx.isMobile() ? 'mobile' : 'desktop'}
-                  onOpen={() => setPaletteOpen(true)}
                 />
               }
             />
             <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
           </>
         )}
-      />
-      <DocsCommandPalette
-        pages={pages}
-        open={paletteOpen}
-        setOpen={setPaletteOpen}
-        onNavigate={navigateToPage}
       />
     </>
   )

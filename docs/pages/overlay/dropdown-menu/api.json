@@ -601,7 +601,14 @@
         "name": "root",
         "cssVariables": [],
         "dataAttributes": [],
-        "ariaAttributes": []
+        "ariaAttributes": [
+          {
+            "name": "role",
+            "required": false,
+            "type": "string",
+            "description": "Defines the semantic role exposed to assistive technology."
+          }
+        ]
       },
       {
         "name": "separator",

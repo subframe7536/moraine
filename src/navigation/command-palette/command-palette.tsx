@@ -1,29 +1,15 @@
 import type { Component, JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-} from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, mergeProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import { List } from '../../elements/list'
 import type { ListT } from '../../elements/list'
-import { Modal } from '../../overlays/base/modal'
-import type { ModalProps } from '../../overlays/base/modal'
-import { popupOverlayVariants } from '../../overlays/popup/popup.class'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, cn, useId } from '../../shared/utils'
-import { useEventListener } from '../../utils'
 
 import type { CommandPaletteItemVariantProps } from './command-palette.class'
 import { commandPaletteItemVariants } from './command-palette.class'
@@ -32,15 +18,6 @@ export namespace CommandPaletteT {
   export type DescriptionPosition = 'bottom' | 'trailing'
 
   export interface Slot<T = unknown> {
-    /** Element users activate to open the command palette dialog. */
-    trigger?: T
-
-    /** Backdrop layer rendered behind the command palette dialog. */
-    overlay?: T
-
-    /** Modal content element that positions the command palette panel. */
-    content?: T
-
     /**
      * Command palette container that owns search and option list.
      */
@@ -182,15 +159,7 @@ export namespace CommandPaletteT {
   export type EmptyRenderProps<TItem extends Item = Item> = BaseContext<TItem>
   export type FooterRenderProps<TItem extends Item = Item> = BaseContext<TItem>
 
-  export interface Position {
-    top: number
-    left: number
-  }
-
-  export interface Base<TItem extends Item = Item> extends Pick<
-    ModalProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
-  > {
+  export interface Base<TItem extends Item = Item> {
     /**
      * Command groups to display initially.
      * @default []
@@ -205,6 +174,8 @@ export namespace CommandPaletteT {
     searchTerm?: string
     /** Callback triggered when the search term changes. */
     onSearchTermChange?: (term: string) => void
+    /** Callback triggered when an enabled item is selected. */
+    onSelect?: (item: TItem) => void
     /** Maximum allowed length for the search text. */
     searchMaxLength?: number
     /**
@@ -232,8 +203,13 @@ export namespace CommandPaletteT {
      * @default false
      */
     showClose?: boolean
-    /** Callback triggered when the close button is clicked. */
+    /** Callback triggered when the close button is clicked or selection requests closing. */
     onClose?: () => void
+    /**
+     * Whether to request closing the palette after an enabled item is selected.
+     * @default true
+     */
+    closeOnSelect?: boolean
     /**
      * Whether the palette is in a loading state.
      * @default false
@@ -267,19 +243,8 @@ export namespace CommandPaletteT {
     listboxProps?: ElementProps<HTMLDivElement>
     /** Additional attributes for a command row. */
     itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
-    /**
-     * Whether to close the command palette when an enabled item is selected.
-     * @default true
-     */
-    closeOnSelect?: boolean
-    /** Fixed content position in pixels. Missing axes keep the default centered placement. */
-    position?: Partial<Position>
-    /** Callback triggered when the modal content position changes. */
-    onPositionChange?: (position: Position) => void
     /** Additional props of input */
     inputProps?: JSX.HTMLAttributes<HTMLInputElement>
-    /** Optional trigger element that opens the command palette. */
-    children?: JSX.Element
   }
 
   export interface Props<TItem extends Item = Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
@@ -399,8 +364,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       placeholder: 'Search...',
       autofocus: true,
       showClose: false,
-      overlay: true,
-      dismissible: true,
       closeOnSelect: true,
       size: 'md' as const,
       descriptionPosition: 'bottom' as const,
@@ -413,11 +376,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
-  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
-  let closePalette: () => void = () => {}
-  const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'command-palette-listbox')
+  const listboxId = useId(undefined, 'command-palette-listbox')
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
@@ -445,18 +406,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   createEffect(() => {
     const input = inputElement()
-    let dialogAutofocusTimer: ReturnType<typeof setTimeout> | undefined
-    if (!merged.autofocus || !input || !input.closest('[role="dialog"]')) {
+    if (!merged.autofocus || !input) {
       return
     }
 
-    dialogAutofocusTimer = setTimeout(() => {
-      input.focus()
-    }, 0)
-
-    onCleanup(() => {
-      if (dialogAutofocusTimer !== undefined) {
-        clearTimeout(dialogAutofocusTimer)
+    queueMicrotask(() => {
+      if (input.isConnected && !input.closest('[role="dialog"]')) {
+        input.focus({ preventScroll: true })
       }
     })
   })
@@ -580,23 +536,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     onSelect: (value) => {
       const highlighted = visibleItems().find((item) => item.key === value)
       if (highlighted) {
-        activateItem(highlighted.item, () => {})
+        activateItem(highlighted.item)
       }
     },
   })
 
-  function activateItem(item: TItem, close: () => void): void {
+  function activateItem(item: TItem): void {
     if (item.disabled) {
       return
     }
 
     item.onSelect?.()
+    merged.onSelect?.(item)
     if (merged.closeOnSelect) {
-      close()
+      merged.onClose?.()
     }
   }
 
-  function handleKeyDown(event: KeyboardEvent, close: () => void): void {
+  function handleKeyDown(event: KeyboardEvent): void {
     if (event.key === ' ' || event.key === 'Spacebar') {
       return
     }
@@ -605,30 +562,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       const highlighted = visibleItems().find((item) => item.key === activeKey())
       if (highlighted) {
         event.preventDefault()
-        activateItem(highlighted.item, close)
+        activateItem(highlighted.item)
       }
       return
     }
 
     onNavigationKeyDown(event, activeKey(), 'vertical')
   }
-
-  const emit = () => {
-    const rect = contentElement()?.getBoundingClientRect()
-    if (rect && merged.onPositionChange) {
-      merged.onPositionChange({ top: rect.top, left: rect.left })
-    }
-  }
-
-  createEffect(
-    on([() => merged.position?.top, () => merged.position?.left], () => {
-      queueMicrotask(emit)
-    }),
-  )
-
-  onMount(() => {
-    useEventListener(window, 'resize', emit)
-  })
 
   function getContext(): CommandPaletteT.BaseContext<TItem> {
     return {
@@ -827,47 +767,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           }
 
           setActiveKey(item.key)
-          activateItem(item.item, closePalette)
+          activateItem(item.item)
         }}
       >
         {renderCommandItem(item, itemContext)}
       </div>
-    )
-  }
-
-  function renderVirtualEntry(
-    entry: CommandPaletteT.VirtualEntry<TItem>,
-    _index: number,
-    virtualProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    return (
-      <Show
-        when={entry.type === 'label'}
-        fallback={
-          <Show when={visibleItemByKey().get(entry.key)}>
-            {(item) => renderVisibleItem(item(), virtualProps)}
-          </Show>
-        }
-      >
-        <div
-          role="presentation"
-          data-slot="group"
-          {...virtualProps}
-          style={{
-            ...merged.styles?.group,
-            ...toStyleObject(virtualProps?.style),
-          }}
-          class={cn('mt-2 p-1', merged.classes?.group, virtualProps?.class)}
-        >
-          <span
-            data-slot="label"
-            style={merged.styles?.label}
-            class={cn('text-sm text-muted-foreground font-semibold px-1.5', merged.classes?.label)}
-          >
-            {(entry as CommandPaletteT.VirtualLabelEntry<TItem>).label}
-          </span>
-        </div>
-      </Show>
     )
   }
 
@@ -876,221 +780,199 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     merged.virtualRender ? virtualEntries() : visibleGroups(),
   )
 
-  function renderListEntry(
-    entry: CommandListEntry,
-    index: number,
-    rowProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    if (merged.virtualRender) {
-      return renderVirtualEntry(entry as CommandPaletteT.VirtualEntry<TItem>, index, rowProps)
-    }
-
-    const group = entry as NormalizedGroup<TItem>
-    return (
-      <div
-        data-slot="group"
-        style={merged.styles?.group}
-        class={cn('mt-2 p-1', merged.classes?.group)}
-      >
-        <Show when={group.label}>
-          <span
-            data-slot="label"
-            style={merged.styles?.label}
-            class={cn('text-sm text-muted-foreground font-semibold px-1.5', merged.classes?.label)}
-          >
-            {group.label}
-          </span>
-        </Show>
-
-        <For each={group.items}>{(item) => renderVisibleItem(item)}</For>
-      </div>
-    )
-  }
-
   return (
-    <Modal
-      id={merged.id}
-      open={merged.open}
-      defaultOpen={merged.defaultOpen}
-      onOpenChange={merged.onOpenChange}
-      overlay={merged.overlay}
-      dismissible={merged.dismissible}
-      onClosePrevent={merged.onClosePrevent}
-      preventScroll
-      trigger={merged.children}
-      ref={setContentElement}
-      classes={{
-        trigger: ['outline-none', merged.classes?.trigger],
-        overlay: popupOverlayVariants(
-          {
-            scrollable: false,
-          },
-          merged.classes?.overlay,
-        ),
-        content: [
-          'outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in grid max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] fixed sm:max-w-lg',
-          merged.position?.left === undefined && 'left-1/2 -translate-x-1/2',
-          merged.position?.top === undefined && 'top-1/2 -translate-y-1/2',
-          merged.classes?.content,
-        ],
-      }}
-      styles={{
-        trigger: merged.styles?.trigger,
-        overlay: merged.styles?.overlay,
-        content: {
-          ...merged.styles?.content,
-          ...(merged.position?.top !== undefined ? { top: `${merged.position.top}px` } : {}),
-          ...(merged.position?.left !== undefined ? { left: `${merged.position.left}px` } : {}),
-        },
-      }}
-      content={(context) => {
-        closePalette = context.close
+    <div
+      data-slot="root"
+      style={{ ...merged.styles?.root, ...merged.style }}
+      class={cn(
+        'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
+        merged.classes?.root,
+        merged.class,
+      )}
+    >
+      <div
+        data-slot="inputWrapper"
+        style={merged.styles?.inputWrapper}
+        class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
+      >
+        <IconButtonInner
+          name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
+          data-slot="search"
+          tabIndex={-1}
+          style={merged.styles?.search}
+          aria-busy={merged.loading || undefined}
+          data-loading={merged.loading ? '' : undefined}
+          disabled={merged.loading || undefined}
+          class={cn('text-muted-foreground size-5 pointer-events-none', merged.classes?.search)}
+        />
 
-        return (
-          <div
-            data-slot="root"
-            style={{ ...merged.styles?.root, ...merged.style }}
+        <input
+          {...merged.inputProps}
+          ref={(el) => {
+            setInputElement(el)
+          }}
+          data-slot="input"
+          style={merged.styles?.input}
+          class={cn(
+            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
+            merged.classes?.input,
+          )}
+
+          role="combobox"
+          aria-controls={listboxId()}
+          aria-expanded="true"
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
+          aria-activedescendant={activeDescendantId()}
+          placeholder={merged.placeholder}
+          maxLength={merged.searchMaxLength}
+          value={currentSearchTerm()}
+          onInput={(event) => {
+            const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput as any)
+            if (!defaultPrevented) {
+              applySearchValue(event.currentTarget.value)
+            }
+          }}
+          onKeyDown={(event) => {
+            const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown as any)
+            if (!defaultPrevented) {
+              handleKeyDown(event)
+            }
+          }}
+        />
+
+        <Show when={merged.showClose}>
+          <IconButtonInner
+            name={merged.closeIcon}
+            data-slot="close"
+            style={merged.styles?.close}
             class={cn(
-              'rounded-xl bg-background flex flex-col min-h-0 divide-(border y)',
-              merged.classes?.root,
-              merged.class,
+              'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
+              merged.classes?.close,
             )}
+            onClick={() => {
+              merged.onClose?.()
+            }}
+            aria-label="Close"
+          />
+        </Show>
+      </div>
+
+      <Show
+        when={hasItems()}
+        fallback={
+          <div
+            data-slot="empty"
+            style={merged.styles?.empty}
+            class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
           >
-            <div
-              data-slot="inputWrapper"
-              style={merged.styles?.inputWrapper}
-              class={cn('px-3 flex gap-2 h-12 items-center', merged.classes?.inputWrapper)}
-            >
-              <IconButtonInner
-                name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
-                data-slot="search"
-                tabIndex={-1}
-                style={merged.styles?.search}
-                aria-busy={merged.loading || undefined}
-                data-loading={merged.loading ? '' : undefined}
-                disabled={merged.loading || undefined}
-                class={cn(
-                  'text-muted-foreground size-5 pointer-events-none',
-                  merged.classes?.search,
-                )}
-              />
-
-              <input
-                {...merged.inputProps}
-                ref={(el) => {
-                  setInputElement(el)
-                }}
-                data-slot="input"
-                style={merged.styles?.input}
-                class={cn(
-                  'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
-                  merged.classes?.input,
-                )}
-
-                role="combobox"
-                aria-controls={listboxId()}
-                aria-expanded="true"
-                aria-haspopup="listbox"
-                aria-autocomplete="list"
-                aria-activedescendant={activeDescendantId()}
-                placeholder={merged.placeholder}
-                autofocus={merged.autofocus}
-                maxLength={merged.searchMaxLength}
-                value={currentSearchTerm()}
-                onInput={(event) => {
-                  const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput as any)
-                  if (!defaultPrevented) {
-                    applySearchValue(event.currentTarget.value)
-                  }
-                }}
-                onKeyDown={(event) => {
-                  const { defaultPrevented } = callHandler(
-                    event,
-                    merged.inputProps?.onKeyDown as any,
-                  )
-                  if (!defaultPrevented) {
-                    handleKeyDown(event, context.close)
-                  }
-                }}
-              />
-
-              <Show when={merged.showClose}>
-                <IconButtonInner
-                  name={merged.closeIcon}
-                  data-slot="close"
-                  style={merged.styles?.close}
-                  class={cn(
-                    'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
-                    merged.classes?.close,
-                  )}
-                  onClick={() => {
-                    merged.onClose?.()
-                    context.close()
-                  }}
-                  aria-label="Close"
-                />
-              </Show>
-            </div>
-
+            <Show when={merged.emptyRender !== undefined} fallback="No results.">
+              {renderComponentOrElement(merged.emptyRender, getContext())}
+            </Show>
+          </div>
+        }
+      >
+        <List<CommandListEntry, 'div', HTMLDivElement>
+          as="div"
+          items={listEntries()}
+          itemRender={(context) => (
             <Show
-              when={hasItems()}
+              when={merged.virtualRender}
               fallback={
                 <div
-                  data-slot="empty"
-                  style={merged.styles?.empty}
-                  class={cn('text-muted-foreground py-6 text-center', merged.classes?.empty)}
+                  data-slot="group"
+                  style={merged.styles?.group}
+                  class={cn('p-1', merged.classes?.group)}
                 >
-                  <Show when={merged.emptyRender !== undefined} fallback="No results.">
-                    {renderComponentOrElement(merged.emptyRender, getContext())}
+                  <Show when={(context.item as NormalizedGroup<TItem>).label}>
+                    <span
+                      data-slot="label"
+                      style={merged.styles?.label}
+                      class={cn(
+                        'text-muted-foreground leading-loose font-semibold px-1.5',
+                        merged.classes?.label,
+                      )}
+                    >
+                      {(context.item as NormalizedGroup<TItem>).label}
+                    </span>
                   </Show>
+
+                  <For each={(context.item as NormalizedGroup<TItem>).items}>
+                    {(item) => renderVisibleItem(item)}
+                  </For>
                 </div>
               }
             >
-              <List<CommandListEntry, 'div', HTMLDivElement>
-                as="div"
-                items={listEntries()}
-                itemRender={(context) =>
-                  renderListEntry(context.item, context.index, context.props)
+              <Show
+                when={(context.item as CommandPaletteT.VirtualEntry<TItem>).type === 'label'}
+                fallback={
+                  <Show
+                    when={visibleItemByKey().get(
+                      (context.item as CommandPaletteT.VirtualEntry<TItem>).key,
+                    )}
+                  >
+                    {(item) => renderVisibleItem(item(), context.props)}
+                  </Show>
                 }
-                virtualRender={
-                  merged.virtualRender as
-                    | Component<
-                        ListT.VirtualRenderProps<CommandListEntry, HTMLElement, HTMLDivElement>
-                      >
-                    | undefined
-                }
-                id={listboxId()}
-                role="listbox"
-                data-slot="listbox"
-                {...merged.listboxProps}
-                ref={(element) => {
-                  listboxElement = element
-                  callRef(merged.listboxProps?.ref, element)
-                }}
-                style={{
-                  ...merged.styles?.listbox,
-                  ...toStyleObject(merged.listboxProps?.style),
-                }}
-                class={cn(
-                  'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
-                  merged.classes?.listbox,
-                  merged.listboxProps?.class,
-                )}
-              />
-            </Show>
-
-            <Show when={merged.footerRender !== undefined}>
-              <div
-                data-slot="footer"
-                style={merged.styles?.footer}
-                class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
               >
-                {renderComponentOrElement(merged.footerRender, getContext())}
-              </div>
+                <div
+                  role="presentation"
+                  data-slot="group"
+                  {...context.props}
+                  style={{
+                    ...merged.styles?.group,
+                    ...toStyleObject(context.props?.style),
+                  }}
+                  class={cn('mt-2 p-1', merged.classes?.group, context.props?.class)}
+                >
+                  <span
+                    data-slot="label"
+                    style={merged.styles?.label}
+                    class={cn(
+                      'text-sm text-muted-foreground font-semibold px-1.5',
+                      merged.classes?.label,
+                    )}
+                  >
+                    {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
+                  </span>
+                </div>
+              </Show>
             </Show>
-          </div>
-        )
-      }}
-    />
+          )}
+          virtualRender={
+            merged.virtualRender as
+              | Component<ListT.VirtualRenderProps<CommandListEntry, HTMLElement, HTMLDivElement>>
+              | undefined
+          }
+          id={listboxId()}
+          role="listbox"
+          data-slot="listbox"
+          {...merged.listboxProps}
+          ref={(element) => {
+            listboxElement = element
+            callRef(merged.listboxProps?.ref, element)
+          }}
+          style={{
+            ...merged.styles?.listbox,
+            ...toStyleObject(merged.listboxProps?.style),
+          }}
+          class={cn(
+            'p-1 max-h-36vh overflow-x-hidden overflow-y-auto focus:outline-none',
+            merged.classes?.listbox,
+            merged.listboxProps?.class,
+          )}
+        />
+      </Show>
+
+      <Show when={merged.footerRender !== undefined}>
+        <div
+          data-slot="footer"
+          style={merged.styles?.footer}
+          class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
+        >
+          {renderComponentOrElement(merged.footerRender, getContext())}
+        </div>
+      </Show>
+    </div>
   )
 }

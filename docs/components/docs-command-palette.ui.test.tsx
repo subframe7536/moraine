@@ -57,4 +57,28 @@ describe('Docs search UI', () => {
       expect(options[0]?.textContent).toContain('Tabs')
     })
   })
+
+  test('claims the global shortcut before page-level listeners', async () => {
+    const [open, setOpen] = createSignal(false)
+    const competingHandler = vi.fn()
+    window.addEventListener('keydown', competingHandler)
+
+    render(() => (
+      <DocsCommandPalette
+        pages={PAGES}
+        open={open}
+        setOpen={setOpen}
+        onNavigate={() => undefined}
+      />
+    ))
+
+    await fireEvent.keyDown(document.body, { key: 'k', metaKey: true })
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+      expect(competingHandler).not.toHaveBeenCalled()
+    })
+
+    window.removeEventListener('keydown', competingHandler)
+  })
 })

@@ -1,4 +1,4 @@
-import { Badge, Button, CommandPalette, Icon } from '@src'
+import { Badge, Button, CommandPalette, Dialog, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -29,14 +29,21 @@ export function DescriptionPosition() {
 
   return (
     <div class="max-w-full w-lg">
-      <CommandPalette
+      <Dialog
         open={open()}
         onOpenChange={setOpen}
-        groups={GROUPS}
-        descriptionPosition="trailing"
+        close={false}
+        classes={{ body: 'p-0 mb-0' }}
+        body={
+          <CommandPalette
+            groups={GROUPS}
+            descriptionPosition="trailing"
+            onClose={() => setOpen(false)}
+          />
+        }
       >
         <Button variant="outline">Open navigation</Button>
-      </CommandPalette>
+      </Dialog>
     </div>
   )
 }
