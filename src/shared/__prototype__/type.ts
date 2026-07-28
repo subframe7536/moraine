@@ -95,7 +95,7 @@ export type RootProps<TElement extends Tags | Component<any>> = MoraineTypeConfi
     ? ComponentProps<TElement>
     : StrictedAttributes<TElement>
   : {
-      ref?: StrictedAttributes<TElement> // todo)) correct type of ref
+      ref?: StrictedAttributes<TElement> // todo)) correct type of ref (variable or function)
       [key: string]: unknown
     }
 
@@ -120,7 +120,7 @@ type Test = BaseProps<
   { foo: string },
   { bar: number },
   { root: string; icon: string }
->[''] // todo)) make sure ref is correct index key
+>[''] // todo)) make sure `ref` is correct index key
 
 // ── Type-level test helpers ─────────────────────────────────────────────────
 
