@@ -54,12 +54,6 @@
         "name": "styles",
         "required": false,
         "type": "IconT.Styles | undefined"
-      },
-      {
-        "name": "title",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible title for the rendered icon element."
       }
     ],
     "inherited": []

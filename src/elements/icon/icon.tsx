@@ -35,9 +35,6 @@ export namespace IconT {
      * @default 'icon'
      */
     slotName?: string
-
-    /** Accessible title for the rendered icon element. */
-    title?: string
   }
 
   /**
@@ -82,8 +79,6 @@ export function Icon(props: IconProps): JSX.Element {
       ...local.style,
     }
   })
-  const ariaLabel = createMemo(() => (rest as { 'aria-label'?: string })['aria-label'])
-
   return (
     <Dynamic
       component={component()}
@@ -91,7 +86,7 @@ export function Icon(props: IconProps): JSX.Element {
       class={cn(iconClass(), local.class)}
       style={style()}
       {...rest}
-      aria-hidden={ariaLabel() ? undefined : true}
+      aria-hidden={rest['aria-label'] ? undefined : true}
     />
   )
 }
