@@ -2,6 +2,7 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import type { BaseProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {
@@ -35,21 +36,6 @@ export namespace IconT {
      */
     slotName?: string
 
-    /**
-     * Custom style overrides.
-     */
-    style?: JSX.CSSProperties
-
-    /**
-     * Additional CSS class.
-     */
-    class?: string
-
-    /**
-     * Unique identifier.
-     */
-    id?: string
-
     /** Accessible title for the rendered icon element. */
     title?: string
   }
@@ -57,7 +43,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export interface Props extends Base {}
+  export type Props = BaseProps<'div', Base, Variant, never>
 }
 
 /**
@@ -96,7 +82,7 @@ export function Icon(props: IconProps): JSX.Element {
       ...local.style,
     }
   })
-  const ariaLabel = (rest as { 'aria-label'?: string })['aria-label']
+  const ariaLabel = createMemo(() => (rest as { 'aria-label'?: string })['aria-label'])
 
   return (
     <Dynamic
@@ -105,7 +91,7 @@ export function Icon(props: IconProps): JSX.Element {
       class={cn(iconClass(), local.class)}
       style={style()}
       {...rest}
-      aria-hidden={ariaLabel ? undefined : true}
+      aria-hidden={ariaLabel() ? undefined : true}
     />
   )
 }

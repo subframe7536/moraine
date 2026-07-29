@@ -1,4 +1,4 @@
-import { Badge, Button, Card, List } from 'moraine'
+import { Badge, Button, Card, Icon, List } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
@@ -10,6 +10,7 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 </Badge>
 ;<Button onClick={() => undefined}>Save</Button>
 ;<Card aria-describedby="details" />
+;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
 

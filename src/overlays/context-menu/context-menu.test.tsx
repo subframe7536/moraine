@@ -152,13 +152,19 @@ describe('ContextMenu', () => {
   })
 
   test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
+    const triggerRef = vi.fn()
     const screen = render(() => (
-      <ContextMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
+      <ContextMenu
+        ref={triggerRef}
+        items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
+      >
         <div>Row Item</div>
       </ContextMenu>
     ))
 
     const row = screen.getByText('Row Item')
+    expect(triggerRef).toHaveBeenCalledWith(row.closest('[data-slot="trigger"]'))
+
     await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
     await waitFor(() => {

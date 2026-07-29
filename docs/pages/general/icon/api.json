@@ -13,20 +13,24 @@
       {
         "name": "class",
         "required": false,
-        "type": "string | undefined",
-        "description": "Additional CSS class."
+        "type": "ClassValue",
+        "description": "Class applied to the component root or trigger element."
       },
       {
-        "name": "id",
+        "name": "classes",
         "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier."
+        "type": "IconT.Classes | undefined"
       },
       {
         "name": "name",
         "required": false,
         "type": "IconT.Name",
         "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions."
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "size",
@@ -44,8 +48,12 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined",
-        "description": "Custom style overrides."
+        "type": "JSX.CSSProperties | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "IconT.Styles | undefined"
       },
       {
         "name": "title",

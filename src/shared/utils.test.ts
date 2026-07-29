@@ -1,7 +1,26 @@
 import { createRoot } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { useId } from './utils'
+import { callRef, useId } from './utils'
+
+describe('callRef', () => {
+  test('ignores element-valued refs', () => {
+    const element = document.createElement('div')
+
+    expect(() => callRef(element, element)).not.toThrow()
+  })
+
+  test('calls callback refs', () => {
+    let received: HTMLDivElement | undefined
+    const element = document.createElement('div')
+
+    callRef((value: HTMLDivElement) => {
+      received = value
+    }, element)
+
+    expect(received).toBe(element)
+  })
+})
 
 function resolveId(deterministicId?: () => string | null | undefined, prefix?: string): string {
   return createRoot((dispose) => {

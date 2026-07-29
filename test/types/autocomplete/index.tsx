@@ -1,4 +1,4 @@
-import { Badge, Button, Card } from 'moraine'
+import { Badge, Button, Card, Icon } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 declare module 'moraine' {
@@ -26,6 +26,7 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
   ref={(element) => acceptSpan(element)}
 />
 ;<Card id="card" title="details" onClick={() => undefined} />
+;<Icon name="i-lucide-search" aria-label="Search" hidden onClick={() => undefined} />
 ;<Button
   as="a"
   href="/docs"

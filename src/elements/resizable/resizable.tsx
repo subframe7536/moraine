@@ -14,7 +14,7 @@ import {
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { callRef, cn, useId } from '../../shared/utils'
 
 import {
   collapsePanel,
@@ -193,6 +193,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'ref',
   ])
   const local = mergeProps(
     {
@@ -748,7 +749,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   return (
     <div
-      ref={rootRef}
+      ref={(element) => {
+        rootRef = element
+        callRef(local.ref, element)
+      }}
       id={local.id}
       data-slot="root"
       {...rest}

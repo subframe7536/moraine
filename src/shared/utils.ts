@@ -88,8 +88,7 @@ export function callHandler<T, E extends Event, R = unknown>(
 
 /** Assigns a composed DOM ref without introducing React-style ref objects. */
 export function callRef<T>(ref: T | ((element: T) => void) | undefined, element: T): void {
-  const callback = ref as ((element: T) => void) | undefined
-  if (callback) {
-    callback(element)
+  if (typeof ref === 'function') {
+    ;(ref as (element: T) => void)(element)
   }
 }

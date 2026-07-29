@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createComponent } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Icon } from './icon'
@@ -68,6 +68,20 @@ describe('Icon', () => {
     const screen2 = render(() => <Icon name="i-lucide-search" aria-label="Search" />)
     const icon2 = screen2.container.querySelector('[data-slot="icon"]')
     expect(icon2?.hasAttribute('aria-hidden')).toBe(false)
+  })
+
+  test('keeps aria-hidden in sync with a reactive aria-label', () => {
+    const [label, setLabel] = createSignal<string | undefined>()
+    const screen = render(() => <Icon name="i-lucide-search" aria-label={label()} />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')!
+
+    expect(icon.getAttribute('aria-hidden')).toBe('true')
+
+    setLabel('Search')
+    expect(icon.hasAttribute('aria-hidden')).toBe(false)
+
+    setLabel(undefined)
+    expect(icon.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('applies classes.root override', () => {

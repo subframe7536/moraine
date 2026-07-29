@@ -116,6 +116,25 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
+  test('composes the root ref with internal layout measurement', async () => {
+    let root: HTMLDivElement | undefined
+    const screen = render(() => (
+      <Resizable
+        ref={(element) => {
+          root = element
+        }}
+        panels={[{ content: 'Left' }, { content: 'Right' }]}
+      />
+    ))
+
+    await waitForLayoutInitialization()
+
+    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
+    expect(root).toBe(screen.container.querySelector('[data-slot="root"]'))
+    expectPanelGrow(panels[0] as HTMLDivElement, 50)
+    expectPanelGrow(panels[1] as HTMLDivElement, 50)
+  })
+
   test('accepts static JSX for handleRender', () => {
     const screen = render(() => (
       <Resizable

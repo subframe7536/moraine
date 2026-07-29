@@ -13,7 +13,7 @@ import type { IconT } from '../../elements/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type {
   OverlayMenuFocusStrategy,
@@ -122,6 +122,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     'onPointerCancel',
     'onPointerUp',
     'onKeyDown',
+    'ref',
   ])
   const merged = mergeProps(
     {
@@ -390,6 +391,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       <span
         ref={(element) => {
           triggerElement = element
+          callRef(local.ref, element)
         }}
         data-slot="trigger"
         data-disabled={merged.disabled ? '' : undefined}
