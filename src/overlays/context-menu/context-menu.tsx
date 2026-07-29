@@ -397,11 +397,11 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         data-disabled={merged.disabled ? '' : undefined}
         data-expanded={resolvedOpen() ? '' : undefined}
         data-closed={resolvedOpen() ? undefined : ''}
-        {...rest}
         tabIndex={-1}
         aria-haspopup="menu"
         aria-controls={resolvedOpen() ? contentId() : undefined}
         aria-expanded={resolvedOpen() ? 'true' : 'false'}
+        {...rest}
         class={cn(merged.classes?.trigger, merged.class)}
         style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger, ...merged.style }}
         onContextMenu={(event) => {

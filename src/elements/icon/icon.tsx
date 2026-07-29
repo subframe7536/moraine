@@ -85,8 +85,8 @@ export function Icon(props: IconProps): JSX.Element {
       data-slot={local.slotName ?? 'icon'}
       class={cn(iconClass(), local.class)}
       style={style()}
-      {...rest}
       aria-hidden={rest['aria-label'] ? undefined : true}
+      {...rest}
     />
   )
 }

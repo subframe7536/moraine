@@ -80,6 +80,18 @@ describe('List', () => {
     expect(list.style.color).toBe('red')
   })
 
+  test('normalizes ClassValue root classes', () => {
+    const screen = render(() => (
+      <List
+        class={['custom-list', 'is-active']}
+        items={['Engineer']}
+        itemRender={(context) => <li>{context.item}</li>}
+      />
+    ))
+
+    expect(screen.getByRole('list').className).toBe('custom-list is-active')
+  })
+
   test('creates virtual content before mount and reactively exposes the scroll element', () => {
     let virtualScrollElement: HTMLElement | undefined
     const VirtualRender = vi.fn((props: ListT.VirtualRenderProps<string>) => {

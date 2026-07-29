@@ -151,6 +151,24 @@ describe('ContextMenu', () => {
     })
   })
 
+  test('allows callers to override generated trigger ARIA attributes', () => {
+    const screen = render(() => (
+      <ContextMenu
+        aria-controls="caller-content"
+        aria-expanded="caller-expanded"
+        aria-haspopup="caller-menu"
+        items={[]}
+      >
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+    const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('aria-controls')).toBe('caller-content')
+    expect(trigger?.getAttribute('aria-expanded')).toBe('caller-expanded')
+    expect(trigger?.getAttribute('aria-haspopup')).toBe('caller-menu')
+  })
+
   test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (

@@ -84,6 +84,13 @@ describe('Icon', () => {
     expect(icon.getAttribute('aria-hidden')).toBe('true')
   })
 
+  test('allows an explicit aria-hidden override', () => {
+    const screen = render(() => <Icon name="i-lucide-search" aria-hidden={false} />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.getAttribute('aria-hidden')).toBe('false')
+  })
+
   test('applies classes.root override', () => {
     const screen = render(() => <Icon name="i-lucide-search" class="root-override" />)
     const icon = screen.container.querySelector('[data-slot="icon"]')

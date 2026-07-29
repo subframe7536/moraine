@@ -261,10 +261,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     <div
       id={rootId()}
       data-slot="root"
+      {...dataAttrs()}
       {...rest}
       style={{ ...props.styles?.root, ...props.style }}
       class={cn(props.classes?.root, props.class)}
-      {...dataAttrs()}
     >
       <Show
         when={typeof props.triggerRender === 'function'}

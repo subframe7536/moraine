@@ -9,6 +9,7 @@ import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
 } from '../../shared/use-list-virtualizer'
+import { cn } from '../../shared/utils'
 
 export namespace ListT {
   export type Variant = never
@@ -77,6 +78,8 @@ export function List<
     'itemRender',
     'virtualRender',
     'ref',
+    'class',
+    'style',
   ])
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
@@ -92,6 +95,8 @@ export function List<
           local.ref(element as unknown as TItemElement)
         }
       }}
+      class={cn(local.class)}
+      style={local.style}
     >
       <Show
         when={local.virtualRender}
