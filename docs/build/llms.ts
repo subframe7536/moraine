@@ -3,7 +3,13 @@ import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
 import path from 'node:path'
 
-import { defineMdastPlugin, mdxToJs } from 'satteri'
+import {
+  createMdxMdastHandle,
+  defineMdastPlugin,
+  dropHandle,
+  resolveMdastSubscriptions,
+  visitMdastHandle,
+} from 'satteri'
 import type { Plugin } from 'vite'
 
 import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
@@ -356,14 +362,7 @@ function renderComponentNode(
   throw new Error(`[docs-llms] unsupported JSX component <${node.name}> in ${context.sourcePath}`)
 }
 
-function collectMdxComponents(
-  source: string,
-  sourcePath: string,
-): {
-  plugin: ReturnType<typeof defineMdastPlugin>
-  nodes: MdxComponentNode[]
-} {
-  const nodes: MdxComponentNode[] = []
+function createLlmsMdastPlugin(source: string, sourcePath: string, nodes: MdxComponentNode[]) {
   const sourceBuffer = Buffer.from(source)
   const visit = (node: unknown) => {
     const record = asObjectRecord(node)
@@ -389,28 +388,40 @@ function collectMdxComponents(
     })
   }
 
-  return {
-    plugin: defineMdastPlugin({
-      name: `moraine-llms-components-${path.basename(sourcePath)}`,
-      mdxJsxFlowElement: visit,
-      mdxJsxTextElement: visit,
-    }),
-    nodes,
+  return defineMdastPlugin({
+    name: `moraine-llms-components-${path.basename(sourcePath)}`,
+    mdxJsxFlowElement: visit,
+    mdxJsxTextElement: visit,
+  })
+}
+
+async function collectMdxComponents(source: string, sourcePath: string) {
+  const nodes: MdxComponentNode[] = []
+  const plugin = createLlmsMdastPlugin(source, sourcePath, nodes)
+  const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES)
+  try {
+    await visitMdastHandle(
+      handle,
+      plugin,
+      resolveMdastSubscriptions(plugin),
+      source,
+      undefined,
+      {},
+      'mdx',
+    )
+  } finally {
+    dropHandle(handle)
   }
+  return nodes
 }
 
 async function convertPageMarkdown(
   source: string,
   context: PageConversionContext,
 ): Promise<string> {
-  const components = collectMdxComponents(source, context.sourcePath)
-  await mdxToJs(source, {
-    jsx: true,
-    features: DOCS_MDX_FEATURES,
-    mdastPlugins: [components.plugin],
-  })
+  const components = await collectMdxComponents(source, context.sourcePath)
   const replacements = await Promise.all(
-    components.nodes.map(async (node) => ({
+    components.map(async (node) => ({
       start: node.start,
       end: node.end,
       value: await renderComponentNode(node, context),
