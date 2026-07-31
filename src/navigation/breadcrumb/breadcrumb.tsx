@@ -113,7 +113,7 @@ export namespace BreadcrumbT {
     /**
      * Callback when the item is clicked.
      */
-    onClick?: JSX.EventHandler<HTMLAnchorElement, MouseEvent>
+    onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>
   }
 
   /**

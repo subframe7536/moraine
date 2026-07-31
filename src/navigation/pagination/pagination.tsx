@@ -287,7 +287,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
     target: number,
     isEdge: boolean,
     rel?: string,
-  ): ButtonProps<'a'> | ButtonProps<'button'> => {
+  ): {
+    as?: 'a'
+    href?: string
+    rel?: string
+    type?: 'button'
+    disabled?: boolean
+  } => {
     const disabled = Boolean(merged.disabled || isEdge)
     const href = disabled ? undefined : merged.to?.(target)
     return href ? { as: 'a' as const, href, rel } : { type: 'button' as const, disabled }

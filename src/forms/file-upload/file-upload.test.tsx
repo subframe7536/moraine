@@ -69,6 +69,16 @@ describe('FileUpload', () => {
     expect(props).toBeDefined()
   })
 
+  test('supports tuple click handlers on the upload control', async () => {
+    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
+    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+
+    await fireEvent.click(control)
+
+    expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
+  })
+
   test('renders base attributes and text', () => {
     const screen = render(() => (
       <FileUpload

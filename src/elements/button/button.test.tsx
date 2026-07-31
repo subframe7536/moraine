@@ -55,6 +55,19 @@ describe('Button', () => {
     expect(anchor.hasAttribute('role')).toBe(false)
   })
 
+  test('supports tuple click handlers on polymorphic roots', async () => {
+    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const screen = render(() => (
+      <Button as="a" href="https://example.com" onClick={[onClick, 'payload']}>
+        Docs
+      </Button>
+    ))
+
+    await fireEvent.click(screen.getByRole('link', { name: 'Docs' }))
+
+    expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
+  })
+
   test('supports as={A} from solid router', () => {
     const screen = render(() => (
       <Router url="/">

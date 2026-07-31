@@ -14,6 +14,14 @@ import { ButtonGroupContext } from './button-group-context'
 import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
 
+type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
+
+type ElementFor<T extends ValidComponent> = IsUnion<T> extends true
+  ? HTMLElement
+  : T extends keyof HTMLElementTagNameMap
+    ? HTMLElementTagNameMap[T]
+    : HTMLElement
+
 export namespace ButtonT {
   export interface Slot<T = unknown> {
     /**
@@ -38,8 +46,6 @@ export namespace ButtonT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Item {}
-  type ElementFor<_T extends ValidComponent> = any
-
   /**
    * Base props for the Button component.
    */
@@ -129,7 +135,7 @@ export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useContext(ButtonGroupContext)
-  const [local, rest] = splitProps(props as ButtonProps, [
+  const [local, rest] = splitProps(props as ButtonProps<T>, [
     'as',
     'type',
     'variant',
@@ -151,7 +157,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<any, MouseEvent>({
+  const { isLoading, onClick } = useLoadingAutoClick<ElementFor<T>, MouseEvent>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
     get onClick() {
@@ -162,11 +168,18 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = () => (local.as as ValidComponent) ?? 'button'
   const isNativeBtn = () => typeof tag() === 'string' && (tag() === 'button' || tag() === 'input')
   const isNativeLink = () =>
-    !isNativeBtn() && typeof tag() === 'string' && tag() === 'a' && (rest as any).href !== undefined
+    !isNativeBtn() &&
+    typeof tag() === 'string' &&
+    tag() === 'a' &&
+    (rest as { href?: string }).href !== undefined
   const needsButtonRole = () => typeof tag() === 'string' && !isNativeBtn() && !isNativeLink()
   const isDisabledOrLoading = () => isLoading() || local.disabled
-  const size = () => local.size ?? group?.size ?? 'md'
-  const variant = () => local.variant ?? group?.variant ?? 'default'
+  const size = () =>
+    (local.size ?? group?.size ?? 'md') as NonNullable<ButtonVariantProps['size']>
+  const variant = () =>
+    (local.variant ?? group?.variant ?? 'default') as NonNullable<
+      ButtonVariantProps['variant']
+    >
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
