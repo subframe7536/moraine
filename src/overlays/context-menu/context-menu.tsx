@@ -256,7 +256,8 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         event.target instanceof Node && Boolean(triggerElement?.contains(event.target))
       const pointerInsideTrigger = isPointerInsideTrigger(event)
 
-      if (!targetInsideTrigger && !pointerInsideTrigger) {
+      // Let the trigger handler compose user callbacks for events targeted inside the trigger.
+      if (targetInsideTrigger || !pointerInsideTrigger) {
         return
       }
 
@@ -286,6 +287,12 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     clearLongPressTimeout()
     event.preventDefault()
     event.stopPropagation()
+
+    if (resolvedOpen()) {
+      commitOpen(false)
+      return
+    }
+
     openFromPoint(event.clientX, event.clientY)
   }
 
@@ -424,15 +431,11 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         }}
         onPointerCancel={(event) => {
           callHandler(event, local.onPointerCancel)
-          if (!event.defaultPrevented) {
-            onPointerCancel(event)
-          }
+          onPointerCancel(event)
         }}
         onPointerUp={(event) => {
           callHandler(event, local.onPointerUp)
-          if (!event.defaultPrevented) {
-            onPointerUp(event)
-          }
+          onPointerUp(event)
         }}
         onKeyDown={(event) => {
           callHandler(event, local.onKeyDown)

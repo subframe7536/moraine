@@ -16,11 +16,12 @@ import { buttonVariants } from './button.class'
 
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 
-type ElementFor<T extends ValidComponent> = IsUnion<T> extends true
-  ? HTMLElement
-  : T extends keyof HTMLElementTagNameMap
-    ? HTMLElementTagNameMap[T]
-    : HTMLElement
+type ElementFor<T extends ValidComponent> =
+  IsUnion<T> extends true
+    ? HTMLElement
+    : T extends keyof HTMLElementTagNameMap
+      ? HTMLElementTagNameMap[T]
+      : HTMLElement
 
 export namespace ButtonT {
   export interface Slot<T = unknown> {
@@ -174,12 +175,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     (rest as { href?: string }).href !== undefined
   const needsButtonRole = () => typeof tag() === 'string' && !isNativeBtn() && !isNativeLink()
   const isDisabledOrLoading = () => isLoading() || local.disabled
-  const size = () =>
-    (local.size ?? group?.size ?? 'md') as NonNullable<ButtonVariantProps['size']>
+  const size = () => (local.size ?? group?.size ?? 'md') as NonNullable<ButtonVariantProps['size']>
   const variant = () =>
-    (local.variant ?? group?.variant ?? 'default') as NonNullable<
-      ButtonVariantProps['variant']
-    >
+    (local.variant ?? group?.variant ?? 'default') as NonNullable<ButtonVariantProps['variant']>
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 

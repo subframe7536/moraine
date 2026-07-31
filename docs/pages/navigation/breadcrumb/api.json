@@ -72,7 +72,7 @@
       {
         "name": "onClick",
         "required": false,
-        "type": "JSX.EventHandler<HTMLAnchorElement, MouseEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent> | undefined",
         "description": "Callback when the item is clicked."
       },
       {
