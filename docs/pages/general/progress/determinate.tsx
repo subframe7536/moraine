@@ -16,10 +16,10 @@ export function Determinate() {
     <div class="w-xl space-y-3">
       <Progress value={value()} status statusRender={(props) => <>Completed {props.percent}%</>} />
       <div class="flex gap-2">
-        <Button size="sm" variant="outline" onclick={increment}>
+        <Button size="sm" variant="outline" onClick={increment}>
           +10%
         </Button>
-        <Button size="sm" variant="ghost" onclick={reset}>
+        <Button size="sm" variant="ghost" onClick={reset}>
           Reset
         </Button>
       </div>

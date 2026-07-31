@@ -32,11 +32,12 @@ export namespace FormT {
     onSubmit?: SubmitEventHandler<TSchema>
   }
 
-  export interface Props<TSchema extends FormSchema = FormSchema> extends BaseProps<
+  export type Props<TSchema extends FormSchema = FormSchema> = BaseProps<
+    'form',
     Base<TSchema>,
     Variant,
     Slot
-  > {}
+  >
 }
 
 export interface FormProps<TSchema extends FormSchema = FormSchema> extends FormT.Props<TSchema> {}

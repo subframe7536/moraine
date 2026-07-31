@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { mergeProps } from 'solid-js'
+import { mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
@@ -60,7 +60,7 @@ export namespace PopupT {
   /**
    * Props for the Popup component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -70,12 +70,29 @@ export interface PopupProps extends PopupT.Props {}
 
 /** Low-level overlay primitive providing portal, overlay backdrop, and content positioning. */
 export function Popup(props: PopupProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'overlay',
+    'dismissible',
+    'onClosePrevent',
+    'content',
+    'scrollable',
+    'fullscreen',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       overlay: true,
       dismissible: true,
     },
-    props,
+    local,
   )
 
   const contentLayout = () => {
@@ -101,6 +118,7 @@ export function Popup(props: PopupProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
       preventScroll={!merged.scrollable}
       trigger={merged.children}
+      triggerProps={rest}
       classes={{
         trigger: cn(merged.classes?.trigger, merged.class),
         overlay: popupOverlayVariants(

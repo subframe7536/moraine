@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
@@ -175,7 +175,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -193,6 +193,23 @@ interface NormalizedStepperItem {
  * Tab-structured step navigation with configurable orientation and separator layout.
  */
 export function Stepper(props: StepperProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'value',
+    'defaultValue',
+    'onChange',
+    'orientation',
+    'activationMode',
+    'items',
+    'linear',
+    'disabled',
+    'clickable',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
@@ -200,7 +217,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       linear: true,
       clickable: false,
     },
-    props,
+    local,
   )
 
   const id = useId(() => merged.id, 'stepper')
@@ -318,6 +335,7 @@ export function Stepper(props: StepperProps): JSX.Element {
         merged.classes?.root,
         merged.class,
       )}
+      {...rest}
     >
       <div
         role="tablist"

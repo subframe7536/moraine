@@ -76,11 +76,19 @@ describe('DropdownMenu', () => {
   })
 
   test('focuses content on click open, ignores printable keys, and restores trigger focus on escape', async () => {
+    const triggerRef = vi.fn()
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
+      <DropdownMenu
+        ref={triggerRef}
+        items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
+      >
         <button type="button">Actions</button>
       </DropdownMenu>
     ))
+
+    expect(triggerRef).toHaveBeenCalledWith(
+      screen.getByText('Actions').closest('[data-slot="trigger"]'),
+    )
 
     const trigger = screen.getByText('Actions') as HTMLButtonElement
     await fireEvent.click(trigger)

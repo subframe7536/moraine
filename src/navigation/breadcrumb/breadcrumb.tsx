@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import { Icon } from '../../elements/icon'
@@ -113,7 +113,7 @@ export namespace BreadcrumbT {
     /**
      * Callback when the item is clicked.
      */
-    onClick?: JSX.EventHandler<HTMLAnchorElement, MouseEvent>
+    onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>
   }
 
   /**
@@ -138,12 +138,6 @@ export namespace BreadcrumbT {
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
     /**
-     * Accessibility label for the navigation element.
-     * @default 'Breadcrumbs'
-     */
-    'aria-label'?: string
-
-    /**
      * Custom renderer for individual breadcrumb items.
      */
     itemRender?: ComponentOrElement<ItemRenderProps>
@@ -152,7 +146,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'nav', Base, Variant, Slot>
 }
 
 /**
@@ -162,6 +156,17 @@ export interface BreadcrumbProps extends BreadcrumbT.Props {}
 
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'items',
+    'separator',
+    'size',
+    'itemRender',
+    'wrap',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       separator: 'icon-chevron-right' as IconT.Name,
@@ -169,7 +174,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       size: 'md' as BreadcrumbT.Base['size'],
       'aria-label': 'Breadcrumbs',
     },
-    props,
+    local,
   )
 
   const items = createMemo(() => merged.items ?? [])
@@ -179,6 +184,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
       aria-label={merged['aria-label']}
+      {...rest}
       class={cn('min-w-0 relative', merged.classes?.root, merged.class)}
     >
       <ol

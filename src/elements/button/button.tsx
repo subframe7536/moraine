@@ -1,4 +1,4 @@
-import type { ComponentProps, JSX, ValidComponent } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -13,6 +13,15 @@ import type { IconT } from '../icon'
 import { ButtonGroupContext } from './button-group-context'
 import type { ButtonVariantProps } from './button.class'
 import { buttonVariants } from './button.class'
+
+type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
+
+type ElementFor<T extends ValidComponent> =
+  IsUnion<T> extends true
+    ? HTMLElement
+    : T extends keyof HTMLElementTagNameMap
+      ? HTMLElementTagNameMap[T]
+      : HTMLElement
 
 export namespace ButtonT {
   export interface Slot<T = unknown> {
@@ -41,32 +50,34 @@ export namespace ButtonT {
   /**
    * Base props for the Button component.
    */
-  export type Base<T extends ValidComponent = 'button'> = Omit<
-    ComponentProps<T>,
-    | 'as'
-    | 'children'
-    | 'class'
-    | 'style'
-    | 'classes'
-    | 'styles'
-    | 'slotName'
-    | 'disableActiveTransform'
-    | 'loading'
-    | 'loadingAuto'
-    | 'loadingIcon'
-    | 'leading'
-    | 'trailing'
-  > & {
+  export type Base<T extends ValidComponent = 'button'> = {
     /**
      * Element or component to render as.
      * @default 'button'
      */
     as?: T
 
+    /** Native type attribute for supported native roots. */
+    type?: T extends 'a'
+      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
+      : T extends 'button'
+        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+        : T extends 'input'
+          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
+          : never
+
     /**
      * Disabled state, including for non-button polymorphic roots.
      */
     disabled?: boolean
+
+    onClick?: JSX.EventHandlerUnion<ElementFor<T>, MouseEvent>
+    onKeyDown?: JSX.EventHandlerUnion<ElementFor<T>, KeyboardEvent>
+    onPointerDown?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
+    onPointerUp?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
+    onPointerCancel?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
+    onPointerLeave?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
+    onContextMenu?: JSX.EventHandlerUnion<ElementFor<T>, MouseEvent>
 
     /**
      * Root `data-slot` name
@@ -109,12 +120,14 @@ export namespace ButtonT {
        */
       loading: boolean
     }>
-  }
+  } & (T extends 'a'
+    ? Pick<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'>
+    : {})
 
   /**
    * Props for the Button component.
    */
-  export type Props<T extends ValidComponent = 'button'> = BaseProps<Base<T>, Variant, Slot>
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<T, Base<T>, Variant, Slot>
 }
 
 /**
@@ -127,8 +140,9 @@ export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useContext(ButtonGroupContext)
-  const [local, rest] = splitProps(props as ButtonProps, [
+  const [local, rest] = splitProps(props as ButtonProps<T>, [
     'as',
+    'type',
     'variant',
     'size',
     'classes',
@@ -148,7 +162,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<any, MouseEvent>({
+  const { isLoading, onClick } = useLoadingAutoClick<ElementFor<T>, MouseEvent>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
     get onClick() {
@@ -159,11 +173,15 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = () => (local.as as ValidComponent) ?? 'button'
   const isNativeBtn = () => typeof tag() === 'string' && (tag() === 'button' || tag() === 'input')
   const isNativeLink = () =>
-    !isNativeBtn() && typeof tag() === 'string' && tag() === 'a' && (rest as any).href !== undefined
+    !isNativeBtn() &&
+    typeof tag() === 'string' &&
+    tag() === 'a' &&
+    (rest as { href?: string }).href !== undefined
   const needsButtonRole = () => typeof tag() === 'string' && !isNativeBtn() && !isNativeLink()
   const isDisabledOrLoading = () => isLoading() || local.disabled
-  const size = () => local.size ?? group?.size ?? 'md'
-  const variant = () => local.variant ?? group?.variant ?? 'default'
+  const size = () => (local.size ?? group?.size ?? 'md') as NonNullable<ButtonVariantProps['size']>
+  const variant = () =>
+    (local.variant ?? group?.variant ?? 'default') as NonNullable<ButtonVariantProps['variant']>
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
@@ -241,12 +259,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   // Handle pointer events to block interaction when disabled/loading
   const handlePointerDown = (event: PointerEvent) => {
+    // Disabled/loading non-native buttons must cancel the gesture before invoking user code so
+    // user handlers observe the same blocked event as native disabled controls.
     if (!isNativeBtn() && isDisabledOrLoading()) {
       event.preventDefault()
       event.stopPropagation()
     }
 
-    // Call user's onPointerDown handler after our handling
     callHandler(event, local.onPointerDown)
   }
 
@@ -261,8 +280,15 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   return (
     <Dynamic
-      component={tag()}
       data-slot={local.slotName || 'root'}
+      data-size={size()}
+      data-variant={variant()}
+      aria-busy={isLoading() ? true : undefined}
+      data-loading={isLoading() ? '' : undefined}
+      aria-disabled={!isNativeBtn() && isDisabledOrLoading() ? true : undefined}
+      data-disabled={local.disabled ? '' : undefined}
+      {...rest}
+      component={tag()}
       style={{ ...local.styles?.root, ...local.style }}
       class={cn(
         buttonVariants({
@@ -272,18 +298,19 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         local.classes?.root,
         local.class,
       )}
-      type={isNativeBtn() ? 'button' : undefined}
+      type={
+        isNativeBtn()
+          ? (local.type ?? 'button')
+          : typeof tag() === 'string' && tag() === 'a'
+            ? local.type
+            : undefined
+      }
       role={needsButtonRole() ? 'button' : undefined}
       tabIndex={needsButtonRole() && !isDisabledOrLoading() ? 0 : undefined}
-      aria-busy={isLoading() ? true : undefined}
-      data-loading={isLoading() ? '' : undefined}
       disabled={isNativeBtn() ? isDisabledOrLoading() : undefined}
-      aria-disabled={!isNativeBtn() && isDisabledOrLoading() ? true : undefined}
-      data-disabled={local.disabled ? '' : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
-      {...rest}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (

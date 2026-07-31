@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
@@ -68,9 +68,6 @@ export namespace ProgressT {
    * Base props for the Progress component.
    */
   export interface Base {
-    /** Accessible label for the progress indicator. */
-    'aria-label'?: string
-
     /**
      * The current value of the progress bar. If null/undefined, it is indeterminate.
      * @default null
@@ -105,7 +102,7 @@ export namespace ProgressT {
     stepRender?: ComponentOrElement<StepRenderProps>
   }
 
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -131,6 +128,21 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Determinate or indeterminate progress indicator with optional step labels. */
 export function Progress(props: ProgressProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'value',
+    'max',
+    'status',
+    'getValueLabel',
+    'statusRender',
+    'stepRender',
+    'orientation',
+    'animation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       value: null,
@@ -140,7 +152,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       animation: 'carousel' as const,
       size: 'md' as const,
     },
-    props,
+    local,
   )
 
   const steps = createMemo<string[]>(() => (Array.isArray(merged.max) ? merged.max : []))
@@ -244,7 +256,6 @@ export function Progress(props: ProgressProps): JSX.Element {
   return (
     <div
       role="progressbar"
-      aria-label={merged['aria-label']}
       aria-valuemin={isIndeterminate() ? undefined : minValue}
       aria-valuemax={isIndeterminate() ? undefined : resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
@@ -253,6 +264,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       style={{ ...merged.styles?.root, ...merged.style }}
       data-orientation={merged.orientation}
       {...dataAttrs()}
+      {...rest}
       class={progressRootVariants(
         {
           orientation: merged.orientation,

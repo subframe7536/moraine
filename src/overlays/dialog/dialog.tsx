@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps } from 'solid-js'
+import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Card } from '../../elements/card'
 import { Icon } from '../../elements/icon'
@@ -126,7 +126,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -136,6 +136,29 @@ export interface DialogProps extends DialogT.Props {}
 
 /** Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control. */
 export function Dialog(props: DialogProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'overlay',
+    'dismissible',
+    'onClosePrevent',
+    'title',
+    'description',
+    'scrollable',
+    'fullscreen',
+    'close',
+    'closeIcon',
+    'header',
+    'body',
+    'footer',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       overlay: true,
@@ -143,7 +166,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       closeIcon: 'icon-close' as IconT.Name,
       dismissible: true,
     },
-    props,
+    local,
   )
   const title = createMemo(() => merged.title)
   const description = createMemo(() => merged.description)
@@ -240,6 +263,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
       preventScroll={!merged.scrollable}
       trigger={merged.children}
+      triggerProps={rest}
       classes={{
         trigger: cn(merged.classes?.trigger, merged.class),
         overlay: popupOverlayVariants(

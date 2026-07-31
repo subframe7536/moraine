@@ -1,10 +1,10 @@
 import type { Component, JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { IconButtonInner } from '../../elements/icon/icon-button-inner'
 import { List } from '../../elements/list'
-import type { ListT } from '../../elements/list'
+import type { ListProps, ListT } from '../../elements/list'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -247,7 +247,7 @@ export namespace CommandPaletteT {
     inputProps?: JSX.HTMLAttributes<HTMLInputElement>
   }
 
-  export interface Props<TItem extends Item = Item> extends BaseProps<Base<TItem>, Variant, Slot> {}
+  export type Props<TItem extends Item = Item> = BaseProps<'div', Base<TItem>, Variant, Slot>
 }
 
 export interface CommandPaletteProps<
@@ -359,6 +359,39 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'groups',
+    'placeholder',
+    'searchTerm',
+    'onSearchTermChange',
+    'onSelect',
+    'searchMaxLength',
+    'autofocus',
+    'leadingIcon',
+    'loadingIcon',
+    'closeIcon',
+    'showClose',
+    'onClose',
+    'closeOnSelect',
+    'loading',
+    'disableFilter',
+    'getItemSearchText',
+    'filterItems',
+    'descriptionPosition',
+    'emptyRender',
+    'footerRender',
+    'itemRender',
+    'virtualRender',
+    'scrollToItem',
+    'listboxProps',
+    'itemProps',
+    'inputProps',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       placeholder: 'Search...',
@@ -371,7 +404,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
-    props,
+    local,
   )
 
   const [internalSearch, setInternalSearch] = createSignal('')
@@ -779,6 +812,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const listEntries = createMemo<readonly CommandListEntry[]>(() =>
     merged.virtualRender ? virtualEntries() : visibleGroups(),
   )
+  const RuntimeList = List as unknown as Component<
+    ListProps<CommandListEntry, 'div', HTMLDivElement> & JSX.HTMLAttributes<HTMLDivElement>
+  >
 
   return (
     <div
@@ -789,6 +825,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         merged.classes?.root,
         merged.class,
       )}
+      {...rest}
     >
       <div
         data-slot="inputWrapper"
@@ -872,7 +909,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           </div>
         }
       >
-        <List<CommandListEntry, 'div', HTMLDivElement>
+        <RuntimeList
           as="div"
           items={listEntries()}
           itemRender={(context) => (
@@ -948,7 +985,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           role="listbox"
           data-slot="listbox"
           {...merged.listboxProps}
-          ref={(element) => {
+          ref={(element: HTMLDivElement) => {
             listboxElement = element
             callRef(merged.listboxProps?.ref, element)
           }}

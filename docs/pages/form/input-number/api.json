@@ -152,7 +152,7 @@
       {
         "name": "onBlur",
         "required": false,
-        "type": "JSX.FocusEventHandler<HTMLInputElement, FocusEvent> | undefined",
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
         "description": "Callback when the input loses focus."
       },
       {
@@ -164,19 +164,19 @@
       {
         "name": "onDecrementClick",
         "required": false,
-        "type": "JSX.EventHandler<HTMLButtonElement, MouseEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined",
         "description": "Callback when the decrement button is clicked."
       },
       {
         "name": "onFocus",
         "required": false,
-        "type": "JSX.FocusEventHandler<HTMLInputElement, FocusEvent> | undefined",
+        "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent> | undefined",
         "description": "Callback when the input gains focus."
       },
       {
         "name": "onIncrementClick",
         "required": false,
-        "type": "JSX.EventHandler<HTMLButtonElement, MouseEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined",
         "description": "Callback when the increment button is clicked."
       },
       {
@@ -210,6 +210,11 @@
         "type": "boolean | undefined",
         "description": "Whether the input is read-only.",
         "defaultValue": "false"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "repeatDelayMs",

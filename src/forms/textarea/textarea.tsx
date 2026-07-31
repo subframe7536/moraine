@@ -1,10 +1,19 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, on, onMount } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  onMount,
+  splitProps,
+} from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useId } from '../../shared/utils'
+import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -148,17 +157,17 @@ export namespace TextareaT {
     /**
      * Native input event handler.
      */
-    onInput?: JSX.EventHandler<HTMLTextAreaElement, InputEvent>
+    onInput?: JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>
 
     /**
      * Native blur event handler.
      */
-    onBlur?: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
 
     /**
      * Native focus event handler.
      */
-    onFocus?: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
 
     /**
      * Children elements, rendered inside the root below the textarea.
@@ -169,9 +178,12 @@ export namespace TextareaT {
   /**
    * Props for the Textarea component.
    */
-  export interface Props<
-    M extends ModelModifiers | undefined = ModelModifiers | undefined,
-  > extends BaseProps<Base<M>, Variant, Slot> {}
+  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
+    'div',
+    Base<M>,
+    Variant,
+    Slot
+  >
 }
 
 /**
@@ -185,6 +197,42 @@ export interface TextareaProps<
 export function Textarea<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: TextareaProps<M>,
 ): JSX.Element {
+  type RootProps = TextareaProps<M> & {
+    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'readOnly',
+    'disabled',
+    'size',
+    'variant',
+    'placeholder',
+    'autofocus',
+    'autofocusDelay',
+    'maxLength',
+    'autoResize',
+    'autoResizeDelay',
+    'rows',
+    'maxRows',
+    'header',
+    'footer',
+    'modelModifiers',
+    'onValueChange',
+    'onChange',
+    'onInput',
+    'onBlur',
+    'onFocus',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'onPointerDown',
+  ])
   const merged = mergeProps(
     {
       rows: 3,
@@ -194,7 +242,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       variant: 'outlined' as TextareaVariantProps['variant'],
       autoresize: false,
     },
-    props,
+    local,
   )
   const header = createMemo(() => merged.header)
   const footer = createMemo(() => merged.footer)
@@ -275,8 +323,11 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onInput)
+    if (defaultPrevented) {
+      return
+    }
     autoResize()
-    merged.onInput?.(event)
 
     if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
@@ -298,18 +349,28 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onBlur)
+    if (defaultPrevented) {
+      return
+    }
     setIsFocused(false)
     field.emit('blur', event)
-    merged.onBlur?.(event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onFocus)
+    if (defaultPrevented) {
+      return
+    }
     setIsFocused(true)
     field.emit('focus', event)
-    merged.onFocus?.(event)
   }
 
   const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onPointerDown)
+    if (defaultPrevented) {
+      return
+    }
     if (
       event.button !== 0 ||
       event.defaultPrevented ||
@@ -361,6 +422,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       onPointerDown={onRootPointerDown}
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
+      {...rest}
     >
       <Show when={header()}>
         <div

@@ -1,12 +1,21 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useId } from '../../shared/utils'
+import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -99,38 +108,38 @@ export namespace FileUploadT {
   /**
    * Base props for the FileUpload component.
    */
-  export interface Base
+  export interface Base<T extends ValidComponent = 'div'>
     extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
     /**
      * The HTML element or component to render as.
      * @default 'div'
      */
-    as?: ValidComponent
+    as?: T
 
     /**
      * Click handler for the upload control.
      */
-    onClick?: JSX.EventHandler<HTMLElement, MouseEvent>
+    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
 
     /**
      * Keyboard handler for the upload control.
      */
-    onKeyDown?: JSX.EventHandler<HTMLElement, KeyboardEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
 
     /**
      * Drag-over handler for the upload dropzone.
      */
-    onDragOver?: JSX.EventHandler<HTMLElement, DragEvent>
+    onDragOver?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
 
     /**
      * Drag-leave handler for the upload dropzone.
      */
-    onDragLeave?: JSX.EventHandler<HTMLElement, DragEvent>
+    onDragLeave?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
 
     /**
      * Drop handler for the upload dropzone.
      */
-    onDrop?: JSX.EventHandler<HTMLElement, DragEvent>
+    onDrop?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
 
     /**
      * Accepted file types (e.g., ".jpg,.png", "image/*").
@@ -207,13 +216,13 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props<T extends ValidComponent = 'div'> = BaseProps<T, Base<T>, Variant, Slot>
 }
 
 /**
  * Props for the FileUpload component.
  */
-export interface FileUploadProps extends FileUploadT.Props {}
+export type FileUploadProps<T extends ValidComponent = 'div'> = FileUploadT.Props<T>
 
 function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')
@@ -389,10 +398,43 @@ function constrainSingleFile(accepted: File[]): {
 }
 
 /** Drag-and-drop file upload component with progress tracking and file list management. */
-export function FileUpload(props: FileUploadProps): JSX.Element {
+export function FileUpload<T extends ValidComponent = 'div'>(
+  props: FileUploadProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'as',
+    'id',
+    'name',
+    'required',
+    'disabled',
+    'readOnly',
+    'onClick',
+    'onKeyDown',
+    'onDragOver',
+    'onDragLeave',
+    'onDrop',
+    'accept',
+    'multiple',
+    'dropzone',
+    'preview',
+    'label',
+    'description',
+    'icon',
+    'fileIcon',
+    'maxFiles',
+    'minSize',
+    'maxSize',
+    'onValueChange',
+    'onFileReject',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
-      as: 'div' as ValidComponent,
+      as: 'div' as T,
       accept: '*',
       multiple: false,
       dropzone: true,
@@ -401,7 +443,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
       icon: 'icon-upload' as IconT.Name,
       fileIcon: 'icon-file' as IconT.Name,
     },
-    props,
+    local,
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
@@ -646,7 +688,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   const onControlClick: JSX.EventHandler<HTMLButtonElement | HTMLDivElement, MouseEvent> = (
     event,
   ) => {
-    merged.onClick?.(event)
+    callHandler(event, merged.onClick)
 
     if (!event.defaultPrevented) {
       openFileDialog()
@@ -654,7 +696,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   }
 
   const onDropzoneKeyDown: JSX.EventHandler<HTMLDivElement, KeyboardEvent> = (event) => {
-    merged.onKeyDown?.(event)
+    callHandler(event, merged.onKeyDown)
 
     if (!event.defaultPrevented && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault()
@@ -663,7 +705,7 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   }
 
   const onDropzoneDragOver: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
-    merged.onDragOver?.(event)
+    callHandler(event, merged.onDragOver)
 
     if (!event.defaultPrevented && !field.disabled() && !readOnly()) {
       event.preventDefault()
@@ -672,12 +714,12 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
   }
 
   const onDropzoneDragLeave: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
-    merged.onDragLeave?.(event)
+    callHandler(event, merged.onDragLeave)
     setDragging(false)
   }
 
   const onDropzoneDrop: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
-    merged.onDrop?.(event)
+    callHandler(event, merged.onDrop)
     setDragging(false)
 
     if (event.defaultPrevented || field.disabled() || readOnly()) {
@@ -691,14 +733,15 @@ export function FileUpload(props: FileUploadProps): JSX.Element {
 
   return (
     <Dynamic
-      component={merged.as ?? 'div'}
-      id={`${field.id()}-root`}
       role="group"
       disabled={field.disabled()}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
+      {...rest}
+      id={`${field.id()}-root`}
+      component={(merged.as ?? 'div') as ValidComponent}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={fileUploadRootVariants(
         {
           size: field.size(),

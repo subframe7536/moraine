@@ -132,6 +132,9 @@ describe('KbdGroup', () => {
     ))
 
     expect(view.getByTestId('divider').textContent).toBe('and')
+    expect(view.container.querySelector('[data-slot="root"]')?.hasAttribute('dividerrender')).toBe(
+      false,
+    )
   })
 
   test('renders simultaneous items with dividers', () => {

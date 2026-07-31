@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
@@ -53,7 +53,7 @@ export namespace KbdGroupT {
   }
 
   /** Props for the KbdGroup component. */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /** Props for the KbdGroup component. */
@@ -77,16 +77,28 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Base {
 
 /** Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences. */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'items',
+    'sequence',
+    'dividerRender',
+    'sequenceDividerRender',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const groups = createMemo(() =>
-    (props.sequence ?? (props.items ? [props.items] : [])).filter((items) => items.length > 0),
+    (local.sequence ?? (local.items ? [local.items] : [])).filter((items) => items.length > 0),
   )
 
   return (
     <Show when={groups().length > 0}>
       <span
         data-slot="root"
-        class={kbdGroupVariants({ size: props.size }, props.classes?.root, props.class)}
-        style={{ ...props.styles?.root, ...props.style }}
+        {...rest}
+        class={kbdGroupVariants({ size: local.size }, local.classes?.root, local.class)}
+        style={{ ...local.styles?.root, ...local.style }}
       >
         <For each={groups()}>
           {(items, groupIndex) => (
@@ -94,10 +106,10 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               <Show when={groupIndex() > 0}>
                 <span
                   data-slot="sequenceDivider"
-                  class={cn('text-muted-foreground', props.classes?.sequenceDivider)}
-                  style={props.styles?.sequenceDivider}
+                  class={cn('text-muted-foreground', local.classes?.sequenceDivider)}
+                  style={local.styles?.sequenceDivider}
                 >
-                  {resolveDivider(props.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
+                  {resolveDivider(local.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
                 </span>
               </Show>
               <span
@@ -122,7 +134,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                           class={cn('text-muted-foreground', props.classes?.divider)}
                           style={props.styles?.divider}
                         >
-                          {resolveDivider(props.dividerRender, { index: index() }, '+')}
+                          {resolveDivider(local.dividerRender, { index: index() }, '+')}
                         </span>
                       </Show>
                     </>

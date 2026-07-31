@@ -1,6 +1,15 @@
 import type { ClassValue } from 'cls-variant'
 import type { JSX, Component, Accessor } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, mergeProps, on, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { Resizable } from '../../elements/resizable'
 import type { ResizableT } from '../../elements/resizable'
@@ -132,7 +141,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -197,7 +206,10 @@ export function SidebarFrameSheetResizableRender(
     /**
      * Additional options for the `Resizable` wrapper when on desktop layout.
      */
-    resizableOptions?: Omit<ResizableT.Props, 'items' | 'panels'>
+    resizableOptions?: Omit<ResizableT.Props, 'items' | 'panels'> & {
+      classes?: ResizableT.Props['classes']
+      styles?: ResizableT.Props['styles']
+    }
     /**
      * Additional options for the sidebar panel when on desktop layout.
      */
@@ -249,6 +261,21 @@ export function SidebarFrameSheetResizableRender(
 
 /** Sidebar + main frame with mobile Sheet support and desktop layout wrappers. */
 export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'isMobile',
+    'scrollThreshold',
+    'sidebarHeaderRender',
+    'sidebarBodyRender',
+    'sidebarFooterRender',
+    'mainRender',
+    'frameRender',
+    'variant',
+    'side',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       variant: 'default' as SidebarFrameT.Variant['variant'],
@@ -256,7 +283,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },
-    props,
+    local,
   )
 
   const [internalIsMobile, setInternalIsMobile] = createSignal(false)
@@ -301,6 +328,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
+      {...rest}
     >
       {renderComponentOrElement(merged.frameRender, {
         isMobile: context.isMobile,

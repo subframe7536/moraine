@@ -1,7 +1,7 @@
 import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import { useField } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, untrack } from 'solid-js'
+import { Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
@@ -84,12 +84,15 @@ export namespace FormFieldT {
   /**
    * Base props for the FormField component.
    */
-  export interface Base<TSchema extends FormSchema | undefined = undefined> {
+  export interface Base<
+    TSchema extends FormSchema | undefined = undefined,
+    T extends ValidComponent = 'div',
+  > {
     /**
      * The HTML element or component to render as.
      * @default 'div'
      */
-    as?: ValidComponent
+    as?: T
 
     /**
      * Unique identifier for the form field.
@@ -141,35 +144,61 @@ export namespace FormFieldT {
   /**
    * Props for the FormField component.
    */
-  export interface Props<TSchema extends FormSchema | undefined = undefined> extends BaseProps<
-    Base<TSchema>,
-    Variant,
-    Slot
-  > {}
+  export type Props<
+    TSchema extends FormSchema | undefined = undefined,
+    T extends ValidComponent = 'div',
+  > = BaseProps<T, Base<TSchema, T>, Variant, Slot>
 }
 
 /**
  * Props for the FormField component.
  */
-export interface FormFieldProps<
+export type FormFieldProps<
   TSchema extends FormSchema | undefined = undefined,
-> extends FormFieldT.Props<TSchema> {}
+  T extends ValidComponent = 'div',
+> = FormFieldT.Props<TSchema, T>
 
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
 /** Form field wrapper providing label, description, and validation message layout. */
-export function FormField<TSchema extends FormSchema | undefined = undefined>(
-  props: FormFieldProps<TSchema>,
-): JSX.Element {
+export function FormField<
+  TSchema extends FormSchema | undefined = undefined,
+  T extends ValidComponent = 'div',
+>(props: FormFieldProps<TSchema, T>): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'as',
+    'id',
+    'name',
+    'label',
+    'description',
+    'help',
+    'error',
+    'hint',
+    'required',
+    'children',
+    'orientation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
+  type MergedProps = FormFieldT.Base<TSchema, T> &
+    FormFieldT.Variant & {
+      classes?: FormFieldT.Classes
+      styles?: FormFieldT.Styles
+      class?: string
+      style?: JSX.CSSProperties
+    }
   const merged = mergeProps(
     {
-      as: 'div' as ValidComponent,
+      as: 'div' as T,
       orientation: 'vertical' as const,
       size: 'md' as const,
       required: false,
     },
-    props,
-  )
+    local,
+  ) as MergedProps
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
   const hint = createMemo(() => merged.hint)
@@ -297,10 +326,11 @@ export function FormField<TSchema extends FormSchema | undefined = undefined>(
   return (
     <FormFieldProvider value={fieldContextValue}>
       <Dynamic
-        component={merged.as}
         data-slot="root"
-        style={{ ...merged.styles?.root, ...merged.style }}
         data-orientation={merged.orientation}
+        {...rest}
+        component={merged.as as any}
+        style={{ ...merged.styles?.root, ...merged.style }}
         class={formFieldSizeVariants(
           {
             size: merged.size,

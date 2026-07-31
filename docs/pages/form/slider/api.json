@@ -132,6 +132,11 @@
         "defaultValue": "false"
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "required",
         "required": false,
         "type": "boolean | undefined",

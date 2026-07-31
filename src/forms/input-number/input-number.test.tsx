@@ -12,6 +12,17 @@ describe('InputNumber', () => {
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
   })
 
+  test('supports tuple handlers for increment clicks', async () => {
+    const onIncrementClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const screen = render(() => (
+      <InputNumber defaultValue={0} onIncrementClick={[onIncrementClick, 'payload']} />
+    ))
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+
+    expect(onIncrementClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
+  })
+
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => (
       <InputNumber defaultValue={1} required disabled placeholder="Qty" />

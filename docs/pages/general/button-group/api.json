@@ -37,9 +37,26 @@
         "type": "ButtonGroupT.Classes | undefined"
       },
       {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Optional identifier for the group root."
+      },
+      {
         "name": "orientation",
         "required": false,
         "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "JSX.AriaAttributes[\"role\"] | undefined",
+        "description": "ARIA role for the group root."
       },
       {
         "name": "separator",

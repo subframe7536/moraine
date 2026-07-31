@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createComponent } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Icon } from './icon'
@@ -11,6 +11,13 @@ describe('Icon', () => {
 
     expect(icon).not.toBeNull()
     expect(icon?.className).toContain('i-lucide-search')
+  })
+
+  test('keeps the structural root when an arbitrary component prop is passed', () => {
+    const screen = render(() => <Icon name="i-lucide-search" component="span" />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.tagName).toBe('DIV')
   })
 
   test('applies numeric size as font-size in px', () => {
@@ -68,6 +75,27 @@ describe('Icon', () => {
     const screen2 = render(() => <Icon name="i-lucide-search" aria-label="Search" />)
     const icon2 = screen2.container.querySelector('[data-slot="icon"]')
     expect(icon2?.hasAttribute('aria-hidden')).toBe(false)
+  })
+
+  test('keeps aria-hidden in sync with a reactive aria-label', () => {
+    const [label, setLabel] = createSignal<string | undefined>()
+    const screen = render(() => <Icon name="i-lucide-search" aria-label={label()} />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')!
+
+    expect(icon.getAttribute('aria-hidden')).toBe('true')
+
+    setLabel('Search')
+    expect(icon.hasAttribute('aria-hidden')).toBe(false)
+
+    setLabel(undefined)
+    expect(icon.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  test('allows an explicit aria-hidden override', () => {
+    const screen = render(() => <Icon name="i-lucide-search" aria-hidden={false} />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.getAttribute('aria-hidden')).toBe('false')
   })
 
   test('applies classes.root override', () => {

@@ -283,6 +283,11 @@
         "defaultValue": ""
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "required",
         "required": false,
         "type": "boolean | undefined",
@@ -632,14 +637,7 @@
             "description": "Present when the field is required."
           }
         ],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
+        "ariaAttributes": []
       },
       {
         "name": "trigger",

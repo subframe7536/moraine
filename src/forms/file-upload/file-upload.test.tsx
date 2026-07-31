@@ -63,11 +63,20 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('does not accept highlight prop at type level', () => {
-    // @ts-expect-error highlight has been removed from FileUpload props
+  test('accepts arbitrary root props at type level', () => {
     const props: FileUploadProps = { highlight: true }
 
     expect(props).toBeDefined()
+  })
+
+  test('supports tuple click handlers on the upload control', async () => {
+    const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+    const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
+    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+
+    await fireEvent.click(control)
+
+    expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
 
   test('renders base attributes and text', () => {

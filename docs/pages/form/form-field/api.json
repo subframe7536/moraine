@@ -50,7 +50,7 @@
       {
         "name": "as",
         "required": false,
-        "type": "ValidComponent | undefined",
+        "type": "T | undefined",
         "description": "The HTML element or component to render as.",
         "defaultValue": "div"
       },
@@ -117,6 +117,11 @@
         "name": "orientation",
         "required": false,
         "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "required",

@@ -1,4 +1,4 @@
-import type { ComponentProps, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -22,10 +22,7 @@ export namespace IconButtonInnerT {
 
   export interface Item {}
 
-  export interface Base extends Omit<
-    ComponentProps<'button'>,
-    'children' | 'class' | 'style' | 'classes' | 'styles' | 'name' | 'size'
-  > {
+  export interface Base {
     /** Icon source. Strings should be Uno icon classes such as `i-lucide-search`. */
     name: IconT.Name
 
@@ -40,9 +37,21 @@ export namespace IconButtonInnerT {
 
     /** Present while the composed button is loading. */
     'data-loading'?: string
+
+    /** Whether the internal button is disabled. */
+    disabled?: boolean
+
+    /** Native click handler for the internal button. */
+    onClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
+
+    /** Pointer handler for the internal button. */
+    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
+
+    /** Tab order for the internal button. */
+    tabIndex?: number
   }
 
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'button', Base, Variant, Slot>
 }
 
 export interface IconButtonInnerProps extends IconButtonInnerT.Props {}

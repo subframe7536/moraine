@@ -68,7 +68,7 @@ export interface HandlerCallResult<R = unknown> {
 
 export function callHandler<T, E extends Event, R = unknown>(
   event: E,
-  handler: JSX.EventHandlerUnion<T, E> | undefined,
+  handler: JSX.EventHandlerUnion<T, E, any> | undefined,
 ): HandlerCallResult<R> {
   let result: R | undefined
 
@@ -83,5 +83,12 @@ export function callHandler<T, E extends Event, R = unknown>(
   return {
     defaultPrevented: event?.defaultPrevented ?? false,
     result,
+  }
+}
+
+/** Assigns a composed DOM ref without introducing React-style ref objects. */
+export function callRef<T>(ref: T | ((element: T) => void) | undefined, element: T): void {
+  if (typeof ref === 'function') {
+    ;(ref as (element: T) => void)(element)
   }
 }

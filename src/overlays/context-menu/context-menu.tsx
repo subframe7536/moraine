@@ -1,11 +1,19 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, mergeProps, onCleanup, onMount, untrack } from 'solid-js'
+import {
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  onMount,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type {
   OverlayMenuFocusStrategy,
@@ -36,12 +44,18 @@ export namespace ContextMenuT {
      * Target area that opens the context menu on right-click or long press.
      */
     children: JSX.Element
+    onContextMenu?: JSX.EventHandlerUnion<HTMLSpanElement, MouseEvent>
+    onPointerDown?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
+    onPointerMove?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
+    onPointerCancel?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
+    onPointerUp?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLSpanElement, KeyboardEvent>
   }
 
   /**
    * Props for the ContextMenu component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'span', Base, Variant, Slot>
 }
 
 /**
@@ -78,6 +92,38 @@ function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
  * Menu triggered by right-click or long press on its child content.
  */
 export function ContextMenu(props: ContextMenuProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'items',
+    'itemRender',
+    'itemProps',
+    'contentProps',
+    'contentTop',
+    'contentBottom',
+    'placement',
+    'gutter',
+    'preventScroll',
+    'overflowPadding',
+    'checkedIcon',
+    'submenuIcon',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'children',
+    'onContextMenu',
+    'onPointerDown',
+    'onPointerMove',
+    'onPointerCancel',
+    'onPointerUp',
+    'onKeyDown',
+    'ref',
+  ])
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -86,7 +132,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       placement: 'right-start' as const,
       gutter: 0,
     },
-    props,
+    local,
   )
   const [uncontrolledOpen, setUncontrolledOpen] = createSignal(
     untrack(() => Boolean(merged.defaultOpen)),
@@ -210,7 +256,8 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         event.target instanceof Node && Boolean(triggerElement?.contains(event.target))
       const pointerInsideTrigger = isPointerInsideTrigger(event)
 
-      if (!targetInsideTrigger && !pointerInsideTrigger) {
+      // Let the trigger handler compose user callbacks for events targeted inside the trigger.
+      if (targetInsideTrigger || !pointerInsideTrigger) {
         return
       }
 
@@ -240,6 +287,12 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     clearLongPressTimeout()
     event.preventDefault()
     event.stopPropagation()
+
+    if (resolvedOpen()) {
+      commitOpen(false)
+      return
+    }
+
     openFromPoint(event.clientX, event.clientY)
   }
 
@@ -283,6 +336,10 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       longPressTimeoutId = 0
       longPressStartPoint = undefined
 
+      if (untrack(() => merged.disabled)) {
+        return
+      }
+
       if (isUncontrolled) {
         setUncontrolledOpen(true)
       }
@@ -292,7 +349,12 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerMove = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
+      return
+    }
+
+    if (merged.disabled) {
+      clearLongPressTimeout()
       return
     }
 
@@ -302,7 +364,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerCancel = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
       return
     }
 
@@ -310,7 +372,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerUp = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
       return
     }
 
@@ -345,6 +407,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       <span
         ref={(element) => {
           triggerElement = element
+          callRef(local.ref, element)
         }}
         data-slot="trigger"
         data-disabled={merged.disabled ? '' : undefined}
@@ -354,14 +417,39 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         aria-haspopup="menu"
         aria-controls={resolvedOpen() ? contentId() : undefined}
         aria-expanded={resolvedOpen() ? 'true' : 'false'}
+        {...rest}
         class={cn(merged.classes?.trigger, merged.class)}
         style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger, ...merged.style }}
-        onContextMenu={onContextMenu}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerCancel={onPointerCancel}
-        onPointerUp={onPointerUp}
+        onContextMenu={(event) => {
+          callHandler(event, local.onContextMenu)
+          if (event.defaultPrevented) {
+            clearLongPressTimeout()
+            return
+          }
+          onContextMenu(event)
+        }}
+        onPointerDown={(event) => {
+          callHandler(event, local.onPointerDown)
+          if (!event.defaultPrevented) {
+            onPointerDown(event)
+          }
+        }}
+        onPointerMove={(event) => {
+          callHandler(event, local.onPointerMove)
+          if (!event.defaultPrevented) {
+            onPointerMove(event)
+          }
+        }}
+        onPointerCancel={(event) => {
+          callHandler(event, local.onPointerCancel)
+          onPointerCancel(event)
+        }}
+        onPointerUp={(event) => {
+          callHandler(event, local.onPointerUp)
+          onPointerUp(event)
+        }}
         onKeyDown={(event) => {
+          callHandler(event, local.onKeyDown)
           if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
             return
           }

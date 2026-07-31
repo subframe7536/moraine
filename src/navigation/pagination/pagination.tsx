@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps } from 'solid-js'
+import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
@@ -150,18 +150,6 @@ export namespace PaginationT {
     to?: (page: number) => string | undefined
 
     /**
-     * Accessibility label for the navigation element.
-     * @default 'Pagination'
-     */
-    'aria-label'?: string
-
-    /**
-     * ARIA role for the navigation element.
-     * @default 'navigation'
-     */
-    role?: JSX.HTMLAttributes<HTMLElement>['role']
-
-    /**
      * Slot-based class overrides.
      */
     classes?: Classes
@@ -175,7 +163,7 @@ export namespace PaginationT {
   /**
    * Props for the Pagination component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'nav', Base, Variant, Slot>
 }
 
 /**
@@ -202,6 +190,30 @@ function getSize(size: string | undefined, text?: string): ButtonProps['size'] {
  * Page navigation component with configurable sibling count and edge display.
  */
 export function Pagination(props: PaginationProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'page',
+    'defaultPage',
+    'onPageChange',
+    'itemsPerPage',
+    'total',
+    'siblingCount',
+    'showControls',
+    'disabled',
+    'size',
+    'variant',
+    'activeVariant',
+    'controlVariant',
+    'prevIcon',
+    'prevText',
+    'nextIcon',
+    'nextText',
+    'ellipsisIcon',
+    'to',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       'aria-label': 'Pagination',
@@ -219,7 +231,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       ellipsisIcon: 'icon-ellipsis' as IconT.Name,
       defaultPage: 1,
     },
-    props,
+    local,
   )
 
   const [internalPage, setInternalPage] = createSignal(merged.defaultPage || 1)
@@ -271,10 +283,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
     merged.onPageChange?.(next)
   }
 
-  const getControlProps = (target: number, isEdge: boolean, rel?: string) => {
+  const getControlProps = (
+    target: number,
+    isEdge: boolean,
+    rel?: string,
+  ): {
+    as?: 'a'
+    href?: string
+    rel?: string
+    type?: 'button'
+    disabled?: boolean
+  } => {
     const disabled = Boolean(merged.disabled || isEdge)
     const href = disabled ? undefined : merged.to?.(target)
-    return href ? { as: 'a', href, rel } : { type: 'button', disabled }
+    return href ? { as: 'a' as const, href, rel } : { type: 'button' as const, disabled }
   }
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
@@ -309,6 +331,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('w-full', merged.classes?.root, merged.class)}
+      {...rest}
     >
       <ul
         data-slot="list"

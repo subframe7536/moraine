@@ -9,6 +9,7 @@ import {
   on,
   onCleanup,
   onMount,
+  splitProps,
 } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
@@ -148,7 +149,7 @@ export namespace TabsT {
   /**
    * Props for the Tabs component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -172,13 +173,30 @@ function normalizeItemValue(item: TabsT.Item, index: number): string {
  * Tabbed navigation component with configurable orientation and variant styles.
  */
 export function Tabs(props: TabsProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'value',
+    'defaultValue',
+    'orientation',
+    'activationMode',
+    'disabled',
+    'keyboardLoop',
+    'onChange',
+    'items',
+    'variant',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
       variant: 'pill' as const,
       size: 'md' as const,
     },
-    props,
+    local,
   )
 
   const rootId = useId(() => merged.id, 'tabs')
@@ -344,6 +362,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         merged.classes?.root,
         merged.class,
       )}
+      {...rest}
     >
       <div
         ref={(e) => (listRef = e)}

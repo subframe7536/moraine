@@ -144,11 +144,7 @@ export namespace SelectT {
     closeIcon?: IconT.Name
   }
 
-  export interface Props<TItem extends Value = Value> extends BaseProps<
-    Base<TItem>,
-    Variant,
-    Slot
-  > {}
+  export type Props<TItem extends Value = Value> = BaseProps<'div', Base<TItem>, Variant, Slot>
 }
 
 export interface SelectProps<

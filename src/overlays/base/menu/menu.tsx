@@ -20,6 +20,7 @@ import { Icon } from '../../../elements/icon'
 import type { IconT } from '../../../elements/icon'
 import { KbdGroup } from '../../../elements/kbd'
 import { List } from '../../../elements/list'
+import type { ListProps } from '../../../elements/list'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
@@ -1336,6 +1337,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
+  const RuntimeList = List as unknown as import('solid-js').Component<
+    ListProps<OverlayMenuListEntry<TItem>, 'div', HTMLDivElement> &
+      JSX.HTMLAttributes<HTMLDivElement>
+  >
+
   return (
     <div
       ref={(element) => {
@@ -1352,7 +1358,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       data-slot="positioner"
       class="left-0 top-0 fixed"
     >
-      <List<OverlayMenuListEntry<TItem>, 'div'>
+      <RuntimeList
         as="div"
         items={listEntries()}
         itemRender={(context) => renderListEntry(context.item)}
@@ -1363,7 +1369,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         role="menu"
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
-        ref={(element) => {
+        ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)

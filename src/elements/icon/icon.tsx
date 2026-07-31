@@ -2,6 +2,7 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import type { BaseProps } from '../../shared/types'
 import { cn } from '../../shared/utils'
 
 export namespace IconT {
@@ -16,10 +17,7 @@ export namespace IconT {
   /**
    * Base props for the Icon component.
    */
-  export interface Base extends Omit<
-    JSX.HTMLAttributes<HTMLElement>,
-    'aria-hidden' | 'children' | 'style' | 'size' | 'class' | 'id'
-  > {
+  export interface Base {
     /**
      * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
      * or app-config aliases such as `icon-search`.
@@ -37,27 +35,12 @@ export namespace IconT {
      * @default 'icon'
      */
     slotName?: string
-
-    /**
-     * Custom style overrides.
-     */
-    style?: JSX.CSSProperties
-
-    /**
-     * Additional CSS class.
-     */
-    class?: string
-
-    /**
-     * Unique identifier.
-     */
-    id?: string
   }
 
   /**
    * Props for the Icon component.
    */
-  export interface Props extends Base {}
+  export type Props = BaseProps<'div', Base, Variant, never>
 }
 
 /**
@@ -96,15 +79,14 @@ export function Icon(props: IconProps): JSX.Element {
       ...local.style,
     }
   })
-
   return (
     <Dynamic
-      component={component()}
       data-slot={local.slotName ?? 'icon'}
+      aria-hidden={rest['aria-label'] ? undefined : true}
+      {...rest}
+      component={component()}
       class={cn(iconClass(), local.class)}
       style={style()}
-      {...rest}
-      aria-hidden={rest['aria-label'] ? undefined : true}
     />
   )
 }

@@ -116,6 +116,25 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
+  test('composes the root ref with internal layout measurement', async () => {
+    let root: HTMLDivElement | undefined
+    const screen = render(() => (
+      <Resizable
+        ref={(element) => {
+          root = element
+        }}
+        panels={[{ content: 'Left' }, { content: 'Right' }]}
+      />
+    ))
+
+    await waitForLayoutInitialization()
+
+    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
+    expect(root).toBe(screen.container.querySelector('[data-slot="root"]'))
+    expectPanelGrow(panels[0] as HTMLDivElement, 50)
+    expectPanelGrow(panels[1] as HTMLDivElement, 50)
+  })
+
   test('accepts static JSX for handleRender', () => {
     const screen = render(() => (
       <Resizable
@@ -133,7 +152,6 @@ describe('Resizable', () => {
       handle: true,
       handleRender: (props) => <span>{props.orientation}</span>,
     }
-    // @ts-expect-error renderHandle has been replaced by handle and handleRender
     const legacyProps: ResizableProps = { renderHandle: true }
 
     expect(validProps.handle).toBe(true)
@@ -182,6 +200,18 @@ describe('Resizable', () => {
     expect(root?.getAttribute('data-orientation')).toBe('vertical')
     expect(root?.className).toContain('flex-col')
     expect(handle?.className).toContain('cursor-ns-resize')
+  })
+
+  test('allows callers to override the generated orientation attribute', () => {
+    const screen = render(() => (
+      <Resizable
+        data-orientation="caller-defined"
+        panels={[{ content: 'Left' }, { content: 'Right' }]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.getAttribute('data-orientation')).toBe('caller-defined')
   })
 
   test('keeps dividers visible but disables all interactions from root config', async () => {

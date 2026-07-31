@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo } from 'solid-js'
+import { Show, createMemo, splitProps } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
@@ -143,7 +143,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -153,6 +153,20 @@ export interface CollapsibleProps extends CollapsibleT.Props {}
 
 /** Expandable content section with optional height transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
+  const [, rest] = splitProps(props, [
+    'id',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'disabled',
+    'transition',
+    'triggerRender',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const rootId = useId(() => props.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -247,9 +261,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     <div
       id={rootId()}
       data-slot="root"
+      {...dataAttrs()}
+      {...rest}
       style={{ ...props.styles?.root, ...props.style }}
       class={cn(props.classes?.root, props.class)}
-      {...dataAttrs()}
     >
       <Show
         when={typeof props.triggerRender === 'function'}

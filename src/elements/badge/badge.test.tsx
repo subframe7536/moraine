@@ -24,6 +24,18 @@ describe('Badge', () => {
     expect(badge?.getAttribute('aria-hidden')).toBe('true')
   })
 
+  test('forwards root attributes and lets callers override generated metadata', () => {
+    const screen = render(() => (
+      <Badge data-slot="tag" data-variant="custom" aria-label="status">
+        Ready
+      </Badge>
+    ))
+    const badge = screen.container.querySelector('[data-slot="tag"]')
+
+    expect(badge?.getAttribute('data-variant')).toBe('custom')
+    expect(badge?.getAttribute('aria-label')).toBe('status')
+  })
+
   test('applies variant and size classes', () => {
     const solid = render(() => (
       <Badge variant="solid" size="lg">
@@ -74,7 +86,7 @@ describe('Badge', () => {
   test('supports slot and attribute overrides used by select tags', () => {
     const screen = render(() => (
       <Badge
-        slotName="tag"
+        data-slot="tag"
         trailing="i-lucide-x"
         onTrailingClick={() => undefined}
         classes={{
@@ -99,7 +111,7 @@ describe('Badge', () => {
   test('supports style overrides', () => {
     const screen = render(() => (
       <Badge
-        slotName="tag"
+        data-slot="tag"
         trailing="i-lucide-x"
         onTrailingClick={() => undefined}
         styles={{

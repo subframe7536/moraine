@@ -85,6 +85,23 @@ describe('Collapsible', () => {
     expect(trigger?.getAttribute('aria-controls')).toBe(contentWrapper?.getAttribute('id'))
   })
 
+  test('allows callers to override generated root state attributes', () => {
+    const screen = render(() => (
+      <Collapsible
+        defaultOpen
+        data-expanded="caller-expanded"
+        data-closed="caller-closed"
+        triggerRender={<button type="button">Trigger</button>}
+      >
+        <span>Content</span>
+      </Collapsible>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.getAttribute('data-expanded')).toBe('caller-expanded')
+    expect(root?.getAttribute('data-closed')).toBe('caller-closed')
+  })
+
   test('children render function receives open=true/false', async () => {
     const screen = renderCollapsible({ defaultOpen: false })
     const trigger = screen.getByTestId('trigger-control')

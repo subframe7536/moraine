@@ -89,6 +89,46 @@
         "defaultValue": "icon-loading"
       },
       {
+        "name": "onClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+      },
+      {
+        "name": "onContextMenu",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+      },
+      {
+        "name": "onKeyDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+      },
+      {
+        "name": "onPointerCancel",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerLeave",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerUp",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
@@ -114,6 +154,12 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Trailing visual content, usually an icon."
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined",
+        "description": "Native button type when the root renders as a button."
       },
       {
         "name": "variant",
@@ -164,10 +210,22 @@
         "description": "Present when the component is loading."
       },
       {
+        "name": "data-size",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved size variant."
+      },
+      {
         "name": "data-slot",
         "required": false,
         "type": "string",
         "description": "Identifies the rendered slot for styling hooks and selectors."
+      },
+      {
+        "name": "data-variant",
+        "required": false,
+        "type": "string",
+        "description": "Stores the resolved visual variant."
       }
     ],
     "slots": [

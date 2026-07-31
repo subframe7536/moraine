@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, onMount } from 'solid-js'
+import { For, Show, createMemo, createSignal, mergeProps, onMount, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useEventListener } from '../../shared/use-event-listener'
@@ -139,11 +139,12 @@ export namespace CheckboxGroupT {
   /**
    * Props for the CheckboxGroup component.
    */
-  export interface Props<TTrue = boolean, TFalse = boolean> extends BaseProps<
+  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
+    'div',
     Base<TTrue, TFalse>,
     Variant,
     Slot
-  > {}
+  >
 }
 
 /**
@@ -169,6 +170,28 @@ interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
 export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   props: CheckboxGroupProps<TTrue, TFalse>,
 ): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'required',
+    'disabled',
+    'readOnly',
+    'legend',
+    'items',
+    'indicator',
+    'checkedIcon',
+    'indeterminateIcon',
+    'onChange',
+    'variant',
+    'orientation',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       orientation: 'vertical' as const,
@@ -176,7 +199,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       size: 'md' as const,
       defaultValue: [] as string[],
     },
-    props,
+    local,
   )
   const legend = createMemo(() => merged.legend)
 
@@ -272,6 +295,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('relative', merged.classes?.root, merged.class)}
+      {...rest}
     >
       <fieldset
         ref={(element) => {

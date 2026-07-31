@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
@@ -8,7 +8,7 @@ import type { SlotClasses, SlotStyles } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack'
 import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils'
@@ -40,6 +40,8 @@ export interface ModalProps {
   overlay?: boolean
   /** Trigger content rendered inside the opener wrapper. */
   trigger?: JSX.Element
+  /** Root attributes forwarded to the trigger wrapper by public overlays. */
+  triggerProps?: JSX.HTMLAttributes<HTMLSpanElement>
   /** Modal content rendered inside the content surface. */
   content?: ComponentOrElement<ModalContentContext>
   /** Slot-based class overrides for the trigger, overlay, and content elements. */
@@ -55,6 +57,13 @@ export interface ModalProps {
 }
 
 export function Modal(props: ModalProps): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- trigger props remain a reactive Solid proxy.
+  const [triggerLocal, triggerRest] = splitProps(props.triggerProps ?? {}, [
+    'class',
+    'style',
+    'ref',
+    'onClick',
+  ])
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const trigger = createMemo(() => props.trigger)
@@ -263,13 +272,24 @@ export function Modal(props: ModalProps): JSX.Element {
       <Show when={trigger()}>
         {(body) => (
           <span
-            ref={setTriggerElement}
-            tabIndex={-1}
             data-slot="trigger"
-            style={props.styles?.trigger}
-            class={cn('outline-none', props.classes?.trigger)}
-            onClick={() => {
-              updateOpen(true)
+            {...triggerRest}
+            ref={(element) => {
+              setTriggerElement(element)
+              callRef(triggerLocal.ref, element)
+            }}
+            tabIndex={-1}
+            style={
+              typeof triggerLocal.style === 'object'
+                ? { ...props.styles?.trigger, ...triggerLocal.style }
+                : props.styles?.trigger
+            }
+            class={cn('outline-none', props.classes?.trigger, triggerLocal.class)}
+            onClick={(event) => {
+              const { defaultPrevented } = callHandler(event, triggerLocal.onClick)
+              if (!defaultPrevented) {
+                updateOpen(true)
+              }
             }}
           >
             {body()}

@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  splitProps,
   onCleanup,
   onMount,
 } from 'solid-js'
@@ -13,7 +14,7 @@ import {
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { callRef, cn, useId } from '../../shared/utils'
 
 import {
   collapsePanel,
@@ -154,7 +155,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -174,6 +175,26 @@ const EMPTY_PANELS: ResizablePanelItem[] = []
 
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
+  const [localProps, rest] = splitProps(props, [
+    'id',
+    'panels',
+    'onResize',
+    'onResizeStart',
+    'onResizeEnd',
+    'onHandleKeyDown',
+    'disable',
+    'handle',
+    'handleRender',
+    'handleAction',
+    'intersection',
+    'keyboardDelta',
+    'orientation',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+  ])
   const local = mergeProps(
     {
       orientation: 'horizontal' as ResizableOrientation,
@@ -181,7 +202,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       handle: true,
       handleAction: 'resize' as const,
     },
-    props,
+    localProps,
   )
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
@@ -728,12 +749,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   return (
     <div
-      ref={rootRef}
+      ref={(element) => {
+        rootRef = element
+        callRef(local.ref, element)
+      }}
       id={local.id}
       data-slot="root"
-      style={{ ...local.styles?.root, ...local.style }}
       data-resizable-root
       data-orientation={orientation()}
+      {...rest}
+      style={{ ...local.styles?.root, ...local.style }}
       class={resizableRootVariants(
         { orientation: orientation() },
         local.classes?.root,

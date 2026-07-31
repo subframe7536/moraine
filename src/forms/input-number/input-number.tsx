@@ -6,6 +6,7 @@ import {
   mergeProps,
   onCleanup,
   onMount,
+  splitProps,
   Show,
 } from 'solid-js'
 
@@ -15,7 +16,7 @@ import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { useId } from '../../shared/utils'
+import { callHandler, useId } from '../../shared/utils'
 import { useFormField } from '../form-field/form-field-context'
 import type {
   FormDisableOption,
@@ -292,22 +293,22 @@ export namespace InputNumberT {
     /**
      * Callback when the input loses focus.
      */
-    onBlur?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
+    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
      * Callback when the input gains focus.
      */
-    onFocus?: JSX.FocusEventHandler<HTMLInputElement, FocusEvent>
+    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
 
     /**
      * Callback when the increment button is clicked.
      */
-    onIncrementClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>
+    onIncrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
 
     /**
      * Callback when the decrement button is clicked.
      */
-    onDecrementClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>
+    onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
 
     /**
      * Whether press-and-hold should trigger repeated value changes.
@@ -343,7 +344,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -353,6 +354,49 @@ export interface InputNumberProps extends InputNumberT.Props {}
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
 export function InputNumber(props: InputNumberProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'name',
+    'value',
+    'defaultValue',
+    'rawValue',
+    'minValue',
+    'maxValue',
+    'step',
+    'largeStep',
+    'locale',
+    'onChange',
+    'onRawValueChange',
+    'orientation',
+    'placeholder',
+    'increment',
+    'incrementIcon',
+    'incrementDisabled',
+    'decrement',
+    'decrementIcon',
+    'decrementDisabled',
+    'autofocus',
+    'wheel',
+    'autofocusDelay',
+    'onBlur',
+    'onFocus',
+    'onIncrementClick',
+    'onDecrementClick',
+    'holdRepeat',
+    'repeatDelayMs',
+    'repeatIntervalMs',
+    'repeatThrottleMs',
+    'repeatPointerTypes',
+    'disabled',
+    'required',
+    'readOnly',
+    'size',
+    'variant',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       variant: 'outline' as const,
@@ -366,7 +410,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
-    props,
+    local,
   )
 
   const generatedId = useId(() => merged.id, 'input-number')
@@ -686,7 +730,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     if (state.syntheticClicksPending > 0) {
       state.syntheticClicksPending -= 1
-      getControlUserOnClick(kind)?.(event)
+      callHandler(event, getControlUserOnClick(kind))
       if (!event.defaultPrevented) {
         if (kind === 'increment') {
           incrementValue()
@@ -708,7 +752,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return
     }
 
-    getControlUserOnClick(kind)?.(event)
+    callHandler(event, getControlUserOnClick(kind))
 
     if (!event.defaultPrevented) {
       if (kind === 'increment') {
@@ -773,6 +817,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, merged.onBlur)
+    if (defaultPrevented) {
+      return
+    }
+
     // On blur, try to parse and commit any partial input
     const rawInput = inputText()
     const parsed = parseLocaleNumber(rawInput, merged.locale)
@@ -785,12 +834,15 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       setInputText(formatLocaleNumber(currentValue(), merged.locale))
     }
 
-    merged.onBlur?.(event)
     field.emit('blur', event)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
-    merged.onFocus?.(event)
+    const { defaultPrevented } = callHandler(event, merged.onFocus)
+    if (defaultPrevented) {
+      return
+    }
+
     field.emit('focus', event)
   }
 
@@ -844,6 +896,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         merged.class,
       )}
       {...dataAttrs()}
+      {...rest}
     >
       <Show when={!isVertical() && merged.decrement}>
         <DecrementControl />

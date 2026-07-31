@@ -73,7 +73,7 @@
       {
         "name": "as",
         "required": false,
-        "type": "ValidComponent | undefined",
+        "type": "\"div\" | undefined",
         "description": "The HTML element or component to render as.",
         "defaultValue": "div"
       },
@@ -168,25 +168,25 @@
       {
         "name": "onClick",
         "required": false,
-        "type": "JSX.EventHandler<HTMLElement, MouseEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined",
         "description": "Click handler for the upload control."
       },
       {
         "name": "onDragLeave",
         "required": false,
-        "type": "JSX.EventHandler<HTMLElement, DragEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent> | undefined",
         "description": "Drag-leave handler for the upload dropzone."
       },
       {
         "name": "onDragOver",
         "required": false,
-        "type": "JSX.EventHandler<HTMLElement, DragEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent> | undefined",
         "description": "Drag-over handler for the upload dropzone."
       },
       {
         "name": "onDrop",
         "required": false,
-        "type": "JSX.EventHandler<HTMLElement, DragEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent> | undefined",
         "description": "Drop handler for the upload dropzone."
       },
       {
@@ -198,7 +198,7 @@
       {
         "name": "onKeyDown",
         "required": false,
-        "type": "JSX.EventHandler<HTMLElement, KeyboardEvent> | undefined",
+        "type": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined",
         "description": "Keyboard handler for the upload control."
       },
       {
@@ -220,6 +220,11 @@
         "type": "boolean | undefined",
         "description": "Whether the input is read-only.",
         "defaultValue": "false"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "required",

@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, untrack } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
@@ -138,7 +147,7 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export interface Props extends BaseProps<Base, Variant, Slot> {}
+  export type Props = BaseProps<'div', Base, Variant, Slot>
 }
 
 /**
@@ -154,6 +163,23 @@ interface NormalizedAccordionItem {
 
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'value',
+    'defaultValue',
+    'multiple',
+    'collapsible',
+    'loopFocus',
+    'onChange',
+    'items',
+    'disabled',
+    'unmountOnHide',
+    'trailing',
+    'classes',
+    'styles',
+    'class',
+    'style',
+  ])
   const merged = mergeProps(
     {
       multiple: false,
@@ -162,7 +188,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       unmountOnHide: true,
       trailing: 'icon-chevron-down' as IconT.Name,
     },
-    props,
+    local,
   )
 
   const rootId = useId(() => merged.id, 'accordion')
@@ -275,6 +301,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
+      {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn(
         'flex flex-col w-full',

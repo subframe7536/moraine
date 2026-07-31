@@ -1,15 +1,20 @@
-import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
+import type { Component, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps } from '../../shared/types'
 import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
 } from '../../shared/use-list-virtualizer'
+import { cn } from '../../shared/utils'
 
 export namespace ListT {
+  export type Variant = never
+  export type Classes = never
+  export type Styles = never
   export type RowProps<TItemElement extends HTMLElement = HTMLElement> = BaseRowProps<TItemElement>
 
   export interface ItemRenderProps<TItem, TItemElement extends HTMLElement = HTMLElement> {
@@ -31,7 +36,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = Omit<ComponentProps<T>, 'as' | 'children'> & {
+  > = {
     /**
      * Root element or component.
      * @default 'ul'
@@ -49,7 +54,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = Base<TItem, T, TItemElement>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never>
 }
 
 export type ListProps<
@@ -64,12 +69,17 @@ export function List<
   T extends ValidComponent = 'ul',
   TItemElement extends HTMLElement = HTMLElement,
 >(props: ListProps<TItem, T, TItemElement>): JSX.Element {
-  const [local, rest] = splitProps(props as ListProps<TItem, 'ul', TItemElement>, [
+  type RuntimeListProps = ListProps<TItem, T, TItemElement> & {
+    ref?: (element: TItemElement | undefined) => void
+  }
+  const [local, rest] = splitProps(props as RuntimeListProps, [
     'as',
     'items',
     'itemRender',
     'virtualRender',
     'ref',
+    'class',
+    'style',
   ])
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
@@ -82,9 +92,11 @@ export function List<
       ref={(element: HTMLUListElement) => {
         setScrollElement(() => element)
         if (typeof local.ref === 'function') {
-          local.ref(element)
+          local.ref(element as unknown as TItemElement)
         }
       }}
+      class={cn(local.class)}
+      style={local.style}
     >
       <Show
         when={local.virtualRender}
@@ -108,10 +120,20 @@ export function List<
       >
         {(virtualRender) => (
           <Dynamic
-            component={virtualRender()}
+            component={
+              virtualRender() as Component<{
+                entries: readonly TItem[]
+                scrollElement: HTMLElement | undefined
+                render: (
+                  item: TItem,
+                  index: number,
+                  rowProps: BaseRowProps<TItemElement>,
+                ) => JSX.Element
+              }>
+            }
             entries={local.items ?? []}
             scrollElement={scrollElement()}
-            render={(item, index, rowProps) =>
+            render={(item: TItem, index: number, rowProps: BaseRowProps<TItemElement>) =>
               renderComponentOrElement(local.itemRender, {
                 get item() {
                   return item

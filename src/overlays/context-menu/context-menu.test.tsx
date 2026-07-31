@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { ContextMenu } from './context-menu'
@@ -151,14 +152,85 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
+  test('allows callers to override generated trigger ARIA attributes', () => {
     const screen = render(() => (
-      <ContextMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
+      <ContextMenu
+        aria-controls="caller-content"
+        aria-expanded="caller-expanded"
+        aria-haspopup="caller-menu"
+        items={[]}
+      >
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+    const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]')
+
+    expect(trigger?.getAttribute('aria-controls')).toBe('caller-content')
+    expect(trigger?.getAttribute('aria-expanded')).toBe('caller-expanded')
+    expect(trigger?.getAttribute('aria-haspopup')).toBe('caller-menu')
+  })
+
+  test('calls the trigger contextmenu handler for native right-clicks', async () => {
+    const onContextMenu = vi.fn((event: MouseEvent) => event.preventDefault())
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <ContextMenu onContextMenu={onContextMenu} onOpenChange={onOpenChange} items={[]}>
+        <div>Row Item</div>
+      </ContextMenu>
+    ))
+
+    await fireEvent.contextMenu(screen.getByText('Row Item'))
+
+    expect(onContextMenu).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('clears a touch long press when contextmenu is prevented', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu
+          onContextMenu={(event) => event.preventDefault()}
+          onOpenChange={onOpenChange}
+          items={[{ label: 'Touch action' }]}
+        >
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      const row = screen.getByText('Row Item')
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(699)
+      await fireEvent.contextMenu(row)
+      await vi.advanceTimersByTimeAsync(1)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
+    const triggerRef = vi.fn()
+    const screen = render(() => (
+      <ContextMenu
+        ref={triggerRef}
+        items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
+      >
         <div>Row Item</div>
       </ContextMenu>
     ))
 
     const row = screen.getByText('Row Item')
+    expect(triggerRef).toHaveBeenCalledWith(row.closest('[data-slot="trigger"]'))
+
     await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
@@ -299,6 +371,73 @@ describe('ContextMenu', () => {
       await vi.advanceTimersByTimeAsync(1)
       expect(onOpenChange).toHaveBeenCalledWith(true)
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('does not open when disabled during a touch long press', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const [disabled, setDisabled] = createSignal(false)
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu
+          disabled={disabled()}
+          onOpenChange={onOpenChange}
+          items={[{ label: 'Touch action' }]}
+        >
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      const row = screen.getByText('Row Item')
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+
+      setDisabled(true)
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('clears a touch long press when pointerup is prevented', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu
+          onOpenChange={onOpenChange}
+          onPointerUp={(event) => event.preventDefault()}
+          items={[{ label: 'Touch action' }]}
+        >
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      const row = screen.getByText('Row Item')
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await fireEvent.pointerUp(row, {
+        pointerType: 'touch',
+        cancelable: true,
+      })
+
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
     } finally {
       vi.useRealTimers()
     }
