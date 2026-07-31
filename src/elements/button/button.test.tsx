@@ -28,6 +28,14 @@ describe('Button', () => {
     expect(button.getAttribute('data-slot')).toBe('root')
   })
 
+  test('keeps the structural root when an arbitrary component prop is passed', () => {
+    const screen = render(() => <Button component="a">Save</Button>)
+    const button = screen.getByRole('button', { name: 'Save' })
+
+    expect(button.tagName).toBe('BUTTON')
+    expect(screen.queryByRole('link', { name: 'Save' })).toBeNull()
+  })
+
   test('calls pointer handlers without replacing internal interaction behavior', async () => {
     const onPointerDown = vi.fn()
     const screen = render(() => (

@@ -733,14 +733,15 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   return (
     <Dynamic
-      component={(merged.as ?? 'div') as ValidComponent}
-      id={`${field.id()}-root`}
       role="group"
       disabled={field.disabled()}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
+      {...rest}
+      id={`${field.id()}-root`}
+      component={(merged.as ?? 'div') as ValidComponent}
+      style={{ ...merged.styles?.root, ...merged.style }}
       class={fileUploadRootVariants(
         {
           size: field.size(),
@@ -748,7 +749,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         merged.classes?.root,
         merged.class,
       )}
-      {...(rest as Record<string, unknown>)}
     >
       <Show
         when={merged.dropzone}

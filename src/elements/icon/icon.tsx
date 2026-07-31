@@ -81,12 +81,12 @@ export function Icon(props: IconProps): JSX.Element {
   })
   return (
     <Dynamic
-      component={component()}
       data-slot={local.slotName ?? 'icon'}
-      class={cn(iconClass(), local.class)}
-      style={style()}
       aria-hidden={rest['aria-label'] ? undefined : true}
       {...rest}
+      component={component()}
+      class={cn(iconClass(), local.class)}
+      style={style()}
     />
   )
 }

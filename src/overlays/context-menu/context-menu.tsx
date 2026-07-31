@@ -422,9 +422,11 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger, ...merged.style }}
         onContextMenu={(event) => {
           callHandler(event, local.onContextMenu)
-          if (!event.defaultPrevented) {
-            onContextMenu(event)
+          if (event.defaultPrevented) {
+            clearLongPressTimeout()
+            return
           }
+          onContextMenu(event)
         }}
         onPointerDown={(event) => {
           callHandler(event, local.onPointerDown)

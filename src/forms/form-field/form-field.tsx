@@ -1,6 +1,6 @@
 import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import { useField } from '@formisch/solid'
-import type { Component, JSX, ValidComponent } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
@@ -322,18 +322,15 @@ export function FormField<
 
     return true
   })
-  const Root = Dynamic as unknown as Component<{
-    component: T
-    [key: string]: unknown
-  }>
 
   return (
     <FormFieldProvider value={fieldContextValue}>
-      <Root
-        component={merged.as as T}
+      <Dynamic
         data-slot="root"
-        style={{ ...merged.styles?.root, ...merged.style }}
         data-orientation={merged.orientation}
+        {...rest}
+        component={merged.as as any}
+        style={{ ...merged.styles?.root, ...merged.style }}
         class={formFieldSizeVariants(
           {
             size: merged.size,
@@ -342,7 +339,6 @@ export function FormField<
           merged.classes?.root,
           merged.class,
         )}
-        {...rest}
       >
         <div
           data-slot="wrapper"
@@ -437,7 +433,7 @@ export function FormField<
             </div>
           </Show>
         </div>
-      </Root>
+      </Dynamic>
     </FormFieldProvider>
   )
 }

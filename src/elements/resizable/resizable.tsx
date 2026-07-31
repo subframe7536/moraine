@@ -755,10 +755,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
       }}
       id={local.id}
       data-slot="root"
-      {...rest}
-      style={{ ...local.styles?.root, ...local.style }}
       data-resizable-root
       data-orientation={orientation()}
+      {...rest}
+      style={{ ...local.styles?.root, ...local.style }}
       class={resizableRootVariants(
         { orientation: orientation() },
         local.classes?.root,

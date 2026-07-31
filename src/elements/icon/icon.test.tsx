@@ -13,6 +13,13 @@ describe('Icon', () => {
     expect(icon?.className).toContain('i-lucide-search')
   })
 
+  test('keeps the structural root when an arbitrary component prop is passed', () => {
+    const screen = render(() => <Icon name="i-lucide-search" component="span" />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.tagName).toBe('DIV')
+  })
+
   test('applies numeric size as font-size in px', () => {
     const screen = render(() => <Icon name="i-lucide-search" size={18} />)
     const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLSpanElement | null

@@ -280,6 +280,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   return (
     <Dynamic
+      data-slot={local.slotName || 'root'}
+      data-size={size()}
+      data-variant={variant()}
+      aria-busy={isLoading() ? true : undefined}
+      data-loading={isLoading() ? '' : undefined}
+      aria-disabled={!isNativeBtn() && isDisabledOrLoading() ? true : undefined}
+      data-disabled={local.disabled ? '' : undefined}
+      {...rest}
       component={tag()}
       style={{ ...local.styles?.root, ...local.style }}
       class={cn(
@@ -290,14 +298,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         local.classes?.root,
         local.class,
       )}
-      data-slot={local.slotName || 'root'}
-      data-size={size()}
-      data-variant={variant()}
-      aria-busy={isLoading() ? true : undefined}
-      data-loading={isLoading() ? '' : undefined}
-      aria-disabled={!isNativeBtn() && isDisabledOrLoading() ? true : undefined}
-      data-disabled={local.disabled ? '' : undefined}
-      {...rest}
       type={
         isNativeBtn()
           ? (local.type ?? 'button')

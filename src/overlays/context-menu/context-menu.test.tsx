@@ -185,6 +185,38 @@ describe('ContextMenu', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
+  test('clears a touch long press when contextmenu is prevented', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu
+          onContextMenu={(event) => event.preventDefault()}
+          onOpenChange={onOpenChange}
+          items={[{ label: 'Touch action' }]}
+        >
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      const row = screen.getByText('Row Item')
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(699)
+      await fireEvent.contextMenu(row)
+      await vi.advanceTimersByTimeAsync(1)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (

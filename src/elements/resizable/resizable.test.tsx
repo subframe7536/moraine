@@ -202,6 +202,18 @@ describe('Resizable', () => {
     expect(handle?.className).toContain('cursor-ns-resize')
   })
 
+  test('allows callers to override the generated orientation attribute', () => {
+    const screen = render(() => (
+      <Resizable
+        data-orientation="caller-defined"
+        panels={[{ content: 'Left' }, { content: 'Right' }]}
+      />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.getAttribute('data-orientation')).toBe('caller-defined')
+  })
+
   test('keeps dividers visible but disables all interactions from root config', async () => {
     const onResize = vi.fn()
 
