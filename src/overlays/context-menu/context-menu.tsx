@@ -336,6 +336,10 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       longPressTimeoutId = 0
       longPressStartPoint = undefined
 
+      if (untrack(() => merged.disabled)) {
+        return
+      }
+
       if (isUncontrolled) {
         setUncontrolledOpen(true)
       }
@@ -345,7 +349,12 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerMove = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
+      return
+    }
+
+    if (merged.disabled) {
+      clearLongPressTimeout()
       return
     }
 
@@ -355,7 +364,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerCancel = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
       return
     }
 
@@ -363,7 +372,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const onPointerUp = (event: PointerEvent): void => {
-    if (merged.disabled || !isTouchOrPen(event.pointerType)) {
+    if (!isTouchOrPen(event.pointerType)) {
       return
     }
 

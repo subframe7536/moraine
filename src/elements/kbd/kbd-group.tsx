@@ -80,6 +80,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
     'sequence',
+    'dividerRender',
     'sequenceDividerRender',
     'size',
     'classes',
@@ -133,7 +134,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                           class={cn('text-muted-foreground', props.classes?.divider)}
                           style={props.styles?.divider}
                         >
-                          {resolveDivider(props.dividerRender, { index: index() }, '+')}
+                          {resolveDivider(local.dividerRender, { index: index() }, '+')}
                         </span>
                       </Show>
                     </>

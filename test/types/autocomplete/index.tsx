@@ -36,6 +36,7 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
   ref={(element) => acceptAnchor(element)}
 />
 ;<Button as={CustomRoot} required="yes" />
+;<Button as="input" type="checkbox" />
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />

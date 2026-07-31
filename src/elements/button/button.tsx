@@ -57,10 +57,14 @@ export namespace ButtonT {
      */
     as?: T
 
-    /** Native button type when the root renders as a button. */
+    /** Native type attribute for supported native roots. */
     type?: T extends 'a'
       ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+      : T extends 'button'
+        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+        : T extends 'input'
+          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
+          : never
 
     /**
      * Disabled state, including for non-button polymorphic roots.

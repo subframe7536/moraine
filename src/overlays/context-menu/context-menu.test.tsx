@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { ContextMenu } from './context-menu'
@@ -338,6 +339,39 @@ describe('ContextMenu', () => {
       await vi.advanceTimersByTimeAsync(1)
       expect(onOpenChange).toHaveBeenCalledWith(true)
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('does not open when disabled during a touch long press', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const [disabled, setDisabled] = createSignal(false)
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu
+          disabled={disabled()}
+          onOpenChange={onOpenChange}
+          items={[{ label: 'Touch action' }]}
+        >
+          <div>Row Item</div>
+        </ContextMenu>
+      ))
+
+      const row = screen.getByText('Row Item')
+      await fireEvent.pointerDown(row, {
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+
+      setDisabled(true)
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     } finally {
       vi.useRealTimers()
     }
