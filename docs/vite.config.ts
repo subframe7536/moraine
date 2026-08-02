@@ -6,13 +6,7 @@ import { fileRouter } from 'solid-file-router/plugin'
 import type { UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import {
-  createDocsRouteSource,
-  docsBuildPlugin,
-  llmsTxtPlugin,
-  getDocsPrerenderRoutes,
-  siteMetaPlugin,
-} from './build'
+import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build'
 import unocfg from './unocss.config'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
@@ -30,12 +24,11 @@ const config = {
     uno(unocfg) as unknown,
     solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
     fileRouter({
-      routeSource: createDocsRouteSource(projectRoot),
+      pagesDir: 'routes',
+      mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
-        serverEntry: 'entry-server.tsx',
         id: 'app',
-        routes: () => getDocsPrerenderRoutes(projectRoot),
         concurrency: 4,
       },
       infoDts: {
@@ -50,7 +43,6 @@ const config = {
       },
     }) as unknown,
     siteMetaPlugin({
-      projectRoot,
       ...site,
       title: 'Moraine Docs',
       imagePath: '/og-image.png',

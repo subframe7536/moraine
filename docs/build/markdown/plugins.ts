@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode } from 'satteri'
 
@@ -15,6 +17,8 @@ export interface OnThisPageEntryLiteral {
   label: string
   level: number
 }
+
+export const DOCS_ON_THIS_PAGE_DATA_KEY = '__moraineOnThisPageEntries'
 
 export const DOCS_MDX_FEATURES = {
   gfm: true,
@@ -54,7 +58,7 @@ function appendClass(node: HastNode, className: string): string {
   return current ? `${current} ${className}` : className
 }
 
-export function createDocsHastPlugin(onThisPageEntries?: OnThisPageEntryLiteral[]) {
+export function createDocsHastPlugin() {
   const headingSlugCounter = new Map<string, number>()
 
   const createHeadingSlug = (headingText: string) => {
@@ -83,7 +87,9 @@ export function createDocsHastPlugin(onThisPageEntries?: OnThisPageEntryLiteral[
           )
 
           if (level >= 2 && level <= 5 && headingText) {
-            onThisPageEntries?.push({
+            const entries = (ctx.data[DOCS_ON_THIS_PAGE_DATA_KEY] ??=
+              []) as OnThisPageEntryLiteral[]
+            entries.push({
               id: slug,
               label: headingText,
               level: level - 1,
@@ -202,15 +208,15 @@ export function createDocsHastPlugin(onThisPageEntries?: OnThisPageEntryLiteral[
   })
 }
 
-export function createDocsCodePlugin(id: string) {
+export function createDocsCodePlugin() {
   return defineMdastPlugin({
     name: 'moraine-docs-code',
-    async code(node) {
+    async code(node, ctx) {
       const html = await renderDocsCodeHtml({
         code: node.value,
         language: node.lang ?? '',
         meta: node.meta ?? undefined,
-        sourceFilePath: id,
+        sourceFilePath: ctx.fileURL ? fileURLToPath(ctx.fileURL) : undefined,
       })
 
       return {

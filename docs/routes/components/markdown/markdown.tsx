@@ -1,15 +1,13 @@
-import type { Component } from 'solid-js'
-import { createMemo, createSignal, Show } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import type { JSX } from 'solid-js'
+import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
-import { Button } from '../../src'
-import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../build/api-doc/types'
-import type { FrontmatterData } from '../build/markdown/types'
-import type { OnThisPageEntry } from '../hooks/use-table-of-contents'
+import { Button } from '../../../../src'
+import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../../../build/api-doc/types'
+import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
+import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 
 import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference'
 import { DocsPageNavigation } from './docs-page-navigation'
-import { createDocsMdxComponents } from './mdx-components'
 import { OnThisPage } from './on-this-page'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
@@ -53,28 +51,65 @@ export interface DocsMdxCodeTabItem {
   html: string
 }
 
-export interface DocsMdxContentProps {
-  components?: Record<string, unknown>
-}
-
-export interface DocsMdxExample {
-  component: Component
-  source?: string
-}
-
 export interface RenderExampleMarkdownPageInput {
   pageKey: string
   apiDoc?: ExamplePageApiDoc
   frontmatter: FrontmatterData
   onThisPageEntries?: OnThisPageEntry[]
-  Content: Component<DocsMdxContentProps>
-  examples: Record<string, DocsMdxExample>
-  codeTabs: Record<string, DocsMdxCodeTabItem[]>
   markdownSource?: string
+  metadata?: DocsRouteMetadata
+  children?: JSX.Element
+}
+
+function updateMetaTag(attribute: 'name' | 'property', value: string, content: string): void {
+  const meta = [...document.querySelectorAll<HTMLMetaElement>('meta')].find(
+    (element) => element.getAttribute(attribute) === value,
+  )
+  if (meta) {
+    meta.setAttribute('content', content)
+    return
+  }
+
+  const nextMeta = document.createElement('meta')
+  nextMeta.setAttribute(attribute, value)
+  nextMeta.setAttribute('content', content)
+  document.head.append(nextMeta)
+}
+
+function updateCanonical(href: string): void {
+  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+  if (canonical) {
+    canonical.setAttribute('href', href)
+    return
+  }
+
+  const nextCanonical = document.createElement('link')
+  nextCanonical.setAttribute('rel', 'canonical')
+  nextCanonical.setAttribute('href', href)
+  document.head.append(nextCanonical)
+}
+
+export function useDocsPage(metadata?: DocsRouteMetadata): void {
+  onMount(() => {
+    if (!metadata) {
+      return
+    }
+
+    document.title = metadata.title
+    updateCanonical(metadata.canonical)
+    updateMetaTag('name', 'description', metadata.description)
+    for (const tag of metadata.meta) {
+      const attribute = tag.name !== undefined ? 'name' : 'property'
+      const value = tag.name ?? tag.property
+      if (value !== undefined) {
+        updateMetaTag(attribute, value, tag.content)
+      }
+    }
+  })
 }
 
 export function Markdown(input: RenderExampleMarkdownPageInput) {
-  const components = createDocsMdxComponents(input)
+  useDocsPage(untrack(() => input.metadata))
   const component = () => input.apiDoc?.component
   const componentKey = () => input.frontmatter.componentKey ?? component()?.key
   const category = () => input.frontmatter.category ?? component()?.category
@@ -189,7 +224,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
               </Show>
             </div>
           </header>
-          <Dynamic component={input.Content} components={components} />
+          {input.children}
           <DocsApiReference apiDoc={input.apiDoc} />
           <DocsPageNavigation currentPageKey={input.pageKey} />
         </div>

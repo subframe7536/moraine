@@ -1,4 +1,4 @@
-import { Card, Icon } from '../../src'
+import { Card, Icon } from '../../../../src'
 
 export const IntroCards = () => {
   return (

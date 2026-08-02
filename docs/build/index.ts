@@ -1,4 +1,5 @@
 export { docsBuildPlugin } from './plugin'
-export { createDocsRouteSource, getDocsPrerenderRoutes } from './routes'
+export { scanDocsRoutes } from './routes'
+export { createDocsMdxOptions } from './markdown/page'
 export { buildSiteMetaTags, siteMetaPlugin } from './site-meta'
 export { buildLlmsDocuments, buildLlmsTxt, llmsTxtPlugin } from './llms'

@@ -18,3 +18,14 @@ export interface FrontmatterData {
   related?: string[]
   upstreamHref?: string
 }
+
+export interface DocsRouteMetadata {
+  title: string
+  description: string
+  canonical: string
+  meta: Array<{
+    property?: string
+    name?: string
+    content: string
+  }>
+}

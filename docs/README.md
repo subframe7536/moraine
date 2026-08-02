@@ -6,8 +6,8 @@ The docs app is a Vite + SolidJS application using `solid-file-router` for file-
 
 - `docs/build/plugin.ts` owns docs-specific build work.
 - `buildStart` regenerates component API JSON from `dist/index.d.mts`.
-- `docs/build/routes.ts` scans `docs/pages/**/*.mdx` and exposes a `solid-file-router` `routeSource`.
-- `solid-file-router` loads virtual route modules from the docs route source, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
+- `docs/build/markdown/page.ts` configures the built-in `mdxRouteProvider` with docs metadata, examples, code tabs, and rendered Markdown layout.
+- `solid-file-router` discovers `docs/routes` through its built-in `fsRouteProvider`, discovers `docs/pages/**/*.mdx` through its built-in `mdxRouteProvider`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 
 Generated route types are ignored by git and should not be edited by hand.
 
@@ -28,6 +28,9 @@ docs/pages/general/button/button.mdx -> /button
 docs/pages/form/input/input.mdx -> /input
 docs/pages/introduction.mdx -> /
 ```
+
+The app layout is defined in `docs/routes/_app.tsx`; its route-local implementation components live in
+`docs/routes/components/`, which the built-in router ignores during route discovery.
 
 Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed by the sidebar and command palette.
 
@@ -51,7 +54,7 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 
 ## MDX And Examples
 
-- MDX page module generation lives in `docs/build/markdown/page.ts`.
+- MDX page module generation is handled by `solid-file-router`; `docs/build/markdown/page.ts` only supplies the provider extensions.
 - All docs pages use frontmatter for the visible header, route metadata, search, and per-route SEO.
 - Component API reference sections render automatically from colocated `api.json`.
 - Examples use the built-in MDX component with a static relative path:
@@ -73,7 +76,7 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 `docs/vite.config.ts` configures:
 
 - `solid({ ssr: true })`
-- `fileRouter({ routeSource: createDocsRouteSource(projectRoot), ssg: { serverEntry: 'entry-server.tsx', id: 'app' } })`
+- `fileRouter({ pagesDir: 'routes', mdx: createDocsMdxOptions(projectRoot), ssg: { id: 'app' } })`
 
 `bun run docs:build` emits the prerendered site under `docs/dist/client`.
 

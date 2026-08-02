@@ -164,8 +164,7 @@ describe('docsBuildPlugin', () => {
         await readFile(path.join(projectRoot, 'docs/pages/general/button/button.mdx'), 'utf8'),
         path.join(projectRoot, 'docs/pages/general/button/button.mdx'),
       )
-      expect(markdownModule).toContain("import __DocsExample0 from './basic-example.tsx?example'")
-      expect(markdownModule).toContain('"./basic-example": __DocsExample0')
+      expect(markdownModule).toBeNull()
 
       const ssrExampleModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,

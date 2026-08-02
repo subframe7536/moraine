@@ -1,14 +1,8 @@
 import { closeSync, openSync, readSync } from 'node:fs'
 import path from 'node:path'
 
-import type {
-  RouteSourceEntry,
-  RouteSourceLoadContext,
-  RouteSourceProvider,
-} from 'solid-file-router/plugin'
-
 import { loadApiDocIndex } from './api-doc/load'
-import { collectMarkdownFiles, resolveDocsPageContext, toImportPath } from './core/paths'
+import { collectMarkdownFiles, resolveDocsPageContext } from './core/paths'
 import { readFrontmatterData } from './markdown/frontmatter'
 import type { FrontmatterData } from './markdown/types'
 
@@ -30,8 +24,14 @@ export interface DocsRouteEntry {
 }
 
 const ROOT_ROUTE_KEY = 'introduction'
-const APP_ROUTE_ID = 'routes/_app.tsx'
-const NOT_FOUND_ROUTE_ID = '404.tsx'
+
+export function docsRoutePath(page: ReturnType<typeof resolveDocsPageContext>): string {
+  const isRoot = page.pageKey === ROOT_ROUTE_KEY && !page.group
+  return isRoot
+    ? 'index.tsx'
+    : path.join(page.group ? `(${page.group})` : '', `${page.pageKey}.tsx`)
+}
+
 const FRONTMATTER_READ_BYTES = 4096
 
 function readFrontmatterPrefix(sourcePath: string): string {
@@ -89,25 +89,13 @@ export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
     .map((sourcePath) => {
       const page = resolveDocsPageContext(sourcePath)
       const key = page.pageKey
-      const isRoot = key === ROOT_ROUTE_KEY && !page.group
       const frontmatter = readRouteFrontmatter(sourcePath)
-      const info: DocsRouteInfo = {
-        key,
-        title: frontmatter.title,
-        description: frontmatter.description,
-        order: frontmatter.sidebar.order,
-        tags: frontmatter.search.tags,
-        ...(page.group ? { group: page.group } : {}),
-        ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
-        ...(componentKeys.has(key) ? { api: key } : {}),
-      }
+      const info = createDocsRouteInfo(key, page.group, frontmatter, componentKeys)
 
       return {
         info,
         sourcePath,
-        routePath: isRoot
-          ? 'index.tsx'
-          : path.join(page.group ? `(${page.group})` : '', `${key}.tsx`),
+        routePath: docsRoutePath(page),
       }
     })
     .sort(compareRoutes)
@@ -129,110 +117,20 @@ export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
   return routes
 }
 
-function serializeRouteInfo(info: DocsRouteInfo): string {
-  return JSON.stringify(info, null, 2)
-}
-
-function toRouteId(entry: DocsRouteEntry): string {
-  return entry.info.key === ROOT_ROUTE_KEY ? '/' : `/${entry.info.key}`
-}
-
-function toRouteSourcePath(projectRoot: string, sourcePath: string): string {
-  return toImportPath(path.join(projectRoot, 'docs/index.tsx'), sourcePath).replace(/^\.\//, '')
-}
-
-function routeModuleCode(entry: DocsRouteEntry, context: RouteSourceLoadContext): string {
-  const importPath = toImportPath(context.moduleId, entry.sourcePath)
-  return [
-    "import { lazy } from 'solid-js'",
-    "import { createRoute } from 'solid-file-router'",
-    "import { loadDocsPage } from '/components/docs-route-loading'",
-    '',
-    `const Page = lazy(() => loadDocsPage(() => import('${importPath}')))`,
-    '',
-    'export default createRoute({',
-    `  info: ${serializeRouteInfo(entry.info)},`,
-    '  component: Page,',
-    '})',
-    '',
-  ].join('\n')
-}
-
-function appRouteModuleCode(context: RouteSourceLoadContext): string {
-  const importPath = toImportPath(context.moduleId, context.sourcePath).replace(/\.tsx$/, '')
-  return [
-    "import { createRoute } from 'solid-file-router'",
-    `import { DocsAppLayout } from '${importPath}'`,
-    '',
-    'export default createRoute({',
-    '  component: (props) => <DocsAppLayout>{props.children}</DocsAppLayout>,',
-    '})',
-    '',
-  ].join('\n')
-}
-
-function notFoundRouteModuleCode(context: RouteSourceLoadContext): string {
-  const importPath = toImportPath(context.moduleId, context.sourcePath).replace(/\.tsx$/, '')
-  return [
-    "import { createRoute } from 'solid-file-router'",
-    `import { DocsNotFound } from '${importPath}'`,
-    '',
-    'export default createRoute({',
-    '  component: () => <DocsNotFound />,',
-    '})',
-    '',
-  ].join('\n')
-}
-
-export function createDocsRouteSource(projectRoot: string): RouteSourceProvider {
-  const docsRoot = path.join(projectRoot, 'docs')
-  let cachedRoutes: DocsRouteEntry[] | null = null
-
-  const getRoutes = () => {
-    cachedRoutes ??= scanDocsRoutes(projectRoot)
-    return cachedRoutes
-  }
-
+export function createDocsRouteInfo(
+  key: string,
+  group: string | undefined,
+  frontmatter: FrontmatterData,
+  componentKeys: ReadonlySet<string>,
+): DocsRouteInfo {
   return {
-    scan: () => {
-      cachedRoutes = scanDocsRoutes(projectRoot)
-      return [
-        {
-          routeId: APP_ROUTE_ID,
-          routePath: '_app.tsx',
-          sourcePath: 'components/docs-app-layout.tsx',
-        },
-        ...cachedRoutes.map<RouteSourceEntry>((route) => ({
-          routeId: toRouteId(route),
-          routePath: route.routePath,
-          sourcePath: toRouteSourcePath(projectRoot, route.sourcePath),
-        })),
-        {
-          routeId: NOT_FOUND_ROUTE_ID,
-          routePath: '404.tsx',
-          sourcePath: 'components/docs-not-found.tsx',
-        },
-      ]
-    },
-    load(context) {
-      if (context.routeId === `/${APP_ROUTE_ID}`) {
-        return appRouteModuleCode(context)
-      }
-      if (context.routePath === NOT_FOUND_ROUTE_ID) {
-        return notFoundRouteModuleCode(context)
-      }
-
-      const sourcePath = path.normalize(context.sourcePath)
-      const route = getRoutes().find((entry) => path.normalize(entry.sourcePath) === sourcePath)
-      if (!route) {
-        return null
-      }
-      return routeModuleCode(route, context)
-    },
-    watchFiles: [path.relative(docsRoot, path.join(projectRoot, 'docs/pages'))],
+    key,
+    title: frontmatter.title,
+    description: frontmatter.description,
+    order: frontmatter.sidebar.order,
+    tags: frontmatter.search.tags,
+    ...(group ? { group } : {}),
+    ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
+    ...(componentKeys.has(key) ? { api: key } : {}),
   }
-}
-
-export function getDocsPrerenderRoutes(projectRoot: string): string[] {
-  return scanDocsRoutes(projectRoot).map((route) => toRouteId(route))
 }

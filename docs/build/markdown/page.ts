@@ -1,118 +1,114 @@
-import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
 
-import { mdxToJs } from 'satteri'
-import type { Data } from 'satteri'
+import type { MdxOptions } from 'solid-file-router/plugin'
 
-import { renderDocsCodeHtml } from '../core/expressive-code'
-import { resolveDocsPageContext, toImportPath } from '../core/paths'
-import { toSingleQuoted } from '../core/strings'
+import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load'
+import { resolveDocsPageContext } from '../core/paths'
+import { createDocsRouteInfo, docsRoutePath } from '../routes'
 
 import { createMdxCodeTabsPlugin } from './code-tabs'
 import { createMdxExamplesPlugin } from './examples'
-import { parseFrontmatterData } from './frontmatter'
-import { createDocsCodePlugin, createDocsHastPlugin, DOCS_MDX_FEATURES } from './plugins'
+import { validateFrontmatterData } from './frontmatter'
+import {
+  createDocsCodePlugin,
+  createDocsHastPlugin,
+  DOCS_MDX_FEATURES,
+  DOCS_ON_THIS_PAGE_DATA_KEY,
+} from './plugins'
 import type { OnThisPageEntryLiteral } from './plugins'
+import type { DocsRouteMetadata, FrontmatterData } from './types'
 
-interface CodeTabItemLiteral {
-  label: string
-  value: string
-  html: string
+function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
+  return path.resolve(projectRoot, 'docs', sourcePath)
 }
 
-async function createCodeTabsItems(packageName: string): Promise<CodeTabItemLiteral[]> {
-  return Promise.all(
-    [
-      { label: 'bun', value: 'bun', source: `bun add ${packageName}` },
-      { label: 'pnpm', value: 'pnpm', source: `pnpm add ${packageName}` },
-      { label: 'npm', value: 'npm', source: `npm i ${packageName}` },
-    ].map(async (command) => ({
-      label: command.label,
-      value: command.value,
-      html: await renderDocsCodeHtml({
-        code: command.source,
-        language: 'bash',
-        props: { frame: 'none', showLineNumbers: false },
-      }),
-    })),
-  )
+function serializeJsxExpression(value: unknown): string {
+  return `{${JSON.stringify(value) ?? 'undefined'}}`
 }
 
-function stripMdxDefaultExport(code: string): string {
-  return code.replace(/\n?export default MDXContent;\s*/, '\n')
-}
-
-function hasColocatedApiJson(id: string): boolean {
-  return existsSync(path.join(path.dirname(id), 'api.json'))
-}
-
-export async function compileMarkdownPage(markdownSource: string, id: string): Promise<string> {
-  const idWithoutQuery = id.split('?')[0] ?? id
-  const page = resolveDocsPageContext(idWithoutQuery)
-  const codeTabsPlugin = createMdxCodeTabsPlugin(idWithoutQuery)
-  const examplesPlugin = createMdxExamplesPlugin(idWithoutQuery)
-  const onThisPageEntries: OnThisPageEntryLiteral[] = []
-  const runtimePath = toImportPath(idWithoutQuery, path.join(page.docsRoot, 'components/markdown'))
-  const imports = [`import { Markdown } from ${toSingleQuoted(runtimePath)}`]
-  const apiJsonAvailable = hasColocatedApiJson(idWithoutQuery)
-
-  if (apiJsonAvailable) {
-    imports.push("import __docsRawApiDoc from './api.json'")
-  }
-
-  const mdxResult = await mdxToJs(markdownSource, {
-    jsx: true,
-    elementAttributeNameCase: 'html',
-    stylePropertyNameCase: 'css',
-    features: DOCS_MDX_FEATURES,
-    fileURL: pathToFileURL(idWithoutQuery),
-    data: {} satisfies Data,
-    mdastPlugins: [
-      examplesPlugin.plugin,
-      codeTabsPlugin.plugin,
-      createDocsCodePlugin(idWithoutQuery),
+function createDocsRouteMetadata(
+  pageKey: string,
+  routePath: string,
+  frontmatter: FrontmatterData,
+): DocsRouteMetadata {
+  const title = pageKey === 'introduction' ? 'Moraine Docs' : `${frontmatter.title} | Moraine`
+  const canonical = new URL(routePath.replace(/^\//, ''), 'https://ui.subf.dev/').toString()
+  return {
+    title,
+    description: frontmatter.description,
+    canonical,
+    meta: [
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: frontmatter.description },
+      { property: 'og:url', content: canonical },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: frontmatter.description },
     ],
-    hastPlugins: [createDocsHastPlugin(onThisPageEntries)],
-  })
-  const parsedFrontmatter = parseFrontmatterData(mdxResult.frontmatter?.value, idWithoutQuery)
-  const examples = examplesPlugin.result()
-
-  for (const [index, example] of examples.entries()) {
-    imports.push(`import __DocsExample${index} from ${toSingleQuoted(example.importPath)}`)
   }
+}
 
-  const codeTabsCode = JSON.stringify(
-    Object.fromEntries(
-      await Promise.all(
-        codeTabsPlugin
-          .result()
-          .codeTabsPackages.map(async (packageName) => [
-            packageName,
-            await createCodeTabsItems(packageName),
-          ]),
-      ),
-    ),
-  )
-  const examplesCode = `{
-${examples.map((example, index) => `  ${JSON.stringify(example.path)}: __DocsExample${index},`).join('\n')}
-}`
-  const frontmatterCode = JSON.stringify(parsedFrontmatter)
-  const apiDocCode = apiJsonAvailable ? '__docsRawApiDoc' : 'undefined'
+function createMarkdownContent(
+  pageKey: string,
+  frontmatter: unknown,
+  apiDoc: unknown,
+  onThisPageEntries: readonly OnThisPageEntryLiteral[],
+  markdownSource: string,
+  metadata: DocsRouteMetadata,
+): string {
+  return `<components.Markdown
+  {...props}
+  pageKey=${serializeJsxExpression(pageKey)}
+  frontmatter=${serializeJsxExpression(frontmatter)}
+  apiDoc=${serializeJsxExpression(apiDoc)}
+  onThisPageEntries=${serializeJsxExpression(onThisPageEntries)}
+  markdownSource=${serializeJsxExpression(markdownSource)}
+  metadata=${serializeJsxExpression(metadata)}
+>
+  <MDXContent {...props} />
+</components.Markdown>`
+}
 
-  return [
-    ...imports,
-    '',
-    stripMdxDefaultExport(mdxResult.code),
-    `const examples = ${examplesCode}`,
-    `const codeTabs = ${codeTabsCode}`,
-    `const frontmatter = ${frontmatterCode}`,
-    `const apiDoc = ${apiDocCode}`,
-    '',
-    'export default function MarkdownPage() {',
-    `  return Markdown({ pageKey: ${JSON.stringify(page.pageKey)}, frontmatter, apiDoc, onThisPageEntries: ` +
-      `${JSON.stringify(onThisPageEntries)}, Content: MDXContent, examples, codeTabs, markdownSource: ${JSON.stringify(markdownSource)} })`,
-    '}',
-    '',
-  ].join('\n')
+/** Creates the docs-specific configuration layered on top of the built-in MDX provider. */
+export function createDocsMdxOptions(projectRoot: string): MdxOptions {
+  return {
+    pagesDir: 'pages',
+    features: DOCS_MDX_FEATURES,
+    mdastPlugins: [
+      () => createMdxExamplesPlugin(),
+      () => createMdxCodeTabsPlugin(),
+      () => createDocsCodePlugin(),
+    ],
+    hastPlugins: [() => createDocsHastPlugin()],
+    transformPath(sourcePath, defaultEntry) {
+      const page = resolveDocsPageContext(getDocsSourcePath(projectRoot, sourcePath))
+      return {
+        ...defaultEntry,
+        path: docsRoutePath(page),
+      }
+    },
+    extendLoad(document, context) {
+      const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
+      const page = resolveDocsPageContext(sourcePath)
+      const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
+      const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
+      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys)
+      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
+      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
+      const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
+        ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
+        : []
+
+      return {
+        routeConfig: { info, metadata },
+        mdxContent: createMarkdownContent(
+          page.pageKey,
+          frontmatter,
+          apiDoc,
+          onThisPageEntries,
+          document.source,
+          metadata,
+        ),
+      }
+    },
+  }
 }

@@ -1,7 +1,9 @@
 import { existsSync, realpathSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { defineMdastPlugin } from 'satteri'
+import type { MdastNode } from 'satteri'
 
 import { resolveDocsPageContext, toImportPath } from '../core/paths'
 
@@ -12,10 +14,7 @@ export interface ScannedMdxExample {
   importPath: string
 }
 
-interface MdxExamplesPlugin {
-  plugin: ReturnType<typeof defineMdastPlugin>
-  result: () => ScannedMdxExample[]
-}
+export type MdxExamplesPlugin = ReturnType<typeof defineMdastPlugin>
 
 function isPathInside(parentPath: string, childPath: string): boolean {
   const relative = path.relative(parentPath, childPath)
@@ -68,36 +67,52 @@ export function resolveExampleFile(id: string, examplePath: string): string {
   return candidate
 }
 
-export function createMdxExamplesPlugin(id: string): MdxExamplesPlugin {
+export function createMdxExamplesPlugin(id?: string): MdxExamplesPlugin {
   const examples = new Map<string, ScannedMdxExample>()
 
-  const visitJsxNode = (node: unknown) => {
+  const visitJsxNode = (node: unknown, ctx: { fileURL?: URL }) => {
+    const documentId = id ?? (ctx.fileURL ? fileURLToPath(ctx.fileURL) : undefined)
+    if (!documentId) {
+      throw new Error('[docs-mdx] <Example /> requires a file URL')
+    }
     const record = asObjectRecord(node)
     if (!record || record.name !== 'Example') {
       return
     }
 
-    const examplePath = getStaticStringAttribute(record, 'Example', 'path', id)?.trim()
+    const examplePath = getStaticStringAttribute(record, 'Example', 'path', documentId)?.trim()
     if (!examplePath) {
-      throw new Error(`[docs-mdx] <Example /> requires a static "path" string in ${id}`)
+      throw new Error(`[docs-mdx] <Example /> requires a static "path" string in ${documentId}`)
     }
-    if (examples.has(examplePath)) {
-      return
-    }
+    const example =
+      examples.get(examplePath) ??
+      (() => {
+        const sourcePath = resolveExampleFile(documentId, examplePath)
+        const nextExample = {
+          path: examplePath,
+          importPath: `${toImportPath(documentId, sourcePath)}?example`,
+        }
+        examples.set(examplePath, nextExample)
+        return nextExample
+      })()
 
-    const sourcePath = resolveExampleFile(id, examplePath)
-    examples.set(examplePath, {
-      path: examplePath,
-      importPath: `${toImportPath(id, sourcePath)}?example`,
-    })
+    const attributes = [
+      ...(Array.isArray(record.attributes) ? record.attributes : []),
+      {
+        type: 'mdxJsxAttribute',
+        name: 'load',
+        value: {
+          type: 'mdxJsxAttributeValueExpression',
+          value: `() => import(${JSON.stringify(example.importPath)})`,
+        },
+      },
+    ]
+    return { ...(node as MdastNode), attributes } as MdastNode
   }
 
-  return {
-    plugin: defineMdastPlugin({
-      name: 'moraine-examples',
-      mdxJsxFlowElement: visitJsxNode,
-      mdxJsxTextElement: visitJsxNode,
-    }),
-    result: () => [...examples.values()],
-  }
+  return defineMdastPlugin({
+    name: 'moraine-examples',
+    mdxJsxFlowElement: visitJsxNode,
+    mdxJsxTextElement: visitJsxNode,
+  })
 }

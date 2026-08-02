@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { applyPageMetaToHtml, buildSiteMetaTags, siteMetaPlugin } from './site-meta'
+import { buildSiteMetaTags, siteMetaPlugin } from './site-meta'
 
 const SITE_META = {
   siteName: 'Moraine',
@@ -82,36 +82,6 @@ describe('buildSiteMetaTags', () => {
       injectTo: 'head',
     })
   })
-
-  test('builds route-specific title, description and canonical tags', () => {
-    const tags = buildSiteMetaTags(SITE_META, {
-      title: 'Button',
-      description: 'Button page.',
-      path: '/button',
-    })
-
-    expect(tags).toContainEqual({ tag: 'title', children: 'Button | Moraine', injectTo: 'head' })
-    expect(tags).toContainEqual({
-      tag: 'link',
-      attrs: { rel: 'canonical', href: 'https://ui.subf.dev/button' },
-      injectTo: 'head',
-    })
-  })
-
-  test('replaces route metadata in prerendered html', () => {
-    const html =
-      '<html><head><title>Moraine Docs</title><meta name="description" content="Default"><link rel="canonical" href="https://ui.subf.dev/"><meta property="og:title" content="Default"><meta property="og:description" content="Default"><meta property="og:url" content="https://ui.subf.dev/"><meta name="twitter:title" content="Default"><meta name="twitter:description" content="Default"></head></html>'
-    const output = applyPageMetaToHtml(html, SITE_META, {
-      title: 'Button',
-      description: 'Button page.',
-      path: '/button',
-    })
-
-    expect(output).toContain('<title>Button | Moraine</title>')
-    expect(output).toContain('<meta name="description" content="Button page.">')
-    expect(output).toContain('<link rel="canonical" href="https://ui.subf.dev/button">')
-    expect(output).toContain('<meta property="og:title" content="Button | Moraine">')
-  })
 })
 
 describe('siteMetaPlugin', () => {
@@ -147,5 +117,6 @@ describe('siteMetaPlugin', () => {
           (tag.attrs?.property === 'og:image' || tag.attrs?.name === 'twitter:image'),
       ),
     ).toHaveLength(2)
+    expect(plugin.generateBundle).toBeUndefined()
   })
 })

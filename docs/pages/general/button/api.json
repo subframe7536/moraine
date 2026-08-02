@@ -158,8 +158,8 @@
       {
         "name": "type",
         "required": false,
-        "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined",
-        "description": "Native button type when the root renders as a button."
+        "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : never | undefined",
+        "description": "Native type attribute for supported native roots."
       },
       {
         "name": "variant",

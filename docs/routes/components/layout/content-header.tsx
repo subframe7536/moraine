@@ -1,6 +1,6 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import { Button, Icon, Switch, cn } from '../../src'
+import { Button, Icon, Switch, cn } from '../../../../src'
 
 export interface ContentHeaderProps {
   pageTitle: Accessor<string>

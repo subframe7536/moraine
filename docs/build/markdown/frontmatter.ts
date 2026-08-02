@@ -10,20 +10,8 @@ function getFrontmatterBlock(source: string): string | null {
 }
 
 export function parseFrontmatterData(raw: string | null | undefined, id: string): FrontmatterData {
-  const fail = (field: string, message: string): never => {
-    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: ${field} ${message}`)
-  }
-
-  const readString = (record: FrontmatterRecord, field: string): string => {
-    const value = record[field]
-    if (typeof value !== 'string' || value.trim() === '') {
-      return fail(field, 'must be a non-empty string')
-    }
-    return value.trim()
-  }
-
   if (!raw?.trim()) {
-    return fail('frontmatter', 'is required')
+    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: frontmatter is required`)
   }
 
   let parsed: unknown
@@ -37,7 +25,27 @@ export function parseFrontmatterData(raw: string | null | undefined, id: string)
     throw new Error(`[docs-mdx] frontmatter must be an object in ${id}`)
   }
 
-  const data = parsed as FrontmatterRecord
+  return validateFrontmatterData(parsed, id)
+}
+
+export function validateFrontmatterData(value: unknown, id: string): FrontmatterData {
+  const fail = (field: string, message: string): never => {
+    throw new Error(`[docs-mdx] invalid frontmatter in ${id}: ${field} ${message}`)
+  }
+
+  const readString = (record: FrontmatterRecord, field: string): string => {
+    const value = record[field]
+    if (typeof value !== 'string' || value.trim() === '') {
+      return fail(field, 'must be a non-empty string')
+    }
+    return value.trim()
+  }
+
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`[docs-mdx] frontmatter must be an object in ${id}`)
+  }
+
+  const data = value as FrontmatterRecord
   const sidebarValue = data.sidebar
   if (!sidebarValue || typeof sidebarValue !== 'object' || Array.isArray(sidebarValue)) {
     return fail('sidebar', 'must be an object')
