@@ -19,6 +19,19 @@ function queryAllBody(selector: string): NodeListOf<Element> {
   return document.body.querySelectorAll(selector)
 }
 
+async function finishSelectExitMotion(): Promise<void> {
+  const contents = Array.from(
+    document.body.querySelectorAll('[data-slot="content"]'),
+  ) as HTMLElement[]
+
+  await Promise.all(
+    contents.map(async (content) => {
+      await fireEvent.animationEnd(content)
+      await fireEvent.transitionEnd(content)
+    }),
+  )
+}
+
 describe('MultiSelect', () => {
   test('accepts arbitrary root props at type level', () => {
     const props: MultiSelectProps = { options: FRUITS, highlight: true }
@@ -406,6 +419,36 @@ describe('MultiSelect', () => {
     await fireEvent.keyDown(control, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledWith(['banana'])
+  })
+
+  test('keeps the highlighted option until exit motion finishes', async () => {
+    const screen = render(() => (
+      <MultiSelect
+        options={FRUITS}
+        search
+        defaultOpen
+        defaultValue={['banana']}
+        placeholder="Pick"
+      />
+    ))
+    const input = screen.getByRole('combobox')
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+    })
+
+    await fireEvent.keyDown(input, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
+      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+    })
+
+    await finishSelectExitMotion()
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).toBeNull()
+    })
   })
 
   test('passes null to optionRender for empty state', async () => {

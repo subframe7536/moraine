@@ -326,6 +326,7 @@ function callRef<T extends HTMLElement>(
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   highlightedKey: Accessor<string | undefined>
   isOpen: Accessor<boolean>
+  isPresent: Accessor<boolean>
   selectedValues: Accessor<BaseSelectT.Value[]>
   setHighlightedKey: (key: string | undefined) => void
   visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
@@ -355,8 +356,12 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   }
 
   createEffect(() => {
-    if (!options.isOpen()) {
+    if (!options.isPresent()) {
       options.setHighlightedKey(undefined)
+      return
+    }
+
+    if (!options.isOpen()) {
       return
     }
 
@@ -698,6 +703,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const navigation = useSelectNavigation({
     highlightedKey,
     isOpen,
+    isPresent: contentPresence.present,
     selectedValues: () => merged.selectedValues ?? [],
     setHighlightedKey,
     visibleFlatOptions,
@@ -1125,9 +1131,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-required={merged.required ? '' : undefined}
+      {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
-      {...rest}
     >
       <select
         ref={(element) => {

@@ -1,6 +1,6 @@
 ## Fix
 
-- [ ] make highlight in select/multi-select keeping until transition is done when closing the options list
+- [x] make highlight in select/multi-select keeping until transition is done when closing the options list
 
 # V1
 

@@ -898,6 +898,30 @@ describe('Select - popup behavior', () => {
     })
   })
 
+  test('keeps the highlighted option until exit motion finishes', async () => {
+    const screen = render(() => (
+      <Select options={FRUITS} search defaultOpen defaultValue="banana" placeholder="Pick" />
+    ))
+    const input = screen.getByRole('combobox')
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+    })
+
+    await fireEvent.keyDown(input, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
+      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+    })
+
+    await finishSelectExitMotion()
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).toBeNull()
+    })
+  })
+
   test('uses shared menu transition classes and configurable overflow padding', async () => {
     render(() => (
       <Select options={FRUITS} defaultOpen gutter={6} overflowPadding={12} placeholder="Pick" />
