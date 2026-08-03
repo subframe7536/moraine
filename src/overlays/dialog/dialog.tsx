@@ -6,8 +6,8 @@ import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
-import { Modal } from '../base/modal'
-import type { ModalProps } from '../base/modal'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
+import type { ModalRootProps } from '../base/modal'
 import { popupContentVariants, popupOverlayVariants } from '../popup/popup.class'
 
 import { dialogCardVariants } from './dialog.class'
@@ -55,16 +55,18 @@ export namespace DialogT {
    * Base props for the Dialog component.
    */
   export interface Base extends Pick<
-    ModalProps,
+    ModalRootProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
     | 'onExitComplete'
-    | 'overlay'
     | 'dismissible'
     | 'onClosePrevent'
   > {
+    /** Whether to render the overlay element. */
+    overlay?: boolean
+
     /**
      * Primary title displayed in the dialog header.
      */
@@ -261,57 +263,61 @@ export function Dialog(props: DialogProps): JSX.Element {
   }
 
   return (
-    <Modal
+    <ModalRoot
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
       onExitComplete={merged.onExitComplete}
-      overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       preventScroll={!merged.scrollable}
-      trigger={merged.children}
-      triggerProps={rest}
-      classes={{
-        trigger: [merged.classes?.trigger, merged.class],
-        overlay: popupOverlayVariants(
+      hasOverlay={merged.overlay}
+      hasContent
+    >
+      <ModalTrigger
+        {...rest}
+        class={cn(merged.classes?.trigger, merged.class)}
+        style={{ ...merged.styles?.trigger, ...merged.style }}
+      >
+        {merged.children}
+      </ModalTrigger>
+      <ModalContent
+        overlay={merged.overlay}
+        overlayClass={popupOverlayVariants(
           {
             scrollable: merged.scrollable,
           },
           merged.classes?.overlay,
-        ),
-        content: popupContentVariants(
+        )}
+        overlayStyle={merged.styles?.overlay}
+        class={popupContentVariants(
           {
             layout: popupLayout(),
           },
           merged.classes?.content,
-        ),
-      }}
-      styles={{
-        trigger: { ...merged.styles?.trigger, ...merged.style },
-        overlay: merged.styles?.overlay,
-        content: merged.styles?.content,
-      }}
-      ariaLabelledBy={titleId()}
-      ariaDescribedBy={descriptionId()}
-      content={(context) => (
-        <Card
-          header={headerContent(context.close)}
-          footer={merged.footer}
-          classes={{
-            root: dialogCardVariants({ layout: popupLayout() }),
-            header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
-            body: ['text-sm', merged.classes?.body],
-            footer: [
-              'px-6 pb-6 pt-0 flex flex-col-reverse gap-2 sm:(flex-row justify-end)',
-              merged.classes?.footer,
-            ],
-          }}
-        >
-          {merged.body}
-        </Card>
-      )}
-    />
+        )}
+        style={merged.styles?.content}
+        ariaLabelledBy={titleId()}
+        ariaDescribedBy={descriptionId()}
+        contentRender={(context) => (
+          <Card
+            header={headerContent(context.close)}
+            footer={merged.footer}
+            classes={{
+              root: dialogCardVariants({ layout: popupLayout() }),
+              header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
+              body: ['text-sm', merged.classes?.body],
+              footer: [
+                'px-6 pb-6 pt-0 flex flex-col-reverse gap-2 sm:(flex-row justify-end)',
+                merged.classes?.footer,
+              ],
+            }}
+          >
+            {merged.body}
+          </Card>
+        )}
+      />
+    </ModalRoot>
   )
 }

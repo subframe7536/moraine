@@ -4,8 +4,8 @@ import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } fro
 import { KbdGroup } from '../../elements/kbd'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
-import { Popper, resolveOverlayMenuSide } from '../base'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base'
+import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base'
+import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base'
 
 import { tooltipContentVariants } from './tooltip.class'
 import type { TooltipVariantProps } from './tooltip.class'
@@ -36,7 +36,7 @@ export namespace TooltipT {
    * Base props for the Tooltip component.
    */
   export interface Base extends Pick<
-    PopperProps,
+    PopperRootProps,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
   > {
     /**
@@ -220,19 +220,22 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     open()
   }
 
-  function scheduleOpen(open: () => void, close: () => void): void {
+  function scheduleOpen(open: () => void, close: () => void, isOpen: boolean): void {
     if (merged.disabled) {
       return
     }
 
     clearCloseTimer()
+    clearOpenTimer()
+
+    if (isOpen) {
+      return
+    }
 
     if (shouldOpenImmediately()) {
       openTooltip(open, close, true)
       return
     }
-
-    clearOpenTimer()
 
     if (merged.openDelay <= 0) {
       openTooltip(open, close, false)
@@ -247,6 +250,11 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
   function scheduleClose(close: () => void, isOpen: boolean): void {
     clearOpenTimer()
+
+    if (merged.open === true) {
+      clearCloseTimer()
+      return
+    }
 
     if (!isOpen) {
       setShouldUseInstantMotion(false)
@@ -325,7 +333,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   return (
-    <Popper
+    <PopperRoot
       id={tooltipId()}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
@@ -344,24 +352,15 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       restoreFocusOnClose={false}
       describeTrigger
-      trigger={merged.children}
-      triggerProps={rest}
-      triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
-      triggerClass={cn(merged.classes?.trigger, merged.class)}
-      positionerClass={
-        shouldUseInstantMotion()
-          ? 'data-positioned:transition-transform data-positioned:duration-150 data-positioned:ease-out'
-          : undefined
-      }
       transitionMode={shouldUseInstantMotion() ? 'none' : 'both'}
       onTriggerFocus={(props) => {
-        scheduleOpen(props.open, props.close)
+        scheduleOpen(props.open, props.close, props.isOpen)
       }}
       onTriggerBlur={(props) => {
         scheduleClose(props.close, props.isOpen)
       }}
       onTriggerPointerEnter={(props) => {
-        scheduleOpen(props.open, props.close)
+        scheduleOpen(props.open, props.close, props.isOpen)
       }}
       onTriggerPointerLeave={(props) => {
         scheduleClose(props.close, props.isOpen)
@@ -373,7 +372,24 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       onContentPointerLeave={(props) => {
         scheduleClose(props.close, props.isOpen)
       }}
-      content={Content}
-    />
+    >
+      <PopperTrigger
+        {...rest}
+        describeTrigger
+        toggleOnClick={false}
+        style={{ ...merged.styles?.trigger, ...merged.style }}
+        class={cn(merged.classes?.trigger, merged.class)}
+      >
+        {merged.children}
+      </PopperTrigger>
+      <PopperContent
+        positionerClass={
+          shouldUseInstantMotion()
+            ? 'data-positioned:transition-transform data-positioned:duration-150 data-positioned:ease-out'
+            : undefined
+        }
+        contentRender={Content}
+      />
+    </PopperRoot>
   )
 }

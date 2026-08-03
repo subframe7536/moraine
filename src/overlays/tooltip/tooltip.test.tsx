@@ -215,6 +215,44 @@ describe('Tooltip', () => {
     )
   })
 
+  test('does not restart an always-open tooltip after switching from another tooltip', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip open text="Always open">
+          <button type="button">Always</button>
+        </Tooltip>
+        <Tooltip text="Other tooltip">
+          <button type="button">Other</button>
+        </Tooltip>
+      </div>
+    ))
+
+    const alwaysTrigger = screen.getByText('Always').parentElement!
+    const otherTrigger = screen.getByText('Other').parentElement!
+    const getAlwaysContent = (): HTMLElement =>
+      Array.from(document.body.querySelectorAll('[role=tooltip]')).find((element) =>
+        element.textContent?.includes('Always open'),
+      ) as HTMLElement
+
+    const initialClass = getAlwaysContent().className
+
+    await fireEvent.pointerEnter(otherTrigger)
+    await vi.advanceTimersByTimeAsync(600)
+    await fireEvent.pointerLeave(otherTrigger)
+    await fireEvent.pointerEnter(alwaysTrigger)
+
+    expect(getAlwaysContent().className).toBe(initialClass)
+    expect(getAlwaysContent().className).not.toContain('data-expanded:animate-none')
+
+    await fireEvent.pointerLeave(alwaysTrigger)
+    await vi.advanceTimersByTimeAsync(200)
+
+    expect(getAlwaysContent().className).toBe(initialClass)
+    expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
+  })
+
   test('keeps instant motion during the next tooltip close delay', async () => {
     vi.useFakeTimers()
 

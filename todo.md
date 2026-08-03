@@ -1,7 +1,7 @@
 ## Fix
 
 - [x] if command-palette is in dialog, don't clear the input when pressing escape until the dialog close transition is finished
-- [ ] overlay base component become composible instead of a single component
+- [x] overlay base component become composible instead of a single component
 - [ ] overlay trigger should get rid of the extra div, use `as` to override trigger element
   - [ ] dialog
   - [ ] popover

@@ -21,6 +21,9 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
+import { createContextProvider } from '../../shared/create-context-provider'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -74,11 +77,10 @@ interface PopperContentProps {
   tabIndex: number
 }
 
-export interface PopperProps {
+export interface PopperRootProps {
   ariaDescribedBy?: string
   ariaLabelledBy?: string
   closeOnOutsideFocus?: boolean
-  content: (context: PopperContentContext) => JSX.Element
   defaultOpen?: boolean
   describeTrigger?: boolean
   detachedPadding?: number
@@ -108,8 +110,6 @@ export interface PopperProps {
   overlap?: boolean
   overflowPadding?: number
   placement?: PopperPlacement
-  positionerClass?: string
-  positionerStyle?: JSX.CSSProperties
   preventScroll?: boolean
   restoreFocusOnClose?: boolean
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
@@ -118,10 +118,19 @@ export interface PopperProps {
   slide?: boolean
   toggleOnClick?: boolean
   transitionMode?: TransitionPresenceMotion
-  trigger: JSX.Element
-  triggerProps?: JSX.HTMLAttributes<HTMLSpanElement>
-  triggerClass?: string
-  triggerStyle?: JSX.CSSProperties
+  children?: JSX.Element
+}
+
+export interface PopperTriggerProps extends JSX.HTMLAttributes<HTMLSpanElement> {
+  children?: JSX.Element
+  describeTrigger?: boolean
+  toggleOnClick?: boolean
+}
+
+export interface PopperContentComponentProps {
+  contentRender: ComponentOrElement<PopperContentContext>
+  positionerClass?: string
+  positionerStyle?: JSX.CSSProperties
 }
 
 export interface PopperContentContext {
@@ -130,22 +139,29 @@ export interface PopperContentContext {
   currentPlacement: Accessor<string>
 }
 
+interface PopperContext {
+  options: PopperRootProps
+  contentId: Accessor<string>
+  isOpen: Accessor<boolean>
+  getControls: () => PopperControls
+  setOpen: (open: boolean) => void
+  contentElement: Accessor<HTMLDivElement | undefined>
+  setContentElement: (element: HTMLDivElement | undefined) => void
+  triggerElement: Accessor<HTMLSpanElement | undefined>
+  setTriggerElement: (element: HTMLSpanElement | undefined) => void
+  setPositionerElement: (element: HTMLDivElement | undefined) => void
+  positionerPositioned: Accessor<boolean>
+  contentPresence: ReturnType<typeof useTransitionPresence>
+  currentPlacement: Accessor<string>
+}
+
+const [PopperProvider, usePopperContext] = createContextProvider<PopperContext>('Popper')
+
 export function setPopperTestPlacementAccessor(accessor: Accessor<string> | undefined): void {
   popperTestPlacementAccessor = accessor
 }
 
-export function Popper(props: PopperProps): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- trigger props remain a reactive Solid proxy.
-  const [triggerLocal, triggerRest] = splitProps(props.triggerProps ?? {}, [
-    'class',
-    'style',
-    'ref',
-    'onBlur',
-    'onClick',
-    'onFocus',
-    'onPointerEnter',
-    'onPointerLeave',
-  ])
+export function PopperRoot(props: PopperRootProps): JSX.Element {
   const merged = mergeProps(
     {
       closeOnOutsideFocus: true,
@@ -531,117 +547,153 @@ export function Popper(props: PopperProps): JSX.Element {
     })
   })
 
-  function onContentKeyDown(event: KeyboardEvent): void {
-    if (!merged.modal) {
-      return
-    }
-
-    trapFocusInContainer(event, contentElement())
+  const context: PopperContext = {
+    options: merged,
+    contentId,
+    isOpen,
+    getControls,
+    setOpen,
+    contentElement,
+    setContentElement,
+    triggerElement,
+    setTriggerElement,
+    setPositionerElement,
+    positionerPositioned,
+    contentPresence,
+    currentPlacement,
   }
 
-  return (
-    <>
-      <span
-        data-slot="trigger"
-        ref={(element) => {
-          setTriggerElement(element)
-          callRef(triggerLocal.ref, element)
-        }}
-        tabIndex={-1}
-        aria-controls={contentPresence.present() ? contentId() : undefined}
-        aria-describedby={
-          merged.describeTrigger && contentPresence.present() ? contentId() : undefined
-        }
-        aria-expanded={isOpen()}
-        {...triggerRest}
-        style={
-          typeof triggerLocal.style === 'object'
-            ? { ...merged.triggerStyle, ...triggerLocal.style }
-            : merged.triggerStyle
-        }
-        class={cn('outline-none', merged.triggerClass, triggerLocal.class)}
-        onBlur={(event) => {
-          const { defaultPrevented } = callHandler(event, triggerLocal.onBlur)
-          if (defaultPrevented) {
-            return
-          }
-          merged.onTriggerBlur?.(getControls())
-        }}
-        onClick={(event) => {
-          const { defaultPrevented } = callHandler(event, triggerLocal.onClick)
-          if (!defaultPrevented && merged.toggleOnClick) {
-            getControls().toggle()
-          }
-        }}
-        onFocus={(event) => {
-          const { defaultPrevented } = callHandler(event, triggerLocal.onFocus)
-          if (defaultPrevented) {
-            return
-          }
-          merged.onTriggerFocus?.(getControls())
-        }}
-        onPointerEnter={(event) => {
-          const { defaultPrevented } = callHandler(event, triggerLocal.onPointerEnter)
-          if (defaultPrevented) {
-            return
-          }
-          merged.onTriggerPointerEnter?.(getControls())
-        }}
-        onPointerLeave={(event) => {
-          const { defaultPrevented } = callHandler(event, triggerLocal.onPointerLeave)
-          if (defaultPrevented) {
-            return
-          }
-          merged.onTriggerPointerLeave?.(getControls())
-        }}
-      >
-        {merged.trigger}
-      </span>
+  return <PopperProvider value={context}>{props.children}</PopperProvider>
+}
 
-      <Show when={contentPresence.present()}>
-        <Portal>
-          <div
-            ref={setPositionerElement}
-            data-slot="positioner"
-            data-positioned={positionerPositioned() ? '' : undefined}
-            style={{ visibility: 'hidden', ...merged.positionerStyle }}
-            class={cn('left-0 top-0 fixed z-50', merged.positionerClass)}
-          >
-            {merged.content({
-              close: () => {
-                setOpen(false)
-              },
-              contentProps: {
-                'aria-describedby': merged.ariaDescribedBy,
-                'aria-labelledby': merged.ariaLabelledBy,
-                'aria-modal': merged.modal ? true : undefined,
-                ...contentPresence.dataAttrs(),
-                id: contentId(),
-                onBlur: () => {
-                  merged.onContentBlur?.(getControls())
-                },
-                onFocus: () => {
-                  merged.onContentFocus?.(getControls())
-                },
-                onKeyDown: onContentKeyDown,
-                onPointerEnter: () => {
-                  merged.onContentPointerEnter?.(getControls())
-                },
-                onPointerLeave: () => {
-                  merged.onContentPointerLeave?.(getControls())
-                },
-                ref: (element) => {
-                  setContentElement(element)
-                  contentPresence.setElement(element)
-                },
-                role: merged.role,
-                tabIndex: -1,
-              },
-              currentPlacement,
-            })}
-          </div>
-        </Portal>
-      </Show>
-    </>
+export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
+  const context = usePopperContext()
+  const [local, rest] = splitProps(props, [
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onBlur',
+    'onClick',
+    'onFocus',
+    'onPointerEnter',
+    'onPointerLeave',
+    'describeTrigger',
+    'toggleOnClick',
+  ])
+  const children = createMemo(() => local.children)
+  const options = context.options
+
+  return (
+    <span
+      data-slot="trigger"
+      ref={(element) => {
+        context.setTriggerElement(element)
+        callRef(local.ref, element)
+      }}
+      tabIndex={-1}
+      aria-controls={context.contentPresence.present() ? context.contentId() : undefined}
+      aria-describedby={
+        (local.describeTrigger ?? options.describeTrigger) && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
+      }
+      aria-expanded={context.isOpen()}
+      {...rest}
+      style={local.style}
+      class={cn('outline-none', local.class)}
+      onBlur={(event) => {
+        const { defaultPrevented } = callHandler(event, local.onBlur)
+        if (!defaultPrevented) {
+          options.onTriggerBlur?.(context.getControls())
+        }
+      }}
+      onClick={(event) => {
+        const { defaultPrevented } = callHandler(event, local.onClick)
+        if (!defaultPrevented && (local.toggleOnClick ?? options.toggleOnClick)) {
+          context.getControls().toggle()
+        }
+      }}
+      onFocus={(event) => {
+        const { defaultPrevented } = callHandler(event, local.onFocus)
+        if (!defaultPrevented) {
+          options.onTriggerFocus?.(context.getControls())
+        }
+      }}
+      onPointerEnter={(event) => {
+        const { defaultPrevented } = callHandler(event, local.onPointerEnter)
+        if (!defaultPrevented) {
+          options.onTriggerPointerEnter?.(context.getControls())
+        }
+      }}
+      onPointerLeave={(event) => {
+        const { defaultPrevented } = callHandler(event, local.onPointerLeave)
+        if (!defaultPrevented) {
+          options.onTriggerPointerLeave?.(context.getControls())
+        }
+      }}
+    >
+      {children()}
+    </span>
+  )
+}
+
+export function PopperContent(props: PopperContentComponentProps): JSX.Element {
+  const context = usePopperContext()
+  const options = context.options
+  const contentRender = createMemo(() => props.contentRender)
+
+  const onContentKeyDown = (event: KeyboardEvent): void => {
+    if (options.modal) {
+      trapFocusInContainer(event, context.contentElement())
+    }
+  }
+
+  const contentProps: PopperContentProps = {
+    'aria-describedby': options.ariaDescribedBy,
+    'aria-labelledby': options.ariaLabelledBy,
+    'aria-modal': options.modal ? true : undefined,
+    id: context.contentId(),
+    onBlur: () => options.onContentBlur?.(context.getControls()),
+    onFocus: () => options.onContentFocus?.(context.getControls()),
+    onKeyDown: onContentKeyDown,
+    onPointerEnter: () => options.onContentPointerEnter?.(context.getControls()),
+    onPointerLeave: () => options.onContentPointerLeave?.(context.getControls()),
+    ref: (element) => {
+      context.setContentElement(element)
+      context.contentPresence.setElement(element)
+    },
+    role: options.role,
+    tabIndex: -1,
+  }
+  Object.defineProperties(contentProps, {
+    'data-closed': {
+      enumerable: true,
+      get: () => context.contentPresence.dataAttrs()['data-closed'],
+    },
+    'data-expanded': {
+      enumerable: true,
+      get: () => context.contentPresence.dataAttrs()['data-expanded'],
+    },
+  })
+
+  return (
+    <Show when={context.contentPresence.present()}>
+      <Portal>
+        <div
+          ref={context.setPositionerElement}
+          data-slot="positioner"
+          data-positioned={context.positionerPositioned() ? '' : undefined}
+          style={{ visibility: 'hidden', ...props.positionerStyle }}
+          class={cn('left-0 top-0 fixed z-50', props.positionerClass)}
+        >
+          {renderComponentOrElement(contentRender(), {
+            close: () => context.setOpen(false),
+            contentProps,
+            currentPlacement: context.currentPlacement,
+          })}
+        </div>
+      </Portal>
+    </Show>
   )
 }

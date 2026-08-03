@@ -1,10 +1,10 @@
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
+import { createContextProvider } from '../../shared/create-context-provider'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { SlotClasses, SlotStyles } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useEventListenerMap } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -13,17 +13,13 @@ import { callHandler, callRef, cn, useId } from '../../shared/utils'
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack'
 import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils'
 
-type ModalSlot = 'trigger' | 'overlay' | 'content'
-
 export interface ModalContentContext {
   close: () => void
 }
 
-export interface ModalProps {
+export interface ModalRootProps {
   /** Unique identifier used to derive the content id. */
   id?: string
-  /** Ref callback for the modal content element. */
-  ref?: (element: HTMLDivElement | undefined) => void
   /** Controlled open state. */
   open?: boolean
   /** Initial open state when uncontrolled. */
@@ -38,54 +34,68 @@ export interface ModalProps {
   onClosePrevent?: () => void
   /** Whether body scroll should be locked while the shell is present. */
   preventScroll?: boolean
-  /** Whether to render the overlay element. */
-  overlay?: boolean
-  /** Trigger content rendered inside the opener wrapper. */
-  trigger?: JSX.Element
-  /** Root attributes forwarded to the trigger wrapper by public overlays. */
-  triggerProps?: JSX.HTMLAttributes<HTMLSpanElement>
-  /** Modal content rendered inside the content surface. */
-  content?: ComponentOrElement<ModalContentContext>
-  /** Slot-based class overrides for the trigger, overlay, and content elements. */
-  classes?: SlotClasses<ModalSlot>
-  /** Slot-based style overrides for the trigger, overlay, and content elements. */
-  styles?: SlotStyles<ModalSlot>
-  /** Additional attributes applied to the content element. */
-  contentAttributes?: Record<string, string | number | boolean | undefined>
-  /** Id of the label element for the content. */
-  ariaLabelledBy?: string
-  /** Id of the description element for the content. */
-  ariaDescribedBy?: string
+  /** Whether the composed modal contains an overlay surface. */
+  hasOverlay: boolean
+  /** Whether the composed modal contains a content surface. */
+  hasContent: boolean
+  /** Composed trigger and content primitives. */
+  children?: JSX.Element
 }
 
-export function Modal(props: ModalProps): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- trigger props remain a reactive Solid proxy.
-  const [triggerLocal, triggerRest] = splitProps(props.triggerProps ?? {}, [
-    'class',
-    'style',
-    'ref',
-    'onClick',
-  ])
+export interface ModalTriggerProps extends JSX.HTMLAttributes<HTMLSpanElement> {
+  children?: JSX.Element
+}
+
+export interface ModalContentProps {
+  ref?: (element: HTMLDivElement | undefined) => void
+  contentRender: ComponentOrElement<ModalContentContext>
+  contentAttributes?: Record<string, string | number | boolean | undefined>
+  ariaLabelledBy?: string
+  ariaDescribedBy?: string
+  class?: string
+  style?: JSX.CSSProperties
+  overlay?: boolean
+  overlayClass?: string
+  overlayStyle?: JSX.CSSProperties
+}
+
+interface ModalContext {
+  contentId: Accessor<string>
+  updateOpen: (open: boolean) => void
+  dismissible: Accessor<boolean>
+  triggerElement: Accessor<HTMLSpanElement | undefined>
+  setTriggerElement: (element: HTMLSpanElement | undefined) => void
+  contentElement: Accessor<HTMLDivElement | undefined>
+  setContentElement: (element: HTMLDivElement | undefined) => void
+  overlayPresence: ReturnType<typeof useTransitionPresence>
+  contentPresence: ReturnType<typeof useTransitionPresence>
+  isPresent: Accessor<boolean>
+}
+
+const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
+
+export function ModalRoot(props: ModalRootProps): JSX.Element {
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
-  const trigger = createMemo(() => props.trigger)
-  const content = createMemo(() => props.content)
   const [open, setOpen] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
-
   const [triggerElement, setTriggerElement] = createSignal<HTMLSpanElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const dismissible = createMemo(() => props.dismissible ?? true)
-  const dismissEntry = {
-    contentElement,
-    triggerElement,
-  }
-
+  const overlayPresence = useTransitionPresence({
+    open: () => Boolean(open() && props.hasOverlay),
+  })
+  const contentPresence = useTransitionPresence({
+    open: () => Boolean(open() && props.hasContent),
+  })
+  const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
+  const dismissEntry = { contentElement, triggerElement }
   let capturedTrigger: HTMLSpanElement | undefined
+  let wasPresent = false
 
-  function updateOpen(nextOpen: boolean): void {
+  const updateOpen = (nextOpen: boolean): void => {
     if (nextOpen === !!open()) {
       return
     }
@@ -93,19 +103,6 @@ export function Modal(props: ModalProps): JSX.Element {
     setOpen(nextOpen)
     props.onOpenChange?.(nextOpen)
   }
-
-  function onContentKeyDown(event: KeyboardEvent): void {
-    trapFocusInContainer(event, contentElement())
-  }
-
-  const overlayPresence = useTransitionPresence({
-    open: () => Boolean(open() && props.overlay),
-  })
-  const contentPresence = useTransitionPresence({
-    open: () => Boolean(open() && content()),
-  })
-  const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
-  let wasPresent = false
 
   createEffect(() => {
     if (isPresent()) {
@@ -134,13 +131,11 @@ export function Modal(props: ModalProps): JSX.Element {
     }
 
     const currentContent = contentElement()
-
     queueMicrotask(() => {
       focusContent(currentContent)
     })
 
     const releaseScrollLock = props.preventScroll === false ? undefined : acquireBodyScrollLock()
-
     onCleanup(() => {
       releaseScrollLock?.()
     })
@@ -152,15 +147,10 @@ export function Modal(props: ModalProps): JSX.Element {
     }
 
     const release = pushOverlayLayer(dismissEntry)
-
     capturedTrigger = triggerElement() ?? capturedTrigger
 
     const isInside = (target: Node): boolean => {
-      if (contentElement()?.contains(target)) {
-        return true
-      }
-
-      if (triggerElement()?.contains(target)) {
+      if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
         return true
       }
 
@@ -173,12 +163,7 @@ export function Modal(props: ModalProps): JSX.Element {
       if (!(target instanceof Node) || isInside(target)) {
         return
       }
-
-      if (!isTopOverlay(dismissEntry)) {
-        return
-      }
-
-      if (event.defaultPrevented) {
+      if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
         return
       }
 
@@ -195,16 +180,11 @@ export function Modal(props: ModalProps): JSX.Element {
     const onDocumentFocusIn = (event: FocusEvent): void => {
       const target = event.target
 
-      if (!(target instanceof Node) || isInside(target)) {
-        return
-      }
-
-      if (!isTopOverlay(dismissEntry)) {
+      if (!(target instanceof Node) || isInside(target) || !isTopOverlay(dismissEntry)) {
         return
       }
 
       const currentContent = contentElement()
-
       queueMicrotask(() => {
         focusContent(currentContent)
       })
@@ -215,15 +195,7 @@ export function Modal(props: ModalProps): JSX.Element {
     }
 
     const onDocumentKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape') {
-        return
-      }
-
-      if (!isTopOverlay(dismissEntry)) {
-        return
-      }
-
-      if (event.defaultPrevented) {
+      if (event.key !== 'Escape' || !isTopOverlay(dismissEntry) || event.defaultPrevented) {
         return
       }
 
@@ -252,85 +224,106 @@ export function Modal(props: ModalProps): JSX.Element {
     })
   })
 
-  function renderContent(): JSX.Element {
-    return (
-      <Show when={contentPresence.present()}>
-        <div
-          {...props.contentAttributes}
-          {...contentPresence.dataAttrs()}
-          ref={(element) => {
-            setContentElement(element)
-            contentPresence.setElement(element)
-            props.ref?.(element)
-          }}
-          id={contentId()}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={props.ariaLabelledBy}
-          aria-describedby={props.ariaDescribedBy}
-          tabIndex={-1}
-          data-slot="content"
-          style={props.styles?.content}
-          class={cn(props.classes?.content)}
-          onKeyDown={onContentKeyDown}
-        >
-          {renderComponentOrElement(content(), {
-            close: () => updateOpen(false),
-          })}
-        </div>
-      </Show>
-    )
+  const context: ModalContext = {
+    contentId,
+    updateOpen,
+    dismissible,
+    triggerElement,
+    setTriggerElement,
+    contentElement,
+    setContentElement,
+    overlayPresence,
+    contentPresence,
+    isPresent,
   }
 
-  return (
-    <>
-      <Show when={trigger()}>
-        {(body) => (
-          <span
-            data-slot="trigger"
-            {...triggerRest}
-            ref={(element) => {
-              setTriggerElement(element)
-              callRef(triggerLocal.ref, element)
-            }}
-            tabIndex={-1}
-            style={
-              typeof triggerLocal.style === 'object'
-                ? { ...props.styles?.trigger, ...triggerLocal.style }
-                : props.styles?.trigger
-            }
-            class={cn('outline-none', props.classes?.trigger, triggerLocal.class)}
-            onClick={(event) => {
-              const { defaultPrevented } = callHandler(event, triggerLocal.onClick)
-              if (!defaultPrevented) {
-                updateOpen(true)
-              }
-            }}
-          >
-            {body()}
-          </span>
-        )}
-      </Show>
+  return <ModalProvider value={context}>{props.children}</ModalProvider>
+}
 
-      <Show when={isPresent()}>
-        <Portal>
-          <Show when={props.overlay} fallback={renderContent()}>
-            <Show when={overlayPresence.present() || contentPresence.present()}>
-              <div
-                data-slot="overlay"
-                {...overlayPresence.dataAttrs()}
-                ref={(element) => {
-                  overlayPresence.setElement(element)
-                }}
-                style={props.styles?.overlay}
-                class={cn(props.classes?.overlay)}
-              >
-                {renderContent()}
-              </div>
-            </Show>
-          </Show>
-        </Portal>
-      </Show>
-    </>
+export function ModalTrigger(props: ModalTriggerProps): JSX.Element {
+  const context = useModalContext()
+  // Resolve actual children once because the value is inspected by Show and rendered below it.
+  const children = createMemo(() => props.children)
+  const [local, rest] = splitProps(props, ['class', 'style', 'ref', 'onClick', 'children'])
+
+  return (
+    <Show when={children()}>
+      {(body) => (
+        <span
+          data-slot="trigger"
+          {...rest}
+          ref={(element) => {
+            context.setTriggerElement(element)
+            callRef(local.ref, element)
+          }}
+          tabIndex={-1}
+          style={local.style}
+          class={cn('outline-none', local.class)}
+          onClick={(event) => {
+            const { defaultPrevented } = callHandler(event, local.onClick)
+            if (!defaultPrevented) {
+              context.updateOpen(true)
+            }
+          }}
+        >
+          {body()}
+        </span>
+      )}
+    </Show>
+  )
+}
+
+export function ModalContent(props: ModalContentProps): JSX.Element {
+  const context = useModalContext()
+  const contentRender = createMemo(() => props.contentRender)
+
+  const onContentKeyDown = (event: KeyboardEvent): void => {
+    trapFocusInContainer(event, context.contentElement())
+  }
+
+  const renderSurface = (): JSX.Element => (
+    <Show when={context.contentPresence.present()}>
+      <div
+        {...props.contentAttributes}
+        {...context.contentPresence.dataAttrs()}
+        ref={(element) => {
+          context.setContentElement(element)
+          context.contentPresence.setElement(element)
+          props.ref?.(element)
+        }}
+        id={context.contentId()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={props.ariaLabelledBy}
+        aria-describedby={props.ariaDescribedBy}
+        tabIndex={-1}
+        data-slot="content"
+        style={props.style}
+        class={props.class}
+        onKeyDown={onContentKeyDown}
+      >
+        {renderComponentOrElement(contentRender(), {
+          close: () => context.updateOpen(false),
+        })}
+      </div>
+    </Show>
+  )
+
+  return (
+    <Show when={context.isPresent()}>
+      <Portal>
+        <Show when={props.overlay && context.overlayPresence.present()} fallback={renderSurface()}>
+          <div
+            data-slot="overlay"
+            {...context.overlayPresence.dataAttrs()}
+            ref={context.overlayPresence.setElement}
+            style={props.overlayStyle}
+            class={props.overlayClass}
+          >
+            {renderSurface()}
+          </div>
+        </Show>
+      </Portal>
+    </Show>
   )
 }

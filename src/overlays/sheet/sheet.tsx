@@ -4,8 +4,8 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Icon } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn, useId } from '../../shared/utils'
-import { Modal } from '../base/modal'
-import type { ModalProps } from '../base/modal'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
+import type { ModalContentContext, ModalRootProps } from '../base/modal'
 
 import { sheetContentVariants } from './sheet.class'
 import type { SheetVariantProps } from './sheet.class'
@@ -55,16 +55,18 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends Pick<
-    ModalProps,
+    ModalRootProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
     | 'onExitComplete'
-    | 'overlay'
     | 'dismissible'
     | 'onClosePrevent'
   > {
+    /** Whether to render the overlay element. */
+    overlay?: boolean
+
     /**
      * Primary title displayed in the sheet header.
      */
@@ -176,24 +178,35 @@ export function Sheet(props: SheetProps): JSX.Element {
   const hasDefaultHeader = () => Boolean(title() || description() || action() || closeContent())
 
   return (
-    <Modal
+    <ModalRoot
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
       onExitComplete={merged.onExitComplete}
-      overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
-      trigger={merged.children}
-      triggerProps={rest}
-      classes={{
-        trigger: [merged.classes?.trigger, merged.class],
-        overlay: [
+      hasOverlay={merged.overlay}
+      hasContent
+    >
+      <ModalTrigger
+        {...rest}
+        class={cn(merged.classes?.trigger, merged.class)}
+        style={{ ...merged.styles?.trigger, ...merged.style }}
+      >
+        {merged.children}
+      </ModalTrigger>
+      <ModalContent
+        overlay={merged.overlay}
+        overlayClass={cn(
           'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
           merged.classes?.overlay,
-        ],
-        content: sheetContentVariants(
+        )}
+        overlayStyle={merged.styles?.overlay}
+        contentAttributes={{ 'data-side': merged.side }}
+        ariaLabelledBy={titleId()}
+        ariaDescribedBy={descriptionId()}
+        class={sheetContentVariants(
           {
             side: merged.side,
             inset: merged.inset,
@@ -201,121 +214,117 @@ export function Sheet(props: SheetProps): JSX.Element {
           !merged.transition &&
             'transition-none data-expanded:animate-none data-closed:animate-none',
           merged.classes?.content,
-        ),
-      }}
-      styles={{
-        trigger: { ...merged.styles?.trigger, ...merged.style },
-        overlay: merged.styles?.overlay,
-        content: merged.styles?.content,
-      }}
-      contentAttributes={{ 'data-side': merged.side }}
-      ariaLabelledBy={titleId()}
-      ariaDescribedBy={descriptionId()}
-      content={(props) => (
-        <>
-          <Show when={header() || hasDefaultHeader()}>
-            <div
-              data-slot="header"
-              style={merged.styles?.header}
-              class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
-            >
-              <Show
-                when={header()}
-                fallback={
-                  <>
-                    <div
-                      data-slot="wrapper"
-                      style={merged.styles?.wrapper}
-                      class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
-                    >
-                      <Show when={title()}>
-                        <h2
-                          id={titleId()}
-                          data-slot="title"
-                          style={merged.styles?.title}
-                          class={cn('text-base text-foreground font-medium', merged.classes?.title)}
-                        >
-                          {title()}
-                        </h2>
-                      </Show>
-
-                      <Show when={description()}>
-                        <p
-                          id={descriptionId()}
-                          data-slot="description"
-                          style={merged.styles?.description}
-                          class={cn('text-sm text-muted-foreground', merged.classes?.description)}
-                        >
-                          {description()}
-                        </p>
-                      </Show>
-                    </div>
-
-                    <Show when={action()}>
-                      <div
-                        data-slot="actions"
-                        style={merged.styles?.actions}
-                        class={cn(
-                          'ms-auto inline-flex shrink-0 gap-2 items-center',
-                          merged.classes?.actions,
-                        )}
-                      >
-                        {action()}
-                      </div>
-                    </Show>
-
-                    <Show when={closeContent() !== false}>
-                      <button
-                        type="button"
-                        data-slot="close"
-                        style={merged.styles?.close}
-                        class={cn(
-                          'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) focus-visible:effect-fv-border active:bg-accent-active',
-                          merged.classes?.close,
-                        )}
-                        aria-label="Close"
-                        onClick={() => {
-                          props.close()
-                        }}
-                      >
-                        <Show when={closeContent() === true} fallback={closeContent()}>
-                          <Icon name="icon-close" />
-                        </Show>
-                      </button>
-                    </Show>
-                  </>
-                }
+        )}
+        style={merged.styles?.content}
+        contentRender={(props: ModalContentContext): JSX.Element => (
+          <>
+            <Show when={header() || hasDefaultHeader()}>
+              <div
+                data-slot="header"
+                style={merged.styles?.header}
+                class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
               >
-                {header()}
-              </Show>
-            </div>
-          </Show>
+                <Show
+                  when={header()}
+                  fallback={
+                    <>
+                      <div
+                        data-slot="wrapper"
+                        style={merged.styles?.wrapper}
+                        class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
+                      >
+                        <Show when={title()}>
+                          <h2
+                            id={titleId()}
+                            data-slot="title"
+                            style={merged.styles?.title}
+                            class={cn(
+                              'text-base text-foreground font-medium',
+                              merged.classes?.title,
+                            )}
+                          >
+                            {title()}
+                          </h2>
+                        </Show>
 
-          <Show when={body()}>
-            <div
-              data-slot="body"
-              style={merged.styles?.body}
-              class={cn(
-                'flex-1 overflow-auto',
-                (header() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
-                merged.classes?.body,
-              )}
-            >
-              {body()}
-            </div>
-          </Show>
+                        <Show when={description()}>
+                          <p
+                            id={descriptionId()}
+                            data-slot="description"
+                            style={merged.styles?.description}
+                            class={cn('text-sm text-muted-foreground', merged.classes?.description)}
+                          >
+                            {description()}
+                          </p>
+                        </Show>
+                      </div>
 
-          <Show when={footer()}>
-            <div
-              data-slot="footer"
-              style={merged.styles?.footer}
-              class={cn('mt-auto p-4 flex flex-col gap-2', merged.classes?.footer)}
-            >
-              {footer()}
-            </div>
-          </Show>
-        </>
-      )}
-    />
+                      <Show when={action()}>
+                        <div
+                          data-slot="actions"
+                          style={merged.styles?.actions}
+                          class={cn(
+                            'ms-auto inline-flex shrink-0 gap-2 items-center',
+                            merged.classes?.actions,
+                          )}
+                        >
+                          {action()}
+                        </div>
+                      </Show>
+
+                      <Show when={closeContent() !== false}>
+                        <button
+                          type="button"
+                          data-slot="close"
+                          style={merged.styles?.close}
+                          class={cn(
+                            'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) focus-visible:effect-fv-border active:bg-accent-active',
+                            merged.classes?.close,
+                          )}
+                          aria-label="Close"
+                          onClick={() => {
+                            props.close()
+                          }}
+                        >
+                          <Show when={closeContent() === true} fallback={closeContent()}>
+                            <Icon name="icon-close" />
+                          </Show>
+                        </button>
+                      </Show>
+                    </>
+                  }
+                >
+                  {header()}
+                </Show>
+              </div>
+            </Show>
+
+            <Show when={body()}>
+              <div
+                data-slot="body"
+                style={merged.styles?.body}
+                class={cn(
+                  'flex-1 overflow-auto',
+                  (header() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
+                  merged.classes?.body,
+                )}
+              >
+                {body()}
+              </div>
+            </Show>
+
+            <Show when={footer()}>
+              <div
+                data-slot="footer"
+                style={merged.styles?.footer}
+                class={cn('mt-auto p-4 flex flex-col gap-2', merged.classes?.footer)}
+              >
+                {footer()}
+              </div>
+            </Show>
+          </>
+        )}
+      />
+    </ModalRoot>
   )
 }

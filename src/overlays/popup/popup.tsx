@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
+import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
+import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { Modal } from '../base/modal'
-import type { ModalProps } from '../base/modal'
+import { cn } from '../../shared/utils'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
+import type { ModalContentContext, ModalRootProps } from '../base/modal'
 
 import { popupContentVariants, popupOverlayVariants } from './popup.class'
 import type { PopupVariantProps } from './popup.class'
@@ -28,17 +30,21 @@ export namespace PopupT {
    * Base props for the Popup component.
    */
   export interface Base extends Pick<
-    ModalProps,
+    ModalRootProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
     | 'onExitComplete'
-    | 'overlay'
     | 'dismissible'
     | 'onClosePrevent'
-    | 'content'
   > {
+    /** Whether to render the overlay element. */
+    overlay?: boolean
+
+    /** Modal content rendered inside the content surface. */
+    content?: ComponentOrElement<ModalContentContext>
+
     /**
      * Whether to allow scrolling within the popup.
      * @default false
@@ -95,6 +101,7 @@ export function Popup(props: PopupProps): JSX.Element {
     },
     local,
   )
+  const content = createMemo(() => merged.content)
 
   const contentLayout = () => {
     if (merged.fullscreen) {
@@ -109,39 +116,45 @@ export function Popup(props: PopupProps): JSX.Element {
   }
 
   return (
-    <Modal
+    <ModalRoot
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
       onExitComplete={merged.onExitComplete}
-      overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       preventScroll={!merged.scrollable}
-      trigger={merged.children}
-      triggerProps={rest}
-      classes={{
-        trigger: [merged.classes?.trigger, merged.class],
-        overlay: popupOverlayVariants(
-          {
-            scrollable: merged.scrollable,
-          },
-          merged.classes?.overlay,
-        ),
-        content: popupContentVariants(
-          {
-            layout: contentLayout(),
-          },
-          merged.classes?.content,
-        ),
-      }}
-      styles={{
-        trigger: { ...merged.styles?.trigger, ...merged.style },
-        overlay: merged.styles?.overlay,
-        content: merged.styles?.content,
-      }}
-      content={merged.content}
-    />
+      hasOverlay={merged.overlay}
+      hasContent={Boolean(content())}
+    >
+      <ModalTrigger
+        {...rest}
+        class={cn(merged.classes?.trigger, merged.class)}
+        style={{ ...merged.styles?.trigger, ...merged.style }}
+      >
+        {merged.children}
+      </ModalTrigger>
+      <Show when={content()}>
+        <ModalContent
+          overlay={merged.overlay}
+          overlayClass={popupOverlayVariants(
+            {
+              scrollable: merged.scrollable,
+            },
+            merged.classes?.overlay,
+          )}
+          overlayStyle={merged.styles?.overlay}
+          class={popupContentVariants(
+            {
+              layout: contentLayout(),
+            },
+            merged.classes?.content,
+          )}
+          style={merged.styles?.content}
+          contentRender={content()!}
+        />
+      </Show>
+    </ModalRoot>
   )
 }

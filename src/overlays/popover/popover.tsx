@@ -3,8 +3,8 @@ import { Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { cn } from '../../shared/utils'
-import { Popper, resolveOverlayMenuSide } from '../base'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base'
+import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base'
+import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base'
 
 import { popoverContentVariants } from './popover.class'
 import type { PopoverContentVariantProps } from './popover.class'
@@ -31,7 +31,7 @@ export namespace PopoverT {
    * Base props for the Popover component.
    */
   export interface Base extends Pick<
-    PopperProps,
+    PopperRootProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -170,7 +170,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   return (
-    <Popper
+    <PopperRoot
       id={merged.id}
       placement={merged.placement}
       open={merged.open}
@@ -184,10 +184,6 @@ export function Popover(props: PopoverProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
       role="dialog"
       toggleOnClick={merged.mode === 'click'}
-      trigger={merged.children}
-      triggerProps={rest}
-      triggerStyle={{ ...merged.styles?.trigger, ...merged.style }}
-      triggerClass={cn(merged.classes?.trigger, merged.class)}
       onTriggerPointerEnter={
         merged.mode === 'hover'
           ? ({ open }) => {
@@ -266,7 +262,17 @@ export function Popover(props: PopoverProps): JSX.Element {
         event.preventDefault()
         merged.onClosePrevent?.()
       }}
-      content={Content}
-    />
+    >
+      <PopperTrigger
+        {...rest}
+        describeTrigger={false}
+        toggleOnClick={merged.mode === 'click'}
+        style={{ ...merged.styles?.trigger, ...merged.style }}
+        class={cn(merged.classes?.trigger, merged.class)}
+      >
+        {merged.children}
+      </PopperTrigger>
+      <PopperContent contentRender={Content} />
+    </PopperRoot>
   )
 }

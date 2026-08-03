@@ -1,11 +1,43 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { CommandPalette } from '../../navigation/command-palette'
-import { Modal } from '../base'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base'
+import type { ModalContentContext } from '../base/modal'
 
 import { Dialog } from './dialog'
+
+interface TestModalProps {
+  defaultOpen?: boolean
+  open?: boolean
+  overlay?: boolean
+  onOpenChange?: (open: boolean) => void
+  trigger?: JSX.Element
+  content?: ComponentOrElement<ModalContentContext>
+}
+
+function TestModal(props: TestModalProps): JSX.Element {
+  const trigger = createMemo(() => props.trigger)
+  const content = createMemo(() => props.content)
+
+  return (
+    <ModalRoot
+      open={props.open}
+      defaultOpen={props.defaultOpen}
+      hasOverlay={Boolean(props.overlay)}
+      hasContent={Boolean(content())}
+      onOpenChange={props.onOpenChange}
+    >
+      <ModalTrigger>{trigger()}</ModalTrigger>
+      <Show when={content()}>
+        <ModalContent overlay={props.overlay} contentRender={content()!} />
+      </Show>
+    </ModalRoot>
+  )
+}
 
 async function finishExitMotion(): Promise<void> {
   const contents = Array.from(
@@ -32,7 +64,7 @@ describe('Modal', () => {
     let contentReads = 0
 
     render(() =>
-      createComponent(Modal, {
+      createComponent(TestModal, {
         open: true,
         get trigger() {
           triggerReads += 1
@@ -107,7 +139,7 @@ describe('Modal', () => {
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Modal
+      <TestModal
         defaultOpen
         onOpenChange={onOpenChange}
         trigger={<button type="button">Open modal</button>}
@@ -426,14 +458,14 @@ describe('Modal', () => {
 
     render(() => (
       <>
-        <Modal
+        <TestModal
           defaultOpen
           overlay
           onOpenChange={onOuterChange}
           trigger={<button type="button">Outer trigger</button>}
           content={<div data-testid="outer-body">Outer body</div>}
         />
-        <Modal
+        <TestModal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
@@ -465,14 +497,14 @@ describe('Modal', () => {
 
     render(() => (
       <>
-        <Modal
+        <TestModal
           defaultOpen
           overlay
           onOpenChange={onOuterChange}
           trigger={<button type="button">Outer trigger</button>}
           content={<div data-testid="outer-body">Outer body</div>}
         />
-        <Modal
+        <TestModal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
