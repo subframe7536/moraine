@@ -13,13 +13,13 @@ import {
 } from 'solid-js'
 
 import { Button, Progress, SidebarFrame, SidebarFrameSheetOnlyRender } from '../../src'
-import { useTheme } from '../hooks/use-theme'
 
 import { ContentHeader } from './components/layout/content-header'
 import { DocsCommandPalette } from './components/layout/docs-command-palette'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
+import { useTheme } from './hooks/use-theme'
 
 interface DocsShellRenderContext {
   isMobile: Accessor<boolean>

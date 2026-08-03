@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
-import { fileRouter } from 'solid-file-router/plugin'
+import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import type { UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
@@ -25,6 +25,7 @@ const config = {
     solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
     fileRouter({
       pagesDir: 'routes',
+      ignore: [...DEFAULT_IGNORES, 'hooks'],
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
