@@ -188,15 +188,7 @@ export default defineConfig<PresetWind4Theme>({
   },
   content: {
     pipeline: {
-      include: [
-        './**/*.tsx',
-        './**/*.mdx',
-        './**/*.class.ts',
-        '../src/**/*.tsx',
-        '../src/**/*.class.ts',
-        '../dist/**/*.jsx',
-        'node_modules/moraine/dist/**/*.jsx',
-      ],
+      include: [/\.(?:[jt]sx|mdx?|class\.ts)(?:\?.*)?$/],
     },
   },
   preflights: [
@@ -267,12 +259,6 @@ export default defineConfig<PresetWind4Theme>({
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 180ms;
-}
-
-@media (max-width: 768px) {
-  .docs-ssr-desktop-sidebar {
-    display: none;
-  }
 }
 
       `,

@@ -2,17 +2,9 @@ import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import { createRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
 import type { Accessor, JSX } from 'solid-js'
-import {
-  Show,
-  Suspense,
-  createComponent,
-  createEffect,
-  createMemo,
-  createSignal,
-  untrack,
-} from 'solid-js'
+import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import { Button, Progress, SidebarFrame, SidebarFrameSheetOnlyRender } from '../../src'
+import { Button, Progress, SidebarFrame } from '../../src'
 
 import { ContentHeader } from './components/layout/content-header'
 import { DocsCommandPalette } from './components/layout/docs-command-palette'
@@ -40,19 +32,6 @@ function DocsShell(props: DocsShellProps) {
   return (
     <SidebarFrame
       ref={props.rootRef}
-      frameRender={(ctx) => (
-        <Show
-          when={ctx.isMobile()}
-          fallback={
-            <div data-slot="layout" class="flex h-full min-h-0">
-              <ctx.sidebar classes="docs-ssr-desktop-sidebar" />
-              <ctx.main />
-            </div>
-          }
-        >
-          {createComponent(SidebarFrameSheetOnlyRender, ctx)}
-        </Show>
-      )}
       sidebarHeaderRender={(ctx) =>
         props.sidebarHeader({
           isMobile: ctx.isMobile,
