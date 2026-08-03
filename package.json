@@ -86,7 +86,7 @@
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.9.5",
     "satteri-expressive-code": "^0.1.18",
-    "solid-file-router": "^0.7.1",
+    "solid-file-router": "^0.7.2",
     "solid-toaster": "^0.1.5",
     "tailwindcss": "^4.3.2",
     "tsdown": "^0.22.7",

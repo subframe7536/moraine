@@ -4,7 +4,7 @@ import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 import { Button } from '../../../../src'
 import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../../../build/api-doc/types'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
-import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
+import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference'
 import { DocsPageNavigation } from './docs-page-navigation'
