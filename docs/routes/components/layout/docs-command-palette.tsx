@@ -87,7 +87,6 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
 
   const onClose = () => {
     props.setOpen(false)
-    setSearchTerm('')
   }
 
   const items = createMemo(() => buildDocsCommandItems(props.pages))
@@ -121,10 +120,8 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       open={props.open()}
       onOpenChange={(next) => {
         props.setOpen(next)
-        if (!next) {
-          setSearchTerm('')
-        }
       }}
+      onExitComplete={() => setSearchTerm('')}
       close={false}
       classes={{ body: 'p-0 mb-0' }}
       body={

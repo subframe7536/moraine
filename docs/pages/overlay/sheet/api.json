@@ -139,6 +139,12 @@
         "description": "Called when a dismissal attempt is blocked."
       },
       {
+        "name": "onExitComplete",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called after the modal has fully finished its exit motion."
+      },
+      {
         "name": "onOpenChange",
         "required": false,
         "type": "((open: boolean) => void) | undefined",

@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
 import { Modal } from '../base/modal'
 import type { ModalProps } from '../base/modal'
 
@@ -34,6 +33,7 @@ export namespace PopupT {
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
+    | 'onExitComplete'
     | 'overlay'
     | 'dismissible'
     | 'onClosePrevent'
@@ -75,6 +75,7 @@ export function Popup(props: PopupProps): JSX.Element {
     'open',
     'defaultOpen',
     'onOpenChange',
+    'onExitComplete',
     'overlay',
     'dismissible',
     'onClosePrevent',
@@ -113,6 +114,7 @@ export function Popup(props: PopupProps): JSX.Element {
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
+      onExitComplete={merged.onExitComplete}
       overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
@@ -120,7 +122,7 @@ export function Popup(props: PopupProps): JSX.Element {
       trigger={merged.children}
       triggerProps={rest}
       classes={{
-        trigger: cn(merged.classes?.trigger, merged.class),
+        trigger: [merged.classes?.trigger, merged.class],
         overlay: popupOverlayVariants(
           {
             scrollable: merged.scrollable,

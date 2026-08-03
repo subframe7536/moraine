@@ -147,9 +147,9 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         aria-haspopup="menu"
         aria-controls={isOpen() ? contentId() : undefined}
         aria-expanded={isOpen() ? 'true' : 'false'}
+        {...rest}
         style={{ ...merged.styles?.trigger, ...merged.style }}
         class={cn('outline-none', merged.classes?.trigger, merged.class)}
-        {...rest}
         onClick={(event) => {
           callHandler(event, local.onClick)
           if (event.defaultPrevented || merged.disabled) {

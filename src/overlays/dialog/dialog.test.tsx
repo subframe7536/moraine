@@ -1,7 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { CommandPalette } from '../../navigation/command-palette'
 import { Modal } from '../base'
 
 import { Dialog } from './dialog'
@@ -189,6 +190,64 @@ describe('Modal', () => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
+  })
+
+  test('keeps a CommandPalette input value until the Dialog exits', async () => {
+    const [open, setOpen] = createSignal(false)
+    const [searchTerm, setSearchTerm] = createSignal('')
+    const onExitComplete = vi.fn()
+
+    render(() => (
+      <Dialog
+        open={open()}
+        onOpenChange={setOpen}
+        onExitComplete={() => {
+          setSearchTerm('')
+          onExitComplete()
+        }}
+        close={false}
+        body={
+          <CommandPalette
+            groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
+            searchTerm={searchTerm()}
+            onSearchTermChange={setSearchTerm}
+          />
+        }
+      >
+        <button type="button">Open palette</button>
+      </Dialog>
+    ))
+
+    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+
+    const input = (await waitFor(() =>
+      document.body.querySelector('[data-slot="input"]'),
+    )) as HTMLInputElement
+    await fireEvent.input(input, { target: { value: 'Settings' } })
+
+    expect(input.value).toBe('Settings')
+
+    await fireEvent.keyDown(input, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(input.value).toBe('Settings')
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+    expect(onExitComplete).not.toHaveBeenCalled()
+
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onExitComplete).toHaveBeenCalledTimes(1)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+
+    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
+    })
+    expect((document.body.querySelector('[data-slot="input"]') as HTMLInputElement).value).toBe('')
   })
 
   test('renders into portal by default', () => {

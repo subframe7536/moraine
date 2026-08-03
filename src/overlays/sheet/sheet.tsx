@@ -56,7 +56,14 @@ export namespace SheetT {
    */
   export interface Base extends Pick<
     ModalProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
+    | 'id'
+    | 'open'
+    | 'defaultOpen'
+    | 'onOpenChange'
+    | 'onExitComplete'
+    | 'overlay'
+    | 'dismissible'
+    | 'onClosePrevent'
   > {
     /**
      * Primary title displayed in the sheet header.
@@ -124,6 +131,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     'open',
     'defaultOpen',
     'onOpenChange',
+    'onExitComplete',
     'overlay',
     'dismissible',
     'onClosePrevent',
@@ -173,17 +181,18 @@ export function Sheet(props: SheetProps): JSX.Element {
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
+      onExitComplete={merged.onExitComplete}
       overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       trigger={merged.children}
       triggerProps={rest}
       classes={{
-        trigger: cn(merged.classes?.trigger, merged.class),
-        overlay: cn(
+        trigger: [merged.classes?.trigger, merged.class],
+        overlay: [
           'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
           merged.classes?.overlay,
-        ),
+        ],
         content: sheetContentVariants(
           {
             side: merged.side,
@@ -202,7 +211,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       contentAttributes={{ 'data-side': merged.side }}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}
-      content={({ close }) => (
+      content={(props) => (
         <>
           <Show when={header() || hasDefaultHeader()}>
             <div
@@ -266,7 +275,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         )}
                         aria-label="Close"
                         onClick={() => {
-                          close()
+                          props.close()
                         }}
                       >
                         <Show when={closeContent() === true} fallback={closeContent()}>

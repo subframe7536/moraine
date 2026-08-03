@@ -56,7 +56,14 @@ export namespace DialogT {
    */
   export interface Base extends Pick<
     ModalProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'overlay' | 'dismissible' | 'onClosePrevent'
+    | 'id'
+    | 'open'
+    | 'defaultOpen'
+    | 'onOpenChange'
+    | 'onExitComplete'
+    | 'overlay'
+    | 'dismissible'
+    | 'onClosePrevent'
   > {
     /**
      * Primary title displayed in the dialog header.
@@ -141,6 +148,7 @@ export function Dialog(props: DialogProps): JSX.Element {
     'open',
     'defaultOpen',
     'onOpenChange',
+    'onExitComplete',
     'overlay',
     'dismissible',
     'onClosePrevent',
@@ -258,6 +266,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
+      onExitComplete={merged.onExitComplete}
       overlay={merged.overlay}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
@@ -265,7 +274,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       trigger={merged.children}
       triggerProps={rest}
       classes={{
-        trigger: cn(merged.classes?.trigger, merged.class),
+        trigger: [merged.classes?.trigger, merged.class],
         overlay: popupOverlayVariants(
           {
             scrollable: merged.scrollable,

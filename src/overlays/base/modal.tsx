@@ -30,6 +30,8 @@ export interface ModalProps {
   defaultOpen?: boolean
   /** Called whenever the open state changes. */
   onOpenChange?: (open: boolean) => void
+  /** Called after the modal has fully finished its exit motion. */
+  onExitComplete?: () => void
   /** Whether outside interaction and Escape should dismiss the shell. */
   dismissible?: boolean
   /** Called when a dismissal attempt is blocked. */
@@ -103,6 +105,19 @@ export function Modal(props: ModalProps): JSX.Element {
     open: () => Boolean(open() && content()),
   })
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
+  let wasPresent = false
+
+  createEffect(() => {
+    if (isPresent()) {
+      wasPresent = true
+      return
+    }
+
+    if (wasPresent) {
+      wasPresent = false
+      props.onExitComplete?.()
+    }
+  })
 
   createEffect(() => {
     if (contentPresence.present()) {
