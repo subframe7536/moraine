@@ -1,4 +1,4 @@
-export * from './form'
+export * from './form.tsx'
 export { createForm } from '@formisch/solid'
 export type {
   FormConfig,

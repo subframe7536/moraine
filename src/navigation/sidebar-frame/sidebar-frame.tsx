@@ -11,20 +11,20 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Resizable } from '../../elements/resizable'
-import type { ResizableT } from '../../elements/resizable'
-import { Sheet } from '../../overlays/sheet'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { createMediaQuery } from '../../shared/use-media-query'
-import { cn } from '../../shared/utils'
+import { Resizable } from '../../elements/resizable/index.ts'
+import type { ResizableT } from '../../elements/resizable/index.ts'
+import { Sheet } from '../../overlays/sheet/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { createMediaQuery } from '../../shared/use-media-query.ts'
+import { cn } from '../../shared/utils.ts'
 
 import {
   sidebarFrameDesktopLayoutVariants,
   sidebarFrameSidebarVariants,
-} from './sidebar-frame.class'
-import type { SidebarFrameVariantProps } from './sidebar-frame.class'
+} from './sidebar-frame.class.ts'
+import type { SidebarFrameVariantProps } from './sidebar-frame.class.ts'
 
 export namespace SidebarFrameT {
   /**

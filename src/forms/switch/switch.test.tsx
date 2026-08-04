@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Switch } from './switch'
+import { Switch } from './switch.tsx'
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))

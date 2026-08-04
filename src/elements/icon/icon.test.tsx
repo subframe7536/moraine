@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Icon } from './icon'
+import { Icon } from './icon.tsx'
 
 describe('Icon', () => {
   test('renders a css icon class for string names', () => {

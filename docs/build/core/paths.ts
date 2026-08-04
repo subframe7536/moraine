@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
-import { toPosixPath } from './strings'
+import { toPosixPath } from './strings.ts'
 
 export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
 

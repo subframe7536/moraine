@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { Button, cn } from '../../../../src'
+import { Button, cn } from '../../../../src/index.ts'
 
 const DOCS_CODE_BLOCK_ROOT_CLASS =
   '[&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:-translate-y-1/2!'

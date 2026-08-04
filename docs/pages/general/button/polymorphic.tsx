@@ -1,4 +1,4 @@
-import { Button } from '@src/elements/button/button'
+import { Button } from '@src/elements/button/button.tsx'
 
 export function Polymorphic() {
   return (

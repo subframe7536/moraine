@@ -1,5 +1,5 @@
 import { List } from '@src'
-import { useListVirtualizer } from '@src/utils'
+import { useListVirtualizer } from '@src/utils.ts'
 
 export function Virtualization() {
   const ITEMS = Array.from({ length: 10_000 }, (_, index) => ({

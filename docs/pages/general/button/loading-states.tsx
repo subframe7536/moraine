@@ -1,4 +1,4 @@
-import { Button } from '@src/elements/button/button'
+import { Button } from '@src/elements/button/button.tsx'
 import { createSignal } from 'solid-js'
 
 function wait(ms: number) {

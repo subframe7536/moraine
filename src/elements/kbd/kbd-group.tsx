@@ -1,15 +1,15 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import { Kbd } from './kbd'
-import type { KbdT } from './kbd'
-import type { KbdGroupVariantProps } from './kbd.class'
-import { kbdGroupVariants } from './kbd.class'
+import type { KbdGroupVariantProps } from './kbd.class.ts'
+import { kbdGroupVariants } from './kbd.class.ts'
+import { Kbd } from './kbd.tsx'
+import type { KbdT } from './kbd.tsx'
 
 export namespace KbdGroupT {
   export interface Slot<T = unknown> {

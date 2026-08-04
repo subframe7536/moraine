@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useSelectableCollectionNavigation } from './use-selectable-collection-navigation'
+import { useSelectableCollectionNavigation } from './use-selectable-collection-navigation.ts'
 
 interface TestItem {
   value: string

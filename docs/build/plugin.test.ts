@@ -8,8 +8,8 @@ import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'
 
-import { EXAMPLE_PARSE_OPTIONS } from './examples/ast'
-import { docsBuildPlugin } from './plugin'
+import { EXAMPLE_PARSE_OPTIONS } from './examples/ast.ts'
+import { docsBuildPlugin } from './plugin.ts'
 
 const TRANSFORM_CONTEXT = {
   parse(code: string) {

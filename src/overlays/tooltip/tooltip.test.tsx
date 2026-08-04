@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { setPopperTestPlacementAccessor } from '../base/popper'
+import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
-import { Tooltip } from './tooltip'
-import type { TooltipProps } from './tooltip'
+import { Tooltip } from './tooltip.tsx'
+import type { TooltipProps } from './tooltip.tsx'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined

@@ -1,8 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { Textarea } from './textarea'
-import type { TextareaProps } from './textarea'
+import { Textarea } from './textarea.tsx'
+import type { TextareaProps } from './textarea.tsx'
 
 afterEach(() => {
   vi.restoreAllMocks()

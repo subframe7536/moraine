@@ -2,27 +2,27 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { cn, useId } from '../../shared/utils'
-import { useFormField } from '../form-field/form-field-context'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { RadioGroupVariantProps } from './radio-group.class'
+import type { RadioGroupVariantProps } from './radio-group.class.ts'
 import {
   radioGroupBaseVariants,
   radioGroupItemVariants,
   radioGroupRootVariants,
   radioGroupWrapperVariants,
-} from './radio-group.class'
+} from './radio-group.class.ts'
 
 export namespace RadioGroupT {
   export interface Slot<T = unknown> {

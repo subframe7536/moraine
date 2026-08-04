@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const sliderRootVariants = cva(
   'flex select-none items-center relative touch-none data-disabled:effect-dis',

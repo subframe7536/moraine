@@ -8,10 +8,10 @@ import { Form as FormischForm } from '@formisch/solid'
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import { FormProvider } from './form-context'
+import { FormProvider } from './form-context.ts'
 
 export namespace FormT {
   export interface Slot<T = unknown> {

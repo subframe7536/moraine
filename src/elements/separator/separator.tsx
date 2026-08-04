@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
-import type { SeparatorVariantProps } from './separator.class'
+import type { SeparatorVariantProps } from './separator.class.ts'
 import {
   separatorBorderVariants,
   separatorContentVariants,
   separatorRootVariants,
-} from './separator.class'
+} from './separator.class.ts'
 
 export namespace SeparatorT {
   export interface Slot<T = unknown> {

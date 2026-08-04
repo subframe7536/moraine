@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import { AvatarFace } from './avatar'
-import type { AvatarT } from './avatar'
-import type { AvatarGroupVariantProps } from './avatar.class'
-import { avatarGroupCountVariants, avatarGroupItemVariants } from './avatar.class'
+import type { AvatarGroupVariantProps } from './avatar.class.ts'
+import { avatarGroupCountVariants, avatarGroupItemVariants } from './avatar.class.ts'
+import { AvatarFace } from './avatar.tsx'
+import type { AvatarT } from './avatar.tsx'
 
 export namespace AvatarGroupT {
   export interface Slot<T = unknown> {

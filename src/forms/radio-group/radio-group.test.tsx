@@ -1,9 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { FormField } from '../form-field'
+import { FormField } from '../form-field/index.ts'
 
-import { RadioGroup } from './radio-group'
+import { RadioGroup } from './radio-group.tsx'
 
 describe('RadioGroup', () => {
   test('renders radio options with form-field label and no legacy wrappers', () => {

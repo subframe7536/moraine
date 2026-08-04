@@ -2,11 +2,11 @@ import { mkdirSync } from 'node:fs'
 import { writeFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
 
-import { collectFiles, collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
+import { collectFiles, collectMarkdownFiles, resolveDocsPageContext } from '../core/paths.ts'
 
-import { extractSourceAttributeReference } from './attributes'
-import { clearApiDocCache } from './load'
-import type { GenerationResult } from './types'
+import { extractSourceAttributeReference } from './attributes.ts'
+import { clearApiDocCache } from './load.ts'
+import type { GenerationResult } from './types.ts'
 
 function getPageDirectoryByKey(pagesRoot: string): Map<string, string> {
   const pageDirectories = new Map<string, string>()

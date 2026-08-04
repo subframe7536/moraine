@@ -2,12 +2,12 @@ import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
-import { transformerInjectPrefix, prefixClassList } from './inject-prefix'
+import { transformerInjectPrefix, prefixClassList } from './inject-prefix.ts'
 
 const TEST_PREFIX = 'mo-'
 
-vi.mock('./shared', async () => {
-  const actual = await vi.importActual('./shared')
+vi.mock('./shared.ts', async () => {
+  const actual = await vi.importActual('./shared.ts')
   return {
     ...actual,
     isInVSCode: () => false,

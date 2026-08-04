@@ -1,4 +1,4 @@
-import type { ParseExampleCode, ProgramNode, StatementNode } from './ast'
+import type { ParseExampleCode, ProgramNode, StatementNode } from './ast.ts'
 
 interface ComponentDeclaration {
   name: string

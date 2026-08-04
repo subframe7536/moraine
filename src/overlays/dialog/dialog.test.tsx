@@ -3,12 +3,12 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { CommandPalette } from '../../navigation/command-palette'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base'
-import type { ModalContentContext } from '../base/modal'
+import { CommandPalette } from '../../navigation/command-palette/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/index.ts'
+import type { ModalContentContext } from '../base/modal.tsx'
 
-import { Dialog } from './dialog'
+import { Dialog } from './dialog.tsx'
 
 interface TestModalProps {
   defaultOpen?: boolean

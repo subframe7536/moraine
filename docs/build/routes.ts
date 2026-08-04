@@ -1,10 +1,10 @@
 import { closeSync, openSync, readSync } from 'node:fs'
 import path from 'node:path'
 
-import { loadApiDocIndex } from './api-doc/load'
-import { collectMarkdownFiles, resolveDocsPageContext } from './core/paths'
-import { readFrontmatterData } from './markdown/frontmatter'
-import type { FrontmatterData } from './markdown/types'
+import { loadApiDocIndex } from './api-doc/load.ts'
+import { collectMarkdownFiles, resolveDocsPageContext } from './core/paths.ts'
+import { readFrontmatterData } from './markdown/frontmatter.ts'
+import type { FrontmatterData } from './markdown/types.ts'
 
 export interface DocsRouteInfo {
   key: string

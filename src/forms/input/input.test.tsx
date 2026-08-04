@@ -1,8 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Input } from './input'
-import type { InputProps } from './input'
+import { Input } from './input.tsx'
+import type { InputProps } from './input.tsx'
 
 describe('Input', () => {
   test('renders base attributes', () => {

@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Accordion } from './accordion'
-import type { AccordionT } from './accordion'
+import { Accordion } from './accordion.tsx'
+import type { AccordionT } from './accordion.tsx'
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
@@ -380,7 +380,7 @@ describe('Accordion', () => {
     const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(48)
 
     try {
-      function ControlledAccordion() {
+      const ControlledAccordion = () => {
         const [openValue, setOpenValue] = createSignal<string[]>([])
 
         return (

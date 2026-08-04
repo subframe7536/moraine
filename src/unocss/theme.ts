@@ -9,19 +9,19 @@ import {
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
-} from '../shared/style/animations'
-import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../shared/style/animations.ts'
+import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   MORAINE_WIDTH,
-} from '../shared/style/theme'
+} from '../shared/style/theme.ts'
 
-import { transformerInjectCompileClass } from './inject-compile-class'
-import { transformerInjectPrefix } from './inject-prefix'
-import type { TransformerInjectPrefixOption } from './inject-prefix'
+import { transformerInjectCompileClass } from './inject-compile-class.ts'
+import { transformerInjectPrefix } from './inject-prefix.ts'
+import type { TransformerInjectPrefixOption } from './inject-prefix.ts'
 
 export { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS }
 

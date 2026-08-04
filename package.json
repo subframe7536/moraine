@@ -73,7 +73,7 @@
     "@rolldown/pluginutils": "*",
     "@solidjs/router": "^1.0.0",
     "@solidjs/testing-library": "^0.8.10",
-    "@subf/config": "^0.2.1",
+    "@subf/config": "^0.3.0",
     "@subf/unocss": "^0.3.0",
     "@tanstack/virtual-core": "^3.17.4",
     "@testing-library/dom": "*",

@@ -2,10 +2,10 @@ import path from 'node:path'
 
 import type { Plugin } from 'vite'
 
-import { loadApiDocIndex } from './api-doc/load'
-import { getDocsExpressiveCodeAssets } from './core/expressive-code'
-import { ensureApiDocGeneration } from './plugins/api-doc-generator'
-import { createDocsTransformHandler, DOCS_TRANSFORM_FILTER } from './plugins/transform-docs'
+import { loadApiDocIndex } from './api-doc/load.ts'
+import { getDocsExpressiveCodeAssets } from './core/expressive-code.ts'
+import { ensureApiDocGeneration } from './plugins/api-doc-generator.ts'
+import { createDocsTransformHandler, DOCS_TRANSFORM_FILTER } from './plugins/transform-docs.ts'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'

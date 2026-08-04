@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Popup } from './popup'
+import { Popup } from './popup.tsx'
 
 async function finishExitMotion(): Promise<void> {
   const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null

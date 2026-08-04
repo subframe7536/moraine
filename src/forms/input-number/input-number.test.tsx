@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { InputNumber } from './input-number'
+import { InputNumber } from './input-number.tsx'
 
 describe('InputNumber', () => {
   test('renders number input with increment and decrement controls', () => {

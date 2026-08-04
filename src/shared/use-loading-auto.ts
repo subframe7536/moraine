@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo, createSignal } from 'solid-js'
 
-import { callHandler } from './utils'
+import { callHandler } from './utils.ts'
 
 type PromiseLikeWithThen = PromiseLike<unknown> & {
   then: PromiseLike<unknown>['then']

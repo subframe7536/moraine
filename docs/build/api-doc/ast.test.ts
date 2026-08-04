@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { getJsDoc, parseTypeScript, walkAst } from './ast'
+import { getJsDoc, parseTypeScript, walkAst } from './ast.ts'
 
 describe('API documentation AST helpers', () => {
   test('parses TypeScript declarations and traverses nested type nodes', async () => {

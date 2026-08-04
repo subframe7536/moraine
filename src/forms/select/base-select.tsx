@@ -11,32 +11,42 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon'
-import { List } from '../../elements/list'
-import type { ListProps, ListT } from '../../elements/list'
+import type { IconT } from '../../elements/icon/index.ts'
+import { List } from '../../elements/list/index.ts'
+import type { ListProps, ListT } from '../../elements/list/index.ts'
 import {
   overlayMenuContentVariants,
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
-} from '../../overlays/base/menu'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, cn, useId } from '../../shared/utils'
-import type { UseFormFieldReturn } from '../form-field/form-field-context'
+} from '../../overlays/base/menu/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import type { UseFormFieldReturn } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { SelectControlVariantProps } from './select.class'
-import { selectItemVariants } from './select.class'
-import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
+import type { SelectControlVariantProps } from './select.class.ts'
+import { selectItemVariants } from './select.class.ts'
+import {
+  flattenOptions,
+  normalizeOptions,
+  useSelectField,
+  useSelectMenuControl,
+} from './shared/index.ts'
+import type {
+  BaseSelectItems,
+  NormalizedGroup,
+  NormalizedOption,
+  SelectFilterMode,
+} from './shared/index.ts'
 
 export namespace BaseSelectT {
   export type Value = string | number

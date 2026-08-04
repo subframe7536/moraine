@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { cn, useId } from '../../shared/utils.ts'
 
 export namespace CollapsibleT {
   export interface TriggerProps {

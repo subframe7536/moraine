@@ -10,13 +10,13 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
-import { Icon } from '../icon'
-import type { IconT } from '../icon'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { Icon } from '../icon/index.ts'
+import type { IconT } from '../icon/index.ts'
 
 export namespace AccordionT {
   export interface Slot<T = unknown> {

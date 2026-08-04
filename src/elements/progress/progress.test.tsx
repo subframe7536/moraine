@@ -2,8 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Progress } from './progress'
-import type { ProgressProps } from './progress'
+import { Progress } from './progress.tsx'
+import type { ProgressProps } from './progress.tsx'
 
 describe('Progress', () => {
   test('accepts static JSX for statusRender', () => {

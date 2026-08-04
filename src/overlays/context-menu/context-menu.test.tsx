@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { ContextMenu } from './context-menu'
-import type { ContextMenuProps } from './context-menu'
+import { ContextMenu } from './context-menu.tsx'
+import type { ContextMenuProps } from './context-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
   const contents = Array.from(

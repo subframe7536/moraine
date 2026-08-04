@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
-import { useEventListener } from './use-event-listener'
+import { useEventListener } from './use-event-listener.ts'
 
 export type TransitionPresenceMotion = 'animation' | 'transition' | 'both' | 'none'
 

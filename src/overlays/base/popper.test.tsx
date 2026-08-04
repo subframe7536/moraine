@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { PopperContent, PopperRoot, PopperTrigger } from './popper'
+import { PopperContent, PopperRoot, PopperTrigger } from './popper.tsx'
 
 describe('Popper primitives', () => {
   test('does not instantiate closed content and mounts it once after opening', async () => {

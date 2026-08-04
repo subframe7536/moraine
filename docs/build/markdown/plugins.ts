@@ -3,14 +3,14 @@ import { fileURLToPath } from 'node:url'
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode } from 'satteri'
 
-import { renderDocsCodeHtml } from '../core/expressive-code'
-import { toKebabCase } from '../core/strings'
+import { renderDocsCodeHtml } from '../core/expressive-code.ts'
+import { toKebabCase } from '../core/strings.ts'
 
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from './shared'
+} from './shared.ts'
 
 export interface OnThisPageEntryLiteral {
   id: string

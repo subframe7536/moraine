@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { toKebabCase } from '../core/strings'
+import { toKebabCase } from '../core/strings.ts'
 
 import {
   entityNameToText,
@@ -12,8 +12,8 @@ import {
   nodeText,
   parseTypeScript,
   walkAst,
-} from './ast'
-import { preprocessGenericTypeAliases } from './transform-types'
+} from './ast.ts'
+import { preprocessGenericTypeAliases } from './transform-types.ts'
 import type {
   ComponentDoc,
   ComponentIndexEntry,
@@ -22,7 +22,7 @@ import type {
   ItemDoc,
   PropDoc,
   SlotDoc,
-} from './types'
+} from './types.ts'
 
 type DeclarationNode = ESTree.TSInterfaceDeclaration | ESTree.TSTypeAliasDeclaration
 type DeclareFunctionNode = ESTree.Function
@@ -1290,7 +1290,7 @@ class DeclarationAnalyzer {
 
     return {
       name: first.name,
-      required: !(optional || includesUndefined),
+      required: !optional && !includesUndefined,
       type: typeText,
       ...(description ? { description } : {}),
       ...(defaultValue !== undefined ? { defaultValue } : {}),

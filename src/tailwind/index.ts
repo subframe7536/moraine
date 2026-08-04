@@ -10,15 +10,15 @@ import {
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
-} from '../shared/style/animations'
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../shared/style/animations.ts'
+import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   MORAINE_WIDTH,
-} from '../shared/style/theme'
+} from '../shared/style/theme.ts'
 
 export interface MorainePluginOptions {
   /**

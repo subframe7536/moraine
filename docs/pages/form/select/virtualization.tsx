@@ -1,6 +1,6 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
-import { useListVirtualizer } from '@src/utils'
+import { useListVirtualizer } from '@src/utils.ts'
 
 const OPTIONS: SelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index) => ({
   value: `option-${index}`,

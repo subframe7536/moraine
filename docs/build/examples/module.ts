@@ -1,8 +1,8 @@
 import path from 'node:path'
 
-import { toSingleQuoted } from '../core/strings'
+import { toSingleQuoted } from '../core/strings.ts'
 
-import type { ParseExampleCode, ProgramNode } from './ast'
+import type { ParseExampleCode, ProgramNode } from './ast.ts'
 
 interface ExampleExport {
   importedName: string

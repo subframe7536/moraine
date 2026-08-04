@@ -1,17 +1,17 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Card } from '../../elements/card'
-import { Icon } from '../../elements/icon'
-import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
-import type { ModalRootProps } from '../base/modal'
-import { popupContentVariants, popupOverlayVariants } from '../popup/popup.class'
+import { Card } from '../../elements/card/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
+import type { ModalRootProps } from '../base/modal.tsx'
+import { popupContentVariants, popupOverlayVariants } from '../popup/popup.class.ts'
 
-import { dialogCardVariants } from './dialog.class'
-import type { DialogCardVariantProps } from './dialog.class'
+import { dialogCardVariants } from './dialog.class.ts'
+import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
   export interface Slot<T = unknown> {

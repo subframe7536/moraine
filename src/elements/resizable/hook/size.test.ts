@@ -1,6 +1,11 @@
 import { describe, test, expect } from 'vitest'
 
-import { normalizePanelSizes, normalizeSizeVector, resolveKeyboardDelta, resolveSize } from './size'
+import {
+  normalizePanelSizes,
+  normalizeSizeVector,
+  resolveKeyboardDelta,
+  resolveSize,
+} from './size.ts'
 
 const ROOT_SIZE = 1000
 describe('size', () => {

@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button'
-import type { ButtonProps } from '../../elements/button'
-import { Icon } from '../../elements/icon'
-import type { IconT } from '../../elements/icon'
-import type { FormFieldSize } from '../../forms/form-field/form-field-context'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { Button } from '../../elements/button/index.ts'
+import type { ButtonProps } from '../../elements/button/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { FormFieldSize } from '../../forms/form-field/form-field-context.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
 type PaginationVariant = ButtonProps['variant']
 

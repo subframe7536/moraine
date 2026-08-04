@@ -6,8 +6,13 @@ import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import type { UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build'
-import unocfg from './unocss.config'
+import {
+  createDocsMdxOptions,
+  docsBuildPlugin,
+  llmsTxtPlugin,
+  siteMetaPlugin,
+} from './build/index.ts'
+import unocfg from './unocss.config.ts'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
@@ -56,7 +61,7 @@ const config = {
   ] as unknown as UserConfig['plugins'],
   resolve: {
     alias: {
-      '@src': path.resolve(docsRoot, '../src'),
+      '@src': path.resolve(docsRoot, '../src/index.ts'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },

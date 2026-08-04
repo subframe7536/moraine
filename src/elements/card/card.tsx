@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
 export namespace CardT {
   export interface Slot<T = unknown> {

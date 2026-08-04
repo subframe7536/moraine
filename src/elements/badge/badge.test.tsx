@@ -1,9 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Badge as ExportedBadge } from '../../index'
+import { Badge as ExportedBadge } from '../../index.ts'
 
-import { Badge } from './badge'
+import { Badge } from './badge.tsx'
 
 describe('Badge', () => {
   test('renders default badge semantics and label', () => {

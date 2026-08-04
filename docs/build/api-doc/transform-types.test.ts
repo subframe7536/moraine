@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { preprocessGenericTypeAliases } from './transform-types'
+import { preprocessGenericTypeAliases } from './transform-types.ts'
 
 describe('preprocessGenericTypeAliases', () => {
   test('applies function defaults to referenced aliases without reprinting unrelated source', async () => {

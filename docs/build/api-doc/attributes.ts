@@ -3,10 +3,13 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions'
+import {
+  ARIA_ATTRIBUTE_DESCRIPTIONS,
+  DATA_ATTRIBUTE_DESCRIPTIONS,
+} from '../markdown/descriptions.ts'
 
-import { entityNameToText, getIdentifierName, nodeText, parseTypeScript, walkAst } from './ast'
-import type { ApiAttributeDoc, ComponentAttributeDoc } from './types'
+import { entityNameToText, getIdentifierName, nodeText, parseTypeScript, walkAst } from './ast.ts'
+import type { ApiAttributeDoc, ComponentAttributeDoc } from './types.ts'
 
 function getJsxAttributeName(name: ESTree.JSXAttributeName): string | null {
   if (name.type === 'JSXIdentifier') {
@@ -171,7 +174,7 @@ export async function extractSourceAttributeReference(
     }
     visited.add(absoluteSourcePath)
 
-    let sourceCode = ''
+    let sourceCode: string
     try {
       sourceCode = readFileSync(absoluteSourcePath, 'utf8')
     } catch {

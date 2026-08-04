@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { createDocsMdxOptions } from './page'
+import { createDocsMdxOptions } from './page.ts'
 
 const FRONTMATTER = {
   title: 'Button',

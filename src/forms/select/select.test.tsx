@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Select } from './select'
-import type { SelectT } from './select'
+import { Select } from './select.tsx'
+import type { SelectT } from './select.tsx'
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },

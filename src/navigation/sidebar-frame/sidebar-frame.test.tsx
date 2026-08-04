@@ -1,8 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { SidebarFrame, SidebarFrameSheetResizableRender } from './sidebar-frame'
-import type { SidebarFrameProps } from './sidebar-frame'
+import { SidebarFrame, SidebarFrameSheetResizableRender } from './sidebar-frame.tsx'
+import type { SidebarFrameProps } from './sidebar-frame.tsx'
 
 const originalMatchMedia = window.matchMedia
 

@@ -67,6 +67,7 @@ Use `bun` for all package management and script execution.
 - **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
 - **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
 - **Imports:** Organize imports: external lib -> internal shared -> component files.
+- **Internal Import Extensions:** Relative and `@src` imports must use the source file extension (`.ts` or `.tsx`). Never use emitted `.js` or `.jsx` extensions in source code.
 
 ### Styling (UnoCSS)
 

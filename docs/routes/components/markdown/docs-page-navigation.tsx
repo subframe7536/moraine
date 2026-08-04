@@ -1,10 +1,10 @@
 import { Show, createMemo } from 'solid-js'
 
-import { Button, cn } from '../../../../src'
-import { getDocsPages } from '../../docs-route'
-import type { DocsPageEntry } from '../../docs-route'
+import { Button, cn } from '../../../../src/index.ts'
+import { getDocsPages } from '../../docs-route.ts'
+import type { DocsPageEntry } from '../../docs-route.ts'
 
-import { getAdjacentDocsPages } from './docs-page-navigation.utils'
+import { getAdjacentDocsPages } from './docs-page-navigation.utils.ts'
 
 function DocsPageNavigationCard(props: {
   direction: 'previous' | 'next'

@@ -12,7 +12,7 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
-import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
+import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load.ts'
 import type {
   ApiAttributeDoc,
   ComponentDoc,
@@ -21,17 +21,17 @@ import type {
   PropDoc,
   SlotAttributeDoc,
   SlotDoc,
-} from './api-doc/types'
-import { resolveDocsPageContext } from './core/paths'
-import { parseExampleCode } from './examples/ast'
-import { resolveExampleExportName } from './examples/module'
-import { resolveExampleComponentSource } from './examples/source'
-import { resolveExampleFile } from './markdown/examples'
-import { readFrontmatterData } from './markdown/frontmatter'
-import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx'
-import { DOCS_MDX_FEATURES } from './markdown/plugins'
-import type { DocsRouteEntry } from './routes'
-import { scanDocsRoutes } from './routes'
+} from './api-doc/types.ts'
+import { resolveDocsPageContext } from './core/paths.ts'
+import { parseExampleCode } from './examples/ast.ts'
+import { resolveExampleExportName } from './examples/module.ts'
+import { resolveExampleComponentSource } from './examples/source.ts'
+import { resolveExampleFile } from './markdown/examples.ts'
+import { readFrontmatterData } from './markdown/frontmatter.ts'
+import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx.ts'
+import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
+import type { DocsRouteEntry } from './routes.ts'
+import { scanDocsRoutes } from './routes.ts'
 
 export interface LlmsTxtPluginOptions {
   projectRoot: string

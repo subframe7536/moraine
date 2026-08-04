@@ -2,8 +2,11 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { useTransitionPresence } from './use-transition-presence'
-import type { TransitionPresenceMotion, TransitionPresenceState } from './use-transition-presence'
+import { useTransitionPresence } from './use-transition-presence.ts'
+import type {
+  TransitionPresenceMotion,
+  TransitionPresenceState,
+} from './use-transition-presence.ts'
 
 interface PresenceFixture {
   element: HTMLElement

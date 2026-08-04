@@ -1,23 +1,23 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import { Icon } from '../../elements/icon'
-import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, cn, useId } from '../../shared/utils'
-import { useFormField } from '../form-field/form-field-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useEventListener } from '../../shared/use-event-listener.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { SwitchVariantProps } from './switch.class'
-import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
+import type { SwitchVariantProps } from './switch.class.ts'
+import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class.ts'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {

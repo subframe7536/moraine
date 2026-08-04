@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import { KbdGroup } from '../../elements/kbd'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base'
-import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base'
+import { KbdGroup } from '../../elements/kbd/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
 
-import { tooltipContentVariants } from './tooltip.class'
-import type { TooltipVariantProps } from './tooltip.class'
+import { tooltipContentVariants } from './tooltip.class.ts'
+import type { TooltipVariantProps } from './tooltip.class.ts'
 
 export namespace TooltipT {
   export interface Slot<T = unknown> {

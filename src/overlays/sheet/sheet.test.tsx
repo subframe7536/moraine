@@ -1,8 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Sheet } from './sheet'
-import type { SheetProps } from './sheet'
+import { Sheet } from './sheet.tsx'
+import type { SheetProps } from './sheet.tsx'
 
 async function finishExitMotion(): Promise<void> {
   const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null

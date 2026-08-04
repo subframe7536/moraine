@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "moraine",
@@ -16,7 +15,7 @@
         "@rolldown/pluginutils": "*",
         "@solidjs/router": "^1.0.0",
         "@solidjs/testing-library": "^0.8.10",
-        "@subf/config": "^0.2.1",
+        "@subf/config": "^0.3.0",
         "@subf/unocss": "^0.3.0",
         "@tanstack/virtual-core": "^3.17.4",
         "@testing-library/dom": "*",
@@ -320,9 +319,9 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "https://registry.npmmirror.com/@standard-schema/spec/-/spec-1.1.0.tgz", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@subf/config": ["@subf/config@0.2.1", "https://registry.npmmirror.com/@subf/config/-/config-0.2.1.tgz", { "dependencies": { "@subf/oxlint-plugin": "^0.2.2" }, "peerDependencies": { "defu": "*" }, "bin": { "subf": "bin/subf.js" } }, "sha512-/Kpk+cWBEJJ8j7BDr2e8U1t5axlVgMrPzzH5jUUfdjxaCyQIC0gSneusVOctT1XPnh5zN6EV+7QnL9AuiPGc6A=="],
+    "@subf/config": ["@subf/config@0.3.0", "", { "dependencies": { "@subf/oxlint-plugin": "^0.3.0" }, "peerDependencies": { "defu": "6.1.7" }, "bin": { "subf": "bin/subf.js" } }, "sha512-xbeyM3cqdtlnhfad4zteUJw8aWNYBcfvo8LSp8Hl4KnZZ0WavshtCq4JcL0T63ml6+fdl9+pHJLxdFpqK+Gb1w=="],
 
-    "@subf/oxlint-plugin": ["@subf/oxlint-plugin@0.2.2", "https://registry.npmmirror.com/@subf/oxlint-plugin/-/oxlint-plugin-0.2.2.tgz", {}, "sha512-e2v+0TRtDK1jX11dSNTOqnFc2n3Hln2TYA2w/JuExzRhZBIyCVNj5qRCGWN3spOVfefGv4NPzqjo8Ag+0Ycs7A=="],
+    "@subf/oxlint-plugin": ["@subf/oxlint-plugin@0.3.0", "", {}, "sha512-4pzxdeDxY1O03loTqK98bLzOW9ltK3Ex+jKFctNZtB9P7Mg/dSBN+nejSkiTNax24sEaJBrF6oUzXRv2Ra3JDg=="],
 
     "@subf/unocss": ["@subf/unocss@0.3.0", "https://registry.npmmirror.com/@subf/unocss/-/unocss-0.3.0.tgz", { "dependencies": { "@unocss/config": "^66.7.3", "@unocss/core": "^66.7.3", "@unocss/preset-icons": "^66.7.3", "@unocss/preset-web-fonts": "^66.7.3", "@unocss/preset-wind3": "^66.7.3", "@unocss/preset-wind4": "^66.7.3", "@unocss/reset": "^66.7.3", "@unocss/transformer-compile-class": "^66.7.3", "@unocss/transformer-directives": "^66.7.3", "@unocss/transformer-variant-group": "^66.7.3", "pathe": "^2.0.3", "synckit": "^0.11.13", "tinyglobby": "^0.2.17", "unocss-preset-completion": "^0.3.3" }, "peerDependencies": { "magic-string": "*", "vite": "^8.1.0" } }, "sha512-DpZN+NP0AyYUaFR925hDjJzRq5BR8T1HQrFvM8tOdNpyh+eriH7hStNYU8EivcJowLc3o09b5MAkUJ/HlC7d2w=="],
 

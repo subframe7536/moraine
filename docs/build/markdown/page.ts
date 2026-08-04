@@ -2,21 +2,21 @@ import path from 'node:path'
 
 import type { MdxOptions } from 'solid-file-router/plugin'
 
-import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load'
-import { resolveDocsPageContext } from '../core/paths'
-import { createDocsRouteInfo, docsRoutePath } from '../routes'
+import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
+import { resolveDocsPageContext } from '../core/paths.ts'
+import { createDocsRouteInfo, docsRoutePath } from '../routes.ts'
 
-import { createMdxCodeTabsPlugin } from './code-tabs'
-import { createMdxExamplesPlugin } from './examples'
-import { validateFrontmatterData } from './frontmatter'
+import { createMdxCodeTabsPlugin } from './code-tabs.ts'
+import { createMdxExamplesPlugin } from './examples.ts'
+import { validateFrontmatterData } from './frontmatter.ts'
 import {
   createDocsCodePlugin,
   createDocsHastPlugin,
   DOCS_MDX_FEATURES,
   DOCS_ON_THIS_PAGE_DATA_KEY,
-} from './plugins'
-import type { OnThisPageEntryLiteral } from './plugins'
-import type { DocsRouteMetadata, FrontmatterData } from './types'
+} from './plugins.ts'
+import type { OnThisPageEntryLiteral } from './plugins.ts'
+import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
 
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
   return path.resolve(projectRoot, 'docs', sourcePath)

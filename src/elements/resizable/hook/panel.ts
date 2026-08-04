@@ -1,5 +1,5 @@
-import { clamp, fixToPrecision, nearlyEqual, resolveSize } from './size'
-import type { ResizableHandleAria, ResizablePanelItem, ResizableResolvedPanel } from './types'
+import { clamp, fixToPrecision, nearlyEqual, resolveSize } from './size.ts'
+import type { ResizableHandleAria, ResizablePanelItem, ResizableResolvedPanel } from './types.ts'
 
 export function resolvePanels(
   panels: ResizablePanelItem[] | undefined,

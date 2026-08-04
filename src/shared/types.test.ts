@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { getJsDoc, parseTypeScript, walkAst } from '../../docs/build/api-doc/ast'
+import { getJsDoc, parseTypeScript, walkAst } from '../../docs/build/api-doc/ast.ts'
 
 describe('slot override docs', () => {
   test('keeps slot jsdoc on class override properties', async () => {

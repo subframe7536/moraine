@@ -1,28 +1,28 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import { Icon } from '../../elements/icon'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, cn, useId } from '../../shared/utils'
-import { useFormField } from '../form-field/form-field-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import { applyInputModifiers } from '../../shared/input-modifiers.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { InputVariantProps } from './input.class'
+import type { InputVariantProps } from './input.class.ts'
 import {
   inputInputVariants,
   inputLeadingVariants,
   inputRootVariants,
   inputTrailingVariants,
-} from './input.class'
+} from './input.class.ts'
 
 export namespace InputT {
   export type Value = string | number | undefined

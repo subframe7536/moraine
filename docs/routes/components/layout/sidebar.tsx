@@ -1,9 +1,11 @@
 import type { Accessor } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
-import { version } from '../../../../package.json'
-import { Badge, Button, cn, List } from '../../../../src'
-import type { DocsPageEntry } from '../../docs-route'
+import packageMetadata from '../../../../package.json' with { type: 'json' }
+import { Badge, Button, cn, List } from '../../../../src/index.ts'
+import type { DocsPageEntry } from '../../docs-route.ts'
+
+const { version } = packageMetadata
 
 export type SidebarPage = DocsPageEntry
 

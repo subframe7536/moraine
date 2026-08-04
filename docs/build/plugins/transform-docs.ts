@@ -1,7 +1,7 @@
-import { renderDocsCodeHtml } from '../core/expressive-code'
-import { parseExampleCode } from '../examples/ast'
-import { transformExampleModule } from '../examples/module'
-import { transformExampleSourceModule } from '../examples/source'
+import { renderDocsCodeHtml } from '../core/expressive-code.ts'
+import { parseExampleCode } from '../examples/ast.ts'
+import { transformExampleModule } from '../examples/module.ts'
+import { transformExampleSourceModule } from '../examples/source.ts'
 
 function isExampleRequest(id: string): boolean {
   return id.includes('?example')

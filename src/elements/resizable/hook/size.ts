@@ -1,5 +1,5 @@
-import type { ResizableSize } from './types'
-import { EPSILON, PRECISION } from './types'
+import type { ResizableSize } from './types.ts'
+import { EPSILON, PRECISION } from './types.ts'
 
 export function clamp(
   value: number,

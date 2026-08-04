@@ -10,26 +10,26 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { applyInputModifiers } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form-field/form-field-context'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import { applyInputModifiers } from '../../shared/input-modifiers.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { TextareaVariantProps } from './textarea.class'
+import type { TextareaVariantProps } from './textarea.class.ts'
 import {
   textareaBaseVariants,
   textareaFooterVariants,
   textareaHeaderVariants,
   textareaRootVariants,
-} from './textarea.class'
+} from './textarea.class.ts'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
