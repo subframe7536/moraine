@@ -61,7 +61,7 @@ const config = {
   ] as unknown as UserConfig['plugins'],
   resolve: {
     alias: {
-      '@src': path.resolve(docsRoot, '../src/index.ts'),
+      '@src': path.resolve(projectRoot, 'src'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
