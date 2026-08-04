@@ -10,7 +10,17 @@
   "slots": [
     {
       "name": "root",
-      "description": "Keyboard keycap element."
+      "description": "Keyboard keycap element.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     }
   ],
   "props": {
@@ -18,7 +28,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -51,7 +61,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -78,24 +88,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": []
   }
 }

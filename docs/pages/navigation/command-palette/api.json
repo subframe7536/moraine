@@ -10,67 +10,238 @@
   "slots": [
     {
       "name": "root",
-      "description": "Command palette container that owns search and option list."
+      "description": "Command palette container that owns search and option list.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "inputWrapper",
-      "description": "Search row that groups input, search icon, and dismiss controls."
+      "description": "Search row that groups input, search icon, and dismiss controls.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "input",
-      "description": "Search input used to filter commands."
+      "description": "Search input used to filter commands.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-activedescendant",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-autocomplete",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        },
+        {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "listbox",
-      "description": "Scrollable command list that owns option and active-descendant semantics."
+      "description": "Scrollable command list that owns option and active-descendant semantics.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "footer",
-      "description": "Bottom region for keyboard hints or custom footer content."
+      "description": "Bottom region for keyboard hints or custom footer content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "group",
-      "description": "Section wrapper for a group of command items."
+      "description": "Section wrapper for a group of command items.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "label",
-      "description": "Group heading text."
+      "description": "Group heading text.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "item",
-      "description": "Command row that can be highlighted, selected, or disabled."
+      "description": "Command row that can be highlighted, selected, or disabled.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-highlighted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is highlighted by pointer or keyboard navigation."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-posinset",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-selected",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates the currently selected option or tab."
+        },
+        {
+          "name": "aria-setsize",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "itemLeading",
-      "description": "Leading region for a command row."
+      "description": "Leading region for a command row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemWrapper",
-      "description": "Text column that groups command label and description."
+      "description": "Text column that groups command label and description.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemLabel",
-      "description": "Primary text for a command item."
+      "description": "Primary text for a command item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemDescription",
-      "description": "Supporting text for a command item."
+      "description": "Supporting text for a command item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemTrailing",
-      "description": "Trailing region for shortcuts or custom item metadata."
+      "description": "Trailing region for shortcuts or custom item metadata.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "search",
-      "description": "Search icon or loading indicator displayed in the input row."
+      "description": "Search icon or loading indicator displayed in the input row.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        }
+      ]
     },
     {
       "name": "close",
-      "description": "Button that dismisses the command palette."
+      "description": "Button that dismisses the command palette.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     },
     {
       "name": "empty",
-      "description": "Message shown when no command items match the search."
+      "description": "Message shown when no command items match the search.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "item": {
@@ -149,7 +320,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -324,7 +495,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -339,327 +510,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-activedescendant",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-autocomplete",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-controls",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the controlled element while the related content is mounted."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-expanded",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates whether the controlled content is expanded."
-      },
-      {
-        "name": "aria-haspopup",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "aria-posinset",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-selected",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates the currently selected option or tab."
-      },
-      {
-        "name": "aria-setsize",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-highlighted",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is highlighted by pointer or keyboard navigation."
-      },
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "close",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          }
-        ]
-      },
-      {
-        "name": "empty",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "footer",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "group",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "input",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-activedescendant",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-autocomplete",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-controls",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the controlled element while the related content is mounted."
-          },
-          {
-            "name": "aria-expanded",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates whether the controlled content is expanded."
-          },
-          {
-            "name": "aria-haspopup",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "inputWrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "item",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-highlighted",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is highlighted by pointer or keyboard navigation."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-posinset",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-selected",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates the currently selected option or tab."
-          },
-          {
-            "name": "aria-setsize",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "itemDescription",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabel",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLeading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemTrailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemWrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "listbox",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "search",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-loading",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component is loading."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-busy",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          }
-        ]
-      }
-    ]
   }
 }

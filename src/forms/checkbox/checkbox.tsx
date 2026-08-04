@@ -144,7 +144,8 @@ export namespace CheckboxT {
     'div',
     Base<TTrue, TFalse>,
     Variant,
-    Slot
+    Classes,
+    Styles
   >
 }
 

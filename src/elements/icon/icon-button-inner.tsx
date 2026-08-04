@@ -51,7 +51,7 @@ export namespace IconButtonInnerT {
     tabIndex?: number
   }
 
-  export type Props = BaseProps<'button', Base, Variant, Slot>
+  export type Props = BaseProps<'button', Base, Variant, Classes, Styles>
 }
 
 export interface IconButtonInnerProps extends IconButtonInnerT.Props {}

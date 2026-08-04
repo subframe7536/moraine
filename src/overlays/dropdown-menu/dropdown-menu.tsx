@@ -46,7 +46,7 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

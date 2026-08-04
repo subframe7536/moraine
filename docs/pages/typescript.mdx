@@ -96,7 +96,7 @@ const labelRender: SelectProps['labelRender'] = (option) =>
 
 ### Slot types
 
-`XxxT.Slot` is an object whose keys are valid slot names used by the `classes` and `styles` props. Each key can carry JSDoc describing the slot and its styling attributes.
+`XxxT.Slot` is a readonly mapping from the public override key to the runtime `data-slot` value. `classes` and `styles` use the keys for editor completion and retain each slot's JSDoc in hover help, while the values identify the DOM slot exactly; a `never` value marks a styling-only virtual slot with no independent DOM element.
 
 ```tsx
 import type { CardT } from 'moraine'
@@ -110,16 +110,16 @@ const overrides: CardT.Classes = {
 
 Each `XxxT` namespace may expose the following members depending on the component:
 
-| Member    | Description                                               |
-| --------- | --------------------------------------------------------- |
-| `Slot`    | Object keyed by slot names used by `classes` and `styles` |
-| `Variant` | Variant options for visual/style customization            |
-| `Item`    | Data model for list items or option objects               |
-| `Value`   | Domain type of the component's controlled value           |
-| `Classes` | Typed map from slot name to CSS class string              |
-| `Styles`  | Typed map from slot name to inline style object           |
-| `Base`    | Component-specific business props (internal)              |
-| `Props`   | Final public props shape (same as `XxxProps`)             |
+| Member    | Description                                                                           |
+| --------- | ------------------------------------------------------------------------------------- |
+| `Slot`    | Readonly public-key to runtime `data-slot` mapping; `never` is a virtual styling slot |
+| `Variant` | Variant options for visual/style customization                                        |
+| `Item`    | Data model for list items or option objects                                           |
+| `Value`   | Domain type of the component's controlled value                                       |
+| `Classes` | Typed map from slot name to CSS class string                                          |
+| `Styles`  | Typed map from slot name to inline style object                                       |
+| `Base`    | Component-specific business props (internal)                                          |
+| `Props`   | Final public props shape (same as `XxxProps`)                                         |
 
 ## Tips
 

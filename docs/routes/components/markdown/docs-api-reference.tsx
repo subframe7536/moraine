@@ -4,12 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Badge, Select, Tabs, cn } from '../../../../src/index.ts'
 import { createMediaQuery } from '../../../../src/shared/use-media-query.ts'
-import type {
-  ComponentDoc,
-  PropDoc,
-  SlotAttributeDoc,
-  SlotDoc,
-} from '../../../build/api-doc/types.ts'
+import type { ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types.ts'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
@@ -44,13 +39,7 @@ export interface PropsTableSection {
   }[]
 }
 
-export interface SlotReferenceDoc {
-  name: string
-  description?: string
-  cssVariables: PropDoc[]
-  dataAttributes: PropDoc[]
-  ariaAttributes: PropDoc[]
-}
+export type SlotReferenceDoc = SlotDoc
 
 type AttributeGroupKind = 'css' | 'data' | 'aria'
 
@@ -80,40 +69,6 @@ function getAttributeGroupTone(kind: AttributeGroupKind): string {
   return 'text-primary bg-primary/10 border-primary/20'
 }
 
-function createEmptySlotReference(slot: SlotDoc): SlotReferenceDoc {
-  return {
-    name: slot.name,
-    description: slot.description,
-    cssVariables: [],
-    dataAttributes: [],
-    ariaAttributes: [],
-  }
-}
-
-function mergeSlotReference(slot: SlotDoc, attributes?: SlotAttributeDoc): SlotReferenceDoc {
-  const reference = attributes
-    ? {
-        name: attributes.name,
-        cssVariables: attributes.cssVariables,
-        dataAttributes: attributes.dataAttributes,
-        ariaAttributes: attributes.ariaAttributes,
-      }
-    : createEmptySlotReference(slot)
-
-  return {
-    ...reference,
-    description: slot.description,
-  }
-}
-
-function createSlotReferenceDocs(apiDoc: ComponentDoc): SlotReferenceDoc[] {
-  const sourceSlotByName = new Map(
-    (apiDoc.attributes?.slots ?? []).map((slot) => [slot.name, slot] as const),
-  )
-
-  return apiDoc.slots.map((slot) => mergeSlotReference(slot, sourceSlotByName.get(slot.name)))
-}
-
 export function createDocsApiReferenceModel(
   apiDoc: ComponentDoc | undefined,
 ): DocsApiReferenceModel {
@@ -122,8 +77,6 @@ export function createDocsApiReferenceModel(
   const inheritedProps = apiDoc?.props.inherited ?? []
   const itemDoc = apiDoc?.item
   const hasSlots = Boolean(apiDoc?.slots.length)
-  const hasGlobalAria = !hasSlots && Boolean(apiDoc?.attributes?.aria.length)
-  const hasGlobalDataAttributes = !hasSlots && Boolean(apiDoc?.attributes?.data.length)
 
   if (!apiDoc) {
     return { sections }
@@ -133,7 +86,7 @@ export function createDocsApiReferenceModel(
     sections.push({
       id: 'attributes',
       heading: 'Attributes',
-      slots: createSlotReferenceDocs(apiDoc),
+      slots: apiDoc.slots,
       props: [],
     })
   }
@@ -152,26 +105,6 @@ export function createDocsApiReferenceModel(
       heading: 'Items',
       description: itemDoc.description,
       props: itemDoc.props,
-    })
-  }
-
-  if (hasGlobalAria) {
-    sections.push({
-      id: 'api-aria',
-      heading: 'ARIA',
-      description: 'Accessibility attributes and roles emitted by the component markup.',
-      nameColumn: 'Attribute',
-      props: apiDoc.attributes?.aria ?? [],
-    })
-  }
-
-  if (hasGlobalDataAttributes) {
-    sections.push({
-      id: 'api-data-attributes',
-      heading: 'Data Attributes',
-      description: 'State and slot attributes exposed for styling hooks and selectors.',
-      nameColumn: 'Attribute',
-      props: apiDoc.attributes?.data ?? [],
     })
   }
 

@@ -22,6 +22,7 @@ export namespace PopoverT {
     /** Content body rendered inside the popover panel. */
     body?: T
   }
+
   export type Variant = PopoverContentVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -75,7 +76,7 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -46,7 +46,15 @@ describe('writeJsonFiles', () => {
               polymorphic: false,
               sourcePath: 'src/demo.tsx',
             },
-            slots: [{ name: 'root', description: 'Root wrapper.' }],
+            slots: [
+              {
+                name: 'root',
+                description: 'Root wrapper.',
+                cssVariables: [],
+                dataAttributes: [],
+                ariaAttributes: [],
+              },
+            ],
             props: { own: [], inherited: [] },
             items: {
               description: 'Items for demo.',
@@ -62,16 +70,8 @@ describe('writeJsonFiles', () => {
     expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual(
       result.indexDoc,
     )
-    expect(JSON.parse(await readFile(stalePath, 'utf8'))).toEqual({
-      ...result.componentDocs.get('demo'),
-      attributes: {
-        aria: [],
-        data: [
-          { name: 'data-slot', required: false, type: 'string', description: expect.any(String) },
-        ],
-        slots: [{ name: 'root', cssVariables: [], dataAttributes: [], ariaAttributes: [] }],
-      },
-    })
+    expect(JSON.parse(await readFile(stalePath, 'utf8'))).toEqual(result.componentDocs.get('demo'))
+    expect(JSON.parse(await readFile(stalePath, 'utf8'))).not.toHaveProperty('attributes')
     await rm(projectRoot, { recursive: true, force: true })
   })
 

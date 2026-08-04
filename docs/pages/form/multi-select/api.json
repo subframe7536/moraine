@@ -10,79 +10,311 @@
   "slots": [
     {
       "name": "root",
-      "description": "Select root that owns open state, value display, and popup positioning."
+      "description": "Select root that owns open state, value display, and popup positioning.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field has a validation error."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "content",
-      "description": "Popup panel that contains search input, options, groups, and empty state."
+      "description": "Popup panel that contains search input, options, groups, and empty state.",
+      "cssVariables": [
+        {
+          "name": "--mo-popper-content-transform-origin",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        }
+      ],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "listbox",
-      "description": "ARIA listbox that contains selectable options."
+      "description": "ARIA listbox that contains selectable options.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-multiselectable",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "item",
-      "description": "Selectable option row inside the listbox."
+      "description": "Selectable option row inside the listbox.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-highlighted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is highlighted by pointer or keyboard navigation."
+        },
+        {
+          "name": "data-selected",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is selected."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-posinset",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-selected",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates the currently selected option or tab."
+        },
+        {
+          "name": "aria-setsize",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "group",
-      "description": "Option group wrapper inside the listbox."
+      "description": "Option group wrapper inside the listbox.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "label",
-      "description": "Group label or option label text, depending on context."
+      "description": "Group label or option label text, depending on context.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "control",
-      "description": "Multi-select control that displays selected tags and opens the popup."
+      "description": "Multi-select control that displays selected tags and opens the popup.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field has a validation error."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "input",
-      "description": "Search input used to filter or add selections."
+      "description": "Search input used to filter or add selections.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "leading",
-      "description": "Icon shown before the selected tags and search input."
+      "description": "Icon shown before the selected tags and search input.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "trigger",
-      "description": "Button region that toggles the multi-select popup."
+      "description": "Button region that toggles the multi-select popup.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     },
     {
       "name": "clear",
-      "description": "Button used to clear all selected values."
+      "description": "Button used to clear all selected values.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     },
     {
       "name": "tagsContainer",
-      "description": "Wrapper that lays out selected value tags inside the control."
+      "description": "Wrapper that lays out selected value tags inside the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "tag",
-      "description": "Badge representing one selected value."
+      "description": "Badge representing one selected value.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "tagRemove",
-      "description": "Button used to remove one selected value."
+      "description": "Button used to remove one selected value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "tagOverflow",
-      "description": "Counter shown when selected tags exceed the visible limit."
+      "description": "Counter shown when selected tags exceed the visible limit.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "empty",
-      "description": "Message shown when filtering leaves no selectable options."
+      "description": "Message shown when filtering leaves no selectable options.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemLabel",
-      "description": "Primary label text inside an option row."
+      "description": "Primary label text inside an option row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemDescription",
-      "description": "Supporting description text inside an option row."
+      "description": "Supporting description text inside an option row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemTrailing",
-      "description": "Trailing region inside an option row, usually for selection state or custom content."
+      "description": "Trailing region inside an option row, usually for selection state or custom content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "item": {
@@ -149,7 +381,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -385,7 +617,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -436,338 +668,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "aria-multiselectable",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-posinset",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-selected",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates the currently selected option or tab."
-      },
-      {
-        "name": "aria-setsize",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-empty-option",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-highlighted",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is highlighted by pointer or keyboard navigation."
-      },
-      {
-        "name": "data-invalid",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field has a validation error."
-      },
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
-      },
-      {
-        "name": "data-required",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field is required."
-      },
-      {
-        "name": "data-selected",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is selected."
-      },
-      {
-        "name": "data-size",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved size variant."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      },
-      {
-        "name": "data-variant",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved visual variant."
-      }
-    ],
-    "slots": [
-      {
-        "name": "content",
-        "cssVariables": [
-          {
-            "name": "--mo-popper-content-transform-origin",
-            "required": false,
-            "type": "string",
-            "description": "CSS custom property exposed by this slot."
-          }
-        ],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "control",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "group",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "input",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "item",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-highlighted",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is highlighted by pointer or keyboard navigation."
-          },
-          {
-            "name": "data-selected",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is selected."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-posinset",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-selected",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates the currently selected option or tab."
-          },
-          {
-            "name": "aria-setsize",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "leading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "listbox",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-multiselectable",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "positioner",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          },
-          {
-            "name": "data-size",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved size variant."
-          },
-          {
-            "name": "data-variant",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved visual variant."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "tag",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "tagOverflow",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "tagsContainer",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

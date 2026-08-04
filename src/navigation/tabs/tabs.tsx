@@ -56,6 +56,7 @@ export namespace TabsT {
     /** Tab panel rendered for the selected item. */
     content?: T
   }
+
   export type Variant = TabsVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -149,7 +150,7 @@ export namespace TabsT {
   /**
    * Props for the Tabs component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

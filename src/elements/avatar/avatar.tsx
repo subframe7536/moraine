@@ -75,7 +75,7 @@ export namespace AvatarT {
   export interface Base extends Item {}
 
   /** Props for the Avatar component. */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /** Props for the Avatar component. */

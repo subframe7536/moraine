@@ -10,23 +10,189 @@
   "slots": [
     {
       "name": "root",
-      "description": "Slider container that owns track, range, thumbs, and labels."
+      "description": "Slider container that owns track, range, thumbs, and labels.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field has a validation error."
+        },
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is read-only."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "track",
-      "description": "Background rail representing the full slider range."
+      "description": "Background rail representing the full slider range.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "range",
-      "description": "Filled segment between the start of the range and active thumb values."
+      "description": "Filled segment between the start of the range and active thumb values.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "divider",
-      "description": "Visual marker for one slider step."
+      "description": "Visual marker for one slider step.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "thumb",
-      "description": "Draggable handle for one slider value."
+      "description": "Draggable handle for one slider value.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-dragging",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is read-only."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "aria-orientation",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Communicates horizontal or vertical orientation."
+        },
+        {
+          "name": "aria-readonly",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control value cannot be changed by the user."
+        },
+        {
+          "name": "aria-required",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that user input is required."
+        },
+        {
+          "name": "aria-valuemax",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the maximum value for range-like controls."
+        },
+        {
+          "name": "aria-valuemin",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the minimum value for range-like controls."
+        },
+        {
+          "name": "aria-valuenow",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the current numeric value for range-like controls."
+        },
+        {
+          "name": "aria-valuetext",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides human-readable text for the current value."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     }
   ],
   "props": {
@@ -41,7 +207,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -157,7 +323,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -177,296 +343,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "aria-orientation",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Communicates horizontal or vertical orientation."
-      },
-      {
-        "name": "aria-readonly",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control value cannot be changed by the user."
-      },
-      {
-        "name": "aria-required",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that user input is required."
-      },
-      {
-        "name": "aria-valuemax",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the maximum value for range-like controls."
-      },
-      {
-        "name": "aria-valuemin",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the minimum value for range-like controls."
-      },
-      {
-        "name": "aria-valuenow",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the current numeric value for range-like controls."
-      },
-      {
-        "name": "aria-valuetext",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides human-readable text for the current value."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-dragging",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present while the related thumb or handle is being dragged."
-      },
-      {
-        "name": "data-invalid",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field has a validation error."
-      },
-      {
-        "name": "data-orientation",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores the rendered orientation."
-      },
-      {
-        "name": "data-readonly",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field is read-only."
-      },
-      {
-        "name": "data-required",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field is required."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "divider",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "range",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          },
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          },
-          {
-            "name": "data-readonly",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is read-only."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "thumb",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-dragging",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present while the related thumb or handle is being dragged."
-          },
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          },
-          {
-            "name": "data-readonly",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is read-only."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          },
-          {
-            "name": "aria-orientation",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Communicates horizontal or vertical orientation."
-          },
-          {
-            "name": "aria-readonly",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control value cannot be changed by the user."
-          },
-          {
-            "name": "aria-required",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that user input is required."
-          },
-          {
-            "name": "aria-valuemax",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the maximum value for range-like controls."
-          },
-          {
-            "name": "aria-valuemin",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the minimum value for range-like controls."
-          },
-          {
-            "name": "aria-valuenow",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the current numeric value for range-like controls."
-          },
-          {
-            "name": "aria-valuetext",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides human-readable text for the current value."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "track",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

@@ -10,7 +10,9 @@ export type ElementProps<T extends HTMLElement> = JSX.HTMLAttributes<T> & {
 }
 
 /** Type-only configuration for the public root-props surface. */
-export interface MoraineTypeConfig {}
+export interface MoraineTypeConfig {
+  enableRootAutocomplete?: boolean
+}
 
 type Tags = keyof JSX.HTMLElementTags
 
@@ -41,24 +43,19 @@ type IntrinsicRefProps<T extends Tags> = T extends unknown
 
 type Override<A, B> = Omit<A, keyof B> & B
 
-type ComponentBaseProps<Base, Variant, TSlot> = Base &
-  ([Variant] extends [never] ? {} : Variant) &
-  ([TSlot] extends [never]
-    ? {
-        /** Class applied to the component root or trigger element. */
-        class?: ClassValue
-        /** Style applied to the component root or trigger element. */
-        style?: JSX.CSSProperties
-      }
+type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
+  ([Variant] extends [never] ? {} : Variant) & {
+    /** Class applied to the component root or trigger element. */
+    class?: SlotClassValue
+    /** Style applied to the component root or trigger element. */
+    style?: SlotStyleValue
+  } & ([Classes] extends [never]
+    ? {}
     : {
-        /** Class applied to the component root or trigger element. */
-        class?: ClassValue
-        /** Style applied to the component root or trigger element. */
-        style?: JSX.CSSProperties
         /** Classes applied to the component slots. */
-        classes?: SlotClasses<TSlot>
+        classes?: Classes
         /** Styles applied to the component slots. */
-        styles?: SlotStyles<TSlot>
+        styles?: Styles
       })
 
 type RootProps<T extends ValidComponent> = T extends Tags
@@ -69,20 +66,14 @@ type RootProps<T extends ValidComponent> = T extends Tags
     ? ComponentProps<T>
     : { [x: string]: unknown }
 
-export type SlotClasses<TSlot> = [TSlot] extends [string]
-  ? Partial<Record<TSlot, ClassValue>>
-  : {
-      [K in Extract<keyof TSlot, string>]?: ClassValue
-    }
-
-export type SlotStyles<TSlot> = [TSlot] extends [string]
-  ? Partial<Record<TSlot, JSX.CSSProperties>>
-  : {
-      [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
-    }
-
-export type BaseProps<TElement extends ValidComponent, Base, Variant, TSlot> = TElement extends Tags
+export type BaseProps<
+  TElement extends ValidComponent,
+  Base,
+  Variant,
+  Classes = never,
+  Styles = never,
+> = TElement extends Tags
   ? MoraineTypeConfig extends { enableRootAutocomplete: true }
-    ? Override<StrictedAttributes<TElement>, ComponentBaseProps<Base, Variant, TSlot>>
-    : RootProps<TElement> & ComponentBaseProps<Base, Variant, TSlot>
-  : Override<RootProps<TElement>, ComponentBaseProps<Base, Variant, TSlot>>
+    ? Override<StrictedAttributes<TElement>, ComponentBaseProps<Base, Variant, Classes, Styles>>
+    : RootProps<TElement> & ComponentBaseProps<Base, Variant, Classes, Styles>
+  : Override<RootProps<TElement>, ComponentBaseProps<Base, Variant, Classes, Styles>>

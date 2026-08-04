@@ -27,6 +27,7 @@ export namespace TooltipT {
     /** Individual keyboard key hint inside the tooltip. */
     kbd?: T
   }
+
   export type Variant = TooltipVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -76,7 +77,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

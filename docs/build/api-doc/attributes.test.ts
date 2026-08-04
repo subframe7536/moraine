@@ -4,10 +4,10 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { extractSourceAttributeReference } from './attributes.ts'
+import { SourceSlotAnalyzer } from './attributes.ts'
 
-describe('extractSourceAttributeReference', () => {
-  test('collects JSX attributes, slot metadata, CSS variables, and local component imports', async () => {
+describe('SourceSlotAnalyzer', () => {
+  test('collects attributes by runtime slot and merges local components', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-attributes-'))
     const sourceDirectory = path.join(projectRoot, 'src')
     await mkdir(sourceDirectory, { recursive: true })
@@ -19,36 +19,74 @@ describe('extractSourceAttributeReference', () => {
     await writeFile(
       path.join(sourceDirectory, 'demo.tsx'),
       `
-import { Child } from './child'
+import { Child } from './child.tsx'
 export function Demo() {
-  return <section data-slot="root" aria-label={'Demo'} data-active style={{ '--demo-size': '1rem' }}><Child /></section>
+  return <section data-slot={Math.random() ? 'root' : 'alternate'} data-active aria-label="Demo" style={{ '--demo-size': '1rem' }}><Child /></section>
 }
 `,
       'utf8',
     )
 
-    const result = await extractSourceAttributeReference(projectRoot, 'src/demo.tsx')
-    expect(result.aria.map((attribute) => attribute.name)).toEqual(['aria-label'])
-    expect(result.data.map((attribute) => attribute.name)).toEqual([
-      'data-active',
-      'data-slot',
-      'data-state',
+    const result = await new SourceSlotAnalyzer(projectRoot).enrichSlots('Demo', 'src/demo.tsx', [
+      { name: 'root', description: 'Root wrapper.', runtimeSlots: ['root', 'alternate'] },
+      { name: 'child', runtimeSlots: ['child'] },
+      { name: 'virtual', runtimeSlots: [] },
     ])
-    expect(result.slots).toEqual([
+
+    expect(result).toEqual([
+      {
+        name: 'root',
+        description: 'Root wrapper.',
+        cssVariables: [expect.objectContaining({ name: '--demo-size' })],
+        dataAttributes: [expect.objectContaining({ name: 'data-active' })],
+        ariaAttributes: [expect.objectContaining({ name: 'aria-label' })],
+      },
       {
         name: 'child',
         cssVariables: [],
         dataAttributes: [expect.objectContaining({ name: 'data-state' })],
         ariaAttributes: [],
       },
-      {
-        name: 'root',
-        cssVariables: [expect.objectContaining({ name: '--demo-size' })],
-        dataAttributes: [expect.objectContaining({ name: 'data-active' })],
-        ariaAttributes: [expect.objectContaining({ name: 'aria-label' })],
-      },
+      { name: 'virtual', cssVariables: [], dataAttributes: [], ariaAttributes: [] },
     ])
 
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('follows explicit extensions, barrels, aliases, render helpers, and slot overrides', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-barrel-'))
+    const sourceDirectory = path.join(projectRoot, 'src')
+    await mkdir(path.join(sourceDirectory, 'parts'), { recursive: true })
+    await writeFile(
+      path.join(sourceDirectory, 'parts/child.tsx'),
+      `export const Child = () => <div data-slot="root" aria-live="polite" />`,
+      'utf8',
+    )
+    await writeFile(
+      path.join(sourceDirectory, 'parts/index.tsx'),
+      `export { Child as Child } from './child.tsx'\nexport const unrelated = () => <div data-slot="ignored" data-noise="true" />`,
+      'utf8',
+    )
+    await writeFile(
+      path.join(sourceDirectory, 'demo.tsx'),
+      `
+import { Child as ImportedChild } from './parts/index.tsx'
+const Alias = ImportedChild
+function renderHelper() { return <span data-slot="helper" data-helper="yes" /> }
+export const Demo = () => <section data-slot="root"><Alias slotName="child" />{renderHelper()}</section>
+`,
+      'utf8',
+    )
+
+    const result = await new SourceSlotAnalyzer(projectRoot).enrichSlots('Demo', 'src/demo.tsx', [
+      { name: 'root', runtimeSlots: ['root'] },
+      { name: 'child', runtimeSlots: ['child'] },
+      { name: 'helper', runtimeSlots: ['helper'] },
+    ])
+
+    expect(result[0]?.dataAttributes).toEqual([])
+    expect(result[1]?.ariaAttributes.map((attribute) => attribute.name)).toEqual(['aria-live'])
+    expect(result[2]?.dataAttributes.map((attribute) => attribute.name)).toEqual(['data-helper'])
     await rm(projectRoot, { recursive: true, force: true })
   })
 })

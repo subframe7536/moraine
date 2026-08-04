@@ -10,19 +10,65 @@
   "slots": [
     {
       "name": "root",
-      "description": "Inline badge container that carries the variant, size, and interactive state."
+      "description": "Inline badge container that carries the variant, size, and interactive state.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "leading",
-      "description": "Optional icon displayed before the badge label."
+      "description": "Optional icon displayed before the badge label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "label",
-      "description": "Badge text or children content between the optional visuals."
+      "description": "Badge text or children content between the optional visuals.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "trailing",
-      "description": "Optional trailing icon or dismiss button displayed after the label."
+      "description": "Optional trailing icon or dismiss button displayed after the label.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     }
   ],
   "props": {
@@ -36,7 +82,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -69,7 +115,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -95,80 +141,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
-      },
-      {
-        "name": "data-size",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved size variant."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      },
-      {
-        "name": "data-variant",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved visual variant."
-      }
-    ],
-    "slots": [
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "leading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-size",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved size variant."
-          },
-          {
-            "name": "data-variant",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved visual variant."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

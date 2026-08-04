@@ -10,39 +10,73 @@
   "slots": [
     {
       "name": "root",
-      "description": "Field wrapper that links label, control, description, and messages."
+      "description": "Field wrapper that links label, control, description, and messages.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "wrapper",
-      "description": "Inner wrapper that arranges label, control, helper text, and messages."
+      "description": "Inner wrapper that arranges label, control, helper text, and messages.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "labelWrapper",
-      "description": "Row that groups the field label and optional hint."
+      "description": "Row that groups the field label and optional hint.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "label",
-      "description": "Accessible field label associated with the control."
+      "description": "Accessible field label associated with the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "container",
-      "description": "Region that contains the wrapped form control."
+      "description": "Region that contains the wrapped form control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "description",
-      "description": "Helper text associated with the control."
+      "description": "Helper text associated with the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "error",
-      "description": "Validation error message region for the field."
+      "description": "Validation error message region for the field.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "hint",
-      "description": "Short hint rendered beside the field label."
+      "description": "Short hint rendered beside the field label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "help",
-      "description": "Additional guidance rendered below the control."
+      "description": "Additional guidance rendered below the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -63,7 +97,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -138,7 +172,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -147,79 +181,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [],
-    "data": [
-      {
-        "name": "data-orientation",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores the rendered orientation."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "description",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "error",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "help",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "hint",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "labelWrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "wrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

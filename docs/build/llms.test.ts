@@ -117,7 +117,21 @@ describe('llms.txt generation', () => {
             category: 'elements',
             polymorphic: false,
           },
-          slots: [],
+          slots: [
+            {
+              name: 'root',
+              cssVariables: [],
+              dataAttributes: [],
+              ariaAttributes: [
+                {
+                  name: 'aria-label',
+                  required: false,
+                  type: 'string | undefined',
+                  description: 'Accessible label.',
+                },
+              ],
+            },
+          ],
           props: {
             own: [
               {
@@ -128,18 +142,6 @@ describe('llms.txt generation', () => {
               },
             ],
             inherited: [],
-          },
-          attributes: {
-            aria: [
-              {
-                name: 'aria-label',
-                required: false,
-                type: 'string | undefined',
-                description: 'Accessible label.',
-              },
-            ],
-            data: [],
-            slots: [],
           },
         }),
       )
@@ -161,7 +163,8 @@ describe('llms.txt generation', () => {
       expect(button).toContain('function Basic()')
       expect(button).toContain('## API Reference')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
-      expect(button).toContain('### ARIA')
+      expect(button).toContain('#### `root`')
+      expect(button).toContain('##### ARIA Attributes')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).not.toContain('<Example')

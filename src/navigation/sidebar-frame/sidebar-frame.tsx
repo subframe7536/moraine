@@ -141,7 +141,7 @@ export namespace SidebarFrameT {
   /**
    * Props for the SidebarFrame component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

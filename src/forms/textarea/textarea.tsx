@@ -67,7 +67,6 @@ export namespace TextareaT {
   }
 
   export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'autoresize'>
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -182,7 +181,8 @@ export namespace TextareaT {
     'div',
     Base<M>,
     Variant,
-    Slot
+    Classes,
+    Styles
   >
 }
 

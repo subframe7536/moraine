@@ -62,6 +62,7 @@ export namespace BreadcrumbT {
     /** Visual divider between breadcrumb entries. */
     separator?: T
   }
+
   export type Variant = BreadcrumbVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -146,7 +147,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export type Props = BaseProps<'nav', Base, Variant, Slot>
+  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
 }
 
 /**

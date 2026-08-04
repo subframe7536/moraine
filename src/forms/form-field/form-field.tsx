@@ -147,7 +147,7 @@ export namespace FormFieldT {
   export type Props<
     TSchema extends FormSchema | undefined = undefined,
     T extends ValidComponent = 'div',
-  > = BaseProps<T, Base<TSchema, T>, Variant, Slot>
+  > = BaseProps<T, Base<TSchema, T>, Variant, Classes, Styles>
 }
 
 /**

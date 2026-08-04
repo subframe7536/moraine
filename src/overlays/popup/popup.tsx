@@ -21,6 +21,7 @@ export namespace PopupT {
     /** Positioned popup content panel. */
     content?: T
   }
+
   export type Variant = PopupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -66,7 +67,7 @@ export namespace PopupT {
   /**
    * Props for the Popup component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

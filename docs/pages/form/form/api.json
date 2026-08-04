@@ -10,7 +10,17 @@
   "slots": [
     {
       "name": "root",
-      "description": "Native form element managed by Formisch."
+      "description": "Native form element managed by Formisch.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-submitting",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -18,7 +28,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -40,7 +50,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -67,17 +77,5 @@
         ]
       }
     ]
-  },
-  "attributes": {
-    "aria": [],
-    "data": [
-      {
-        "name": "data-submitting",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      }
-    ],
-    "slots": []
   }
 }

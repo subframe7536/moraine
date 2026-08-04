@@ -10,31 +10,164 @@
   "slots": [
     {
       "name": "root",
-      "description": "Labelable checkbox wrapper that coordinates input, indicator, and text content."
+      "description": "Labelable checkbox wrapper that coordinates input, indicator, and text content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "control",
-      "description": "Visible checkbox control users recognize as the toggle target."
+      "description": "Visible checkbox control users recognize as the toggle target.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-checked",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is checked or selected."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-indeterminate",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is read-only."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-checked",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "aria-readonly",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control value cannot be changed by the user."
+        },
+        {
+          "name": "aria-required",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that user input is required."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "indicator",
-      "description": "Visual checked or indeterminate state layer inside the control."
+      "description": "Visual checked or indeterminate state layer inside the control.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-checked",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is checked or selected."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-indeterminate",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is read-only."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is required."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "icon",
-      "description": "Check or indeterminate icon rendered for the current state."
+      "description": "Check or indeterminate icon rendered for the current state.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "wrapper",
-      "description": "Inner layout wrapper used by card and list checkbox variants."
+      "description": "Inner layout wrapper used by card and list checkbox variants.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "label",
-      "description": "Primary checkbox label text."
+      "description": "Primary checkbox label text.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "description",
-      "description": "Supporting text associated with the checkbox."
+      "description": "Supporting text associated with the checkbox.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -55,7 +188,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -173,7 +306,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -201,251 +334,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-checked",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-labelledby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the element that labels the control or region."
-      },
-      {
-        "name": "aria-readonly",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control value cannot be changed by the user."
-      },
-      {
-        "name": "aria-required",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that user input is required."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-checked",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is checked or selected."
-      },
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-indeterminate",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-invalid",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field has a validation error."
-      },
-      {
-        "name": "data-readonly",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field is read-only."
-      },
-      {
-        "name": "data-required",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the field is required."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "control",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-checked",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is checked or selected."
-          },
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-indeterminate",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          },
-          {
-            "name": "data-invalid",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field has a validation error."
-          },
-          {
-            "name": "data-readonly",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is read-only."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-checked",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-labelledby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the element that labels the control or region."
-          },
-          {
-            "name": "aria-readonly",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control value cannot be changed by the user."
-          },
-          {
-            "name": "aria-required",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that user input is required."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "description",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "indicator",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-checked",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is checked or selected."
-          },
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-indeterminate",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          },
-          {
-            "name": "data-readonly",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is read-only."
-          },
-          {
-            "name": "data-required",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the field is required."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "input",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-hidden",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Hides decorative content from assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "wrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

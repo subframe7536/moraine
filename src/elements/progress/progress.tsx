@@ -59,6 +59,7 @@ export namespace ProgressT {
     /** Individual step label or marker rendered along the progress scale. */
     step?: T
   }
+
   export type Variant = ProgressVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -102,7 +103,7 @@ export namespace ProgressT {
     stepRender?: ComponentOrElement<StepRenderProps>
   }
 
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -78,7 +78,7 @@ export namespace CardT {
   /**
    * Props for the Card component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

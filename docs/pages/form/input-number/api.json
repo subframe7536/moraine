@@ -10,19 +10,118 @@
   "slots": [
     {
       "name": "root",
-      "description": "Number input wrapper that owns the input and step controls."
+      "description": "Number input wrapper that owns the input and step controls.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "input",
-      "description": "Native number input element."
+      "description": "Native number input element.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-readonly",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control value cannot be changed by the user."
+        },
+        {
+          "name": "aria-required",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that user input is required."
+        },
+        {
+          "name": "aria-valuemax",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the maximum value for range-like controls."
+        },
+        {
+          "name": "aria-valuemin",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the minimum value for range-like controls."
+        },
+        {
+          "name": "aria-valuenow",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the current numeric value for range-like controls."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "increment",
-      "description": "Button that increases the current numeric value."
+      "description": "Button that increases the current numeric value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "decrement",
-      "description": "Button that decreases the current numeric value."
+      "description": "Button that decreases the current numeric value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -44,7 +143,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -266,7 +365,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -293,235 +392,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-readonly",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control value cannot be changed by the user."
-      },
-      {
-        "name": "aria-required",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that user input is required."
-      },
-      {
-        "name": "aria-valuemax",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the maximum value for range-like controls."
-      },
-      {
-        "name": "aria-valuemin",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the minimum value for range-like controls."
-      },
-      {
-        "name": "aria-valuenow",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the current numeric value for range-like controls."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
-      },
-      {
-        "name": "data-orientation",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores the rendered orientation."
-      },
-      {
-        "name": "data-size",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved size variant."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      },
-      {
-        "name": "data-variant",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved visual variant."
-      }
-    ],
-    "slots": [
-      {
-        "name": "controls",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "input",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-readonly",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control value cannot be changed by the user."
-          },
-          {
-            "name": "aria-required",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that user input is required."
-          },
-          {
-            "name": "aria-valuemax",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the maximum value for range-like controls."
-          },
-          {
-            "name": "aria-valuemin",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the minimum value for range-like controls."
-          },
-          {
-            "name": "aria-valuenow",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the current numeric value for range-like controls."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "leading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-hidden",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Hides decorative content from assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          },
-          {
-            "name": "data-size",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved size variant."
-          },
-          {
-            "name": "data-variant",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved visual variant."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "separator",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-hidden",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Hides decorative content from assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "trailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

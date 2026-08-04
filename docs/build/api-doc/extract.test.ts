@@ -63,9 +63,9 @@ declare namespace DemoT {
   }
   interface Slot {
     /** Root wrapper. */
-    root: {}
+    root: 'root'
     /** Item row. */
-    item: {}
+    item: 'item'
   }
 }
 
@@ -85,7 +85,7 @@ declare namespace EmptyT {
   interface Item {}
   interface Slot {
     /** Root wrapper. */
-    root: {}
+    root: 'root'
   }
 }
 
@@ -108,8 +108,20 @@ declare function Empty(props: EmptyProps): JSX.Element
 
     const demoDoc = data.componentDocs.get('demo')
     expect(demoDoc?.slots).toEqual([
-      { name: 'root', description: 'Root wrapper.' },
-      { name: 'item', description: 'Item row.' },
+      {
+        name: 'root',
+        description: 'Root wrapper.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
+      {
+        name: 'item',
+        description: 'Item row.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
     ])
     expect(demoDoc?.item?.description).toBe('Items for demo.')
     expect(demoDoc?.item?.props).toEqual([
@@ -130,10 +142,80 @@ declare function Empty(props: EmptyProps): JSX.Element
     expect(demoDoc?.props.own.find((prop) => prop.name === 'mode')?.defaultValue).toBe('a')
 
     const emptyDoc = data.componentDocs.get('empty')
-    expect(emptyDoc?.slots).toEqual([{ name: 'root', description: 'Root wrapper.' }])
+    expect(emptyDoc?.slots).toEqual([
+      {
+        name: 'root',
+        description: 'Root wrapper.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
+    ])
     expect(emptyDoc?.item).toBeUndefined()
 
     await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('resolves slot aliases, unions, never values, inheritance, and rejects broad values', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type RootRuntime = 'root'
+interface SharedSlots {
+  /** Shared root. */
+  root: RootRuntime
+}
+declare namespace DemoT {
+  type Slot = SharedSlots & {
+    /** Two runtime nodes. */
+    target: 'target' | 'target-alt'
+    /** Styling-only alias. */
+    virtual: never
+  }
+}
+interface DemoProps {}
+declare function Demo(props: DemoProps): JSX.Element
+`,
+    )
+
+    const slots = (await generateApiDoc(projectRoot))?.componentDocs.get('demo')?.slots
+    expect(slots).toEqual([
+      {
+        name: 'root',
+        description: 'Shared root.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
+      {
+        name: 'target',
+        description: 'Two runtime nodes.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
+      {
+        name: 'virtual',
+        description: 'Styling-only alias.',
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      },
+    ])
+    await rm(projectRoot, { recursive: true, force: true })
+
+    const invalidRoot = await createTempProject()
+    await writeProjectDts(
+      invalidRoot,
+      `
+declare namespace InvalidT { interface Slot { root: string } }
+interface InvalidProps {}
+declare function Invalid(props: InvalidProps): JSX.Element
+`,
+    )
+    await expect(generateApiDoc(invalidRoot)).rejects.toThrow('literal union')
+    await rm(invalidRoot, { recursive: true, force: true })
   })
 
   test('handles alias items, non-jsx declarations and region-based category/sourcePath', async () => {
@@ -144,7 +226,9 @@ declare function Empty(props: EmptyProps): JSX.Element
 declare namespace AliasT {
   /** Alias-only items doc. */
   type Item = string | number
-  type Slot = 'root'
+  interface Slot {
+    root: 'root'
+  }
 }
 
 interface AliasProps {
@@ -219,7 +303,9 @@ declare namespace CollectionT {
 
   /** Collection-based items doc. */
   type Item = GenericItems<SubItem>
-  type Slot = 'root'
+  interface Slot {
+    root: 'root'
+  }
 }
 
 interface CollectionProps {
@@ -260,7 +346,9 @@ declare function Collection(props: CollectionProps): JSX.Element
 import type { ExternalProps } from 'opaque-lib'
 
 declare namespace ExternalAliasT {
-  type Slot = 'root'
+  interface Slot {
+    root: 'root'
+  }
 }
 
 interface ExternalAliasProps extends ExternalProps {}
@@ -390,29 +478,25 @@ declare namespace JSX {
   }
 }
 
-type SlotClasses<TSlot> = {
-  [K in Extract<keyof TSlot, string>]?: ClassValue
-}
-type SlotStyles<TSlot> = {
-  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
-}
-type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
-  classes?: SlotClasses<TSlot>
-  styles?: SlotStyles<TSlot>
+type BaseProps<Base, Variant, Classes, Styles> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: Classes
+  styles?: Styles
 }
 
 declare namespace AliasButtonT {
   interface Slot<T = unknown> {
+    /** Root wrapper. */
     root?: T
+    /** Button label. */
     label?: T
   }
   type Variant = never
-  type Classes = Slot<ClassValue>
+  type Classes = Slot<SlotClassValue>
   type Styles = Slot<JSX.CSSProperties>
   interface Base {
     label?: string
   }
-  interface Props extends BaseProps<Base, Variant, Slot> {}
+  interface Props extends BaseProps<Base, Variant, Classes, Styles> {}
 }
 
 declare function AliasButton(props: AliasButtonT.Props): JSX.Element
@@ -443,20 +527,14 @@ declare namespace JSX {
   }
 }
 
-type SlotClasses<TSlot> = {
-  [K in Extract<keyof TSlot, string>]?: ClassValue
-}
-type SlotStyles<TSlot> = {
-  [K in Extract<keyof TSlot, string>]?: JSX.CSSProperties
-}
-type BaseProps<Base, Variant, TSlot> = Base & ([Variant] extends [never] ? {} : Variant) & {
-  classes?: SlotClasses<TSlot>
-  styles?: SlotStyles<TSlot>
+type BaseProps<Base, Variant, Classes, Styles> = Base & ([Variant] extends [never] ? {} : Variant) & {
+  classes?: Classes
+  styles?: Styles
 }
 
-interface SharedSlots<T = unknown> {
-  trigger?: T
-  content?: T
+interface SharedSlots {
+  trigger: 'trigger'
+  content: 'content'
 }
 type SharedClasses = SharedSlots<ClassValue>
 type SharedStyles = SharedSlots<JSX.CSSProperties>
@@ -466,12 +544,12 @@ interface SharedRootProps {
 }
 
 declare namespace SharedMenuT {
-  interface Slot<T = unknown> extends SharedSlots<T> {}
+  interface Slot extends SharedSlots {}
   type Variant = never
-  type Classes = Slot<ClassValue>
+  type Classes = Slot<SlotClassValue>
   type Styles = Slot<JSX.CSSProperties>
   interface Base extends SharedRootProps {}
-  interface Props extends BaseProps<Base, Variant, Slot> {}
+  interface Props extends BaseProps<Base, Variant, Classes, Styles> {}
 }
 
 declare function SharedMenu(props: SharedMenuT.Props): JSX.Element

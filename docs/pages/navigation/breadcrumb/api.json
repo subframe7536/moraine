@@ -10,31 +10,122 @@
   "slots": [
     {
       "name": "root",
-      "description": "Navigation container for the breadcrumb trail."
+      "description": "Navigation container for the breadcrumb trail.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     },
     {
       "name": "list",
-      "description": "Ordered list that contains breadcrumb items and separators."
+      "description": "Ordered list that contains breadcrumb items and separators.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "item",
-      "description": "Wrapper for one breadcrumb entry."
+      "description": "Wrapper for one breadcrumb entry.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "link",
-      "description": "Clickable breadcrumb target for navigable entries."
+      "description": "Clickable breadcrumb target for navigable entries.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-current",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item represents the current location."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-current",
+          "required": false,
+          "type": "string",
+          "description": "Marks the current item in a set or navigation trail."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "leading",
-      "description": "Optional icon rendered before a breadcrumb label."
+      "description": "Optional icon rendered before a breadcrumb label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "label",
-      "description": "Breadcrumb item label text."
+      "description": "Breadcrumb item label text.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "separator",
-      "description": "Visual divider between breadcrumb entries."
+      "description": "Visual divider between breadcrumb entries.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     }
   ],
   "item": {
@@ -101,7 +192,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -143,7 +234,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -157,212 +248,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-busy",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-current",
-        "required": false,
-        "type": "string",
-        "description": "Marks the current item in a set or navigation trail."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-current",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item represents the current location."
-      },
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-loading",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component is loading."
-      },
-      {
-        "name": "data-orientation",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores the rendered orientation."
-      },
-      {
-        "name": "data-size",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved size variant."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      },
-      {
-        "name": "data-variant",
-        "required": false,
-        "type": "string",
-        "description": "Stores the resolved visual variant."
-      }
-    ],
-    "slots": [
-      {
-        "name": "item",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "leading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-hidden",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Hides decorative content from assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "link",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-current",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item represents the current location."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-current",
-            "required": false,
-            "type": "string",
-            "description": "Marks the current item in a set or navigation trail."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "list",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          },
-          {
-            "name": "data-size",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved size variant."
-          },
-          {
-            "name": "data-variant",
-            "required": false,
-            "type": "string",
-            "description": "Stores the resolved visual variant."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-label",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides an accessible label when visible text is not sufficient."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "separator",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-hidden",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Hides decorative content from assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "trailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

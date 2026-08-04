@@ -12,9 +12,10 @@ export const sheetContentVariants = cva(
     variants: {
       side: {
         top: 'border-b border-border h-auto animate-sheet-side-top inset-x-0 top-0',
-        right: 'border-l border-border h-full max-w-sm w-3/4 animate-sheet-side-right inset-y-0',
+        right:
+          'border-l border-border h-full max-w-sm w-3/4 animate-sheet-side-right inset-y-0 right-0',
         bottom: 'border-t border-border h-auto animate-sheet-side-bottom inset-x-0 bottom-0',
-        left: 'border-r border-border h-full max-w-sm w-3/4 animate-sheet-side-left inset-y-0',
+        left: 'border-r border-border h-full max-w-sm w-3/4 animate-sheet-side-left inset-y-0 left-0',
       },
       inset: {
         true: 'sm:(m-4 border border-border rounded-2xl)',

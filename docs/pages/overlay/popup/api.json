@@ -10,15 +10,49 @@
   "slots": [
     {
       "name": "trigger",
-      "description": "Element users activate to open the popup."
+      "description": "Element users activate to open the popup.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "overlay",
-      "description": "Optional backdrop layer rendered behind popup content."
+      "description": "Optional backdrop layer rendered behind popup content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "content",
-      "description": "Positioned popup content panel."
+      "description": "Positioned popup content panel.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-describedby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References descriptive text associated with the control."
+        },
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "aria-modal",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Identifies modal content that traps interaction outside the dialog."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     }
   ],
   "props": {
@@ -32,7 +66,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -121,7 +155,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -130,86 +164,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-describedby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References descriptive text associated with the control."
-      },
-      {
-        "name": "aria-labelledby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the element that labels the control or region."
-      },
-      {
-        "name": "aria-modal",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Identifies modal content that traps interaction outside the dialog."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "content",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-describedby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References descriptive text associated with the control."
-          },
-          {
-            "name": "aria-labelledby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the element that labels the control or region."
-          },
-          {
-            "name": "aria-modal",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Identifies modal content that traps interaction outside the dialog."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "overlay",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trigger",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

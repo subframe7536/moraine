@@ -4,7 +4,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { Icon } from '../../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
-import type { SlotClasses, SlotStyles } from '../../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 import { cn, useId } from '../../../shared/utils.ts'
 import { useFormField } from '../../form-field/form-field-context.ts'
 import type { FormFieldSize, UseFormFieldReturn } from '../../form-field/form-field-context.ts'
@@ -28,8 +28,12 @@ interface RenderDefaultSelectOptionOptions<TItem> {
         isSelected: boolean
       })
     | null
-  classes?: SlotClasses<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
-  styles?: SlotStyles<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing'>
+  classes?: Partial<
+    Record<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing', SlotClassValue>
+  >
+  styles?: Partial<
+    Record<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing', SlotStyleValue>
+  >
   labelRender?: ComponentOrElement<{ option: TItem }>
 }
 

@@ -2,6 +2,23 @@ import { describe, expect, test } from 'vitest'
 
 import { getJsDoc, parseTypeScript, walkAst } from '../../docs/build/api-doc/ast.ts'
 
+import type { SlotClassValue, SlotStyleValue } from './types.ts'
+
+interface TestSlot<T = unknown> {
+  root?: T
+}
+
+type TestClasses = TestSlot<SlotClassValue>
+type TestStyles = TestSlot<SlotStyleValue>
+
+const overrides: TestClasses = { root: 'custom' }
+const styles: TestStyles = { root: { color: 'red' } }
+
+let mutableOverrides: TestClasses = {}
+mutableOverrides.root = 'custom'
+let mutableStyles: TestStyles = {}
+mutableStyles.root = { color: 'red' }
+
 describe('slot override docs', () => {
   test('keeps slot jsdoc on class override properties', async () => {
     const source = await parseTypeScript(
@@ -27,5 +44,9 @@ const overrides: Classes = { root: 'custom' }
     })
 
     expect(documentation).toBe('Root element.')
+    expect(overrides.root).toBe('custom')
+    expect(styles.root?.color).toBe('red')
+    expect(mutableOverrides.root).toBe('custom')
+    expect(mutableStyles.root?.color).toBe('red')
   })
 })

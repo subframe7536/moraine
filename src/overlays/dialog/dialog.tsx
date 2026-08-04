@@ -135,7 +135,7 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

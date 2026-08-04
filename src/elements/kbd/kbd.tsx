@@ -63,7 +63,7 @@ export namespace KbdT {
   }
 
   /** Props for the Kbd component. */
-  export type Props = BaseProps<'kbd', Base, Variant, Slot>
+  export type Props = BaseProps<'kbd', Base, Variant, Classes, Styles>
 }
 
 /** Props for the Kbd component. */

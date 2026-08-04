@@ -13,6 +13,7 @@ import {
   parseTypeScript,
   walkAst,
 } from './ast.ts'
+import { SourceSlotAnalyzer } from './attributes.ts'
 import { preprocessGenericTypeAliases } from './transform-types.ts'
 import type {
   ComponentDoc,
@@ -21,7 +22,7 @@ import type {
   InheritedGroupDoc,
   ItemDoc,
   PropDoc,
-  SlotDoc,
+  SlotDefinitionDoc,
 } from './types.ts'
 
 type DeclarationNode = ESTree.TSInterfaceDeclaration | ESTree.TSTypeAliasDeclaration
@@ -254,14 +255,25 @@ function withTypeNode(value: TypeValue, node: ESTree.TSType): TypeValue {
   return { node, unit: value.unit, namespace: value.namespace, env: value.env }
 }
 
-function toSlotDoc(property: ResolvedProperty): SlotDoc {
+function toSlotDefinitionDoc(
+  property: ResolvedProperty,
+  runtimeSlots: string[],
+): SlotDefinitionDoc {
   return property.description
-    ? { name: property.name, description: property.description }
-    : { name: property.name }
+    ? { name: property.name, description: property.description, runtimeSlots }
+    : { name: property.name, runtimeSlots }
 }
 
 function propertyName(node: ESTree.PropertyKey): string | undefined {
   return getIdentifierName(node)
+}
+
+function isGenericSlotValue(value: TypeValue | undefined): boolean {
+  return value?.node.type === 'TSTypeReference' && entityNameToText(value.node.typeName) === 'T'
+}
+
+function isVirtualSlotValue(value: TypeValue | undefined): boolean {
+  return value?.node.type === 'TSNeverKeyword'
 }
 
 function literalKeys(node: ESTree.TSType): Set<string> {
@@ -463,11 +475,21 @@ function addOptionalUndefined(typeText: string): string {
   return `${typeText} | undefined`
 }
 
-function uniqueSlotDocs(values: SlotDoc[]): SlotDoc[] {
-  const docs = new Map<string, SlotDoc>()
+function uniqueSlotDefinitions(values: SlotDefinitionDoc[]): SlotDefinitionDoc[] {
+  const docs = new Map<string, SlotDefinitionDoc>()
   for (const value of values) {
     const existing = docs.get(value.name)
-    docs.set(value.name, existing?.description ? existing : value)
+    if (!existing) {
+      docs.set(value.name, value)
+      continue
+    }
+    docs.set(value.name, {
+      name: value.name,
+      ...(existing.description || value.description
+        ? { description: existing.description ?? value.description }
+        : {}),
+      runtimeSlots: [...new Set([...existing.runtimeSlots, ...value.runtimeSlots])],
+    })
   }
   return [...docs.values()]
 }
@@ -950,25 +972,38 @@ class DeclarationAnalyzer {
     return false
   }
 
-  async #slotDocsFromValue(value: TypeValue, visited: Set<string>): Promise<SlotDoc[]> {
+  async #runtimeSlotNamesFromValue(
+    value: TypeValue,
+    visited = new Set<string>(),
+  ): Promise<string[]> {
     const node = value.node
+    if (node.type === 'TSNeverKeyword') {
+      return []
+    }
     if (node.type === 'TSLiteralType' && node.literal.type === 'Literal') {
-      return typeof node.literal.value === 'string' ? [{ name: node.literal.value }] : []
+      if (typeof node.literal.value !== 'string') {
+        throw new TypeError(`Slot runtime value must be a string literal in ${value.unit.fileName}`)
+      }
+      return [node.literal.value]
     }
     if (node.type === 'TSUnionType') {
-      const groups = await Promise.all(
-        node.types.map((type) => this.#slotDocsFromValue(withTypeNode(value, type), visited)),
+      const values = await Promise.all(
+        node.types.map((type) =>
+          this.#runtimeSlotNamesFromValue(withTypeNode(value, type), visited),
+        ),
       )
-      return uniqueSlotDocs(groups.flat())
+      return [...new Set(values.flat())]
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return this.#runtimeSlotNamesFromValue(withTypeNode(value, node.typeAnnotation), visited)
     }
     if (node.type !== 'TSTypeReference') {
-      const properties = await this.resolveProperties(value, visited)
-      return uniqueSlotDocs(properties.map(toSlotDoc))
+      throw new Error(`Slot runtime value must be a literal union in ${value.unit.fileName}`)
     }
 
     const name = entityNameToText(node.typeName)
     if (!name) {
-      return []
+      throw new Error(`Unable to resolve slot runtime value in ${value.unit.fileName}`)
     }
     const context: ResolveContext = {
       unit: value.unit,
@@ -976,7 +1011,10 @@ class DeclarationAnalyzer {
       env: value.env,
     }
     const declarations = await this.#findDeclarations(name, context)
-    const docs: SlotDoc[] = []
+    if (declarations.length === 0) {
+      throw new Error(`Unable to resolve slot runtime type "${name}" in ${value.unit.fileName}`)
+    }
+    const values: string[] = []
     for (const declaration of declarations) {
       const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}`
       if (visited.has(key)) {
@@ -984,73 +1022,55 @@ class DeclarationAnalyzer {
       }
       const nextVisited = new Set(visited)
       nextVisited.add(key)
+      if (declaration.node.type !== 'TSTypeAliasDeclaration') {
+        throw new Error(`Slot runtime type "${name}" must resolve to a type alias`)
+      }
       const env = DeclarationAnalyzer.#declarationEnvironment(
         declaration,
         typeArgumentsOf(node),
         context,
       )
-      const declarationValue = {
-        unit: declaration.unit,
-        namespace: declaration.namespace,
-        env,
-      }
-      if (declaration.node.type === 'TSTypeAliasDeclaration') {
-        docs.push(
-          ...(await this.#slotDocsFromValue(
-            {
-              node: declaration.node.typeAnnotation,
-              unit: declarationValue.unit,
-              namespace: declarationValue.namespace,
-              env: declarationValue.env,
-            },
-            nextVisited,
-          )),
-        )
-      } else {
-        const properties = await this.#resolveNamedProperties(
-          name,
-          typeArgumentsOf(node),
-          context,
+      values.push(
+        ...(await this.#runtimeSlotNamesFromValue(
+          {
+            node: declaration.node.typeAnnotation,
+            unit: declaration.unit,
+            namespace: declaration.namespace,
+            env,
+          },
           nextVisited,
-        )
-        docs.push(...properties.map(toSlotDoc))
-      }
+        )),
+      )
     }
-    return uniqueSlotDocs(docs)
+    return [...new Set(values)]
   }
 
-  async extractSlotDocs(namespace: string): Promise<SlotDoc[]> {
+  async extractSlotDocs(namespace: string): Promise<SlotDefinitionDoc[]> {
     const declarations = this.mainUnit.declarations.get(`${namespace}.Slot`) ?? []
-    const docs: SlotDoc[] = []
+    const docs: SlotDefinitionDoc[] = []
     for (const declaration of declarations) {
-      const env = DeclarationAnalyzer.#declarationEnvironment(declaration, [], {
-        unit: this.mainUnit,
-        namespace,
-        env: new Map(),
-      })
-      if (declaration.node.type === 'TSTypeAliasDeclaration') {
-        docs.push(
-          ...(await this.#slotDocsFromValue(
-            {
-              node: declaration.node.typeAnnotation,
-              unit: declaration.unit,
-              namespace,
-              env,
-            },
-            new Set(),
-          )),
-        )
-      } else {
-        const properties = await this.#resolveNamedProperties(
-          `${namespace}.Slot`,
-          [],
-          { unit: this.mainUnit, namespace: undefined, env: new Map() },
-          new Set(),
-        )
-        docs.push(...properties.map(toSlotDoc))
+      const properties = await this.#resolveNamedProperties(
+        `${namespace}.Slot`,
+        [],
+        { unit: this.mainUnit, namespace: undefined, env: new Map() },
+        new Set(),
+      )
+      if (declaration.node.type === 'TSTypeAliasDeclaration' && properties.length === 0) {
+        throw new Error(`Slot declaration ${namespace}.Slot must be an object mapping`)
+      }
+      for (const property of properties) {
+        const genericSlotValue = isGenericSlotValue(property.type)
+        const virtualSlotValue = isVirtualSlotValue(property.type)
+        if ((property.optional && !genericSlotValue && !virtualSlotValue) || !property.type) {
+          throw new Error(`Slot ${namespace}.${property.name} must be readonly and required`)
+        }
+        const runtimeSlots = genericSlotValue
+          ? [property.name]
+          : await this.#runtimeSlotNamesFromValue(property.type)
+        docs.push(toSlotDefinitionDoc(property, runtimeSlots))
       }
     }
-    return uniqueSlotDocs(docs)
+    return uniqueSlotDefinitions(docs)
   }
 
   async extractItemDoc(namespace: string): Promise<ItemDoc | undefined> {
@@ -1096,13 +1116,7 @@ class DeclarationAnalyzer {
     }
     const overrideName =
       property.name === 'classes' ? 'Classes' : property.name === 'styles' ? 'Styles' : undefined
-    const genericName =
-      property.name === 'classes'
-        ? 'SlotClasses'
-        : property.name === 'styles'
-          ? 'SlotStyles'
-          : undefined
-    if (!overrideName || !genericName) {
+    if (!overrideName) {
       return undefined
     }
     const componentNamespace = `${context.componentName}T`
@@ -1111,9 +1125,6 @@ class DeclarationAnalyzer {
       return undefined
     }
     const typeName = entityNameToText(property.type.node.typeName)
-    if (typeName === genericName) {
-      return context.slotOverrideTypes?.has(overrideName) ? componentAlias : undefined
-    }
     if (typeName === overrideName && property.namespace === componentNamespace) {
       return componentAlias
     }
@@ -1347,7 +1358,7 @@ class DeclarationAnalyzer {
 
 interface ComponentMetadata {
   items: Map<string, ItemDoc>
-  slots: Map<string, SlotDoc[]>
+  slots: Map<string, SlotDefinitionDoc[]>
   slotOverrideTypes: Map<string, ReadonlySet<string>>
 }
 
@@ -1361,7 +1372,7 @@ async function collectNamespaceMetadata(analyzer: DeclarationAnalyzer): Promise<
   }
 
   const items = new Map<string, ItemDoc>()
-  const slots = new Map<string, SlotDoc[]>()
+  const slots = new Map<string, SlotDefinitionDoc[]>()
   const slotOverrideTypes = new Map<string, ReadonlySet<string>>()
   await Promise.all(
     [...namespaceNames].map(async (namespace) => {
@@ -1395,6 +1406,7 @@ async function collectNamespaceMetadata(analyzer: DeclarationAnalyzer): Promise<
 async function processComponentNode(
   node: DeclareFunctionNode,
   analyzer: DeclarationAnalyzer,
+  sourceSlotAnalyzer: SourceSlotAnalyzer,
   regionByLine: Array<string | undefined>,
   metadata: ComponentMetadata,
 ): Promise<{ key: string; doc: ComponentDoc } | null> {
@@ -1430,11 +1442,13 @@ async function processComponentNode(
     ...(jsDoc.description ? { description: jsDoc.description } : {}),
     ...(sourcePath ? { sourcePath } : {}),
   }
+  const slotDefinitions = metadata.slots.get(componentName) ?? []
+  const slots = await sourceSlotAnalyzer.enrichSlots(componentName, sourcePath, slotDefinitions)
   return {
     key: componentKey,
     doc: {
       component,
-      slots: metadata.slots.get(componentName) ?? [],
+      slots,
       ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
       props,
     },
@@ -1451,6 +1465,7 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
   const dtsContent = readFileSync(dtsPath, 'utf8')
   const processedContent = await preprocessGenericTypeAliases(dtsContent, dtsPath)
   const analyzer = await DeclarationAnalyzer.create(projectRoot, dtsPath, processedContent)
+  const sourceSlotAnalyzer = new SourceSlotAnalyzer(projectRoot)
   const regionByLine = buildRegionByLine(processedContent)
   const metadata = await collectNamespaceMetadata(analyzer)
   const componentDocs = new Map<string, ComponentDoc>()
@@ -1460,7 +1475,13 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
     if (declaration?.type !== 'TSDeclareFunction') {
       continue
     }
-    const component = await processComponentNode(declaration, analyzer, regionByLine, metadata)
+    const component = await processComponentNode(
+      declaration,
+      analyzer,
+      sourceSlotAnalyzer,
+      regionByLine,
+      metadata,
+    )
     if (component) {
       componentDocs.set(component.key, component.doc)
     }

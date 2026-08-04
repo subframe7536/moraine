@@ -4,7 +4,6 @@ import path from 'node:path'
 
 import { collectFiles, collectMarkdownFiles, resolveDocsPageContext } from '../core/paths.ts'
 
-import { extractSourceAttributeReference } from './attributes.ts'
 import { clearApiDocCache } from './load.ts'
 import type { GenerationResult } from './types.ts'
 
@@ -50,15 +49,7 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
     }
     return [
       (async () => {
-        const completeDoc = {
-          ...doc,
-          attributes: await extractSourceAttributeReference(projectRoot, doc.component.sourcePath),
-        }
-        await writeFile(
-          path.join(pageDirectory, 'api.json'),
-          JSON.stringify(completeDoc, null, 2),
-          'utf8',
-        )
+        await writeFile(path.join(pageDirectory, 'api.json'), JSON.stringify(doc, null, 2), 'utf8')
       })(),
     ]
   })

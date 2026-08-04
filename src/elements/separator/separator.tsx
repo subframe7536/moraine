@@ -23,6 +23,7 @@ export namespace SeparatorT {
     /** Optional label or custom content rendered within the separator line. */
     content?: T
   }
+
   export type Variant = SeparatorVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -52,7 +53,7 @@ export namespace SeparatorT {
   /**
    * Props for the Separator component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -1,7 +1,7 @@
 import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import { createRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
 import { Button, Progress, SidebarFrame } from '../../src/index.ts'
@@ -12,57 +12,6 @@ import { Sidebar, SidebarHeader } from './components/layout/sidebar.tsx'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components.tsx'
 import { getDocsPages } from './docs-route.ts'
 import { useTheme } from './hooks/use-theme.ts'
-
-interface DocsShellRenderContext {
-  isMobile: Accessor<boolean>
-  sidebarOpen: Accessor<boolean>
-  setSidebarOpen: (open: boolean) => void
-  toggleSidebar: () => void
-  scrolled: Accessor<boolean>
-}
-
-interface DocsShellProps {
-  rootRef: (element: HTMLDivElement) => void
-  sidebarHeader: (context: DocsShellRenderContext) => JSX.Element
-  sidebar: (context: DocsShellRenderContext) => JSX.Element
-  main: (context: DocsShellRenderContext) => JSX.Element
-}
-
-function DocsShell(props: DocsShellProps) {
-  return (
-    <SidebarFrame
-      ref={props.rootRef}
-      sidebarHeaderRender={(ctx) =>
-        props.sidebarHeader({
-          isMobile: ctx.isMobile,
-          sidebarOpen: ctx.isOpen,
-          setSidebarOpen: ctx.setOpen,
-          toggleSidebar: ctx.toggle,
-          scrolled: ctx.scrolled,
-        })
-      }
-      sidebarBodyRender={(ctx) =>
-        props.sidebar({
-          isMobile: ctx.isMobile,
-          sidebarOpen: ctx.isOpen,
-          setSidebarOpen: ctx.setOpen,
-          toggleSidebar: ctx.toggle,
-          scrolled: ctx.scrolled,
-        })
-      }
-      mainRender={(ctx) =>
-        props.main({
-          isMobile: ctx.isMobile,
-          sidebarOpen: ctx.isOpen,
-          setSidebarOpen: ctx.setOpen,
-          toggleSidebar: ctx.toggle,
-          scrolled: ctx.scrolled,
-        })
-      }
-      scrollThreshold={4}
-    />
-  )
-}
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()
@@ -140,29 +89,29 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <DocsShell
-        rootRef={(element) => {
+      <SidebarFrame
+        ref={(element) => {
           rootElement = element
         }}
-        sidebarHeader={(ctx) => (
+        sidebarHeaderRender={(ctx) => (
           <SidebarHeader
-            onClose={ctx.isMobile() ? () => ctx.setSidebarOpen(false) : undefined}
+            onClose={ctx.isMobile() ? () => ctx.setOpen(false) : undefined}
             isMobile={ctx.isMobile()}
           />
         )}
-        sidebar={(ctx) => (
+        sidebarBodyRender={(ctx) => (
           <Sidebar
             pages={pages}
             activePage={committedPage}
             setActivePage={(key) => {
               navigateToPage(key)
               if (ctx.isMobile()) {
-                ctx.setSidebarOpen(false)
+                ctx.setOpen(false)
               }
             }}
           />
         )}
-        main={(ctx) => (
+        mainRender={(ctx) => (
           <>
             <ContentHeader
               leading={
@@ -172,7 +121,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                     size="sm"
                     leading="i-lucide-menu"
                     aria-label="Toggle sidebar"
-                    onClick={ctx.toggleSidebar}
+                    onClick={ctx.toggle}
                   />
                 </Show>
               }
@@ -194,6 +143,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
           </>
         )}
+        scrollThreshold={4}
       />
     </>
   )

@@ -73,6 +73,7 @@ export namespace ResizableT {
     /** Extra hit target used when nested handles meet across axes. */
     crossTarget?: T
   }
+
   export type Variant = ResizableVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -155,7 +156,7 @@ export namespace ResizableT {
   /**
    * Props for the Resizable component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**
@@ -896,7 +897,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 >
                   <Show when={bindings.startIntersectionVisible()}>
                     <div
-                      data-slot="cross-target"
+                      data-slot="crossTarget"
                       data-resizable-handle-start-target
                       class={resizableCrossTargetVariants(
                         { orientation: orientation(), target: 'start' },
@@ -935,7 +936,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
                   <Show when={bindings.endIntersectionVisible()}>
                     <div
-                      data-slot="cross-target"
+                      data-slot="crossTarget"
                       data-resizable-handle-end-target
                       class={resizableCrossTargetVariants(
                         { orientation: orientation(), target: 'end' },

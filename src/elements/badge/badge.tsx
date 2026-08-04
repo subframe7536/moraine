@@ -68,7 +68,7 @@ export namespace BadgeT {
   /**
    * Props for the Badge component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

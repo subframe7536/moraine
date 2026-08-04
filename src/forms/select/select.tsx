@@ -49,7 +49,6 @@ export namespace SelectT {
     /** Button region that toggles the select popup. */
     trigger?: T
   }
-
   export interface OptionSlot<T = unknown> {
     /** Message shown when filtering leaves no selectable options. */
     empty?: T
@@ -144,7 +143,13 @@ export namespace SelectT {
     closeIcon?: IconT.Name
   }
 
-  export type Props<TItem extends Value = Value> = BaseProps<'div', Base<TItem>, Variant, Slot>
+  export type Props<TItem extends Value = Value> = BaseProps<
+    'div',
+    Base<TItem>,
+    Variant,
+    Classes,
+    Styles
+  >
 }
 
 export interface SelectProps<

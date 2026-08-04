@@ -68,6 +68,7 @@ export namespace CommandPaletteT {
     /** Message shown when no command items match the search. */
     empty?: T
   }
+
   export type Variant = CommandPaletteItemVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -247,7 +248,13 @@ export namespace CommandPaletteT {
     inputProps?: JSX.HTMLAttributes<HTMLInputElement>
   }
 
-  export type Props<TItem extends Item = Item> = BaseProps<'div', Base<TItem>, Variant, Slot>
+  export type Props<TItem extends Item = Item> = BaseProps<
+    'div',
+    Base<TItem>,
+    Variant,
+    Classes,
+    Styles
+  >
 }
 
 export interface CommandPaletteProps<

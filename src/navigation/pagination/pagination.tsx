@@ -36,6 +36,7 @@ export namespace PaginationT {
     /** Non-interactive marker for skipped page ranges. */
     ellipsis?: T
   }
+
   export type Variant = never
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -163,7 +164,7 @@ export namespace PaginationT {
   /**
    * Props for the Pagination component.
    */
-  export type Props = BaseProps<'nav', Base, Variant, Slot>
+  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
 }
 
 /**

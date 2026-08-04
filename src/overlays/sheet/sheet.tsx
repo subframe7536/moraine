@@ -118,7 +118,7 @@ export namespace SheetT {
   /**
    * Props for the Sheet component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**

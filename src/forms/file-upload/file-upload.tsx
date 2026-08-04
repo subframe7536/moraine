@@ -216,7 +216,13 @@ export namespace FileUploadT {
   /**
    * Props for the FileUpload component.
    */
-  export type Props<T extends ValidComponent = 'div'> = BaseProps<T, Base<T>, Variant, Slot>
+  export type Props<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    Base<T>,
+    Variant,
+    Classes,
+    Styles
+  >
 }
 
 /**

@@ -31,6 +31,7 @@ export namespace KbdGroupT {
   export type Variant = KbdGroupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
   export type Item = KbdT.Key | KbdT.Base
   export interface DividerRenderProps {
     /** Zero-based divider index in the current collection. */
@@ -53,7 +54,7 @@ export namespace KbdGroupT {
   }
 
   /** Props for the KbdGroup component. */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /** Props for the KbdGroup component. */

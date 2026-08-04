@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
 import { Button } from '../../../../src/index.ts'
-import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../../../build/api-doc/types.ts'
+import type { ItemDoc, SlotDoc } from '../../../build/api-doc/types.ts'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types.ts'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents.ts'
 
@@ -42,7 +42,6 @@ export interface ExamplePageApiDoc {
   slots: SlotDoc[]
   props: ComponentPropsDoc
   item?: ItemDoc
-  attributes?: ComponentAttributeDoc
 }
 
 export interface DocsMdxCodeTabItem {

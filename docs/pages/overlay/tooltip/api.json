@@ -10,23 +10,57 @@
   "slots": [
     {
       "name": "content",
-      "description": "Tooltip bubble positioned next to its trigger."
+      "description": "Tooltip bubble positioned next to its trigger.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "trigger",
-      "description": "Element that receives hover or focus interactions for the tooltip."
+      "description": "Element that receives hover or focus interactions for the tooltip.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-describedby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References descriptive text associated with the control."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        }
+      ]
     },
     {
       "name": "text",
-      "description": "Primary text region inside the tooltip bubble."
+      "description": "Primary text region inside the tooltip bubble.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "kbds",
-      "description": "Container for shortcut hints displayed beside tooltip text."
+      "description": "Container for shortcut hints displayed beside tooltip text.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "kbd",
-      "description": "Individual keyboard key hint inside the tooltip."
+      "description": "Individual keyboard key hint inside the tooltip.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -40,7 +74,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -128,7 +162,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -143,376 +177,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-checked",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-controls",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the controlled element while the related content is mounted."
-      },
-      {
-        "name": "aria-describedby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References descriptive text associated with the control."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-expanded",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates whether the controlled content is expanded."
-      },
-      {
-        "name": "aria-haspopup",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "aria-labelledby",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the element that labels the control or region."
-      },
-      {
-        "name": "aria-modal",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Identifies modal content that traps interaction outside the dialog."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-expanded",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-highlighted",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is highlighted by pointer or keyboard navigation."
-      },
-      {
-        "name": "data-placement",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-positioned",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-selected",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is selected."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "chord",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "content",
-        "cssVariables": [
-          {
-            "name": "--mo-popper-content-transform-origin",
-            "required": false,
-            "type": "string",
-            "description": "CSS custom property exposed by this slot."
-          }
-        ],
-        "dataAttributes": [
-          {
-            "name": "data-placement",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-describedby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References descriptive text associated with the control."
-          },
-          {
-            "name": "aria-labelledby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the element that labels the control or region."
-          },
-          {
-            "name": "aria-modal",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Identifies modal content that traps interaction outside the dialog."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "divider",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "group",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "item",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-expanded",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          },
-          {
-            "name": "data-highlighted",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is highlighted by pointer or keyboard navigation."
-          },
-          {
-            "name": "data-selected",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is selected."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-checked",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-controls",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the controlled element while the related content is mounted."
-          },
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-expanded",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates whether the controlled content is expanded."
-          },
-          {
-            "name": "aria-haspopup",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "itemDescription",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemIndicator",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabel",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLeading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemTrailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemWrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "overlay",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "positioner",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-positioned",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          }
-        ],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "separator",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "sequenceDivider",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "text",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trigger",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-controls",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the controlled element while the related content is mounted."
-          },
-          {
-            "name": "aria-describedby",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References descriptive text associated with the control."
-          },
-          {
-            "name": "aria-expanded",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates whether the controlled content is expanded."
-          }
-        ]
-      }
-    ]
   }
 }

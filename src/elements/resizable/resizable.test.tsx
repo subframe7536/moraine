@@ -1176,7 +1176,7 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTargets = screen.container.querySelectorAll('[data-slot="cross-target"]')
+    const crossTargets = screen.container.querySelectorAll('[data-slot="crossTarget"]')
     expect(crossTargets.length).toBeGreaterThan(0)
     const hasEdgeTarget = Array.from(crossTargets).some(
       (target) =>
@@ -1218,7 +1218,7 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    expect(screen.container.querySelectorAll('[data-slot="cross-target"]')).toHaveLength(0)
+    expect(screen.container.querySelectorAll('[data-slot="crossTarget"]')).toHaveLength(0)
   })
 
   test('marks all affected handles as active when hovering a cross-target', async () => {
@@ -1252,7 +1252,7 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTarget = innerHandle.querySelector('[data-slot="cross-target"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
     expect(crossTarget).toBeTruthy()
     expect(outerHandle.getAttribute('data-active')).toBeNull()
     expect(innerHandle.getAttribute('data-active')).toBeNull()
@@ -1383,7 +1383,7 @@ describe('Resizable', () => {
     await Promise.resolve()
 
     document.body.style.userSelect = 'text'
-    const crossTarget = innerHandle.querySelector('[data-slot="cross-target"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
     await fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
     expect(document.body.style.userSelect).toBe('none')
 
@@ -1422,7 +1422,7 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTarget = innerHandle.querySelector('[data-slot="cross-target"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
 
     await fireEvent.mouseEnter(crossTarget)
     expect(innerHandle.getAttribute('data-cross')).toBe('')

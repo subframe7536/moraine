@@ -10,19 +10,50 @@
   "slots": [
     {
       "name": "root",
-      "description": "Input wrapper that positions icons, loading state, and the native input."
+      "description": "Input wrapper that positions icons, loading state, and the native input.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "input",
-      "description": "Native text input element."
+      "description": "Native text input element.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-readonly",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control value cannot be changed by the user."
+        },
+        {
+          "name": "aria-required",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that user input is required."
+        }
+      ]
     },
     {
       "name": "leading",
-      "description": "Icon or loading indicator rendered before the input value."
+      "description": "Icon or loading indicator rendered before the input value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "trailing",
-      "description": "Icon or loading indicator rendered after the input value."
+      "description": "Icon or loading indicator rendered after the input value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -57,7 +88,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -185,7 +216,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -218,86 +249,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-readonly",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control value cannot be changed by the user."
-      },
-      {
-        "name": "aria-required",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that user input is required."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "input",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-readonly",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control value cannot be changed by the user."
-          },
-          {
-            "name": "aria-required",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that user input is required."
-          }
-        ]
-      },
-      {
-        "name": "leading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

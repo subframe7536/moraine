@@ -19,7 +19,6 @@ import type {
   InheritedGroupDoc,
   ItemDoc,
   PropDoc,
-  SlotAttributeDoc,
   SlotDoc,
 } from './api-doc/types.ts'
 import { resolveDocsPageContext } from './core/paths.ts'
@@ -154,7 +153,7 @@ function renderAttributeTable(attributes: readonly ApiAttributeDoc[], nameColumn
   return renderTable(rows, [nameColumn, 'Type', 'Description'])
 }
 
-function renderSlotAttributes(slot: SlotAttributeDoc): string[] {
+function renderSlotAttributes(slot: SlotDoc): string[] {
   const output: string[] = []
   for (const [heading, attributes] of [
     ['CSS Variables', slot.cssVariables],
@@ -169,14 +168,12 @@ function renderSlotAttributes(slot: SlotAttributeDoc): string[] {
   return output
 }
 
-function renderSlot(slot: SlotDoc, attributes?: SlotAttributeDoc): string[] {
+function renderSlot(slot: SlotDoc): string[] {
   const output = [`#### \`${slot.name}\``, '']
   if (slot.description) {
     output.push(slot.description, '')
   }
-  if (attributes) {
-    output.push(...renderSlotAttributes(attributes))
-  }
+  output.push(...renderSlotAttributes(slot))
   return output
 }
 
@@ -195,15 +192,11 @@ function renderItem(item: ItemDoc): string[] {
 
 function renderApiReference(apiDoc: ComponentDoc): string {
   const output = ['## API Reference', '']
-  const attributes = apiDoc.attributes
-  const attributeBySlot = new Map(
-    (attributes?.slots ?? []).map((slot) => [slot.name, slot] as const),
-  )
 
   if (apiDoc.slots.length > 0) {
     output.push('### Attributes', '')
     for (const slot of apiDoc.slots) {
-      output.push(...renderSlot(slot, attributeBySlot.get(slot.name)))
+      output.push(...renderSlot(slot))
     }
   }
 
@@ -213,28 +206,6 @@ function renderApiReference(apiDoc: ComponentDoc): string {
 
   if (apiDoc.item) {
     output.push(...renderItem(apiDoc.item))
-  }
-
-  if (attributes?.aria.length) {
-    output.push(
-      '### ARIA',
-      '',
-      'Accessibility attributes and roles emitted by the component markup.',
-      '',
-      renderAttributeTable(attributes.aria),
-      '',
-    )
-  }
-
-  if (attributes?.data.length) {
-    output.push(
-      '### Data Attributes',
-      '',
-      'State and slot attributes exposed for styling hooks and selectors.',
-      '',
-      renderAttributeTable(attributes.data),
-      '',
-    )
   }
 
   if (apiDoc.props.inherited.length > 0) {

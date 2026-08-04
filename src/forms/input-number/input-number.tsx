@@ -163,7 +163,6 @@ export namespace InputNumberT {
   }
 
   export type Variant = InputNumberVariantProps
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -344,7 +343,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

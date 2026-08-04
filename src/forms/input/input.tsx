@@ -44,7 +44,6 @@ export namespace InputT {
   }
 
   export type Variant = InputVariantProps
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -159,7 +158,8 @@ export namespace InputT {
     'div',
     Base<M>,
     Variant,
-    Slot
+    Classes,
+    Styles
   >
 }
 

@@ -32,6 +32,9 @@ export interface ItemDoc {
 export interface SlotDoc {
   name: string
   description?: string
+  cssVariables: ApiAttributeDoc[]
+  dataAttributes: ApiAttributeDoc[]
+  ariaAttributes: ApiAttributeDoc[]
 }
 
 export interface ApiAttributeDoc {
@@ -41,17 +44,10 @@ export interface ApiAttributeDoc {
   description: string
 }
 
-export interface SlotAttributeDoc {
+export interface SlotDefinitionDoc {
   name: string
-  cssVariables: ApiAttributeDoc[]
-  dataAttributes: ApiAttributeDoc[]
-  ariaAttributes: ApiAttributeDoc[]
-}
-
-export interface ComponentAttributeDoc {
-  aria: ApiAttributeDoc[]
-  data: ApiAttributeDoc[]
-  slots: SlotAttributeDoc[]
+  description?: string
+  runtimeSlots: string[]
 }
 
 export interface ComponentDoc {
@@ -62,7 +58,6 @@ export interface ComponentDoc {
     inherited: InheritedGroupDoc[]
   }
   item?: ItemDoc
-  attributes?: ComponentAttributeDoc
 }
 
 export interface GenerationResult {

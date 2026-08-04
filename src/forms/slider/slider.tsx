@@ -46,7 +46,6 @@ export namespace SliderT {
   }
 
   export type Variant = SliderVariantProps
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -112,7 +111,7 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export type Props<TValue = Value> = BaseProps<'div', Base<TValue>, Variant, Slot>
+  export type Props<TValue = Value> = BaseProps<'div', Base<TValue>, Variant, Classes, Styles>
 }
 
 /**

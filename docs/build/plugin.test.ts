@@ -19,7 +19,9 @@ const TRANSFORM_CONTEXT = {
 
 const D_MTS_SAMPLE = `
 declare namespace ButtonT {
-  type Slot = 'root'
+  interface Slot {
+    root: 'root'
+  }
 }
 
 interface ButtonProps {

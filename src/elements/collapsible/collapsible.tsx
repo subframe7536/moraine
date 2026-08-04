@@ -143,7 +143,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -35,6 +35,7 @@ export namespace AvatarGroupT {
   export type Variant = AvatarGroupVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
   export type Item = AvatarT.Item
 
   /** Base props for the AvatarGroup component. */
@@ -50,7 +51,7 @@ export namespace AvatarGroupT {
   }
 
   /** Props for the AvatarGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /** Props for the AvatarGroup component. */

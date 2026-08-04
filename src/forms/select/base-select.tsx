@@ -259,7 +259,7 @@ export namespace BaseSelectT {
     closeOnSelect?: boolean
   }
 
-  export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Slot>
+  export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Classes, Styles>
 }
 
 export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {}

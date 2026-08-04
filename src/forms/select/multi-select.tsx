@@ -64,7 +64,6 @@ export namespace MultiSelectT {
     /** Counter shown when selected tags exceed the visible limit. */
     tagOverflow?: T
   }
-
   export interface OptionSlot<T = unknown> {
     /** Message shown when filtering leaves no selectable options. */
     empty?: T
@@ -193,7 +192,13 @@ export namespace MultiSelectT {
     closeIcon?: IconT.Name
   }
 
-  export type Props<TItem extends Value = Value> = BaseProps<'div', Base<TItem>, Variant, Slot>
+  export type Props<TItem extends Value = Value> = BaseProps<
+    'div',
+    Base<TItem>,
+    Variant,
+    Classes,
+    Styles
+  >
 }
 
 export interface MultiSelectProps<

@@ -147,7 +147,7 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -65,6 +65,7 @@ export namespace StepperT {
     /** Panel rendered for the active step content. */
     content?: T
   }
+
   export type Variant = StepperVariantProps
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -175,7 +176,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

@@ -41,7 +41,7 @@ export namespace ButtonGroupT {
   }
 
   /** Props for the ButtonGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Slot>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /** Props for the ButtonGroup component. */

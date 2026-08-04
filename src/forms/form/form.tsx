@@ -36,7 +36,8 @@ export namespace FormT {
     'form',
     Base<TSchema>,
     Variant,
-    Slot
+    Classes,
+    Styles
   >
 }
 
@@ -61,6 +62,7 @@ export function Form<TSchema extends FormSchema>(props: FormProps<TSchema>): JSX
         onSubmit={local.onSubmit ?? (() => {})}
         style={{ ...local.styles?.root, ...local.style }}
         class={cn('w-full data-submitting:opacity-80', local.classes?.root, local.class)}
+        data-slot="root"
         data-submitting={local.of.isSubmitting ? '' : undefined}
       />
     </FormProvider>

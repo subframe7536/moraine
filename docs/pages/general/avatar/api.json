@@ -10,23 +10,52 @@
   "slots": [
     {
       "name": "root",
-      "description": "Avatar frame that controls size, shape, image, fallback, and badge placement."
+      "description": "Avatar frame that controls size, shape, image, fallback, and badge placement.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-status",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores async loading, loaded, or error status."
+        }
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "image",
-      "description": "Loaded avatar image rendered inside the frame."
+      "description": "Loaded avatar image rendered inside the frame.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "fallback",
-      "description": "Text fallback shown while the image is unavailable or failed."
+      "description": "Text fallback shown while the image is unavailable or failed.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "fallbackIcon",
-      "description": "Icon fallback shown when no image or text fallback is available."
+      "description": "Icon fallback shown when no image or text fallback is available.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "badge",
-      "description": "Status or indicator badge anchored to the avatar frame."
+      "description": "Status or indicator badge anchored to the avatar frame.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "item": {
@@ -100,7 +129,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -139,7 +168,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -159,55 +188,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      },
-      {
-        "name": "data-status",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores async loading, loaded, or error status."
-      }
-    ],
-    "slots": [
-      {
-        "name": "badge",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "fallback",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "fallbackIcon",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "image",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

@@ -10,27 +10,83 @@
   "slots": [
     {
       "name": "root",
-      "description": "Progress container that owns track, indicator, labels, and step markers."
+      "description": "Progress container that owns track, indicator, labels, and step markers.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-valuemax",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the maximum value for range-like controls."
+        },
+        {
+          "name": "aria-valuemin",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the minimum value for range-like controls."
+        },
+        {
+          "name": "aria-valuenow",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the current numeric value for range-like controls."
+        },
+        {
+          "name": "aria-valuetext",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides human-readable text for the current value."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "status",
-      "description": "Text region that displays the current progress status."
+      "description": "Text region that displays the current progress status.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "track",
-      "description": "Background rail that represents the full progress range."
+      "description": "Background rail that represents the full progress range.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "indicator",
-      "description": "Filled bar that represents the current progress value."
+      "description": "Filled bar that represents the current progress value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "steps",
-      "description": "Wrapper for step labels when progress is driven by named steps."
+      "description": "Wrapper for step labels when progress is driven by named steps.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "step",
-      "description": "Individual step label or marker rendered along the progress scale."
+      "description": "Individual step label or marker rendered along the progress scale.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -43,7 +99,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -101,7 +157,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -117,129 +173,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-valuemax",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the maximum value for range-like controls."
-      },
-      {
-        "name": "aria-valuemin",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the minimum value for range-like controls."
-      },
-      {
-        "name": "aria-valuenow",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Defines the current numeric value for range-like controls."
-      },
-      {
-        "name": "aria-valuetext",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides human-readable text for the current value."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-orientation",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Stores the rendered orientation."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "indicator",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-orientation",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Stores the rendered orientation."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-valuemax",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the maximum value for range-like controls."
-          },
-          {
-            "name": "aria-valuemin",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the minimum value for range-like controls."
-          },
-          {
-            "name": "aria-valuenow",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Defines the current numeric value for range-like controls."
-          },
-          {
-            "name": "aria-valuetext",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Provides human-readable text for the current value."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "status",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "step",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "steps",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "track",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      }
-    ]
   }
 }

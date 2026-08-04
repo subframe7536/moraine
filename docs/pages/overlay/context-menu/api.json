@@ -10,63 +10,249 @@
   "slots": [
     {
       "name": "trigger",
-      "description": "Element users activate to open the menu."
+      "description": "Element users activate to open the menu.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-closed",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-expanded",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        },
+        {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        }
+      ]
     },
     {
       "name": "overlay",
-      "description": "Optional backdrop rendered behind modal menu content."
+      "description": "Optional backdrop rendered behind modal menu content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "content",
-      "description": "Positioned menu panel that contains groups, items, and submenus."
+      "description": "Positioned menu panel that contains groups, items, and submenus.",
+      "cssVariables": [
+        {
+          "name": "--mo-popper-content-transform-origin",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        }
+      ],
+      "dataAttributes": [
+        {
+          "name": "data-placement",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "group",
-      "description": "Section wrapper for related menu items."
+      "description": "Section wrapper for related menu items.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "label",
-      "description": "Heading text for a menu group."
+      "description": "Heading text for a menu group.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "separator",
-      "description": "Non-interactive divider between menu sections."
+      "description": "Non-interactive divider between menu sections.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "item",
-      "description": "Action row inside menu content, including checkbox and radio items."
+      "description": "Action row inside menu content, including checkbox and radio items.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-expanded",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-highlighted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is highlighted by pointer or keyboard navigation."
+        },
+        {
+          "name": "data-selected",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is selected."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-checked",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        },
+        {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "itemLeading",
-      "description": "Leading icon or visual shown for a menu item."
+      "description": "Leading icon or visual shown for a menu item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemWrapper",
-      "description": "Text column that groups menu item label and description."
+      "description": "Text column that groups menu item label and description.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemLabel",
-      "description": "Primary text for a menu item."
+      "description": "Primary text for a menu item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemDescription",
-      "description": "Supporting text for a menu item."
+      "description": "Supporting text for a menu item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemTrailing",
-      "description": "Trailing region for shortcuts, submenu arrows, or selection indicators."
+      "description": "Trailing region for shortcuts, submenu arrows, or selection indicators.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemKbds",
-      "description": "Container for keyboard shortcut hints at the end of a menu item."
+      "description": "Container for keyboard shortcut hints at the end of a menu item.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemIndicator",
-      "description": "Checked or selected-state indicator for checkbox and radio menu items."
+      "description": "Checked or selected-state indicator for checkbox and radio menu items.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "itemSub",
-      "description": "Indicator shown when a menu item opens a submenu."
+      "description": "Indicator shown when a menu item opens a submenu.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "item": {
@@ -195,7 +381,7 @@
       {
         "name": "class",
         "required": false,
-        "type": "ClassValue",
+        "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
       },
       {
@@ -344,7 +530,7 @@
       {
         "name": "style",
         "required": false,
-        "type": "JSX.CSSProperties | undefined"
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",
@@ -361,346 +547,5 @@
       }
     ],
     "inherited": []
-  },
-  "attributes": {
-    "aria": [
-      {
-        "name": "aria-checked",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-controls",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "References the controlled element while the related content is mounted."
-      },
-      {
-        "name": "aria-disabled",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates that the control is disabled."
-      },
-      {
-        "name": "aria-expanded",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Indicates whether the controlled content is expanded."
-      },
-      {
-        "name": "aria-haspopup",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Accessibility attribute forwarded by the rendered component."
-      },
-      {
-        "name": "aria-hidden",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Hides decorative content from assistive technology."
-      },
-      {
-        "name": "aria-label",
-        "required": false,
-        "type": "boolean | string | undefined",
-        "description": "Provides an accessible label when visible text is not sufficient."
-      },
-      {
-        "name": "role",
-        "required": false,
-        "type": "string",
-        "description": "Defines the semantic role exposed to assistive technology."
-      }
-    ],
-    "data": [
-      {
-        "name": "data-closed",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-disabled",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the component or item is disabled."
-      },
-      {
-        "name": "data-expanded",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-highlighted",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is highlighted by pointer or keyboard navigation."
-      },
-      {
-        "name": "data-placement",
-        "required": false,
-        "type": "string | undefined",
-        "description": "State or slot attribute exposed for styling hooks and selectors."
-      },
-      {
-        "name": "data-selected",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Present when the item is selected."
-      },
-      {
-        "name": "data-slot",
-        "required": false,
-        "type": "string",
-        "description": "Identifies the rendered slot for styling hooks and selectors."
-      }
-    ],
-    "slots": [
-      {
-        "name": "chord",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "content",
-        "cssVariables": [
-          {
-            "name": "--mo-popper-content-transform-origin",
-            "required": false,
-            "type": "string",
-            "description": "CSS custom property exposed by this slot."
-          }
-        ],
-        "dataAttributes": [
-          {
-            "name": "data-placement",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "divider",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "group",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "item",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-expanded",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          },
-          {
-            "name": "data-highlighted",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is highlighted by pointer or keyboard navigation."
-          },
-          {
-            "name": "data-selected",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the item is selected."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-checked",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "aria-controls",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the controlled element while the related content is mounted."
-          },
-          {
-            "name": "aria-disabled",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates that the control is disabled."
-          },
-          {
-            "name": "aria-expanded",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates whether the controlled content is expanded."
-          },
-          {
-            "name": "aria-haspopup",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          },
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "itemDescription",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemIndicator",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLabel",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemLeading",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemTrailing",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "itemWrapper",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "label",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "overlay",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "positioner",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "root",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "separator",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": [
-          {
-            "name": "role",
-            "required": false,
-            "type": "string",
-            "description": "Defines the semantic role exposed to assistive technology."
-          }
-        ]
-      },
-      {
-        "name": "sequenceDivider",
-        "cssVariables": [],
-        "dataAttributes": [],
-        "ariaAttributes": []
-      },
-      {
-        "name": "trigger",
-        "cssVariables": [],
-        "dataAttributes": [
-          {
-            "name": "data-closed",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          },
-          {
-            "name": "data-disabled",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Present when the component or item is disabled."
-          },
-          {
-            "name": "data-expanded",
-            "required": false,
-            "type": "string | undefined",
-            "description": "State or slot attribute exposed for styling hooks and selectors."
-          }
-        ],
-        "ariaAttributes": [
-          {
-            "name": "aria-controls",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "References the controlled element while the related content is mounted."
-          },
-          {
-            "name": "aria-expanded",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Indicates whether the controlled content is expanded."
-          },
-          {
-            "name": "aria-haspopup",
-            "required": false,
-            "type": "boolean | string | undefined",
-            "description": "Accessibility attribute forwarded by the rendered component."
-          }
-        ]
-      }
-    ]
   }
 }

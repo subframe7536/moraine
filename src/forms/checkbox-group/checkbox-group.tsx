@@ -143,7 +143,8 @@ export namespace CheckboxGroupT {
     'div',
     Base<TTrue, TFalse>,
     Variant,
-    Slot
+    Classes,
+    Styles
   >
 }
 

@@ -55,7 +55,7 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Slot>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
