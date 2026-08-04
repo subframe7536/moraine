@@ -1,31 +1,31 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal } from 'solid-js'
 
-import { Badge } from '../../elements/badge'
-import type { BadgeProps } from '../../elements/badge'
-import { Icon } from '../../elements/icon'
-import type { IconT } from '../../elements/icon'
-import { IconButtonInner } from '../../elements/icon/icon-button-inner'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { cn } from '../../shared/utils'
+import { Badge } from '../../elements/badge/index.ts'
+import type { BadgeProps } from '../../elements/badge/index.ts'
+import { IconButtonInner } from '../../elements/icon/icon-button-inner.tsx'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { cn } from '../../shared/utils.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import { BaseSelect } from './base-select'
-import type { BaseSelectT } from './base-select'
-import type { SelectControlVariantProps } from './select.class'
+import { BaseSelect } from './base-select.tsx'
+import type { BaseSelectT } from './base-select.tsx'
+import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
   selectLeadingIconVariants,
-} from './select.class'
+} from './select.class.ts'
 import {
   createEmptyRenderer,
   emitSelectValueChange,
@@ -33,8 +33,8 @@ import {
   mapNormalizedListToRawValues,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
-} from './shared'
-import type { NormalizedOption } from './shared'
+} from './shared/index.ts'
+import type { NormalizedOption } from './shared/index.ts'
 
 export namespace MultiSelectT {
   export type Value = string | number

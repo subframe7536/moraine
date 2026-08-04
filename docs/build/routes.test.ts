@@ -6,8 +6,8 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import type { DocsPageContext } from './core/paths'
-import { createDocsRouteInfo, docsRoutePath, scanDocsRoutes } from './routes'
+import type { DocsPageContext } from './core/paths.ts'
+import { createDocsRouteInfo, docsRoutePath, scanDocsRoutes } from './routes.ts'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))

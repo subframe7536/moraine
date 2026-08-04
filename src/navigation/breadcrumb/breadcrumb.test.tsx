@@ -2,8 +2,8 @@ import { A, Route, Router } from '@solidjs/router'
 import { render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Breadcrumb } from './breadcrumb'
-import type { BreadcrumbT } from './breadcrumb'
+import { Breadcrumb } from './breadcrumb.tsx'
+import type { BreadcrumbT } from './breadcrumb.tsx'
 
 describe('Breadcrumb', () => {
   test('uses default root aria-label', () => {

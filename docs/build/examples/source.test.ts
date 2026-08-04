@@ -1,9 +1,9 @@
 import { parse } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
-import { EXAMPLE_PARSE_OPTIONS } from './ast'
-import { transformExampleModule } from './module'
-import { resolveExampleComponentSource, transformExampleSourceModule } from './source'
+import { EXAMPLE_PARSE_OPTIONS } from './ast.ts'
+import { transformExampleModule } from './module.ts'
+import { resolveExampleComponentSource, transformExampleSourceModule } from './source.ts'
 
 async function parseExampleCode(code: string) {
   return (await parse('example.tsx', code, EXAMPLE_PARSE_OPTIONS)).program

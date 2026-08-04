@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url'
 import { defineMdastPlugin } from 'satteri'
 import type { MdastNode } from 'satteri'
 
-import { resolveDocsPageContext, toImportPath } from '../core/paths'
+import { resolveDocsPageContext, toImportPath } from '../core/paths.ts'
 
-import { asObjectRecord, getStaticStringAttribute } from './mdx'
+import { asObjectRecord, getStaticStringAttribute } from './mdx.ts'
 
 export interface ScannedMdxExample {
   path: string

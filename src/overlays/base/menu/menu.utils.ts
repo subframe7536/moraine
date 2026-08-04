@@ -3,11 +3,11 @@ import type { Middleware, Placement, ReferenceElement, VirtualElement } from '@f
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
-import { useEventListenerMap } from '../../../shared/use-event-listener'
-import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation'
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack'
-import type { OverlayStackEntry } from '../overlay-stack'
-import { focusWithoutScrolling, getTransformOrigin, resolveDirection } from '../utils'
+import { useEventListenerMap } from '../../../shared/use-event-listener.ts'
+import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation.ts'
+import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack.ts'
+import type { OverlayStackEntry } from '../overlay-stack.ts'
+import { focusWithoutScrolling, getTransformOrigin, resolveDirection } from '../utils.ts'
 
 export function getOverlayMenuTextValue(item: {
   label?: JSX.Element

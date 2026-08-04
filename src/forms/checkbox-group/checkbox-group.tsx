@@ -1,26 +1,26 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, onMount, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useEventListener } from '../../shared/use-event-listener'
-import { cn, useId } from '../../shared/utils'
-import { Checkbox } from '../checkbox'
-import type { CheckboxProps } from '../checkbox/checkbox'
-import { useFormField } from '../form-field/form-field-context'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useEventListener } from '../../shared/use-event-listener.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import type { CheckboxProps } from '../checkbox/checkbox.tsx'
+import { Checkbox } from '../checkbox/index.ts'
+import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import type { CheckboxGroupVariantProps } from './checkbox-group.class'
+import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
 import {
   checkboxGroupFieldsetVariants,
   checkboxGroupItemVariants,
   checkboxGroupLegendVariants,
-} from './checkbox-group.class'
+} from './checkbox-group.class.ts'
 
 export namespace CheckboxGroupT {
   export interface Slot<T = unknown> {

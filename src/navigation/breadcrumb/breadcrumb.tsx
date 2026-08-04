@@ -1,16 +1,16 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button'
-import { Icon } from '../../elements/icon'
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { Button } from '../../elements/button/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import { breadcrumbListVariants } from './breadcrumb.class'
-import type { BreadcrumbVariantProps } from './breadcrumb.class'
+import { breadcrumbListVariants } from './breadcrumb.class.ts'
+import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
 
 export namespace BreadcrumbT {
   /**

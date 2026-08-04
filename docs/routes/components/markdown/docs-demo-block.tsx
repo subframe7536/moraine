@@ -2,7 +2,7 @@ import type { Component } from 'solid-js'
 import { Show, createSignal, onMount } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { DocsCodeBlock } from './docs-code-block'
+import { DocsCodeBlock } from './docs-code-block.tsx'
 
 const DOCS_DEMO_BLOCK_CLASS =
   'mb-6 mt-4 border border-border rounded-lg bg-background overflow-hidden'

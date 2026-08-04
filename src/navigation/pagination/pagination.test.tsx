@@ -2,7 +2,7 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Pagination } from './pagination'
+import { Pagination } from './pagination.tsx'
 
 describe('Pagination', () => {
   test('renders semantic root attributes by default', () => {

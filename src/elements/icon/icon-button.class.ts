@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const iconButtonVariants = cva(
   'inline-flex cursor-pointer select-none items-center justify-center',

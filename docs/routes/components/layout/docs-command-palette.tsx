@@ -1,10 +1,10 @@
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
-import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
-import type { CommandPaletteT } from '../../../../src'
+import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src/index.ts'
+import type { CommandPaletteT } from '../../../../src/index.ts'
 
-import type { SidebarPage } from './sidebar'
+import type { SidebarPage } from './sidebar.tsx'
 
 export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
 

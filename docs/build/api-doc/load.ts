@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
+import { collectMarkdownFiles, resolveDocsPageContext } from '../core/paths.ts'
 
-import type { ComponentDoc, IndexDoc } from './types'
+import type { ComponentDoc, IndexDoc } from './types.ts'
 
 const apiDocIndexCache = new Map<string, IndexDoc | null>()
 

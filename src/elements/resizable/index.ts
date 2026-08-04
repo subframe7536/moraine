@@ -1,1 +1,1 @@
-export * from './resizable'
+export * from './resizable.tsx'

@@ -5,20 +5,20 @@ import { Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import { useFormContext } from '../form/form-context'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { useFormContext } from '../form/form-context.ts'
 
-import type { FormFieldContextOptions } from './form-field-context'
-import { FormFieldProvider } from './form-field-context'
-import type { FormFieldVariantProps } from './form-field.class'
+import type { FormFieldContextOptions } from './form-field-context.ts'
+import { FormFieldProvider } from './form-field-context.ts'
+import type { FormFieldVariantProps } from './form-field.class.ts'
 import {
   formFieldContainerVariants,
   formFieldLabelVariants,
   formFieldSizeVariants,
-} from './form-field.class'
+} from './form-field.class.ts'
 
 export namespace FormFieldT {
   type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]

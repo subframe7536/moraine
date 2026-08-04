@@ -2,17 +2,17 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useLoadingAutoClick } from '../../shared/use-loading-auto'
-import { callHandler, cn } from '../../shared/utils'
-import { Icon } from '../icon'
-import type { IconT } from '../icon'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
+import { callHandler, cn } from '../../shared/utils.ts'
+import { Icon } from '../icon/index.ts'
+import type { IconT } from '../icon/index.ts'
 
-import { ButtonGroupContext } from './button-group-context'
-import type { ButtonVariantProps } from './button.class'
-import { buttonVariants } from './button.class'
+import { ButtonGroupContext } from './button-group-context.ts'
+import type { ButtonVariantProps } from './button.class.ts'
+import { buttonVariants } from './button.class.ts'
 
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 
@@ -192,7 +192,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
 
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
-  const isTrailingLoading = createMemo(() => isLoading() && !(leading() && trailing()))
+  const isTrailingLoading = createMemo(() => isLoading() && (!leading() || !trailing()))
 
   const resolvedLeading = createMemo(() => {
     if (!isLoading()) {

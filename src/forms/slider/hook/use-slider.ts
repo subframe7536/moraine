@@ -1,7 +1,7 @@
 import type { JSX, Setter } from 'solid-js'
 import { createEffect, createMemo, createSignal, onMount } from 'solid-js'
 
-import type { SliderVariantProps } from '../slider.class'
+import type { SliderVariantProps } from '../slider.class.ts'
 import {
   clamp,
   getClosestValueIndex,
@@ -12,8 +12,8 @@ import {
   normalizeSliderValues,
   resolveSliderEdges,
   snapValueToStep,
-} from '../utils'
-import type { SliderValue } from '../utils'
+} from '../utils.ts'
+import type { SliderValue } from '../utils.ts'
 
 type UseSliderProps<TValue extends SliderValue> = {
   allowThumbCrossing: boolean

@@ -3,8 +3,8 @@ import type { JSX } from 'solid-js'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Card } from './card'
-import type { CardProps } from './card'
+import { Card } from './card.tsx'
+import type { CardProps } from './card.tsx'
 
 describe('Card', () => {
   test('renders root with default outline variant classes', () => {

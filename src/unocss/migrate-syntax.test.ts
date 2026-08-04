@@ -1,7 +1,7 @@
 import MagicString from 'magic-string'
 import { describe, expect, test } from 'vitest'
 
-import { createMigrateSyntaxTransformer, normalizeClassList } from './migrate-syntax'
+import { createMigrateSyntaxTransformer, normalizeClassList } from './migrate-syntax.ts'
 
 type MigrateTransformer = ReturnType<typeof createMigrateSyntaxTransformer>
 type TransformContext = Parameters<MigrateTransformer['transform']>[2]

@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
-import type { ModalContentContext, ModalRootProps } from '../base/modal'
+import { Icon } from '../../elements/icon/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
+import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
 
-import { sheetContentVariants } from './sheet.class'
-import type { SheetVariantProps } from './sheet.class'
+import { sheetContentVariants } from './sheet.class.ts'
+import type { SheetVariantProps } from './sheet.class.ts'
 
 export namespace SheetT {
   export interface Slot<T = unknown> {

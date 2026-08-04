@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const separatorRootVariants = cva('text-border text-center flex items-center', {
   defaultVariants: {

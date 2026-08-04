@@ -7,8 +7,8 @@ import {
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
   REQUIRED_MARK_VARIANT,
   TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class'
-import { cva } from '../../shared/utils'
+} from '../../shared/cva-common.class.ts'
+import { cva } from '../../shared/utils.ts'
 
 export const checkboxRootVariants = cva('flex items-start relative', {
   defaultVariants: {

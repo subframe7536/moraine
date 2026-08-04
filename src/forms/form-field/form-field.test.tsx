@@ -3,11 +3,11 @@ import { createComponent } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
-import { createForm, Form } from '../form'
-import { Input } from '../input'
+import { createForm, Form } from '../form/index.ts'
+import { Input } from '../input/index.ts'
 
-import { FormField } from './form-field'
-import type { FormFieldProps } from './form-field'
+import { FormField } from './form-field.tsx'
+import type { FormFieldProps } from './form-field.tsx'
 
 const TypedFormSchema = v.object({
   email: v.string(),

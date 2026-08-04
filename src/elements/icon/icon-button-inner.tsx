@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
-import { Icon } from './icon'
-import type { IconT } from './icon'
-import { iconButtonVariants, iconVariants } from './icon-button.class'
-import type { IconButtonVariantProps } from './icon-button.class'
+import { iconButtonVariants, iconVariants } from './icon-button.class.ts'
+import type { IconButtonVariantProps } from './icon-button.class.ts'
+import { Icon } from './icon.tsx'
+import type { IconT } from './icon.tsx'
 
 export namespace IconButtonInnerT {
   export interface Slot<T = unknown> {

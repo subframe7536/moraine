@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const kbdRootVariants = cva(
   'leading-none font-medium font-mono rounded inline-flex select-none uppercase items-center justify-center',

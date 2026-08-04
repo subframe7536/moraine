@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url'
 import { defineMdastPlugin } from 'satteri'
 import type { MdastNode } from 'satteri'
 
-import { renderDocsCodeHtml } from '../core/expressive-code'
+import { renderDocsCodeHtml } from '../core/expressive-code.ts'
 
-import { asObjectRecord, getStaticStringAttribute } from './mdx'
+import { asObjectRecord, getStaticStringAttribute } from './mdx.ts'
 
 interface CodeTabItemLiteral {
   label: string

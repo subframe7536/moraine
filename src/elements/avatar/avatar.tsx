@@ -9,18 +9,18 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type { IconT } from '../icon'
-import { Icon } from '../icon'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../icon/index.ts'
+import { Icon } from '../icon/index.ts'
 
-import type { AvatarVariantProps } from './avatar.class'
+import type { AvatarVariantProps } from './avatar.class.ts'
 import {
   avatarBadgeVariants,
   avatarFallbackIconVariants,
   avatarFallbackVariants,
   avatarImageVariants,
   avatarRootVariants,
-} from './avatar.class'
+} from './avatar.class.ts'
 
 export type AvatarStatus = 'idle' | 'loading' | 'loaded' | 'error'
 

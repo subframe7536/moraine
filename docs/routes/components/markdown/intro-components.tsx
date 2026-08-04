@@ -1,7 +1,7 @@
 import { For, createMemo } from 'solid-js'
 import apiIndex from 'virtual:api-doc'
 
-import { Badge } from '../../../../src'
+import { Badge } from '../../../../src/index.ts'
 
 export const IntroComponents = () => {
   const groupedComponents = createMemo(() => {

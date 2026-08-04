@@ -1,5 +1,5 @@
-import { Button } from '@src/elements/button/button'
-import type { ButtonT } from '@src/elements/button/button'
+import { Button } from '@src/elements/button/button.tsx'
+import type { ButtonT } from '@src/elements/button/button.tsx'
 import { For } from 'solid-js'
 
 export function Sizes() {

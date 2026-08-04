@@ -1,35 +1,35 @@
 import type { Component, JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options'
+} from '../form-field/form-options.ts'
 
-import { BaseSelect } from './base-select'
-import type { BaseSelectT } from './base-select'
-import type { SelectControlVariantProps } from './select.class'
+import { BaseSelect } from './base-select.tsx'
+import type { BaseSelectT } from './base-select.tsx'
+import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
   selectLeadingIconVariants,
   selectTriggerIconVariants,
-} from './select.class'
+} from './select.class.ts'
 import {
   createEmptyRenderer,
   findNormalizedOptionByValue,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
-} from './shared'
-import type { NormalizedOption } from './shared'
+} from './shared/index.ts'
+import type { NormalizedOption } from './shared/index.ts'
 
 export namespace SelectT {
   export type Value = string | number

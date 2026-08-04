@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { INPUT_VARIANT } from '../../shared/cva-common.class'
-import { cva } from '../../shared/utils'
+import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
+import { cva } from '../../shared/utils.ts'
 
 export const selectControlVariants = cva(
   'text-foreground outline-none rounded-md flex w-full transition items-center data-invalid:effect-invalid data-disabled:effect-dis',

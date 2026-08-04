@@ -1,6 +1,6 @@
 import type { SourceCodeTransformer } from '@subf/unocss'
 
-import { isInVSCode, normalizeId, runTransform } from './shared'
+import { isInVSCode, normalizeId, runTransform } from './shared.ts'
 
 const blockList = new Set(['peer', 'group'])
 

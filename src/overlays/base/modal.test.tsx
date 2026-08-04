@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { ModalContent, ModalRoot, ModalTrigger } from './modal'
+import { ModalContent, ModalRoot, ModalTrigger } from './modal.tsx'
 
 describe('Modal primitives', () => {
   test('does not instantiate closed content and mounts it once after opening', async () => {

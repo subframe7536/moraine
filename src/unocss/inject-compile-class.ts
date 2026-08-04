@@ -1,6 +1,6 @@
 import type { SourceCodeTransformer } from '@subf/unocss'
 
-import { isInVSCode, normalizeId, runTransform } from './shared'
+import { isInVSCode, normalizeId, runTransform } from './shared.ts'
 
 export function injectCompileClassTrigger(value: string, trigger: string): string {
   const trimmed = value.trim()

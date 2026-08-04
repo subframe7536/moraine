@@ -2,12 +2,12 @@ import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
-import { injectCompileClassTrigger, transformerInjectCompileClass } from './inject-compile-class'
+import { injectCompileClassTrigger, transformerInjectCompileClass } from './inject-compile-class.ts'
 
 const TEST_TRIGGER = ':uno-test:'
 
-vi.mock('./shared', async () => {
-  const actual = await vi.importActual('./shared')
+vi.mock('./shared.ts', async () => {
+  const actual = await vi.importActual('./shared.ts')
   return {
     ...actual,
     isInVSCode: () => false,

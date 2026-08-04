@@ -1,2 +1,2 @@
-export * from './kbd'
-export * from './kbd-group'
+export * from './kbd.tsx'
+export * from './kbd-group.tsx'

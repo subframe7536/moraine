@@ -6,8 +6,8 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { buildLlmsDocuments, buildLlmsTxt } from './llms'
-import { scanDocsRoutes } from './routes'
+import { buildLlmsDocuments, buildLlmsTxt } from './llms.ts'
+import { scanDocsRoutes } from './routes.ts'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-llms-'))

@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
-import { Button } from '../../../../src'
-import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../../../build/api-doc/types'
-import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
-import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
+import { Button } from '../../../../src/index.ts'
+import type { ComponentAttributeDoc, ItemDoc, SlotDoc } from '../../../build/api-doc/types.ts'
+import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types.ts'
+import type { OnThisPageEntry } from '../../hooks/use-table-of-contents.ts'
 
-import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference'
-import { DocsPageNavigation } from './docs-page-navigation'
-import { OnThisPage } from './on-this-page'
+import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference.tsx'
+import { DocsPageNavigation } from './docs-page-navigation.tsx'
+import { OnThisPage } from './on-this-page.tsx'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 

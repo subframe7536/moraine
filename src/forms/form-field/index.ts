@@ -1,2 +1,2 @@
-export * from './form-field'
-export * from './form-options'
+export * from './form-field.tsx'
+export * from './form-options.ts'

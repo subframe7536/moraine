@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal'
-import type { ModalContentContext, ModalRootProps } from '../base/modal'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
+import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
+import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
 
-import { popupContentVariants, popupOverlayVariants } from './popup.class'
-import type { PopupVariantProps } from './popup.class'
+import { popupContentVariants, popupOverlayVariants } from './popup.class.ts'
+import type { PopupVariantProps } from './popup.class.ts'
 
 export namespace PopupT {
   export interface Slot<T = unknown> {

@@ -1,15 +1,15 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, cn } from '../../shared/utils'
-import { Icon } from '../icon'
-import type { IconT } from '../icon'
-import { IconButtonInner } from '../icon/icon-button-inner'
-import type { IconButtonInnerProps } from '../icon/icon-button-inner'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, cn } from '../../shared/utils.ts'
+import { IconButtonInner } from '../icon/icon-button-inner.tsx'
+import type { IconButtonInnerProps } from '../icon/icon-button-inner.tsx'
+import { Icon } from '../icon/index.ts'
+import type { IconT } from '../icon/index.ts'
 
-import type { BadgeVariantProps } from './badge.class'
-import { badgeVariants } from './badge.class'
+import type { BadgeVariantProps } from './badge.class.ts'
+import { badgeVariants } from './badge.class.ts'
 
 export namespace BadgeT {
   export interface TrailingButtonProps extends Omit<

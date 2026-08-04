@@ -1,2 +1,2 @@
-export * from './types'
-export * from './behavior'
+export * from './types.ts'
+export * from './behavior.tsx'

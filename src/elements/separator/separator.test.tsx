@@ -1,9 +1,9 @@
 import { render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { Separator as ExportedSeparator } from '../../index'
+import { Separator as ExportedSeparator } from '../../index.ts'
 
-import { Separator } from './separator'
+import { Separator } from './separator.tsx'
 
 describe('Separator', () => {
   test('renders default root semantics and horizontal orientation', () => {

@@ -9,12 +9,12 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { OverlayMenu } from '../base/menu'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useEventListener } from '../../shared/use-event-listener.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
@@ -22,7 +22,7 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu'
+} from '../base/menu/index.ts'
 
 export namespace ContextMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}

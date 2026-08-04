@@ -2,12 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button'
-import { FormField } from '../form-field'
-import { Input } from '../input'
-import { Switch } from '../switch'
+import { Button } from '../../elements/button/index.ts'
+import { FormField } from '../form-field/index.ts'
+import { Input } from '../input/index.ts'
+import { Switch } from '../switch/index.ts'
 
-import { createForm, Form } from './index'
+import { createForm, Form } from './index.ts'
 
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),

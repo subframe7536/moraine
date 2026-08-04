@@ -1,8 +1,8 @@
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
 
-import { generateApiDoc } from '../api-doc/extract'
-import { writeJsonFiles } from '../api-doc/write'
+import { generateApiDoc } from '../api-doc/extract.ts'
+import { writeJsonFiles } from '../api-doc/write.ts'
 
 async function statSafe(filePath: string) {
   try {

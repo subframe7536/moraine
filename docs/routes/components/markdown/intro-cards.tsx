@@ -1,4 +1,4 @@
-import { Card, Icon } from '../../../../src'
+import { Card, Icon } from '../../../../src/index.ts'
 
 export const IntroCards = () => {
   return (

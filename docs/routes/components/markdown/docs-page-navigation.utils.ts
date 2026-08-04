@@ -1,4 +1,4 @@
-import type { DocsPageEntry } from '../../docs-route'
+import type { DocsPageEntry } from '../../docs-route.ts'
 
 export interface AdjacentDocsPages {
   previous?: DocsPageEntry

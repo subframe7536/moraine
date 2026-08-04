@@ -2,14 +2,14 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps } from '../../shared/types'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps } from '../../shared/types.ts'
 import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
-} from '../../shared/use-list-virtualizer'
-import { cn } from '../../shared/utils'
+} from '../../shared/use-list-virtualizer.tsx'
+import { cn } from '../../shared/utils.ts'
 
 export namespace ListT {
   export type Variant = never

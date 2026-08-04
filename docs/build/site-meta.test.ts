@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { buildSiteMetaTags, siteMetaPlugin } from './site-meta'
+import { buildSiteMetaTags, siteMetaPlugin } from './site-meta.ts'
 
 const SITE_META = {
   siteName: 'Moraine',

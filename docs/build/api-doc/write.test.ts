@@ -5,8 +5,8 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import type { GenerationResult } from './types'
-import { writeJsonFiles } from './write'
+import type { GenerationResult } from './types.ts'
+import { writeJsonFiles } from './write.ts'
 
 describe('writeJsonFiles', () => {
   test('writes colocated index/api files and removes stale page api files', async () => {

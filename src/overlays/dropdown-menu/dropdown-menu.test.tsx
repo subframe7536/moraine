@@ -1,8 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { DropdownMenu } from './dropdown-menu'
-import type { DropdownMenuProps } from './dropdown-menu'
+import { DropdownMenu } from './dropdown-menu.tsx'
+import type { DropdownMenuProps } from './dropdown-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
   const contents = Array.from(

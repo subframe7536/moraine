@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { extractSourceAttributeReference } from './attributes'
+import { extractSourceAttributeReference } from './attributes.ts'
 
 describe('extractSourceAttributeReference', () => {
   test('collects JSX attributes, slot metadata, CSS variables, and local component imports', async () => {

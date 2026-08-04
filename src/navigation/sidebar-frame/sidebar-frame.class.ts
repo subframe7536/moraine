@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const sidebarFrameDesktopLayoutVariants = cva('flex h-full min-h-0', {
   variants: {

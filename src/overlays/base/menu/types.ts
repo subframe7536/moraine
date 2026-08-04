@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../../elements/icon'
-import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
+import type { IconT } from '../../../elements/icon/index.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 
-import type { OverlayMenuItemVariantProps } from './menu.class'
+import type { OverlayMenuItemVariantProps } from './menu.class.ts'
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
 

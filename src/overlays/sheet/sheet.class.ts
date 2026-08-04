@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const sheetContentVariants = cva(
   'text-sm outline-none bg-background flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg transition duration-200 ease-in-out fixed z-50 bg-clip-padding data-closed:animate-sheet-out data-expanded:animate-sheet-in',

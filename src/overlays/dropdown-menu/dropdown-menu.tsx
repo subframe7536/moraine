@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { OverlayMenu } from '../base/menu'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
@@ -15,7 +15,7 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu'
+} from '../base/menu/index.ts'
 
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}

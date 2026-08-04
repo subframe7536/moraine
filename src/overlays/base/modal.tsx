@@ -2,16 +2,16 @@ import type { Accessor, JSX } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createContextProvider } from '../../shared/create-context-provider'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useEventListenerMap } from '../../shared/use-event-listener'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useEventListenerMap } from '../../shared/use-event-listener.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack'
-import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils'
+import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils.ts'
 
 export interface ModalContentContext {
   close: () => void

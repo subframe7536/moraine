@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base'
-import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
+import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
 
-import { popoverContentVariants } from './popover.class'
-import type { PopoverContentVariantProps } from './popover.class'
+import { popoverContentVariants } from './popover.class.ts'
+import type { PopoverContentVariantProps } from './popover.class.ts'
 
 type PopoverMode = 'click' | 'hover'
 

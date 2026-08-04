@@ -2,15 +2,15 @@ import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component } from 'solid-js'
 import { createResource, Show } from 'solid-js'
 
-import { Tabs } from '../../../../src'
+import { Tabs } from '../../../../src/index.ts'
 
-import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block'
-import { DocsDemoBlock } from './docs-demo-block'
-import { IntroCards } from './intro-cards'
-import { IntroComponents } from './intro-components'
-import { Markdown } from './markdown'
-import type { DocsMdxCodeTabItem } from './markdown'
-import { ToastHosts } from './toast-hosts'
+import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
+import { DocsDemoBlock } from './docs-demo-block.tsx'
+import { IntroCards } from './intro-cards.tsx'
+import { IntroComponents } from './intro-components.tsx'
+import { Markdown } from './markdown.tsx'
+import type { DocsMdxCodeTabItem } from './markdown.tsx'
+import { ToastHosts } from './toast-hosts.tsx'
 
 const DOCS_INSTALL_TABS_ROOT_CLASS =
   'my-3 gap-0 border border-border rounded-lg bg-card overflow-hidden'

@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MultiSelect } from './multi-select'
-import type { MultiSelectProps, MultiSelectT } from './multi-select'
+import { MultiSelect } from './multi-select.tsx'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },

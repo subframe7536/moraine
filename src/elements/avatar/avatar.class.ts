@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils'
+import { cva } from '../../shared/utils.ts'
 
 export const avatarRootVariants = cva(
   'text-muted-foreground surface-border rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible',

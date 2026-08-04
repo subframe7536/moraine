@@ -1,15 +1,15 @@
 import { Show, createSignal } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import { Icon } from '../../../elements/icon'
-import type { ComponentOrElement } from '../../../shared/render-prop'
-import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { SlotClasses, SlotStyles } from '../../../shared/types'
-import { cn, useId } from '../../../shared/utils'
-import { useFormField } from '../../form-field/form-field-context'
-import type { FormFieldSize, UseFormFieldReturn } from '../../form-field/form-field-context'
+import { Icon } from '../../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../../shared/render-prop.ts'
+import type { SlotClasses, SlotStyles } from '../../../shared/types.ts'
+import { cn, useId } from '../../../shared/utils.ts'
+import { useFormField } from '../../form-field/form-field-context.ts'
+import type { FormFieldSize, UseFormFieldReturn } from '../../form-field/form-field-context.ts'
 
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types'
+import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types.ts'
 
 interface UseSelectFieldProps {
   id?: string
@@ -22,7 +22,7 @@ interface UseSelectFieldProps {
 interface RenderDefaultSelectOptionOptions<TItem> {
   option:
     | (TItem & {
-        icon?: import('../../../elements/icon').IconT.Name
+        icon?: import('../../../elements/icon/index.ts').IconT.Name
         label?: string | JSX.Element
         description?: string | JSX.Element
         isSelected: boolean

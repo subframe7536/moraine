@@ -1,6 +1,6 @@
-import { attachEventListenerMap } from '../../../shared/use-event-listener'
+import { attachEventListenerMap } from '../../../shared/use-event-listener.ts'
 
-import type { ResizableOrientation } from './types'
+import type { ResizableOrientation } from './types.ts'
 
 export const RESIZABLE_HANDLE_TARGET_HANDLE = 0 as const
 export const RESIZABLE_HANDLE_TARGET_START = 1 as const
@@ -428,10 +428,12 @@ function forEachBucketCandidate(
 
 function isCrossAxisOverlapping(primary: HandleSnapshot, secondary: HandleSnapshot): boolean {
   if (isHorizontalOrientation(primary.orientation)) {
-    return !(primary.rect.left > secondary.rect.right || primary.rect.right < secondary.rect.left)
+    return (
+      !(primary.rect.left > secondary.rect.right) && !(primary.rect.right < secondary.rect.left)
+    )
   }
 
-  return !(primary.rect.top > secondary.rect.bottom || primary.rect.bottom < secondary.rect.top)
+  return !(primary.rect.top > secondary.rect.bottom) && !(primary.rect.bottom < secondary.rect.top)
 }
 
 function setIntersection(
