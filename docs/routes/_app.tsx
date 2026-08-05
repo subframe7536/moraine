@@ -4,9 +4,8 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import { Button, Progress, SidebarFrame } from '../../src/index.ts'
+import { Button, Icon, Progress, SidebarFrame, Switch, cn } from '../../src/index.ts'
 
-import { ContentHeader } from './components/layout/content-header.tsx'
 import { DocsCommandPalette } from './components/layout/docs-command-palette.tsx'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar.tsx'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components.tsx'
@@ -113,8 +112,14 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         )}
         mainRender={(ctx) => (
           <>
-            <ContentHeader
-              leading={
+            <header
+              data-scrolled={ctx.scrolled() ? '' : undefined}
+              class={cn(
+                'px-4 b-(b transparent) bg-transparent flex h-13 transition-([border-color,box-shadow,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-10 backdrop-blur-md sm:px-8',
+                'data-scrolled:(border-border/80 bg-background/90 shadow-xs)',
+              )}
+            >
+              <div class="flex gap-1 min-w-0 items-center">
                 <Show when={ctx.isMobile()}>
                   <Button
                     variant="ghost"
@@ -124,12 +129,18 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                     onClick={ctx.toggle}
                   />
                 </Show>
-              }
-              pageTitle={pageTitle}
-              scrolled={ctx.scrolled}
-              theme={theme}
-              setTheme={updateTheme}
-              search={
+                <span
+                  class={cn(
+                    'text-sm text-foreground font-semibold truncate transition-([opacity,transform] duration-200) lg:text-lg',
+                    ctx.scrolled()
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 pointer-events-none translate-y-2',
+                  )}
+                >
+                  {pageTitle()}
+                </span>
+              </div>
+              <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
                 <DocsCommandPalette
                   pages={pages}
                   open={paletteOpen}
@@ -137,8 +148,29 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                   onNavigate={navigateToPage}
                   variant={ctx.isMobile() ? 'mobile' : 'desktop'}
                 />
-              }
-            />
+                <Button
+                  as="a"
+                  href="https://github.com/subframe7536/moraine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="GitHub repository"
+                  class="text-muted-foreground hover:text-foreground"
+                >
+                  <Icon name="i-lucide-github" />
+                </Button>
+                <Switch
+                  size="sm"
+                  label="Toggle color theme"
+                  classes={{ wrapper: 'sr-only' }}
+                  checked={theme() === 'dark'}
+                  onChange={(next) => updateTheme(next ? 'dark' : 'light')}
+                  checkedIcon="i-lucide-moon"
+                  uncheckedIcon="i-lucide-sun"
+                />
+              </div>
+            </header>
 
             <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
           </>

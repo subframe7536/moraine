@@ -1,3 +1,4 @@
+import '@subf/unocss/reset-tailwind-v4.css'
 import 'uno.css'
 import 'virtual:docs-expressive-code.css'
 import 'virtual:docs-expressive-code-client'
