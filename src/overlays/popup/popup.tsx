@@ -2,19 +2,16 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
 import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { popupContentVariants, popupOverlayVariants } from './popup.class.ts'
 import type { PopupVariantProps } from './popup.class.ts'
 
 export namespace PopupT {
   export interface Slot<T = unknown> {
-    /** Element users activate to open the popup. */
-    trigger?: T
-
     /** Optional backdrop layer rendered behind popup content. */
     overlay?: T
 
@@ -58,26 +55,33 @@ export namespace PopupT {
      */
     fullscreen?: boolean
 
-    /**
-     * Element that triggers the popup or additional content.
-     */
-    children: JSX.Element
+    classes?: Classes
+    styles?: Styles
+
+    /** Render the popup trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the Popup component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the Popup component.
  */
-export interface PopupProps extends PopupT.Props {}
+export type PopupProps = PopupT.Props
+
+type PopupRuntimeProps = PopupT.Base & {
+  classes?: PopupT.Classes
+  styles?: PopupT.Styles
+}
 
 /** Low-level overlay primitive providing portal, overlay backdrop, and content positioning. */
 export function Popup(props: PopupProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as PopupRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -92,8 +96,6 @@ export function Popup(props: PopupProps): JSX.Element {
     'children',
     'classes',
     'styles',
-    'class',
-    'style',
   ])
   const merged = mergeProps(
     {
@@ -129,13 +131,7 @@ export function Popup(props: PopupProps): JSX.Element {
       hasOverlay={merged.overlay}
       hasContent={Boolean(content())}
     >
-      <ModalTrigger
-        {...rest}
-        class={cn(merged.classes?.trigger, merged.class)}
-        style={{ ...merged.styles?.trigger, ...merged.style }}
-      >
-        {merged.children}
-      </ModalTrigger>
+      <ModalTrigger children={merged.children} />
       <Show when={content()}>
         <ModalContent
           overlay={merged.overlay}

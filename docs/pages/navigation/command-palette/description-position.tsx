@@ -42,7 +42,11 @@ export function DescriptionPosition() {
           />
         }
       >
-        <Button variant="outline">Open navigation</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open navigation
+          </Button>
+        )}
       </Dialog>
     </div>
   )

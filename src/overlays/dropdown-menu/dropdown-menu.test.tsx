@@ -20,8 +20,12 @@ async function finishMenuExitMotion(): Promise<void> {
 describe('DropdownMenu', () => {
   test('applies top-level class and style to trigger', () => {
     render(() => (
-      <DropdownMenu items={[{ label: 'Archive' }]} class="trigger-class" style={{ width: '200px' }}>
-        <button type="button">Actions</button>
+      <DropdownMenu items={[{ label: 'Archive' }]}>
+        {(props) => (
+          <button {...props} class="trigger-class" style={{ width: '200px' }} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -36,7 +40,11 @@ describe('DropdownMenu', () => {
 
     const screen = render(() => (
       <DropdownMenu items={[{ label: 'Open file', onSelect }, { label: 'Close file' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -56,7 +64,11 @@ describe('DropdownMenu', () => {
   test('closes from trigger keyboard escape while open', async () => {
     const screen = render(() => (
       <DropdownMenu items={[{ label: 'Open file' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -78,17 +90,23 @@ describe('DropdownMenu', () => {
   test('focuses content on click open, ignores printable keys, and restores trigger focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (
-      <DropdownMenu
-        ref={triggerRef}
-        items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
-      >
-        <button type="button">Actions</button>
+      <DropdownMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
+        {(props) => (
+          <button
+            {...props}
+            ref={(element) => {
+              props.ref(element)
+              triggerRef(element)
+            }}
+            type="button"
+          >
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
-    expect(triggerRef).toHaveBeenCalledWith(
-      screen.getByText('Actions').closest('[data-slot="trigger"]'),
-    )
+    expect(triggerRef).toHaveBeenCalledWith(screen.getByText('Actions'))
 
     const trigger = screen.getByText('Actions') as HTMLButtonElement
     await fireEvent.click(trigger)
@@ -121,7 +139,11 @@ describe('DropdownMenu', () => {
     try {
       const screen = render(() => (
         <DropdownMenu items={[{ label: 'Open file' }, { label: 'Close file' }]}>
-          <button type="button">Actions</button>
+          {(props) => (
+            <button {...props} type="button">
+              Actions
+            </button>
+          )}
         </DropdownMenu>
       ))
 
@@ -146,7 +168,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -231,7 +257,11 @@ describe('DropdownMenu', () => {
             },
           ]}
         >
-          <button type="button">Actions</button>
+          {(props) => (
+            <button {...props} type="button">
+              Actions
+            </button>
+          )}
         </DropdownMenu>
       ))
 
@@ -271,7 +301,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -303,7 +337,11 @@ describe('DropdownMenu', () => {
 
     render(() => (
       <DropdownMenu open onOpenChange={onOpenChange} items={[{ label: 'Controlled item' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -324,7 +362,11 @@ describe('DropdownMenu', () => {
   test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
     render(() => (
       <DropdownMenu defaultOpen items={[{ label: 'Open file' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -351,7 +393,11 @@ describe('DropdownMenu', () => {
   test('uses shared bottom-side transition classes for default placement', async () => {
     render(() => (
       <DropdownMenu defaultOpen items={[{ label: 'Default animation item' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -419,7 +465,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -478,7 +528,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -502,7 +556,11 @@ describe('DropdownMenu', () => {
   test('renders into portal by default', () => {
     const screen = render(() => (
       <DropdownMenu defaultOpen items={[{ label: 'Default portal' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -510,20 +568,40 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <DropdownMenu items={[{ label: 'Open item' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
   })
 
-  test('requires children in type contract', () => {
-    // @ts-expect-error children is required
+  test('renders an anchor trigger root', () => {
+    render(() => (
+      <DropdownMenu items={[{ label: 'Open item' }]}>
+        {(props) => (
+          <a {...props} href="#menu">
+            Actions
+          </a>
+        )}
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('#menu')
+  })
+
+  test('allows a fully controlled overlay without a trigger', () => {
     const props: DropdownMenuProps = { defaultOpen: true, items: [{ label: 'Open item' }] }
     expect(props).toBeDefined()
   })
@@ -531,7 +609,11 @@ describe('DropdownMenu', () => {
   test('does not open when menu trigger is disabled', async () => {
     const screen = render(() => (
       <DropdownMenu disabled items={[{ label: 'Disabled entry' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -563,7 +645,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -617,7 +703,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -658,7 +748,11 @@ describe('DropdownMenu', () => {
         defaultOpen
         items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -682,7 +776,11 @@ describe('DropdownMenu', () => {
           },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -712,7 +810,11 @@ describe('DropdownMenu', () => {
           { label: 'Sibling action' },
         ]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -771,7 +873,11 @@ describe('DropdownMenu', () => {
             },
           ]}
         >
-          <button type="button">Actions</button>
+          {(props) => (
+            <button {...props} type="button">
+              Actions
+            </button>
+          )}
         </DropdownMenu>
       ))
 
@@ -831,7 +937,11 @@ describe('DropdownMenu', () => {
         styles={{ content: { width: '200px' } }}
         items={[{ label: 'Open file' }]}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -865,7 +975,11 @@ describe('DropdownMenu', () => {
           onClick: (event) => event.preventDefault(),
         })}
       >
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 
@@ -892,7 +1006,11 @@ describe('DropdownMenu', () => {
   test('locks body scroll and renders an overlay layer while open', async () => {
     render(() => (
       <DropdownMenu defaultOpen items={[{ label: 'Archive' }]}>
-        <button type="button">Actions</button>
+        {(props) => (
+          <button {...props} type="button">
+            Actions
+          </button>
+        )}
       </DropdownMenu>
     ))
 

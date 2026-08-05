@@ -16,8 +16,8 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  onMount,
   onCleanup,
-  splitProps,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
@@ -28,10 +28,12 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { cn, useId } from '../../shared/utils.ts'
 
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayStackEntry } from './overlay-stack.ts'
+import type { OverlayTriggerProps } from './trigger.ts'
+import { validateOverlayTrigger } from './trigger.ts'
 import {
   acquireBodyScrollLock,
   focusContent,
@@ -121,8 +123,8 @@ export interface PopperRootProps {
   children?: JSX.Element
 }
 
-export interface PopperTriggerProps extends JSX.HTMLAttributes<HTMLSpanElement> {
-  children?: JSX.Element
+export interface PopperTriggerProps {
+  children?: (props: OverlayTriggerProps) => JSX.Element
   describeTrigger?: boolean
   toggleOnClick?: boolean
 }
@@ -147,8 +149,8 @@ interface PopperContext {
   setOpen: (open: boolean) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
-  triggerElement: Accessor<HTMLSpanElement | undefined>
-  setTriggerElement: (element: HTMLSpanElement | undefined) => void
+  triggerElement: Accessor<HTMLElement | undefined>
+  setTriggerElement: (element: HTMLElement | undefined) => void
   setPositionerElement: (element: HTMLDivElement | undefined) => void
   positionerPositioned: Accessor<boolean>
   contentPresence: ReturnType<typeof useTransitionPresence>
@@ -196,7 +198,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerPositioned, setPositionerPositioned] = createSignal(false)
-  const [triggerElement, setTriggerElement] = createSignal<HTMLSpanElement | undefined>()
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [internalCurrentPlacement, setInternalCurrentPlacement] = createSignal<string>('bottom')
   const currentPlacement = createMemo(
     () => popperTestPlacementAccessor?.() ?? internalCurrentPlacement(),
@@ -568,73 +570,45 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
 export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   const context = usePopperContext()
-  const [local, rest] = splitProps(props, [
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onBlur',
-    'onClick',
-    'onFocus',
-    'onPointerEnter',
-    'onPointerLeave',
-    'describeTrigger',
-    'toggleOnClick',
-  ])
-  const children = createMemo(() => local.children)
   const options = context.options
+  const triggerRender = createMemo(() => props.children)
+  const triggerProps: OverlayTriggerProps = {
+    get 'aria-controls'() {
+      return context.contentPresence.present() ? context.contentId() : undefined
+    },
+    get 'aria-describedby'() {
+      return options.describeTrigger && context.contentPresence.present()
+        ? context.contentId()
+        : undefined
+    },
+    get 'aria-expanded'() {
+      return context.isOpen() ? 'true' : 'false'
+    },
+    'data-slot': 'trigger',
+    ref: (element: HTMLElement | undefined) => {
+      context.setTriggerElement(element)
+    },
+    onBlur: () => options.onTriggerBlur?.(context.getControls()),
+    onClick: (event: MouseEvent) => {
+      if (!event.defaultPrevented && options.toggleOnClick) {
+        context.getControls().toggle()
+      }
+    },
+    onFocus: () => options.onTriggerFocus?.(context.getControls()),
+    onPointerEnter: () => options.onTriggerPointerEnter?.(context.getControls()),
+    onPointerLeave: () => options.onTriggerPointerLeave?.(context.getControls()),
+  }
+
+  onMount(() => {
+    if (triggerRender()) {
+      validateOverlayTrigger(context.triggerElement(), 'Popper')
+    }
+  })
 
   return (
-    <span
-      data-slot="trigger"
-      ref={(element) => {
-        context.setTriggerElement(element)
-        callRef(local.ref, element)
-      }}
-      tabIndex={-1}
-      aria-controls={context.contentPresence.present() ? context.contentId() : undefined}
-      aria-describedby={
-        (local.describeTrigger ?? options.describeTrigger) && context.contentPresence.present()
-          ? context.contentId()
-          : undefined
-      }
-      aria-expanded={context.isOpen()}
-      {...rest}
-      style={local.style}
-      class={cn('outline-none', local.class)}
-      onBlur={(event) => {
-        const { defaultPrevented } = callHandler(event, local.onBlur)
-        if (!defaultPrevented) {
-          options.onTriggerBlur?.(context.getControls())
-        }
-      }}
-      onClick={(event) => {
-        const { defaultPrevented } = callHandler(event, local.onClick)
-        if (!defaultPrevented && (local.toggleOnClick ?? options.toggleOnClick)) {
-          context.getControls().toggle()
-        }
-      }}
-      onFocus={(event) => {
-        const { defaultPrevented } = callHandler(event, local.onFocus)
-        if (!defaultPrevented) {
-          options.onTriggerFocus?.(context.getControls())
-        }
-      }}
-      onPointerEnter={(event) => {
-        const { defaultPrevented } = callHandler(event, local.onPointerEnter)
-        if (!defaultPrevented) {
-          options.onTriggerPointerEnter?.(context.getControls())
-        }
-      }}
-      onPointerLeave={(event) => {
-        const { defaultPrevented } = callHandler(event, local.onPointerLeave)
-        if (!defaultPrevented) {
-          options.onTriggerPointerLeave?.(context.getControls())
-        }
-      }}
-    >
-      {children()}
-    </span>
+    <Show when={triggerRender()}>
+      {(render) => renderComponentOrElement(render(), triggerProps)}
+    </Show>
   )
 }
 

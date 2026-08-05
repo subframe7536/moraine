@@ -14,9 +14,11 @@ export function Sides() {
             description={`This sheet opens from ${side}.`}
             body={<p class="text-sm text-foreground">Body content from {side} side.</p>}
           >
-            <Button variant="outline" size="sm">
-              {side}
-            </Button>
+            {(props) => (
+              <Button {...props} variant="outline" size="sm">
+                {side}
+              </Button>
+            )}
           </Sheet>
         )}
       </For>

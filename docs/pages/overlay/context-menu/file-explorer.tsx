@@ -102,16 +102,21 @@ export function FileExplorer() {
           },
         ]}
       >
-        <div class="text-sm text-foreground p-4 b-1 b-border border-border rounded-lg bg-background flex flex-col min-h-28 w-full justify-between">
-          <div class="flex gap-3 items-center justify-between">
-            <div>
-              <div class="text-foreground font-medium">dropdown-menu.tsx</div>
-              <div class="text-xs text-muted-foreground">src/overlays/dropdown-menu</div>
+        {(props) => (
+          <div
+            {...props}
+            class="text-sm text-foreground p-4 b-1 b-border border-border rounded-lg bg-background flex flex-col min-h-28 w-full justify-between"
+          >
+            <div class="flex gap-3 items-center justify-between">
+              <div>
+                <div class="text-foreground font-medium">dropdown-menu.tsx</div>
+                <div class="text-xs text-muted-foreground">src/overlays/dropdown-menu</div>
+              </div>
+              <span class={badgeClass}>Modified</span>
             </div>
-            <span class={badgeClass}>Modified</span>
+            <div class="text-xs text-muted-foreground">Right click this file row</div>
           </div>
-          <div class="text-xs text-muted-foreground">Right click this file row</div>
-        </div>
+        )}
       </ContextMenu>
       <p class="text-sm text-muted-foreground px-4">
         Last action: <span class="font-medium">{lastAction()}</span>

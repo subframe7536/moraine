@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
@@ -8,9 +8,11 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import type { OverlayTriggerProps } from './trigger.ts'
+import { validateOverlayTrigger } from './trigger.ts'
 import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils.ts'
 
 export interface ModalContentContext {
@@ -42,8 +44,8 @@ export interface ModalRootProps {
   children?: JSX.Element
 }
 
-export interface ModalTriggerProps extends JSX.HTMLAttributes<HTMLSpanElement> {
-  children?: JSX.Element
+export interface ModalTriggerProps {
+  children?: (props: OverlayTriggerProps) => JSX.Element
 }
 
 export interface ModalContentProps {
@@ -63,8 +65,8 @@ interface ModalContext {
   contentId: Accessor<string>
   updateOpen: (open: boolean) => void
   dismissible: Accessor<boolean>
-  triggerElement: Accessor<HTMLSpanElement | undefined>
-  setTriggerElement: (element: HTMLSpanElement | undefined) => void
+  triggerElement: Accessor<HTMLElement | undefined>
+  setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
   overlayPresence: ReturnType<typeof useTransitionPresence>
@@ -81,7 +83,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
-  const [triggerElement, setTriggerElement] = createSignal<HTMLSpanElement | undefined>()
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const dismissible = createMemo(() => props.dismissible ?? true)
   const overlayPresence = useTransitionPresence({
@@ -92,7 +94,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   })
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
   const dismissEntry = { contentElement, triggerElement }
-  let capturedTrigger: HTMLSpanElement | undefined
+  let capturedTrigger: HTMLElement | undefined
   let wasPresent = false
 
   const updateOpen = (nextOpen: boolean): void => {
@@ -242,33 +244,34 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
 
 export function ModalTrigger(props: ModalTriggerProps): JSX.Element {
   const context = useModalContext()
-  // Resolve actual children once because the value is inspected by Show and rendered below it.
-  const children = createMemo(() => props.children)
-  const [local, rest] = splitProps(props, ['class', 'style', 'ref', 'onClick', 'children'])
+  const triggerRender = createMemo(() => props.children)
+  const triggerProps: OverlayTriggerProps = {
+    get 'aria-controls'() {
+      return context.contentPresence.present() ? context.contentId() : undefined
+    },
+    get 'aria-expanded'() {
+      return context.contentPresence.present() ? 'true' : 'false'
+    },
+    'data-slot': 'trigger',
+    ref: (element: HTMLElement | undefined) => {
+      context.setTriggerElement(element)
+    },
+    onClick: (event: MouseEvent) => {
+      if (!event.defaultPrevented) {
+        context.updateOpen(true)
+      }
+    },
+  }
+
+  onMount(() => {
+    if (triggerRender()) {
+      validateOverlayTrigger(context.triggerElement(), 'Modal')
+    }
+  })
 
   return (
-    <Show when={children()}>
-      {(body) => (
-        <span
-          data-slot="trigger"
-          {...rest}
-          ref={(element) => {
-            context.setTriggerElement(element)
-            callRef(local.ref, element)
-          }}
-          tabIndex={-1}
-          style={local.style}
-          class={cn('outline-none', local.class)}
-          onClick={(event) => {
-            const { defaultPrevented } = callHandler(event, local.onClick)
-            if (!defaultPrevented) {
-              context.updateOpen(true)
-            }
-          }}
-        >
-          {body()}
-        </span>
-      )}
+    <Show when={triggerRender()}>
+      {(render) => renderComponentOrElement(render(), triggerProps)}
     </Show>
   )
 }

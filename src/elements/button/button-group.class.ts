@@ -11,9 +11,9 @@ export const buttonGroupVariants = cva(
     variants: {
       orientation: {
         horizontal:
-          'flex-row [&>[data-slot=trigger]:not(:first-child)>*]:(border-s-0 rounded-s-none) [&>*:not(:first-child)]:(border-s-0 rounded-s-none) [&>[data-slot=trigger]:not(:last-child)>*]:rounded-e-none [&>*:not(:last-child)]:rounded-e-none',
+          'flex-row [&>*:not(:first-child)]:(border-s-0 rounded-s-none) [&>*:not(:last-child)]:rounded-e-none',
         vertical:
-          'flex-col [&>[data-slot=trigger]:not(:first-child)>*]:(border-t-0 rounded-t-none) [&>*:not(:first-child)]:(border-t-0 rounded-t-none) [&>[data-slot=trigger]:not(:last-child)>*]:rounded-b-none [&>*:not(:last-child)]:rounded-b-none',
+          'flex-col [&>*:not(:first-child)]:(border-t-0 rounded-t-none) [&>*:not(:last-child)]:rounded-b-none',
       },
     },
   },

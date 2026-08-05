@@ -18,7 +18,7 @@ export function DefaultShell() {
           </>
         }
       >
-        <Button>Open dialog</Button>
+        {(props) => <Button {...props}>Open dialog</Button>}
       </Dialog>
     </div>
   )

@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { popoverContentVariants } from './popover.class.ts'
 import type { PopoverContentVariantProps } from './popover.class.ts'
@@ -13,9 +14,6 @@ type PopoverMode = 'click' | 'hover'
 
 export namespace PopoverT {
   export interface Slot<T = unknown> {
-    /** Element users activate to open the popover. */
-    trigger?: T
-
     /** Positioned popover panel anchored to the trigger. */
     content?: T
 
@@ -62,33 +60,40 @@ export namespace PopoverT {
      */
     closeDelay?: number
 
+    classes?: Classes
+    styles?: Styles
+
     /**
      * Content to render inside the popover body.
      */
     content?: JSX.Element
 
-    /**
-     * The reference element that triggers the popover.
-     */
-    children: JSX.Element
+    /** Render the popover trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the Popover component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the Popover component.
  */
-export interface PopoverProps extends PopoverT.Props {}
+export type PopoverProps = PopoverT.Props
+
+type PopoverRuntimeProps = PopoverT.Base & {
+  classes?: PopoverT.Classes
+  styles?: PopoverT.Styles
+}
 
 type PopoverSide = OverlayMenuSide
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as PopoverRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -106,8 +111,6 @@ export function Popover(props: PopoverProps): JSX.Element {
     'children',
     'classes',
     'styles',
-    'class',
-    'style',
   ])
   const merged = mergeProps(
     {
@@ -265,14 +268,10 @@ export function Popover(props: PopoverProps): JSX.Element {
       }}
     >
       <PopperTrigger
-        {...rest}
+        children={merged.children}
         describeTrigger={false}
         toggleOnClick={merged.mode === 'click'}
-        style={{ ...merged.styles?.trigger, ...merged.style }}
-        class={cn(merged.classes?.trigger, merged.class)}
-      >
-        {merged.children}
-      </PopperTrigger>
+      />
       <PopperContent contentRender={Content} />
     </PopperRoot>
   )

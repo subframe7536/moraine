@@ -1,4 +1,17 @@
-import { Badge, Button, Card, Icon, List } from 'moraine'
+import {
+  Badge,
+  Button,
+  Card,
+  ContextMenu,
+  Dialog,
+  DropdownMenu,
+  Icon,
+  List,
+  Popover,
+  Popup,
+  Sheet,
+  Tooltip,
+} from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
@@ -14,6 +27,56 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
 
+;<Dialog>
+  {(props) => (
+    <CustomRoot {...props} required="dialog">
+      Open dialog
+    </CustomRoot>
+  )}
+</Dialog>
+;<Popover>
+  {(props) => (
+    <CustomRoot {...props} required="popover">
+      Open popover
+    </CustomRoot>
+  )}
+</Popover>
+;<Tooltip>
+  {(props) => (
+    <CustomRoot {...props} required="tooltip">
+      Hover target
+    </CustomRoot>
+  )}
+</Tooltip>
+;<DropdownMenu items={[]}>
+  {(props) => (
+    <CustomRoot {...props} required="dropdown">
+      Open menu
+    </CustomRoot>
+  )}
+</DropdownMenu>
+;<ContextMenu items={[]}>
+  {(props) => (
+    <CustomRoot {...props} required="context">
+      Open menu
+    </CustomRoot>
+  )}
+</ContextMenu>
+;<Popup>
+  {(props) => (
+    <CustomRoot {...props} required="popup">
+      Open popup
+    </CustomRoot>
+  )}
+</Popup>
+;<Sheet>
+  {(props) => (
+    <CustomRoot {...props} required="sheet">
+      Open sheet
+    </CustomRoot>
+  )}
+</Sheet>
+
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const divRef = (element: HTMLDivElement) => element.focus()
 
@@ -25,6 +88,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Badge id="badge" />
 ;<Card onClick={() => undefined} />
 ;<Card href="/details" />
-// @ts-expect-error Required custom component props remain required through `as`.
-;<Button as={CustomRoot} />
+// @ts-expect-error Required custom component props must be supplied in the callback.
+;<Dialog>{(props) => <CustomRoot {...props} />}</Dialog>
 ;<List id="items" items={[1]} itemRender={(context) => context.item} />

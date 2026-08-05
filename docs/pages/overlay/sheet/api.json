@@ -9,13 +9,6 @@
   },
   "slots": [
     {
-      "name": "trigger",
-      "description": "Element users activate to open the sheet.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the sheet panel.",
       "cssVariables": [],
@@ -135,14 +128,8 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Trigger element that opens the sheet."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
+        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
+        "description": "Render the sheet trigger as a single HTMLElement root."
       },
       {
         "name": "classes",
@@ -228,19 +215,9 @@
         "description": "Whether to render the overlay element."
       },
       {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
         "name": "side",
         "required": false,
         "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",

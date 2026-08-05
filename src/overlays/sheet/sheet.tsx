@@ -2,19 +2,17 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
 import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { sheetContentVariants } from './sheet.class.ts'
 import type { SheetVariantProps } from './sheet.class.ts'
 
 export namespace SheetT {
   export interface Slot<T = unknown> {
-    /** Element users activate to open the sheet. */
-    trigger?: T
-
     /** Backdrop layer rendered behind the sheet panel. */
     overlay?: T
 
@@ -83,6 +81,9 @@ export namespace SheetT {
      */
     transition?: boolean
 
+    classes?: Classes
+    styles?: Styles
+
     /**
      * Whether to show a close button, or a custom element to use as one.
      * @default true
@@ -109,26 +110,31 @@ export namespace SheetT {
      */
     action?: JSX.Element
 
-    /**
-     * Trigger element that opens the sheet.
-     */
-    children: JSX.Element
+    /** Render the sheet trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the Sheet component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the Sheet component.
  */
-export interface SheetProps extends SheetT.Props {}
+export type SheetProps = SheetT.Props
+
+type SheetRuntimeProps = SheetT.Base &
+  SheetT.Variant & {
+    classes?: SheetT.Classes
+    styles?: SheetT.Styles
+  }
 
 /** Slide-in panel overlay from any screen edge with header, body, and footer slots. */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as SheetRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -150,8 +156,6 @@ export function Sheet(props: SheetProps): JSX.Element {
     'children',
     'classes',
     'styles',
-    'class',
-    'style',
   ])
   const merged = mergeProps(
     {
@@ -189,13 +193,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       hasOverlay={merged.overlay}
       hasContent
     >
-      <ModalTrigger
-        {...rest}
-        class={cn(merged.classes?.trigger, merged.class)}
-        style={{ ...merged.styles?.trigger, ...merged.style }}
-      >
-        {merged.children}
-      </ModalTrigger>
+      <ModalTrigger children={merged.children} />
       <ModalContent
         overlay={merged.overlay}
         overlayClass={cn(

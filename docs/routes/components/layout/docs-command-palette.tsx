@@ -172,7 +172,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         />
       }
     >
-      <DocsSearchTrigger variant={props.variant} />
+      {(triggerProps) => <DocsSearchTrigger {...triggerProps} variant={props.variant} />}
     </Dialog>
   )
 }

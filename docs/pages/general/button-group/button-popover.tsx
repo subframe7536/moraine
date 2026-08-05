@@ -12,9 +12,11 @@ export function ButtonPopover() {
           </div>
         }
       >
-        <Button size="icon-md" aria-label="Open save options">
-          <Icon name="i-lucide:chevron-down" />
-        </Button>
+        {(props) => (
+          <Button {...props} size="icon-md" aria-label="Open save options">
+            <Icon name="i-lucide:chevron-down" />
+          </Button>
+        )}
       </Popover>
     </ButtonGroup>
   )

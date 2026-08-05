@@ -18,7 +18,11 @@ export function ScrollableOverlayMode() {
         </div>
       }
     >
-      <Button variant="outline">Open scrollable popup</Button>
+      {(props) => (
+        <Button {...props} variant="outline">
+          Open scrollable popup
+        </Button>
+      )}
     </Popup>
   )
 }

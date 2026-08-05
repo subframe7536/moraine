@@ -30,10 +30,12 @@ export function Sizes() {
     <div class="flex flex-wrap gap-3">
       <For each={SIZES}>
         {(size) => (
-          <DropdownMenu size={size} items={ITEMS}>
-            <Button variant="outline" size="sm">
-              {size} Menu
-            </Button>
+          <DropdownMenu size="sm" items={ITEMS}>
+            {(props) => (
+              <Button {...props} variant="outline">
+                {size} Menu
+              </Button>
+            )}
           </DropdownMenu>
         )}
       </For>

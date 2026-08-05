@@ -17,9 +17,11 @@ export function Placements() {
               </div>
             }
           >
-            <Button variant="outline" size="sm">
-              {placement}
-            </Button>
+            {(props) => (
+              <Button {...props} variant="outline" size="sm">
+                {placement}
+              </Button>
+            )}
           </Popover>
         )}
       </For>

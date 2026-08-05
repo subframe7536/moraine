@@ -10,9 +10,7 @@ export type ElementProps<T extends HTMLElement> = JSX.HTMLAttributes<T> & {
 }
 
 /** Type-only configuration for the public root-props surface. */
-export interface MoraineTypeConfig {
-  enableRootAutocomplete?: boolean
-}
+export interface MoraineTypeConfig {}
 
 type Tags = keyof JSX.HTMLElementTags
 

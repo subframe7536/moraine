@@ -9,11 +9,19 @@ export function Variants() {
         close={<span class="text-xs font-semibold">Done</span>}
         body="Inset sheet with custom close content."
       >
-        <Button variant="secondary">Inset + custom close</Button>
+        {(props) => (
+          <Button {...props} variant="secondary">
+            Inset + custom close
+          </Button>
+        )}
       </Sheet>
 
       <Sheet title="No close button" close={false} body="Close button is hidden for this sheet.">
-        <Button variant="outline">Close=false</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Close=false
+          </Button>
+        )}
       </Sheet>
     </div>
   )

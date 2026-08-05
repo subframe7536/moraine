@@ -4,19 +4,25 @@ export function KeyboardShortcuts() {
   return (
     <div class="flex flex-wrap gap-4 items-center">
       <Tooltip text="Save" kbds={['Ctrl', 'S']} open>
-        <Button variant="outline" leading="i-lucide-save">
-          Save
-        </Button>
+        {(props) => (
+          <Button {...props} variant="outline" leading="i-lucide-save">
+            Save
+          </Button>
+        )}
       </Tooltip>
       <Tooltip text="Undo" kbds={['Ctrl', 'Z']}>
-        <Button variant="outline" leading="i-lucide-undo">
-          Undo
-        </Button>
+        {(props) => (
+          <Button {...props} variant="outline" leading="i-lucide-undo">
+            Undo
+          </Button>
+        )}
       </Tooltip>
       <Tooltip text="Search" kbds={['Ctrl', 'K']}>
-        <Button variant="outline" leading="i-lucide-search">
-          Search
-        </Button>
+        {(props) => (
+          <Button {...props} variant="outline" leading="i-lucide-search">
+            Search
+          </Button>
+        )}
       </Tooltip>
     </div>
   )

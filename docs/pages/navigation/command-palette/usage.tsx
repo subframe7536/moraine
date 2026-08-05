@@ -92,9 +92,11 @@ export function Usage() {
         />
       }
     >
-      <Button variant="outline" trailing={<KbdGroup items={['⌘', 'K']} />}>
-        Search...
-      </Button>
+      {(props) => (
+        <Button {...props} variant="outline" trailing={<KbdGroup items={['⌘', 'K']} />}>
+          Search...
+        </Button>
+      )}
     </Dialog>
   )
 }

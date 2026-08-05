@@ -8,7 +8,11 @@ export function Variants() {
         close={false}
         body="This dialog has no top-right close button."
       >
-        <Button variant="outline">Close=false</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Close=false
+          </Button>
+        )}
       </Dialog>
 
       <Dialog
@@ -16,7 +20,11 @@ export function Variants() {
         closeIcon={<span class="text-xs font-semibold size-full">Done</span>}
         body="Custom close content rendered in the close button."
       >
-        <Button variant="outline">Custom close</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Custom close
+          </Button>
+        )}
       </Dialog>
     </div>
   )

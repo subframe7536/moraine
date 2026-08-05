@@ -91,12 +91,17 @@ export function EditorSelection() {
   return (
     <div class="flex flex-col">
       <ContextMenu items={editorItems()}>
-        <div class="text-sm text-foreground p-4 b-1 b-border border-border rounded-lg bg-background flex flex-col min-h-28 w-full justify-between">
-          <div class="text-xs text-foreground font-mono">
-            const motion = resolveOverlayMenuSide(placement)
+        {(props) => (
+          <div
+            {...props}
+            class="text-sm text-foreground p-4 b-1 b-border border-border rounded-lg bg-background flex flex-col min-h-28 w-full justify-between"
+          >
+            <div class="text-xs text-foreground font-mono">
+              const motion = resolveOverlayMenuSide(placement)
+            </div>
+            <div class="text-xs text-muted-foreground">Right click the selected line</div>
           </div>
-          <div class="text-xs text-muted-foreground">Right click the selected line</div>
-        </div>
+        )}
       </ContextMenu>
       <div class="text-sm text-muted-foreground mt-3 flex flex-wrap gap-4">
         <span>

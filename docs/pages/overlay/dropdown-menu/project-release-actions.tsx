@@ -140,7 +140,7 @@ export function ProjectReleaseActions() {
     <>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <DropdownMenu items={projectItems}>
-          <Button>Project actions</Button>
+          {(props) => <Button {...props}>Project actions</Button>}
         </DropdownMenu>
         <p class="text-sm text-muted-foreground">
           Tip: use arrow keys to walk the nested “Move To…” and release sections.

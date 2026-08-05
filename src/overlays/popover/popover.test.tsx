@@ -34,7 +34,11 @@ describe('Popover', () => {
   test('supports click mode and renders content', () => {
     render(() => (
       <Popover open content="Popover content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -44,22 +48,47 @@ describe('Popover', () => {
     expect(content?.getAttribute('role')).toBe('dialog')
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <Popover open content="Popover content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+  })
+
+  test('renders an anchor trigger root', () => {
+    render(() => (
+      <Popover open content="Popover content">
+        {(props) => (
+          <a {...props} href="#options">
+            Options
+          </a>
+        )}
+      </Popover>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('#options')
   })
 
   test('supports hover mode and renders content', () => {
     render(() => (
       <Popover mode="hover" open content="Hover content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -78,7 +107,11 @@ describe('Popover', () => {
 
     render(() => (
       <Popover open placement={placement} content="Placement content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -96,7 +129,11 @@ describe('Popover', () => {
         }}
         content="Styled"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -108,7 +145,11 @@ describe('Popover', () => {
   test('renders into portal by default', () => {
     const screen = render(() => (
       <Popover open content="Portal default">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -116,8 +157,7 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
-  test('requires children in type contract', () => {
-    // @ts-expect-error children is required
+  test('allows a fully controlled overlay without a trigger', () => {
     const props: PopoverProps = { open: true, content: 'No trigger' }
     expect(props).toBeDefined()
   })
@@ -125,7 +165,11 @@ describe('Popover', () => {
   test('does not render body wrapper when content is undefined or null', () => {
     const undefinedPanelScreen = render(() => (
       <Popover open>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
     expect(
@@ -134,7 +178,11 @@ describe('Popover', () => {
 
     render(() => (
       <Popover open content={null as never}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
     expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
@@ -145,7 +193,11 @@ describe('Popover', () => {
 
     render(() => (
       <Popover defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Persistent">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -173,7 +225,11 @@ describe('Popover', () => {
           onClosePrevent={onClosePrevent}
           content="Persistent"
         >
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Popover>
       </>
     ))
@@ -201,7 +257,11 @@ describe('Popover', () => {
           onClosePrevent={onClosePrevent}
           content="Persistent"
         >
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Popover>
       </>
     ))
@@ -230,7 +290,11 @@ describe('Popover', () => {
         onOpenChange={onOpenChange}
         content="Closable"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -261,7 +325,11 @@ describe('Popover', () => {
           Outside target
         </button>
         <Popover defaultOpen onOpenChange={onOpenChange} content="Closable">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Popover>
       </>
     ))
@@ -285,10 +353,18 @@ describe('Popover', () => {
     render(() => (
       <>
         <Popover defaultOpen onOpenChange={onFirstOpenChange} content="First content">
-          <button type="button">First trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              First trigger
+            </button>
+          )}
         </Popover>
         <Popover defaultOpen onOpenChange={onSecondOpenChange} content="Second content">
-          <button type="button">Second trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Second trigger
+            </button>
+          )}
         </Popover>
       </>
     ))
@@ -319,10 +395,18 @@ describe('Popover', () => {
     render(() => (
       <>
         <Popover open={firstOpen()} content="First content">
-          <button type="button">First trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              First trigger
+            </button>
+          )}
         </Popover>
         <Popover defaultOpen onOpenChange={onSecondOpenChange} content="Second content">
-          <button type="button">Second trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Second trigger
+            </button>
+          )}
         </Popover>
       </>
     ))
@@ -356,7 +440,11 @@ describe('Popover', () => {
   test('positions defaultOpen popover on initial mount', async () => {
     render(() => (
       <Popover defaultOpen content="Positioned">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -372,7 +460,11 @@ describe('Popover', () => {
   test('applies styles override to content', () => {
     render(() => (
       <Popover open styles={{ content: { width: '200px' } }} content="Styled">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popover>
     ))
 
@@ -389,7 +481,11 @@ describe('Popover', () => {
 
       return (
         <Popover open placement="bottom" content="Popover content">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Popover>
       )
     })

@@ -16,7 +16,11 @@ export function HoverMode() {
           </div>
         }
       >
-        <Button variant="outline">Hover me</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Hover me
+          </Button>
+        )}
       </Popover>
     </div>
   )

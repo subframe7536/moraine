@@ -2,10 +2,11 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { tooltipContentVariants } from './tooltip.class.ts'
 import type { TooltipVariantProps } from './tooltip.class.ts'
@@ -14,9 +15,6 @@ export namespace TooltipT {
   export interface Slot<T = unknown> {
     /** Tooltip bubble positioned next to its trigger. */
     content?: T
-
-    /** Element that receives hover or focus interactions for the tooltip. */
-    trigger?: T
 
     /** Primary text region inside the tooltip bubble. */
     text?: T
@@ -52,6 +50,9 @@ export namespace TooltipT {
      */
     closeDelay?: number
 
+    classes?: Classes
+    styles?: Styles
+
     /**
      * Delay in milliseconds to skip the open delay for the next trigger after closing.
      * @default 300
@@ -68,22 +69,27 @@ export namespace TooltipT {
      */
     kbds?: string[]
 
-    /**
-     * The reference element that triggers the tooltip.
-     */
-    children: JSX.Element
+    /** Render the tooltip trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the Tooltip component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the Tooltip component.
  */
-export interface TooltipProps extends TooltipT.Props {}
+export type TooltipProps = TooltipT.Props
+
+type TooltipRuntimeProps = TooltipT.Base &
+  TooltipT.Variant & {
+    classes?: TooltipT.Classes
+    styles?: TooltipT.Styles
+  }
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
@@ -148,7 +154,7 @@ function shouldOpenImmediately(): boolean {
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as TooltipRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -166,8 +172,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     'children',
     'classes',
     'styles',
-    'class',
-    'style',
   ])
   const merged = mergeProps(
     {
@@ -374,15 +378,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         scheduleClose(props.close, props.isOpen)
       }}
     >
-      <PopperTrigger
-        {...rest}
-        describeTrigger
-        toggleOnClick={false}
-        style={{ ...merged.styles?.trigger, ...merged.style }}
-        class={cn(merged.classes?.trigger, merged.class)}
-      >
-        {merged.children}
-      </PopperTrigger>
+      <PopperTrigger children={merged.children} describeTrigger toggleOnClick={false} />
       <PopperContent
         positionerClass={
           shouldUseInstantMotion()

@@ -9,7 +9,11 @@ export function Placements() {
       <For each={PLACEMENTS}>
         {(placement) => (
           <Tooltip text={`Tooltip on ${placement}`} placement={placement}>
-            <Button variant="outline">{placement}</Button>
+            {(props) => (
+              <Button {...props} variant="outline">
+                {placement}
+              </Button>
+            )}
           </Tooltip>
         )}
       </For>

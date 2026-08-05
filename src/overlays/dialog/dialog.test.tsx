@@ -3,10 +3,12 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../elements/button/index.ts'
 import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/index.ts'
 import type { ModalContentContext } from '../base/modal.tsx'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { Dialog } from './dialog.tsx'
 
@@ -15,7 +17,7 @@ interface TestModalProps {
   open?: boolean
   overlay?: boolean
   onOpenChange?: (open: boolean) => void
-  trigger?: JSX.Element
+  trigger?: (props: OverlayTriggerProps) => JSX.Element
   content?: ComponentOrElement<ModalContentContext>
 }
 
@@ -31,7 +33,7 @@ function TestModal(props: TestModalProps): JSX.Element {
       hasContent={Boolean(content())}
       onOpenChange={props.onOpenChange}
     >
-      <ModalTrigger>{trigger()}</ModalTrigger>
+      <ModalTrigger children={trigger()} />
       <Show when={content()}>
         <ModalContent overlay={props.overlay} contentRender={content()!} />
       </Show>
@@ -68,7 +70,11 @@ describe('Modal', () => {
         open: true,
         get trigger() {
           triggerReads += 1
-          return <button type="button">Open modal</button>
+          return (props: OverlayTriggerProps) => (
+            <button {...props} type="button">
+              Open modal
+            </button>
+          )
         },
         get content() {
           contentReads += 1
@@ -91,7 +97,11 @@ describe('Modal', () => {
         body="Modal body"
         footer="Modal footer"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -112,7 +122,11 @@ describe('Modal', () => {
   test('composes dialog as popup container + card shell', () => {
     render(() => (
       <Dialog open title="Composed" body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -123,16 +137,56 @@ describe('Modal', () => {
     expect(card).not.toBeNull()
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <Dialog open body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+    expect(trigger?.textContent).toBe('Trigger')
+  })
+
+  test('renders a polymorphic trigger root without nesting another button', () => {
+    render(() => (
+      <Dialog body="Body">
+        {(props) => (
+          <a {...props} href="/details">
+            Open
+          </a>
+        )}
+      </Dialog>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('/details')
+    expect(trigger.querySelector('button')).toBeNull()
+  })
+
+  test('renders an existing polymorphic component as the trigger root', () => {
+    render(() => (
+      <Dialog body="Body">
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open dialog
+          </Button>
+        )}
+      </Dialog>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLButtonElement
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.className).toContain('surface-border')
+    expect(trigger.querySelector('button')).toBeNull()
   })
 
   test('renders function content and closes through modal content context', async () => {
@@ -142,7 +196,11 @@ describe('Modal', () => {
       <TestModal
         defaultOpen
         onOpenChange={onOpenChange}
-        trigger={<button type="button">Open modal</button>}
+        trigger={(props) => (
+          <button {...props} type="button">
+            Open modal
+          </button>
+        )}
         content={({ close }) => (
           <button type="button" data-testid="content-close" onClick={close}>
             Close from content
@@ -170,7 +228,11 @@ describe('Modal', () => {
         description="Default description"
         header={<div data-testid="custom-header">Custom Header</div>}
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -184,7 +246,11 @@ describe('Modal', () => {
   test('renders body content and keeps shell sections', () => {
     render(() => (
       <Dialog open title="Dialog title" body={<div data-testid="custom-body">Body Content</div>}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -199,7 +265,11 @@ describe('Modal', () => {
 
     const screen = render(() => (
       <Dialog onOpenChange={onOpenChange} title="Settings" body="Body">
-        <button type="button">Open modal</button>
+        {(props) => (
+          <button {...props} type="button">
+            Open modal
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -246,7 +316,11 @@ describe('Modal', () => {
           />
         }
       >
-        <button type="button">Open palette</button>
+        {(props) => (
+          <button {...props} type="button">
+            Open palette
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -285,7 +359,11 @@ describe('Modal', () => {
   test('renders into portal by default', () => {
     const screen = render(() => (
       <Dialog open title="Portal default" body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -296,7 +374,11 @@ describe('Modal', () => {
   test('supports overlay=false', () => {
     render(() => (
       <Dialog open overlay={false} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -306,7 +388,11 @@ describe('Modal', () => {
   test('supports scrollable overlay mode', () => {
     render(() => (
       <Dialog open scrollable body="Scrollable body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -322,7 +408,11 @@ describe('Modal', () => {
   test('supports custom close content', () => {
     render(() => (
       <Dialog open closeIcon={<span data-testid="custom-close">X</span>} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -332,7 +422,11 @@ describe('Modal', () => {
   test('hides close button when close=false', () => {
     render(() => (
       <Dialog open close={false} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -344,7 +438,11 @@ describe('Modal', () => {
 
     render(() => (
       <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -367,7 +465,11 @@ describe('Modal', () => {
           Outside target
         </button>
         <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Dialog>
       </>
     ))
@@ -390,7 +492,11 @@ describe('Modal', () => {
           Outside target
         </button>
         <Dialog onOpenChange={onOpenChange} defaultOpen title="Dialog title" body="Dialog body">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Dialog>
       </>
     ))
@@ -424,7 +530,11 @@ describe('Modal', () => {
         onOpenChange={onOpenChange}
         body="Body"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -444,7 +554,11 @@ describe('Modal', () => {
   test('applies styles override to content', () => {
     render(() => (
       <Dialog open body="Body" styles={{ content: { width: '200px' } }}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Dialog>
     ))
 
@@ -462,14 +576,22 @@ describe('Modal', () => {
           defaultOpen
           overlay
           onOpenChange={onOuterChange}
-          trigger={<button type="button">Outer trigger</button>}
+          trigger={(props) => (
+            <button {...props} type="button">
+              Outer trigger
+            </button>
+          )}
           content={<div data-testid="outer-body">Outer body</div>}
         />
         <TestModal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
-          trigger={<button type="button">Inner trigger</button>}
+          trigger={(props) => (
+            <button {...props} type="button">
+              Inner trigger
+            </button>
+          )}
           content={<div data-testid="inner-body">Inner body</div>}
         />
       </>
@@ -501,14 +623,22 @@ describe('Modal', () => {
           defaultOpen
           overlay
           onOpenChange={onOuterChange}
-          trigger={<button type="button">Outer trigger</button>}
+          trigger={(props) => (
+            <button {...props} type="button">
+              Outer trigger
+            </button>
+          )}
           content={<div data-testid="outer-body">Outer body</div>}
         />
         <TestModal
           defaultOpen
           overlay
           onOpenChange={onInnerChange}
-          trigger={<button type="button">Inner trigger</button>}
+          trigger={(props) => (
+            <button {...props} type="button">
+              Inner trigger
+            </button>
+          )}
           content={
             <button type="button" data-testid="inner-button">
               Inner button

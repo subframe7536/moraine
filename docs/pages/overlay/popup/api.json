@@ -9,13 +9,6 @@
   },
   "slots": [
     {
-      "name": "trigger",
-      "description": "Element users activate to open the popup.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "overlay",
       "description": "Optional backdrop layer rendered behind popup content.",
       "cssVariables": [],
@@ -60,14 +53,8 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Element that triggers the popup or additional content."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
+        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
+        "description": "Render the popup trigger as a single HTMLElement root."
       },
       {
         "name": "classes",
@@ -141,21 +128,11 @@
         "description": "Whether to render the overlay element."
       },
       {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
         "name": "scrollable",
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether to allow scrolling within the popup.",
         "defaultValue": "false"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",

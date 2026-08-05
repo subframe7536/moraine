@@ -40,7 +40,11 @@ export function Loading() {
         classes={{ body: 'p-0 mb-0' }}
         body={<CommandPalette groups={BASIC_GROUPS} loading onClose={() => setOpen(false)} />}
       >
-        <Button variant="outline">Open palette</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open palette
+          </Button>
+        )}
       </Dialog>
     </div>
   )

@@ -61,7 +61,11 @@ export function CustomItemRender() {
           />
         }
       >
-        <Button variant="outline">Open project switcher</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open project switcher
+          </Button>
+        )}
       </Dialog>
     </div>
   )

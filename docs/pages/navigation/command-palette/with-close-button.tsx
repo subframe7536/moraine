@@ -68,7 +68,11 @@ export function WithCloseButton() {
         classes={{ body: 'p-0 mb-0' }}
         body={<CommandPalette groups={BASIC_GROUPS} showClose onClose={() => setOpen(false)} />}
       >
-        <Button variant="outline">Open palette</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open palette
+          </Button>
+        )}
       </Dialog>
     </div>
   )

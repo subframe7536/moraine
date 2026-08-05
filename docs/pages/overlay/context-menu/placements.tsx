@@ -98,16 +98,32 @@ export function Placements() {
   return (
     <div class="gap-3 grid sm:grid-cols-2">
       <ContextMenu placement="top" items={fileItems}>
-        <div class={surfaceClass}>Right click (top)</div>
+        {(props) => (
+          <div {...props} class={surfaceClass}>
+            Right click (top)
+          </div>
+        )}
       </ContextMenu>
       <ContextMenu placement="right" items={fileItems}>
-        <div class={surfaceClass}>Right click (right)</div>
+        {(props) => (
+          <div {...props} class={surfaceClass}>
+            Right click (right)
+          </div>
+        )}
       </ContextMenu>
       <ContextMenu placement="bottom" items={fileItems}>
-        <div class={surfaceClass}>Right click (bottom)</div>
+        {(props) => (
+          <div {...props} class={surfaceClass}>
+            Right click (bottom)
+          </div>
+        )}
       </ContextMenu>
       <ContextMenu placement="left" items={fileItems}>
-        <div class={surfaceClass}>Right click (left)</div>
+        {(props) => (
+          <div {...props} class={surfaceClass}>
+            Right click (left)
+          </div>
+        )}
       </ContextMenu>
     </div>
   )

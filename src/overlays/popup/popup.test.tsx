@@ -22,7 +22,11 @@ describe('Popup', () => {
   test('renders popup content when open', () => {
     render(() => (
       <Popup open content="Popup content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -35,7 +39,11 @@ describe('Popup', () => {
   test('renders into portal by default', () => {
     const screen = render(() => (
       <Popup open content="Portal content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -46,7 +54,11 @@ describe('Popup', () => {
   test('supports overlay=false', () => {
     render(() => (
       <Popup open overlay={false} content="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -56,7 +68,11 @@ describe('Popup', () => {
   test('supports scrollable overlay mode', () => {
     render(() => (
       <Popup open scrollable content="Scrollable body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -70,22 +86,47 @@ describe('Popup', () => {
     expect(overlay?.className).toContain('overflow-y-auto')
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <Popup open content="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+  })
+
+  test('renders an anchor trigger root', () => {
+    render(() => (
+      <Popup open content="Body">
+        {(props) => (
+          <a {...props} href="#popup">
+            Open
+          </a>
+        )}
+      </Popup>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('#popup')
   })
 
   test('does not lock body scroll in scrollable mode by default', () => {
     render(() => (
       <Popup defaultOpen scrollable content="Scrollable body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -98,12 +139,15 @@ describe('Popup', () => {
         open
         content="Body"
         classes={{
-          trigger: 'trigger-override',
           content: 'content-override',
           overlay: 'overlay-override',
         }}
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} class="trigger-override" type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -120,8 +164,12 @@ describe('Popup', () => {
 
   test('applies top-level class and style to trigger', () => {
     render(() => (
-      <Popup open content="Body" class="trigger-class" style={{ width: '200px' }}>
-        <button type="button">Trigger</button>
+      <Popup open content="Body">
+        {(props) => (
+          <button {...props} class="trigger-class" style={{ width: '200px' }} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -134,14 +182,22 @@ describe('Popup', () => {
   test('does not render content when content is undefined or null', () => {
     render(() => (
       <Popup open>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
     render(() => (
       <Popup open content={null as never}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
@@ -152,7 +208,11 @@ describe('Popup', () => {
 
     render(() => (
       <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -175,7 +235,11 @@ describe('Popup', () => {
           Outside target
         </button>
         <Popup defaultOpen dismissible={false} onClosePrevent={onClosePrevent} content="Body">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Popup>
       </>
     ))
@@ -201,7 +265,11 @@ describe('Popup', () => {
         onOpenChange={onOpenChange}
         content="Body"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 
@@ -224,12 +292,15 @@ describe('Popup', () => {
         open
         content="Body"
         styles={{
-          trigger: { width: '200px' },
           content: { width: '200px' },
           overlay: { width: '200px' },
         }}
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} style={{ width: '200px' }} type="button">
+            Trigger
+          </button>
+        )}
       </Popup>
     ))
 

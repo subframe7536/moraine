@@ -9,13 +9,6 @@
   },
   "slots": [
     {
-      "name": "trigger",
-      "description": "Element users activate to open the dialog.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the dialog panel.",
       "cssVariables": [],
@@ -122,14 +115,8 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render inside the dialog trigger slot."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
+        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
+        "description": "Render the dialog trigger as a single HTMLElement root."
       },
       {
         "name": "classes",
@@ -230,21 +217,11 @@
         "description": "Whether to render the overlay element."
       },
       {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
         "name": "scrollable",
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether the dialog content body should be scrollable.",
         "defaultValue": "false"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",

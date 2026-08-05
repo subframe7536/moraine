@@ -19,7 +19,11 @@ export function DismissControl() {
           </div>
         }
       >
-        <Button variant="secondary">Try close me</Button>
+        {(props) => (
+          <Button {...props} variant="secondary">
+            Try close me
+          </Button>
+        )}
       </Popover>
     </div>
   )

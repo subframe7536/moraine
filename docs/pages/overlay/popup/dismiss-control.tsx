@@ -18,7 +18,11 @@ export function DismissControl() {
         </div>
       }
     >
-      <Button variant="secondary">Dismiss blocked</Button>
+      {(props) => (
+        <Button {...props} variant="secondary">
+          Dismiss blocked
+        </Button>
+      )}
     </Popup>
   )
 }

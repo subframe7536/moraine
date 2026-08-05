@@ -28,7 +28,11 @@ describe('Sheet', () => {
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
     render(() => (
       <Sheet open side={side} body="Sheet body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -53,7 +57,11 @@ describe('Sheet', () => {
         }}
         body="Body"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -76,7 +84,11 @@ describe('Sheet', () => {
         body="Sheet body"
         footer="Sheet footer"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -88,22 +100,37 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="close"]')).not.toBeNull()
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <Sheet open body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+  })
+
+  test('renders a span trigger root', () => {
+    render(() => <Sheet body="Body">{(props) => <span {...props}>Open</span>}</Sheet>)
+
+    expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('supports custom close content', () => {
     render(() => (
       <Sheet open close={<span data-testid="custom-close">X</span>} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -113,7 +140,11 @@ describe('Sheet', () => {
   test('hides close button when close=false', () => {
     render(() => (
       <Sheet open close={false} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -123,7 +154,11 @@ describe('Sheet', () => {
   test('renders body content and keeps shell sections', () => {
     render(() => (
       <Sheet open title="Sheet title" body={<div data-testid="custom-body">Body Content</div>}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -138,7 +173,11 @@ describe('Sheet', () => {
 
     const screen = render(() => (
       <Sheet onOpenChange={onOpenChange} title="Sheet" body="Body">
-        <button type="button">Open sheet</button>
+        {(props) => (
+          <button {...props} type="button">
+            Open sheet
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -166,7 +205,11 @@ describe('Sheet', () => {
   test('renders into portal by default', () => {
     const screen = render(() => (
       <Sheet open title="Portal default" body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -177,7 +220,11 @@ describe('Sheet', () => {
   test('supports overlay=false', () => {
     render(() => (
       <Sheet open overlay={false} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -189,7 +236,11 @@ describe('Sheet', () => {
 
     render(() => (
       <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -212,7 +263,11 @@ describe('Sheet', () => {
           Outside target
         </button>
         <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Sheet>
       </>
     ))
@@ -238,7 +293,11 @@ describe('Sheet', () => {
         onOpenChange={onOpenChange}
         body="Body"
       >
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 
@@ -255,8 +314,7 @@ describe('Sheet', () => {
     })
   })
 
-  test('requires children in type contract', () => {
-    // @ts-expect-error children is required
+  test('allows a fully controlled overlay without a trigger', () => {
     const props: SheetProps = { open: true, body: 'Body' }
     expect(props).toBeDefined()
   })
@@ -264,7 +322,11 @@ describe('Sheet', () => {
   test('applies styles override to content', () => {
     render(() => (
       <Sheet open body="Body" styles={{ content: { width: '200px' } }}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Sheet>
     ))
 

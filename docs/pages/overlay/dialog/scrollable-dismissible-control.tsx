@@ -23,7 +23,11 @@ export function ScrollableDismissibleControl() {
           </div>
         }
       >
-        <Button variant="secondary">Scrollable dialog</Button>
+        {(props) => (
+          <Button {...props} variant="secondary">
+            Scrollable dialog
+          </Button>
+        )}
       </Dialog>
 
       <Dialog
@@ -37,7 +41,11 @@ export function ScrollableDismissibleControl() {
           </p>
         }
       >
-        <Button variant="outline">Dismiss blocked</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Dismiss blocked
+          </Button>
+        )}
       </Dialog>
     </div>
   )

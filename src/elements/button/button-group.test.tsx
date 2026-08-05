@@ -3,6 +3,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { DropdownMenu } from '../../overlays/dropdown-menu/index.ts'
+import { Popover } from '../../overlays/popover/index.ts'
 
 import { ButtonGroup } from './button-group.tsx'
 import { Button } from './button.tsx'
@@ -85,13 +86,17 @@ describe('ButtonGroup', () => {
     expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
   })
 
-  test('inserts separators between wrapped trigger children', () => {
+  test('inserts separators between overlay trigger roots', () => {
     const screen = render(() => (
       <ButtonGroup separator>
         <Button>Export</Button>
-        <span data-slot="trigger">
-          <Button size="icon-md" aria-label="Open export options" />
-        </span>
+        <DropdownMenu items={[{ label: 'Open options' }]}>
+          {(props) => (
+            <button {...props} type="button">
+              Open export options
+            </button>
+          )}
+        </DropdownMenu>
       </ButtonGroup>
     ))
 
@@ -104,7 +109,11 @@ describe('ButtonGroup', () => {
       <ButtonGroup separator>
         <Button>Export</Button>
         <DropdownMenu items={[{ label: 'Open options' }]}>
-          <Button size="icon-md" aria-label="Open export options" />
+          {(props) => (
+            <button {...props} type="button">
+              Open export options
+            </button>
+          )}
         </DropdownMenu>
       </ButtonGroup>
     ))
@@ -119,7 +128,11 @@ describe('ButtonGroup', () => {
       <ButtonGroup separator>
         <Button>Export</Button>
         <DropdownMenu items={[{ label: 'Open options' }]}>
-          <Button size="icon-md" aria-label="Open export options" />
+          {(props) => (
+            <button {...props} type="button">
+              Open export options
+            </button>
+          )}
         </DropdownMenu>
       </ButtonGroup>
     ))
@@ -135,21 +148,46 @@ describe('ButtonGroup', () => {
     expect(group.lastElementChild?.getAttribute('data-slot')).toBe('trigger')
   })
 
-  test('joins buttons rendered inside trigger wrappers', () => {
+  test('joins overlay trigger roots as direct children', () => {
     const screen = render(() => (
       <ButtonGroup>
         <Button>Export</Button>
-        <span data-slot="trigger">
-          <Button size="icon-md" aria-label="Open export options" />
-        </span>
+        <DropdownMenu items={[{ label: 'Open options' }]}>
+          {(props) => (
+            <button {...props} type="button">
+              Open export options
+            </button>
+          )}
+        </DropdownMenu>
       </ButtonGroup>
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain(
-      '[&>[data-slot=trigger]:not(:first-child)>*]:(border-s-0 rounded-s-none)',
-    )
-    expect(group.className).toContain('[&>[data-slot=trigger]:not(:last-child)>*]:rounded-e-none')
+    expect(group.className).toContain('[&>*:not(:first-child)]:(border-s-0 rounded-s-none)')
+    expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
+    expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
+    expect(screen.getAllByRole('button')).toHaveLength(2)
+  })
+
+  test('joins a polymorphic popover trigger root as a direct child', () => {
+    const screen = render(() => (
+      <ButtonGroup>
+        <Button>Save</Button>
+        <Popover content={<div>Save options</div>}>
+          {(props) => (
+            <Button {...props} size="icon-md" aria-label="Open save options">
+              Options
+            </Button>
+          )}
+        </Popover>
+      </ButtonGroup>
+    ))
+
+    const group = screen.getByRole('group')
+    const trigger = group.querySelector('[data-slot="trigger"]')
+    expect(trigger?.parentElement).toBe(group)
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.querySelector('button')).toBeNull()
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
@@ -234,21 +272,24 @@ describe('ButtonGroup', () => {
     expect(separator?.getAttribute('data-orientation')).toBe('horizontal')
   })
 
-  test('joins buttons rendered inside trigger wrappers vertically', () => {
+  test('joins overlay trigger roots as direct children vertically', () => {
     const screen = render(() => (
       <ButtonGroup orientation="vertical">
         <Button>Export</Button>
-        <span data-slot="trigger">
-          <Button size="icon-md" aria-label="Open export options" />
-        </span>
+        <DropdownMenu items={[{ label: 'Open options' }]}>
+          {(props) => (
+            <button {...props} type="button">
+              Open export options
+            </button>
+          )}
+        </DropdownMenu>
       </ButtonGroup>
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain(
-      '[&>[data-slot=trigger]:not(:first-child)>*]:(border-t-0 rounded-t-none)',
-    )
-    expect(group.className).toContain('[&>[data-slot=trigger]:not(:last-child)>*]:rounded-b-none')
+    expect(group.className).toContain('[&>*:not(:first-child)]:(border-t-0 rounded-t-none)')
+    expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
+    expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 

@@ -118,8 +118,6 @@ export interface OverlayMenuSharedItem<TItem> {
 }
 
 export interface OverlayMenuSharedSlots<T = unknown> {
-  /** Element users activate to open the menu. */
-  trigger?: T
   /** Optional backdrop rendered behind modal menu content. */
   overlay?: T
   /** Positioned menu panel that contains groups, items, and submenus. */

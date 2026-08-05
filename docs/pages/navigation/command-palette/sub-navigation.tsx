@@ -114,7 +114,11 @@ export function SubNavigation() {
         classes={{ body: 'p-0 mb-0' }}
         body={<CommandPalette groups={groups()} closeOnSelect={false} onSelect={onSelect} />}
       >
-        <Button variant="outline">Open palette</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open palette
+          </Button>
+        )}
       </Dialog>
     </div>
   )

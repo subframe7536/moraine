@@ -4,10 +4,11 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Card } from '../../elements/card/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
 import type { ModalRootProps } from '../base/modal.tsx'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { popupContentVariants, popupOverlayVariants } from '../popup/popup.class.ts'
 
 import { dialogCardVariants } from './dialog.class.ts'
@@ -15,9 +16,6 @@ import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
   export interface Slot<T = unknown> {
-    /** Element users activate to open the dialog. */
-    trigger?: T
-
     /** Backdrop layer rendered behind the dialog panel. */
     overlay?: T
 
@@ -126,26 +124,30 @@ export namespace DialogT {
      */
     styles?: Styles
 
-    /**
-     * Content to render inside the dialog trigger slot.
-     */
-    children: JSX.Element
+    /** Render the dialog trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the Dialog component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the Dialog component.
  */
-export interface DialogProps extends DialogT.Props {}
+export type DialogProps = DialogT.Props
+
+type DialogRuntimeProps = DialogT.Base & {
+  classes?: DialogT.Classes
+  styles?: DialogT.Styles
+}
 
 /** Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control. */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as DialogRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -166,8 +168,6 @@ export function Dialog(props: DialogProps): JSX.Element {
     'children',
     'classes',
     'styles',
-    'class',
-    'style',
   ])
   const merged = mergeProps(
     {
@@ -275,13 +275,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       hasOverlay={merged.overlay}
       hasContent
     >
-      <ModalTrigger
-        {...rest}
-        class={cn(merged.classes?.trigger, merged.class)}
-        style={{ ...merged.styles?.trigger, ...merged.style }}
-      >
-        {merged.children}
-      </ModalTrigger>
+      <ModalTrigger children={merged.children} />
       <ModalContent
         overlay={merged.overlay}
         overlayClass={popupOverlayVariants(

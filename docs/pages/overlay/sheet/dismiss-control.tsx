@@ -17,7 +17,11 @@ export function DismissControl() {
           </p>
         }
       >
-        <Button variant="outline">Dismiss blocked</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Dismiss blocked
+          </Button>
+        )}
       </Sheet>
     </div>
   )

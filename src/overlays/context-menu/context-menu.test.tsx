@@ -2,6 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { callHandler } from '../../shared/utils.ts'
+
 import { ContextMenu } from './context-menu.tsx'
 import type { ContextMenuProps } from './context-menu.tsx'
 
@@ -19,10 +21,23 @@ async function finishMenuExitMotion(): Promise<void> {
 }
 
 describe('ContextMenu', () => {
+  test('renders a div trigger root by default', () => {
+    render(() => (
+      <ContextMenu items={[{ label: 'Open item' }]}>
+        {(props) => <div {...props}>Row Item</div>}
+      </ContextMenu>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLElement
+    expect(trigger.tagName).toBe('DIV')
+    expect(trigger.getAttribute('tabindex')).toBe('0')
+    expect(trigger.querySelector('button')).toBeNull()
+  })
+
   test('uses explicit id as id base', async () => {
     const screen = render(() => (
       <ContextMenu id="custom-menu" items={[{ label: 'Open item' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -39,7 +54,7 @@ describe('ContextMenu', () => {
   test('generates contextmenu-prefixed id when id prop is missing', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Open item' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -63,7 +78,7 @@ describe('ContextMenu', () => {
           { label: 'Delete', color: 'destructive' },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -86,7 +101,11 @@ describe('ContextMenu', () => {
   test('opens from keyboard context menu shortcut at trigger center', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Keyboard action' }, { label: 'Second action' }]}>
-        <button type="button">Row Item</button>
+        {(props) => (
+          <button {...props} type="button">
+            Row Item
+          </button>
+        )}
       </ContextMenu>
     ))
 
@@ -115,7 +134,7 @@ describe('ContextMenu', () => {
   test('exposes trigger data state while opened, closed, and disabled', async () => {
     const screen = render(() => (
       <ContextMenu disabled items={[{ label: 'Disabled action' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -129,7 +148,7 @@ describe('ContextMenu', () => {
 
     const enabledScreen = render(() => (
       <ContextMenu items={[{ label: 'Open item' }]}>
-        <div>Enabled Row</div>
+        {(props) => <div {...props}>Enabled Row</div>}
       </ContextMenu>
     ))
 
@@ -154,13 +173,17 @@ describe('ContextMenu', () => {
 
   test('allows callers to override generated trigger ARIA attributes', () => {
     const screen = render(() => (
-      <ContextMenu
-        aria-controls="caller-content"
-        aria-expanded="caller-expanded"
-        aria-haspopup="caller-menu"
-        items={[]}
-      >
-        <div>Row Item</div>
+      <ContextMenu items={[]}>
+        {(props) => (
+          <div
+            {...props}
+            aria-controls="caller-content"
+            aria-expanded={'caller-expanded' as unknown as 'true'}
+            aria-haspopup={'caller-menu' as unknown as 'menu'}
+          >
+            Row Item
+          </div>
+        )}
       </ContextMenu>
     ))
     const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]')
@@ -174,8 +197,12 @@ describe('ContextMenu', () => {
     const onContextMenu = vi.fn((event: MouseEvent) => event.preventDefault())
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <ContextMenu onContextMenu={onContextMenu} onOpenChange={onOpenChange} items={[]}>
-        <div>Row Item</div>
+      <ContextMenu onOpenChange={onOpenChange} items={[]}>
+        {(props) => (
+          <div {...props} onContextMenu={onContextMenu}>
+            Row Item
+          </div>
+        )}
       </ContextMenu>
     ))
 
@@ -191,12 +218,18 @@ describe('ContextMenu', () => {
     try {
       const onOpenChange = vi.fn()
       const screen = render(() => (
-        <ContextMenu
-          onContextMenu={(event) => event.preventDefault()}
-          onOpenChange={onOpenChange}
-          items={[{ label: 'Touch action' }]}
-        >
-          <div>Row Item</div>
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          {(props) => (
+            <div
+              {...props}
+              onContextMenu={(event) => {
+                event.preventDefault()
+                props.onContextMenu?.(event)
+              }}
+            >
+              Row Item
+            </div>
+          )}
         </ContextMenu>
       ))
 
@@ -220,16 +253,23 @@ describe('ContextMenu', () => {
   test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (
-      <ContextMenu
-        ref={triggerRef}
-        items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
-      >
-        <div>Row Item</div>
+      <ContextMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
+        {(props) => (
+          <div
+            {...props}
+            ref={(element) => {
+              props.ref(element)
+              triggerRef(element)
+            }}
+          >
+            Row Item
+          </div>
+        )}
       </ContextMenu>
     ))
 
     const row = screen.getByText('Row Item')
-    expect(triggerRef).toHaveBeenCalledWith(row.closest('[data-slot="trigger"]'))
+    expect(triggerRef).toHaveBeenCalledWith(row)
 
     await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
@@ -255,7 +295,7 @@ describe('ContextMenu', () => {
   test('does not open on left click', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Open by right click only' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -271,7 +311,11 @@ describe('ContextMenu', () => {
 
     const enabledScreen = render(() => (
       <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Enabled action' }]}>
-        <div data-testid="enabled-row">Enabled Row</div>
+        {(props) => (
+          <div {...props} data-testid="enabled-row">
+            Enabled Row
+          </div>
+        )}
       </ContextMenu>
     ))
 
@@ -294,7 +338,11 @@ describe('ContextMenu', () => {
         onOpenChange={disabledOnOpenChange}
         items={[{ label: 'Disabled action' }]}
       >
-        <div data-testid="disabled-row">Disabled Row</div>
+        {(props) => (
+          <div {...props} data-testid="disabled-row">
+            Disabled Row
+          </div>
+        )}
       </ContextMenu>
     ))
 
@@ -316,7 +364,7 @@ describe('ContextMenu', () => {
 
     const screen = render(() => (
       <ContextMenu open={false} onOpenChange={onOpenChange} items={[{ label: 'Controlled item' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -331,7 +379,7 @@ describe('ContextMenu', () => {
   test('supports defaultOpen without anchor coordinates', async () => {
     render(() => (
       <ContextMenu defaultOpen items={[{ label: 'Default open item' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -355,7 +403,7 @@ describe('ContextMenu', () => {
       const onOpenChange = vi.fn()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -388,7 +436,7 @@ describe('ContextMenu', () => {
           onOpenChange={onOpenChange}
           items={[{ label: 'Touch action' }]}
         >
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -415,12 +463,18 @@ describe('ContextMenu', () => {
     try {
       const onOpenChange = vi.fn()
       const screen = render(() => (
-        <ContextMenu
-          onOpenChange={onOpenChange}
-          onPointerUp={(event) => event.preventDefault()}
-          items={[{ label: 'Touch action' }]}
-        >
-          <div>Row Item</div>
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          {(props) => (
+            <div
+              {...props}
+              onPointerUp={(event) => {
+                event.preventDefault()
+                callHandler(event, props.onPointerUp)
+              }}
+            >
+              Row Item
+            </div>
+          )}
         </ContextMenu>
       ))
 
@@ -450,7 +504,7 @@ describe('ContextMenu', () => {
       const onOpenChange = vi.fn()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -482,7 +536,7 @@ describe('ContextMenu', () => {
       const onOpenChange = vi.fn()
       const screen = render(() => (
         <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -510,7 +564,7 @@ describe('ContextMenu', () => {
   test('dismisses menu when right-clicking opened menu content', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Pinned action' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -545,7 +599,7 @@ describe('ContextMenu', () => {
   test('dismisses menu when right-clicking trigger again while open', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Pinned action' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -579,7 +633,7 @@ describe('ContextMenu', () => {
   test('dismisses menu when pressing the trigger again with a different pointer button', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Pinned action' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -605,7 +659,7 @@ describe('ContextMenu', () => {
   test('locks body scroll and renders an overlay layer while open', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Pinned action' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -675,7 +729,7 @@ describe('ContextMenu', () => {
           },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -735,7 +789,7 @@ describe('ContextMenu', () => {
           },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -761,7 +815,7 @@ describe('ContextMenu', () => {
   test('renders into portal by default', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Default portal' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -773,8 +827,7 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('requires children in type contract', () => {
-    // @ts-expect-error children is required
+  test('allows a fully controlled overlay without a trigger', () => {
     const props: ContextMenuProps = { items: [{ label: 'Open item' }] }
     expect(props).toBeDefined()
   })
@@ -785,7 +838,7 @@ describe('ContextMenu', () => {
     try {
       const screen = render(() => (
         <ContextMenu disabled items={[{ label: 'Disabled entry' }]}>
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -828,7 +881,7 @@ describe('ContextMenu', () => {
           },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -879,7 +932,7 @@ describe('ContextMenu', () => {
           },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -911,7 +964,7 @@ describe('ContextMenu', () => {
   test('destructive item icon does not force muted color class', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -937,7 +990,7 @@ describe('ContextMenu', () => {
           { label: 'Sibling action' },
         ]}
       >
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 
@@ -997,7 +1050,7 @@ describe('ContextMenu', () => {
             },
           ]}
         >
-          <div>Row Item</div>
+          {(props) => <div {...props}>Row Item</div>}
         </ContextMenu>
       ))
 
@@ -1055,7 +1108,7 @@ describe('ContextMenu', () => {
   test('applies styles override to content', async () => {
     const screen = render(() => (
       <ContextMenu styles={{ content: { width: '200px' } }} items={[{ label: 'Open item' }]}>
-        <div>Row Item</div>
+        {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
 

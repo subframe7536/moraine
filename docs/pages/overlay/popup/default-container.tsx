@@ -12,7 +12,7 @@ export function DefaultContainer() {
         </div>
       }
     >
-      <Button>Open popup</Button>
+      {(props) => <Button {...props}>Open popup</Button>}
     </Popup>
   )
 }

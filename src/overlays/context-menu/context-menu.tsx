@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import {
+  Show,
   createMemo,
   createSignal,
   mergeProps,
@@ -11,9 +12,10 @@ import {
 
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useEventListener } from '../../shared/use-event-listener.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
@@ -23,6 +25,8 @@ import type {
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
 } from '../base/menu/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { validateOverlayTrigger } from '../base/trigger.ts'
 
 export namespace ContextMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
@@ -43,25 +47,22 @@ export namespace ContextMenuT {
     /**
      * Target area that opens the context menu on right-click or long press.
      */
-    children: JSX.Element
-    onContextMenu?: JSX.EventHandlerUnion<HTMLSpanElement, MouseEvent>
-    onPointerDown?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
-    onPointerMove?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
-    onPointerCancel?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
-    onPointerUp?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
-    onKeyDown?: JSX.EventHandlerUnion<HTMLSpanElement, KeyboardEvent>
+    children?: (props: OverlayTriggerProps) => JSX.Element
   }
 
   /**
    * Props for the ContextMenu component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type TriggerProps = OverlayTriggerProps
+  export type Props = Base & Variant
 }
 
 /**
  * Props for the ContextMenu component.
  */
-export interface ContextMenuProps extends ContextMenuT.Props {}
+export type ContextMenuProps = ContextMenuT.Props
+
+type ContextMenuRuntimeProps = ContextMenuT.Base
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
@@ -92,7 +93,7 @@ function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
  * Menu triggered by right-click or long press on its child content.
  */
 export function ContextMenu(props: ContextMenuProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local] = splitProps(props as ContextMenuRuntimeProps, [
     'id',
     'open',
     'defaultOpen',
@@ -113,16 +114,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     'size',
     'classes',
     'styles',
-    'class',
-    'style',
     'children',
-    'onContextMenu',
-    'onPointerDown',
-    'onPointerMove',
-    'onPointerCancel',
-    'onPointerUp',
-    'onKeyDown',
-    'ref',
   ])
   const merged = mergeProps(
     {
@@ -402,71 +394,76 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
+  const triggerRender = createMemo(() => merged.children)
+  const triggerProps: OverlayTriggerProps = {
+    get 'aria-controls'() {
+      return resolvedOpen() ? contentId() : undefined
+    },
+    'aria-haspopup': 'menu',
+    get 'aria-expanded'() {
+      return resolvedOpen() ? 'true' : 'false'
+    },
+    get 'data-closed'() {
+      return resolvedOpen() ? undefined : ''
+    },
+    get 'data-disabled'() {
+      return merged.disabled ? '' : undefined
+    },
+    get 'data-expanded'() {
+      return resolvedOpen() ? '' : undefined
+    },
+    'data-slot': 'trigger',
+    tabIndex: 0,
+    ref: (element: HTMLElement | undefined) => {
+      triggerElement = element
+    },
+    onContextMenu: (event: MouseEvent) => {
+      if (event.defaultPrevented) {
+        clearLongPressTimeout()
+        return
+      }
+      onContextMenu(event)
+    },
+    onPointerDown: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerDown(event)
+      }
+    },
+    onPointerMove: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerMove(event)
+      }
+    },
+    onPointerCancel,
+    onPointerUp,
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (resolvedOpen()) {
+        commitOpen(false)
+        return
+      }
+
+      openFromTriggerCenter('first')
+    },
+  }
+
+  onMount(() => {
+    if (triggerRender()) {
+      validateOverlayTrigger(triggerElement, 'ContextMenu')
+    }
+  })
+
   return (
     <>
-      <span
-        ref={(element) => {
-          triggerElement = element
-          callRef(local.ref, element)
-        }}
-        data-slot="trigger"
-        data-disabled={merged.disabled ? '' : undefined}
-        data-expanded={resolvedOpen() ? '' : undefined}
-        data-closed={resolvedOpen() ? undefined : ''}
-        tabIndex={-1}
-        aria-haspopup="menu"
-        aria-controls={resolvedOpen() ? contentId() : undefined}
-        aria-expanded={resolvedOpen() ? 'true' : 'false'}
-        {...rest}
-        class={cn(merged.classes?.trigger, merged.class)}
-        style={{ '-webkit-touch-callout': 'none', ...merged.styles?.trigger, ...merged.style }}
-        onContextMenu={(event) => {
-          callHandler(event, local.onContextMenu)
-          if (event.defaultPrevented) {
-            clearLongPressTimeout()
-            return
-          }
-          onContextMenu(event)
-        }}
-        onPointerDown={(event) => {
-          callHandler(event, local.onPointerDown)
-          if (!event.defaultPrevented) {
-            onPointerDown(event)
-          }
-        }}
-        onPointerMove={(event) => {
-          callHandler(event, local.onPointerMove)
-          if (!event.defaultPrevented) {
-            onPointerMove(event)
-          }
-        }}
-        onPointerCancel={(event) => {
-          callHandler(event, local.onPointerCancel)
-          onPointerCancel(event)
-        }}
-        onPointerUp={(event) => {
-          callHandler(event, local.onPointerUp)
-          onPointerUp(event)
-        }}
-        onKeyDown={(event) => {
-          callHandler(event, local.onKeyDown)
-          if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
-            return
-          }
-
-          event.preventDefault()
-          event.stopPropagation()
-
-          if (resolvedOpen()) {
-            commitOpen(false)
-            return
-          }
-
-          openFromTriggerCenter('first')
-        }}
-      >
-        {merged.children}
-      </span>
+      <Show when={triggerRender()}>
+        {(render) => renderComponentOrElement(render(), triggerProps)}
+      </Show>
 
       <OverlayMenu<ContextMenuT.Item>
         id={resolvedId()}

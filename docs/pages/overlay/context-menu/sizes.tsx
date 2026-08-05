@@ -31,7 +31,11 @@ export function Sizes() {
       <For each={SIZES}>
         {(size) => (
           <ContextMenu size={size} items={ITEMS}>
-            <Button variant="outline">Right click ({size})</Button>
+            {(props) => (
+              <Button {...props} variant="outline">
+                Right click ({size})
+              </Button>
+            )}
           </ContextMenu>
         )}
       </For>

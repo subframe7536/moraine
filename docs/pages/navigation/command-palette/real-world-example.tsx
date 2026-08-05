@@ -181,7 +181,11 @@ export function RealWorldExample() {
           />
         }
       >
-        <Button variant="outline">Search projects, issues, and actions</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Search projects, issues, and actions
+          </Button>
+        )}
       </Dialog>
     </div>
   )

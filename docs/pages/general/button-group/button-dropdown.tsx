@@ -37,9 +37,11 @@ export function DropdownAction() {
       <ButtonGroup separator>
         <Button leading="i-lucide:download">Export report</Button>
         <DropdownMenu items={exportItems}>
-          <Button size="icon-md">
-            <Icon name="i-lucide:chevron-down" />
-          </Button>
+          {(props) => (
+            <Button {...props}>
+              <Icon name="i-lucide:chevron-down" />
+            </Button>
+          )}
         </DropdownMenu>
       </ButtonGroup>
 

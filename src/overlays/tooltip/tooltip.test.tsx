@@ -26,29 +26,50 @@ describe('Tooltip', () => {
   test('renders text content when open is controlled', () => {
     render(() => (
       <Tooltip open text="Tooltip content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
     expect(document.body.querySelector('[role=tooltip]')!.textContent).toContain('Tooltip content')
   })
 
-  test('keeps trigger wrapper out of tab order', () => {
+  test('renders the trigger content as a native button root', () => {
     render(() => (
       <Tooltip text="Tooltip content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
     const trigger = document.body.querySelector('[data-slot="trigger"]')
 
-    expect(trigger?.getAttribute('tabindex')).toBe('-1')
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+  })
+
+  test('renders a span trigger root', () => {
+    render(() => (
+      <Tooltip text="Tooltip content">{(props) => <span {...props}>Trigger</span>}</Tooltip>
+    ))
+
+    expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('applies top-level class and style to trigger', () => {
     render(() => (
-      <Tooltip text="Tooltip content" class="trigger-class" style={{ width: '200px' }}>
-        <button type="button">Trigger</button>
+      <Tooltip text="Tooltip content">
+        {(props) => (
+          <button {...props} class="trigger-class" style={{ width: '200px' }} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
@@ -61,7 +82,11 @@ describe('Tooltip', () => {
   test('renders keyboard hints', () => {
     render(() => (
       <Tooltip open text="Save" kbds={['Ctrl', 'S']}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
@@ -75,7 +100,11 @@ describe('Tooltip', () => {
   test('applies classes.content to content slot', () => {
     render(() => (
       <Tooltip open text="Tooltip content" classes={{ content: 'content-override' }}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
@@ -86,7 +115,11 @@ describe('Tooltip', () => {
   test('renders tooltip container when no text or kbds are provided', () => {
     render(() => (
       <Tooltip open>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
@@ -99,15 +132,18 @@ describe('Tooltip', () => {
   test('does not render content when disabled', () => {
     const screen = render(() => (
       <Tooltip open text="Tooltip content" disabled>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
-  test('requires children in type contract', () => {
-    // @ts-expect-error children is required
+  test('allows a fully controlled overlay without a trigger', () => {
     const props: TooltipProps = { open: true, text: 'Tooltip content' }
     expect(props).toBeDefined()
   })
@@ -115,7 +151,11 @@ describe('Tooltip', () => {
   test('applies styles override to content', () => {
     render(() => (
       <Tooltip open text="Styled" styles={{ content: { width: '200px' } }}>
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
@@ -132,7 +172,11 @@ describe('Tooltip', () => {
 
       return (
         <Tooltip open side="top" text="Tooltip content">
-          <button type="button">Trigger</button>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
         </Tooltip>
       )
     })
@@ -158,11 +202,15 @@ describe('Tooltip', () => {
 
     const screen = render(() => (
       <Tooltip text="Tooltip content">
-        <button type="button">Trigger</button>
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
       </Tooltip>
     ))
 
-    const trigger = screen.getByText('Trigger').parentElement!
+    const trigger = screen.getByText('Trigger').closest('[data-slot="trigger"]')!
 
     await fireEvent.pointerEnter(trigger)
 
@@ -181,16 +229,24 @@ describe('Tooltip', () => {
     const screen = render(() => (
       <div>
         <Tooltip text="First tooltip">
-          <button type="button">First</button>
+          {(props) => (
+            <button {...props} type="button">
+              First
+            </button>
+          )}
         </Tooltip>
         <Tooltip text="Second tooltip">
-          <button type="button">Second</button>
+          {(props) => (
+            <button {...props} type="button">
+              Second
+            </button>
+          )}
         </Tooltip>
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').parentElement!
-    const secondTrigger = screen.getByText('Second').parentElement!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
     const firstButton = screen.getByText('First')
 
     await fireEvent.pointerEnter(firstTrigger)
@@ -221,16 +277,24 @@ describe('Tooltip', () => {
     const screen = render(() => (
       <div>
         <Tooltip open text="Always open">
-          <button type="button">Always</button>
+          {(props) => (
+            <button {...props} type="button">
+              Always
+            </button>
+          )}
         </Tooltip>
         <Tooltip text="Other tooltip">
-          <button type="button">Other</button>
+          {(props) => (
+            <button {...props} type="button">
+              Other
+            </button>
+          )}
         </Tooltip>
       </div>
     ))
 
-    const alwaysTrigger = screen.getByText('Always').parentElement!
-    const otherTrigger = screen.getByText('Other').parentElement!
+    const alwaysTrigger = screen.getByText('Always').closest('[data-slot="trigger"]')!
+    const otherTrigger = screen.getByText('Other').closest('[data-slot="trigger"]')!
     const getAlwaysContent = (): HTMLElement =>
       Array.from(document.body.querySelectorAll('[role=tooltip]')).find((element) =>
         element.textContent?.includes('Always open'),
@@ -259,16 +323,24 @@ describe('Tooltip', () => {
     const screen = render(() => (
       <div>
         <Tooltip text="First tooltip">
-          <button type="button">First</button>
+          {(props) => (
+            <button {...props} type="button">
+              First
+            </button>
+          )}
         </Tooltip>
         <Tooltip text="Second tooltip">
-          <button type="button">Second</button>
+          {(props) => (
+            <button {...props} type="button">
+              Second
+            </button>
+          )}
         </Tooltip>
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').parentElement!
-    const secondTrigger = screen.getByText('Second').parentElement!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
 
     await fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(600)
@@ -300,16 +372,24 @@ describe('Tooltip', () => {
     const screen = render(() => (
       <div>
         <Tooltip text="First tooltip">
-          <button type="button">First</button>
+          {(props) => (
+            <button {...props} type="button">
+              First
+            </button>
+          )}
         </Tooltip>
         <Tooltip text="Second tooltip">
-          <button type="button">Second</button>
+          {(props) => (
+            <button {...props} type="button">
+              Second
+            </button>
+          )}
         </Tooltip>
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').parentElement!
-    const secondTrigger = screen.getByText('Second').parentElement!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
 
     await fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(100)

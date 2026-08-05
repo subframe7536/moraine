@@ -1,4 +1,16 @@
-import { Badge, Button, Card, Icon } from 'moraine'
+import {
+  Badge,
+  Button,
+  Card,
+  ContextMenu,
+  Dialog,
+  DropdownMenu,
+  Icon,
+  Popover,
+  Popup,
+  Sheet,
+  Tooltip,
+} from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 declare module 'moraine' {
@@ -37,6 +49,37 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 />
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as="input" type="checkbox" />
+;<Dialog>
+  {(props) => (
+    <a {...props} href="/dialog">
+      Open dialog
+    </a>
+  )}
+</Dialog>
+;<Popover>{(props) => <span {...props}>Open popover</span>}</Popover>
+;<Tooltip>
+  {(props) => (
+    <button {...props} type="button">
+      Hover target
+    </button>
+  )}
+</Tooltip>
+;<DropdownMenu items={[]}>
+  {(props) => (
+    <button {...props} type="button">
+      Open menu
+    </button>
+  )}
+</DropdownMenu>
+;<ContextMenu items={[]}>{(props) => <div {...props}>Open menu</div>}</ContextMenu>
+;<Popup>
+  {(props) => (
+    <a {...props} href="/popup">
+      Open popup
+    </a>
+  )}
+</Popup>
+;<Sheet>{(props) => <span {...props}>Open sheet</span>}</Sheet>
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />
@@ -48,3 +91,5 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 ;<Card use:foo={foo} />
 // @ts-expect-error Required custom component props remain required through `as`.
 ;<Button as={CustomRoot} />
+// @ts-expect-error Required custom component props must be supplied in the callback.
+;<Dialog>{(props) => <CustomRoot {...props} />}</Dialog>

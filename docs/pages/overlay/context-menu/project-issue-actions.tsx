@@ -102,18 +102,20 @@ export function ProjectIssueActions() {
 
   return (
     <ContextMenu items={projectItems}>
-      <div class={panelClass}>
-        <div class="flex gap-3 items-center justify-between">
-          <div>
-            <div class="text-foreground font-medium">
-              Improve dropdown/context menu motion polish
+      {(props) => (
+        <div {...props} class={panelClass}>
+          <div class="flex gap-3 items-center justify-between">
+            <div>
+              <div class="text-foreground font-medium">
+                Improve dropdown/context menu motion polish
+              </div>
+              <div class="text-xs text-muted-foreground">Overlay milestone · due this sprint</div>
             </div>
-            <div class="text-xs text-muted-foreground">Overlay milestone · due this sprint</div>
+            <span class={badgeClass}>In Review</span>
           </div>
-          <span class={badgeClass}>In Review</span>
+          <div class="text-xs text-muted-foreground">Right click this card</div>
         </div>
-        <div class="text-xs text-muted-foreground">Right click this card</div>
-      </div>
+      )}
     </ContextMenu>
   )
 }

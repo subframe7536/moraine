@@ -276,7 +276,11 @@ describe('CommandPalette', () => {
         close={false}
         body={<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
       >
-        <button type="button">Open palette</button>
+        {(props) => (
+          <button {...props} type="button">
+            Open palette
+          </button>
+        )}
       </Dialog>
     ))
 

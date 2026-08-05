@@ -152,7 +152,11 @@ export function EditorViewOptions() {
     <div class="flex flex-col gap-3">
       <div class="flex flex-wrap gap-3 items-center">
         <DropdownMenu items={editorItems()}>
-          <Button variant="outline">Editor menu</Button>
+          {(props) => (
+            <Button {...props} variant="outline">
+              Editor menu
+            </Button>
+          )}
         </DropdownMenu>
       </div>
       <div class="text-sm text-muted-foreground flex flex-wrap gap-4">

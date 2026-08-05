@@ -9,51 +9,6 @@
   },
   "slots": [
     {
-      "name": "trigger",
-      "description": "Element users activate to open the menu.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-closed",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        },
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
-        },
-        {
-          "name": "data-expanded",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-controls",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the controlled element while the related content is mounted."
-        },
-        {
-          "name": "aria-expanded",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates whether the controlled content is expanded."
-        },
-        {
-          "name": "aria-haspopup",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Accessibility attribute forwarded by the rendered component."
-        }
-      ]
-    },
-    {
       "name": "overlay",
       "description": "Optional backdrop rendered behind modal menu content.",
       "cssVariables": [],
@@ -375,19 +330,13 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element",
+        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
         "description": "Trigger content used to open the dropdown menu."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
       },
       {
         "name": "classes",
         "required": false,
-        "type": "(OverlayMenuSharedClasses & DropdownMenuT.Classes) | undefined",
+        "type": "OverlayMenuSharedClasses | undefined",
         "description": "Slot class overrides for menu sections."
       },
       {
@@ -454,18 +403,6 @@
         "description": "Items rendered in the menu body."
       },
       {
-        "name": "onClick",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLSpanElement, MouseEvent> | undefined",
-        "description": "Root trigger click handler."
-      },
-      {
-        "name": "onKeyDown",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLSpanElement, KeyboardEvent> | undefined",
-        "description": "Root trigger keyboard handler."
-      },
-      {
         "name": "onOpenChange",
         "required": false,
         "type": "((open: boolean) => void) | undefined",
@@ -498,11 +435,6 @@
         "defaultValue": "true"
       },
       {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined",
@@ -510,14 +442,9 @@
         "defaultValue": "md"
       },
       {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
         "name": "styles",
         "required": false,
-        "type": "(OverlayMenuSharedStyles & DropdownMenuT.Styles) | undefined",
+        "type": "OverlayMenuSharedStyles | undefined",
         "description": "Slot style overrides for menu sections."
       },
       {

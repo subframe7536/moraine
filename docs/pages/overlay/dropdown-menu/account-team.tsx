@@ -120,7 +120,11 @@ export function AccountTeam() {
           },
         ]}
       >
-        <Button variant="outline">Open account menu</Button>
+        {(props) => (
+          <Button {...props} variant="outline">
+            Open account menu
+          </Button>
+        )}
       </DropdownMenu>
       <p class="text-sm text-muted-foreground">
         Last action: <span class="font-medium">{lastAction()}</span>
