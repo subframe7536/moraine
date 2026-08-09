@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after shared controllable-value and FormField semantics are stable.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -64,3 +64,26 @@ Align Slider's single/range state machine, keyboard, pointer/touch, focus, ARIA,
 - Coordinate shared controllable-value, hidden-input, and FormField changes with other form owners.
 - Treat useSlider as the owner of interaction/value invariants; avoid parallel fixes in rendering.
 - Handoff must include the state transition table, math/direction policy, native range serialization, callback timing, platform caveats, and validation results.
+
+## Verified Missing Features
+
+1. **Uncontrolled SSR renders no thumbs.** `displayValues` starts empty and default values are installed in `onMount`, producing different server/client structure and invalid range math. Priority P0, medium, critical hydration impact; owner: Slider.
+2. **Initial and controlled values are not normalized.** `normalizeSliderValues` copies values but does not clamp, sort, or reject non-finite entries. Base UI clamps out-of-range values and tests invalid bounds. Priority P0, medium; owner: Slider.
+3. **Controlled updates can leave stale pending interaction state.** A value change during drag or keyboard interaction updates display values but not `pendingValues`, so a later commit can publish the old candidate. Priority P0, medium, high state risk; owner: Slider.
+4. **Boundary moves can emit input/commit with no value change.** Priority P1, small; owner: Slider.
+5. **Form reset and pointer cleanup are incomplete.** Hidden inputs are signal-controlled, and active pointer capture/dragging has no owner cleanup path. Priority P1, medium; owner: Slider plus Form.
+6. **Group accessible naming depends on the missing FormField label ID.** Priority P0 shared prerequisite; owner: FormField, then Slider adoption.
+
+## Detailed Execution Plan
+
+1. Initialize the complete normalized value array synchronously so server markup contains the final thumb count/order. Add scalar and range render-to-string/hydrate tests in both orientations.
+2. Specify one normalization function for defaults, controlled values, pointer candidates, and keyboard candidates: finite values only, clamp, stable sort for ranges, and stable thumb cardinality. Add invalid-bound STOP coverage first.
+3. Add controlled-update-during-pointer and controlled-update-during-keyboard tests; invalidate or rebase pending state so stale commits are impossible.
+4. Suppress no-op input/commit callbacks at min/max and equal snapped values while retaining focus movement.
+5. Add native reset and repeated-name FormData order tests; release capture and clear dragging/pending state on cancel and owner cleanup according to the existing cancel-commit contract.
+6. Adopt FormField shared labelling, update the matrix, and run Slider, navigation foundation, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Define inverted/non-finite bounds before code; do not normalize an invalid domain silently.
+- Preserve Moraine's documented pointer-cancel commit behavior and existing visual geometry.

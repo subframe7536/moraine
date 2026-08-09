@@ -85,7 +85,7 @@ export const avatarFallbackIconVariants = cva('shrink-0', {
 })
 
 export const avatarBadgeVariants = cva(
-  'text-foreground rounded-full bg-background inline-flex ring-2 ring-background items-center justify-center absolute z-10',
+  'text-foreground rounded-full bg-background inline-flex ring-2 ring-background pointer-events-none items-center justify-center absolute z-10',
   {
     defaultVariants: {
       size: 'md',

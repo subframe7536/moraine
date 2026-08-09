@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, cn } from '../../shared/utils.ts'
+import { cn } from '../../shared/utils.ts'
 import { IconButtonInner } from '../icon/icon-button-inner.tsx'
 import type { IconButtonInnerProps } from '../icon/icon-button-inner.tsx'
 import { Icon } from '../icon/index.ts'
@@ -99,14 +99,31 @@ export function Badge(props: BadgeProps): JSX.Element {
 
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
+  const trailingAction = createMemo(() => local.onTrailingClick)
+  const title = createMemo(() => local.title)
   const resolvedChildren = resolveChildren(() => local.children)
+  const hasChildren = createMemo(() => {
+    const value = resolvedChildren()
+    return value === 0 || Boolean(value)
+  })
+  const trailingLabel = createMemo(() => {
+    const titleText = title()?.trim()
+    if (titleText) {
+      return `Remove ${titleText}`
+    }
+
+    const value = resolvedChildren()
+    const childText =
+      typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
+    return childText ? `Remove ${childText}` : 'Remove badge'
+  })
 
   return (
     <span
       data-slot="root"
       data-size={size()}
       data-variant={variant()}
-      title={local.title}
+      title={title()}
       {...rest}
       style={{ ...local.styles?.root, ...local.style }}
       class={badgeVariants(
@@ -117,14 +134,7 @@ export function Badge(props: BadgeProps): JSX.Element {
         local.classes?.root,
         local.class,
       )}
-      onPointerDown={(e) => {
-        const { defaultPrevented } = callHandler(e, local.onPointerDown)
-        if (defaultPrevented) {
-          return
-        }
-        e.preventDefault()
-        e.stopPropagation()
-      }}
+      onPointerDown={local.onPointerDown}
     >
       <Show when={leading()}>
         {(leading) => (
@@ -137,22 +147,20 @@ export function Badge(props: BadgeProps): JSX.Element {
         )}
       </Show>
 
-      <Show when={resolvedChildren()}>
-        {(body) => (
-          <span
-            data-slot="label"
-            style={local.styles?.label}
-            class={cn('min-w-0 truncate', local.classes?.label)}
-          >
-            {body()}
-          </span>
-        )}
+      <Show when={hasChildren()}>
+        <span
+          data-slot="label"
+          style={local.styles?.label}
+          class={cn('min-w-0 truncate', local.classes?.label)}
+        >
+          {resolvedChildren()}
+        </span>
       </Show>
 
       <Show when={trailing()}>
         {(trailing) => (
           <Show
-            when={local.onTrailingClick}
+            when={trailingAction()}
             fallback={
               <Icon
                 name={trailing()}
@@ -166,9 +174,10 @@ export function Badge(props: BadgeProps): JSX.Element {
               name={trailing()}
               size={size()}
               data-slot="trailing"
+              aria-label={trailingLabel()}
               style={local.styles?.trailing}
               class={cn('ms-.5', local.classes?.trailing)}
-              onClick={local.onTrailingClick}
+              onClick={trailingAction()}
             />
           </Show>
         )}

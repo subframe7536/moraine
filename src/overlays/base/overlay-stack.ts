@@ -57,6 +57,27 @@ export function isInsideDescendantOverlay(entry: OverlayStackEntry, target: Node
   return false
 }
 
+/** Returns whether a branch contains content from a layer above the layer owning `target`. */
+export function containsOverlayContentAbove(target: Node, branch: Element): boolean {
+  const ownerIndex = overlayStack.findIndex((entry) => {
+    const content = entry.contentElement()
+    return content === target || content?.contains(target)
+  })
+
+  if (ownerIndex === -1) {
+    return false
+  }
+
+  for (let index = ownerIndex + 1; index < overlayStack.length; index++) {
+    const content = overlayStack[index]?.contentElement()
+    if (content && (content === branch || branch.contains(content))) {
+      return true
+    }
+  }
+
+  return false
+}
+
 /**
  * Registers an overlay layer for the duration of an open state. The entry is
  * pushed onto the stack while `open` is true and removed on cleanup.

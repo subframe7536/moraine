@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -65,3 +65,27 @@ Make FormField's label, description, help, error, control registration, Formisch
 - This is a shared prerequisite for all form component parity work; publish its invariant decisions before consumers independently compensate for gaps.
 - Coordinate any useId, render-prop, or context-provider change with shared infrastructure owners.
 - Handoff must include the consumer matrix, registration/ID invariants, Formisch event contract, test results, intentional divergences, and any control still requiring follow-up.
+
+## Verified Missing Features
+
+1. **Required state is visual-only.** `FormFieldContextOptions` has no required accessor and `useFormField` does not inherit it, although documented usage places `required` on `FormField`. Base Field and Kobalte FormControl propagate required state. Priority P0, medium, high fan-out; owner: FormField foundation.
+2. **`aria-describedby` can reference nodes that are not mounted.** `useFormField.ariaAttrs` includes error for `error={true}`, hint without a label, and help while a rendered error replaces help. Priority P0, medium, high accessibility impact; owner: FormField foundation.
+3. **Group controls are not labelled by the FormField label.** Bind-false controls never become `resolvedLabelTargetId`; the label has no reusable ID and context exposes no `aria-labelledby`. This affects CheckboxGroup, RadioGroup, Select, MultiSelect, and Slider. Priority P0, medium, high fan-out; owner: FormField foundation.
+4. **A name supplied after mount never creates a Formisch field.** `useField` is called only when the untracked initial path exists. Formisch accepts a reactive config once the hook exists, but Solid hooks cannot be conditionally created later. Priority P1, medium, high lifecycle risk; owner: FormField.
+5. **Custom controls cannot notify Formisch's change validation path.** `useFormField.emit` returns when no native event is supplied, but Checkbox, Switch, RadioGroup, Slider, and Select-family controls call `emit('change')`/`emit('input')` without one. `setFormValue` reaches Formisch's input policy only, so change-triggered validation is skipped. Priority P0, medium, high fan-out; owner: FormField foundation.
+6. **Children and message JSX lack the complete SSR gate.** `merged.children` is rendered directly; truthy `<Show>` checks omit numeric zero and there is no hydration fixture for registration order. Priority P1, medium; owner: FormField.
+
+## Detailed Execution Plan
+
+1. Add a consumer matrix test that mounts every public control under `FormField required`, separates labelable from group controls, and proves local control props override inherited state only where documented.
+2. Introduce shared accessors for `required`, `labelId`, and the exact mounted message IDs. Make `ariaAttrs()` return deduplicated, DOM-order tokens and never reference absent nodes; keep native `label[for]` only for a registered labelable control.
+3. Add group labelling smoke tests for CheckboxGroup, RadioGroup, Select/MultiSelect, and Slider. Consumers should use shared `ariaAttrs()`; do not create component-specific label IDs.
+4. Define event-less custom-control notification methods that invoke Formisch's input/change policies exactly once without manufacturing DOM events. Add validation-mode tests across Checkbox, Switch, RadioGroup, Slider, and Select.
+5. Decide reactive-path ownership before code: either require a path at mount and document/test that invariant, or create an always-present adapter supported by Formisch. Add path change, unmount, reorder, and nested-provider tests for the chosen rule.
+6. Cache every JSX prop once per owner, use explicit presence predicates, and add render-to-string/hydrate coverage that compares control registration, label target, and help/error branch order.
+7. Update the matrix first for the shared invariant, then implement consumer adoption in dependency order and run all suites in this plan plus `bun run typecheck`.
+
+## STOP Conditions
+
+- Stop consumer work if a required, label, message-ID, or registration defect is still shared; fix and freeze this plan first.
+- Do not call `useField` conditionally from a reactive effect. If Formisch cannot support late path creation safely, record the mount-time path rule as an intentional divergence with installed-source evidence.

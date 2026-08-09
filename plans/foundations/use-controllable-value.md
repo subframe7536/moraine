@@ -1,6 +1,6 @@
 # useControllableValue Base UI Parity Plan
 
-Status: Ready for hand-off
+Status: Complete
 
 ## Goal
 

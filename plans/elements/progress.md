@@ -2,7 +2,9 @@
 
 ## Status
 
-Planned. Existing ARIA, clamping, steps, and indeterminate tests must be compared afresh with both pinned upstream state models.
+Complete. The local implementation and focused regression suite were audited against both pinned upstream state models. All compatible behavior gaps were closed, Moraine-owned API differences were preserved, and browser-only visual behavior remains explicitly unverified-platform.
+
+Completed coverage includes non-finite indeterminate values, invalid and zero maxima, exact fractional percentages, synchronized part state, lazy single-evaluated renderers, stable duplicate steps, renderer failure containment, passive interaction, and deterministic SSR hydration through determinate, indeterminate, and complete transitions.
 
 ## Goal
 

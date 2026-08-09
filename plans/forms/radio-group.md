@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after selectable-collection and FormField invariants are known.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -63,3 +63,26 @@ Bring RadioGroup selection, roving focus, keyboard, native form, ARIA, pointer, 
 - Audit useSelectableCollectionNavigation before changing keyboard behavior; coordinate generic fixes with Select/Menu owners.
 - Depends on shared controllable-value, hidden-input, and FormField contracts.
 - Handoff must state the roving-tab-stop and selection-on-focus policy, direction/boundary rules, native form results, shared helper impact, and test output.
+
+## Verified Missing Features
+
+1. **Keyboard timing and modifiers differ from radio-group behavior.** The shared navigation adapter selects on Enter and Space `keydown` and also changes selection for Shift+Arrow. Base UI selects Space on keyup, ignores Enter, and preserves Shift+Arrow focus behavior. Priority P0, medium; owner: RadioGroup adapter, not the shared foundation.
+2. **Native form reset does not synchronize the signal/Formisch value.** Priority P0, medium; owner: RadioGroup plus Form.
+3. **Controlled external values do not update FormField state.** `field.setFormValue` runs only from local changes. Priority P1, medium; owner: RadioGroup.
+4. **Duplicate values collide in IDs and the ref map.** Priority P0, medium; owner: RadioGroup.
+5. **Per-item descriptions are not referenced by their radio inputs, and group labelling depends on FormField's missing label ID.** Priority P0 accessibility; owner: RadioGroup after FormField.
+6. **Item JSX and collection order lack hydration coverage.** Priority P1 coverage; owner: RadioGroup.
+
+## Detailed Execution Plan
+
+1. Add full keydown/keyup tests for Space, Enter, arrows, Home/End, Shift/Alt/Ctrl/Meta, RTL, disabled items, and callback order. Adapt only RadioGroup's consumer policy.
+2. Add reset, FormData, required validity, controlled external update, controlled rejection, and FormField store tests.
+3. Introduce collision-free DOM identity independent of selected value; test duplicate values, reorder, removal, and ref cleanup without changing the public value contract.
+4. Generate per-item description IDs and adopt FormField group `aria-labelledby`/`aria-describedby` accessors.
+5. Add SSR/hydration tests for scalar selection, item labels/descriptions, generated IDs, and first keyboard action.
+6. Update the matrix; run RadioGroup, navigation foundation, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Do not modify `useSelectableCollectionNavigation` for radio-specific Enter/keyup rules.
+- If duplicate-value selection semantics cannot remain predictable, stop and document whether duplicates must be rejected by contract.

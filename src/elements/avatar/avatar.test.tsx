@@ -1,25 +1,38 @@
 import { render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { AvatarGroup } from './avatar-group.tsx'
 import { Avatar } from './avatar.tsx'
 import type { AvatarProps } from './avatar.tsx'
 
-type MockImageOutcome = 'pending' | 'success' | 'error'
+type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
 const originalImage = window.Image
 const outcomesBySrc = new Map<string, MockImageOutcome>()
+const mockImages: MockImage[] = []
 
 class MockImage {
+  public complete = false
+  public naturalWidth = 0
   public onload: (() => void) | null = null
   public onerror: ((event: Event) => void) | null = null
   private _src = ''
+
+  public constructor() {
+    mockImages.push(this)
+  }
 
   public set src(value: string) {
     this._src = value
 
     const outcome = outcomesBySrc.get(value) ?? 'pending'
+    if (outcome === 'cached-success' || outcome === 'cached-error') {
+      this.complete = true
+      this.naturalWidth = outcome === 'cached-success' ? 100 : 0
+      return
+    }
+
     queueMicrotask(() => {
       if (outcome === 'success') {
         this.onload?.()
@@ -39,6 +52,7 @@ class MockImage {
 
 beforeEach(() => {
   outcomesBySrc.clear()
+  mockImages.length = 0
   window.Image = MockImage as unknown as typeof window.Image
 })
 
@@ -76,6 +90,7 @@ describe('Avatar', () => {
 
     expect(root?.getAttribute('data-status')).toBe('loading')
     expect(image?.className).toContain('hidden-hitless')
+    expect(image?.getAttribute('aria-hidden')).toBe('true')
     expect(fallback?.textContent).toBe('MR')
   })
 
@@ -84,16 +99,44 @@ describe('Avatar', () => {
     const screen = render(() => <Avatar src="/loaded.png" alt="Moraine" />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
-    const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
-    const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
     await waitFor(() => {
       expect(root?.getAttribute('data-status')).toBe('loaded')
     })
 
+    const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
+    const fallback = screen.container.querySelector('[data-slot="fallback"]')
     expect(image?.getAttribute('src')).toContain('/loaded.png')
     expect(image?.className).toContain('opacity-100')
     expect(fallback?.className).toContain('hidden-hitless')
+    expect(fallback?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  test.each([
+    ['cached-success', 'loaded'],
+    ['cached-error', 'error'],
+  ] as const)('resolves %s probes synchronously without an idle callback', (outcome, status) => {
+    outcomesBySrc.set('/cached.png', outcome)
+    const onStatusChange = vi.fn()
+    const screen = render(() => (
+      <Avatar src="/cached.png" alt="Cached avatar" onStatusChange={onStatusChange} />
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.getAttribute('data-status')).toBe(status)
+    expect(onStatusChange).not.toHaveBeenCalledWith('idle')
+
+    if (status === 'loaded') {
+      expect(screen.container.querySelector('[data-slot="image"]')).not.toBeNull()
+      expect(
+        screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('aria-hidden'),
+      ).toBe('true')
+    } else {
+      expect(
+        screen.container.querySelector('[data-slot="image"]')?.getAttribute('aria-hidden'),
+      ).toBe('true')
+      expect(screen.container.querySelector('[data-slot="fallback"]')).not.toBeNull()
+    }
   })
 
   test('uses fallback icon on error state', async () => {
@@ -170,6 +213,13 @@ describe('Avatar', () => {
     expect(fallback?.textContent).toBe('MT')
   })
 
+  test('generates Unicode-safe initials across non-space whitespace', () => {
+    const screen = render(() => <Avatar alt={'Ada\t😀 Lovelace'} />)
+    const fallback = screen.container.querySelector('[data-slot="fallback"]')
+
+    expect(fallback?.textContent).toBe('A😀')
+  })
+
   test('resets to loading state when src changes', async () => {
     outcomesBySrc.set('/first.png', 'success')
     outcomesBySrc.set('/second.png', 'pending')
@@ -190,6 +240,162 @@ describe('Avatar', () => {
 
     setSource?.('/second.png')
     expect(root?.getAttribute('data-status')).toBe('loading')
+  })
+
+  test('does not restart loading when src changes only by surrounding whitespace', async () => {
+    outcomesBySrc.set('/same.png', 'success')
+    const onStatusChange = vi.fn()
+    const [source, setSource] = createSignal('/same.png')
+    const screen = render(() => (
+      <Avatar src={source()} alt="Same" onStatusChange={onStatusChange} />
+    ))
+
+    await waitFor(() => {
+      expect(
+        screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status'),
+      ).toBe('loaded')
+    })
+    expect(mockImages).toHaveLength(1)
+
+    setSource('  /same.png  ')
+    await Promise.resolve()
+
+    expect(mockImages).toHaveLength(1)
+    expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading', 'loaded'])
+  })
+
+  test('does not restart a pending load when the status callback changes', () => {
+    outcomesBySrc.set('/pending.png', 'pending')
+    const firstCallback = vi.fn()
+    const secondCallback = vi.fn()
+    const [callback, setCallback] = createSignal<(status: string) => void>(firstCallback)
+
+    render(() => <Avatar src="/pending.png" onStatusChange={callback()} />)
+    expect(mockImages).toHaveLength(1)
+    expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
+
+    setCallback(() => secondCallback)
+    mockImages[0]?.onload?.()
+
+    expect(mockImages).toHaveLength(1)
+    expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
+    expect(secondCallback.mock.calls.map(([status]) => status)).toEqual(['loaded'])
+  })
+
+  test('treats blank sources as errors without constructing a loader or emitting idle', () => {
+    const onStatusChange = vi.fn()
+    const screen = render(() => <Avatar src={' \t '} onStatusChange={onStatusChange} />)
+
+    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
+      'error',
+    )
+    expect(mockImages).toHaveLength(0)
+    expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['error'])
+  })
+
+  test('ignores stale load events after source replacement and disposal', async () => {
+    const [source, setSource] = createSignal('/first.png')
+    const onStatusChange = vi.fn()
+    const screen = render(() => <Avatar src={source()} onStatusChange={onStatusChange} />)
+    const firstLoader = mockImages[0]
+
+    setSource('/second.png')
+    const secondLoader = mockImages[1]
+    firstLoader?.onload?.()
+
+    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
+      'loading',
+    )
+
+    secondLoader?.onload?.()
+    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
+      'loaded',
+    )
+
+    screen.unmount()
+    secondLoader?.onerror?.(new Event('error'))
+    expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading', 'loaded'])
+  })
+
+  test('exposes exactly one accessible image across fallback and loaded states', async () => {
+    outcomesBySrc.set('/profile.png', 'pending')
+    const screen = render(() => (
+      <Avatar src="/profile.png" alt="Jane Doe" fallback="i-lucide-user" />
+    ))
+
+    const fallback = screen.getByRole('img', { name: 'Jane Doe' })
+    expect(fallback.tagName).toBe('SPAN')
+    expect(screen.container.querySelector('[data-slot="image"]')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    )
+
+    mockImages[0]?.onload?.()
+
+    await waitFor(() => {
+      const image = screen.getByRole('img', { name: 'Jane Doe' })
+      expect(image.tagName).toBe('IMG')
+    })
+    expect(
+      screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('aria-hidden'),
+    ).toBe('true')
+  })
+
+  test('lets a caller root label own image semantics without duplicate descendants', () => {
+    outcomesBySrc.set('/profile.png', 'cached-success')
+    const screen = render(() => (
+      <Avatar src="/profile.png" alt="Original" aria-label="Account owner" />
+    ))
+
+    const root = screen.getByRole('img', { name: 'Account owner' })
+    const image = screen.container.querySelector('[data-slot="image"]')
+
+    expect(root.getAttribute('data-slot')).toBe('root')
+    expect(image?.getAttribute('aria-hidden')).toBe('true')
+    expect(screen.queryByRole('img', { name: 'Original' })).toBeNull()
+  })
+
+  test('keeps an empty-alt avatar decorative while its fallback is visible', () => {
+    const screen = render(() => <Avatar alt="" />)
+
+    expect(screen.queryByRole('img')).toBeNull()
+    expect(
+      screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('role'),
+    ).toBeNull()
+  })
+
+  test('keeps badge icons passive and creates no internal tab stop', () => {
+    const screen = render(() => <Avatar badge="i-lucide-check" text="MR" />)
+    const badge = screen.container.querySelector('[data-slot="badge"]')
+
+    expect(badge?.className).toContain('pointer-events-none')
+    expect(screen.container.querySelector('[tabindex="0"]')).toBeNull()
+  })
+
+  test('reads reactive fallback inputs once per rendered value', () => {
+    let altReads = 0
+    let fallbackReads = 0
+    let badgeReads = 0
+
+    render(() =>
+      createComponent(Avatar, {
+        get alt() {
+          altReads += 1
+          return 'Jane Doe'
+        },
+        get fallback() {
+          fallbackReads += 1
+          return 'i-lucide-user'
+        },
+        get badge() {
+          badgeReads += 1
+          return 'i-lucide-check'
+        },
+      }),
+    )
+
+    expect(altReads).toBe(1)
+    expect(fallbackReads).toBe(1)
+    expect(badgeReads).toBe(1)
   })
 
   test('fires onStatusChange for success and error paths', async () => {
@@ -274,24 +480,33 @@ describe('Avatar', () => {
   })
 
   test('applies styles overrides to all slots', () => {
+    outcomesBySrc.set('/styled.png', 'cached-success')
     const screen = render(() => (
-      <Avatar
-        src="/loading.png"
-        text="MR"
-        badge="i-lucide-check"
-        styles={{
-          root: { width: '200px' },
-          image: { width: '200px' },
-          fallback: { width: '200px' },
-          fallbackIcon: { width: '200px' },
-          badge: { width: '200px' },
-        }}
-      />
+      <>
+        <Avatar
+          src="/styled.png"
+          styles={{
+            root: { width: '200px' },
+            image: { width: '200px' },
+          }}
+        />
+        <Avatar
+          fallback="i-lucide-user"
+          badge="i-lucide-check"
+          styles={{
+            fallback: { width: '200px' },
+            fallbackIcon: { width: '200px' },
+            badge: { width: '200px' },
+          }}
+        />
+      </>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const image = screen.container.querySelector('[data-slot="image"]') as HTMLElement | null
-    const fallback = screen.container.querySelector('[data-slot="fallback"]') as HTMLElement | null
+    const fallback = Array.from(
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="fallback"]'),
+    ).at(-1)
     const fallbackIcon = screen.container.querySelector(
       '[data-slot="fallbackIcon"]',
     ) as HTMLElement | null
@@ -300,10 +515,7 @@ describe('Avatar', () => {
     expect(root?.style.width).toBe('200px')
     expect(image?.style.width).toBe('200px')
     expect(fallback?.style.width).toBe('200px')
-    // fallbackIcon shouldn't be rendered if valid string text is provided but doesn't hurt to optionally grab
-    if (fallbackIcon) {
-      expect(fallbackIcon.style.width).toBe('200px')
-    }
+    expect(fallbackIcon?.style.width).toBe('200px')
     expect(badge?.style.width).toBe('200px')
   })
 

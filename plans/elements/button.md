@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. The local suite already covers many polymorphic cases, but every behavior must be rechecked against Base UI `3011fba8f` and Kobalte `2e8ce473`.
+Complete.
 
 ## Goal
 

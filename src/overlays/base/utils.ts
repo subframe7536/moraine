@@ -1,6 +1,7 @@
 import type { Placement } from '@floating-ui/dom'
 
 import type { OverlayMenuSide } from './menu/index.ts'
+import { containsOverlayContentAbove } from './overlay-stack.ts'
 
 const FOCUSABLE_SELECTOR_PARTS = [
   'a[href]',
@@ -29,6 +30,152 @@ const REVERSE_BASE_PLACEMENT: Record<FloatingSide, FloatingSide> = {
 
 let scrollLockDepth = 0
 let previousBodyOverflow = ''
+let previousBodyPaddingRight = ''
+
+interface AriaHiddenState {
+  count: number
+  previousValue: string | null
+}
+
+interface AriaHideLayer {
+  hiddenElements: Set<Element>
+  observer: MutationObserver
+  root: HTMLElement
+  target: Element
+  walk: (element: Element) => void
+}
+
+const ariaHiddenStates = new WeakMap<Element, AriaHiddenState>()
+const ariaHideLayers: AriaHideLayer[] = []
+
+/** Hides every body branch outside the target from assistive technology. */
+export function acquireAriaHideOutside(
+  target: Element,
+  root: HTMLElement = document.body,
+): () => void {
+  const hiddenElements = new Set<Element>()
+
+  const hide = (element: Element): void => {
+    if (hiddenElements.has(element)) {
+      return
+    }
+
+    const currentState = ariaHiddenStates.get(element)
+    if (currentState) {
+      currentState.count += 1
+      hiddenElements.add(element)
+      return
+    }
+
+    const previousValue = element.getAttribute('aria-hidden')
+    if (previousValue === 'true') {
+      return
+    }
+
+    element.setAttribute('aria-hidden', 'true')
+    ariaHiddenStates.set(element, { count: 1, previousValue })
+    hiddenElements.add(element)
+  }
+
+  const walk = (element: Element): void => {
+    if (element === target || target.contains(element)) {
+      return
+    }
+
+    if (element.contains(target)) {
+      for (const child of element.children) {
+        walk(child)
+      }
+      return
+    }
+
+    if (
+      containsOverlayContentAbove(target, element) ||
+      element.matches('[data-live-announcer="true"], [data-react-aria-top-layer="true"]')
+    ) {
+      return
+    }
+
+    hide(element)
+  }
+
+  ariaHideLayers[ariaHideLayers.length - 1]?.observer.disconnect()
+
+  for (const child of root.children) {
+    walk(child)
+  }
+
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type !== 'childList') {
+        continue
+      }
+
+      const mutationTarget = record.target
+      if (
+        mutationTarget instanceof Element &&
+        [...hiddenElements].some((element) => element.contains(mutationTarget))
+      ) {
+        continue
+      }
+
+      for (const addedNode of record.addedNodes) {
+        if (addedNode instanceof Element) {
+          walk(addedNode)
+        }
+      }
+    }
+  })
+  const layer: AriaHideLayer = { hiddenElements, observer, root, target, walk }
+  ariaHideLayers.push(layer)
+  observer.observe(root, { childList: true, subtree: true })
+
+  let released = false
+
+  return () => {
+    if (released) {
+      return
+    }
+
+    released = true
+    observer.disconnect()
+
+    for (const element of hiddenElements) {
+      const state = ariaHiddenStates.get(element)
+      if (!state) {
+        continue
+      }
+
+      state.count -= 1
+      if (state.count > 0) {
+        continue
+      }
+
+      if (state.previousValue === null) {
+        element.removeAttribute('aria-hidden')
+      } else {
+        element.setAttribute('aria-hidden', state.previousValue)
+      }
+      ariaHiddenStates.delete(element)
+    }
+
+    const index = ariaHideLayers.indexOf(layer)
+    const wasTopLayer = index === ariaHideLayers.length - 1
+    if (index !== -1) {
+      ariaHideLayers.splice(index, 1)
+    }
+
+    if (wasTopLayer) {
+      const previousLayer = ariaHideLayers[ariaHideLayers.length - 1]
+      if (previousLayer) {
+        for (const child of previousLayer.root.children) {
+          previousLayer.walk(child)
+        }
+        previousLayer.observer.observe(previousLayer.root, { childList: true, subtree: true })
+      }
+    }
+  }
+}
 
 export function acquireBodyScrollLock(): () => void {
   if (typeof document === 'undefined') {
@@ -37,6 +184,20 @@ export function acquireBodyScrollLock(): () => void {
 
   if (scrollLockDepth === 0) {
     previousBodyOverflow = document.body.style.overflow
+    previousBodyPaddingRight = document.body.style.paddingRight
+    const view = document.defaultView
+    const scrollbarWidth = Math.max(
+      0,
+      (view?.innerWidth ?? document.documentElement.clientWidth) -
+        document.documentElement.clientWidth,
+    )
+
+    if (scrollbarWidth > 0) {
+      const currentPadding = Number.parseFloat(
+        view?.getComputedStyle(document.body).paddingRight ?? '0',
+      )
+      document.body.style.paddingRight = `${(Number.isNaN(currentPadding) ? 0 : currentPadding) + scrollbarWidth}px`
+    }
     document.body.style.overflow = 'hidden'
   }
 
@@ -54,7 +215,9 @@ export function acquireBodyScrollLock(): () => void {
 
     if (scrollLockDepth === 0) {
       document.body.style.overflow = previousBodyOverflow
+      document.body.style.paddingRight = previousBodyPaddingRight
       previousBodyOverflow = ''
+      previousBodyPaddingRight = ''
     }
   }
 }
@@ -70,7 +233,19 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
         return false
       }
 
-      return (element as HTMLElement & { inert?: boolean }).inert !== true
+      if (element.closest('[aria-hidden="true"], [hidden], [inert]')) {
+        return false
+      }
+
+      let ancestor: HTMLElement | null = element
+      while (ancestor) {
+        if ((ancestor as HTMLElement & { inert?: boolean }).inert === true) {
+          return false
+        }
+        ancestor = ancestor.parentElement
+      }
+
+      return true
     },
   )
 }
@@ -96,13 +271,26 @@ export function focusContent(container: HTMLElement | undefined): void {
   focusWithoutScrolling(firstFocusable ?? container)
 }
 
-export function focusTrigger(triggerElement: HTMLElement | undefined): void {
+export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
   if (!triggerElement) {
-    return
+    return false
   }
 
   const [firstFocusable] = getFocusableElements(triggerElement)
-  focusWithoutScrolling(firstFocusable ?? triggerElement)
+  const target = firstFocusable ?? triggerElement
+  if (
+    !target.isConnected ||
+    target.tabIndex < 0 ||
+    target.hasAttribute('disabled') ||
+    target.getAttribute('aria-disabled') === 'true' ||
+    target.getAttribute('aria-hidden') === 'true' ||
+    (target as HTMLElement & { inert?: boolean }).inert === true
+  ) {
+    return false
+  }
+
+  focusWithoutScrolling(target)
+  return document.activeElement === target
 }
 
 export function resolveDirection(): 'ltr' | 'rtl' {

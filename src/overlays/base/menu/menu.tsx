@@ -25,12 +25,14 @@ import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
 import type { ElementProps } from '../../../shared/types.ts'
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
+import { useEventListener } from '../../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
 import { callHandler, cn, useId } from '../../../shared/utils.ts'
 import {
   acquireBodyScrollLock,
   focusTrigger,
   focusWithoutScrolling,
+  getFocusableElements,
   getTransformOrigin,
   resolveDirection,
   resolveOverlayMenuSide,
@@ -172,7 +174,9 @@ interface OverlayMenuLayerProps<
   TItem extends OverlayMenuSharedItem<TItem>,
 > extends OverlayMenuSharedProps<TItem> {
   autoFocusStrategy?: OverlayMenuFocusStrategy
+  ariaLabelledBy?: string
   close: (options?: OverlayMenuCloseOptions) => void
+  closeOnTab: (direction: 'forward' | 'backward') => void
   closeRoot: (options?: OverlayMenuCloseOptions) => void
   depth: number
   getReferenceElement: () => ReferenceElement | undefined
@@ -253,10 +257,27 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     undefined,
   )
   const [isPositioned, setIsPositioned] = createSignal(false)
-  const [radioGroupValues, setRadioGroupValues] = createSignal<Record<string, string | undefined>>(
-    {},
-  )
   const groups = createMemo(() => resolveMenuGroups(props.items))
+  const [radioGroupValues, setRadioGroupValues] = createSignal<Record<string, string | undefined>>(
+    untrack(() => {
+      const initialValues: Record<string, string | undefined> = {}
+
+      for (const group of groups()) {
+        for (const item of group.items) {
+          if (
+            item.type === 'radio' &&
+            item.group &&
+            item.value !== undefined &&
+            (item.checked ?? item.defaultChecked)
+          ) {
+            initialValues[item.group] = item.value
+          }
+        }
+      }
+
+      return initialValues
+    }),
+  )
   const listEntries = createMemo<OverlayMenuListEntry<TItem>[]>(() => [
     { type: 'contentTop' },
     ...groups().map((group) => ({ type: 'group' as const, group })),
@@ -280,21 +301,43 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   createEffect(() => {
-    const nextValues: Record<string, string | undefined> = {}
+    const controlledGroups = new Set<string>()
+    const controlledValues: Record<string, string | undefined> = {}
 
     for (const group of groups()) {
       for (const item of group.items) {
-        if (item.type !== 'radio' || !item.group || item.value === undefined) {
+        if (
+          item.type !== 'radio' ||
+          !item.group ||
+          item.value === undefined ||
+          item.checked === undefined
+        ) {
           continue
         }
 
-        if (item.checked ?? item.defaultChecked) {
-          nextValues[item.group] = item.value
+        controlledGroups.add(item.group)
+        if (item.checked) {
+          controlledValues[item.group] = item.value
         }
       }
     }
 
-    setRadioGroupValues((currentValues) => ({ ...currentValues, ...nextValues }))
+    if (controlledGroups.size === 0) {
+      return
+    }
+
+    setRadioGroupValues((currentValues) => {
+      const nextValues = { ...currentValues }
+
+      for (const group of controlledGroups) {
+        delete nextValues[group]
+        if (controlledValues[group] !== undefined) {
+          nextValues[group] = controlledValues[group]
+        }
+      }
+
+      return nextValues
+    })
   })
 
   useOverlayMenuFloatingPosition({
@@ -328,7 +371,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     }
 
     queueMicrotask(() => {
-      positioner.style.zIndex = getComputedStyle(content).zIndex
+      if (positioner.isConnected && content.isConnected) {
+        const contentZIndex = getComputedStyle(content).zIndex
+        if (contentZIndex && contentZIndex !== 'auto') {
+          positioner.style.zIndex = contentZIndex
+        }
+      }
     })
   })
 
@@ -341,9 +389,29 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   createEffect(() => {
+    const content = layer.contentElement()
+    if (!content) {
+      return
+    }
+
+    useEventListener(
+      content,
+      'keydown',
+      (event) => {
+        if (props.open && !event.defaultPrevented) {
+          layer.handleTypeaheadKeyDown(event)
+        }
+      },
+      true,
+    )
+  })
+
+  createEffect(() => {
     if (!props.open) {
       setIsPositioned(false)
       layer.setHighlightedItemId(undefined)
+      layer.setPointerGraceIntent(null)
+      layer.resetTypeahead()
       return
     }
 
@@ -547,6 +615,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
+        id={itemId()}
         data-slot="item"
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
@@ -603,6 +672,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -622,6 +695,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -638,6 +715,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         onPointerLeave={(event) => {
           const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
           if (defaultPrevented) {
+            return
+          }
+
+          if (event.pointerType !== 'mouse') {
             return
           }
 
@@ -702,6 +783,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
+        id={itemId()}
         data-slot="item"
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
@@ -760,6 +842,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -779,6 +865,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -795,6 +885,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         onPointerLeave={(event) => {
           const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
           if (defaultPrevented) {
+            return
+          }
+
+          if (event.pointerType !== 'mouse') {
             return
           }
 
@@ -876,6 +970,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
+        id={itemId()}
         data-slot="item"
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
@@ -934,6 +1029,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -953,6 +1052,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
+          if (event.pointerType !== 'mouse') {
+            return
+          }
+
           if (itemProps.item.disabled) {
             layer.focusContent()
             return
@@ -969,6 +1072,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         onPointerLeave={(event) => {
           const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
           if (defaultPrevented) {
+            return
+          }
+
+          if (event.pointerType !== 'mouse') {
             return
           }
 
@@ -1006,6 +1113,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     let openTimeoutId = 0
     let submenuLayerState: OverlayMenuLayerState | undefined
 
+    const clearOpenTimeout = (): void => {
+      window.clearTimeout(openTimeoutId)
+      openTimeoutId = 0
+    }
+
     onMount(() => {
       onCleanup(
         layer.registerItem({
@@ -1019,20 +1131,19 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       onCleanup(
         layer.registerSubmenu({
           close: () => {
+            clearOpenTimeout()
             submenuLayerState?.closeSubmenus()
             setOpenState(false)
             setAutoFocusStrategy('none')
           },
           id: submenuId(),
-          isOpen,
         }),
       )
-      onCleanup(() => {
-        window.clearTimeout(openTimeoutId)
-      })
+      onCleanup(clearOpenTimeout)
     })
 
     const closeSubmenu = (): void => {
+      clearOpenTimeout()
       submenuLayerState?.closeSubmenus()
       setOpenState(false)
       setAutoFocusStrategy('none')
@@ -1059,14 +1170,19 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     const onPointerMove = (): void => {
       layer.closeSubmenus(submenuId())
       layer.setHighlightedItemId(submenuId())
-      window.clearTimeout(openTimeoutId)
+      clearOpenTimeout()
 
       submenuLayerState?.setHighlightedItemId(undefined)
       focusWithoutScrolling(triggerElement())
 
       if (!isOpen()) {
         openTimeoutId = window.setTimeout(() => {
+          openTimeoutId = 0
           untrack(() => {
+            if (!props.open || itemProps.item.disabled) {
+              return
+            }
+
             openSubmenu('content')
           })
         }, 100)
@@ -1076,6 +1192,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <>
         <div
+          id={submenuId()}
           data-slot="item"
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
@@ -1133,8 +1250,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               return
             }
 
-            const placementSide = layer.currentPlacement().startsWith('left') ? 'left' : 'right'
-            const openKey = placementSide === 'left' ? 'ArrowLeft' : 'ArrowRight'
+            const openKey = resolveDirection() === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
 
             if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
               event.preventDefault()
@@ -1196,7 +1312,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             }
 
             layer.clearQueuedPointerEnter(event.currentTarget)
-            window.clearTimeout(openTimeoutId)
+            clearOpenTimeout()
 
             const contentElement = submenuLayerState?.contentElement()
             const submenuPlacement = submenuLayerState?.currentPlacement() ?? 'right-start'
@@ -1232,8 +1348,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           <Portal>
             <OverlayMenuLayer<TItem>
               id={submenuContentId()}
+              ariaLabelledBy={submenuId()}
               open={isOpen()}
               close={closeSubmenu}
+              closeOnTab={props.closeOnTab}
               closeRoot={props.closeRoot}
               depth={props.depth + 1}
               items={itemProps.item.children}
@@ -1248,11 +1366,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
-              placement={
-                resolveOverlayMenuSide(layer.currentPlacement()) === 'left'
-                  ? 'left-start'
-                  : 'right-start'
-              }
+              placement={resolveDirection() === 'rtl' ? 'left-start' : 'right-start'}
               gutter={0}
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
@@ -1287,15 +1401,22 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       return <Show when={props.contentBottom}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
     }
 
+    const groupLabel = createMemo(() => entry.group.label)
+    const groupLabelId = createMemo(() =>
+      groupLabel() ? `${props.id}-group-${groups().indexOf(entry.group)}-label` : undefined,
+    )
+
     return (
       <div
         data-slot="group"
         role="group"
+        aria-labelledby={groupLabelId()}
         style={props.styles?.group}
         class={cn(props.classes?.group)}
       >
-        <Show when={entry.group.label}>
+        <Show when={groupLabel()}>
           <div
+            id={groupLabelId()}
             data-slot="label"
             style={props.styles?.label}
             class={cn(
@@ -1303,7 +1424,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               props.classes?.label,
             )}
           >
-            {entry.group.label}
+            {groupLabel()}
           </div>
         </Show>
 
@@ -1346,7 +1467,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     <div
       ref={(element) => {
         setPositionerElement(element)
-        element.style.position = 'fixed'
+        element.style.position = 'absolute'
         element.style.left = '0'
         element.style.top = '0'
         setIsPositioned(false)
@@ -1356,7 +1477,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         }
       }}
       data-slot="positioner"
-      class="left-0 top-0 fixed"
+      class="left-0 top-0 absolute"
     >
       <RuntimeList
         as="div"
@@ -1367,6 +1488,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         data-slot="content"
         data-placement={layer.currentPlacement()}
         role="menu"
+        aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
         ref={(element: HTMLDivElement) => {
@@ -1429,11 +1551,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }
 
           layer.setHighlightedItemId(undefined)
+          layer.resetTypeahead()
         }}
         onKeyDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onKeyDown)
           if (!defaultPrevented) {
-            onLayerKeyDown(event, layer, props.close, closeParentKey())
+            onLayerKeyDown(event, layer, props.close, closeParentKey(), props.closeOnTab)
           }
         }}
       />
@@ -1459,7 +1582,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     open: () => merged.open,
   })
   const branches = new Set<HTMLElement>()
-  const [restoreFocusOnClose, setRestoreFocusOnClose] = createSignal(false)
+  const [pendingFocusOnClose, setPendingFocusOnClose] = createSignal<'trigger' | 'next'>()
   const [rootLayerState, setRootLayerState] = createSignal<OverlayMenuLayerState | undefined>(
     undefined,
   )
@@ -1473,15 +1596,34 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   createEffect(() => {
-    if (merged.open || !restoreFocusOnClose()) {
+    const pendingFocus = pendingFocusOnClose()
+    if (merged.open || !pendingFocus) {
       return
     }
 
     const triggerElement = merged.triggerElement
 
     queueMicrotask(() => {
-      focusTrigger(triggerElement)
-      setRestoreFocusOnClose(false)
+      if (merged.open || pendingFocusOnClose() !== pendingFocus) {
+        return
+      }
+
+      if (pendingFocus === 'trigger') {
+        focusTrigger(triggerElement)
+      } else if (triggerElement) {
+        const focusableElements = getFocusableElements(document.body).filter(
+          (element) => ![...branches].some((branch) => branch.contains(element)),
+        )
+        const triggerIndexes = focusableElements.flatMap((element, index) =>
+          element === triggerElement || triggerElement.contains(element) ? [index] : [],
+        )
+        const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+        if (triggerIndex !== undefined) {
+          focusWithoutScrolling(focusableElements[triggerIndex + 1])
+        }
+      }
+
+      setPendingFocusOnClose(undefined)
     })
   })
 
@@ -1521,9 +1663,15 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 
   const closeRoot = (options?: OverlayMenuCloseOptions): void => {
     if (options?.restoreFocus) {
-      setRestoreFocusOnClose(true)
+      setPendingFocusOnClose('trigger')
     }
 
+    rootLayerState()?.closeSubmenus()
+    merged.onClose()
+  }
+
+  const closeOnTab = (direction: 'forward' | 'backward'): void => {
+    setPendingFocusOnClose(direction === 'backward' ? 'trigger' : 'next')
     rootLayerState()?.closeSubmenus()
     merged.onClose()
   }
@@ -1538,7 +1686,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     open: () => merged.open,
   })
 
-  const getReferenceElement = (): ReferenceElement | undefined => {
+  const getReferenceElement = createMemo<ReferenceElement | undefined>(() => {
     const anchorRect = merged.getAnchorRect?.(merged.triggerElement)
 
     if (anchorRect) {
@@ -1546,7 +1694,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     }
 
     return merged.triggerElement
-  }
+  })
 
   return (
     <Show when={contentPresence.present()}>
@@ -1560,8 +1708,10 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
         </Show>
         <OverlayMenuLayer<TItem>
           id={contentId()}
+          ariaLabelledBy={merged.triggerElement?.id}
           open={merged.open}
           close={closeRoot}
+          closeOnTab={closeOnTab}
           closeRoot={closeRoot}
           depth={0}
           items={merged.items}

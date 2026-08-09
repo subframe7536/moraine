@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 export interface UseDisclosureStateOptions {
   disabled?: Accessor<boolean>
@@ -15,6 +15,7 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
   }))
   const [contentHeight, setContentHeight] = createSignal(0)
   let contentEl: HTMLDivElement | undefined
+  let resizeObserver: ResizeObserver | undefined
 
   function measureContentHeight(element = contentEl): void {
     if (!element || element !== contentEl) {
@@ -25,7 +26,13 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
   }
 
   function queueContentHeightMeasurement(element = contentEl): void {
-    queueMicrotask(() => measureContentHeight(element))
+    queueMicrotask(() => {
+      if (!element?.isConnected) {
+        return
+      }
+
+      measureContentHeight(element)
+    })
   }
 
   createEffect(() => {
@@ -35,10 +42,26 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
   })
 
   function setContentElement(element: HTMLDivElement): void {
+    resizeObserver?.disconnect()
     contentEl = element
     measureContentHeight(element)
     queueContentHeightMeasurement(element)
+
+    if (typeof ResizeObserver === 'function') {
+      resizeObserver = new ResizeObserver(() => {
+        if (element.isConnected) {
+          measureContentHeight(element)
+        }
+      })
+      resizeObserver.observe(element)
+    }
   }
+
+  onCleanup(() => {
+    contentEl = undefined
+    resizeObserver?.disconnect()
+    resizeObserver = undefined
+  })
 
   return {
     contentHeight,

@@ -151,7 +151,9 @@ describe('List', () => {
       />
     ))
 
-    expect(screen.getByText('Result 1').getAttribute('data-index')).toBe('0')
+    await waitFor(() => {
+      expect(screen.getByText('Result 1').getAttribute('data-index')).toBe('0')
+    })
 
     const list = screen.getByRole('list')
     Object.defineProperty(list, 'scrollTop', { configurable: true, value: 1440 })

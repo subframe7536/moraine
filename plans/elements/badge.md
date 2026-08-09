@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. Current Badge tests cover rendering and the trailing action, but the fixed upstream and composed MultiSelect behavior still require a fresh audit.
+Complete.
 
 ## Goal
 

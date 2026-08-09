@@ -1,6 +1,6 @@
 # ContextMenu Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,25 @@ Align ContextMenu's native right-click, keyboard shortcut, touch/pen long-press,
 - Requires shared hooks, Modal/overlay stack, Popper, and Menu foundation plans to be frozen in that order.
 - Shared menu/popper/listener defects go to their single owners; this plan changes only ContextMenu-specific orchestration and tests.
 - Existing long-press and submenu fixes are not proof of a complete audit at the pinned revisions.
+
+## Verified Missing Features
+
+1. **A second touch/pen pointer does not cancel long press.** Local state tracks one start point but no active pointer ID/count; Base UI's pinned tests cancel when a gesture becomes multi-touch. Priority P0, medium; owner: ContextMenu.
+2. **Long-press dismissal is not delayed through the completing gesture.** The menu can open before pointerup, allowing the same gesture to be interpreted as outside interaction; Base UI explicitly covers delayed outside dismissal after long press. Priority P0, medium, platform-sensitive; owner: ContextMenu plus shared Menu smoke test.
+3. **Native-contextmenu suppression can become stale.** `suppressNextContextMenu` has no expiry, so if the browser emits no synthetic follow-up, a later legitimate context menu is consumed. Priority P0, small; owner: ContextMenu.
+4. **Delayed callbacks capture stale control props.** Long press snapshots controlledness and `onOpenChange` at pointerdown rather than committing through the live `commitOpen` path. Priority P1, small; owner: ContextMenu.
+5. **Trigger disabled semantics and hydration are incomplete.** The trigger exposes only `data-disabled`, not native/ARIA disabled state, and shortcut/long-press hydration has no fixture. Priority P1, medium; owner: ContextMenu/trigger contract.
+
+## Detailed Execution Plan
+
+1. Add pointer-ID tests for second-pointer down, primary/non-primary pointer, pointerup, cancel, movement, and disabled changes. Track the initiating pointer and cancel on multi-pointer gestures.
+2. Add a post-long-press guard scoped to the initiating gesture; prove pointerup/click/contextmenu do not immediately dismiss, while the next independent outside press does.
+3. Expire synthetic-contextmenu suppression with an owner-cleaned task and consume only matching pointer-origin events where observable. Test the no-follow-up path.
+4. Route the timer callback through live state/handlers and assert controlled rejection plus callback replacement during the delay.
+5. Define native versus non-native trigger disabled attributes with the shared trigger contract, then add SSR/hydration shortcut and long-press tests.
+6. Update the matrix; run ContextMenu, Menu, Popper, event-listener, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Menu item, submenu, focus, portal, and overlay-stack defects remain shared foundation work.
+- Keep actual OS-generated long-press/contextmenu timing `unverified-platform`; jsdom proves state transitions only.

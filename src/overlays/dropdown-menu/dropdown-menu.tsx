@@ -106,6 +106,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
 
   const triggerRender = createMemo(() => merged.children)
   const triggerProps: OverlayTriggerProps = {
+    id: resolvedId(),
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined
     },

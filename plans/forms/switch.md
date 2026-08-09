@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after Checkbox/shared hidden-input behavior is understood.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -64,3 +64,22 @@ Audit and port missing Switch keyboard, pointer, ARIA, native form, controlled-s
 - Coordinate shared helper changes with Checkbox and CheckboxGroup owners; establish one checked-state/reset contract.
 - FormField owns shared IDs/errors while Switch owns role and activation semantics.
 - Handoff must include loading semantics, keyboard/activation policy, custom value/form mapping, shared helper impact, test results, and platform caveats.
+
+## Verified Missing Features
+
+1. **Formisch change-mode validation is skipped.** Switch calls `field.emit('change')` and `field.emit('input')` without events, and the current shared adapter ignores both calls. This is the FormField defect above; Switch needs a consumer regression, not a local workaround. Priority P0 shared blocker.
+2. **Caller cancellation and full native key sequencing are unverified.** The focused suite dispatches keydown only; it does not prove Space/Enter keydown-keyup-click ordering, root-handler ordering, or exact controlled callback behavior. Base UI covers complete keyboard sequences and modifiers. Priority P1 coverage, medium; owner: Switch tests.
+3. **Label, description, and icon branches read raw props for conditions and lack hydration coverage.** Priority P1, medium SSR risk; owner: Switch.
+
+## Detailed Execution Plan
+
+1. Land FormField's event-less custom-control notification contract, then add Switch validation-mode smoke tests; do not call Formisch internals locally.
+2. Add full native key-sequence tests for Space and Enter, modifier propagation, root event order, loading/readOnly/disabled states, and exact controlled `onChange` counts. Change implementation only if these tests expose a mismatch.
+3. Extend existing reset coverage to reactive defaults, controlled state, repeated reset, native FormData/validity, and FormField synchronization.
+4. Cache every inspected JSX prop and add render-to-string/hydrate tests for checked/loading state and all conditional content.
+5. Update the matrix; run Switch, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Required inheritance and label IDs are FormField work.
+- Do not adopt Base UI compound parts or alter visual track/thumb behavior.

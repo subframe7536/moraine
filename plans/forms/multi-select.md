@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit; implementation depends on the shared BaseSelect and Menu behavior baseline.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09; implement after Select-owned BaseSelect fixes.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -66,3 +66,28 @@ Audit and close MultiSelect parity gaps for multiple selection, combobox/listbox
 - Hard prerequisites: BaseSelect and overlays/base/menu parity. Do not duplicate fixes locally to avoid waiting for them.
 - Select shares those prerequisites but is a separate scalar-selection deliverable; its completion is not otherwise required.
 - Handoff must include shared versus multiple-only gaps, selection identity/order rules, token/tag state flow, native form behavior, test results, and unverified real-browser behavior.
+
+## Verified Missing Features
+
+1. **Clear restores defaults instead of clearing.** `clearSelection` emits `props.defaultValue ?? []`, so a component with a non-empty default never reaches an empty selection despite the “Clear selection” control. Priority P0, small; owner: MultiSelect.
+2. **Selection order is lost.** `getSelectedOptions` filters option order through a Set; after a toggle, callbacks/tags/native serialization can reorder values relative to user selection. Priority P0, medium; owner: MultiSelect.
+3. **Selected values absent from current options disappear.** They are omitted from tags and from the next callback, so an option-list update can silently erase controlled or created values. Priority P0, medium; owner: MultiSelect.
+4. **Identity and duplicate handling are inconsistent.** Values are stringified and deduplicated for maxCount, but public arrays and callbacks can still contain duplicates; `1` collides with `'1'`. Priority P0, large; owner: MultiSelect after BaseSelect identity decision.
+5. **Tag keyboard and accessible removal are incomplete.** The input has no Backspace/Delete-at-empty behavior and default close controls are not named per tag. Base UI Combobox multiple behavior provides the keyboard reference. Priority P1, medium; owner: MultiSelect.
+6. **Tokenization is not composition-safe and treats separator strings as a character class.** IME input can commit early, and multi-character separators cannot be represented faithfully. Priority P1, medium; owner: MultiSelect.
+7. **Created tags/reset and JSX evaluation are unprotected.** Reset does not clear created-tag ownership, and `optionRender`/`tagRender` are read for both branch selection and rendering without an SSR fixture. Priority P1, medium; owner: MultiSelect.
+
+## Detailed Execution Plan
+
+1. Add a failing clear test with non-empty `defaultValue`; define clear as `[]`, emit `onChange([])` and `onClear()` once, clear search, and close without conflating native form reset.
+2. Replace option-order reconstruction with a value-ordered resolver. Add selection/reorder/removed-option/created-tag tests and require repeated FormData entries to follow the public array order.
+3. Apply the BaseSelect identity decision, then normalize duplicates consistently at every ingress: value, defaultValue, token creation, option click, native change, and reset.
+4. Add Backspace/Delete tests at empty input and caret boundaries, named remove controls, disabled/maxCount behavior, and focus preservation after removal.
+5. Tokenize with literal separator alternatives and composition guards. Cover multi-character separators, overlapping separators, paste, trailing remainder, duplicate/disabled matches, and maxCount.
+6. Clear or reconcile created-tag state on reset and option-list adoption. Cache render props/icons and add render-to-string/hydrate-to-open/tag-remove coverage.
+7. Update the matrix; run MultiSelect, Select/BaseSelect, Menu, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- BaseSelect identity, native reset, group labelling, pointer handling, and overlay work must land once through Select's shared-engine steps.
+- Do not add a new chips API or copy Base UI compound parts; keyboard removal must fit the existing tag surface.

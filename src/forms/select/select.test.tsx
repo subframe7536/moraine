@@ -954,6 +954,9 @@ describe('Select - popup behavior', () => {
     await waitFor(() => {
       const positioner = queryBody('[data-slot="positioner"]') as HTMLElement | null
       expect(positioner?.style.zIndex).toBe('70')
+      expect(positioner?.style.position).toBe('absolute')
+      expect(positioner?.classList.contains('absolute')).toBe(true)
+      expect(positioner?.classList.contains('fixed')).toBe(false)
     })
   })
 })

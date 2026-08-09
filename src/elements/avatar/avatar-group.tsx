@@ -97,8 +97,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     local,
   )
 
+  const items = createMemo(() => merged.items)
   const visibleItems = createMemo(() => {
-    const allItems = merged.items
+    const allItems = items()
     if (allItems.length === 0) {
       return []
     }
@@ -111,10 +112,10 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     return [...allItems].slice(0, max).reverse()
   })
 
-  const hiddenCount = createMemo(() => merged.items.length - visibleItems().length)
+  const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
   return (
-    <Show when={merged.items.length > 0}>
+    <Show when={items().length > 0}>
       <div
         data-slot="root"
         {...rest}

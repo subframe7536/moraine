@@ -396,6 +396,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
 
   const triggerRender = createMemo(() => merged.children)
   const triggerProps: OverlayTriggerProps = {
+    id: resolvedId(),
     get 'aria-controls'() {
       return resolvedOpen() ? contentId() : undefined
     },

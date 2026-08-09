@@ -20,8 +20,14 @@ export interface TransitionPresenceState {
 }
 
 interface MotionDurations {
-  animation: number | undefined
-  transition: number | undefined
+  animation: MotionTiming
+  transition: MotionTiming
+}
+
+interface MotionTiming {
+  duration: number | undefined
+  eventCount: number
+  names: Array<string>
 }
 
 function parseTime(value: string): number {
@@ -38,23 +44,38 @@ function parseTime(value: string): number {
   return 0
 }
 
-function getMaximumMotionDuration(
+function getMotionTiming(
   durations: string,
   delays: string,
   names: string,
   inactiveName: string,
-): number {
+): MotionTiming {
   const durationValues = durations.split(',').map(parseTime)
   const delayValues = delays.split(',').map(parseTime)
   const namesValues = names.split(',').map((value) => value.trim())
 
-  return durationValues.reduce((maximum, duration, index) => {
-    if (namesValues[index % namesValues.length] === inactiveName) {
-      return maximum
-    }
+  return namesValues.reduce<MotionTiming>(
+    (timing, name, index) => {
+      if (name === inactiveName) {
+        return timing
+      }
 
-    return Math.max(maximum, duration + (delayValues[index % delayValues.length] ?? 0))
-  }, 0)
+      const duration = durationValues[index % durationValues.length] ?? 0
+      const delay = delayValues[index % delayValues.length] ?? 0
+      const total = Math.max(0, duration + delay)
+
+      if (total === 0) {
+        return timing
+      }
+
+      return {
+        duration: Math.max(timing.duration ?? 0, total),
+        eventCount: timing.eventCount + 1,
+        names: [...timing.names, name],
+      }
+    },
+    { duration: 0, eventCount: 0, names: [] },
+  )
 }
 
 function hasMotionDurationMetadata(
@@ -75,25 +96,23 @@ function getMotionDurations(element: HTMLElement): MotionDurations {
   // expose the nonstandard `auto` default. Keep the event fallback available
   // when timing metadata is unavailable instead of treating it as no motion.
   if (style.animationDuration === 'auto') {
-    return { animation: undefined, transition: undefined }
+    return {
+      animation: { duration: undefined, eventCount: 1, names: ['*'] },
+      transition: { duration: undefined, eventCount: 1, names: ['*'] },
+    }
   }
 
   const animation = hasMotionDurationMetadata(style, 'animation')
-    ? getMaximumMotionDuration(
-        style.animationDuration,
-        style.animationDelay,
-        style.animationName,
-        'none',
-      )
-    : undefined
+    ? getMotionTiming(style.animationDuration, style.animationDelay, style.animationName, 'none')
+    : { duration: undefined, eventCount: 1, names: ['*'] }
   const transition = hasMotionDurationMetadata(style, 'transition')
-    ? getMaximumMotionDuration(
+    ? getMotionTiming(
         style.transitionDuration,
         style.transitionDelay,
         style.transitionProperty,
         'none',
       )
-    : undefined
+    : { duration: undefined, eventCount: 1, names: ['*'] }
 
   return { animation, transition }
 }
@@ -112,8 +131,7 @@ export function useTransitionPresence(
 
     return { 'data-closed': '' }
   })
-
-  let element: HTMLElement | undefined
+  const [element, setPresenceElement] = createSignal<HTMLElement>()
 
   createEffect(() => {
     if (options.open()) {
@@ -125,7 +143,14 @@ export function useTransitionPresence(
       return
     }
 
-    if (!element) {
+    const currentElement = element()
+
+    if (!currentElement) {
+      setPresent(false)
+      return
+    }
+
+    if (!currentElement.isConnected) {
       setPresent(false)
       return
     }
@@ -141,42 +166,39 @@ export function useTransitionPresence(
     const waitForTransition = mode === 'transition' || mode === 'both'
 
     let cancelled = false
-    let animationEnded = !waitForAnimation
-    let transitionEnded = !waitForTransition
-
-    const finish = () => {
-      if (!cancelled && animationEnded && transitionEnded && !options.open()) {
-        setPresent(false)
-      }
-    }
-
-    const onAnimationEnd = (event: Event) => {
-      if (cancelled || options.open() || event.target !== event.currentTarget) {
-        return
-      }
-
-      animationEnded = true
-      finish()
-    }
-
-    const onTransitionEnd = (event: Event) => {
-      if (cancelled || options.open() || event.target !== event.currentTarget) {
-        return
-      }
-
-      transitionEnded = true
-      finish()
-    }
-
-    if (typeof element.getAnimations === 'function') {
-      const animations = element.getAnimations({ subtree: false })
+    if (typeof currentElement.getAnimations === 'function') {
+      const animations = currentElement.getAnimations({ subtree: false })
 
       if (animations.length > 0) {
-        Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
-          if (!cancelled && !options.open()) {
-            setPresent(false)
-          }
-        })
+        const waitForAnimations = (currentAnimations: Animation[]): void => {
+          Promise.all(currentAnimations.map((animation) => animation.finished)).then(
+            () => {
+              if (!cancelled && !options.open()) {
+                setPresent(false)
+              }
+            },
+            () => {
+              if (cancelled || options.open()) {
+                return
+              }
+
+              const replacementAnimations = currentElement.getAnimations({ subtree: false })
+
+              if (
+                replacementAnimations.some(
+                  (animation) => animation.pending || animation.playState !== 'finished',
+                )
+              ) {
+                waitForAnimations(replacementAnimations)
+                return
+              }
+
+              setPresent(false)
+            },
+          )
+        }
+
+        waitForAnimations(animations)
 
         onCleanup(() => {
           cancelled = true
@@ -186,35 +208,93 @@ export function useTransitionPresence(
       }
     }
 
-    const motionDurations = getMotionDurations(element)
-    animationEnded ||= motionDurations.animation === 0
-    transitionEnded ||= motionDurations.transition === 0
+    const motionDurations = getMotionDurations(currentElement)
+    const remainingAnimationNames = [...motionDurations.animation.names]
+    const remainingTransitionNames = [...motionDurations.transition.names]
+    let remainingAnimationEvents = waitForAnimation ? motionDurations.animation.eventCount : 0
+    let remainingTransitionEvents = waitForTransition ? motionDurations.transition.eventCount : 0
 
-    if (animationEnded && transitionEnded) {
+    const consumeMotionEvent = (remainingNames: Array<string>, eventName: string): boolean => {
+      const wildcardIndex = remainingNames.findIndex((name) => name === '*' || name === 'all')
+      const nameIndex = eventName
+        ? remainingNames.indexOf(eventName)
+        : remainingNames.length === 1
+          ? 0
+          : -1
+      const index = nameIndex >= 0 ? nameIndex : wildcardIndex
+
+      if (index < 0) {
+        return false
+      }
+
+      remainingNames.splice(index, 1)
+      return true
+    }
+
+    const finish = () => {
+      if (
+        !cancelled &&
+        remainingAnimationEvents === 0 &&
+        remainingTransitionEvents === 0 &&
+        !options.open()
+      ) {
+        setPresent(false)
+      }
+    }
+
+    const onAnimationEnd = (event: Event) => {
+      if (cancelled || options.open() || event.target !== event.currentTarget) {
+        return
+      }
+
+      if (!consumeMotionEvent(remainingAnimationNames, (event as AnimationEvent).animationName)) {
+        return
+      }
+
+      remainingAnimationEvents = Math.max(0, remainingAnimationEvents - 1)
+      finish()
+    }
+
+    const onTransitionEnd = (event: Event) => {
+      if (cancelled || options.open() || event.target !== event.currentTarget) {
+        return
+      }
+
+      if (!consumeMotionEvent(remainingTransitionNames, (event as TransitionEvent).propertyName)) {
+        return
+      }
+
+      remainingTransitionEvents = Math.max(0, remainingTransitionEvents - 1)
+      finish()
+    }
+
+    if (remainingAnimationEvents === 0 && remainingTransitionEvents === 0) {
       setPresent(false)
       return
     }
 
     if (waitForAnimation) {
-      useEventListener(element, 'animationend', onAnimationEnd)
+      useEventListener(currentElement, 'animationend', onAnimationEnd)
+      useEventListener(currentElement, 'animationcancel', onAnimationEnd)
     }
 
     if (waitForTransition) {
-      useEventListener(element, 'transitionend', onTransitionEnd)
+      useEventListener(currentElement, 'transitionend', onTransitionEnd)
+      useEventListener(currentElement, 'transitioncancel', onTransitionEnd)
     }
 
     const timeoutDuration = Math.max(
-      waitForAnimation ? (motionDurations.animation ?? 0) : 0,
-      waitForTransition ? (motionDurations.transition ?? 0) : 0,
+      waitForAnimation ? (motionDurations.animation.duration ?? 0) : 0,
+      waitForTransition ? (motionDurations.transition.duration ?? 0) : 0,
     )
     const hasUnknownMotionDuration =
-      (waitForAnimation && motionDurations.animation === undefined) ||
-      (waitForTransition && motionDurations.transition === undefined)
+      (waitForAnimation && motionDurations.animation.duration === undefined) ||
+      (waitForTransition && motionDurations.transition.duration === undefined)
     const timeout = hasUnknownMotionDuration
       ? undefined
       : setTimeout(() => {
-          animationEnded = true
-          transitionEnded = true
+          remainingAnimationEvents = 0
+          remainingTransitionEvents = 0
           finish()
         }, timeoutDuration)
 
@@ -231,14 +311,14 @@ export function useTransitionPresence(
       return
     }
 
-    element = undefined
+    setPresenceElement(undefined)
   })
 
   return {
     dataAttrs,
     present,
     setElement(nextElement) {
-      element = nextElement
+      setPresenceElement(() => nextElement)
     },
   }
 }

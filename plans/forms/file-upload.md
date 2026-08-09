@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -62,3 +62,25 @@ Harden FileUpload's picker, dropzone, validation, file-list, form, accessibility
 - Coordinate hidden-input and FormField changes with Checkbox/Switch/Form owners.
 - FileUpload can proceed independently of other collection components, but real native FileList/FormData constraints must be recorded for follow-up browser validation.
 - Handoff must include rejection ordering, native form limitations, URL ownership rules, test results, and all unverified-platform cases.
+
+## Verified Missing Features
+
+1. **Preview URLs are created even when previews are disabled.** Moraine's effect creates an object URL for every image regardless of `preview`; Kobalte creates URLs only inside mounted preview ownership and revokes on cleanup. Priority P0, medium, resource leak; owner: FileUpload.
+2. **Drag acceptance is too broad.** Any drag sets dragging state; file types are not checked and `dropEffect='copy'` is not set. Kobalte guards file drags with `DataTransfer.types/items`. Priority P1, small; owner: FileUpload.
+3. **Signal files and native `input.files` can diverge.** Drops never populate the input, rejected picker files remain native, and appended picker batches are not represented by the latest FileList. This breaks required validity and FormData. Priority P0, large, high platform risk; owner: FileUpload.
+4. **Native reset leaves files and previews mounted.** Priority P0, medium; owner: FileUpload plus Form.
+5. **The drop control can be unnamed without a label.** Kobalte provides an explicit dropzone name; Moraine has no fallback naming contract. Priority P1, small API/localization decision; owner: FileUpload.
+
+## Detailed Execution Plan
+
+1. Add URL-spy tests for preview off/on, replacement, reset, rejection, removal, and unmount; require one create/revoke lifecycle per mounted preview.
+2. Port Kobalte's file-drag predicate and copy drop effect; cover non-file drags, mixed items, dragleave, disabled state, and caller cancellation.
+3. Write tests first for picker, drop, append, remove, rejection, required validity, and FormData. Implement one native synchronization layer using supported `DataTransfer` assignment when available, with feature detection.
+4. Add form reset handling that clears public state, native state, Formisch state, validation errors, and URLs exactly once.
+5. Define an accessible fallback label or require an explicit label before code, then add FormField association and SSR/hydration tests for label/description/preview branches.
+6. Update the matrix; run FileUpload, FormField, Form, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- If a browser does not permit reliable `FileList` assignment, classify that exact native synchronization path `unverified-platform` and document the fallback; do not claim jsdom proves it.
+- Do not add upload/network behavior, browser test dependencies, or new localization APIs without approval.

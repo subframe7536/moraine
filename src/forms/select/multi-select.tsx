@@ -669,10 +669,26 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           ],
                         }}
                         trailing={props.closeIcon ?? 'icon-close'}
-                        onTrailingClick={(event) => {
+                        onPointerDown={(event: PointerEvent) => {
+                          if (!(event.target instanceof Element)) {
+                            return
+                          }
+                          if (!event.target.closest('[data-slot="trailing"]')) {
+                            return
+                          }
+
+                          event.preventDefault()
                           event.stopPropagation()
-                          onClose()
+                          api.focusInput()
                         }}
+                        onTrailingClick={
+                          api.field.disabled()
+                            ? undefined
+                            : (event: MouseEvent) => {
+                                event.stopPropagation()
+                                onClose()
+                              }
+                        }
                       >
                         {option.label}
                       </Badge>

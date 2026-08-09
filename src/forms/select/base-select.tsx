@@ -447,7 +447,9 @@ function useBaseSelectOverlay(options: {
       options.menuControl.onContentInteractOutside()
       options.closeMenu()
     },
+    contentElement: options.contentElement,
     open: options.isOpen,
+    triggerElement: options.getControlElement,
   })
 }
 
@@ -1190,12 +1192,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             ref={(element) => {
               setPositionerElement(element)
               if (element) {
-                element.style.position = 'fixed'
+                element.style.position = 'absolute'
                 element.style.visibility = 'hidden'
               }
             }}
             data-slot="positioner"
-            class="left-0 top-0 fixed"
+            class="left-0 top-0 absolute"
           >
             <div
               {...contentPresence.dataAttrs()}

@@ -36,6 +36,13 @@ describe('Accordion', () => {
     expect(screen.getByText('Content one')).not.toBeNull()
   })
 
+  test('renders native heading elements for trigger rows', () => {
+    const screen = render(() => <Accordion items={BASE_ITEMS} />)
+
+    const headings = screen.getAllByRole('heading')
+    expect(headings.every((heading) => heading.tagName === 'H3')).toBe(true)
+  })
+
   test('single mode toggles same item and emits [] when collapsible=true', async () => {
     const onChange = vi.fn()
 
@@ -106,17 +113,172 @@ describe('Accordion', () => {
   })
 
   test('multiple mode toggles with Space on the focused trigger', async () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} multiple defaultValue={['one']} />)
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Accordion items={BASE_ITEMS} multiple defaultValue={['one']} onChange={onChange} />
+    ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
 
     triggerOne.focus()
 
     await fireEvent.keyDown(triggerOne, { key: ' ' })
-    expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
-
-    await fireEvent.keyDown(triggerOne, { key: ' ' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
+    expect(onChange).not.toHaveBeenCalled()
+
+    await fireEvent.keyUp(triggerOne, { key: ' ' })
+    expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    await fireEvent.keyUp(triggerOne, { key: ' ' })
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    await fireEvent.keyDown(triggerOne, { key: 'Enter' })
+    expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
+    expect(onChange).toHaveBeenCalledTimes(2)
+
+    await fireEvent.keyDown(triggerOne, { key: 'Enter', repeat: true })
+    expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
+    expect(onChange).toHaveBeenCalledTimes(2)
+  })
+
+  test('keeps generated item values and focused triggers stable through reorder', async () => {
+    const first: AccordionT.Item = { label: 'First', content: 'First content' }
+    const second: AccordionT.Item = { label: 'Second', content: 'Second content' }
+    const [items, setItems] = createSignal([first, second])
+    const screen = render(() => <Accordion items={items()} multiple />)
+
+    const secondTrigger = screen.getByRole('button', { name: 'Second' })
+    secondTrigger.focus()
+    await fireEvent.click(secondTrigger)
+
+    expect(secondTrigger.getAttribute('aria-expanded')).toBe('true')
+
+    setItems([second, first])
+    await Promise.resolve()
+
+    const reorderedSecondTrigger = screen.getByRole('button', { name: 'Second' })
+    expect(reorderedSecondTrigger).toBe(secondTrigger)
+    expect(document.activeElement).toBe(reorderedSecondTrigger)
+    expect(reorderedSecondTrigger.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('button', { name: 'First' }).getAttribute('aria-expanded')).toBe(
+      'false',
+    )
+  })
+
+  test('moves focus to the nearest enabled trigger after disablement or removal', async () => {
+    const [secondDisabled, setSecondDisabled] = createSignal(false)
+    const first: AccordionT.Item = { value: 'first', label: 'First' }
+    const second: AccordionT.Item = {
+      value: 'second',
+      label: 'Second',
+      content: 'Second content',
+      get disabled() {
+        return secondDisabled()
+      },
+    }
+    const third: AccordionT.Item = { value: 'third', label: 'Third' }
+    const [items, setItems] = createSignal([first, second, third])
+    const screen = render(() => <Accordion items={items()} defaultValue={['second']} />)
+
+    const secondTrigger = screen.getByRole('button', { name: 'Second' })
+    const thirdTrigger = screen.getByRole('button', { name: 'Third' })
+    secondTrigger.focus()
+
+    setSecondDisabled(true)
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(thirdTrigger)
+
+    setSecondDisabled(false)
+    await Promise.resolve()
+    screen.getByRole('button', { name: 'Second' }).focus()
+    setItems([first, third])
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(thirdTrigger)
+    expect(screen.queryByText('Second content')).toBeNull()
+  })
+
+  test('keeps arrow navigation scoped to the owning accordion', async () => {
+    const items: AccordionT.Item[] = [
+      {
+        value: 'outer-one',
+        label: 'Outer one',
+        get content() {
+          return <Accordion items={[{ value: 'inner', label: 'Inner' }]} />
+        },
+      },
+      { value: 'outer-two', label: 'Outer two' },
+    ]
+    const screen = render(() => <Accordion defaultValue={['outer-one']} items={items} />)
+
+    const outerOne = screen.getByRole('button', { name: 'Outer one' })
+    outerOne.focus()
+    await fireEvent.keyDown(outerOne, { key: 'ArrowDown' })
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Outer two' }))
+  })
+
+  test('keeps duplicate values from producing duplicate part ids', () => {
+    const screen = render(() => (
+      <Accordion
+        id="duplicate"
+        defaultValue={['same']}
+        items={[
+          { value: 'same', label: 'First', content: 'First content' },
+          { value: 'same', label: 'Second', content: 'Second content' },
+        ]}
+      />
+    ))
+
+    const triggers = screen.getAllByRole('button')
+    const panels = screen.getAllByRole('region')
+
+    expect(new Set(triggers.map((trigger) => trigger.id)).size).toBe(2)
+    expect(new Set(panels.map((panel) => panel.id)).size).toBe(2)
+    expect(triggers[0]?.getAttribute('aria-controls')).toBe(panels[0]?.id)
+    expect(triggers[1]?.getAttribute('aria-controls')).toBe(panels[1]?.id)
+    expect(panels[0]?.getAttribute('aria-labelledby')).toBe(triggers[0]?.id)
+    expect(panels[1]?.getAttribute('aria-labelledby')).toBe(triggers[1]?.id)
+  })
+
+  test('resolves item JSX getters once and leaves closed content uninstantiated', async () => {
+    let labelReads = 0
+    let contentReads = 0
+    const item: AccordionT.Item = {
+      value: 'one',
+      get label() {
+        labelReads += 1
+        return <span>One</span>
+      },
+      get content() {
+        contentReads += 1
+        return <span>Content one</span>
+      },
+    }
+
+    const screen = render(() => <Accordion items={[item]} />)
+
+    expect(labelReads).toBe(1)
+    expect(contentReads).toBe(0)
+
+    await fireEvent.click(screen.getByRole('button', { name: 'One' }))
+
+    expect(screen.getByText('Content one')).not.toBeNull()
+    expect(labelReads).toBe(1)
+    expect(contentReads).toBe(1)
+  })
+
+  test('renders empty collections and empty expanded panels without placeholder wrappers', () => {
+    const emptyScreen = render(() => <Accordion items={[]} />)
+    expect(emptyScreen.queryByRole('heading')).toBeNull()
+
+    const panelScreen = render(() => (
+      <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue={['empty']} />
+    ))
+    const panel = panelScreen.getByRole('region', { name: 'Empty' })
+    expect(panel.querySelector('.style-accordion-content')).toBeNull()
   })
 
   test('navigates triggers with ArrowDown, ArrowUp, Home, and End', async () => {

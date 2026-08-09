@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. Existing image-state tests and historical fixes are evidence only; re-audit the pinned upstream implementations before declaring parity.
+Complete.
 
 ## Goal
 

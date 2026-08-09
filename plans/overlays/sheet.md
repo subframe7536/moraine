@@ -1,6 +1,6 @@
 # Sheet Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,26 @@ Align Sheet's slide-in modal shell with current focus, naming, controlled state,
 - Requires shared controllable/event/presence hooks and Modal foundation first; Popper and Menu foundations must be classified before nested consumer acceptance.
 - Coordinate with SidebarFrame after Sheet is frozen. Shared Modal defects belong to the foundation owner.
 - Existing Sheet dismissal tests do not complete the Base UI Drawer/Kobalte audit at the pinned revisions.
+
+## Verified Missing Features
+
+1. **Custom headers leave dangling title/description IDs.** The default nodes are suppressed but `ModalContent` remains labelled/described by their generated IDs. Priority P0, small; owner: Sheet.
+2. **A titleless Sheet has no explicit accessible-name path.** The public surface cannot label the dialog content when a fully custom header is used. Priority P0, medium API decision; owner: Sheet.
+3. **Truthy shell checks drop valid zero content.** Title, description, action, body, and footer use truthiness and can change server/client structure for getter-backed JSX. Priority P1, medium; owner: Sheet.
+4. **Responsive side/inset transitions and hydration are unprotected.** The suite has no reactive side change, unmount-during-exit, SidebarFrame mode-switch, or render-to-string/hydrate case. Priority P1, medium; owner: Sheet with SidebarFrame smoke tests.
+
+Base UI Drawer swipe, snap points, swipe area, and virtual-keyboard provider remain intentional divergences because Moraine exposes no gesture contract.
+
+## Detailed Execution Plan
+
+1. Add the same ARIA token-integrity matrix as Dialog for default/custom headers and every title/description combination.
+2. Resolve the shared naming decision with Dialog, then implement it once in the shell pattern and add Sheet-specific tests.
+3. Replace truthy shell checks with explicit presence and cache title/description/header/action/body/footer/close once per owner.
+4. Add reactive side/inset/transition and unmount-during-exit tests; verify focus, overlay lock, and content state remain foundation-driven.
+5. Add SSR/hydration coverage for each side representative, custom header, close action, and SidebarFrame mobile mode transition.
+6. Update the matrix; run Sheet, Modal, Dialog shell smoke, SidebarFrame, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Do not add swipe/snap/drag APIs or alter slide animation design.
+- Route all shared focus/dismissal/scroll-lock findings to Modal; Sheet owns shell composition only.

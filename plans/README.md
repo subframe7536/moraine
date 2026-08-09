@@ -1,6 +1,6 @@
 # Base UI Parity Plan Index
 
-Status: Ready for hand-off
+Status: Detailed audit hand-off ready for the 23 remaining component plans.
 
 This directory splits the full Moraine behavior-parity sweep into independently assignable plans. Each component plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
 
@@ -11,6 +11,14 @@ This directory splits the full Moraine behavior-parity sweep into independently 
 - Local baseline: 71 test files and 1100 tests passing; bun run typecheck passing.
 
 Base UI source and tests define the target behavior. Kobalte is the preferred translation reference for Solid ownership, reactivity, SSR, and hydration. Historical Moraine parity commits are evidence only and do not make a target audited against these revisions.
+
+## Audit Snapshot
+
+- The working tree rooted at `3c02b36` was audited on 2026-08-09 after Progress was completed.
+- All 11 foundation plans and Accordion, Avatar, Badge, Button, Collapsible, and Progress are implementation-complete in the current working tree.
+- Separator plus the 22 remaining form, navigation, and overlay plans now contain verified missing-feature ledgers, exact ownership, ordered test-first execution steps, dependency suites, intentional-divergence boundaries, and STOP conditions.
+- No remaining component implementation was started during this planning pass. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
+- `todo.md` remains unchanged until every implementation plan and final repository validation have passed.
 
 ## Global Decisions
 

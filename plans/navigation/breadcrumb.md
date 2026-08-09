@@ -1,6 +1,6 @@
 # Breadcrumb Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -51,3 +51,24 @@ Verify that Breadcrumb exposes predictable native navigation, current-page, disa
 - Complete shared render-prop and relevant shared-hook audits first; the global overlay order remains shared hooks, Modal, Popper, then Menu before overlay consumers.
 - No Modal, Popper, or Menu change should be made from this plan. Report any Button or shared renderer defect to its single owner.
 - Historical Moraine fixes do not substitute for auditing Base UI 3011fba8f and Kobalte 2e8ce473 now.
+
+## Verified Missing Features
+
+1. **`itemRender` can be evaluated more than once.** It is read to choose the `<Show>` branch and read again by `renderComponentOrElement`; getter-backed renderers can observe different values and reorder SSR reads. Priority P0, small, high SSR risk; owner: Breadcrumb.
+2. **Reactive collection/current-page behavior is unprotected.** The suite does not cover item insertion/removal, an active value disappearing, multiple explicit active items, or generated-current fallback changes. Priority P1 coverage, medium; owner: Breadcrumb.
+3. **Zero-valued JSX labels have no presence/hydration contract.** Priority P1 coverage, small; owner: Breadcrumb.
+
+Kobalte's compound Root/Link/Separator API and consumer-owned custom-renderer semantics are intentional divergences; Moraine should not inject attributes into an opaque renderer result.
+
+## Detailed Execution Plan
+
+1. Add a getter-backed `itemRender` regression that records each read and renderer call for default, active, disabled, and separator branches.
+2. Resolve `itemRender` once at the item owner, then branch/render from the cached value without instantiating the inactive fallback.
+3. Add reactive array tests for insert, remove, reorder, empty list, missing active value, multiple active flags, and last-item fallback; assert one `aria-current=page` according to the documented precedence.
+4. Define zero/empty/boolean label presence consistently and add render-to-string/hydrate coverage with the first link activation.
+5. Update `parity-matrix.md`; run Breadcrumb, Button, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Do not adopt Kobalte compound primitives or mutate the DOM returned by `itemRender`.
+- Routing transitions and browser history remain application-owned; mark only real-engine focus/navigation proof `unverified-platform`.

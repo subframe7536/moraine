@@ -186,6 +186,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   const shouldRenderContent = createMemo(
     () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
   )
+  const triggerRender = createMemo(() => props.triggerRender)
 
   function setOpen(nextOpen: boolean): void {
     if (disabled() || nextOpen === resolvedOpen()) {
@@ -253,8 +254,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   }
 
   const staticTrigger = (): JSX.Element => {
-    const triggerRender = props.triggerRender
-    return typeof triggerRender === 'function' ? undefined : triggerRender
+    const value = triggerRender()
+    return typeof value === 'function' ? undefined : value
   }
 
   return (
@@ -267,10 +268,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       class={cn(props.classes?.root, props.class)}
     >
       <Show
-        when={typeof props.triggerRender === 'function'}
+        when={typeof triggerRender() === 'function'}
         fallback={<button {...triggerProps}>{staticTrigger()}</button>}
       >
-        {renderComponentOrElement(props.triggerRender, triggerRenderProps)}
+        {renderComponentOrElement(triggerRender(), triggerRenderProps)}
       </Show>
 
       <Show when={shouldRenderContent()}>

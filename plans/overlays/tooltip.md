@@ -1,6 +1,6 @@
 # Tooltip Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,26 @@ Align Tooltip's hover/focus timing, global skip-delay coordination, keyboard/poi
 - Requires shared controllable/event/presence hooks and Popper foundation; Modal/overlay stack and Menu must be classified before nested-overlay acceptance.
 - Shared Popper/dismissal defects go to foundation owners; this plan owns Tooltip-specific timing and global coordination.
 - Existing skip-delay tests are baseline evidence only, not a completed pinned upstream audit.
+
+## Verified Missing Features
+
+1. **Touch/pen hover can open a tooltip.** Popper discards the pointer event and Tooltip schedules on every pointerenter; Base UI gates hover paths to mouse-like pointers. Priority P0, medium shared-trigger prerequisite; owner: Popper event surface plus Tooltip.
+2. **A disabled transition does not invalidate a pending open.** Popper blocks the callback while currently disabled, but Tooltip never cancels the timer; disabling and re-enabling before the deadline allows stale hover/focus intent to open later. Base UI closes and invalidates interaction state when disabled. Priority P0, small; owner: Tooltip.
+3. **Controlled close attempts are suppressed.** `scheduleClose` returns when `merged.open === true`, so blur/leave never calls `onOpenChange(false)` for a controlled-open tooltip. Priority P0, small; owner: Tooltip.
+4. **Rejected controlled opens pollute global coordination.** `activeTooltip` is set before the controlled state confirms open, causing unrelated tooltips to skip delay or receive stale close calls. Priority P0, medium; owner: Tooltip.
+5. **Module-level active/skip state lacks owner and hydration isolation tests.** Multiple roots, test teardown, unmount during delays, duplicate IDs, and server requests are not characterized. Priority P1, medium; owner: Tooltip.
+6. **Text/kbd JSX hydration is untested.** Priority P1 coverage, small; owner: Tooltip.
+
+## Detailed Execution Plan
+
+1. Consume the Popper pointer-event extension and schedule hover only for mouse-like pointers. Cover touch→mouse transitions and leave actual mobile synthesis `unverified-platform`.
+2. Re-check disabled and owner liveness inside every timer; cancel timers and close/clear coordination when disabled changes or the owner unmounts.
+3. Make controlled open/close requests always emit once while global active/skip state follows resolved open state, not an attempted state. Add rejected-open/rejected-close and nested-tooltip tests.
+4. Scope duplicate IDs by component owner or guarantee generated uniqueness; add multiple roots, rapid switching, teardown, and fake-timer cleanup assertions.
+5. Cache text/kbds/trigger JSX at the correct owner and add render-to-string/hydrate focus/hover/Escape coverage without leaking module state between fixtures.
+6. Update the matrix; run Tooltip, Popper, Popover smoke, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- The pointer callback change belongs to Popper and must not be duplicated here.
+- Do not add Base UI Provider/Viewport APIs; preserve Moraine's built-in coordination unless isolation cannot be achieved without an explicit public boundary.

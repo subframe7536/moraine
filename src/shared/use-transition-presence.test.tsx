@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, Show } from 'solid-js'
+import { createRoot, createSignal, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { useTransitionPresence } from './use-transition-presence.ts'
@@ -62,13 +62,27 @@ function disableWebAnimations(element: HTMLElement): void {
   })
 }
 
-function deferred(): { promise: Promise<void>; resolve: () => void } {
+function dispatchMotionEvent(
+  element: HTMLElement,
+  type: 'animationend' | 'transitionend',
+  name: string,
+): void {
+  const event = new Event(type, { bubbles: true })
+  Object.defineProperty(event, type === 'animationend' ? 'animationName' : 'propertyName', {
+    value: name,
+  })
+  fireEvent(element, event)
+}
+
+function deferred(): { promise: Promise<void>; reject: () => void; resolve: () => void } {
+  let reject: (() => void) | undefined
   let resolve: (() => void) | undefined
-  const promise = new Promise<void>((nextResolve) => {
+  const promise = new Promise<void>((nextResolve, nextReject) => {
     resolve = nextResolve
+    reject = nextReject
   })
 
-  return { promise, resolve: () => resolve?.() }
+  return { promise, reject: () => reject?.(), resolve: () => resolve?.() }
 }
 
 afterEach(() => {
@@ -77,6 +91,30 @@ afterEach(() => {
 })
 
 describe('useTransitionPresence', () => {
+  test('keeps closed construction browser-independent and reacts to opening', async () => {
+    const lifecycle = createRoot((dispose) => {
+      const [open, setOpen] = createSignal(false)
+      const presence = useTransitionPresence({ open })
+
+      expect(presence.present()).toBe(false)
+      expect(presence.dataAttrs()).toEqual({ 'data-closed': '' })
+
+      return { dispose, presence, setOpen }
+    })
+
+    lifecycle.setOpen(true)
+    await Promise.resolve()
+
+    expect(lifecycle.presence.present()).toBe(true)
+    expect(lifecycle.presence.dataAttrs()).toEqual({ 'data-expanded': '' })
+
+    lifecycle.setOpen(false)
+
+    expect(lifecycle.presence.present()).toBe(false)
+    expect(lifecycle.presence.dataAttrs()).toEqual({ 'data-closed': '' })
+    lifecycle.dispose()
+  })
+
   test('settles immediately when mode is none', () => {
     const fixture = renderPresence('none')
 
@@ -156,6 +194,104 @@ describe('useTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
+  test('waits for every active transition property', async () => {
+    const fixture = renderPresence('transition')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({
+      transitionDelay: '0s, 0s',
+      transitionDuration: '50ms, 100ms',
+      transitionProperty: 'opacity, transform',
+    })
+
+    fixture.setOpen(false)
+    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
+
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchMotionEvent(fixture.element, 'transitionend', 'transform')
+
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('ignores unrelated and duplicate transition property events', async () => {
+    const fixture = renderPresence('transition')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({
+      transitionDelay: '0s, 0s',
+      transitionDuration: '50ms, 100ms',
+      transitionProperty: 'opacity, transform',
+    })
+
+    fixture.setOpen(false)
+    dispatchMotionEvent(fixture.element, 'transitionend', 'color')
+    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
+    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
+
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchMotionEvent(fixture.element, 'transitionend', 'transform')
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('waits for every active CSS animation', async () => {
+    const fixture = renderPresence('animation')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({
+      animationDelay: '0s, 0s',
+      animationDuration: '50ms, 100ms',
+      animationName: 'fade, slide',
+    })
+
+    fixture.setOpen(false)
+    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
+
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchMotionEvent(fixture.element, 'animationend', 'slide')
+
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('ignores unrelated and duplicate animation-name events', async () => {
+    const fixture = renderPresence('animation')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({
+      animationDelay: '0s, 0s',
+      animationDuration: '50ms, 100ms',
+      animationName: 'fade, slide',
+    })
+
+    fixture.setOpen(false)
+    dispatchMotionEvent(fixture.element, 'animationend', 'pulse')
+    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
+    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
+
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchMotionEvent(fixture.element, 'animationend', 'slide')
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('treats animation and transition cancellation events as settled motion', () => {
+    const fixture = renderPresence('both')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({
+      animationDuration: '100ms',
+      animationName: 'fade',
+      transitionDuration: '100ms',
+      transitionProperty: 'opacity',
+    })
+
+    fixture.setOpen(false)
+    fireEvent(fixture.element, new Event('animationcancel', { bubbles: true }))
+
+    expect(fixture.presence.present()).toBe(true)
+
+    fireEvent(fixture.element, new Event('transitioncancel', { bubbles: true }))
+
+    expect(fixture.presence.present()).toBe(false)
+  })
+
   test('does not wait for an absent motion kind in both mode', async () => {
     const fixture = renderPresence('both')
     disableWebAnimations(fixture.element)
@@ -186,6 +322,19 @@ describe('useTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 
+  test('settles immediately when the exit element is already detached', () => {
+    vi.useFakeTimers()
+    const fixture = renderPresence('transition')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
+
+    fixture.element.remove()
+    fixture.setOpen(false)
+
+    expect(fixture.presence.present()).toBe(false)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
   test('cancels a pending close when reopened', async () => {
     const fixture = renderPresence('animation')
     const animation = deferred()
@@ -200,6 +349,88 @@ describe('useTransitionPresence', () => {
     await Promise.resolve()
 
     expect(fixture.presence.present()).toBe(true)
+  })
+
+  test('clears a fallback timer when reopened', () => {
+    vi.useFakeTimers()
+    const fixture = renderPresence('transition')
+    disableWebAnimations(fixture.element)
+    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
+
+    fixture.setOpen(false)
+    fixture.setOpen(true)
+    vi.runAllTimers()
+
+    expect(fixture.presence.present()).toBe(true)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  test('ignores completion from an element that was replaced during exit', async () => {
+    const fixture = renderPresence('animation')
+    const initialAnimation = deferred()
+    const replacementAnimation = deferred()
+    const replacementElement = document.createElement('div')
+    document.body.append(replacementElement)
+    Object.defineProperty(fixture.element, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: initialAnimation.promise }],
+    })
+    Object.defineProperty(replacementElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: replacementAnimation.promise }],
+    })
+
+    fixture.setOpen(false)
+    fixture.presence.setElement(replacementElement)
+    initialAnimation.resolve()
+    await initialAnimation.promise
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(fixture.presence.present()).toBe(true)
+
+    replacementAnimation.resolve()
+    await waitFor(() => {
+      expect(fixture.presence.present()).toBe(false)
+    })
+    replacementElement.remove()
+  })
+
+  test('waits for a replacement Web Animation after cancellation', async () => {
+    const fixture = renderPresence('both')
+    const initialAnimation = deferred()
+    const replacementAnimation = deferred()
+    let animations = [
+      {
+        finished: initialAnimation.promise,
+        pending: false,
+        playState: 'running',
+      } as unknown as Animation,
+    ]
+    Object.defineProperty(fixture.element, 'getAnimations', {
+      configurable: true,
+      value: () => animations,
+    })
+
+    fixture.setOpen(false)
+    animations = [
+      {
+        finished: replacementAnimation.promise,
+        pending: false,
+        playState: 'running',
+      } as unknown as Animation,
+    ]
+    initialAnimation.reject()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(fixture.presence.present()).toBe(true)
+
+    animations = []
+    replacementAnimation.resolve()
+    await waitFor(() => {
+      expect(fixture.presence.present()).toBe(false)
+    })
   })
 
   test('ignores exit events from descendants', async () => {

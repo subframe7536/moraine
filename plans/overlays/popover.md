@@ -1,6 +1,6 @@
 # Popover Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,25 @@ Align Popover's click/hover interaction, anchored positioning, focus and ARIA ow
 - Requires shared controllable/event/presence hooks, Modal/overlay stack, and Popper foundations; Menu must be classified before nested menu-in-popover validation.
 - Shared positioning/dismissal gaps go to foundation owners; this plan owns Popover-specific mode/timer/content behavior.
 - Prior Popover stack fixes do not complete the pinned upstream audit.
+
+## Verified Missing Features
+
+1. **Hover mode has no keyboard activation path.** It disables click toggling and supplies no focus handler, while Base UI's hover-enabled Popover retains press activation and Kobalte Popover remains keyboard-triggerable. Priority P0, medium; owner: Popover.
+2. **Hover responds to touch/pen pointerenter.** Popper's callback omits the event, so Popover cannot apply Base UI's mouse-only hover guard. Touch can schedule an unintended open. Priority P0, medium shared-trigger prerequisite; owner: Popper event surface plus Popover policy.
+3. **Mode changes do not cancel pending timers.** A hover-to-click change during `openDelay`/`closeDelay` can execute stale hover work. Disabled is not exposed even though Popper supports it. Priority P1, medium; owner: Popover.
+4. **Role=dialog content has no explicit naming contract.** There is no title/label prop or forwarded content ARIA path. Priority P1, medium API decision; owner: Popover.
+5. **Hover/focus/controlled hydration is untested.** Priority P1 coverage, medium; owner: Popover.
+
+## Detailed Execution Plan
+
+1. Define hover mode as mouse-hover plus keyboard press/focus accessibility; add Enter/Space/focus/click tests and ensure hover-open does not steal focus.
+2. Extend Popper trigger pointer callbacks to include the original event, guarded by foundation tests. Ignore non-mouse hover while retaining touch click activation.
+3. Reactively cancel timers when mode changes, the owner unmounts, or a newer open/close request supersedes them. Add controlled rejection and rapid re-entry tests with exact callback counts.
+4. Decide the smallest accessible naming path for dialog content, shared with Dialog/Sheet where possible, and assert every ARIA reference resolves.
+5. Add render-to-string/hydrate-to-hover/focus/click coverage with getter-backed content and no closed-content instantiation.
+6. Update the matrix; run Popover, Popper, Modal, Tooltip smoke, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Any pointer-event signature change must be completed and frozen in the Popper foundation before consumer code.
+- Keep safe-polygon and real touch scroll behavior `unverified-platform` where jsdom cannot establish geometry/device synthesis.

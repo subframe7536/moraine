@@ -1,6 +1,6 @@
 # Dialog Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,23 @@ Align Dialog's modal focus lifecycle, accessible naming, trigger/content ownersh
 - Requires useControllableValue, useEventListener, useTransitionPresence, overlay stack, and Modal foundation first; Popper and Menu foundations must be classified before nested consumer validation.
 - Modal defects belong to the Modal foundation owner; this plan owns only Dialog shell/orchestration and consumer tests.
 - Historical nested-overlay fixes do not complete the current pinned audit.
+
+## Verified Missing Features
+
+1. **Custom headers leave dangling accessible-name IDs.** `titleId`/`descriptionId` are derived from title props, but a truthy custom `header` suppresses those nodes while `ModalContent` still receives their IDs. Priority P0, small, high accessibility impact; owner: Dialog.
+2. **A titleless dialog has no naming escape hatch.** The public surface cannot pass `aria-label` or custom `aria-labelledby` to the dialog content. Base UI requires/validates accessible naming. Priority P0, medium API decision; owner: Dialog.
+3. **Numeric zero title/description content is omitted.** Truthy ID and `<Show>` checks disagree with valid JSX presence. Priority P1, small; owner: Dialog.
+4. **Shell JSX hydration is only partially covered.** Getter reads have a client test, but there is no server/hydrate/open-close fixture for trigger, header, body, footer, and close icon. Priority P1, medium; owner: Dialog.
+
+## Detailed Execution Plan
+
+1. Add an ARIA integrity helper assertion to tests: every `aria-labelledby`/`aria-describedby` token must resolve to a mounted node. Cover default and custom headers, title-only, description-only, and no title.
+2. When custom header replaces the default title/description, do not emit their IDs unless the custom header contract supplies real IDs. Add the smallest explicit accessible-name escape hatch or a required-title rule after documenting the pre-alpha API decision.
+3. Use explicit JSX presence for title/description and cache all inspected shell content once per owner; include `0`, empty string, false, and elements.
+4. Add render-to-string/hydrate tests for closed/defaultOpen/controlled-open, custom header, close action, Escape, and focus restoration.
+5. Update the matrix; run Dialog, Modal, CommandPalette/Popup consumer smoke, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Modal focus, dismissal, scroll lock, and overlay stack remain foundation-owned.
+- Do not add Base UI compound title/description parts; any naming prop must fit the existing comprehensive Dialog contract.

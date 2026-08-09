@@ -20,7 +20,7 @@ export default defineConfig({
     conditions: ['node', 'import', 'default'],
     dedupe: ['solid-js', '@solidjs/router'],
   },
-  plugins: [solid({ hot: false })],
+  plugins: [solid({ hot: false, solid: { hydratable: true } })],
   test: {
     include: ['src/**/*.{test,spec}.?(c|m)[jt]s?(x)', 'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     environment: 'jsdom',

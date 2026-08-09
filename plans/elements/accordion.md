@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. Audit the current implementation against the pinned upstream source; prior commits and existing tests are evidence only, not proof that no gaps remain.
+Complete.
 
 ## Goal
 

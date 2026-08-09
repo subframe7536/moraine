@@ -1,6 +1,6 @@
 # DropdownMenu Base UI Parity Plan
 
-Status: Ready for hand-off — the pinned upstream audit is not complete; existing fixes and tests are baseline evidence only.
+Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 
 ## Goal
 
@@ -54,3 +54,23 @@ Align DropdownMenu's trigger, keyboard/pointer navigation, item selection, subme
 - Requires shared state/lifecycle hooks, Modal/overlay stack, Popper, then Menu foundation plans in that order.
 - Shared foundation defects are handed off; this plan owns only DropdownMenu orchestration and consumer regressions.
 - Existing menu parity coverage is baseline only, not a completed audit of the pinned revisions.
+
+## Verified Missing Features
+
+1. **Disabled trigger semantics are only behavioral.** The renderer receives `data-disabled` but no native `disabled` or `aria-disabled`, so an anchor/span trigger remains focusable and announced as enabled even though handlers refuse to open. Base UI distinguishes native and non-native disabled triggers. Priority P0, medium; owner: shared trigger contract with DropdownMenu smoke test.
+2. **Disabling an open menu does not close or report a close attempt.** `commitOpen` checks disabled only for opening and there is no reactive disabled transition. Priority P1, small; owner: DropdownMenu policy.
+3. **Dynamic trigger removal/replacement is untested.** Focus restoration and positioning retain an imperative trigger reference; the consumer suite has no removal-during-open or replacement case. Priority P1, medium; owner: DropdownMenu with foundation-backed cleanup.
+4. **Trigger renderer hydration is untested.** Getter single evaluation is locally cached, but there is no render-to-string/hydrate keyboard-open proof. Priority P1 coverage, small; owner: DropdownMenu.
+
+## Detailed Execution Plan
+
+1. Extend the shared trigger attributes only as required to expose correct native/non-native disabled semantics; add default button, anchor, span, and caller-override tests here.
+2. Decide disabled-while-open behavior from Base UI/Kobalte evidence, then test uncontrolled closure and controlled close attempts exactly once without bypassing Menu teardown.
+3. Add trigger removal/replacement tests during open, exit, submenu open, and controlled rejection; assert no detached focus restoration or stale positioning.
+4. Add SSR/hydration coverage for closed/open controlled markup, exact trigger-render reads, first ArrowDown open, and Escape restore.
+5. Update the matrix; run DropdownMenu, ContextMenu, Menu, Modal, Popper, SSR, typecheck, and diff checks.
+
+## STOP Conditions
+
+- Do not duplicate item/typeahead/submenu/portal fixes already owned by the Menu foundation.
+- If native/non-native disabled attributes require changing `OverlayTriggerProps`, freeze the shared trigger contract before editing both menu consumers.

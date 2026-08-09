@@ -73,6 +73,8 @@ export namespace ButtonT {
 
     onClick?: JSX.EventHandlerUnion<ElementFor<T>, MouseEvent>
     onKeyDown?: JSX.EventHandlerUnion<ElementFor<T>, KeyboardEvent>
+    onKeyUp?: JSX.EventHandlerUnion<ElementFor<T>, KeyboardEvent>
+    onBlur?: JSX.EventHandlerUnion<ElementFor<T>, FocusEvent>
     onPointerDown?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
     onPointerUp?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
     onPointerCancel?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
@@ -162,6 +164,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'loadingIcon',
     'onClick',
     'onKeyDown',
+    'onKeyUp',
+    'onBlur',
     'onPointerDown',
     'leading',
     'trailing',
@@ -176,14 +180,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     },
   })
 
-  const tag = () => (local.as as ValidComponent) ?? 'button'
+  const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
   const isNativeBtn = () => typeof tag() === 'string' && (tag() === 'button' || tag() === 'input')
   const isNativeLink = () =>
     !isNativeBtn() &&
-    typeof tag() === 'string' &&
-    tag() === 'a' &&
+    (typeof tag() !== 'string' || tag() === 'a') &&
     (rest as { href?: string }).href !== undefined
-  const needsButtonRole = () => typeof tag() === 'string' && !isNativeBtn() && !isNativeLink()
+  const needsButtonRole = () => !isNativeBtn() && !isNativeLink()
   const isDisabledOrLoading = () => isLoading() || local.disabled
   const size = () => (local.size ?? group?.size ?? 'md') as NonNullable<ButtonVariantProps['size']>
   const variant = () =>
@@ -224,16 +227,68 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return trailing()
   })
 
-  // Handle keyboard activation for non-native buttons
-  const handleKeyDown = (event: KeyboardEvent) => {
-    // Call user's onKeyDown handler first
-    const { defaultPrevented } = callHandler(event, local.onKeyDown)
+  let spaceKeyDownArmed = false
 
-    if (defaultPrevented) {
+  const dispatchKeyboardClick = (target: HTMLElement, event: KeyboardEvent): void => {
+    const MouseEventConstructor = target.ownerDocument.defaultView?.MouseEvent ?? MouseEvent
+    target.dispatchEvent(
+      new MouseEventConstructor('click', {
+        altKey: event.altKey,
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        ctrlKey: event.ctrlKey,
+        detail: 0,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+      }),
+    )
+  }
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const isActivationKey = event.key === 'Enter' || event.key === ' '
+    if (isDisabledOrLoading()) {
+      if (isActivationKey) {
+        event.preventDefault()
+      }
+      spaceKeyDownArmed = false
       return
     }
 
-    // Block keyboard activation when disabled or loading
+    const isCurrentTarget = event.target === event.currentTarget
+    if (isCurrentTarget && event.key === ' ') {
+      spaceKeyDownArmed = false
+    }
+
+    const { defaultPrevented } = callHandler(event, local.onKeyDown)
+
+    if (defaultPrevented || !isCurrentTarget || !needsButtonRole()) {
+      return
+    }
+
+    if (event.key === ' ') {
+      event.preventDefault()
+      spaceKeyDownArmed = true
+      return
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
+    }
+  }
+
+  const handleKeyUp = (event: KeyboardEvent) => {
+    const shouldActivate =
+      event.key === ' ' &&
+      spaceKeyDownArmed &&
+      event.target === event.currentTarget &&
+      needsButtonRole()
+
+    if (event.key === ' ') {
+      spaceKeyDownArmed = false
+    }
+
     if (isDisabledOrLoading()) {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
@@ -241,35 +296,33 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       return
     }
 
-    // For non-native buttons, activate on Enter or Space
-    if (needsButtonRole() && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault()
-      // Simulate a click by calling the click handler directly
-      const target = event.target as HTMLElement
-      target.click()
-    }
-  }
-
-  // Handle click events with disabled/loading blocking
-  const handleClick = (event: MouseEvent) => {
-    // Block clicks when disabled or loading for non-native buttons
-    if (!isNativeBtn() && isDisabledOrLoading()) {
-      event.preventDefault()
-      event.stopPropagation()
+    const { defaultPrevented } = callHandler(event, local.onKeyUp)
+    if (!shouldActivate || defaultPrevented) {
       return
     }
 
-    // Call the onClick handler through useLoadingAutoClick
+    event.preventDefault()
+    dispatchKeyboardClick(event.currentTarget as HTMLElement, event)
+  }
+
+  const handleBlur = (event: FocusEvent) => {
+    spaceKeyDownArmed = false
+    callHandler(event, local.onBlur)
+  }
+
+  const handleClick = (event: MouseEvent) => {
+    if (isDisabledOrLoading()) {
+      event.preventDefault()
+      return
+    }
+
     callHandler(event, onClick)
   }
 
-  // Handle pointer events to block interaction when disabled/loading
   const handlePointerDown = (event: PointerEvent) => {
-    // Disabled/loading non-native buttons must cancel the gesture before invoking user code so
-    // user handlers observe the same blocked event as native disabled controls.
-    if (!isNativeBtn() && isDisabledOrLoading()) {
+    if (isDisabledOrLoading()) {
       event.preventDefault()
-      event.stopPropagation()
+      return
     }
 
     callHandler(event, local.onPointerDown)
@@ -283,6 +336,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       },
     }),
   )
+  const hasResolvedChildren = createMemo(() => {
+    const value = resolvedChildren()
+    return value === 0 || Boolean(value)
+  })
 
   return (
     <Dynamic
@@ -311,11 +368,20 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             ? local.type
             : undefined
       }
-      role={needsButtonRole() ? 'button' : undefined}
-      tabIndex={needsButtonRole() && !isDisabledOrLoading() ? 0 : undefined}
+      role={
+        (rest as { role?: JSX.HTMLAttributes<HTMLElement>['role'] }).role ??
+        (needsButtonRole() ? 'button' : undefined)
+      }
+      tabIndex={
+        needsButtonRole() && !isDisabledOrLoading()
+          ? ((rest as { tabIndex?: number }).tabIndex ?? 0)
+          : undefined
+      }
       disabled={isNativeBtn() ? isDisabledOrLoading() : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
+      onBlur={handleBlur}
       onPointerDown={handlePointerDown}
     >
       <Show when={resolvedLeading()}>
@@ -334,16 +400,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         )}
       </Show>
 
-      <Show when={resolvedChildren()}>
-        {(body) => (
-          <span
-            data-slot="label"
-            style={local.styles?.label}
-            class={cn('min-w-0 truncate', local.classes?.label)}
-          >
-            {body()}
-          </span>
-        )}
+      <Show when={hasResolvedChildren()}>
+        <span
+          data-slot="label"
+          style={local.styles?.label}
+          class={cn('min-w-0 truncate', local.classes?.label)}
+        >
+          {resolvedChildren()}
+        </span>
       </Show>
 
       <Show when={resolvedTrailing()}>

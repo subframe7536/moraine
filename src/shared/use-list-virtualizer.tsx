@@ -6,7 +6,16 @@ import {
 } from '@tanstack/virtual-core'
 import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor, Component, JSX } from 'solid-js'
-import { For, createRenderEffect, createSignal, mergeProps, onCleanup, onMount } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  onMount,
+} from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
 export type ListVirtualizerOptions<
@@ -72,12 +81,18 @@ export function useListVirtualizer<
   const virtualRender: Component<VirtualRenderProps<TItem, TScrollElement, TItemElement>> = (
     props,
   ) => {
+    const renderRow = props.render
+    const [mounted, setMounted] = createSignal(false)
     const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
     const [totalSize, setTotalSize] = createSignal(0)
     const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
       setVirtualItems(reconcile(source.getVirtualItems(), { key: 'index' }))
       setTotalSize(source.getTotalSize())
     }
+    let currentEntries: readonly TItem[] = []
+    let currentKeys: VirtualItem['key'][] = []
+    let currentEstimates: number[] = []
+    let initialized = false
     const virtualizerOptions = mergeProps(
       {
         observeElementRect,
@@ -87,11 +102,11 @@ export function useListVirtualizer<
       options,
       {
         get count() {
-          return props.entries.length
+          return currentEntries.length
         },
-        getScrollElement: () => props.scrollElement ?? null,
-        estimateSize: (index: number) => options.estimateSize(props.entries[index]!, index),
-        getItemKey: (index: number) => options.getItemKey?.(props.entries[index]!, index) ?? index,
+        getScrollElement: () => (mounted() ? (props.scrollElement ?? null) : null),
+        estimateSize: (index: number) => currentEstimates[index]!,
+        getItemKey: (index: number) => currentKeys[index] ?? index,
         indexAttribute: 'data-index',
         onChange: (source: Virtualizer<TScrollElement, TItemElement>, synchronous: boolean) => {
           sync(source)
@@ -102,21 +117,60 @@ export function useListVirtualizer<
     const virtualizer = new Virtualizer<TScrollElement, TItemElement>(virtualizerOptions)
 
     createRenderEffect(() => {
+      const entries = props.entries
+      const nextKeys = entries.map((item, index) => options.getItemKey?.(item, index) ?? index)
+      const nextEstimates = entries.map((item, index) => options.estimateSize(item, index))
+      const sharedLength = Math.min(currentKeys.length, nextKeys.length)
+      const layoutChanged =
+        initialized &&
+        (nextKeys.some((key, index) => index < sharedLength && key !== currentKeys[index]) ||
+          nextEstimates.some(
+            (estimate, index) =>
+              index < sharedLength && !Object.is(estimate, currentEstimates[index]),
+          ))
+
+      currentEntries = entries
+      currentKeys = nextKeys
+      currentEstimates = nextEstimates
+      initialized = true
       virtualizerOptions.getScrollElement()
       virtualizer.setOptions(virtualizerOptions)
-      if (instance() === virtualizer) {
+
+      if (layoutChanged) {
+        const measuredElements = [...virtualizer.elementsCache.values()]
+        virtualizer.measure()
+        queueMicrotask(() => {
+          virtualizer.measureElement(null)
+          for (const element of measuredElements) {
+            if (element.isConnected) {
+              virtualizer.measureElement(element)
+            }
+          }
+        })
+      }
+
+      if (mounted()) {
         virtualizer._willUpdate()
       }
       sync(virtualizer)
     })
 
     onMount(() => {
-      setInstance(virtualizer)
-      virtualizer._willUpdate()
-      sync(virtualizer)
+      const cleanupVirtualizer = virtualizer._didMount()
+      let active = true
+
+      queueMicrotask(() => {
+        if (!active) {
+          return
+        }
+
+        setInstance(virtualizer)
+        setMounted(true)
+      })
 
       onCleanup(() => {
-        virtualizer._didMount()
+        active = false
+        cleanupVirtualizer()
         setInstance((current) => (current === virtualizer ? undefined : current))
       })
     })
@@ -158,21 +212,36 @@ export function useListVirtualizer<
     return (
       <div style={contentStyle()}>
         <For each={virtualItems}>
-          {(virtualItem) =>
-            props.render(props.entries[virtualItem.index]!, virtualItem.index, {
-              'data-index': virtualItem.index,
-              ref: (element) => {
-                // Solid invokes spread refs before all following attributes are applied.
-                // Defer measurement so data attributes, styles, and children affect its size.
-                queueMicrotask(() => {
-                  if (element.isConnected) {
-                    virtualizer.measureElement(element)
-                  }
-                })
-              },
-              style: rowStyle(virtualItem),
-            })
-          }
+          {(virtualItem) => {
+            const row = createMemo(() => ({
+              index: virtualItem.index,
+              item: props.entries[virtualItem.index]!,
+            }))
+
+            return (
+              <Show keyed when={row()}>
+                {(current) => {
+                  onCleanup(() => {
+                    queueMicrotask(() => virtualizer.measureElement(null))
+                  })
+
+                  return renderRow(current.item, current.index, {
+                    'data-index': current.index,
+                    ref: (element) => {
+                      // Solid invokes spread refs before all following attributes are applied.
+                      // Defer measurement so data attributes, styles, and children affect its size.
+                      queueMicrotask(() => {
+                        if (element.isConnected) {
+                          virtualizer.measureElement(element)
+                        }
+                      })
+                    },
+                    style: rowStyle(virtualItem),
+                  })
+                }}
+              </Show>
+            )
+          }}
         </For>
       </div>
     )

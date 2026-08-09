@@ -46,6 +46,47 @@ describe('MultiSelect', () => {
     expect(tags.length).toBe(2)
   })
 
+  test('labels tag removal, preserves input focus, and removes once', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search options={FRUITS} value={['apple']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    const remove = screen.getByRole('button', { name: 'Remove Apple' })
+    input.focus()
+
+    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+    remove.dispatchEvent(pointerDown)
+    await fireEvent.click(remove)
+
+    expect(pointerDown.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(input)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  test('keeps tag removal inert when the multi-select is disabled', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect options={FRUITS} value={['apple']} disabled onChange={onChange} />
+    ))
+    const tag = screen.container.querySelector('[data-slot="tag"]')!
+
+    expect(tag.querySelector('button')).toBeNull()
+    await fireEvent.click(tag.querySelector('[data-slot="trailing"]')!)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('focuses the input when the selected tag label is pressed', () => {
+    const screen = render(() => <MultiSelect search options={FRUITS} value={['apple']} />)
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    const label = screen.container.querySelector('[data-slot="tag"] [data-slot="label"]')!
+
+    label.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
+
+    expect(document.activeElement).toBe(input)
+  })
+
   test('calls onChange with array of values', async () => {
     const onChange = vi.fn()
     render(() => <MultiSelect options={FRUITS} defaultOpen onChange={onChange} />)

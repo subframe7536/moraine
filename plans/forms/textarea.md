@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after Input modifier and FormField semantics are stable.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -64,3 +64,23 @@ Harden Textarea's native editing, controlled value, modifiers, autoresize, form,
 - Depends on the shared Input modifier/event contract and FormField ARIA/value rules.
 - Coordinate input-modifiers changes with Input; coordinate useId or hydration changes with FormField.
 - Handoff must include the autoresize measurement/trigger policy, event ordering, native form/reset results, browser caveats, test results, and unverified-platform items.
+
+## Verified Missing Features
+
+1. **Autofocus and autosize timers survive unmount.** Both mount timers can operate on detached elements. Priority P1, small; owner: Textarea.
+2. **Autosize does not react to all layout inputs.** The effect tracks only `merged.value`, so Formisch store changes, native reset, `rows`, `maxRows`, and `autoResize` changes can leave stale height/overflow. Priority P0, medium; owner: Textarea.
+3. **Documented defaults use misspelled keys.** `maxrows`, `autoresize`, and `autoresizeDelay` do not apply to the public camel-cased props. Priority P1, small; owner: Textarea.
+4. **Numeric zero header/footer content is dropped and hydration is untested.** Priority P1, medium SSR risk; owner: Textarea.
+
+## Detailed Execution Plan
+
+1. Add deterministic `scrollHeight`/line-height tests for controlled value, Formisch value, native reset, rows/maxRows changes, autoresize enable/disable, and overflow transitions.
+2. Track and cancel both timers in cleanup. Consolidate scheduling without introducing a wrapper helper used once.
+3. Correct default prop keys and centralize autosize dependencies so each state change schedules at most one measurement.
+4. Replace header/footer truthiness with the shared JSX-presence rule, cache inspected values once, and add SSR/hydration plus exact-read fixtures.
+5. Update the matrix; run Textarea, Input, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Keep browser font/layout measurement that jsdom cannot prove under `unverified-platform`.
+- Do not change row sizing, spacing, or resize styling.

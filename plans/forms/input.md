@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after shared FormField rules are published.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -65,3 +65,23 @@ Align Input's native text-entry, event, controlled value, modifier, accessibilit
 - Depends on stable FormField value/event and ARIA-composition invariants.
 - Coordinate input-modifier changes with Textarea; both must share one conversion and callback contract.
 - Handoff must include event ordering, controlled precedence, native validation/reset results, platform caveats, and test output.
+
+## Verified Missing Features
+
+1. **Wrapper focus steals interaction from nested controls.** Root `onPointerDown` focuses the input for every non-input target and lacks the interactive-descendant guard already used by Textarea. Priority P0, small; owner: Input.
+2. **Delayed autofocus is not cancelled on unmount.** The mount timer retains and may focus a detached input. Priority P1, small; owner: Input.
+3. **Reset/external-store convergence is untested.** The suite does not prove that native reset, Formisch `setInput`, or controlled rollback leaves the DOM value and field state aligned. Priority P1 coverage, medium; owner: Input plus Form.
+4. **Child/modifier JSX has no exact-read hydration coverage.** Priority P1 coverage, medium; owner: Input.
+
+## Detailed Execution Plan
+
+1. Add pointer tests for direct wrapper padding, label text, nested link/button/input, and caller cancellation; port the Textarea interactive-target predicate into a shared local form utility only if a second consumer needs it.
+2. Store the autofocus timer and clear it in `onCleanup`; test unmount-before-delay and disabled/readOnly changes before the callback.
+3. Add native reset, external Formisch input, controlled rollback, autofill-style input/change ordering, and exact callback tests.
+4. Apply the SSR gate only to JSX branches touched by the fix; assert exact getter reads and hydration value preservation.
+5. Update the matrix; run Input, FormField, Form, Textarea dependency smoke, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Accessible naming and inherited required state are FormField-owned.
+- Mark real autofill UI proof `unverified-platform`; do not add browser-mode dependencies.

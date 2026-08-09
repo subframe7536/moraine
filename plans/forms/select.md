@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit; implementation depends on the shared BaseSelect and Menu behavior baseline.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09; shared BaseSelect work is owned here.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -66,3 +66,29 @@ Audit and close single-select parity gaps across combobox/listbox semantics, key
 - Hard prerequisites: shared BaseSelect behavior and overlays/base/menu parity; coordinate ownership before modifying either.
 - MultiSelect shares those prerequisites but has an independent plan and must not be treated as acceptance coverage for scalar selection.
 - Handoff must include the engine versus Select gap split, keyboard/ARIA state model, native serialization/validity policy, overlay lifecycle results, platform caveats, and all test commands/results.
+
+## Verified Missing Features
+
+1. **Non-search Select has no typeahead.** `BaseSelect.handleKeyDown` handles navigation and selection keys only, while Base UI and Kobalte Select support printable-key typeahead with repeated-character cycling. Priority P0, medium; owner: BaseSelect through this plan.
+2. **Closed-key behavior is incomplete.** Space does not open a closed Select, while Home/End mutate hidden highlight without opening. Base UI/Kobalte open from Space/Enter/Arrow and scope boundary movement to an open listbox. Priority P0, small; owner: BaseSelect.
+3. **Groups are not accessibly labelled.** Non-virtual `role=group` has no `aria-labelledby`; virtual labels are `role=presentation` with no association. Upstream group/label parts link these IDs. Priority P0, medium; owner: BaseSelect.
+4. **Value and DOM identity collide.** Normalization stringifies values, conflating `1` and `'1'`; duplicate keys produce duplicate option IDs and ambiguous `aria-activedescendant`. Priority P0, large, high compatibility risk; owner: BaseSelect.
+5. **The hidden native select is output-only.** It has no change/reset listener, so native reset and autofill do not update Select or FormField. Priority P0, medium; owner: BaseSelect plus Form.
+6. **Option pointerdown prevents touch scrolling.** It prevents default for mouse, touch, and pen and selects on click without a movement threshold; Base UI/Kobalte distinguish touch scrolling from intentional selection. Priority P1, medium, real-engine validation required; owner: BaseSelect.
+7. **Queued focus/scroll work is not owner-guarded.** Selection and highlight use raw `queueMicrotask`, so close/unmount or a newer highlight can leave stale focus/scroll actions. Priority P1, small; owner: BaseSelect.
+8. **Unmatched controlled values and JSX branches are not defined.** Native options omit unmatched values, and `emptyRender`/`optionRender` branches can read getters more than once without hydration coverage. Priority P1, medium; owner: Select/BaseSelect.
+
+## Detailed Execution Plan
+
+1. Add BaseSelect-owned keyboard tests in `select.test.tsx`: Space/Enter/Arrow open policy, closed Home/End, printable typeahead, repeated characters, timeout, disabled items, search-mode separation, RTL, and exact callback counts.
+2. Add stable group-label IDs and collision-free option instance IDs. Write duplicate key/value and numeric/string identity tests before choosing the internal identity representation; preserve the public scalar value contract.
+3. Compose native `change` and `reset` back into Select/FormField. Cover required validity, FormData, disabled omission, numeric values, unmatched controlled values, autofill-style changes, and controlled rejection.
+4. Split mouse pointerdown focus preservation from touch/pen selection. Simulate reliable cancellation in jsdom and leave actual scroll-versus-tap proof `unverified-platform`.
+5. Guard queued focus/scroll work with owner cleanup and current-state checks; test rapid select-close-unmount and highlight replacement.
+6. Cache `children`, `optionRender`, `emptyRender`, labels, and icons at their owning scope. Add render-to-string/hydrate-to-open coverage with exact getter reads and no closed-content instantiation.
+7. Adopt FormField's shared group labelling/required state, update the matrix, and run Select, MultiSelect, Menu, navigation, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Do not change shared Menu/Popper behavior from this plan; route any remaining defect to the completed foundation and add only a Select smoke test.
+- If preserving distinct numeric/string values requires a public equality/key contract, stop and document the breaking pre-alpha decision before implementation.

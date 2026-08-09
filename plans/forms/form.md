@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -62,3 +62,24 @@ Audit Moraine's Formisch-backed Form boundary for native submission, validation,
 - Complete the FormField context audit alongside this plan when shared registration, error, or initial-value behavior changes.
 - Coordinate control-specific native serialization fixes with their component plans instead of embedding them in Form.
 - Handoff must list Formisch-version assumptions, adapter-only changes, representative consumer results, error/async policy, and remaining browser validation.
+
+## Verified Missing Features
+
+1. **Native reset does not reset the Formisch store.** The installed `@formisch/solid@1.0.0-rc.0` `Form` only wires submit; its exported `reset` mutates store state separately. Moraine forwards `onReset` without coordinating the store, so DOM values and Formisch input/dirty/touched/errors can diverge. Priority P0, medium, medium risk; owner: Form adapter.
+2. **Submit lifecycle is barely characterized locally.** Formisch's `handleSubmit` prevents default, validates with `shouldFocus: true`, catches handler errors into form errors, and clears `isSubmitting` in `finally`, while Moraine tests only the happy path and initial errors. Priority P1 coverage, medium; owner: Form adapter tests, with no engine rewrite.
+3. **Provider isolation and hydration are untested.** Nested forms, remounted stores, and render-to-string/hydrate have no regression coverage, so a context or conditional-provider change could leak field ownership. Priority P1 coverage, small; owner: Form.
+
+Base UI's field-registration API and native-validation architecture are intentional divergences because Moraine's public contract is Formisch-backed and Formisch sets `novalidate`.
+
+## Detailed Execution Plan
+
+1. Add adapter tests for invalid submit suppression and first-error focus, sync and async submission, rejected handlers, duplicate submissions, native submitter preservation, and exact `data-submitting` transitions. Assert the installed Formisch behavior rather than duplicating it.
+2. Add a failing native `form.reset()` test covering Input plus one collection control; require the store input, dirty/touched/errors, rendered control, and caller `onReset` order to converge exactly once.
+3. Wire reset in `src/forms/form/form.tsx` by composing the caller handler and Formisch's exported `reset(local.of)` only when the native reset was not prevented. Keep the change in the adapter.
+4. Add nested-provider/remount and SSR/hydration tests. Use stable store instances on server and client and verify the first submit reaches only its owning form.
+5. Update `parity-matrix.md`; run the Form, FormField, Input, Checkbox, Select, and MultiSelect suites listed above, then `bun run typecheck` and `git diff --check`.
+
+## STOP Conditions
+
+- Do not recreate Formisch validation, error capture, focus ordering, or submitting state.
+- If `reset()` cannot be composed without changing the documented caller `onReset` contract, stop and document the required API decision before implementation.

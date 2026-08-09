@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onCleanup, onMount, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
@@ -13,7 +13,14 @@ import { useId } from '../../shared/utils.ts'
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
-import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils.ts'
+import {
+  acquireAriaHideOutside,
+  acquireBodyScrollLock,
+  focusContent,
+  focusWithoutScrolling,
+  focusTrigger,
+  trapFocusInContainer,
+} from './utils.ts'
 
 export interface ModalContentContext {
   close: () => void
@@ -95,6 +102,8 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
   const dismissEntry = { contentElement, triggerElement }
   let capturedTrigger: HTMLElement | undefined
+  let capturedRestoreTarget: HTMLElement | undefined
+  let lastFocusedElement: HTMLElement | undefined
   let wasPresent = false
 
   const updateOpen = (nextOpen: boolean): void => {
@@ -148,8 +157,39 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       return
     }
 
+    const currentContent = contentElement()
+    if (!currentContent) {
+      return
+    }
+
+    let active = true
+    let release: (() => void) | undefined
+    queueMicrotask(() => {
+      if (active && currentContent.isConnected) {
+        release = acquireAriaHideOutside(currentContent)
+      }
+    })
+
+    onCleanup(() => {
+      active = false
+      release?.()
+    })
+  })
+
+  createEffect(() => {
+    if (!isPresent() || typeof document === 'undefined') {
+      return
+    }
+
     const release = pushOverlayLayer(dismissEntry)
-    capturedTrigger = triggerElement() ?? capturedTrigger
+    capturedTrigger = untrack(triggerElement)
+    const activeElement = document.activeElement
+    capturedRestoreTarget =
+      capturedTrigger ??
+      (activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : undefined)
+    lastFocusedElement = undefined
 
     const isInside = (target: Node): boolean => {
       if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
@@ -162,7 +202,12 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     const onDocumentPointerDown = (event: PointerEvent): void => {
       const target = event.target
 
-      if (!(target instanceof Node) || isInside(target)) {
+      if (
+        !(target instanceof Node) ||
+        isInside(target) ||
+        event.button !== 0 ||
+        (event.ctrlKey && event.button === 0)
+      ) {
         return
       }
       if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
@@ -182,13 +227,26 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     const onDocumentFocusIn = (event: FocusEvent): void => {
       const target = event.target
 
-      if (!(target instanceof Node) || isInside(target) || !isTopOverlay(dismissEntry)) {
+      if (!(target instanceof Node) || !isTopOverlay(dismissEntry)) {
         return
       }
 
       const currentContent = contentElement()
+      if (target instanceof HTMLElement && currentContent?.contains(target)) {
+        lastFocusedElement = target
+        return
+      }
+
+      if (isInside(target)) {
+        return
+      }
+
       queueMicrotask(() => {
-        focusContent(currentContent)
+        if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
+          focusWithoutScrolling(lastFocusedElement)
+        } else {
+          focusContent(currentContent)
+        }
       })
 
       if (!dismissible()) {
@@ -202,6 +260,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       }
 
       if (dismissible()) {
+        event.preventDefault()
         updateOpen(false)
         return
       }
@@ -210,19 +269,26 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       props.onClosePrevent?.()
     }
 
-    useEventListenerMap(
-      document,
-      {
-        pointerdown: onDocumentPointerDown,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-      },
-      true,
-    )
+    useEventListenerMap(document, {
+      pointerdown: onDocumentPointerDown,
+      focusin: onDocumentFocusIn,
+      keydown: onDocumentKeyDown,
+    })
 
     onCleanup(() => {
       release()
-      focusTrigger(capturedTrigger)
+      const trigger = capturedTrigger
+      const restoreTarget = capturedRestoreTarget
+
+      queueMicrotask(() => {
+        if (isPresent() || focusTrigger(trigger)) {
+          return
+        }
+
+        if (restoreTarget !== trigger) {
+          focusTrigger(restoreTarget)
+        }
+      })
     })
   })
 

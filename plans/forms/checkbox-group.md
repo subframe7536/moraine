@@ -2,7 +2,7 @@
 
 ## Status
 
-- Ready for audit and implementation after the Checkbox shared behavior baseline is known.
+- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -63,3 +63,25 @@ Bring CheckboxGroup collection behavior to Base UI parity while retaining Morain
 - Requires a stable Checkbox activation/hidden-input baseline; consume it instead of adding parallel item logic.
 - Coordinate changes to FormField, useEventListener, or shared state helpers with their owners before editing.
 - Handoff must state item identity/order rules, required-validity behavior, upstream evidence, test results, and remaining real-browser checks.
+
+## Verified Missing Features
+
+1. **Group required currently means every checkbox is required.** The plan's declared group contract is zero-versus-some selection, but `required` is forwarded to each native checkbox, making partial selection invalid. Priority P0, medium; owner: CheckboxGroup.
+2. **Duplicate values create duplicate control IDs.** IDs are derived from group ID plus value, so duplicates break label targeting and identity. Priority P0, medium; owner: CheckboxGroup.
+3. **Controlled values and reset do not reliably synchronize FormField state.** Reset reads live defaults and external controlled updates bypass field emission. Priority P1, medium; owner: CheckboxGroup plus Form.
+4. **Item/legend JSX and generated identity lack hydration coverage.** Priority P1 coverage; owner: CheckboxGroup.
+5. **Card interaction inherits Checkbox's nested-interactive bug.** Priority P0 dependency; owner: Checkbox, not CheckboxGroup.
+
+## Detailed Execution Plan
+
+1. Add group-validity tests for zero, one, and all selected values; implement one group-level native validity owner instead of marking every checkbox required.
+2. Decouple DOM identity from value and test duplicate values, reorder, removal, label clicks, repeated FormData entries, and exact array ordering.
+3. Add controlled/uncontrolled reset, external value, no-op toggle, controlled rejection, and FormField synchronization tests.
+4. Consume Checkbox's card fix and FormField's group-label/required invariants; add only group-specific smoke tests here.
+5. Cache legend/item JSX as required by the SSR gate and add render-to-string/hydrate coverage with duplicate labels/values.
+6. Update the matrix; run CheckboxGroup, Checkbox, FormField, Form, SSR, and typecheck suites.
+
+## STOP Conditions
+
+- Confirm the declared at-least-one required contract before implementation; if product intent is “all required,” record that as an intentional divergence instead.
+- Do not duplicate Checkbox or FormField fixes in the group.

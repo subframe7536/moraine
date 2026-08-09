@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned. Existing open/controlled/transition tests are substantial but do not replace a current-pin review of Base UI's transition and browser edge cases.
+Complete.
 
 ## Goal
 
