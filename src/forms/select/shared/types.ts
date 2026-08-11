@@ -21,15 +21,18 @@ export interface SelectFilterableOption<TRaw> {
 }
 
 export interface NormalizedOption<TItems> {
-  value: string
+  id: string
+  value: string | number
   label: string | JSX.Element
   key: string
   disabled: boolean
   raw: TItems
+  renderItem: TItems
   isGroup?: false
 }
 
 export interface NormalizedGroup<TItems> {
+  id: string
   label: string | JSX.Element
   options: NormalizedOption<TItems>[]
   isGroup: true

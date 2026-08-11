@@ -2,7 +2,7 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Implementation complete on 2026-08-11. Reset, submission lifecycle, provider isolation, SSR, and FormField-backed first-error focus are covered against the fixed revisions and installed Formisch 1.0.0-rc.0 behavior.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -65,9 +65,10 @@ Audit Moraine's Formisch-backed Form boundary for native submission, validation,
 
 ## Verified Missing Features
 
-1. **Native reset does not reset the Formisch store.** The installed `@formisch/solid@1.0.0-rc.0` `Form` only wires submit; its exported `reset` mutates store state separately. Moraine forwards `onReset` without coordinating the store, so DOM values and Formisch input/dirty/touched/errors can diverge. Priority P0, medium, medium risk; owner: Form adapter.
-2. **Submit lifecycle is barely characterized locally.** Formisch's `handleSubmit` prevents default, validates with `shouldFocus: true`, catches handler errors into form errors, and clears `isSubmitting` in `finally`, while Moraine tests only the happy path and initial errors. Priority P1 coverage, medium; owner: Form adapter tests, with no engine rewrite.
-3. **Provider isolation and hydration are untested.** Nested forms, remounted stores, and render-to-string/hydrate have no regression coverage, so a context or conditional-provider change could leak field ownership. Priority P1 coverage, small; owner: Form.
+1. **Native reset did not reset the Formisch store — ported.** The adapter now composes the caller first, respects cancellation, lets native/control reset microtasks finish, then restores Formisch input, dirty/touched/errors exactly once.
+2. **Submit lifecycle lacked local characterization — verified.** Focused tests now cover invalid suppression, native submitter/default prevention, async `data-submitting`, rejected-handler errors/finally cleanup, and validated payloads without reimplementing the engine.
+3. **Provider isolation and hydration were untested — verified.** Sibling stores submit independently, and isolated render-to-string/hydrate reuses the form and submits through the client-owned store.
+4. **First-error focus was blocked by missing Formisch element registration — ported in FormField.** Installed Formisch calls validation with `shouldFocus: true`; the shared adapter now registers each bound control element with `field.props.ref`, so Form remains free of duplicated focus logic.
 
 Base UI's field-registration API and native-validation architecture are intentional divergences because Moraine's public contract is Formisch-backed and Formisch sets `novalidate`.
 
@@ -78,6 +79,19 @@ Base UI's field-registration API and native-validation architecture are intentio
 3. Wire reset in `src/forms/form/form.tsx` by composing the caller handler and Formisch's exported `reset(local.of)` only when the native reset was not prevented. Keep the change in the adapter.
 4. Add nested-provider/remount and SSR/hydration tests. Use stable store instances on server and client and verify the first submit reaches only its owning form.
 5. Update `parity-matrix.md`; run the Form, FormField, Input, Checkbox, Select, and MultiSelect suites listed above, then `bun run typecheck` and `git diff --check`.
+
+## Implementation Result
+
+- Caller `onReset` runs first and may cancel. Otherwise Form waits for native and control-owned reset work, then restores Formisch input, errors, dirty, touched, edited, and submitted state.
+- Installed Formisch remains the sole authority for validation, focus order, async submission, error capture, and `isSubmitting`; focused tests characterize those behaviors without an adapter state machine.
+- Sibling providers remain isolated, and isolated SSR hydration reuses the form before submitting through the client store.
+- FormField now registers bound controls with Formisch, closing first-invalid focus at the correct shared ownership layer.
+
+## Validation
+
+- `bun run test src/forms/form/form.test.tsx` — 10/10 passed.
+- FormField plus Input, Checkbox, Select, and MultiSelect representative suites — 144/144 passed before the shared registration port; Form/FormField rerun — 15/15 passed after it.
+- Targeted typecheck passed; final FormField fan-out validation remains tracked by the adjacent plan.
 
 ## STOP Conditions
 

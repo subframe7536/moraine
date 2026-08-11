@@ -2,8 +2,9 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
-- Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
+- Implementation complete on 2026-08-11 from the working tree rooted at `3c02b36`.
+- Reference revisions are fixed at Base UI `3011fba8f` and Kobalte `2e8ce473`.
+- Focused Input coverage passes 27/27; Textarea, Checkbox, FormField, and Form dependencies pass 82/82.
 
 ## Goal
 
@@ -11,77 +12,65 @@ Align Input's native text-entry, event, controlled value, modifier, accessibilit
 
 ## Local Surface
 
-- Source: src/forms/input/input.tsx
-- Styles: src/forms/input/input.class.ts
-- Tests: src/forms/input/input.test.tsx
-- Value processing: src/shared/input-modifiers.ts
-- Field integration: src/forms/form-field/form-field-context.ts
-- Public component and type surface: Input, InputProps, and InputT members Value, Slot, Variant, Classes, Styles, Item, Base, and Props.
-- Behavior in scope includes native input types/attributes, value/defaultValue, trim/lazy/number modifiers, onInput/onValueChange/onChange ordering, autofocus delay, wrapper pointer focus, icons/loading, and FormField value/events.
+- Source: `src/forms/input/input.tsx`
+- Styles: `src/forms/input/input.class.ts`
+- Tests: `src/forms/input/input.test.tsx`
+- SSR fixture: `src/forms/input/input.ssr.fixture.tsx`
+- Value processing: `src/shared/input-modifiers.ts`
+- Shared interactive-target guard: `src/forms/shared/is-interactive-target.ts`
+- Field integration: `src/forms/form-field/form-field-context.ts`
 
-## Upstream References
+## Upstream Evidence
 
-- Base UI 3011fba8f direct counterpart: base-ui/packages/react/src/input, especially Input.tsx, Input.test.tsx, Input.spec.tsx, and InputDataAttributes.ts.
-- Base UI field behavior: base-ui/packages/react/src/field.
-- Kobalte 2e8ce473 direct Solid text-field reference: kobalte/packages/core/src/text-field, especially text-field-root.tsx, text-field-input.tsx, context, and text-field.test.tsx.
-- Historical Moraine commits are supporting evidence only.
+- Base UI `input/Input.tsx` delegates to `Field.Control`; `field/control/FieldControl.tsx` uses native input value/defaultValue semantics, explicit controlled ownership, registration, and native change events.
+- Base UI Field tests cover controlled values, field registration, native validity, form reset, and focus/validation behavior.
+- Kobalte `text-field/text-field-root.tsx` snapshots defaults, listens for native form reset, updates from input events, and explicitly restores the controlled DOM value because Solid does not do so automatically.
+- Kobalte `text-field/text-field-input.tsx` keeps the native input as the semantic owner and composes required, disabled, readonly, invalid, labelled-by, and described-by state.
 
-## Audit and Implementation
+## Implemented Invariants
 
-1. Build an upstream-cited gap ledger covering native DOM, field integration, and Moraine-only modifier/wrapper behavior.
-2. Audit native text entry: input/change event timing, IME composition, paste, programmatic value changes, empty values, number-like strings, browser normalization by input type, maxLength, autocomplete, and form reset.
-3. Audit controlled state and modifiers: value/defaultValue precedence, FormField initial value, controlled DOM rollback, trim synchronization, lazy commit timing, number conversion, empty-value policy, reactive modifier changes, and exact callback count/order.
-4. Audit form and validation: name/value FormData output, disabled omission, readOnly submission, required/type validity, reset to defaults, invalid/described-by attributes, and Formisch input/change/focus/blur emissions.
-5. Audit ARIA/native semantics: avoid redundant roles, preserve label click targeting, propagate required/disabled/readonly/invalid, compose description/error IDs, and ensure decorative loading/icons are not announced as duplicate names.
-6. Audit keyboard/focus/pointer behavior: native keyboard editing remains untouched, wrapper primary-pointer focus, selection/caret preservation, nested interactive children, prevented pointer handlers, autofocus timing/cleanup, and disabled/readOnly focus rules.
-7. Audit SSR/browser behavior: stable value/defaultValue markup, no mount-time focus on the server, hydration without value clobbering, password/file input restrictions, mobile input type quirks, and autofill. Mark browser-only paths unverified-platform when jsdom cannot prove them.
-8. Port the smallest changes through native behavior and existing modifier helpers. Do not create a parallel input state machine for cases the browser already owns.
-9. If icon/loading/children conditional JSX changes, add getter-backed single-evaluation and renderToString-to-hydrate tests for slot order and initial input value.
+1. Native `input` remains the value, keyboard, selection, FormData, validity, disabled, and readonly owner. Programmatic property writes publish nothing until a native event occurs.
+2. The caller's native `onInput` runs first. A cancelable prevented event stops modifiers and value publication; accepted IME/input events publish one `onValueChange`, while `onChange` remains the commit callback.
+3. Explicit controlled values are restored after non-lazy input and after lazy change. Synchronous parent acceptance is retained; rejected requests keep DOM and FormField state aligned.
+4. External controlled prop changes and Formisch `setInput` update the DOM without user callbacks. Controlled FormField synchronization uses one reactive source rather than a parallel state machine.
+5. Uncontrolled `defaultValue` is snapshotted at mount, initializes both live/default DOM values, ignores later default changes, and returns to the snapshot on native reset without callbacks.
+6. Native reset restores explicit controlled values in a microtask after the browser reset and respects cancellation. Moraine Form's later canonical reset remains authoritative for Formisch metadata.
+7. Wrapper primary-pointer presses focus the input only from non-interactive padding/text. Direct input presses, secondary buttons, nested links/buttons/inputs, and caller-cancelled events remain native.
+8. Delayed autofocus is cancelled on owner cleanup, rechecks the latest disabled state, and preserves native readonly focusability.
+9. Leading, trailing, loading icon, modifier config, and children are single-evaluated in their owner. SSR and hydration preserve controlled value, root/input/child identity, and leading-input-child-trailing order.
 
-## Public API
+## Native and Modifier Classification
 
-- Preserve Input, InputProps, InputT.Value, modifier contract, callback payloads, native attribute props, and slots.
-- Do not copy Base UI/Kobalte APIs, primitive decomposition, styling, spacing, or animations.
-- Any public change must be minimal and justified by a behavior impossible to fix through current native props/helpers.
+| Surface                                      | Outcome                                                                                    |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `type`, placeholder, autocomplete, maxLength | Forwarded to the native input; no redundant role                                           |
+| required/disabled/readonly/invalid           | Native properties plus FormField ARIA/data state                                           |
+| FormData                                     | Readonly included; disabled omitted; names and values remain native                        |
+| trim                                         | Callback payload is trimmed; commit synchronizes uncontrolled DOM text                     |
+| lazy                                         | Draft remains native until change; controlled value restores after commit                  |
+| number/empty                                 | Existing Moraine conversion contract retained and reactive                                 |
+| IME/paste/autofill                           | No composition or keyboard interception; native input events are the only publication path |
+| password/file/mobile types                   | Browser restrictions remain authoritative; no synthetic compatibility state                |
 
-## Test Plan
+## Intentional Divergences
 
-- Focused: bun run test src/forms/input/input.test.tsx
-- Modifier helper tests: run the focused test file for src/shared/input-modifiers.ts when present.
-- Field/form integration: bun run test src/forms/form-field/form-field.test.tsx src/forms/form/form.test.tsx
-- Similar text control: bun run test src/forms/textarea/textarea.test.tsx
-- Final touched slice: bun run typecheck
-- Add IME/input/change ordering, controlled rollback, reset/FormData/validity, wrapper pointer focus, nested interactive child, autofocus cleanup, ARIA linkage, SSR/hydration, and relevant input-type cases.
+- Moraine keeps its comprehensive wrapper, icons/loading, children, modifiers, delayed autofocus, and value callback API instead of copying Base UI/Kobalte primitive decomposition.
+- `autocomplete="off"` remains the documented local default.
+- Modifier number/null/undefined payloads are Moraine-owned; upstream text fields expose strings.
+- Input does not manufacture events for programmatic writes, reset, external controlled props, or Formisch updates.
+
+## Validation
+
+- `bun run test src/forms/input/input.test.tsx` — 27/27.
+- `bun run test src/forms/textarea/textarea.test.tsx src/forms/checkbox/checkbox.test.tsx` — 43/43.
+- `bun run test src/forms/form-field/form-field.test.tsx` — 29/29.
+- `bun run test src/forms/form/form.test.tsx` — 10/10.
+- `bun run typecheck` and targeted oxlint pass.
+- Real IME candidate UI, paste/autofill dispatch, mobile input keyboards, password-manager behavior, OS file selection, caret painting, native validation UI, and assistive-technology announcements remain `unverified-platform`.
 
 ## Completion Criteria
 
-- Native, modifier, field, platform, and SSR behavior is fully classified.
-- Every ported gap has a regression test and browser-only uncertainty is explicit.
-- Input, Textarea, FormField, Form, and typecheck pass.
-- Native browser behavior remains the primary implementation mechanism.
-
-## Dependencies/Handoff
-
-- Depends on stable FormField value/event and ARIA-composition invariants.
-- Coordinate input-modifier changes with Textarea; both must share one conversion and callback contract.
-- Handoff must include event ordering, controlled precedence, native validation/reset results, platform caveats, and test output.
-
-## Verified Missing Features
-
-1. **Wrapper focus steals interaction from nested controls.** Root `onPointerDown` focuses the input for every non-input target and lacks the interactive-descendant guard already used by Textarea. Priority P0, small; owner: Input.
-2. **Delayed autofocus is not cancelled on unmount.** The mount timer retains and may focus a detached input. Priority P1, small; owner: Input.
-3. **Reset/external-store convergence is untested.** The suite does not prove that native reset, Formisch `setInput`, or controlled rollback leaves the DOM value and field state aligned. Priority P1 coverage, medium; owner: Input plus Form.
-4. **Child/modifier JSX has no exact-read hydration coverage.** Priority P1 coverage, medium; owner: Input.
-
-## Detailed Execution Plan
-
-1. Add pointer tests for direct wrapper padding, label text, nested link/button/input, and caller cancellation; port the Textarea interactive-target predicate into a shared local form utility only if a second consumer needs it.
-2. Store the autofocus timer and clear it in `onCleanup`; test unmount-before-delay and disabled/readOnly changes before the callback.
-3. Add native reset, external Formisch input, controlled rollback, autofill-style input/change ordering, and exact callback tests.
-4. Apply the SSR gate only to JSX branches touched by the fix; assert exact getter reads and hydration value preservation.
-5. Update the matrix; run Input, FormField, Form, Textarea dependency smoke, SSR, and typecheck suites.
-
-## STOP Conditions
-
-- Accessible naming and inherited required state are FormField-owned.
-- Mark real autofill UI proof `unverified-platform`; do not add browser-mode dependencies.
+- Native, modifier, field, platform, and SSR behavior is classified.
+- Every compatible gap has a regression test; browser-only uncertainty is explicit.
+- Native browser behavior remains primary, with only controlled/default/reset convergence implemented locally.
+- No public API was added and no unclassified Input parity gap remains.

@@ -1,6 +1,6 @@
 # Base UI Parity Plan Index
 
-Status: Detailed audit hand-off ready for the 23 remaining component plans.
+Status: MultiSelect complete; Slider execution is next with 12 component plans remaining.
 
 This directory splits the full Moraine behavior-parity sweep into independently assignable plans. Each component plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
 
@@ -15,9 +15,9 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 ## Audit Snapshot
 
 - The working tree rooted at `3c02b36` was audited on 2026-08-09 after Progress was completed.
-- All 11 foundation plans and Accordion, Avatar, Badge, Button, Collapsible, and Progress are implementation-complete in the current working tree.
-- Separator plus the 22 remaining form, navigation, and overlay plans now contain verified missing-feature ledgers, exact ownership, ordered test-first execution steps, dependency suites, intentional-divergence boundaries, and STOP conditions.
-- No remaining component implementation was started during this planning pass. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
+- All 11 foundation plans plus Accordion, Avatar, Badge, Button, Collapsible, Progress, Separator, Checkbox, CheckboxGroup, FileUpload, Form, FormField, Input, InputNumber, RadioGroup, Select, and MultiSelect are implementation-complete in the current working tree.
+- Slider is next. The 12 remaining plans contain verified missing-feature ledgers, exact ownership, ordered test-first execution steps, dependency suites, intentional-divergence boundaries, and STOP conditions.
+- No later component implementation was started during MultiSelect execution. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
 - `todo.md` remains unchanged until every implementation plan and final repository validation have passed.
 
 ## Global Decisions

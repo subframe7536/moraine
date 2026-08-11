@@ -2,8 +2,10 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09; implement after Select-owned BaseSelect fixes.
+- Complete. Audited from the working tree rooted at `3c02b36` and implemented on 2026-08-11 after the Select-owned BaseSelect fixes.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
+- Focused result: 59 MultiSelect tests pass, including isolated `renderToString -> hydrate -> tag remove -> ArrowDown` coverage. Select + MultiSelect pass 150/150; Menu/navigation pass 30/30; FormField and Form pass 39/39; typecheck and build pass.
+- `bun run qa` and production docs preview retain the pre-existing `src/shared/use-loading-auto.test.ts` lint and `solid-toaster` server-import blockers recorded by earlier completed plans; targeted oxlint/oxfmt and `git diff --check` pass.
 
 ## Goal
 
@@ -69,13 +71,13 @@ Audit and close MultiSelect parity gaps for multiple selection, combobox/listbox
 
 ## Verified Missing Features
 
-1. **Clear restores defaults instead of clearing.** `clearSelection` emits `props.defaultValue ?? []`, so a component with a non-empty default never reaches an empty selection despite the “Clear selection” control. Priority P0, small; owner: MultiSelect.
-2. **Selection order is lost.** `getSelectedOptions` filters option order through a Set; after a toggle, callbacks/tags/native serialization can reorder values relative to user selection. Priority P0, medium; owner: MultiSelect.
-3. **Selected values absent from current options disappear.** They are omitted from tags and from the next callback, so an option-list update can silently erase controlled or created values. Priority P0, medium; owner: MultiSelect.
-4. **Identity and duplicate handling are inconsistent.** Values are stringified and deduplicated for maxCount, but public arrays and callbacks can still contain duplicates; `1` collides with `'1'`. Priority P0, large; owner: MultiSelect after BaseSelect identity decision.
-5. **Tag keyboard and accessible removal are incomplete.** The input has no Backspace/Delete-at-empty behavior and default close controls are not named per tag. Base UI Combobox multiple behavior provides the keyboard reference. Priority P1, medium; owner: MultiSelect.
-6. **Tokenization is not composition-safe and treats separator strings as a character class.** IME input can commit early, and multi-character separators cannot be represented faithfully. Priority P1, medium; owner: MultiSelect.
-7. **Created tags/reset and JSX evaluation are unprotected.** Reset does not clear created-tag ownership, and `optionRender`/`tagRender` are read for both branch selection and rendering without an SSR fixture. Priority P1, medium; owner: MultiSelect.
+1. **Clear semantics — resolved.** Clear now requests `[]`, clears search, closes the popup, and emits `onChange`/`onClear` exactly once while preserving controlled rejection/acceptance.
+2. **Selection order — resolved.** Tags, callbacks, and repeated native entries follow the normalized public value array instead of option order.
+3. **Missing selected values — resolved.** Synthetic selected options preserve missing values until a matching option arrives.
+4. **Identity and duplicates — resolved.** Every ingress uses first-occurrence `Object.is` identity, preserving numeric/string distinction and correct max-count behavior.
+5. **Tag keyboard and accessible removal — resolved with one intentional divergence.** Empty-input Backspace removes the last value and named buttons preserve focus; Delete remains reserved because Moraine intentionally has no highlighted-chip/roving-focus API.
+6. **Tokenization — resolved.** Separators are literal longest-first alternatives, trailing input is preserved, duplicates/disabled/max limits are respected, and IME composition defers commit.
+7. **Created tags/reset and JSX evaluation — resolved.** Reset restores the correct ownership snapshot, clears created option ownership, caches JSX-capable props once, keeps closed popup trees lazy, and hydrates in place.
 
 ## Detailed Execution Plan
 

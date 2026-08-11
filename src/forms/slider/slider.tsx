@@ -168,6 +168,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
@@ -209,7 +210,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
-      data-required={merged.required ? '' : undefined}
+      data-required={field.required() ? '' : undefined}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={sliderRootVariants(
         { orientation: merged.orientation },
@@ -217,6 +218,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         merged.classes?.root,
         merged.class,
       )}
+      {...field.ariaAttrs()}
       {...rest}
     >
       <div
@@ -292,7 +294,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-disabled={field.disabled() ? '' : undefined}
             data-invalid={field.invalid() ? '' : undefined}
             data-readonly={merged.readOnly ? '' : undefined}
-            data-required={merged.required ? '' : undefined}
+            data-required={field.required() ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
             style={{
@@ -318,7 +320,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 ? 'Thumb'
                 : `Thumb ${thumbIndex + 1} of ${slider.currentValues().length}`
             }
-            aria-required={merged.required || undefined}
+            aria-required={field.required() || undefined}
             aria-disabled={field.disabled() || undefined}
             aria-readonly={merged.readOnly || undefined}
             onPointerDown={(event) => {
@@ -349,13 +351,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               max={slider.getThumbMaxValue(thumbIndex)}
               step={slider.definedStep() ?? 'any'}
               value={slider.currentValues()[thumbIndex] ?? merged.min!}
-              required={merged.required}
+              required={field.required()}
               disabled={field.disabled()}
               readOnly={merged.readOnly}
               tabIndex={field.disabled() ? undefined : -1}
               aria-valuetext={slider.getThumbValueText(thumbIndex)}
               aria-orientation={merged.orientation}
-              aria-required={merged.required || undefined}
+              aria-required={field.required() || undefined}
               aria-disabled={field.disabled() || undefined}
               aria-readonly={merged.readOnly || undefined}
               {...field.ariaAttrs()}

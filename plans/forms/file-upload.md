@@ -2,7 +2,7 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Implementation complete on 2026-08-11. Audited from the working tree rooted at `3c02b36` on 2026-08-09 and re-verified against the fixed revisions before implementation.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -63,22 +63,33 @@ Harden FileUpload's picker, dropzone, validation, file-list, form, accessibility
 - FileUpload can proceed independently of other collection components, but real native FileList/FormData constraints must be recorded for follow-up browser validation.
 - Handoff must include rejection ordering, native form limitations, URL ownership rules, test results, and all unverified-platform cases.
 
-## Verified Missing Features
+## Final Classification
 
-1. **Preview URLs are created even when previews are disabled.** Moraine's effect creates an object URL for every image regardless of `preview`; Kobalte creates URLs only inside mounted preview ownership and revokes on cleanup. Priority P0, medium, resource leak; owner: FileUpload.
-2. **Drag acceptance is too broad.** Any drag sets dragging state; file types are not checked and `dropEffect='copy'` is not set. Kobalte guards file drags with `DataTransfer.types/items`. Priority P1, small; owner: FileUpload.
-3. **Signal files and native `input.files` can diverge.** Drops never populate the input, rejected picker files remain native, and appended picker batches are not represented by the latest FileList. This breaks required validity and FormData. Priority P0, large, high platform risk; owner: FileUpload.
-4. **Native reset leaves files and previews mounted.** Priority P0, medium; owner: FileUpload plus Form.
-5. **The drop control can be unnamed without a label.** Kobalte provides an explicit dropzone name; Moraine has no fallback naming contract. Priority P1, small API/localization decision; owner: FileUpload.
+1. **Picker activation and cancellation — verified.** The dropzone opens the hidden input from primary click, Enter, and Space after caller handlers, while canceled handlers, disabled state, and readOnly state suppress internal activation. The non-dropzone native button retains browser keyboard behavior.
+2. **File-only drag and drop — ported.** Kobalte's fixed `DataTransfer.types` predicate is applied before preventing defaults or entering dragging state. Accepted drags request `dropEffect='copy'`, nested dragleave does not flicker, non-file drops are ignored, and consumer cancellation runs first.
+3. **Validation and allocation — ported.** MIME/wildcard/extension checks are case-insensitive, min/max boundaries remain inclusive, type and size errors accumulate deterministically, duplicates cover current and incoming batches, and `maxFiles` allocates accepted files in source order including zero in single mode.
+4. **Native input synchronization — ported with an unverified platform boundary.** Every accepted append, replacement, removal, rejection rollback, disabled/readOnly rollback, and drop attempts to rebuild `input.files` through a feature-detected `DataTransfer`. Empty state always clears the input. Browsers that reject FileList assignment retain the documented native FormData/required limitation; jsdom cannot prove the supported real-browser path.
+5. **Form reset and FormField value — ported.** Native reset clears dragging state, selected files, native input state, FormField input, rendered previews, and object URLs without emitting a user `onValueChange` callback. Single and multiple value shapes remain `null` and `[]` respectively.
+6. **Accessible naming and field descriptions — ported.** Internal labels name the root/control/input, descriptions are merged with FormField `aria-describedby`, and the existing no-label API receives the fixed fallback name “File upload,” following Kobalte's explicit dropzone-name precedent without adding a localization API.
+7. **Object URL ownership — ported.** Image URLs are created only while the preview branch is mounted and only for accepted images. Replacement, removal, preview disablement, reset, and unmount revoke each owned URL once.
+8. **SSR and JSX ownership — ported.** Label, description, dropzone, and preview inputs are cached; initial empty SSR does not access browser-only file/URL APIs; hydration reuses the root and safely swaps dropzone/button branches with stable labels and descriptions.
+9. **Comprehensive component API and visuals — intentional divergence.** Base UI has no file-upload counterpart and Kobalte uses compound primitives. Moraine retains its single data-driven component, rejection payloads, preview list, variants, slots, classes, and styles without importing upstream API or layout.
+10. **Native FileList assignment, picker cancellation retention, validation UI, OS file dialogs, directories, touch, and assistive-technology announcements — unverified platform.** These require real browser/device validation and are not claimed from jsdom.
 
-## Detailed Execution Plan
+## Implementation Result
 
-1. Add URL-spy tests for preview off/on, replacement, reset, rejection, removal, and unmount; require one create/revoke lifecycle per mounted preview.
-2. Port Kobalte's file-drag predicate and copy drop effect; cover non-file drags, mixed items, dragleave, disabled state, and caller cancellation.
-3. Write tests first for picker, drop, append, remove, rejection, required validity, and FormData. Implement one native synchronization layer using supported `DataTransfer` assignment when available, with feature detection.
-4. Add form reset handling that clears public state, native state, Formisch state, validation errors, and URLs exactly once.
-5. Define an accessible fallback label or require an explicit label before code, then add FormField association and SSR/hydration tests for label/description/preview branches.
-6. Update the matrix; run FileUpload, FormField, Form, SSR, typecheck, and diff checks.
+- Added centralized selected-file commits and feature-detected native FileList synchronization for picker, drop, append, replace, remove, rejection, disabled/readOnly, and reset paths.
+- Added file-drag filtering, copy drop effect, nested dragleave containment, cancellation ordering, and non-file drop rejection.
+- Added deterministic multiple-error validation and single-mode `maxFiles=0` handling.
+- Scoped image object URLs to the mounted preview branch with exact cleanup.
+- Added reset/FormField synchronization, fallback/internal accessible naming, getter-backed single-evaluation coverage, and isolated empty-state SSR hydration.
+
+## Validation
+
+- `bun run test src/forms/file-upload/file-upload.test.tsx` — 33/33 passed.
+- `bun run test src/forms/form/form.test.tsx src/forms/form-field/form-field.test.tsx` — 8/8 passed.
+- Targeted oxfmt and oxlint passed for source, tests, and SSR fixture.
+- `bun run typecheck`, `bun run build`, and `git diff --check` passed.
 
 ## STOP Conditions
 

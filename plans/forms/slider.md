@@ -2,8 +2,10 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Audit complete; execution handoff recorded on 2026-08-11. No Slider implementation or test was changed in the final continuation turn.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
+- Next TDD seam: add an isolated uncontrolled scalar/range `renderToString -> hydrate` regression (horizontal and vertical), assert the server already contains the final thumb/hidden-input count, and prove those nodes are reused. It should fail because `useSlider` initializes `displayValues` to `[]` and installs defaults only in `onMount`.
+- After that slice, continue in order with shared value normalization, controlled-update pending-state invalidation, no-op callback suppression, native reset, and pointer owner cleanup. The relevant current symbols are `displayValues`/`currentValues`/`pendingValues`, `applyThumbValue`, `commitPendingValues`, and `finishInteraction` in `src/forms/slider/hook/use-slider.ts`.
 
 ## Goal
 

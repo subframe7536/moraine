@@ -2,8 +2,9 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
-- Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
+- Implementation complete on 2026-08-11 from the working tree rooted at `3c02b36`.
+- Reference revisions are fixed at Base UI `3011fba8f` and Kobalte `2e8ce473`.
+- Focused RadioGroup coverage passes 27/27; navigation, FormField, Form, Checkbox, and CheckboxGroup dependencies pass 117/117 when SSR fixtures run in isolation.
 
 ## Goal
 
@@ -11,78 +12,67 @@ Bring RadioGroup selection, roving focus, keyboard, native form, ARIA, pointer, 
 
 ## Local Surface
 
-- Source: src/forms/radio-group/radio-group.tsx
-- Styles: src/forms/radio-group/radio-group.class.ts
-- Tests: src/forms/radio-group/radio-group.test.tsx
-- Shared dependencies: src/shared/hidden-input.tsx, src/shared/use-controllable-value.ts, src/shared/use-selectable-collection-navigation.ts, and src/forms/form-field/form-field-context.ts
-- Public component and type surface: RadioGroup, RadioGroupProps, and RadioGroupT members Slot, Variant, Classes, Styles, Item, Base, and Props.
-- Behavior in scope includes item normalization, single selection, controlled/default value, orientation, roving focus/navigation, native same-name radios, readOnly/disabled, and variant hit targets.
+- Source: `src/forms/radio-group/radio-group.tsx`
+- Styles: `src/forms/radio-group/radio-group.class.ts`
+- Tests: `src/forms/radio-group/radio-group.test.tsx`
+- SSR fixture: `src/forms/radio-group/radio-group.ssr.fixture.tsx`
+- Shared dependencies: `src/shared/hidden-input.tsx`, `src/shared/use-selectable-collection-navigation.ts`, and `src/forms/form-field/form-field-context.ts`
+- Public surface: `RadioGroup`, `RadioGroupProps`, and the existing `RadioGroupT` namespace members.
 
-## Upstream References
+## Upstream Evidence
 
-- Base UI 3011fba8f direct counterpart: base-ui/packages/react/src/radio-group, especially RadioGroup.tsx, context, data attributes, RadioGroup.test.tsx, and RadioGroup.spec.tsx.
-- Kobalte 2e8ce473 direct counterpart: kobalte/packages/core/src/radio-group, especially root/item/control/input/label/description/indicator and radio-group.test.tsx.
-- Historical Moraine commits are evidence only and cannot override pinned upstream source/tests.
+- Base UI `radio-group/RadioGroup.test.tsx` proves Space selection on keyup, no Enter selection, root/input cancellation, automatic arrow selection, Shift+Arrow focus movement, disabled/readOnly behavior, initial tab-stop ownership, native naming/validation, and Field ARIA relationships.
+- Base UI `radio-group/RadioGroup.tsx` separates composite item identity from submitted values, owns one roving tab stop, skips disabled items for navigation, and synchronizes hidden native radios with controlled group state.
+- Kobalte `radio-group/radio-group-root.tsx` provides the Solid controlled-state and single-select collection ownership model.
+- Kobalte item input, label, and description sources combine group and item ARIA relationships while retaining native radio form semantics.
+- Upstream compound-part, render-prop, event-detail, and polymorphic APIs are evidence only; the plan preserves Moraine's comprehensive item-array contract.
 
-## Audit and Implementation
+## Implemented Invariants
 
-1. Build a gap ledger for group state, item state, navigation, form behavior, and variants with exact upstream citations.
-2. Audit keyboard/focus: initial tab stop when no value or a disabled/stale value exists, Arrow keys by orientation and RTL, wrapping, disabled-item skipping, selection-on-focus, Tab/Shift+Tab, Home/End if supported, focus after item removal, and readOnly behavior.
-3. Audit ARIA/native semantics: role=radiogroup, native radio inputs, group orientation/required/disabled/readonly/invalid, item labels/descriptions, checked state, hidden input focusability, and no duplicate/conflicting roles.
-4. Audit pointer/click behavior: native label activation, card/table container activation, list-only label activation, nested interactive descendants, disabled items, readOnly, prevented events, and duplicate change from input plus container.
-5. Audit controlled state: controlled/default precedence, empty/stale values, external changes, item reorder/removal, duplicate values, no-op selection, callback count/order, and immutable FormField updates.
-6. Audit native form behavior: one selected same-name entry, disabled omission, required validity, readOnly submission, reset to default, browser autofill, FormData ordering, and native change/input event interaction.
-7. Audit collection/platform behavior: RTL, dynamic orientation/direction, focus-visible, Safari radio navigation differences reflected in upstream code, empty/all-disabled groups, and boundary states.
-8. Port shared navigation fixes only when valid for other selectable collections; retain radio-specific ARIA and selection-on-focus in RadioGroup.
-9. If item branches or Dynamic output changes, add JSX single-evaluation and renderToString-to-hydrate tests proving stable IDs, item order, checked state, and tab stop.
+1. Explicit `value` is authoritative, a string FormField value is next, and the mount-time `defaultValue` snapshot is the uncontrolled fallback. External Formisch updates apply only when no explicit value owns the group.
+2. Controlled requests publish once but immediately restore rejected native checked state. Synchronous parent acceptance and later external prop changes converge with FormField without duplicate callbacks.
+3. Space arms on keydown and selects on keyup; Enter is ignored. Arrow/Home/End navigation remains automatic, wraps, follows orientation and RTL, skips disabled items, permits Shift, and ignores Alt/Ctrl/Meta.
+4. The enabled selected item owns the roving tab stop. A stale, missing, or disabled selection falls back to the first enabled item; empty and all-disabled groups expose no tab stop.
+5. Each item has collision-free DOM/ref identity derived from group ID, encoded value, and occurrence index. Duplicate public values retain independent focus targets while the first occurrence is the sole selected/native serialized representative.
+6. Removing a focused item restores focus to the current enabled tab stop after Solid reconciles the collection. Ref cleanup is item-ID based and cannot collide on duplicate values.
+7. Native reset restores the initial uncontrolled snapshot or latest explicit controlled value, updates FormField and checked properties without callbacks, and respects cancellation.
+8. Same-name native radios preserve FormData ordering, required validity, disabled omission, and readonly submission. Boundary/no-op or duplicate-value selection emits no callbacks or FormField events.
+9. Item inputs reference their own label and description plus group/FormField descriptions. Group required, disabled, readonly, invalid, orientation, and labelling state remain synchronized through ARIA and data attributes.
+10. Card/table label activation honors canceled root clicks and ignores nested interactive descendants; list variants retain label-only activation.
+11. Items, layout props, and item label/description JSX are cached once. The SSR fixture reuses root/item/input nodes, stable IDs, descriptions, checked state, and the first post-hydration keyboard action.
 
-## Public API
+## Behavior Classification
 
-- Preserve RadioGroup, RadioGroupProps, RadioGroupT.Item, value callback, variants, and slots.
-- Do not copy compound primitive APIs, polymorphism, upstream styling, or animations.
-- Add no group-level keyboard props unless current API cannot express required accessible behavior and the change is documented.
+| Surface            | Outcome                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| Space / Enter      | Space selects on keyup; Enter does not select                                                       |
+| Arrow / Home / End | Automatic selection and focus, wrapping, orientation/RTL aware, disabled items skipped              |
+| Modifiers          | Shift+Arrow remains active; Alt/Ctrl/Meta navigation is ignored                                     |
+| Roving tab stop    | Enabled selected item, otherwise first enabled item; none for empty/all-disabled groups             |
+| Duplicate values   | Unique DOM/ref identities; first occurrence is the canonical selected and serialized representative |
+| State authority    | Explicit controlled value, then FormField string value, then initial uncontrolled snapshot          |
+| Reset              | Initial uncontrolled snapshot or latest explicit value; no callbacks; cancellation respected        |
+| Native form        | One selected same-name entry, required validity, disabled omission, readonly submission             |
 
-## Test Plan
+## Intentional Divergences and STOP Decisions
 
-- Focused: bun run test src/forms/radio-group/radio-group.test.tsx
-- Shared navigation: run the focused test for src/shared/use-selectable-collection-navigation.test.ts
-- Form integration: bun run test src/forms/form-field/form-field.test.tsx src/forms/form/form.test.tsx
-- Related native control: bun run test src/forms/checkbox/checkbox.test.tsx
-- Final touched slice: bun run typecheck
-- Add empty/all-disabled/stale-value cases, RTL/orientation navigation, dynamic items, controlled updates, native reset/FormData/required validity, label/container cancellation, exact callbacks, ARIA links, and hydration.
+- Moraine retains one comprehensive `items` API, list/card/table variants, slots, classes, and styles instead of copying compound RadioGroup/Radio parts, polymorphism, or event-detail APIs.
+- Duplicate values remain accepted by the existing public contract. The first occurrence is the canonical selected/native representative; later duplicates can receive focus, and selecting the same public value is a no-op.
+- Radio-specific Space/Enter/modifier policy stays in RadioGroup. `useSelectableCollectionNavigation` was not changed, so Select, Menu, Tabs, Stepper, and other consumers keep their established behavior.
+- Native autofill, browser-generated keyboard/touch clicks, Safari platform navigation differences, validation UI, and assistive-technology announcement order remain `unverified-platform`.
+
+## Validation
+
+- `bun run test src/forms/radio-group/radio-group.test.tsx` — 27/27.
+- `bun run test src/shared/use-selectable-collection-navigation.test.ts` — 25/25.
+- FormField and Form — 39/39.
+- Checkbox and CheckboxGroup — 53/53; their SSR fixtures pass when isolated from concurrent fixture compilation.
+- `bun run typecheck`, targeted oxlint, formatting, `bun run build`, and `git diff --check` pass.
+- Full QA remains blocked by the pre-existing `src/shared/use-loading-auto.test.ts` lint finding; production preview remains blocked by the pre-existing client-only `solid-toaster` server import.
 
 ## Completion Criteria
 
-- Group, item, navigation, native form, platform, and SSR behaviors are evidence-classified.
-- All ported gaps have tests and shared navigation changes pass their own suite.
-- RadioGroup, FormField, representative native controls, and typecheck pass.
-- Menu/Select navigation behavior is not accidentally changed by radio-specific rules.
-
-## Dependencies/Handoff
-
-- Audit useSelectableCollectionNavigation before changing keyboard behavior; coordinate generic fixes with Select/Menu owners.
-- Depends on shared controllable-value, hidden-input, and FormField contracts.
-- Handoff must state the roving-tab-stop and selection-on-focus policy, direction/boundary rules, native form results, shared helper impact, and test output.
-
-## Verified Missing Features
-
-1. **Keyboard timing and modifiers differ from radio-group behavior.** The shared navigation adapter selects on Enter and Space `keydown` and also changes selection for Shift+Arrow. Base UI selects Space on keyup, ignores Enter, and preserves Shift+Arrow focus behavior. Priority P0, medium; owner: RadioGroup adapter, not the shared foundation.
-2. **Native form reset does not synchronize the signal/Formisch value.** Priority P0, medium; owner: RadioGroup plus Form.
-3. **Controlled external values do not update FormField state.** `field.setFormValue` runs only from local changes. Priority P1, medium; owner: RadioGroup.
-4. **Duplicate values collide in IDs and the ref map.** Priority P0, medium; owner: RadioGroup.
-5. **Per-item descriptions are not referenced by their radio inputs, and group labelling depends on FormField's missing label ID.** Priority P0 accessibility; owner: RadioGroup after FormField.
-6. **Item JSX and collection order lack hydration coverage.** Priority P1 coverage; owner: RadioGroup.
-
-## Detailed Execution Plan
-
-1. Add full keydown/keyup tests for Space, Enter, arrows, Home/End, Shift/Alt/Ctrl/Meta, RTL, disabled items, and callback order. Adapt only RadioGroup's consumer policy.
-2. Add reset, FormData, required validity, controlled external update, controlled rejection, and FormField store tests.
-3. Introduce collision-free DOM identity independent of selected value; test duplicate values, reorder, removal, and ref cleanup without changing the public value contract.
-4. Generate per-item description IDs and adopt FormField group `aria-labelledby`/`aria-describedby` accessors.
-5. Add SSR/hydration tests for scalar selection, item labels/descriptions, generated IDs, and first keyboard action.
-6. Update the matrix; run RadioGroup, navigation foundation, FormField, Form, SSR, and typecheck suites.
-
-## STOP Conditions
-
-- Do not modify `useSelectableCollectionNavigation` for radio-specific Enter/keyup rules.
-- If duplicate-value selection semantics cannot remain predictable, stop and document whether duplicates must be rejected by contract.
+- Keyboard, focus, pointer, controlled, native form, ARIA, collection, and SSR behavior have explicit invariants and evidence.
+- Every compatible verified gap has a regression test or an intentional/platform classification.
+- The public comprehensive API and shared navigation contract remain intact.
+- No unclassified RadioGroup parity gap remains.

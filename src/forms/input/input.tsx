@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  mergeProps,
+  onCleanup,
+  onMount,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
@@ -15,6 +24,7 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 
 import type { InputVariantProps } from './input.class.ts'
 import {
@@ -223,6 +233,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const leading = createMemo(() => merged.leading)
   const trailing = createMemo(() => merged.trailing)
   const loadingIcon = createMemo(() => merged.loadingIcon)
+  const modelModifiers = createMemo(() => merged.modelModifiers)
+  const initialDefaultValue = untrack(() => merged.defaultValue)
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(
@@ -231,17 +243,26 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: merged.defaultValue ?? '',
+      initialValue: initialDefaultValue ?? '',
     }),
   )
 
   let inputEl: HTMLInputElement | undefined
 
-  const isLazy = createMemo(() => Boolean(merged.modelModifiers?.lazy))
+  const isLazy = createMemo(() => Boolean(modelModifiers()?.lazy))
+
+  createEffect(() => {
+    const value = merged.value
+
+    if (value !== undefined) {
+      field.setFormValue(value)
+    }
+  })
 
   const inputValueProps = createMemo<{
     value?: InputT.Value
@@ -255,8 +276,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       return { value: field.value() as InputT.Value }
     }
 
-    if (merged.defaultValue !== undefined) {
-      return { defaultValue: merged.defaultValue }
+    if (initialDefaultValue !== undefined) {
+      return { value: initialDefaultValue, defaultValue: initialDefaultValue }
     }
 
     return {}
@@ -298,26 +319,44 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
+    'data-required': field.required() ? '' : undefined,
     'data-readonly': readOnly() ? '' : undefined,
   }))
 
   function updateInputValue(value: string): void {
-    const nextValue = applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers)
+    const nextValue = applyInputModifiers<ModifierValue<M>>(value, modelModifiers())
+    const controlledValue = merged.value
 
-    field.setFormValue(nextValue)
+    if (controlledValue === undefined) {
+      field.setFormValue(nextValue)
+    }
     merged.onValueChange?.(nextValue)
+    if (controlledValue !== undefined && Object.is(merged.value, controlledValue)) {
+      field.setFormValue(controlledValue)
+    }
     field.emit('input')
+  }
+
+  function restoreControlledValue(): void {
+    const value = merged.value
+
+    if (inputEl && value !== undefined && merged.type !== 'file') {
+      inputEl.value = String(value)
+    }
   }
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, merged.onInput)
     if (defaultPrevented) {
+      if (!isLazy()) {
+        restoreControlledValue()
+      }
       return
     }
 
     if (!isLazy()) {
       updateInputValue(event.currentTarget.value)
+      restoreControlledValue()
     }
   }
 
@@ -328,12 +367,13 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       updateInputValue(value)
     }
 
-    if (merged.modelModifiers?.trim) {
+    if (modelModifiers()?.trim) {
       event.currentTarget.value = value.trim()
     }
 
     field.emit('change')
-    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
+    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, modelModifiers()))
+    restoreControlledValue()
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
@@ -357,20 +397,56 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     if (defaultPrevented) {
       return
     }
-    if (event.button !== 0 || event.defaultPrevented || event.target === inputEl) {
+    if (
+      event.button !== 0 ||
+      event.defaultPrevented ||
+      event.target === inputEl ||
+      isInteractiveTarget(event.target)
+    ) {
       return
     }
 
     inputEl?.focus()
   }
 
+  let autofocusTimer: ReturnType<typeof setTimeout> | undefined
+
+  onCleanup(() => {
+    if (autofocusTimer !== undefined) {
+      clearTimeout(autofocusTimer)
+    }
+  })
+
   onMount(() => {
+    if (inputEl && initialDefaultValue !== undefined && merged.type !== 'file') {
+      inputEl.defaultValue = String(initialDefaultValue)
+      restoreControlledValue()
+    }
+
+    const form = inputEl?.form
+
+    if (form) {
+      const onReset = (event: Event) => {
+        // oxlint-disable-next-line subf/solid-reactivity -- Reset must restore the latest controlled value.
+        queueMicrotask(() => {
+          if (!event.defaultPrevented) {
+            restoreControlledValue()
+          }
+        })
+      }
+
+      form.addEventListener('reset', onReset)
+      onCleanup(() => form.removeEventListener('reset', onReset))
+    }
+
     if (!merged.autofocus) {
       return
     }
 
-    setTimeout(() => {
-      inputEl?.focus()
+    autofocusTimer = setTimeout(() => {
+      if (!field.disabled()) {
+        inputEl?.focus()
+      }
     }, merged.autofocusDelay ?? 0)
   })
 
@@ -417,12 +493,12 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         type={merged.type}
         name={field.name()}
         placeholder={merged.placeholder}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
         autocomplete={merged.autocomplete}
         maxLength={merged.maxLength}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
         data-slot="input"

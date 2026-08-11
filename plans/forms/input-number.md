@@ -2,8 +2,9 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
-- Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
+- Implementation complete on 2026-08-11 from the working tree rooted at `3c02b36`.
+- Reference revisions are fixed at Base UI `3011fba8f` and Kobalte `2e8ce473`.
+- Focused InputNumber coverage passes 72/72; useControllableValue, FormField, Form, and Slider dependencies pass 93/93 when the SSR fixtures run in isolation.
 
 ## Goal
 
@@ -11,80 +12,67 @@ Align InputNumber's spinbutton editing, locale parsing/formatting, stepping, hol
 
 ## Local Surface
 
-- Source: src/forms/input-number/input-number.tsx
-- Styles: src/forms/input-number/input-number.class.ts
-- Tests: src/forms/input-number/input-number.test.tsx
-- Shared dependencies: src/shared/use-controllable-value.ts and src/forms/form-field/form-field-context.ts
-- Public component and type surface: InputNumber, InputNumberProps, and InputNumberT members Slot, Variant, Classes, Styles, Item, Base, and Props.
-- Behavior in scope includes value/defaultValue/rawValue precedence, locale parsing, partial input, min/max/step/largeStep, keyboard/wheel, increment/decrement buttons, touch/mouse/pen hold repeat, callbacks, native serialization, and reset.
+- Source: `src/forms/input-number/input-number.tsx`
+- Styles: `src/forms/input-number/input-number.class.ts`
+- Tests: `src/forms/input-number/input-number.test.tsx`
+- SSR fixture: `src/forms/input-number/input-number.ssr.fixture.tsx`
+- Shared dependencies: `src/shared/use-controllable-value.ts` and `src/forms/form-field/form-field-context.ts`
+- Public surface: `InputNumber`, `InputNumberProps`, and the existing `InputNumberT` namespace members.
 
-## Upstream References
+## Upstream Evidence
 
-- Base UI 3011fba8f direct counterpart: base-ui/packages/react/src/number-field, including root, input, increment, decrement, group, scrub-area, utils, and tests in those directories.
-- Kobalte 2e8ce473 direct counterpart: kobalte/packages/core/src/number-field, especially root/input/triggers/hidden input and number-field.test.tsx.
-- Kobalte spinbutton behavior: kobalte/packages/core/src/spin-button, especially spin-button-root.tsx and spin-button.test.tsx.
-- Historical Moraine commits are evidence only.
+- Base UI `number-field/root/NumberFieldRoot.tsx` initializes formatted input text during render, treats dirty input text as the step base, gates wheel handling on enabled/writable/focused state, and only commits wheel/keyboard changes when the validated number changes.
+- Base UI `number-field/input/NumberFieldInput.tsx` distinguishes manual text authority from synchronized numeric authority so formatted display precision does not replace the committed number during stepping.
+- Base UI `number-field/utils/validate.ts` removes arithmetic floating-point noise only from step operations and preserves unrelated input precision.
+- Base UI increment/decrement tests expose stable `aria-controls`; root/input tests cover boundary no-ops, dirty controlled stepping, wheel guards, and precision.
+- Kobalte `number-field` uses decimal-scale arithmetic, locale formatting, focused wheel handling, and `aria-controls`; `spin-button` exposes `aria-valuenow`, bounds, formatted `aria-valuetext`, and readonly semantics.
 
-## Audit and Implementation
+## Implemented Invariants
 
-1. Create a gap ledger separating editable text state, committed numeric state, form value, and controlled props; cite upstream source/tests for every classification.
-2. Audit parsing/formatting: locale decimal/group/minus characters, whitespace, empty and partial tokens, pasted text, scientific notation policy, NaN/infinity, negative zero, precision drift, step snapping, formatting on blur, and locale changes while focused.
-3. Audit controlled state: rawValue precedence over value, default snapshot, external updates during editing, controlled rollback, min/max prop changes, no-op updates, callback payload/count/order, and FormField value ownership.
-4. Audit keyboard: ArrowUp/Down, PageUp/Down, Home/End, modifier keys if upstream supports them, prevented default, readOnly/disabled, boundaries, partial text commit, and focus retention.
-5. Audit pointer/touch/pen: one click versus hold repeat, delay/interval/throttle, pointer capture/cancel/leave/lost capture, synthetic click suppression, context menu, document selection restoration, multiple simultaneous pointers, unmount cleanup, and consumer handler cancellation.
-6. Audit wheel behavior: focused-only activation, delta direction, passive/cancelable events, disabled/readOnly, trackpad deltas, boundary no-op, and default wheel-off policy.
-7. Audit native form/ARIA: text input serialization, disabled omission, readOnly submission, required validity, reset, role=spinbutton, aria-valuemin/max/now/text, labels/descriptions/errors, and disabled stepper naming.
-8. Audit SSR/hydration: deterministic locale output, no document/timers on server, identical control order by orientation, no pre-hydration input clobber, and cleanup of timers/selection styles.
-9. Port small equivalent behaviors into existing helpers/state. If conditional control JSX changes, add single-evaluation and renderToString-to-hydrate tests for both orientations and hidden controls.
+1. Editable text, committed numeric state, explicit controlled props, and FormField state are distinct layers. `rawValue` takes precedence over locale-parsed `value`; FormField is next; the mount-time default snapshot is the uncontrolled fallback.
+2. SSR initializes visible text from the resolved numeric value. Explicit locale fixtures hydrate the same root/input/control nodes for horizontal, vertical, and hidden-control branches.
+3. Partial tokens remain editable. Parseable dirty text is the authoritative base for Arrow, Page, wheel, and stepper operations; blur and Enter share the parse/commit path and restore canonical formatting.
+4. Decimal stepping scales to the maximum safe relevant decimal precision. Unsafe large-magnitude operations retain the native result instead of rounding unrelated existing digits.
+5. A clamped no-op publishes no `onRawValueChange`, `onChange`, FormField change, or input notification. Successful callbacks remain ordered as numeric first, locale-formatted text second.
+6. Explicit controlled values remain authoritative for the visible committed value and FormField store. Rejected dirty requests stay editable, synchronous/external prop updates converge, and external Formisch writes cannot override an explicit prop.
+7. Native reset restores the initial uncontrolled snapshot or latest explicit controlled value after the browser reset, updates FormField without callbacks, directly repairs an unchanged controlled DOM property, and respects cancellation.
+8. Wheel handling requires the feature flag, exact input focus, writable/enabled state, non-zero delta, and no pinch-zoom modifier before cancellation. Eligible boundary no-ops still prevent page scrolling but publish nothing.
+9. Steppers expose `aria-controls`, reactively disable at bounds and in readonly/disabled state, and the spinbutton exposes locale-formatted `aria-valuetext` alongside numeric ARIA values.
+10. Hold-repeat owns its delay/interval timers and selection lock. Pointer up, cancel, leave, lost capture, and owner disposal stop both controls without an extra step; multiple active pointers cannot leak document styles.
+11. Delayed autofocus is owner-cleaned and rechecks the latest disabled state. Conditional orientation/control props are single-evaluated, and Button receives an icon name rather than owner-sensitive pre-instantiated JSX.
 
-## Public API
+## Parsing, Step, and Form Classification
 
-- Preserve InputNumber, InputNumberProps, value/rawValue callback contracts, locale and repeat options, and slots by default.
-- Do not copy Base UI/Kobalte compound primitives, scrub-area API, styling, or animations.
-- Record unsupported upstream features as intentional differences unless required for correctness under the current API.
+| Surface | Outcome |
+| --- | --- |
+| Empty/sign/decimal partials | Preserved as draft text until blur, Enter, or a step interaction |
+| Locale decimal/group strings | Parsed through the configured locale; callbacks format through the same locale |
+| Scientific notation | Accepted when JavaScript numeric parsing yields a finite value; no new notation API |
+| NaN/infinity | Never committed as numeric state |
+| Decimal step noise | Cleaned with safe integer scaling; unrelated unsafe-magnitude precision is not rounded |
+| `rawValue` / `value` | `rawValue` is authoritative; `value` accepts locale-formatted string or finite number |
+| FormData/validity | The visible native text input remains the single serialized, required, disabled, and readonly owner |
+| Reset | Mount-time uncontrolled snapshot or latest explicit controlled value; no callbacks |
 
-## Test Plan
+## Intentional Divergences and STOP Decisions
 
-- Focused: bun run test src/forms/input-number/input-number.test.tsx
-- Shared controlled-state tests: run the focused test file for src/shared/use-controllable-value.ts when present.
-- Field/form integration: bun run test src/forms/form-field/form-field.test.tsx src/forms/form/form.test.tsx
-- Related stepping semantics: bun run test src/forms/slider/slider.test.tsx
-- Final touched slice: bun run typecheck
-- Add locale edge cases, controlled external updates during partial entry, exact callbacks, all keyboard boundaries, pointer cancellation/lost capture/unmount, wheel guards, native reset/FormData/validity, ARIA value text, and hydration.
+- Moraine keeps one comprehensive component, orientation/layout variants, repeat options, delayed autofocus, and dual numeric/formatted callbacks instead of copying compound NumberField, scrub-area, or translation APIs.
+- Home and End act only when their corresponding explicit bound exists. Modifier-specific Base UI `smallStep`, snap-to-step, scrub-area, paste filtering, and event-detail reasons are not added to the current API.
+- Inverted bounds and non-finite, zero, or negative `step` props are classified as unsupported invalid configurations. This patch adds no normalization contract for them; finite numeric commits are required, zero naturally no-ops, and callers must provide ordered bounds and a positive finite step.
+- Actual iOS software-keyboard presentation, native passive-wheel behavior across browsers, OS locale input methods, validation UI, and screen-reader announcements remain `unverified-platform`.
+
+## Validation
+
+- `bun run test src/forms/input-number/input-number.test.tsx` — 72/72.
+- `bun run test src/shared/use-controllable-value.test.ts src/forms/slider/slider.test.tsx` — 54/54.
+- `bun run test src/forms/form-field/form-field.test.tsx` — 29/29.
+- Form's nine non-SSR tests and isolated hydration test pass; concurrent SSR fixture execution can exceed its existing hard-coded timeout.
+- `bun run typecheck`, targeted oxlint, formatting, and diff checks pass.
+- Real-device/browser behavior listed above remains `unverified-platform`.
 
 ## Completion Criteria
 
-- Text, numeric, form, and controlled-state layers have explicit invariants and evidence.
-- Keyboard, pointer repeat, wheel, locale, native form, ARIA, and SSR gaps are tested or documented.
-- InputNumber, FormField, Slider smoke tests, and typecheck pass.
-- Timers, pointer state, and document selection styles cannot leak after interruption or unmount.
-
-## Dependencies/Handoff
-
-- Coordinate useControllableValue and FormField changes with Checkbox/Switch/Slider owners.
-- Do not modify shared pointer infrastructure without checking Button consumers of the stepper controls.
-- Handoff must describe value precedence, parse/commit policy, repeat state machine, form representation, test results, and unverified real-device behavior.
-
-## Verified Missing Features
-
-1. **Uncontrolled SSR starts with an empty display.** `inputText` initializes to `''` and is populated by an effect, which does not run during server rendering. Priority P0, medium, high hydration risk; owner: InputNumber.
-2. **Binary floating-point noise is exposed.** Stepping uses direct JavaScript addition/subtraction; Base UI explicitly tests decimal cleanup. Priority P0, medium; owner: InputNumber.
-3. **Stepping ignores parseable dirty text.** Keyboard and steppers use committed numeric state instead of the current input text, unlike Base UI's dirty-input cases. Priority P0, medium; owner: InputNumber.
-4. **Boundary no-ops still emit changes.** `commitValue` calls field/onChange even when clamping produces the current value. Priority P1, small; owner: InputNumber.
-5. **Spinbutton relationships are incomplete.** Formatted `aria-valuetext` and stepper `aria-controls` are absent; Kobalte/Base UI expose these relationships. Priority P1, small; owner: InputNumber.
-6. **Wheel gating is inverted for disabled or unfocused states.** The current conjunction can fall through, prevent default, and step when wheel handling should be inactive. Priority P0, small; owner: InputNumber.
-7. **Native reset does not restore numeric/display state.** Priority P1, medium; owner: InputNumber plus Form.
-
-## Detailed Execution Plan
-
-1. Add failing SSR/hydration tests for default/controlled values, locale formatting, negative values, and first key/blur interaction.
-2. Add table-driven decimal-step tests, including 0.1 increments, exponent-sized steps, min/max clamping, and no-op callback counts. Normalize to the maximum relevant decimal precision without rounding unrelated existing digits.
-3. Define one parse/commit path used by blur, Enter, Arrow keys, wheel, and steppers; it must consume a parseable dirty display before stepping and preserve invalid partial text until commit.
-4. Fix wheel eligibility to require enabled wheel handling, focus, and an enabled writable field before cancellation. Add boundary and modifier tests.
-5. Add formatted `aria-valuetext`, stable `aria-controls`, reset/FormData/FormField synchronization, and caller-event ordering tests.
-6. Update the matrix; run InputNumber, FormField, Form, SSR, typecheck, and diff checks.
-
-## STOP Conditions
-
-- Decide and document behavior for inverted bounds or non-finite `step` before implementing those cases; do not silently invent an API rule.
-- Keep actual iOS keyboard presentation as `unverified-platform`; source guards may be unit-tested, but jsdom is not device proof.
+- Text, numeric, form, controlled, reset, pointer, wheel, keyboard, ARIA, and SSR layers have explicit invariants and evidence.
+- Every compatible verified gap has a regression test or a recorded intentional/platform classification.
+- Public high-level APIs and slots remain intact; no upstream compound API was copied.
+- No unclassified InputNumber parity gap remains.

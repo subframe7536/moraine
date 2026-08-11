@@ -1,6 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { FormField } from '../form-field/form-field.tsx'
+import { createForm, Form } from '../form/index.ts'
 
 import { FileUpload } from './file-upload.tsx'
 import type { FileUploadProps } from './file-upload.tsx'
@@ -38,6 +44,7 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
         files: File[] | FileList
         items: Array<{ kind: string; type: string; getAsFile: () => File }>
         types: string[]
+        dropEffect: string
       }
 
   if (typeof DataTransfer !== 'undefined') {
@@ -55,6 +62,7 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
         getAsFile: () => file,
       })),
       types: ['Files'],
+      dropEffect: 'none',
     }
   }
 
@@ -77,6 +85,48 @@ describe('FileUpload', () => {
     await fireEvent.click(control)
 
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
+  })
+
+  test('opens the picker from click, Enter, and Space while respecting cancellation', async () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+      }
+    })
+    const screen = render(() => <FileUpload onKeyDown={onKeyDown} />)
+    const control = screen.getByRole('button', { name: 'File upload' })
+    const input = getFileInput(screen.container)
+    const inputClick = vi.spyOn(input, 'click').mockImplementation(() => undefined)
+
+    await fireEvent.click(control)
+    await fireEvent.keyDown(control, { key: 'Enter' })
+    await fireEvent.keyDown(control, { key: ' ' })
+    await fireEvent.keyDown(control, { key: 'Escape' })
+
+    expect(inputClick).toHaveBeenCalledTimes(3)
+    expect(onKeyDown).toHaveBeenCalledTimes(3)
+
+    inputClick.mockRestore()
+
+    const canceled = render(() => (
+      <FileUpload onClick={(event) => event.preventDefault()} dropzone={false} />
+    ))
+    const canceledInput = getFileInput(canceled.container)
+    const canceledClick = vi.spyOn(canceledInput, 'click').mockImplementation(() => undefined)
+
+    await fireEvent.click(canceled.getByRole('button', { name: 'File upload' }))
+    expect(canceledClick).not.toHaveBeenCalled()
+    canceledClick.mockRestore()
+
+    const readOnly = render(() => <FileUpload readOnly />)
+    const readOnlyInput = getFileInput(readOnly.container)
+    const readOnlyClick = vi.spyOn(readOnlyInput, 'click').mockImplementation(() => undefined)
+    const readOnlyControl = readOnly.getByRole('button', { name: 'File upload' })
+
+    await fireEvent.click(readOnlyControl)
+    await fireEvent.keyDown(readOnlyControl, { key: 'Enter' })
+    expect(readOnlyClick).not.toHaveBeenCalled()
+    readOnlyClick.mockRestore()
   })
 
   test('renders base attributes and text', () => {
@@ -165,10 +215,17 @@ describe('FileUpload', () => {
 
     expect(base.className).not.toContain('scale-[')
 
-    await fireEvent.dragOver(base)
+    await fireEvent.dragOver(base, {
+      dataTransfer: {
+        files: [],
+        items: [{ kind: 'file' }],
+        types: ['Files'],
+        dropEffect: 'none',
+      },
+    })
 
     await waitFor(() => {
-      expect(base.className).toContain('bg-primary/8')
+      expect(base.getAttribute('data-dragging')).toBe('')
     })
     expect(base.className).not.toContain('scale-[')
   })
@@ -245,6 +302,137 @@ describe('FileUpload', () => {
     await setInputFiles(input, [createFile('file.txt')])
 
     expect(screen.container.querySelector('[data-slot="files"]')).toBeNull()
+  })
+
+  test('creates preview URLs only while previews are mounted and revokes each URL once', async () => {
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation(() => 'blob:preview-image')
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
+    const [preview, setPreview] = createSignal(false)
+
+    try {
+      const screen = render(() => <FileUpload preview={preview()} />)
+      const image = createFile('image.png', 'image/png', 'img')
+
+      await setInputFiles(getFileInput(screen.container), [image])
+      expect(createObjectURL).not.toHaveBeenCalled()
+
+      setPreview(true)
+      await waitFor(() => expect(createObjectURL).toHaveBeenCalledTimes(1))
+
+      setPreview(false)
+      await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledTimes(1))
+
+      screen.unmount()
+      expect(revokeObjectURL).toHaveBeenCalledTimes(1)
+    } finally {
+      createObjectURL.mockRestore()
+      revokeObjectURL.mockRestore()
+    }
+  })
+
+  test('does not create a preview URL for a rejected image', async () => {
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation(() => 'blob:rejected-image')
+
+    try {
+      const screen = render(() => <FileUpload accept="text/plain" />)
+
+      await setInputFiles(getFileInput(screen.container), [
+        createFile('image.png', 'image/png', 'img'),
+      ])
+
+      expect(createObjectURL).not.toHaveBeenCalled()
+      expect(screen.container.querySelector('[data-slot="file"]')).toBeNull()
+    } finally {
+      createObjectURL.mockRestore()
+    }
+  })
+
+  test('replaces preview URL ownership and cleans the remaining URL on unmount', async () => {
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation((value) => `blob:${(value as File).name}`)
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
+
+    try {
+      const screen = render(() => <FileUpload />)
+      const input = getFileInput(screen.container)
+
+      await setInputFiles(input, [createFile('first.png', 'image/png', 'first')])
+      await setInputFiles(input, [createFile('second.png', 'image/png', 'second')])
+
+      expect(createObjectURL).toHaveBeenCalledTimes(2)
+      expect(revokeObjectURL).toHaveBeenCalledTimes(1)
+      expect(revokeObjectURL).toHaveBeenNthCalledWith(1, 'blob:first.png')
+
+      screen.unmount()
+      expect(revokeObjectURL).toHaveBeenCalledTimes(2)
+      expect(revokeObjectURL).toHaveBeenNthCalledWith(2, 'blob:second.png')
+    } finally {
+      createObjectURL.mockRestore()
+      revokeObjectURL.mockRestore()
+    }
+  })
+
+  test('ignores non-file drags, sets copy effect for files, and ignores nested dragleave', async () => {
+    const screen = render(() => <FileUpload />)
+    const control = screen.getByRole('button', { name: 'File upload' })
+    const nonFileTransfer = {
+      files: [],
+      items: [],
+      types: ['text/plain'],
+      dropEffect: 'none',
+    }
+    const fileTransfer = {
+      files: [],
+      items: [{ kind: 'file' }],
+      types: ['Files'],
+      dropEffect: 'none',
+    }
+
+    await fireEvent.dragOver(control, { dataTransfer: nonFileTransfer })
+    expect(control.getAttribute('data-dragging')).toBeNull()
+    expect(nonFileTransfer.dropEffect).toBe('none')
+
+    await fireEvent.dragOver(control, { dataTransfer: fileTransfer })
+    expect(control.getAttribute('data-dragging')).toBe('')
+    expect(fileTransfer.dropEffect).toBe('copy')
+
+    const nestedLeave = new Event('dragleave', { bubbles: true, cancelable: true })
+    Object.defineProperty(nestedLeave, 'relatedTarget', {
+      value: control.querySelector('[data-slot="wrapper"]'),
+    })
+    fireEvent(control, nestedLeave)
+    expect(control.getAttribute('data-dragging')).toBe('')
+
+    await fireEvent.dragLeave(control, { relatedTarget: document.body })
+    expect(control.getAttribute('data-dragging')).toBeNull()
+  })
+
+  test('respects canceled drag handlers and does not process non-file drops', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <FileUpload onValueChange={onValueChange} onDragOver={(event) => event.preventDefault()} />
+    ))
+    const control = screen.getByRole('button', { name: 'File upload' })
+    const fileTransfer = {
+      files: [createFile('blocked.txt')],
+      items: [{ kind: 'file' }],
+      types: ['Files'],
+      dropEffect: 'none',
+    }
+
+    await fireEvent.dragOver(control, { dataTransfer: fileTransfer })
+    expect(control.getAttribute('data-dragging')).toBeNull()
+    expect(fileTransfer.dropEffect).toBe('none')
+
+    await fireEvent.drop(control, {
+      dataTransfer: { files: [], items: [], types: ['text/plain'], dropEffect: 'none' },
+    })
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('clears hidden input and supports selecting same file again after remove', async () => {
@@ -388,6 +576,127 @@ describe('FileUpload', () => {
     ])
   })
 
+  test('reports type and size errors together and honors maxFiles zero in single mode', async () => {
+    const onFileReject = vi.fn()
+    const screen = render(() => (
+      <FileUpload accept="image/*" maxSize={2} maxFiles={0} onFileReject={onFileReject} />
+    ))
+    const invalid = createFile('note.txt', 'text/plain', 'large')
+    const validButDisallowed = createFile('image.png', 'image/png', 'ok')
+
+    await setInputFiles(getFileInput(screen.container), [invalid, validButDisallowed])
+
+    expect(onFileReject).toHaveBeenCalledWith([
+      { file: invalid, errors: ['FILE_INVALID_TYPE', 'FILE_TOO_LARGE'] },
+      { file: validButDisallowed, errors: ['TOO_MANY_FILES'] },
+    ])
+  })
+
+  test('clears files, previews, and form value on native reset without emitting a callback', async () => {
+    const createObjectURL = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation(() => 'blob:reset-image')
+    const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
+    const onValueChange = vi.fn()
+
+    try {
+      const screen = render(() => (
+        <form>
+          <FileUpload name="attachment" onValueChange={onValueChange} />
+        </form>
+      ))
+      const form = screen.container.querySelector('form') as HTMLFormElement
+      const image = createFile('image.png', 'image/png', 'img')
+
+      await setInputFiles(getFileInput(screen.container), [image])
+      expect(screen.container.querySelector('[data-slot="file"]')).not.toBeNull()
+
+      form.reset()
+
+      await waitFor(() => {
+        expect(screen.container.querySelector('[data-slot="file"]')).toBeNull()
+        expect(revokeObjectURL).toHaveBeenCalledTimes(1)
+      })
+      expect(onValueChange).toHaveBeenCalledTimes(1)
+
+      screen.unmount()
+      expect(revokeObjectURL).toHaveBeenCalledTimes(1)
+    } finally {
+      createObjectURL.mockRestore()
+      revokeObjectURL.mockRestore()
+    }
+  })
+
+  test('synchronizes accepted files and reset state with FormField submission', async () => {
+    const form = createForm({
+      schema: v.object({ attachment: v.any() }),
+      initialInput: { attachment: null },
+    })
+    const onSubmit = vi.fn()
+    const screen = render(() => (
+      <Form of={form} onSubmit={onSubmit}>
+        <FormField name="attachment" label="Attachment">
+          <FileUpload />
+        </FormField>
+      </Form>
+    ))
+    const formElement = screen.container.querySelector('form') as HTMLFormElement
+    const file = createFile('attachment.txt')
+
+    await setInputFiles(getFileInput(screen.container), [file])
+    await fireEvent.submit(formElement)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ attachment: file })
+
+    formElement.reset()
+    await waitFor(() => expect(screen.container.querySelector('[data-slot="file"]')).toBeNull())
+    await fireEvent.submit(formElement)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
+    expect(onSubmit.mock.calls[1]?.[0]).toEqual({ attachment: null })
+  })
+
+  test('provides a fallback accessible name and links label and description', () => {
+    const unnamed = render(() => <FileUpload />)
+    expect(unnamed.getByRole('button', { name: 'File upload' })).not.toBeNull()
+    unnamed.unmount()
+
+    const named = render(() => <FileUpload label="Attachments" description="PDF files only" />)
+    const control = named.getByRole('button', { name: 'Attachments' })
+    const label = named.getByText('Attachments')
+    const description = named.getByText('PDF files only')
+
+    expect(control.getAttribute('aria-labelledby')).toBe(label.id)
+    expect(control.getAttribute('aria-describedby')).toContain(description.id)
+  })
+
+  test('single-evaluates control JSX and conditional props', () => {
+    const reads = { description: 0, dropzone: 0, label: 0, preview: 0 }
+    const screen = render(() =>
+      createComponent(FileUpload, {
+        get description() {
+          reads.description += 1
+          return 'Description'
+        },
+        get dropzone() {
+          reads.dropzone += 1
+          return true
+        },
+        get label() {
+          reads.label += 1
+          return 'Upload files'
+        },
+        get preview() {
+          reads.preview += 1
+          return false
+        },
+      }),
+    )
+
+    expect(screen.getByRole('button', { name: 'Upload files' })).not.toBeNull()
+    expect(screen.getByText('Description')).not.toBeNull()
+    expect(reads).toEqual({ description: 1, dropzone: 1, label: 1, preview: 1 })
+  })
+
   test('readOnly keeps selected files and disables removal', async () => {
     const onValueChange = vi.fn()
     const [readOnly, setReadOnly] = createSignal(false)
@@ -408,6 +717,10 @@ describe('FileUpload', () => {
     })
 
     await fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
+    await dropFiles(screen.getByRole('button', { name: 'File upload' }), [
+      createFile('drop-blocked.txt'),
+    ])
+    await setInputFiles(input, [createFile('picker-blocked.txt')])
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(1)
@@ -415,4 +728,41 @@ describe('FileUpload', () => {
       screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-readonly'),
     ).toBe('')
   })
+
+  test('hydrates the empty dropzone and preserves root identity across branch changes', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/file-upload/file-upload.ssr.fixture.tsx',
+      'renderFileUploadFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const [dropzone, setDropzone] = createSignal(true)
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <FileUpload
+          dropzone={dropzone()}
+          preview={false}
+          label="Upload files"
+          description="Description"
+        />
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('DIV')
+    expect(container.querySelector('[data-slot="files"]')).toBeNull()
+
+    setDropzone(false)
+    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('BUTTON')
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

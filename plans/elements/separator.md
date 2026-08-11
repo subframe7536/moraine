@@ -2,7 +2,7 @@
 
 ## Status
 
-Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+Complete. Both orientations now expose synchronized ARIA/data state, numeric zero follows the established optional-JSX presence convention, reactive inputs are single-evaluated, and isolated SSR hydration preserves the root and slot order. Caller-owned semantics, decorative behavior, the fixed `div` root, and visual styling remain unchanged.
 
 ## Goal
 

@@ -197,6 +197,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled || merged.loading,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
@@ -375,7 +376,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         name={field.name()}
         value={merged.value}
         checked={Boolean(checked())}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
         tabIndex={-1}
@@ -403,7 +404,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-slot="track"
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
         aria-labelledby={merged.label ? labelId() : undefined}
@@ -472,7 +473,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               style={merged.styles?.label}
               class={cn(
                 'text-foreground font-medium block cursor-pointer',
-                merged.required && "after:(text-destructive ms-0.5 content-['*'])",
+                field.required() && "after:(text-destructive ms-0.5 content-['*'])",
                 merged.classes?.label,
               )}
             >

@@ -2,7 +2,7 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Complete. Native Space/Enter sequencing, cancelable root activation, card hit-target filtering, reset snapshots, controlled reset preservation, native validity/serialization, conditional JSX ownership, and SSR hydration are covered and passing.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
@@ -83,19 +83,24 @@ export function Separator(props: SeparatorProps): JSX.Element {
     },
     local,
   )
+  const orientation = createMemo(() => merged.orientation)
   const resolvedChildren = resolveChildren(() => merged.children)
+  const hasChildren = createMemo(() => {
+    const value = resolvedChildren()
+    return value === 0 || Boolean(value)
+  })
 
   return (
     <div
       role="separator"
       data-slot="root"
-      data-orientation={merged.orientation}
-      aria-orientation={merged.orientation === 'vertical' ? 'vertical' : undefined}
+      data-orientation={orientation()}
+      aria-orientation={orientation()}
       aria-hidden={merged.decorative ? true : undefined}
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={separatorRootVariants(
-        { orientation: merged.orientation },
+        { orientation: orientation() },
         merged.classes?.root,
         merged.class,
       )}
@@ -105,7 +110,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
         style={merged.styles?.border}
         class={separatorBorderVariants(
           {
-            orientation: merged.orientation,
+            orientation: orientation(),
             size: merged.size,
             type: merged.type,
           },
@@ -113,35 +118,31 @@ export function Separator(props: SeparatorProps): JSX.Element {
         )}
       />
 
-      <Show when={resolvedChildren()}>
-        {(body) => (
-          <>
-            <div
-              data-slot="content"
-              style={merged.styles?.content}
-              class={separatorContentVariants(
-                {
-                  orientation: merged.orientation,
-                },
-                merged.classes?.content,
-              )}
-            >
-              {body()}
-            </div>
-            <div
-              data-slot="border"
-              style={merged.styles?.border}
-              class={separatorBorderVariants(
-                {
-                  orientation: merged.orientation,
-                  size: merged.size,
-                  type: merged.type,
-                },
-                merged.classes?.border,
-              )}
-            />
-          </>
-        )}
+      <Show when={hasChildren()}>
+        <div
+          data-slot="content"
+          style={merged.styles?.content}
+          class={separatorContentVariants(
+            {
+              orientation: orientation(),
+            },
+            merged.classes?.content,
+          )}
+        >
+          {resolvedChildren()}
+        </div>
+        <div
+          data-slot="border"
+          style={merged.styles?.border}
+          class={separatorBorderVariants(
+            {
+              orientation: orientation(),
+              size: merged.size,
+              type: merged.type,
+            },
+            merged.classes?.border,
+          )}
+        />
       </Show>
     </div>
   )

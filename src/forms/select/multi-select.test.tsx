@@ -1,6 +1,13 @@
+import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createSignal } from 'solid-js'
+import { For, createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { FormField } from '../form-field/index.ts'
+import { createForm, Form } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
@@ -46,6 +53,84 @@ describe('MultiSelect', () => {
     expect(tags.length).toBe(2)
   })
 
+  test('keeps tag and FormData order stable when options reorder', () => {
+    const [options, setOptions] = createSignal(FRUITS)
+    const screen = render(() => (
+      <form>
+        <MultiSelect name="fruits" options={options()} value={['banana', 'apple']} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const tagTitles = () =>
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      )
+
+    expect(tagTitles()).toEqual(['Banana', 'Apple'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
+
+    setOptions([FRUITS[1]!, FRUITS[0]!, FRUITS[2]!])
+
+    expect(tagTitles()).toEqual(['Banana', 'Apple'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
+  })
+
+  test('preserves missing selected values in tags, callbacks, and public order', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="fruits"
+          options={FRUITS}
+          defaultValue={['apple', 'dragonfruit']}
+          defaultOpen
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple', 'dragonfruit'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'dragonfruit'])
+
+    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+
+    expect(onChange).toHaveBeenCalledWith(['apple', 'dragonfruit', 'banana'])
+  })
+
+  test('deduplicates typed values with Object.is identity at every ingress', () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect<string | number>
+          name="choices"
+          options={[
+            { label: 'Numeric one', value: 1 },
+            { label: 'String one', value: '1' },
+            { label: 'Numeric two', value: 2 },
+          ]}
+          defaultValue={[1, '1', 1, '1']}
+          maxCount={2}
+          defaultOpen
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const items = Array.from(queryAllBody('[data-slot="item"]'))
+
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
+    expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual([
+      'true',
+      'true',
+      'false',
+    ])
+    expect(items[2]?.getAttribute('aria-disabled')).toBe('true')
+    expect(new FormData(form).getAll('choices')).toEqual(['1', '1'])
+  })
+
   test('labels tag removal, preserves input focus, and removes once', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
@@ -87,6 +172,87 @@ describe('MultiSelect', () => {
     expect(document.activeElement).toBe(input)
   })
 
+  test('removes the last selected value with Backspace from an empty input', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    input.focus()
+    input.setSelectionRange(0, 0)
+    const event = new KeyboardEvent('keydown', {
+      key: 'Backspace',
+      bubbles: true,
+      cancelable: true,
+    })
+
+    input.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(input)
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['apple'])
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple'])
+  })
+
+  test('does not remove tags for text edits, ranges, Delete, or disabled input', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.input(input, { target: { value: 'query' } })
+    input.setSelectionRange(0, 5)
+    await fireEvent.keyDown(input, { key: 'Backspace' })
+    await fireEvent.input(input, { target: { value: '' } })
+    input.setSelectionRange(0, 0)
+    await fireEvent.keyDown(input, { key: 'Delete' })
+
+    expect(onChange).not.toHaveBeenCalled()
+
+    screen.unmount()
+    const disabledOnChange = vi.fn()
+    const disabledScreen = render(() => (
+      <MultiSelect
+        search
+        disabled
+        options={FRUITS}
+        defaultValue={['apple', 'banana']}
+        onChange={disabledOnChange}
+      />
+    ))
+    const disabledInput = disabledScreen.getByRole('combobox') as HTMLInputElement
+    disabledInput.setSelectionRange(0, 0)
+    await fireEvent.keyDown(disabledInput, { key: 'Backspace' })
+
+    expect(disabledOnChange).not.toHaveBeenCalled()
+  })
+
+  test('removes a missing last selected value with Backspace', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        search
+        options={FRUITS}
+        defaultValue={['apple', 'dragonfruit']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    input.setSelectionRange(0, 0)
+
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true }),
+    )
+
+    expect(onChange).toHaveBeenCalledWith(['apple'])
+  })
+
   test('calls onChange with array of values', async () => {
     const onChange = vi.fn()
     render(() => <MultiSelect options={FRUITS} defaultOpen onChange={onChange} />)
@@ -96,6 +262,74 @@ describe('MultiSelect', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
+  })
+
+  test('restores rejected controlled arrays in tags, FormField, and native state', async () => {
+    const form = createForm({
+      schema: v.object({ fruits: v.array(v.string()) }),
+      initialInput: { fruits: ['apple'] },
+    })
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Form of={form}>
+        <FormField name="fruits" label="Fruits">
+          <MultiSelect options={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
+        </FormField>
+      </Form>
+    ))
+
+    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple'])
+    expect(getInput(form)).toEqual({ fruits: ['apple'] })
+  })
+
+  test('commits a synchronously accepted controlled array once', async () => {
+    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
+    const onChange = vi.fn((nextValue: Array<string | number>) => setValue(nextValue))
+    const screen = render(() => (
+      <MultiSelect options={FRUITS} value={value()} defaultOpen onChange={onChange} />
+    ))
+
+    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple', 'Banana'])
+  })
+
+  test('reacts to external Formisch arrays without publishing callbacks', () => {
+    const form = createForm({
+      schema: v.object({ fruits: v.array(v.string()) }),
+      initialInput: { fruits: ['apple'] },
+    })
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Form of={form}>
+        <FormField name="fruits" label="Fruits">
+          <MultiSelect options={FRUITS} onChange={onChange} />
+        </FormField>
+      </Form>
+    ))
+
+    setInput(form, { path: ['fruits'], input: ['banana', 'apple'] })
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Banana', 'Apple'])
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   test('forwards virtual rendering and scroll callbacks', async () => {
@@ -200,6 +434,48 @@ describe('MultiSelect', () => {
     await waitFor(() => {
       expect(input.value).toBe('ba')
     })
+  })
+
+  test('treats multi-character token separators as literal alternatives', async () => {
+    const onChange = vi.fn()
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        search
+        options={FRUITS}
+        tokenSeparators={['::']}
+        onChange={onChange}
+        onSearch={onSearch}
+      />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.input(input, { target: { value: 'custom:value::Apple::tail' } })
+
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['custom:value', 'apple'])
+    expect(onSearch).toHaveBeenLastCalledWith('tail')
+    expect(input.value).toBe('tail')
+  })
+
+  test('defers token commits until IME composition ends', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.compositionStart(input)
+    await fireEvent.input(input, { target: { value: 'custom,' } })
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(input.value).toBe('custom,')
+
+    await fireEvent.compositionEnd(input)
+
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['custom'])
+    expect(input.value).toBe('')
   })
 
   test('respects maxCount when processing token separators', async () => {
@@ -547,6 +823,218 @@ describe('MultiSelect', () => {
     expect(screen.getByTestId('custom-tag')).not.toBeNull()
   })
 
+  test('resolves JSX-capable getters once and keeps closed popup trees lazy', async () => {
+    const reads = {
+      optionRender: 0,
+      tagRender: 0,
+      labelRender: 0,
+      emptyRender: 0,
+      leadingIcon: 0,
+      loadingIcon: 0,
+      trailingIcon: 0,
+      closeIcon: 0,
+    }
+    const instances = { option: 0, tag: 0, empty: 0 }
+    const screen = render(() =>
+      createComponent(MultiSelect, {
+        options: FRUITS,
+        defaultValue: ['apple'],
+        loading: true,
+        get optionRender() {
+          reads.optionRender += 1
+          return (props: MultiSelectT.OptionRenderProps) => {
+            instances.option += 1
+            return <span>{props.option?.label}</span>
+          }
+        },
+        get tagRender() {
+          reads.tagRender += 1
+          return (props: MultiSelectT.TagRenderProps) => {
+            instances.tag += 1
+            return <span data-testid="getter-tag">{props.option.label}</span>
+          }
+        },
+        get labelRender() {
+          reads.labelRender += 1
+          return (props: MultiSelectT.LabelRenderProps) => <span>{props.option.label}</span>
+        },
+        get emptyRender() {
+          reads.emptyRender += 1
+          return () => {
+            instances.empty += 1
+            return <span>Empty</span>
+          }
+        },
+        get leadingIcon() {
+          reads.leadingIcon += 1
+          return 'icon-search' as const
+        },
+        get loadingIcon() {
+          reads.loadingIcon += 1
+          return 'icon-loading' as const
+        },
+        get trailingIcon() {
+          reads.trailingIcon += 1
+          return 'icon-chevron-down' as const
+        },
+        get closeIcon() {
+          reads.closeIcon += 1
+          return 'icon-close' as const
+        },
+      }),
+    )
+
+    expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
+    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
+
+    await fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
+
+    expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
+    expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
+    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
+  })
+
+  test('hydrates in place, removes a tag, and opens on the first ArrowDown', async () => {
+    const markup = renderSsrFixture(
+      '/src/forms/select/multi-select.ssr.fixture.tsx',
+      'renderMultiSelectFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const serverControl = container.querySelector('[data-slot="control"]')
+    const serverTag = container.querySelector('[data-slot="tag"]')
+    const serverNativeSelect = container.querySelector('select[name="fruits"]')
+    const reads = {
+      options: 0,
+      label: 0,
+      description: 0,
+      optionRender: 0,
+      tagRender: 0,
+      labelRender: 0,
+      emptyRender: 0,
+      leadingIcon: 0,
+      loadingIcon: 0,
+      trailingIcon: 0,
+      closeIcon: 0,
+    }
+    const onChange = vi.fn()
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () =>
+        createComponent(MultiSelect, {
+          id: 'fruits',
+          name: 'fruits',
+          search: true,
+          defaultValue: ['apple'],
+          onChange,
+          get options() {
+            reads.options += 1
+            return [
+              {
+                value: 'apple',
+                get label() {
+                  reads.label += 1
+                  return 'Apple'
+                },
+                get description() {
+                  reads.description += 1
+                  return 'Crisp'
+                },
+              },
+              {
+                value: 'banana',
+                get label() {
+                  reads.label += 1
+                  return 'Banana'
+                },
+                get description() {
+                  reads.description += 1
+                  return 'Sweet'
+                },
+              },
+            ]
+          },
+          get optionRender() {
+            reads.optionRender += 1
+            return (props: MultiSelectT.OptionRenderProps) => <span>{props.option?.label}</span>
+          },
+          get tagRender() {
+            reads.tagRender += 1
+            return undefined
+          },
+          get labelRender() {
+            reads.labelRender += 1
+            return undefined
+          },
+          get emptyRender() {
+            reads.emptyRender += 1
+            return undefined
+          },
+          get leadingIcon() {
+            reads.leadingIcon += 1
+            return 'icon-search' as const
+          },
+          get loadingIcon() {
+            reads.loadingIcon += 1
+            return 'icon-loading' as const
+          },
+          get trailingIcon() {
+            reads.trailingIcon += 1
+            return 'icon-chevron-down' as const
+          },
+          get closeIcon() {
+            reads.closeIcon += 1
+            return 'icon-close' as const
+          },
+        }),
+      container,
+    )
+    const root = container.querySelector('[data-slot="root"]')
+    const control = container.querySelector('[data-slot="control"]')
+    const tag = container.querySelector('[data-slot="tag"]')
+    const nativeSelect = container.querySelector('select[name="fruits"]')
+    const input = container.querySelector('[role="combobox"]') as HTMLInputElement
+
+    expect(root).toBe(serverRoot)
+    expect(control).toBe(serverControl)
+    expect(tag).toBe(serverTag)
+    expect(nativeSelect).toBe(serverNativeSelect)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(reads).toEqual({
+      options: 1,
+      label: 2,
+      description: 2,
+      optionRender: 1,
+      tagRender: 1,
+      labelRender: 1,
+      emptyRender: 1,
+      leadingIcon: 1,
+      loadingIcon: 1,
+      trailingIcon: 1,
+      closeIcon: 1,
+    })
+
+    await fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)
+
+    expect(container.querySelector('[data-slot="tag"]')).toBeNull()
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith([])
+
+    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+    expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
+    expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
+    expect(Object.values(reads)).toEqual([1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
+
   test('types onChange payload as array', () => {
     const onChange: NonNullable<MultiSelectProps['onChange']> = (value) => {
       const values: Array<string | number> = value
@@ -570,6 +1058,30 @@ describe('MultiSelect', () => {
 
     expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
     expect(form.querySelectorAll('select[name="fruits"]')).toHaveLength(1)
+  })
+
+  test('serializes matched, missing, numeric, and string values in public order', () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect<string | number>
+          name="choices"
+          options={[
+            { label: 'Numeric one', value: 1 },
+            { label: 'String one', value: '1' },
+            { label: 'Numeric two', value: 2 },
+          ]}
+          defaultValue={[2, 'missing', 1, '1']}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Numeric two', 'missing', 'Numeric one', 'String one'])
+    expect(new FormData(form).getAll('choices')).toEqual(['2', 'missing', '1', '1'])
   })
 
   test('uses selected values for required validity and serializes created tags', async () => {
@@ -615,6 +1127,209 @@ describe('MultiSelect', () => {
     expect(action?.getAttribute('aria-label')).toBe('Clear selection')
     expect(action?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
     expect(action?.querySelector('[data-slot="icon"]')?.className).not.toContain('icon-loading')
+  })
+
+  test('clears a non-empty default selection instead of restoring it', async () => {
+    const onChange = vi.fn()
+    const onClear = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="fruits"
+          options={FRUITS}
+          search
+          defaultOpen
+          defaultValue={['apple']}
+          defaultSearchValue="query"
+          allowClear
+          onChange={onChange}
+          onClear={onClear}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
+    expect(input.value).toBe('')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(new FormData(form).getAll('fruits')).toEqual([])
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith([])
+    expect(onClear).toHaveBeenCalledOnce()
+  })
+
+  test('restores a rejected controlled clear in tags and native state', async () => {
+    const onChange = vi.fn()
+    const onClear = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="fruits"
+          options={FRUITS}
+          value={['apple']}
+          allowClear
+          onChange={onChange}
+          onClear={onClear}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith([])
+    expect(onClear).toHaveBeenCalledOnce()
+  })
+
+  test('commits a synchronously accepted controlled clear once', async () => {
+    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
+    const onChange = vi.fn((nextValue: Array<string | number>) => setValue(nextValue))
+    const onClear = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        options={FRUITS}
+        value={value()}
+        allowClear
+        onChange={onChange}
+        onClear={onClear}
+      />
+    ))
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith([])
+    expect(onClear).toHaveBeenCalledOnce()
+  })
+
+  test('does not publish a no-op token batch', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        search
+        options={FRUITS}
+        defaultValue={['apple']}
+        tokenSeparators={[',']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.input(input, { target: { value: 'Apple,Apple,Cherry,' } })
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(input.value).toBe('')
+  })
+
+  test('keeps tokenization inert while disabled', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search disabled options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    await fireEvent.input(input, { target: { value: 'custom,' } })
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
+  })
+
+  test('resets uncontrolled selection and created tags to the initial default snapshot', async () => {
+    const [defaultValue, setDefaultValue] = createSignal<Array<string | number>>(['apple'])
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="fruits"
+          search
+          options={FRUITS}
+          defaultOpen
+          defaultValue={defaultValue()}
+          allowCreate
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole('combobox') as HTMLInputElement
+
+    setDefaultValue(['banana'])
+    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
+    await fireEvent.keyDown(input, { key: 'Enter' })
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'Dragonfruit'])
+
+    form.reset()
+    await Promise.resolve()
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
+    expect(input.value).toBe('')
+    expect(
+      Array.from(queryAllBody('[data-slot="item"]')).map((item) => item.textContent?.trim()),
+    ).not.toContain('Dragonfruit')
+    expect(onChange).toHaveBeenCalledOnce()
+  })
+
+  test('restores the latest explicit controlled array on reset without callbacks', async () => {
+    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect name="fruits" options={FRUITS} value={value()} onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    setValue(['banana', 'apple'])
+    form.reset()
+    await Promise.resolve()
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Banana', 'Apple'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('keeps the current selection when form reset is canceled', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form onReset={(event) => event.preventDefault()}>
+        <MultiSelect
+          name="fruits"
+          options={FRUITS}
+          defaultValue={['apple']}
+          defaultOpen
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    form.reset()
+    await Promise.resolve()
+
+    expect(
+      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
+        tag.getAttribute('title'),
+      ),
+    ).toEqual(['Apple', 'Banana'])
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'banana'])
+    expect(onChange).toHaveBeenCalledOnce()
   })
 })
 

@@ -1,7 +1,10 @@
 import { render } from '@solidjs/testing-library'
-import { describe, expect, test } from 'vitest'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Separator as ExportedSeparator } from '../../index.ts'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Separator } from './separator.tsx'
 
@@ -13,6 +16,7 @@ describe('Separator', () => {
 
     expect(root?.tagName).toBe('DIV')
     expect(root?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
     expect(root?.className).toContain('flex-row')
     expect(root?.className).toContain('text-border')
@@ -29,6 +33,56 @@ describe('Separator', () => {
     expect(root?.getAttribute('aria-orientation')).toBe('vertical')
     expect(root?.className).toContain('flex-col')
     expect(border?.className).toContain('border-s')
+  })
+
+  test('updates orientation semantics and classes reactively', () => {
+    const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
+    const screen = render(() => <Separator orientation={orientation()} />)
+    const root = screen.getByRole('separator')
+    const border = screen.container.querySelector('[data-slot="border"]')
+
+    expect(root.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(root.className).toContain('flex-row')
+    expect(border?.className).toContain('b-t')
+
+    setOrientation('vertical')
+
+    expect(root.getAttribute('data-orientation')).toBe('vertical')
+    expect(root.getAttribute('aria-orientation')).toBe('vertical')
+    expect(root.className).toContain('flex-col')
+    expect(border?.className).toContain('border-s')
+  })
+
+  test('lets caller attributes override generated separator semantics', () => {
+    const screen = render(() => (
+      <Separator
+        decorative
+        orientation="horizontal"
+        role="presentation"
+        aria-hidden={false}
+        aria-orientation="vertical"
+        data-orientation="custom"
+      />
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.getAttribute('role')).toBe('presentation')
+    expect(root?.getAttribute('aria-hidden')).toBe('false')
+    expect(root?.getAttribute('aria-orientation')).toBe('vertical')
+    expect(root?.getAttribute('data-orientation')).toBe('custom')
+  })
+
+  test('remains passive and non-tabbable while forwarding caller pointer events', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Separator onPointerDown={onPointerDown} />)
+    const root = screen.getByRole('separator')
+    const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    root.dispatchEvent(event)
+
+    expect(root.hasAttribute('tabindex')).toBe(false)
+    expect(event.defaultPrevented).toBe(false)
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
   test('applies type variants', () => {
@@ -93,6 +147,92 @@ describe('Separator', () => {
       </Separator>
     ))
     expect(withAvatarLikeNode.getByTestId('avatar-content').textContent).toBe('A')
+  })
+
+  test('renders numeric zero and single-evaluates reactive inputs', () => {
+    const reads = { children: 0, orientation: 0 }
+    const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
+    const screen = render(() =>
+      createComponent(Separator, {
+        get children() {
+          reads.children += 1
+          return 0
+        },
+        get orientation() {
+          reads.orientation += 1
+          return orientation()
+        },
+      }),
+    )
+
+    expect(screen.container.querySelector('[data-slot="content"]')?.textContent).toBe('0')
+    expect(screen.container.querySelectorAll('[data-slot="border"]')).toHaveLength(2)
+    expect(reads).toEqual({ children: 1, orientation: 1 })
+
+    setOrientation('vertical')
+    expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe('vertical')
+    expect(reads).toEqual({ children: 1, orientation: 2 })
+  })
+
+  test('reactively adds and removes optional content without replacing the root', () => {
+    const [content, setContent] = createSignal<false | string>(false)
+    const screen = render(() => <Separator>{content()}</Separator>)
+    const root = screen.getByRole('separator')
+
+    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
+    expect(screen.container.querySelectorAll('[data-slot="border"]')).toHaveLength(1)
+
+    setContent('Label')
+    expect(screen.container.querySelector('[data-slot="content"]')?.textContent).toBe('Label')
+    expect(screen.container.querySelectorAll('[data-slot="border"]')).toHaveLength(2)
+
+    setContent('')
+    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
+    expect(screen.container.querySelectorAll('[data-slot="border"]')).toHaveLength(1)
+    expect(screen.getByRole('separator')).toBe(root)
+  })
+
+  test.each([false, null, undefined, ''])('omits optional content for %s', (content) => {
+    const screen = render(() => <Separator>{content}</Separator>)
+
+    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
+    expect(screen.container.querySelectorAll('[data-slot="border"]')).toHaveLength(1)
+  })
+
+  test('hydrates zero content without replacing or reordering separator slots', () => {
+    const markup = renderSsrFixture(
+      '/src/elements/separator/separator.ssr.fixture.tsx',
+      'renderSeparatorFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(() => <Separator orientation={orientation()}>{0}</Separator>, container)
+    const root = container.querySelector('[data-slot="root"]')!
+
+    expect(root).toBe(serverRoot)
+    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
+      'border',
+      'content',
+      'border',
+    ])
+    expect(container.querySelector('[data-slot="content"]')?.textContent).toBe('0')
+
+    setOrientation('vertical')
+    expect(root.getAttribute('aria-orientation')).toBe('vertical')
+    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
+      'border',
+      'content',
+      'border',
+    ])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 
   test('decorative mode uses presentational semantics', () => {

@@ -22,6 +22,7 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 
 import type { TextareaVariantProps } from './textarea.class.ts'
 import {
@@ -254,6 +255,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
@@ -288,7 +290,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
+    'data-required': field.required() ? '' : undefined,
     'data-readonly': merged.readOnly ? '' : undefined,
   }))
 
@@ -445,11 +447,11 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         name={field.name()}
         rows={merged.rows ?? 3}
         placeholder={merged.placeholder}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={merged.readOnly}
         maxLength={merged.maxLength}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={merged.readOnly || undefined}
         data-slot="input"
@@ -487,17 +489,5 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         </div>
       </Show>
     </div>
-  )
-}
-
-function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) {
-    return false
-  }
-
-  return Boolean(
-    target.closest(
-      'button, a, input, textarea, select, [role="button"], [tabindex]:not([tabindex="-1"])',
-    ),
   )
 }
