@@ -151,7 +151,10 @@ export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  type RootProps = SwitchProps<TTrue, TFalse> & {
+    onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
     'id',
     'name',
     'disabled',
@@ -175,6 +178,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'styles',
     'class',
     'style',
+    'onClick',
   ])
   const merged = mergeProps(
     {
@@ -189,6 +193,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
+  const loadingIcon = createMemo(() => merged.loadingIcon)
+  const checkedIcon = createMemo(() => merged.checkedIcon)
+  const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
+  const showLabel = createMemo(() => isPresent(label()))
+  const showDescription = createMemo(() => isPresent(description()))
 
   const generatedId = useId(() => merged.id, 'switch')
   const field = useFormField(
@@ -279,10 +288,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const switchAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
-    const describedBy = [
-      attrs['aria-describedby'],
-      merged.description ? descriptionId() : undefined,
-    ]
+    const describedBy = [attrs['aria-describedby'], showDescription() ? descriptionId() : undefined]
       .filter(Boolean)
       .join(' ')
 
@@ -330,15 +336,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     useEventListener(form, 'reset', onReset)
   })
 
-  function onRootKeyDown(event: KeyboardEvent): void {
-    if (event.key !== ' ' && event.key !== 'Enter') {
-      return
-    }
-
-    event.preventDefault()
-    toggle()
-  }
-
   function onPointerDown(
     event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
   ): void {
@@ -354,11 +351,23 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
-      return merged.loadingIcon
+      return loadingIcon()
     }
 
-    return checked() ? merged.checkedIcon : merged.uncheckedIcon
+    return checked() ? checkedIcon() : uncheckedIcon()
   })
+
+  const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onClick)
+    if (defaultPrevented || event.button !== 0) {
+      return
+    }
+
+    const target = event.target
+    if (target instanceof Element && target.closest('[data-slot="track"]')) {
+      toggle()
+    }
+  }
 
   return (
     <div
@@ -366,6 +375,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('flex flex-row', merged.classes?.root, merged.class)}
+      onClick={onRootClick}
     >
       <HiddenInput
         ref={(element) => {
@@ -407,7 +417,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
-        aria-labelledby={merged.label ? labelId() : undefined}
+        aria-labelledby={showLabel() ? labelId() : undefined}
         {...switchAriaAttrs()}
         style={merged.styles?.track}
         class={switchTrackVariants(
@@ -418,8 +428,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           field.disabled() && 'effect-dis',
         )}
         onPointerDown={onPointerDown}
-        onClick={() => toggle()}
-        onKeyDown={onRootKeyDown}
         data-checked={checked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-readonly={readOnly() ? '' : undefined}
@@ -454,7 +462,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         </span>
       </button>
 
-      <Show when={label() || description()}>
+      <Show when={showLabel() || showDescription()}>
         <span
           data-slot="wrapper"
           style={merged.styles?.wrapper}
@@ -465,7 +473,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             merged.classes?.wrapper,
           )}
         >
-          <Show when={label()}>
+          <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
@@ -481,7 +489,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             </label>
           </Show>
 
-          <Show when={description()}>
+          <Show when={showDescription()}>
             <span
               id={descriptionId()}
               data-slot="description"
@@ -495,4 +503,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </Show>
     </div>
   )
+}
+
+function isPresent(value: unknown): boolean {
+  return value !== undefined && value !== null && value !== false && value !== ''
 }

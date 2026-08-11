@@ -2,10 +2,9 @@
 
 ## Status
 
-- Audit complete; execution handoff recorded on 2026-08-11. No Slider implementation or test was changed in the final continuation turn.
+- Implementation complete on 2026-08-11.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
-- Next TDD seam: add an isolated uncontrolled scalar/range `renderToString -> hydrate` regression (horizontal and vertical), assert the server already contains the final thumb/hidden-input count, and prove those nodes are reused. It should fail because `useSlider` initializes `displayValues` to `[]` and installs defaults only in `onMount`.
-- After that slice, continue in order with shared value normalization, controlled-update pending-state invalidation, no-op callback suppression, native reset, and pointer owner cleanup. The relevant current symbols are `displayValues`/`currentValues`/`pendingValues`, `applyThumbValue`, `commitPendingValues`, and `finishInteraction` in `src/forms/slider/hook/use-slider.ts`.
+- Synchronous normalized initialization, stale pending-state invalidation, no-op suppression, native reset, pointer cleanup, and isolated hydration coverage are implemented.
 
 ## Goal
 
@@ -84,6 +83,26 @@ Align Slider's single/range state machine, keyboard, pointer/touch, focus, ARIA,
 4. Suppress no-op input/commit callbacks at min/max and equal snapped values while retaining focus movement.
 5. Add native reset and repeated-name FormData order tests; release capture and clear dragging/pending state on cancel and owner cleanup according to the existing cancel-commit contract.
 6. Adopt FormField shared labelling, update the matrix, and run Slider, navigation foundation, FormField, Form, SSR, and typecheck suites.
+
+## Final Classification
+
+- `ported`: synchronous scalar/range SSR structure, finite clamped sorted values, stable cardinality, controlled interaction invalidation, no-op callback suppression, native reset/FormData order, and pointer owner cleanup.
+- `verified`: existing keyboard direction, thumb crossing, minimum gap, focus transfer, callback phases, FormField labelling, and ARIA ranges remain covered.
+- `intentional-divergence`: invalid or non-finite domains throw a `RangeError` instead of Base UI's development-only warning, eliminating undefined production geometry without expanding the public API.
+- `unverified-platform`: real pointer capture, touch scrolling, painted geometry, and assistive-technology output still require a browser/device.
+
+## Implementation Result
+
+- `useSlider` now creates the complete normalized value array synchronously, so SSR emits the final thumb and hidden-input order.
+- Controlled changes invalidate pending keyboard/pointer candidates; equal snapped values no longer publish input or commit callbacks.
+- Native reset restores the mount-time uncontrolled snapshot or current controlled values, repairs every repeated range input property, respects cancellation, and publishes no user callback.
+- Owner cleanup releases active pointer capture and discards interaction state.
+
+## Validation
+
+- Focused Slider suite: 60 tests passing.
+- Form dependency slice: Slider, Switch, Textarea, Input, Checkbox, InputNumber, FormField, and Form pass together.
+- Targeted lint and TypeScript typecheck pass.
 
 ## STOP Conditions
 

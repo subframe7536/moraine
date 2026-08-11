@@ -26,6 +26,12 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "aria-required",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that user input is required."
         }
       ]
     },

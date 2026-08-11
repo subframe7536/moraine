@@ -193,6 +193,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     onBlur() {
       field.emit('blur')
     },
+    onValueReset(value) {
+      field.setFormValue(value)
+    },
   })
 
   onMount(() => {

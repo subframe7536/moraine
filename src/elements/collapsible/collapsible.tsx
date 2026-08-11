@@ -214,7 +214,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     type: 'button',
     'data-slot': 'trigger',
     get class() {
-      return cn('w-full cursor-pointer', props.classes?.trigger)
+      return cn('cursor-pointer', props.classes?.trigger)
     },
     get style() {
       return props.styles?.trigger
@@ -253,11 +253,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     triggerProps,
   }
 
-  const staticTrigger = (): JSX.Element => {
-    const value = triggerRender()
-    return typeof value === 'function' ? undefined : value
-  }
-
   return (
     <div
       id={rootId()}
@@ -269,7 +264,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     >
       <Show
         when={typeof triggerRender() === 'function'}
-        fallback={<button {...triggerProps}>{staticTrigger()}</button>}
+        fallback={<button {...triggerProps}>{triggerRender() as JSX.Element}</button>}
       >
         {renderComponentOrElement(triggerRender(), triggerRenderProps)}
       </Show>

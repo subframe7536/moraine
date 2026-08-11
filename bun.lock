@@ -30,7 +30,7 @@
         "satteri": "^0.9.5",
         "satteri-expressive-code": "^0.1.18",
         "solid-file-router": "^0.7.2",
-        "solid-toaster": "^0.1.5",
+        "solid-toaster": "^0.1.7",
         "tailwindcss": "^4.3.2",
         "tsdown": "^0.22.7",
         "typescript": "^7.0.2",
@@ -768,7 +768,7 @@
 
     "solid-refresh": ["solid-refresh@0.6.3", "https://registry.npmmirror.com/solid-refresh/-/solid-refresh-0.6.3.tgz", { "dependencies": { "@babel/generator": "^7.23.6", "@babel/helper-module-imports": "^7.22.15", "@babel/types": "^7.23.6" }, "peerDependencies": { "solid-js": "^1.3" } }, "sha512-F3aPsX6hVw9ttm5LYlth8Q15x6MlI/J3Dn+o3EQyRTtTxidepSTwAYdozt01/YA+7ObcciagGEyXIopGZzQtbA=="],
 
-    "solid-toaster": ["solid-toaster@0.1.5", "https://registry.npmmirror.com/solid-toaster/-/solid-toaster-0.1.5.tgz", { "peerDependencies": { "solid-js": "^1.9.11" } }, "sha512-SyzjamXQYr9qe8jn3qNA6Gpf6SJDVP/5TUuJTqUgt5QbuOfWDlI1HXsN+C2sP//1fw5GPYR6h7YQ4smIj44UAg=="],
+    "solid-toaster": ["solid-toaster@0.1.7", "", { "peerDependencies": { "solid-js": "^1.9.11" } }, "sha512-ZAyfUnGaDPUXeqricf01edj90fNfSW9D75Ej13z1ohNu/cjnQUhF1TenpNSqCHzITVSVIdYPR4OMzdOWozdPsQ=="],
 
     "source-map-js": ["source-map-js@1.2.1", "https://registry.npmmirror.com/source-map-js/-/source-map-js-1.2.1.tgz", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
 

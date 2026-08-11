@@ -1,5 +1,5 @@
 import type { JSX, Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, onMount } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
 import type { SliderVariantProps } from '../slider.class.ts'
 import {
@@ -37,6 +37,7 @@ type UseSliderOptions<TValue extends SliderValue> = {
   onFocus?: () => void
   onValueCommit?: (value: TValue) => void
   onValueInput?: (value: TValue) => void
+  onValueReset?: (value: TValue) => void
 }
 
 export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
@@ -71,8 +72,11 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   merged: UseSliderProps<TValue>,
   options: UseSliderOptions<TValue> = {},
 ): UseSliderReturn<TValue> {
-  const [displayValues, setDisplayValues] = createSignal<number[]>([])
-  const getControlledValues = () => normalizeSliderValues(merged.value, merged.min!)
+  const normalizeValues = (value: SliderValue | undefined) =>
+    normalizeSliderValues(value, merged.min, merged.min, merged.max)
+  const initialValues = normalizeValues(merged.defaultValue) ?? [merged.min]
+  const [displayValues, setDisplayValues] = createSignal<number[]>(initialValues)
+  const getControlledValues = () => normalizeValues(merged.value)
 
   const [dragging, setDragging] = createSignal(false)
   const definedStep = createMemo(() =>
@@ -99,6 +103,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   )
   let pendingValues: number[] | undefined
   let activePointerId: number | undefined
+  let activePointerTarget: HTMLDivElement | undefined
   let activeThumbIndex: number | undefined
   let lastUsedThumbIndex: number | undefined
   let lastPointerPosition = 0
@@ -160,22 +165,67 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
   })
 
-  onMount(() => {
-    const initialValue = normalizeSliderValues(merged.defaultValue, merged.min ?? 0) ?? [
-      merged.min ?? 0,
-    ]
-
-    if (getControlledValues() === undefined) {
-      setDisplayValues(initialValue)
-    }
-  })
-
   createEffect(() => {
     const nextControlledValues = getControlledValues()
     if (nextControlledValues !== undefined) {
       setDisplayValues(nextControlledValues)
+      pendingValues = undefined
+      return
+    }
+
+    const nextDisplayValues = normalizeValues(displayValues()) ?? [merged.min]
+    if (!areValuesEqual(displayValues(), nextDisplayValues)) {
+      setDisplayValues(nextDisplayValues)
     }
   })
+
+  onCleanup(() => {
+    if (activePointerId !== undefined && activePointerTarget?.hasPointerCapture(activePointerId)) {
+      activePointerTarget.releasePointerCapture(activePointerId)
+    }
+
+    activePointerId = undefined
+    activePointerTarget = undefined
+    pendingValues = undefined
+  })
+
+  onMount(() => {
+    const root = trackElement()?.closest('[data-slot="root"]')
+    const form = root?.querySelector('input')?.form
+    if (!form) {
+      return
+    }
+
+    const onReset = (event: Event) => {
+      // oxlint-disable-next-line subf/solid-reactivity -- Reset must reconcile the latest controlled value after native reset.
+      queueMicrotask(() => {
+        if (event.defaultPrevented) {
+          return
+        }
+
+        pendingValues = undefined
+        const controlledValues = getControlledValues()
+        const nextValues = controlledValues ?? initialValues
+        if (controlledValues === undefined) {
+          setDisplayValues([...initialValues])
+        }
+
+        root?.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input, index) => {
+          input.value = String(nextValues[index] ?? merged.min)
+        })
+        options.onValueReset?.(getPublicValue(nextValues))
+      })
+    }
+
+    form.addEventListener('reset', onReset)
+    onCleanup(() => form.removeEventListener('reset', onReset))
+  })
+
+  function areValuesEqual(left: number[], right: number[]): boolean {
+    return (
+      left.length === right.length && left.every((value, index) => Object.is(value, right[index]))
+    )
+  }
 
   function getPublicValue(values: number[]): TValue {
     if (Array.isArray(merged.value) || Array.isArray(merged.defaultValue)) {
@@ -231,10 +281,15 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     return clamp(value(pointerPosition - offset), merged.min!, merged.max!)
   }
 
-  function startInteraction(index: number, event: PointerEvent): void {
+  function startInteraction(index: number, event: PointerEvent): boolean {
+    if (activePointerId !== undefined && activePointerId !== event.pointerId) {
+      return false
+    }
+
     const target = event.currentTarget as HTMLDivElement
 
     activePointerId = event.pointerId
+    activePointerTarget = target
     setActiveThumbIndex(index)
     lastPointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     pendingValues = undefined
@@ -243,6 +298,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     target.setPointerCapture(event.pointerId)
     event.preventDefault()
     event.stopPropagation()
+    return true
   }
 
   function commitPendingValues(): void {
@@ -264,6 +320,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
 
     activePointerId = undefined
+    activePointerTarget = undefined
     setActiveThumbIndex(undefined)
     lastPointerPosition = 0
     setDragging(false)
@@ -318,6 +375,10 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
 
     const { nextIndex, nextValues } = resolvedValues
+
+    if (areValuesEqual(interactionValues(), nextValues)) {
+      return nextIndex
+    }
 
     pendingValues = nextValues
     setDisplayValues(nextValues)
@@ -387,7 +448,9 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     const pointerValue = getValueFromPointer(pointerPosition)
     const nextActiveThumbIndex = getClosestThumbIndex(interactionValues(), pointerValue)
-    startInteraction(nextActiveThumbIndex, event)
+    if (!startInteraction(nextActiveThumbIndex, event)) {
+      return
+    }
     applyThumbValue(nextActiveThumbIndex, pointerValue)
     focusThumb(nextActiveThumbIndex)
   }
@@ -411,7 +474,9 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       return
     }
 
-    startInteraction(index, event)
+    if (!startInteraction(index, event)) {
+      return
+    }
     const target = event.currentTarget as HTMLDivElement
     if (merged.variant === 'bold') {
       target.blur()

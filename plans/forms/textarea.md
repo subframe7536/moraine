@@ -2,7 +2,7 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Implementation complete on 2026-08-11.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -79,6 +79,26 @@ Harden Textarea's native editing, controlled value, modifiers, autoresize, form,
 3. Correct default prop keys and centralize autosize dependencies so each state change schedules at most one measurement.
 4. Replace header/footer truthiness with the shared JSX-presence rule, cache inspected values once, and add SSR/hydration plus exact-read fixtures.
 5. Update the matrix; run Textarea, Input, FormField, Form, SSR, and typecheck suites.
+
+## Final Classification
+
+- `ported`: controlled DOM/FormField rollback, external Formisch synchronization, native reset resizing, reactive autoresize inputs, timer cleanup, conditional JSX single evaluation, numeric-zero slots, and hydration node reuse.
+- `verified`: native multiline editing, modifier callback phases, wrapper pointer focus, nested interactive controls, required/readOnly/disabled state, and slot order remain covered.
+- `intentional-divergence`: Moraine retains its rows/maxRows autoresize and header/footer API instead of adopting Kobalte's height-based primitive or a new measurement API.
+- `unverified-platform`: font loading, ResizeObserver-driven width changes, Firefox layout quirks, native IME/autofill, painted overflow, and assistive-technology output require a real browser/device.
+
+## Implementation Result
+
+- Camel-cased `maxRows`, `autoResize`, and `autoResizeDelay` defaults now match the public API.
+- One cancellable scheduler handles controlled values, Formisch values, reset, rows/maxRows, and autoresize transitions; both autofocus and resize timers are cleaned up with the owner.
+- Controlled edits restore the authoritative DOM and FormField values, matching Input's modifier contract.
+- Header/footer values are cached once and numeric zero renders through SSR and hydration.
+
+## Validation
+
+- Focused Textarea suite: 20 tests passing.
+- Input, FormField, and Form dependency suites pass.
+- Targeted lint and TypeScript typecheck pass.
 
 ## STOP Conditions
 

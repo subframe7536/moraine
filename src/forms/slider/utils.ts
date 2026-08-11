@@ -133,16 +133,25 @@ export function linearScale(
 export function normalizeSliderValues(
   value: SliderValue | undefined,
   fallback: number,
+  min: number,
+  max: number,
 ): number[] | undefined {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) {
+    throw new RangeError('Slider `max` must be a finite number greater than `min`.')
+  }
+
   if (value === undefined) {
     return undefined
   }
 
   if (Array.isArray(value)) {
-    return value.length > 0 ? [...value] : [fallback]
+    const values = value.length > 0 ? value : [fallback]
+    return values
+      .map((item) => clamp(Number.isFinite(item) ? item : fallback, min, max))
+      .sort((a, b) => a - b)
   }
 
-  return [value]
+  return [clamp(Number.isFinite(value) ? value : fallback, min, max)]
 }
 
 export function resolveSliderEdges(

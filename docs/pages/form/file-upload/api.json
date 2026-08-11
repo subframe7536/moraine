@@ -28,6 +28,18 @@
       ],
       "ariaAttributes": [
         {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
           "name": "role",
           "required": false,
           "type": "string",
@@ -59,6 +71,18 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
         },
         {
           "name": "role",

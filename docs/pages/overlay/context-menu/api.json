@@ -36,6 +36,12 @@
       ],
       "ariaAttributes": [
         {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
           "name": "role",
           "required": false,
           "type": "string",
@@ -49,6 +55,12 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
         {
           "name": "role",
           "required": false,

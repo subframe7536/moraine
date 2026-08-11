@@ -162,6 +162,11 @@
         "defaultValue": "icon-loading"
       },
       {
+        "name": "onBlur",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, FocusEvent> | undefined"
+      },
+      {
         "name": "onClick",
         "required": false,
         "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
@@ -173,6 +178,11 @@
       },
       {
         "name": "onKeyDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+      },
+      {
+        "name": "onKeyUp",
         "required": false,
         "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
       },

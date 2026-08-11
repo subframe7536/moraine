@@ -1,6 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Slider } from './slider.tsx'
 
@@ -968,7 +971,7 @@ describe('Slider', () => {
       await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowLeft' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('0')
-      expect(onValueChange).toHaveBeenLastCalledWith([0, 50])
+      expect(onValueChange).not.toHaveBeenCalled()
       expect(document.activeElement).toBe(thumbs[0])
     })
 
@@ -1150,4 +1153,174 @@ describe('Slider', () => {
       expect(onChange).toHaveBeenLastCalledWith(45)
     })
   })
+
+  test('normalizes initial scalar and range values before rendering', () => {
+    const scalar = render(() => <Slider min={20} max={40} defaultValue={5} />)
+    const range = render(() => <Slider min={20} max={40} defaultValue={[41, Number.NaN, 19]} />)
+
+    expect(getThumbs(scalar.container).map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(
+      ['20'],
+    )
+    expect(getThumbs(range.container).map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual([
+      '20',
+      '20',
+      '40',
+    ])
+  })
+
+  test.each([
+    ['equal bounds', 10, 10],
+    ['inverted bounds', 10, 0],
+    ['non-finite minimum', Number.NaN, 10],
+    ['non-finite maximum', 0, Number.POSITIVE_INFINITY],
+  ])('rejects %s', (_name, min, max) => {
+    expect(() => render(() => <Slider min={min} max={max} />)).toThrow(
+      'Slider `max` must be a finite number greater than `min`.',
+    )
+  })
+
+  test('drops stale keyboard pending values after a controlled update', async () => {
+    const onChange = vi.fn()
+    const onValueChange = vi.fn()
+    const [value, setValue] = createSignal(20)
+    const screen = render(() => (
+      <Slider value={value()} onChange={onChange} onValueChange={onValueChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(onValueChange).toHaveBeenCalledWith(21)
+
+    setValue(60)
+    await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
+    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('drops stale pointer pending values after a controlled update', async () => {
+    const onChange = vi.fn()
+    const [value, setValue] = createSignal(20)
+    const screen = render(() => <Slider value={value()} onChange={onChange} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+
+    await fireEvent.pointerDown(thumb, { button: 0, clientX: 20, pointerId: 1 })
+    await fireEvent.pointerMove(thumb, { clientX: 40, pointerId: 1 })
+    setValue(60)
+    await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
+    await fireEvent.pointerUp(thumb, { clientX: 40, pointerId: 1 })
+
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('does not emit input or commit callbacks for boundary no-ops', async () => {
+    const onChange = vi.fn()
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Slider defaultValue={100} onChange={onChange} onValueChange={onValueChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('restores uncontrolled values and repeated-name form data on reset', async () => {
+    const screen = render(() => (
+      <form>
+        <Slider name="range" defaultValue={[20, 80]} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const firstThumb = getThumbs(screen.container)[0] as HTMLElement
+
+    firstThumb.focus()
+    await fireEvent.keyDown(firstThumb, { key: 'ArrowRight' })
+    await fireEvent.keyUp(firstThumb, { key: 'ArrowRight' })
+    expect(new FormData(form).getAll('range')).toEqual(['21', '80'])
+
+    form.reset()
+    await waitFor(() => expect(new FormData(form).getAll('range')).toEqual(['20', '80']))
+    expect(getThumbs(screen.container).map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(
+      ['20', '80'],
+    )
+  })
+
+  test('preserves the current value when native reset is canceled', async () => {
+    const screen = render(() => (
+      <form onReset={(event) => event.preventDefault()}>
+        <Slider name="volume" defaultValue={20} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+
+    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+    form.reset()
+    await Promise.resolve()
+
+    expect(thumb.getAttribute('aria-valuenow')).toBe('21')
+    expect(new FormData(form).get('volume')).toBe('21')
+  })
+
+  test('releases an owned pointer capture when unmounted', async () => {
+    const screen = render(() => <Slider defaultValue={20} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    mockPointerCapture(thumb)
+    const releasePointerCapture = vi.spyOn(thumb, 'releasePointerCapture')
+
+    await fireEvent.pointerDown(thumb, { button: 0, pointerId: 7 })
+    screen.unmount()
+
+    expect(releasePointerCapture).toHaveBeenCalledWith(7)
+  })
+
+  test('hydrates normalized scalar and range thumbs without replacing server nodes', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/slider/slider.ssr.fixture.tsx',
+      'renderSliderFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverScalarRoot = container.querySelector('#ssr-scalar-slider-root') as HTMLElement
+    const serverScalarThumb = getThumbs(serverScalarRoot)[0]
+    const serverRangeRoot = container.querySelector('#ssr-range-slider-root') as HTMLElement
+    const serverRangeThumbs = getThumbs(serverRangeRoot)
+    const restoreHydrationState = installHydrationState()
+
+    expect(serverScalarThumb?.getAttribute('aria-valuenow')).toBe('25')
+    expect(serverScalarRoot.querySelectorAll('input[type="range"]')).toHaveLength(1)
+    expect(serverRangeThumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual([
+      '25',
+      '75',
+    ])
+    expect(serverRangeRoot.querySelectorAll('input[type="range"]')).toHaveLength(2)
+
+    const dispose = hydrate(
+      () => (
+        <div>
+          <Slider id="ssr-scalar-slider" defaultValue={25} />
+          <Slider id="ssr-range-slider" defaultValue={[75, 25]} orientation="vertical" />
+        </div>
+      ),
+      container,
+    )
+
+    expect(container.querySelector('#ssr-scalar-slider-root')).toBe(serverScalarRoot)
+    expect(getThumbs(serverScalarRoot)[0]).toBe(serverScalarThumb)
+    expect(container.querySelector('#ssr-range-slider-root')).toBe(serverRangeRoot)
+    expect(getThumbs(serverRangeRoot)).toEqual(serverRangeThumbs)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
 })

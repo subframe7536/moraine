@@ -102,6 +102,12 @@
           "description": "Defines the current numeric value for range-like controls."
         },
         {
+          "name": "aria-valuetext",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides human-readable text for the current value."
+        },
+        {
           "name": "role",
           "required": false,
           "type": "string",

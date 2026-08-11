@@ -2,7 +2,7 @@
 
 ## Status
 
-- Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+- Implementation complete on 2026-08-11.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 
 ## Goal
@@ -78,6 +78,25 @@ Audit and port missing Switch keyboard, pointer, ARIA, native form, controlled-s
 3. Extend existing reset coverage to reactive defaults, controlled state, repeated reset, native FormData/validity, and FormField synchronization.
 4. Cache every inspected JSX prop and add render-to-string/hydrate tests for checked/loading state and all conditional content.
 5. Update the matrix; run Switch, FormField, Form, SSR, and typecheck suites.
+
+## Final Classification
+
+- `ported`: native button click activation for Space/Enter, caller-first cancellable click handling, conditional JSX single evaluation, numeric-zero content, and hydration node reuse.
+- `verified`: custom true/false values, controlled rollback, loading/readOnly/disabled behavior, FormData, reset, required state, and Formisch change validation remain covered.
+- `intentional-divergence`: Moraine retains its high-level track/thumb/icon API and loading contract instead of adopting upstream compound parts or event-detail APIs.
+- `unverified-platform`: browser-generated key clicks, autofill, native validation UI, focus-visible modality, and assistive-technology announcements require a real browser/device.
+
+## Implementation Result
+
+- Manual keydown toggling was removed; the native button click path now performs exactly one change for mouse, Space, and Enter activation.
+- Root click composition runs the consumer handler first and skips the internal toggle when canceled.
+- Label, description, loading icon, checked icon, and unchecked icon are cached once; optional numeric content is preserved.
+
+## Validation
+
+- Focused Switch suite: 19 tests passing.
+- Checkbox, FormField, and Form dependency suites pass.
+- Targeted lint and TypeScript typecheck pass.
 
 ## STOP Conditions
 
