@@ -1,11 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
 import { Popover } from './popover.tsx'
-import type { PopoverProps } from './popover.tsx'
+import type { PopoverProps, PopoverT } from './popover.tsx'
 
 let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -29,6 +31,7 @@ describe('Popover', () => {
 
   afterEach(() => {
     setPopperTestPlacementAccessor(undefined)
+    vi.useRealTimers()
   })
 
   test('supports click mode and renders content', () => {
@@ -95,6 +98,196 @@ describe('Popover', () => {
     const content = document.body.querySelector('[data-slot="content"]')
 
     expect(content?.textContent).toContain('Hover content')
+  })
+
+  test('opens hover mode only for mouse pointers', async () => {
+    vi.useFakeTimers()
+    const screen = render(() => (
+      <Popover mode="hover" openDelay={50} content="Mouse content">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
+    await fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('Mouse content')
+  })
+
+  test('keeps hover mode reachable by keyboard focus and press', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover
+        mode="hover"
+        open={false}
+        openDelay={50}
+        onOpenChange={onOpenChange}
+        content="Keyboard content"
+      >
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+
+    onOpenChange.mockClear()
+    await fireEvent.click(trigger, { detail: 0 })
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenLastCalledWith(true)
+  })
+
+  test('cancels hover timers when mode or disabled changes', async () => {
+    vi.useFakeTimers()
+    const [mode, setMode] = createSignal<'click' | 'hover'>('hover')
+    const [disabled, setDisabled] = createSignal(false)
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover
+        mode={mode()}
+        disabled={disabled()}
+        openDelay={50}
+        onOpenChange={onOpenChange}
+        content="Timed content"
+      >
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    setMode('click')
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    setMode('hover')
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    setDisabled(true)
+    setDisabled(false)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  test('emits one controlled hover request after rapid re-entry', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover
+        mode="hover"
+        open={false}
+        openDelay={50}
+        closeDelay={50}
+        onOpenChange={onOpenChange}
+        content="Controlled content"
+      >
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+  })
+
+  test('emits one controlled close request after rapid pointer leave', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover
+        mode="hover"
+        open
+        closeDelay={50}
+        onOpenChange={onOpenChange}
+        content="Controlled content"
+      >
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(25)
+    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('provides an explicit accessible name for dialog content', () => {
+    render(() => (
+      <Popover open ariaLabel="Account actions" content="Named content">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popover>
+    ))
+
+    expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+      'Account actions',
+    )
+  })
+
+  test('evaluates getter-backed trigger and content values once', () => {
+    let triggerReads = 0
+    let contentReads = 0
+
+    render(() =>
+      createComponent(Popover, {
+        open: true,
+        get children() {
+          triggerReads += 1
+          return (props: PopoverT.TriggerProps) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )
+        },
+        get content() {
+          contentReads += 1
+          return <span>Cached content</span>
+        },
+      }),
+    )
+
+    expect(triggerReads).toBe(1)
+    expect(contentReads).toBe(1)
   })
 
   test.each([
@@ -504,5 +697,49 @@ describe('Popover', () => {
     expect(updatedContent?.className).toContain('data-closed:animate-popover-out')
     expect(updatedContent?.className).toContain('animate-popover-side-right')
     expect(updatedContent?.className).not.toContain('animate-popover-side-bottom')
+  })
+
+  test('hydrates closed hover markup and opens it from keyboard focus', async () => {
+    vi.useFakeTimers()
+    const markup = renderSsrFixture(
+      '/src/overlays/popover/popover.ssr.fixture.tsx',
+      'renderPopoverFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverTrigger = container.querySelector('[data-slot="trigger"]')
+    const restoreHydrationState = installHydrationState()
+    const dispose = hydrate(
+      () => (
+        <Popover
+          mode="hover"
+          openDelay={50}
+          ariaLabel="Hydrated popover"
+          content={<span>Hydrated content</span>}
+        >
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
+        </Popover>
+      ),
+      container,
+    )
+    const trigger = container.querySelector('[data-slot="trigger"]')!
+
+    expect(trigger).toBe(serverTrigger)
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+
+    await fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain(
+      'Hydrated content',
+    )
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 })

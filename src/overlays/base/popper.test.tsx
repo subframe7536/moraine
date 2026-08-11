@@ -30,6 +30,58 @@ describe('Popper primitives', () => {
     expect(childrenReads).toBe(1)
   })
 
+  test('forwards original pointer events to trigger and content callbacks', async () => {
+    const onTriggerPointerEnter = vi.fn()
+    const onTriggerPointerLeave = vi.fn()
+    const onContentPointerEnter = vi.fn()
+    const onContentPointerLeave = vi.fn()
+
+    const screen = render(() => (
+      <PopperRoot
+        defaultOpen
+        onTriggerPointerEnter={onTriggerPointerEnter}
+        onTriggerPointerLeave={onTriggerPointerLeave}
+        onContentPointerEnter={onContentPointerEnter}
+        onContentPointerLeave={onContentPointerLeave}
+      >
+        <PopperTrigger
+          children={(props) => (
+            <button {...props} type="button">
+              Open
+            </button>
+          )}
+        />
+        <PopperContent
+          contentRender={(context) => (
+            <div data-testid="content" {...context.contentProps}>
+              Content
+            </div>
+          )}
+        />
+      </PopperRoot>
+    ))
+    const trigger = screen.getByRole('button')
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-testid="content"]')).not.toBeNull()
+    })
+    const content = document.body.querySelector('[data-testid="content"]')!
+
+    const triggerEnter = new PointerEvent('pointerenter', { pointerType: 'pen' })
+    const triggerLeave = new PointerEvent('pointerleave', { pointerType: 'pen' })
+    const contentEnter = new PointerEvent('pointerenter', { pointerType: 'touch' })
+    const contentLeave = new PointerEvent('pointerleave', { pointerType: 'touch' })
+
+    trigger.dispatchEvent(triggerEnter)
+    trigger.dispatchEvent(triggerLeave)
+    content.dispatchEvent(contentEnter)
+    content.dispatchEvent(contentLeave)
+
+    expect(onTriggerPointerEnter.mock.calls[0]?.[1]).toBe(triggerEnter)
+    expect(onTriggerPointerLeave.mock.calls[0]?.[1]).toBe(triggerLeave)
+    expect(onContentPointerEnter.mock.calls[0]?.[1]).toBe(contentEnter)
+    expect(onContentPointerLeave.mock.calls[0]?.[1]).toBe(contentLeave)
+  })
+
   test('does not instantiate closed content and mounts it once after opening', async () => {
     let instances = 0
 
@@ -105,9 +157,7 @@ describe('Popper primitives', () => {
             </button>
           )}
         />
-        <PopperContent
-          contentRender={(context) => <div {...context.contentProps}>Content</div>}
-        />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
       </PopperRoot>
     ))
 
@@ -138,8 +188,7 @@ describe('Popper primitives', () => {
 
     await waitFor(() => {
       expect(
-        (document.body.querySelector('[data-slot="positioner"]') as HTMLElement).style
-          .zIndex,
+        (document.body.querySelector('[data-slot="positioner"]') as HTMLElement).style.zIndex,
       ).toBe('73')
     })
   })
@@ -154,9 +203,7 @@ describe('Popper primitives', () => {
             </button>
           )}
         />
-        <PopperContent
-          contentRender={(context) => <div {...context.contentProps}>Content</div>}
-        />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
       </PopperRoot>
     ))
 
@@ -179,9 +226,7 @@ describe('Popper primitives', () => {
             )}
           />
         </Show>
-        <PopperContent
-          contentRender={(context) => <div {...context.contentProps}>Content</div>}
-        />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
       </PopperRoot>
     ))
 
@@ -350,9 +395,9 @@ describe('Popper primitives', () => {
     const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe('top')
-      expect(
-        positioner.style.getPropertyValue('--mo-popper-content-transform-origin'),
-      ).toBe('bottom center')
+      expect(positioner.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'bottom center',
+      )
     })
 
     setPlacement('right-end')
@@ -361,9 +406,9 @@ describe('Popper primitives', () => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe(
         'right-end',
       )
-      expect(
-        positioner.style.getPropertyValue('--mo-popper-content-transform-origin'),
-      ).toBe('left bottom')
+      expect(positioner.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'left bottom',
+      )
     })
   })
 
@@ -419,17 +464,13 @@ describe('Popper primitives', () => {
             </button>
           )}
         />
-        <PopperContent
-          contentRender={(context) => <div {...context.contentProps}>Content</div>}
-        />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
       </PopperRoot>
     ))
 
     await waitFor(() => {
       expect(
-        document.body
-          .querySelector('[data-slot="positioner"]')
-          ?.hasAttribute('data-positioned'),
+        document.body.querySelector('[data-slot="positioner"]')?.hasAttribute('data-positioned'),
       ).toBe(true)
     })
 
@@ -566,9 +607,7 @@ describe('Popper primitives', () => {
             )}
           />
         </Show>
-        <PopperContent
-          contentRender={(context) => <div {...context.contentProps}>Content</div>}
-        />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
       </PopperRoot>
     ))
 

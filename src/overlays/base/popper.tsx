@@ -73,8 +73,8 @@ interface PopperContentProps {
   onBlur?: () => void
   onFocus?: () => void
   onKeyDown: (event: KeyboardEvent) => void
-  onPointerEnter?: () => void
-  onPointerLeave?: () => void
+  onPointerEnter?: (event: PointerEvent) => void
+  onPointerLeave?: (event: PointerEvent) => void
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
   tabIndex: number
@@ -103,12 +103,12 @@ export interface PopperRootProps {
   onPointerDownOutside?: (event: PointerEvent) => void
   onTriggerBlur?: (controls: PopperControls) => void
   onTriggerFocus?: (controls: PopperControls) => void
-  onTriggerPointerEnter?: (controls: PopperControls) => void
-  onTriggerPointerLeave?: (controls: PopperControls) => void
+  onTriggerPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+  onTriggerPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
   onContentBlur?: (controls: PopperControls) => void
   onContentFocus?: (controls: PopperControls) => void
-  onContentPointerEnter?: (controls: PopperControls) => void
-  onContentPointerLeave?: (controls: PopperControls) => void
+  onContentPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+  onContentPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
   open?: boolean
   overlap?: boolean
   overflowPadding?: number
@@ -284,8 +284,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     }
 
     const direction = resolveDirection()
-    const fallbackPlacements =
-      typeof merged.flip === 'string' ? merged.flip.split(' ') : undefined
+    const fallbackPlacements = typeof merged.flip === 'string' ? merged.flip.split(' ') : undefined
     if (
       fallbackPlacements &&
       !fallbackPlacements.every((placement) =>
@@ -675,8 +674,8 @@ export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
       }
     },
     onFocus: () => options.onTriggerFocus?.(context.getControls()),
-    onPointerEnter: () => options.onTriggerPointerEnter?.(context.getControls()),
-    onPointerLeave: () => options.onTriggerPointerLeave?.(context.getControls()),
+    onPointerEnter: (event) => options.onTriggerPointerEnter?.(context.getControls(), event),
+    onPointerLeave: (event) => options.onTriggerPointerLeave?.(context.getControls(), event),
   }
 
   onMount(() => {
@@ -711,8 +710,8 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
     onBlur: () => options.onContentBlur?.(context.getControls()),
     onFocus: () => options.onContentFocus?.(context.getControls()),
     onKeyDown: onContentKeyDown,
-    onPointerEnter: () => options.onContentPointerEnter?.(context.getControls()),
-    onPointerLeave: () => options.onContentPointerLeave?.(context.getControls()),
+    onPointerEnter: (event) => options.onContentPointerEnter?.(context.getControls(), event),
+    onPointerLeave: (event) => options.onContentPointerLeave?.(context.getControls(), event),
     ref: (element) => {
       context.setContentElement(element)
       context.contentPresence.setElement(element)

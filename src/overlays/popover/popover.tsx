@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, onCleanup, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps } from 'solid-js'
 
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
@@ -35,6 +35,7 @@ export namespace PopoverT {
     | 'open'
     | 'defaultOpen'
     | 'onOpenChange'
+    | 'disabled'
     | 'placement'
     | 'forceMount'
     | 'modal'
@@ -42,6 +43,9 @@ export namespace PopoverT {
     | 'dismissible'
     | 'onClosePrevent'
   > {
+    /** Accessible name for the dialog content. */
+    ariaLabel?: string
+
     /**
      * Interaction mode for triggering the popover.
      * @default 'click'
@@ -98,12 +102,14 @@ export function Popover(props: PopoverProps): JSX.Element {
     'open',
     'defaultOpen',
     'onOpenChange',
+    'disabled',
     'placement',
     'forceMount',
     'modal',
     'preventScroll',
     'dismissible',
     'onClosePrevent',
+    'ariaLabel',
     'mode',
     'openDelay',
     'closeDelay',
@@ -122,20 +128,93 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
     local,
   )
-  const content = createMemo(() => merged.content)
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
+  let hoverTimerVersion = 0
+  let ownerAlive = true
+
+  function clearOpenTimer(): void {
+    clearTimeout(openTimer)
+    openTimer = undefined
+  }
+
+  function clearCloseTimer(): void {
+    clearTimeout(closeTimer)
+    closeTimer = undefined
+  }
+
+  function invalidateHoverTimers(): void {
+    hoverTimerVersion += 1
+    clearOpenTimer()
+    clearCloseTimer()
+  }
+
+  function scheduleOpen(open: () => void): void {
+    if (merged.mode !== 'hover' || merged.disabled) {
+      return
+    }
+
+    clearCloseTimer()
+    clearOpenTimer()
+    const version = ++hoverTimerVersion
+    openTimer = setTimeout(() => {
+      if (
+        !ownerAlive ||
+        version !== hoverTimerVersion ||
+        merged.mode !== 'hover' ||
+        merged.disabled
+      ) {
+        return
+      }
+
+      openTimer = undefined
+      open()
+    }, merged.openDelay)
+  }
+
+  function scheduleClose(close: () => void): void {
+    if (merged.mode !== 'hover' || merged.disabled) {
+      return
+    }
+
+    clearOpenTimer()
+    clearCloseTimer()
+    const version = ++hoverTimerVersion
+    closeTimer = setTimeout(() => {
+      if (
+        !ownerAlive ||
+        version !== hoverTimerVersion ||
+        merged.mode !== 'hover' ||
+        merged.disabled
+      ) {
+        return
+      }
+
+      closeTimer = undefined
+      close()
+    }, merged.closeDelay)
+  }
+
+  createEffect(
+    on(
+      () => [merged.mode, merged.disabled] as const,
+      () => {
+        invalidateHoverTimers()
+      },
+    ),
+  )
 
   onCleanup(() => {
+    ownerAlive = false
     clearTimeout(resetTimeout)
-    clearTimeout(openTimer)
-    clearTimeout(closeTimer)
+    invalidateHoverTimers()
   })
 
   function Content(context: PopperContentContext): JSX.Element {
+    const content = createMemo(() => merged.content)
     const resolvedSide = createMemo<PopoverSide>(() => {
       const runtimePlacement = context.currentPlacement()
 
@@ -149,6 +228,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     return (
       <div
         role={context.contentProps.role}
+        aria-label={merged.ariaLabel}
         aria-modal={context.contentProps['aria-modal']}
         aria-labelledby={context.contentProps['aria-labelledby']}
         aria-describedby={context.contentProps['aria-describedby']}
@@ -180,6 +260,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       open={merged.open}
       defaultOpen={merged.defaultOpen}
       onOpenChange={merged.onOpenChange}
+      disabled={merged.disabled}
       forceMount={merged.forceMount}
       overflowPadding={4}
       modal={merged.modal}
@@ -187,48 +268,68 @@ export function Popover(props: PopoverProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       role="dialog"
-      toggleOnClick={merged.mode === 'click'}
-      onTriggerPointerEnter={
+      toggleOnClick
+      onTriggerFocus={
         merged.mode === 'hover'
           ? ({ open }) => {
-              clearTimeout(closeTimer)
-              closeTimer = undefined
-              openTimer = setTimeout(() => {
-                open()
-                openTimer = undefined
-              }, merged.openDelay)
+              scheduleOpen(open)
+            }
+          : undefined
+      }
+      onTriggerBlur={
+        merged.mode === 'hover'
+          ? ({ close }) => {
+              scheduleClose(close)
+            }
+          : undefined
+      }
+      onTriggerPointerEnter={
+        merged.mode === 'hover'
+          ? ({ open }, event) => {
+              if (event.pointerType === 'mouse') {
+                scheduleOpen(open)
+              }
             }
           : undefined
       }
       onTriggerPointerLeave={
         merged.mode === 'hover'
+          ? ({ close }, event) => {
+              if (event.pointerType === 'mouse') {
+                scheduleClose(close)
+              }
+            }
+          : undefined
+      }
+      onContentFocus={
+        merged.mode === 'hover'
+          ? () => {
+              clearCloseTimer()
+            }
+          : undefined
+      }
+      onContentBlur={
+        merged.mode === 'hover'
           ? ({ close }) => {
-              clearTimeout(openTimer)
-              openTimer = undefined
-              closeTimer = setTimeout(() => {
-                close()
-                closeTimer = undefined
-              }, merged.closeDelay)
+              scheduleClose(close)
             }
           : undefined
       }
       onContentPointerEnter={
         merged.mode === 'hover'
-          ? () => {
-              clearTimeout(closeTimer)
-              closeTimer = undefined
+          ? (_, event) => {
+              if (event.pointerType === 'mouse') {
+                clearCloseTimer()
+              }
             }
           : undefined
       }
       onContentPointerLeave={
         merged.mode === 'hover'
-          ? ({ close }) => {
-              clearTimeout(openTimer)
-              openTimer = undefined
-              closeTimer = setTimeout(() => {
-                close()
-                closeTimer = undefined
-              }, merged.closeDelay)
+          ? ({ close }, event) => {
+              if (event.pointerType === 'mouse') {
+                scheduleClose(close)
+              }
             }
           : undefined
       }
@@ -267,11 +368,7 @@ export function Popover(props: PopoverProps): JSX.Element {
         merged.onClosePrevent?.()
       }}
     >
-      <PopperTrigger
-        children={merged.children}
-        describeTrigger={false}
-        toggleOnClick={merged.mode === 'click'}
-      />
+      <PopperTrigger children={merged.children} describeTrigger={false} toggleOnClick />
       <PopperContent contentRender={Content} />
     </PopperRoot>
   )

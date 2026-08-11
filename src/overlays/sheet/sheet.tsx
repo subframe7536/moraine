@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
@@ -64,6 +65,9 @@ export namespace SheetT {
   > {
     /** Whether to render the overlay element. */
     overlay?: boolean
+
+    /** Accessible name used when the sheet has no rendered title. */
+    ariaLabel?: string
 
     /**
      * Primary title displayed in the sheet header.
@@ -141,6 +145,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     'onOpenChange',
     'onExitComplete',
     'overlay',
+    'ariaLabel',
     'dismissible',
     'onClosePrevent',
     'title',
@@ -168,18 +173,30 @@ export function Sheet(props: SheetProps): JSX.Element {
     },
     local,
   )
-  const title = createMemo(() => merged.title)
-  const description = createMemo(() => merged.description)
-  const header = createMemo(() => merged.header)
-  const action = createMemo(() => merged.action)
-  const closeContent = createMemo(() => merged.close)
-  const body = createMemo(() => merged.body)
-  const footer = createMemo(() => merged.footer)
+  const title = createLazyMemo(() => merged.title)
+  const description = createLazyMemo(() => merged.description)
+  const header = createLazyMemo(() => merged.header)
+  const action = createLazyMemo(() => merged.action)
+  const closeContent = createLazyMemo(() => merged.close)
+  const body = createLazyMemo(() => merged.body)
+  const footer = createLazyMemo(() => merged.footer)
+  const triggerRender = createMemo(() => merged.children)
   const rootId = useId(() => merged.id, 'sheet')
-  const titleId = createMemo(() => (title() ? `${rootId()}-title` : undefined))
-  const descriptionId = createMemo(() => (description() ? `${rootId()}-description` : undefined))
+  const isPresent = (value: JSX.Element): boolean =>
+    value !== undefined && value !== null && value !== false
+  const hasCustomHeader = createLazyMemo(() => isPresent(header()))
+  const titleId = createLazyMemo(() =>
+    !hasCustomHeader() && isPresent(title()) ? `${rootId()}-title` : undefined,
+  )
+  const descriptionId = createLazyMemo(() =>
+    !hasCustomHeader() && isPresent(description()) ? `${rootId()}-description` : undefined,
+  )
 
-  const hasDefaultHeader = () => Boolean(title() || description() || action() || closeContent())
+  const hasDefaultHeader = () =>
+    isPresent(title()) ||
+    isPresent(description()) ||
+    isPresent(action()) ||
+    closeContent() !== false
 
   return (
     <ModalRoot
@@ -193,7 +210,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       hasOverlay={merged.overlay}
       hasContent
     >
-      <ModalTrigger children={merged.children} />
+      <ModalTrigger children={triggerRender()} />
       <ModalContent
         overlay={merged.overlay}
         overlayClass={cn(
@@ -202,6 +219,7 @@ export function Sheet(props: SheetProps): JSX.Element {
         )}
         overlayStyle={merged.styles?.overlay}
         contentAttributes={{ 'data-side': merged.side }}
+        ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
         class={sheetContentVariants(
@@ -216,14 +234,14 @@ export function Sheet(props: SheetProps): JSX.Element {
         style={merged.styles?.content}
         contentRender={(props: ModalContentContext): JSX.Element => (
           <>
-            <Show when={header() || hasDefaultHeader()}>
+            <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div
                 data-slot="header"
                 style={merged.styles?.header}
                 class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
               >
                 <Show
-                  when={header()}
+                  when={hasCustomHeader()}
                   fallback={
                     <>
                       <div
@@ -231,7 +249,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         style={merged.styles?.wrapper}
                         class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
                       >
-                        <Show when={title()}>
+                        <Show when={isPresent(title())}>
                           <h2
                             id={titleId()}
                             data-slot="title"
@@ -245,7 +263,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           </h2>
                         </Show>
 
-                        <Show when={description()}>
+                        <Show when={isPresent(description())}>
                           <p
                             id={descriptionId()}
                             data-slot="description"
@@ -257,7 +275,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         </Show>
                       </div>
 
-                      <Show when={action()}>
+                      <Show when={isPresent(action())}>
                         <div
                           data-slot="actions"
                           style={merged.styles?.actions}
@@ -297,13 +315,13 @@ export function Sheet(props: SheetProps): JSX.Element {
               </div>
             </Show>
 
-            <Show when={body()}>
+            <Show when={isPresent(body())}>
               <div
                 data-slot="body"
                 style={merged.styles?.body}
                 class={cn(
                   'flex-1 overflow-auto',
-                  (header() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
+                  (hasCustomHeader() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
                   merged.classes?.body,
                 )}
               >
@@ -311,7 +329,7 @@ export function Sheet(props: SheetProps): JSX.Element {
               </div>
             </Show>
 
-            <Show when={footer()}>
+            <Show when={isPresent(footer())}>
               <div
                 data-slot="footer"
                 style={merged.styles?.footer}

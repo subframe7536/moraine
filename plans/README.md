@@ -1,6 +1,6 @@
 # Base UI Parity Plan Index
 
-Status: All form and navigation plans complete; 6 overlay component plans remain.
+Status: Complete. All foundation and component parity plans are classified and implemented.
 
 This directory splits the full Moraine behavior-parity sweep into independently assignable plans. Each component plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
 
@@ -14,13 +14,12 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 
 ## Audit Snapshot
 
-- The working tree rooted at `3c02b36` was audited on 2026-08-09 after Progress was completed.
+- The sweep was completed on 2026-08-12 against the fixed upstream revisions below.
 - All 11 foundation plans plus every element and form plan are implementation-complete in the current working tree.
-- All three navigation plans are implementation-complete with focused SSR/hydration, dynamic collection, identity, numeric-boundary, interaction, and platform-classification coverage. The 6 remaining overlay plans retain their verified missing-feature ledgers and execution constraints.
-- No overlay implementation was started during navigation execution. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
-- `todo.md` remains unchanged until every implementation plan and final repository validation have passed.
-- Current repository validation passes 77 test files / 1498 tests, repository-wide `bun run qa`, TypeScript typecheck, library build, and both public type suites.
-- Production docs build and render successfully. The shared search trigger forwards the Modal trigger contract, and production browser checks for `/`, `/button`, `/dialog`, and `/form-field` pass at desktop, tablet, and mobile widths without error-level console messages.
+- All three navigation plans and all six overlay plans are implementation-complete with focused SSR/hydration, dynamic ownership, controlled-state, keyboard, pointer, focus, ARIA, and cleanup coverage.
+- Every confirmed outcome is classified in `parity-matrix.md`; shared Modal, Popper, trigger, and Menu ownership remains centralized.
+- Current repository validation passes 76 test files / 1549 tests, repository-wide `bun run qa`, TypeScript typecheck, library build, both public type suites, and production docs build.
+- Production SSR desktop checks for `/`, `/dialog`, `/sheet`, `/popover`, `/tooltip`, `/dropdown-menu`, and `/context-menu` contain no error-level console messages, dangling ARIA references, or horizontal overflow. The available in-app browser did not execute module hydration or apply viewport overrides, and no Chrome runtime was connected, so real client interaction and responsive paint remain explicitly `unverified-platform` rather than claimed from this environment.
 
 ## Global Decisions
 

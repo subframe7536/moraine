@@ -59,6 +59,7 @@ export interface ModalContentProps {
   ref?: (element: HTMLDivElement | undefined) => void
   contentRender: ComponentOrElement<ModalContentContext>
   contentAttributes?: Record<string, string | number | boolean | undefined>
+  ariaLabel?: string
   ariaLabelledBy?: string
   ariaDescribedBy?: string
   class?: string
@@ -363,6 +364,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
         id={context.contentId()}
         role="dialog"
         aria-modal="true"
+        aria-label={props.ariaLabel}
         aria-labelledby={props.ariaLabelledBy}
         aria-describedby={props.ariaDescribedBy}
         tabIndex={-1}

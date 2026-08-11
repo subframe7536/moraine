@@ -28,6 +28,12 @@
           "description": "References descriptive text associated with the control."
         },
         {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
           "name": "aria-labelledby",
           "required": false,
           "type": "boolean | string | undefined",
@@ -106,6 +112,12 @@
   ],
   "props": {
     "own": [
+      {
+        "name": "ariaLabel",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible name used when the dialog has no rendered title."
+      },
       {
         "name": "body",
         "required": false,

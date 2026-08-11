@@ -1,6 +1,6 @@
 # Tooltip Base UI Parity Plan
 
-Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+Status: Complete
 
 ## Goal
 

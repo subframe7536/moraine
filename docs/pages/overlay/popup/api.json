@@ -28,6 +28,12 @@
           "description": "References descriptive text associated with the control."
         },
         {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
           "name": "aria-labelledby",
           "required": false,
           "type": "boolean | string | undefined",

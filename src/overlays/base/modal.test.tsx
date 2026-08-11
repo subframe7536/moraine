@@ -7,6 +7,18 @@ import { pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 
 describe('Modal primitives', () => {
+  test('forwards an explicit accessible name to modal content', () => {
+    render(() => (
+      <ModalRoot defaultOpen hasOverlay={false} hasContent>
+        <ModalContent ariaLabel="Named modal" contentRender={<span>Content</span>} />
+      </ModalRoot>
+    ))
+
+    expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+      'Named modal',
+    )
+  })
+
   test('does not acquire modal resources when an open root has no surfaces', async () => {
     document.body.style.overflow = 'auto'
     const onOpenChange = vi.fn()

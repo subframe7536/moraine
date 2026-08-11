@@ -28,6 +28,12 @@
           "description": "References descriptive text associated with the control."
         },
         {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
           "name": "aria-labelledby",
           "required": false,
           "type": "boolean | string | undefined",
@@ -118,6 +124,12 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Additional action elements to render in the header."
+      },
+      {
+        "name": "ariaLabel",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible name used when the sheet has no rendered title."
       },
       {
         "name": "body",
