@@ -356,7 +356,7 @@
         "name": "siblingCount",
         "required": false,
         "type": "number | undefined",
-        "description": "Number of page buttons to show on either side of the current page.",
+        "description": "Number of page buttons to show on either side of the current page.\nFinite integer values are clamped between 0 and 100.",
         "defaultValue": "2"
       },
       {

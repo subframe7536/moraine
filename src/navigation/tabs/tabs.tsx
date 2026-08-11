@@ -6,7 +6,6 @@ import {
   createMemo,
   createSignal,
   mergeProps,
-  on,
   onCleanup,
   onMount,
   splitProps,
@@ -159,15 +158,16 @@ export namespace TabsT {
 export interface TabsProps extends TabsT.Props {}
 
 interface NormalizedTabItem extends TabsT.Item {
+  instanceKey: string
   value: string
 }
 
-function normalizeItemValue(item: TabsT.Item, index: number): string {
-  if (item.value === undefined || item.value === null) {
+function normalizeItemValue(value: string | null | undefined, index: number): string {
+  if (value === null || value === undefined) {
     return String(index)
   }
 
-  return String(item.value)
+  return String(value)
 }
 
 /**
@@ -205,38 +205,56 @@ export function Tabs(props: TabsProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue,
   })
-  const normalizedItems = createMemo<NormalizedTabItem[]>(() =>
-    (merged.items ?? []).map((item, index) =>
-      Object.assign({}, item, {
-        value: normalizeItemValue(item, index),
-      }),
-    ),
-  )
-  const firstEnabledValue = createMemo(
-    () => normalizedItems().find((item) => !item.disabled)?.value,
-  )
-  const selectedValue = createMemo(() => {
+  const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
+    const occurrences = new Map<string, number>()
+
+    return (merged.items ?? []).map((item, index) => {
+      const value = normalizeItemValue(item.value, index)
+      const occurrence = occurrences.get(value) ?? 0
+      occurrences.set(value, occurrence + 1)
+
+      return {
+        content: item.content,
+        disabled: item.disabled,
+        icon: item.icon,
+        instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
+        label: item.label,
+        value,
+      }
+    })
+  })
+  const firstEnabledItem = createMemo(() => normalizedItems().find((item) => !item.disabled))
+  const selectedItem = createMemo(() => {
     const candidate = requestedValue()
 
-    if (candidate && normalizedItems().some((item) => item.value === candidate && !item.disabled)) {
-      return candidate
+    if (candidate !== undefined) {
+      const requestedItem = normalizedItems().find(
+        (item) => item.value === candidate && !item.disabled,
+      )
+
+      if (requestedItem) {
+        return requestedItem
+      }
     }
 
-    return firstEnabledValue()
+    return firstEnabledItem()
   })
+  const selectedValue = createMemo(() => selectedItem()?.value)
+  const selectedKey = createMemo(() => selectedItem()?.instanceKey)
   const triggerRefs = new Map<string, HTMLButtonElement>()
-  const [highlightedValue, setHighlightedValue] = createSignal<string | undefined>()
+  const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
+  const [focusRecoveryRequested, setFocusRecoveryRequested] = createSignal(false)
   const effectiveHighlighted = createMemo<string | undefined>(() => {
-    const focused = highlightedValue()
+    const focused = highlightedKey()
 
     if (
       focused !== undefined &&
-      normalizedItems().some((item) => item.value === focused && !item.disabled)
+      normalizedItems().some((item) => item.instanceKey === focused && !item.disabled)
     ) {
       return focused
     }
 
-    return selectedValue()
+    return selectedKey()
   })
   const [indicatorStyle, setIndicatorStyle] = createSignal<JSX.CSSProperties>({
     transform: undefined,
@@ -246,23 +264,29 @@ export function Tabs(props: TabsProps): JSX.Element {
   let listRef: HTMLDivElement | undefined
   const { onNavigationKeyDown } = useSelectableCollectionNavigation<NormalizedTabItem, string>({
     items: normalizedItems,
-    getValue: (item) => item.value,
+    getValue: (item) => item.instanceKey,
     isDisabled: (item) => Boolean(merged.disabled || item.disabled),
     loop: () => merged.keyboardLoop ?? true,
     activationMode: () => merged.activationMode ?? 'automatic',
-    focusValue: (value) => {
-      setHighlightedValue(value)
-      triggerRefs.get(value)?.focus()
+    focusValue: (key) => {
+      setHighlightedKey(key)
+      triggerRefs.get(key)?.focus()
     },
-    onSelect: (value) => selectValue(value),
+    onSelect: (key) => {
+      const item = normalizedItems().find((candidate) => candidate.instanceKey === key)
+
+      if (item) {
+        selectValue(item.value)
+      }
+    },
   })
 
-  function getTriggerId(value: string): string {
-    return `${rootId()}-${value}-trigger`
+  function getTriggerId(key: string): string {
+    return `${rootId()}-${key}-trigger`
   }
 
-  function getContentId(value: string): string {
-    return `${rootId()}-${value}-content`
+  function getContentId(key: string): string {
+    return `${rootId()}-${key}-content`
   }
 
   function selectValue(nextValue: string): void {
@@ -276,9 +300,9 @@ export function Tabs(props: TabsProps): JSX.Element {
   }
 
   function computeIndicatorStyle(): void {
-    const currentValue = selectedValue()
+    const currentKey = selectedKey()
 
-    if (!currentValue) {
+    if (currentKey === undefined) {
       setIndicatorStyle({
         transform: undefined,
         width: undefined,
@@ -287,7 +311,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       return
     }
 
-    const selectedTrigger = triggerRefs.get(currentValue)
+    const selectedTrigger = triggerRefs.get(currentKey)
 
     if (!selectedTrigger) {
       return
@@ -323,17 +347,36 @@ export function Tabs(props: TabsProps): JSX.Element {
     computeIndicatorStyle()
   })
 
-  createEffect(
-    on(selectedValue, () => {
-      computeIndicatorStyle()
-    }),
-  )
+  createEffect(() => {
+    normalizedItems()
+    computeIndicatorStyle()
+  })
 
   createEffect(() => {
-    const currentValue = selectedValue()
-    const selectedTrigger = currentValue ? triggerRefs.get(currentValue) : undefined
+    if (!focusRecoveryRequested()) {
+      return
+    }
 
-    if (!selectedTrigger) {
+    const recoveryKey = effectiveHighlighted()
+
+    queueMicrotask(() => {
+      if (recoveryKey !== undefined) {
+        triggerRefs.get(recoveryKey)?.focus()
+      }
+      setFocusRecoveryRequested(false)
+    })
+  })
+
+  createEffect(() => {
+    const items = normalizedItems()
+    const currentKey = selectedKey()
+    const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
+
+    if (
+      typeof ResizeObserver === 'undefined' ||
+      !selectedTrigger?.isConnected ||
+      !items.some((item) => item.instanceKey === currentKey)
+    ) {
       return
     }
 
@@ -394,19 +437,34 @@ export function Tabs(props: TabsProps): JSX.Element {
 
         <For each={normalizedItems()}>
           {(item) => {
-            const selected = createMemo(() => selectedValue() === item.value)
-            const highlighted = createMemo(() => effectiveHighlighted() === item.value)
+            const selected = createMemo(() => selectedKey() === item.instanceKey)
+            const highlighted = createMemo(() => effectiveHighlighted() === item.instanceKey)
+            let trigger: HTMLButtonElement | undefined
+
+            onCleanup(() => {
+              const wasFocused =
+                typeof document !== 'undefined' && document.activeElement === trigger
+
+              if (triggerRefs.get(item.instanceKey) === trigger) {
+                triggerRefs.delete(item.instanceKey)
+              }
+
+              if (wasFocused) {
+                setFocusRecoveryRequested(true)
+              }
+            })
 
             return (
               <button
-                id={getTriggerId(item.value)}
+                id={getTriggerId(item.instanceKey)}
                 ref={(element) => {
-                  triggerRefs.set(item.value, element)
+                  trigger = element
+                  triggerRefs.set(item.instanceKey, element)
                 }}
                 type="button"
                 role="tab"
                 tabIndex={highlighted() ? 0 : -1}
-                aria-controls={getContentId(item.value)}
+                aria-controls={getContentId(item.instanceKey)}
                 aria-selected={selected()}
                 data-selected={selected() ? '' : undefined}
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
@@ -422,12 +480,12 @@ export function Tabs(props: TabsProps): JSX.Element {
                   merged.classes?.trigger,
                 )}
                 onClick={() => {
-                  setHighlightedValue(item.value)
+                  setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
                 }}
-                onFocus={() => setHighlightedValue(item.value)}
+                onFocus={() => setHighlightedKey(item.instanceKey)}
                 onKeyDown={(event) => {
-                  onNavigationKeyDown(event, item.value, merged.orientation)
+                  onNavigationKeyDown(event, item.instanceKey, merged.orientation)
                 }}
               >
                 <Show when={item.icon}>
@@ -457,15 +515,15 @@ export function Tabs(props: TabsProps): JSX.Element {
 
       <For each={normalizedItems()}>
         {(item) => {
-          const selected = createMemo(() => selectedValue() === item.value)
+          const selected = createMemo(() => selectedKey() === item.instanceKey)
 
           return (
             <Show when={selected()}>
               <div
-                id={getContentId(item.value)}
+                id={getContentId(item.instanceKey)}
                 role="tabpanel"
                 tabIndex={0}
-                aria-labelledby={getTriggerId(item.value)}
+                aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
                 style={merged.styles?.content}

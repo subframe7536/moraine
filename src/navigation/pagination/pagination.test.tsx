@@ -1,6 +1,9 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Pagination } from './pagination.tsx'
 
@@ -22,6 +25,89 @@ describe('Pagination', () => {
     expect(screen.getByText('5')).not.toBeNull()
   })
 
+  test('normalizes non-finite pagination inputs to finite defaults', () => {
+    const screen = render(() => (
+      <Pagination
+        total={Number.POSITIVE_INFINITY}
+        itemsPerPage={Number.NaN}
+        siblingCount={Number.NEGATIVE_INFINITY}
+        page={Number.POSITIVE_INFINITY}
+      />
+    ))
+
+    const status = screen.container.querySelector('[data-slot="status"]')
+    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 1')
+    expect(screen.container.textContent).not.toContain('Infinity')
+    expect(screen.container.textContent).not.toContain('NaN')
+  })
+
+  test.each([
+    [{ total: -5 }, 'Page 1 of 1'],
+    [{ total: 42.9, itemsPerPage: 10.9, page: 3.9 }, 'Page 3 of 5'],
+    [{ total: 3, itemsPerPage: 0, defaultPage: -4 }, 'Page 1 of 3'],
+    [{ total: 30, itemsPerPage: Number.POSITIVE_INFINITY }, 'Page 1 of 3'],
+  ] as const)('normalizes fractional and out-of-range inputs %#', (input, expected) => {
+    const screen = render(() => <Pagination {...input} />)
+    const status = screen.container.querySelector('[data-slot="status"]')
+
+    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe(expected)
+  })
+
+  test('bounds very large finite sibling counts without allocating an unbounded range', () => {
+    const screen = render(() => (
+      <Pagination
+        total={Number.MAX_SAFE_INTEGER}
+        itemsPerPage={1}
+        page={4_000_000_000}
+        siblingCount={Number.MAX_SAFE_INTEGER}
+        showControls={false}
+      />
+    ))
+
+    expect(screen.container.querySelectorAll('[data-slot="link"]').length).toBeLessThanOrEqual(205)
+    expect(
+      screen.getByLabelText('Page 4000000000 of 9007199254740991, current page'),
+    ).not.toBeNull()
+  })
+
+  test('retains the requested page while the reactive page domain temporarily shrinks', () => {
+    const [total, setTotal] = createSignal(100)
+    const onPageChange = vi.fn()
+    const screen = render(() => (
+      <Pagination defaultPage={8} total={total()} itemsPerPage={10} onPageChange={onPageChange} />
+    ))
+    const status = () =>
+      screen.container
+        .querySelector('[data-slot="status"]')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim()
+
+    expect(status()).toBe('Page 8 of 10')
+    setTotal(20)
+    expect(status()).toBe('Page 2 of 2')
+    setTotal(100)
+    expect(status()).toBe('Page 8 of 10')
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
+  test('clamps a controlled request without publishing during page-domain changes', () => {
+    const [total, setTotal] = createSignal(20)
+    const onPageChange = vi.fn()
+    const screen = render(() => (
+      <Pagination page={8} total={total()} itemsPerPage={10} onPageChange={onPageChange} />
+    ))
+    const status = () =>
+      screen.container
+        .querySelector('[data-slot="status"]')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim()
+
+    expect(status()).toBe('Page 2 of 2')
+    setTotal(100)
+    expect(status()).toBe('Page 8 of 10')
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
   test('supports controlled page changes', async () => {
     const onPageChange = vi.fn()
 
@@ -41,6 +127,25 @@ describe('Pagination', () => {
 
     const current = screen.container.querySelector('[data-slot="link"][aria-current="page"]')
     expect(current?.textContent).toBe('2')
+  })
+
+  test('does not change pages when a caller cancels the click during capture', async () => {
+    const onPageChange = vi.fn()
+    const screen = render(() => (
+      <Pagination
+        defaultPage={2}
+        onPageChange={onPageChange}
+        oncapture:click={(event: MouseEvent) => event.preventDefault()}
+        total={50}
+        itemsPerPage={10}
+        showControls={false}
+      />
+    ))
+
+    await fireEvent.click(screen.getByText('3'))
+
+    expect(onPageChange).not.toHaveBeenCalled()
+    expect(screen.getByLabelText('Page 2 of 5, current page')).not.toBeNull()
   })
 
   test('toggles controls visibility', () => {
@@ -76,6 +181,27 @@ describe('Pagination', () => {
     expect(next?.getAttribute('href')).toBe('/page/3')
   })
 
+  test('resolves each visible link destination once and keeps current-page activation a no-op', async () => {
+    const to = vi.fn((page: number) => `/page/${page}`)
+    const onPageChange = vi.fn()
+    const screen = render(() => (
+      <Pagination
+        page={2}
+        total={30}
+        itemsPerPage={10}
+        to={to}
+        onPageChange={onPageChange}
+        oncapture:click={(event: MouseEvent) => event.preventDefault()}
+      />
+    ))
+
+    expect(to.mock.calls.map(([page]) => page)).toEqual([1, 1, 2, 3, 3])
+
+    await fireEvent.click(screen.getByLabelText('Page 2 of 3, current page'))
+    expect(onPageChange).not.toHaveBeenCalled()
+    expect(to).toHaveBeenCalledTimes(5)
+  })
+
   test('uses disabled buttons when boundary is reached or `to` is absent', () => {
     const firstPage = render(() => (
       <Pagination
@@ -101,6 +227,23 @@ describe('Pagination', () => {
 
     const pageControl = withoutTo.getByText('3').closest('[data-slot="link"]')
     expect(pageControl?.tagName).toBe('BUTTON')
+  })
+
+  test('releases focus when a reactive boundary link becomes a disabled button', () => {
+    const [page, setPage] = createSignal(2)
+    const screen = render(() => (
+      <Pagination page={page()} total={30} itemsPerPage={10} to={(target) => `/page/${target}`} />
+    ))
+    const nextLink = screen.container.querySelector('[data-slot="next"]') as HTMLElement
+
+    nextLink.focus()
+    expect(document.activeElement).toBe(nextLink)
+    expect(nextLink.tagName).toBe('A')
+    setPage(3)
+    const nextButton = screen.container.querySelector('[data-slot="next"]') as HTMLElement
+    expect(nextButton.tagName).toBe('BUTTON')
+    expect(nextButton.hasAttribute('disabled')).toBe(true)
+    expect(document.activeElement).toBe(document.body)
   })
 
   test('applies current-page aria attributes and labels', () => {
@@ -214,4 +357,56 @@ describe('Pagination', () => {
     expect(next?.className).toContain('next-override')
     expect(ellipsis?.className).toContain('ellipsis-override')
   })
+
+  test('renders deterministic single-page SSR markup', () => {
+    const markup = renderSsrFixture(
+      '/src/navigation/pagination/pagination.ssr.fixture.tsx',
+      'renderSinglePagePaginationFixture',
+    )
+
+    expect(markup.match(/data-slot="link"/g)).toHaveLength(1)
+    expect(markup).toContain('Page 1 of 1')
+    expect(markup).not.toContain('data-slot="ellipsis"')
+  })
+
+  test('hydrates ellipsis link mode without replacing nodes and handles first navigation', async () => {
+    const markup = renderSsrFixture(
+      '/src/navigation/pagination/pagination.ssr.fixture.tsx',
+      'renderPaginationFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const serverList = container.querySelector('[data-slot="list"]')
+    const serverStatus = container.querySelector('[data-slot="status"]')
+    const [page, setPage] = createSignal(5)
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Pagination
+          page={page()}
+          onPageChange={setPage}
+          total={100}
+          itemsPerPage={10}
+          siblingCount={1}
+          to={(target) => `#page-${target}`}
+        />
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
+    expect(container.querySelector('[data-slot="status"]')).toBe(serverStatus)
+    expect(container.querySelectorAll('[data-slot="ellipsis"]')).toHaveLength(2)
+
+    await fireEvent.click(container.querySelector('[data-slot="next"]')!)
+    expect(serverStatus?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

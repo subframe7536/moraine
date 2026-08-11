@@ -11,6 +11,8 @@ import { cn } from '../../shared/utils.ts'
 
 type PaginationVariant = ButtonProps['variant']
 
+const MAX_SIBLING_COUNT = 100
+
 export namespace PaginationT {
   export interface Slot<T = unknown> {
     /**
@@ -78,6 +80,7 @@ export namespace PaginationT {
     /**
      * Number of page buttons to show on either side of the current page.
      * @default 2
+     * Finite integer values are clamped between 0 and 100.
      */
     siblingCount?: number
 
@@ -176,6 +179,14 @@ function clampPage(page: number, count: number): number {
   return Math.min(Math.max(page, 1), Math.max(count, 1))
 }
 
+function normalizeInteger(value: number | undefined, fallback: number, min: number, max: number) {
+  if (value === undefined || !Number.isFinite(value)) {
+    return fallback
+  }
+
+  return Math.min(Math.max(Math.trunc(value), min), max)
+}
+
 function createRange(start: number, end: number): number[] {
   if (end < start) {
     return []
@@ -235,20 +246,27 @@ export function Pagination(props: PaginationProps): JSX.Element {
     local,
   )
 
-  const [internalPage, setInternalPage] = createSignal(merged.defaultPage || 1)
+  const [internalPage, setInternalPage] = createSignal(
+    normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
+  )
 
   const pageCount = createMemo(() => {
-    const safeItemsPerPage = Math.max(1, merged.itemsPerPage || 1)
-    const safeTotal = Math.max(0, merged.total || 0)
+    const safeItemsPerPage = normalizeInteger(merged.itemsPerPage, 10, 1, Number.MAX_SAFE_INTEGER)
+    const safeTotal = normalizeInteger(merged.total, 0, 0, Number.MAX_SAFE_INTEGER)
     return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
   })
 
-  const resolvedPage = createMemo(() => clampPage(merged.page ?? internalPage(), pageCount()))
+  const resolvedPage = createMemo(() =>
+    clampPage(
+      normalizeInteger(merged.page ?? internalPage(), 1, 1, Number.MAX_SAFE_INTEGER),
+      pageCount(),
+    ),
+  )
 
   const paginationItems = createMemo(() => {
     const page = resolvedPage()
     const count = pageCount()
-    const siblings = Math.max(0, merged.siblingCount || 0)
+    const siblings = normalizeInteger(merged.siblingCount, 2, 0, MAX_SIBLING_COUNT)
 
     if (siblings * 2 + 5 >= count) {
       return createRange(1, count)
@@ -268,8 +286,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     return [1, -1, ...createRange(left, right), -1, count]
   })
 
-  const selectPage = (targetPage: number): void => {
-    if (merged.disabled) {
+  const selectPage = (targetPage: number, event?: MouseEvent): void => {
+    if (event?.defaultPrevented || merged.disabled) {
       return
     }
 
@@ -348,7 +366,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               size={getSize(merged.size, merged.prevText)}
               aria-label={getPrevLabel()}
               class={merged.classes?.prev}
-              onClick={() => selectPage(resolvedPage() - 1)}
+              onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
               leading={<Icon name={merged.prevIcon} />}
             >
@@ -387,7 +405,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
                     class={cn('outline-none', merged.classes?.link)}
-                    onClick={() => selectPage(item)}
+                    onClick={(event) => selectPage(item, event)}
                     {...getControlProps(item, false)}
                   >
                     {item}
@@ -407,7 +425,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               size={getSize(merged.size, merged.nextText)}
               aria-label={getNextLabel()}
               class={merged.classes?.next}
-              onClick={() => selectPage(resolvedPage() + 1)}
+              onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
               trailing={<Icon name={merged.nextIcon} />}
             >

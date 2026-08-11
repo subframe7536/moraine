@@ -1,6 +1,10 @@
 # Tabs Base UI Parity Plan
 
-Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+## Status
+
+Implementation complete on 2026-08-11 against Base UI `3011fba8f` and Kobalte `2e8ce473`.
+
+Duplicate public values remain accepted. Selection resolves to the first enabled occurrence, while every occurrence receives a distinct internal identity for refs and ARIA relationships; activating a later duplicate therefore leaves the canonical occurrence selected.
 
 ## Goal
 

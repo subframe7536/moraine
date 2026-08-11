@@ -1,6 +1,6 @@
 # Base UI Parity Plan Index
 
-Status: All form plans complete; Breadcrumb execution is next with 9 component plans remaining.
+Status: All form and navigation plans complete; 6 overlay component plans remain.
 
 This directory splits the full Moraine behavior-parity sweep into independently assignable plans. Each component plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
 
@@ -16,11 +16,11 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 
 - The working tree rooted at `3c02b36` was audited on 2026-08-09 after Progress was completed.
 - All 11 foundation plans plus every element and form plan are implementation-complete in the current working tree.
-- Breadcrumb is next. The 9 remaining navigation and overlay plans contain verified missing-feature ledgers, exact ownership, ordered test-first execution steps, dependency suites, intentional-divergence boundaries, and STOP conditions.
-- No navigation or overlay implementation was started during form execution. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
+- All three navigation plans are implementation-complete with focused SSR/hydration, dynamic collection, identity, numeric-boundary, interaction, and platform-classification coverage. The 6 remaining overlay plans retain their verified missing-feature ledgers and execution constraints.
+- No overlay implementation was started during navigation execution. Executors must re-check cited symbols against the current working tree before editing and record final classifications in `parity-matrix.md` as each plan is implemented.
 - `todo.md` remains unchanged until every implementation plan and final repository validation have passed.
-- Current form validation passes 76 test files / 1468 tests, targeted lint, TypeScript typecheck, library build, and both public type suites.
-- Repository-wide `bun run qa` is blocked by the pre-existing intentional thenable fixture in `src/shared/use-loading-auto.test.ts`; production docs preview is separately blocked before route rendering by `solid-toaster` importing a client-only API during SSG. Both blockers are outside the form plans and remain unchanged.
+- Current repository validation passes 77 test files / 1498 tests, repository-wide `bun run qa`, TypeScript typecheck, library build, and both public type suites.
+- Production docs build and render successfully. The shared search trigger forwards the Modal trigger contract, and production browser checks for `/`, `/button`, `/dialog`, and `/form-field` pass at desktop, tablet, and mobile widths without error-level console messages.
 
 ## Global Decisions
 

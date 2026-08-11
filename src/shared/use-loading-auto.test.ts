@@ -125,6 +125,7 @@ describe('useLoadingAutoClick', () => {
   test('tracks a non-Promise thenable through settlement', async () => {
     let resolveThenable: (() => void) | undefined
     const thenable = {
+      // oxlint-disable-next-line unicorn/no-thenable -- This fixture intentionally exercises PromiseLike interoperability.
       then(onFulfilled: () => void) {
         resolveThenable = onFulfilled
       },

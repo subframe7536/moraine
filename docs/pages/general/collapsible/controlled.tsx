@@ -6,7 +6,7 @@ export function Controlled() {
   const [locked, setLocked] = createSignal(false)
 
   return (
-    <div class="w-full max-w-md space-y-3">
+    <div class="max-w-md w-full space-y-3">
       <div class="flex flex-wrap gap-2 items-center">
         <Button size="sm" onClick={() => !locked() && setOpen((value) => !value)}>
           {open() ? 'Hide invoice details' : 'Show invoice details'}

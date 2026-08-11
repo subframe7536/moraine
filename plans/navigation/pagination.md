@@ -1,6 +1,10 @@
 # Pagination Base UI Parity Plan
 
-Status: Audit complete; implementation not started. Audited from the working tree rooted at `3c02b36` on 2026-08-09.
+## Status
+
+Implementation complete on 2026-08-11 against Base UI `3011fba8f` and Kobalte `2e8ce473`.
+
+Reactive page-domain shrinkage clamps only the rendered page, retaining the requested controlled or uncontrolled value for a later expansion. Numeric inputs are finite safe integers; `siblingCount` is explicitly capped at 100, bounding the rendered range while retaining the public API.
 
 ## Goal
 
