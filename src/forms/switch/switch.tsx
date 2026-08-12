@@ -478,7 +478,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               data-slot="label"
               style={merged.styles?.label}
               class={cn(
-                'text-foreground font-medium block cursor-pointer',
+                'text-foreground font-medium block cursor-pointer select-none',
                 field.required() && "after:(text-destructive ms-0.5 content-['*'])",
                 merged.classes?.label,
               )}

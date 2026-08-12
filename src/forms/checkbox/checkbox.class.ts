@@ -70,7 +70,7 @@ export const checkboxWrapperVariants = cva('w-full', {
   },
 })
 
-export const checkboxLabelVariants = cva('text-foreground font-medium block', {
+export const checkboxLabelVariants = cva('text-foreground font-medium block select-none', {
   variants: {
     required: REQUIRED_MARK_VARIANT,
   },

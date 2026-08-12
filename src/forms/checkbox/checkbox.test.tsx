@@ -398,6 +398,7 @@ describe('Checkbox', () => {
     expect(input?.className).toContain('peer')
     expect(base?.className).toContain('focus-visible:effect-fv-border')
     expect(base?.className).toContain('size-5')
+    expect(screen.getByText('Classes').className).toContain('select-none')
   })
 
   test('applies style overrides', () => {

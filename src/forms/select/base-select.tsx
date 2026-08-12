@@ -464,7 +464,7 @@ function useBaseSelectOverlay(options: {
     gutter: options.gutter,
     onPositionedChange: () => undefined,
     onPlacementChange: options.onPlacementChange,
-    open: options.isOpen,
+    open: options.contentPresence.present,
     overflowPadding: options.overflowPadding,
     placement: () => 'bottom-start',
   })

@@ -1576,8 +1576,10 @@ describe('Select - popup behavior', () => {
 
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
+      const positioner = queryBody('[data-slot="positioner"]') as HTMLElement | null
       expect(content).not.toBeNull()
       expect(content?.getAttribute('data-closed')).toBe('')
+      expect(positioner?.style.visibility).toBe('visible')
     })
 
     await finishSelectExitMotion()

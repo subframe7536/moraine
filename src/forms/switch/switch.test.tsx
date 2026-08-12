@@ -265,9 +265,11 @@ describe('Switch', () => {
     expect(track?.className).toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
     expect(track?.className).toContain('focus-visible:effect-fv-border')
+    expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
     expect(track?.className).toContain('w-11')
     expect(wrapper?.className).toContain('ms-3')
     expect(wrapper?.className).toContain('text-base')
+    expect(screen.getByText('Classes').className).toContain('select-none')
   })
 
   test('applies compact wrapper spacing on xs size', () => {
