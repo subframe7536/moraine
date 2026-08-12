@@ -132,6 +132,18 @@
       "dataAttributes": [],
       "ariaAttributes": [
         {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "aria-owns",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
           "name": "role",
           "required": false,
           "type": "string",

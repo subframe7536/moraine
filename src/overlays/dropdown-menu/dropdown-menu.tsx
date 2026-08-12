@@ -1,5 +1,13 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, onMount, splitProps } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onMount,
+  splitProps,
+} from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
@@ -18,7 +26,11 @@ import type {
   OverlayMenuSharedSlots,
 } from '../base/menu/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { validateOverlayTrigger } from '../base/trigger.ts'
+import {
+  createOverlayTriggerRef,
+  getOverlayTriggerAccessibility,
+  validateOverlayTrigger,
+} from '../base/trigger.ts'
 
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
@@ -102,10 +114,11 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const isOpen = createMemo(() => Boolean(openState()))
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
-  let triggerElement: HTMLElement | undefined
+  const trigger = createOverlayTriggerRef()
 
   const triggerRender = createMemo(() => merged.children)
   const triggerProps: OverlayTriggerProps = {
+    id: resolvedId(),
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined
     },
@@ -123,8 +136,16 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       return isOpen() ? '' : undefined
     },
     'data-slot': 'trigger',
-    ref: (element: HTMLElement | undefined) => {
-      triggerElement = element
+    ref: trigger.ref,
+    get disabled() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+    },
+    get 'aria-disabled'() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+        .ariaDisabled
+    },
+    get tabIndex() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
     },
     onClick: (event: MouseEvent) => {
       if (event.defaultPrevented || merged.disabled) {
@@ -176,7 +197,13 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
 
   onMount(() => {
     if (triggerRender()) {
-      validateOverlayTrigger(triggerElement, 'DropdownMenu')
+      validateOverlayTrigger(trigger.element(), 'DropdownMenu')
+    }
+  })
+
+  createEffect(() => {
+    if (merged.disabled && isOpen()) {
+      commitOpen(false)
     }
   })
 
@@ -217,7 +244,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onClose={() => {
           commitOpen(false)
         }}
-        triggerElement={triggerElement}
+        triggerElement={trigger.element()}
         placement={merged.placement}
         gutter={merged.gutter}
         autoFocusStrategy={autoFocusStrategy()}

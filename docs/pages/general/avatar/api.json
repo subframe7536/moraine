@@ -20,21 +20,54 @@
           "description": "Stores async loading, loaded, or error status."
         }
       ],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "image",
       "description": "Loaded avatar image rendered inside the frame.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "fallback",
       "description": "Text fallback shown while the image is unavailable or failed.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "fallbackIcon",

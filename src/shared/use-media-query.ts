@@ -1,14 +1,48 @@
-import { createSignal, onMount } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { useEventListener } from './use-event-listener.ts'
 
-export function createMediaQuery(query: string, defaultValue = false): Accessor<boolean> {
+export function createMediaQuery(
+  query: string | Accessor<string>,
+  defaultValue = false,
+): Accessor<boolean> {
   const [matches, setMatches] = createSignal(defaultValue)
-  onMount(() => {
-    const media = window.matchMedia(query)
-    setMatches(media.matches)
-    useEventListener(media, 'change', (e) => setMatches(e.matches))
+  createEffect(() => {
+    const resolvedQuery = (typeof query === 'function' ? query() : query).replace(
+      /^@media( ?)/m,
+      '',
+    )
+
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return
+    }
+
+    const media = window.matchMedia(resolvedQuery)
+    let active = true
+
+    queueMicrotask(() => {
+      if (active) {
+        setMatches(media.matches)
+      }
+    })
+
+    const onChange = (event: MediaQueryListEvent): void => {
+      setMatches(event.matches)
+    }
+
+    if (typeof media.addEventListener === 'function') {
+      useEventListener(media, 'change', onChange)
+    } else {
+      media.addListener(onChange)
+      onCleanup(() => {
+        media.removeListener(onChange)
+      })
+    }
+
+    onCleanup(() => {
+      active = false
+    })
   })
   return matches
 }

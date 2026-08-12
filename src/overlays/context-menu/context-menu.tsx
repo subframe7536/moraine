@@ -26,7 +26,11 @@ import type {
   OverlayMenuSharedSlots,
 } from '../base/menu/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { validateOverlayTrigger } from '../base/trigger.ts'
+import {
+  createOverlayTriggerRef,
+  getOverlayTriggerAccessibility,
+  validateOverlayTrigger,
+} from '../base/trigger.ts'
 
 export namespace ContextMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
@@ -66,6 +70,8 @@ type ContextMenuRuntimeProps = ContextMenuT.Base
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
+const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1_000
+const CONTEXT_MENU_SUPPRESSION_DELAY = 1_000
 
 function isTouchOrPen(pointerType: string): boolean {
   return pointerType === 'touch' || pointerType === 'pen'
@@ -132,13 +138,19 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
-  const [suppressNextContextMenu, setSuppressNextContextMenu] = createSignal(false)
+  const trigger = createOverlayTriggerRef()
   const resolvedOpen = createMemo(() => merged.open ?? uncontrolledOpen())
   const resolvedId = useId(() => merged.id, 'contextmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   let longPressTimeoutId = 0
+  let pointerEventGuardTimeoutId = 0
+  let suppressionTimeoutId = 0
+  let initiatingPointerId: number | undefined
   let longPressStartPoint: { x: number; y: number } | undefined
-  let triggerElement: HTMLElement | undefined
+  let longPressGestureBlocked = false
+  const activeLongPressPointers = new Set<number>()
+  let pointerEventGuard: { pointerId: number; pointerType: string } | undefined
+  let suppressedContextMenu: { pointerType: string; x: number; y: number } | undefined
 
   const commitOpen = (open: boolean): void => {
     if (!open) {
@@ -167,7 +179,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const openFromTriggerCenter = (strategy: OverlayMenuFocusStrategy): void => {
-    const rect = triggerElement?.getBoundingClientRect()
+    const rect = trigger.element()?.getBoundingClientRect()
 
     if (!rect) {
       openFromPoint(0, 0, strategy)
@@ -179,20 +191,44 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
 
   /** Consume the deferred native contextmenu event emitted after dismissing from right-click or long-press input. */
   const consumeSuppressedContextMenu = (event: MouseEvent): boolean => {
-    if (!suppressNextContextMenu()) {
+    const suppression = suppressedContextMenu
+    if (!suppression) {
       return false
     }
 
-    setSuppressNextContextMenu(false)
+    const eventPointerType =
+      typeof PointerEvent !== 'undefined' && event instanceof PointerEvent
+        ? event.pointerType
+        : undefined
+    const matchesPointerType = !eventPointerType || eventPointerType === suppression.pointerType
+    const matchesPoint =
+      Math.abs(event.clientX - suppression.x) <= 1 && Math.abs(event.clientY - suppression.y) <= 1
+
+    if (!matchesPointerType || !matchesPoint) {
+      return false
+    }
+
+    window.clearTimeout(suppressionTimeoutId)
+    suppressionTimeoutId = 0
+    suppressedContextMenu = undefined
     event.preventDefault()
     event.stopPropagation()
     return true
   }
 
+  const setContextMenuSuppression = (pointerType: string, x: number, y: number): void => {
+    window.clearTimeout(suppressionTimeoutId)
+    suppressedContextMenu = { pointerType, x, y }
+    suppressionTimeoutId = window.setTimeout(() => {
+      suppressionTimeoutId = 0
+      suppressedContextMenu = undefined
+    }, CONTEXT_MENU_SUPPRESSION_DELAY)
+  }
+
   /** Suppress the follow-up contextmenu event after dismissing from secondary click or long-press input. */
   const suppressContextMenuFromPointer = (event: PointerEvent): void => {
     if (isTouchOrPen(event.pointerType) || event.button === 2) {
-      setSuppressNextContextMenu(true)
+      setContextMenuSuppression(event.pointerType, event.clientX, event.clientY)
     }
   }
 
@@ -213,18 +249,39 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     window.clearTimeout(longPressTimeoutId)
     longPressTimeoutId = 0
     longPressStartPoint = undefined
+    initiatingPointerId = undefined
+  }
+
+  const setCompletingPointerEventGuard = (pointerId: number, pointerType: string): void => {
+    window.clearTimeout(pointerEventGuardTimeoutId)
+    pointerEventGuard = {
+      pointerId,
+      pointerType,
+    }
+    pointerEventGuardTimeoutId = window.setTimeout(() => {
+      pointerEventGuardTimeoutId = 0
+      pointerEventGuard = undefined
+    }, CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY)
   }
 
   onCleanup(() => {
     clearLongPressTimeout()
+    if (typeof window !== 'undefined') {
+      window.clearTimeout(pointerEventGuardTimeoutId)
+      window.clearTimeout(suppressionTimeoutId)
+    }
+    activeLongPressPointers.clear()
+    pointerEventGuard = undefined
+    suppressedContextMenu = undefined
   })
 
   const isPointerInsideTrigger = (event: MouseEvent): boolean => {
-    if (!triggerElement) {
+    const element = trigger.element()
+    if (!element) {
       return false
     }
 
-    const rect = triggerElement.getBoundingClientRect()
+    const rect = element.getBoundingClientRect()
 
     return (
       event.clientX >= rect.left &&
@@ -235,6 +292,22 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   onMount(() => {
+    useEventListener(
+      document,
+      'pointerdown',
+      (event) => {
+        const guard = pointerEventGuard
+        if (
+          guard &&
+          event.pointerId === guard.pointerId &&
+          event.pointerType === guard.pointerType
+        ) {
+          event.preventDefault()
+        }
+      },
+      true,
+    )
+
     const onDocumentContextMenuCapture = (event: MouseEvent): void => {
       if (consumeSuppressedContextMenu(event)) {
         return
@@ -245,7 +318,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       }
 
       const targetInsideTrigger =
-        event.target instanceof Node && Boolean(triggerElement?.contains(event.target))
+        event.target instanceof Node && Boolean(trigger.element()?.contains(event.target))
       const pointerInsideTrigger = isPointerInsideTrigger(event)
 
       // Let the trigger handler compose user callbacks for events targeted inside the trigger.
@@ -318,25 +391,40 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       return
     }
 
+    activeLongPressPointers.add(event.pointerId)
+    if (activeLongPressPointers.size > 1) {
+      longPressGestureBlocked = true
+      clearLongPressTimeout()
+      return
+    }
+
+    if (longPressGestureBlocked) {
+      return
+    }
+
     setAnchorPoint({ x: event.clientX, y: event.clientY })
+    initiatingPointerId = event.pointerId
     longPressStartPoint = { x: event.clientX, y: event.clientY }
+    const pointerId = event.pointerId
+    const pointerType = event.pointerType
 
-    const isUncontrolled = merged.open === undefined
-    const onOpenChange = merged.onOpenChange
-
+    // oxlint-disable-next-line subf/solid-reactivity -- The delayed commit must read the latest disabled and controlled props.
     longPressTimeoutId = window.setTimeout(() => {
       longPressTimeoutId = 0
-      longPressStartPoint = undefined
-
-      if (untrack(() => merged.disabled)) {
+      if (initiatingPointerId !== pointerId) {
         return
       }
 
-      if (isUncontrolled) {
-        setUncontrolledOpen(true)
+      const point = longPressStartPoint
+      initiatingPointerId = undefined
+      longPressStartPoint = undefined
+      if (!point || untrack(() => merged.disabled)) {
+        return
       }
 
-      onOpenChange?.(true)
+      setCompletingPointerEventGuard(pointerId, pointerType)
+      setContextMenuSuppression(pointerType, point.x, point.y)
+      openFromPoint(point.x, point.y)
     }, CONTEXT_MENU_LONG_PRESS_DELAY)
   }
 
@@ -350,7 +438,10 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       return
     }
 
-    if (hasLongPressMovedBeyondTolerance(longPressStartPoint, event)) {
+    if (
+      initiatingPointerId !== event.pointerId ||
+      hasLongPressMovedBeyondTolerance(longPressStartPoint, event)
+    ) {
       clearLongPressTimeout()
     }
   }
@@ -360,7 +451,13 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       return
     }
 
-    clearLongPressTimeout()
+    activeLongPressPointers.delete(event.pointerId)
+    if (initiatingPointerId === event.pointerId) {
+      clearLongPressTimeout()
+    }
+    if (activeLongPressPointers.size === 0) {
+      longPressGestureBlocked = false
+    }
   }
 
   const onPointerUp = (event: PointerEvent): void => {
@@ -368,7 +465,13 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       return
     }
 
-    clearLongPressTimeout()
+    activeLongPressPointers.delete(event.pointerId)
+    if (initiatingPointerId === event.pointerId) {
+      clearLongPressTimeout()
+    }
+    if (activeLongPressPointers.size === 0) {
+      longPressGestureBlocked = false
+    }
   }
 
   const getAnchorRect = (
@@ -396,6 +499,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
 
   const triggerRender = createMemo(() => merged.children)
   const triggerProps: OverlayTriggerProps = {
+    id: resolvedId(),
     get 'aria-controls'() {
       return resolvedOpen() ? contentId() : undefined
     },
@@ -413,9 +517,16 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       return resolvedOpen() ? '' : undefined
     },
     'data-slot': 'trigger',
-    tabIndex: 0,
-    ref: (element: HTMLElement | undefined) => {
-      triggerElement = element
+    ref: trigger.ref,
+    get disabled() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+    },
+    get 'aria-disabled'() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+        .ariaDisabled
+    },
+    get tabIndex() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
     },
     onContextMenu: (event: MouseEvent) => {
       if (event.defaultPrevented) {
@@ -455,7 +566,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
 
   onMount(() => {
     if (triggerRender()) {
-      validateOverlayTrigger(triggerElement, 'ContextMenu')
+      validateOverlayTrigger(trigger.element(), 'ContextMenu')
     }
   })
 
@@ -471,7 +582,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         onClose={() => {
           commitOpen(false)
         }}
-        triggerElement={triggerElement}
+        triggerElement={trigger.element()}
         getAnchorRect={getAnchorRect}
         placement={merged.placement}
         gutter={merged.gutter}

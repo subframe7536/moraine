@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onCleanup, onMount, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
@@ -10,10 +10,20 @@ import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { useId } from '../../shared/utils.ts'
 
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
-import { acquireBodyScrollLock, focusContent, focusTrigger, trapFocusInContainer } from './utils.ts'
+import {
+  acquireAriaHideOutside,
+  acquireBodyScrollLock,
+  createCompositionState,
+  createOutsidePressHandlers,
+  focusContent,
+  focusWithoutScrolling,
+  focusTrigger,
+  isComposingKeyEvent,
+  trapFocusInContainer,
+} from './utils.ts'
 
 export interface ModalContentContext {
   close: () => void
@@ -52,6 +62,7 @@ export interface ModalContentProps {
   ref?: (element: HTMLDivElement | undefined) => void
   contentRender: ComponentOrElement<ModalContentContext>
   contentAttributes?: Record<string, string | number | boolean | undefined>
+  ariaLabel?: string
   ariaLabelledBy?: string
   ariaDescribedBy?: string
   class?: string
@@ -95,6 +106,8 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
   const dismissEntry = { contentElement, triggerElement }
   let capturedTrigger: HTMLElement | undefined
+  let capturedRestoreTarget: HTMLElement | undefined
+  let lastFocusedElement: HTMLElement | undefined
   let wasPresent = false
 
   const updateOpen = (nextOpen: boolean): void => {
@@ -148,24 +161,130 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       return
     }
 
-    const release = pushOverlayLayer(dismissEntry)
-    capturedTrigger = triggerElement() ?? capturedTrigger
-
-    const isInside = (target: Node): boolean => {
-      if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
-        return true
-      }
-
-      return isInsideDescendantOverlay(dismissEntry, target)
+    const currentContent = contentElement()
+    if (!currentContent) {
+      return
     }
+
+    let active = true
+    let release: (() => void) | undefined
+    queueMicrotask(() => {
+      if (active && currentContent.isConnected) {
+        release = acquireAriaHideOutside(currentContent)
+      }
+    })
+
+    onCleanup(() => {
+      active = false
+      release?.()
+    })
+  })
+
+  createEffect(() => {
+    if (!isPresent() || typeof document === 'undefined') {
+      return
+    }
+
+    const release = pushOverlayLayer(dismissEntry)
+    capturedTrigger = untrack(triggerElement)
+    const activeElement = document.activeElement
+    capturedRestoreTarget =
+      capturedTrigger ??
+      (activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : undefined)
+    lastFocusedElement = undefined
+
+    const isInside = (target: Node): boolean => isInsideOverlayLayer(dismissEntry, target)
+
+    const composition = createCompositionState()
+    const outsidePress = createOutsidePressHandlers({
+      isInside,
+      isEnabled: () => isTopOverlay(dismissEntry),
+      onPress: (event) => {
+        if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
+          return
+        }
+
+        if (dismissible()) {
+          event.preventDefault()
+          updateOpen(false)
+          return
+        }
+
+        event.preventDefault()
+        props.onClosePrevent?.()
+      },
+    })
 
     const onDocumentPointerDown = (event: PointerEvent): void => {
       const target = event.target
+      const currentContent = contentElement()
+      if (
+        target instanceof Node &&
+        currentContent &&
+        (currentContent.contains(target) || event.composedPath().includes(currentContent))
+      ) {
+        queueMicrotask(() => {
+          untrack(() => {
+            if (!isPresent() || !isTopOverlay(dismissEntry) || !currentContent.isConnected) {
+              return
+            }
 
-      if (!(target instanceof Node) || isInside(target)) {
+            const activeElement = document.activeElement
+            if (activeElement instanceof Node && currentContent.contains(activeElement)) {
+              return
+            }
+
+            if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
+              focusWithoutScrolling(lastFocusedElement)
+            } else {
+              focusContent(currentContent)
+            }
+          })
+        })
+      }
+
+      outsidePress.pointerdown(event)
+    }
+
+    const onDocumentFocusIn = (event: FocusEvent): void => {
+      const target = event.target
+
+      if (!(target instanceof Node) || !isTopOverlay(dismissEntry)) {
         return
       }
-      if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
+
+      const currentContent = contentElement()
+      if (target instanceof HTMLElement && currentContent?.contains(target)) {
+        lastFocusedElement = target
+        return
+      }
+
+      if (isInside(target)) {
+        return
+      }
+
+      queueMicrotask(() => {
+        if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
+          focusWithoutScrolling(lastFocusedElement)
+        } else {
+          focusContent(currentContent)
+        }
+      })
+
+      if (!dismissible()) {
+        props.onClosePrevent?.()
+      }
+    }
+
+    const onDocumentKeyDown = (event: KeyboardEvent): void => {
+      if (
+        event.key !== 'Escape' ||
+        isComposingKeyEvent(event, composition) ||
+        !isTopOverlay(dismissEntry) ||
+        event.defaultPrevented
+      ) {
         return
       }
 
@@ -179,50 +298,33 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       props.onClosePrevent?.()
     }
 
-    const onDocumentFocusIn = (event: FocusEvent): void => {
-      const target = event.target
-
-      if (!(target instanceof Node) || isInside(target) || !isTopOverlay(dismissEntry)) {
-        return
-      }
-
-      const currentContent = contentElement()
-      queueMicrotask(() => {
-        focusContent(currentContent)
-      })
-
-      if (!dismissible()) {
-        props.onClosePrevent?.()
-      }
-    }
-
-    const onDocumentKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape' || !isTopOverlay(dismissEntry) || event.defaultPrevented) {
-        return
-      }
-
-      if (dismissible()) {
-        updateOpen(false)
-        return
-      }
-
-      event.preventDefault()
-      props.onClosePrevent?.()
-    }
-
-    useEventListenerMap(
-      document,
-      {
-        pointerdown: onDocumentPointerDown,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-      },
-      true,
-    )
+    useEventListenerMap(document, {
+      pointerdown: onDocumentPointerDown,
+      pointermove: outsidePress.pointermove,
+      pointerup: outsidePress.pointerup,
+      pointercancel: outsidePress.pointercancel,
+      focusin: onDocumentFocusIn,
+      keydown: onDocumentKeyDown,
+      compositionstart: composition.onCompositionStart,
+      compositionend: composition.onCompositionEnd,
+    })
 
     onCleanup(() => {
       release()
-      focusTrigger(capturedTrigger)
+      const trigger = capturedTrigger
+      const restoreTarget = capturedRestoreTarget
+
+      queueMicrotask(() => {
+        untrack(() => {
+          if (isPresent() || focusTrigger(trigger)) {
+            return
+          }
+
+          if (restoreTarget !== trigger) {
+            focusTrigger(restoreTarget)
+          }
+        })
+      })
     })
   })
 
@@ -297,6 +399,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
         id={context.contentId()}
         role="dialog"
         aria-modal="true"
+        aria-label={props.ariaLabel}
         aria-labelledby={props.ariaLabelledBy}
         aria-describedby={props.ariaDescribedBy}
         tabIndex={-1}
@@ -315,7 +418,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <Show when={context.isPresent()}>
       <Portal>
-        <Show when={props.overlay && context.overlayPresence.present()} fallback={renderSurface()}>
+        <Show when={props.overlay} fallback={renderSurface()}>
           <div
             data-slot="overlay"
             {...context.overlayPresence.dataAttrs()}

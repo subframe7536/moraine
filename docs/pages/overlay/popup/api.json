@@ -28,6 +28,12 @@
           "description": "References descriptive text associated with the control."
         },
         {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
           "name": "aria-labelledby",
           "required": false,
           "type": "boolean | string | undefined",
@@ -46,10 +52,30 @@
           "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
+    },
+    {
+      "name": "title",
+      "description": "Accessible title rendered inside the popup content panel.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "description",
+      "description": "Supporting text associated with the popup title.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
     "own": [
+      {
+        "name": "ariaLabel",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Accessible name used when the popup has no rendered title."
+      },
       {
         "name": "children",
         "required": false,
@@ -72,6 +98,12 @@
         "required": false,
         "type": "boolean | undefined",
         "description": "Initial open state when uncontrolled."
+      },
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Supporting text rendered below the title."
       },
       {
         "name": "dismissible",
@@ -138,6 +170,12 @@
         "name": "styles",
         "required": false,
         "type": "PopupT.Styles | undefined"
+      },
+      {
+        "name": "title",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Accessible title rendered inside the content surface."
       }
     ],
     "inherited": []

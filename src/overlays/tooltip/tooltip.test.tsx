@@ -1,11 +1,13 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
 import { Tooltip } from './tooltip.tsx'
-import type { TooltipProps } from './tooltip.tsx'
+import type { TooltipProps, TooltipT } from './tooltip.tsx'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -223,6 +225,205 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Tooltip content')
   })
 
+  test('ignores touch and pen hover before accepting mouse hover', async () => {
+    vi.useFakeTimers()
+    const screen = render(() => (
+      <Tooltip openDelay={50} text="Mouse tooltip">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Tooltip>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
+    await fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Mouse tooltip')
+  })
+
+  test('invalidates pending open and closes resolved state when disabled changes', async () => {
+    vi.useFakeTimers()
+    const [disabled, setDisabled] = createSignal(false)
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Tooltip
+        disabled={disabled()}
+        openDelay={50}
+        onOpenChange={onOpenChange}
+        text="Disabled tooltip"
+      >
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Tooltip>
+    ))
+    const trigger = screen.getByRole('button')
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    setDisabled(true)
+    setDisabled(false)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
+
+    setDisabled(true)
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    const closingTooltip = document.body.querySelector('[role="tooltip"]')
+    expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)
+    await fireEvent.animationEnd(closingTooltip!)
+    await fireEvent.transitionEnd(closingTooltip!)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+  })
+
+  test('emits each controlled close attempt exactly once', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Tooltip open closeDelay={50} onOpenChange={onOpenChange} text="Controlled tooltip">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Tooltip>
+    ))
+
+    await fireEvent.pointerLeave(screen.getByRole('button'), { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('does not coordinate globally from a rejected controlled open', async () => {
+    vi.useFakeTimers()
+    const onFirstOpenChange = vi.fn()
+    const screen = render(() => (
+      <div>
+        <Tooltip
+          open={false}
+          openDelay={50}
+          onOpenChange={onFirstOpenChange}
+          text="Rejected tooltip"
+        >
+          {(props) => (
+            <button {...props} type="button">
+              Rejected
+            </button>
+          )}
+        </Tooltip>
+        <Tooltip openDelay={100} text="Second tooltip">
+          {(props) => (
+            <button {...props} type="button">
+              Second
+            </button>
+          )}
+        </Tooltip>
+      </div>
+    ))
+
+    await fireEvent.pointerEnter(screen.getByText('Rejected'), { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onFirstOpenChange).toHaveBeenCalledTimes(1)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+
+    await fireEvent.pointerEnter(screen.getByText('Second'), { pointerType: 'mouse' })
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    await vi.advanceTimersByTimeAsync(99)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Second tooltip')
+  })
+
+  test('isolates global coordination after an owner is disposed', async () => {
+    vi.useFakeTimers()
+    const first = render(() => (
+      <Tooltip openDelay={10} text="First tooltip">
+        {(props) => (
+          <button {...props} type="button">
+            First
+          </button>
+        )}
+      </Tooltip>
+    ))
+
+    await fireEvent.pointerEnter(first.getByRole('button'), { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(10)
+    first.unmount()
+
+    const second = render(() => (
+      <Tooltip openDelay={50} text="Second tooltip">
+        {(props) => (
+          <button {...props} type="button">
+            Second
+          </button>
+        )}
+      </Tooltip>
+    ))
+    await fireEvent.pointerEnter(second.getByRole('button'), { pointerType: 'mouse' })
+
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    await vi.advanceTimersByTimeAsync(49)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Second tooltip')
+  })
+
+  test('uses unique description ids across independent owners', () => {
+    const first = render(() => (
+      <Tooltip open text="First tooltip">
+        {(props) => <button {...props}>First</button>}
+      </Tooltip>
+    ))
+    const second = render(() => (
+      <Tooltip open text="Second tooltip">
+        {(props) => <button {...props}>Second</button>}
+      </Tooltip>
+    ))
+
+    const firstId = first.getByRole('button').getAttribute('aria-describedby')
+    const secondId = second.getByRole('button').getAttribute('aria-describedby')
+    expect(firstId).toBeTruthy()
+    expect(secondId).toBeTruthy()
+    expect(firstId).not.toBe(secondId)
+    expect(document.getElementById(firstId!)).not.toBeNull()
+    expect(document.getElementById(secondId!)).not.toBeNull()
+  })
+
+  test('evaluates getter-backed trigger and text values once', () => {
+    let triggerReads = 0
+    let textReads = 0
+
+    render(() =>
+      createComponent(Tooltip, {
+        open: true,
+        get children() {
+          triggerReads += 1
+          return (props: TooltipT.TriggerProps) => <button {...props}>Trigger</button>
+        },
+        get text() {
+          textReads += 1
+          return <span>Cached tooltip</span>
+        },
+      }),
+    )
+
+    expect(triggerReads).toBe(1)
+    expect(textReads).toBe(1)
+  })
+
   test('opens the next tooltip immediately and closes the previous tooltip', async () => {
     vi.useFakeTimers()
 
@@ -403,5 +604,45 @@ describe('Tooltip', () => {
 
     await vi.advanceTimersByTimeAsync(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
+  })
+
+  test('hydrates closed JSX and opens it from keyboard focus', async () => {
+    vi.useFakeTimers()
+    const markup = renderSsrFixture(
+      '/src/overlays/tooltip/tooltip.ssr.fixture.tsx',
+      'renderTooltipFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverTrigger = container.querySelector('[data-slot="trigger"]')
+    const restoreHydrationState = installHydrationState()
+    const dispose = hydrate(
+      () => (
+        <Tooltip openDelay={50} text={<span>Hydrated tooltip</span>} kbds={['Ctrl', 'K']}>
+          {(props) => (
+            <button {...props} type="button">
+              Trigger
+            </button>
+          )}
+        </Tooltip>
+      ),
+      container,
+    )
+    const trigger = container.querySelector('[data-slot="trigger"]')!
+
+    expect(trigger).toBe(serverTrigger)
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+
+    await fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain(
+      'Hydrated tooltip',
+    )
+    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Ctrl')
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 })

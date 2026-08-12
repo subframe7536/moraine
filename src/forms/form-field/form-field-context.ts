@@ -1,6 +1,6 @@
 import type { FieldStore, RequiredPath } from '@formisch/solid'
 import type { Accessor, JSX } from 'solid-js'
-import { createMemo, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
 
@@ -22,6 +22,9 @@ export interface FormFieldContextOptions {
   description?: JSX.Element
   help?: JSX.Element
   ariaId: string
+  labelId?: string
+  required?: boolean
+  ariaAttrs?: Accessor<Record<string, string | boolean | undefined>>
   controlId?: string
   registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
 }
@@ -31,6 +34,7 @@ export interface UseFormFieldProps {
   name?: string
   size?: FormFieldSize
   disabled?: boolean
+  required?: boolean
 }
 
 export interface UseFormFieldOptions {
@@ -47,6 +51,7 @@ export interface UseFormFieldReturn {
   value: Accessor<unknown>
   size: Accessor<FormFieldSize>
   disabled: Accessor<boolean>
+  required: Accessor<boolean>
   invalid: Accessor<boolean>
   ariaAttrs: Accessor<Record<string, string | boolean | undefined>>
   runtimeState: Accessor<FormFieldRuntimeState>
@@ -82,14 +87,30 @@ export function useFormField(
     onCleanup(unregister)
   }
 
-  const id = createMemo(() => fieldProps().id ?? formField?.controlId ?? options().defaultId)
+  const id = localId
   const name = createMemo(
     () => fieldProps().name ?? formField?.field?.props.name ?? formField?.name,
   )
   const value = createMemo(() => formField?.field?.input)
   const size = createMemo(() => fieldProps().size ?? formField?.size ?? options().defaultSize)
   const disabled = createMemo(() => Boolean(fieldProps().disabled))
-  const invalid = createMemo(() => Boolean(formField?.error))
+  const required = createMemo(() => fieldProps().required ?? Boolean(formField?.required))
+  const invalid = createMemo(() => {
+    const error = formField?.error
+    return error !== undefined && error !== null && error !== false && error !== ''
+  })
+
+  createEffect(() => {
+    const field = formField?.field
+    if (!field || !bind()) {
+      return
+    }
+
+    const element = document.getElementById(id())
+    if (element) {
+      field.props.ref(element as HTMLInputElement)
+    }
+  })
 
   onMount(() => {
     const field = formField?.field
@@ -116,16 +137,8 @@ export function useFormField(
     if (!formField) {
       return options().defaultAriaAttrs ?? {}
     }
-    const describedBy = [
-      formField.error ? `${formField.ariaId}-error` : undefined,
-      formField.hint ? `${formField.ariaId}-hint` : undefined,
-      formField.description ? `${formField.ariaId}-description` : undefined,
-      formField.help ? `${formField.ariaId}-help` : undefined,
-    ].filter(Boolean)
-    return {
-      'aria-invalid': Boolean(formField.error) || undefined,
-      'aria-describedby': describedBy.length > 0 ? describedBy.join(' ') : undefined,
-    }
+
+    return formField.ariaAttrs?.() ?? {}
   })
 
   function setFormValue(value: unknown): void {
@@ -134,7 +147,7 @@ export function useFormField(
 
   function emit(type: 'blur' | 'change' | 'focus' | 'input', event?: Event): void {
     const field = formField?.field
-    if (!field || !event) {
+    if (!field) {
       return
     }
     if (type === 'blur') {
@@ -143,7 +156,22 @@ export function useFormField(
     if (type === 'focus') {
       field.props.onFocus(event as Parameters<typeof field.props.onFocus>[0])
     }
+    if (type === 'change') {
+      field.props.onChange(event as Parameters<typeof field.props.onChange>[0])
+    }
   }
 
-  return { id, name, value, size, disabled, invalid, ariaAttrs, runtimeState, setFormValue, emit }
+  return {
+    id,
+    name,
+    value,
+    size,
+    disabled,
+    required,
+    invalid,
+    ariaAttrs,
+    runtimeState,
+    setFormValue,
+    emit,
+  }
 }

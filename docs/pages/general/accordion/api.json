@@ -34,14 +34,7 @@
       "description": "Heading row that contains the interactive trigger for an item.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "trigger",

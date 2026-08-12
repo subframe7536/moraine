@@ -1,7 +1,11 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Button } from './button.tsx'
 
@@ -49,6 +53,27 @@ describe('Button', () => {
 
     expect(onPointerDown).toHaveBeenCalledTimes(1)
     expect(button.getAttribute('data-slot')).toBe('save')
+  })
+
+  test('forwards pointer completion, cancellation, leave, and context-menu handlers', async () => {
+    const handlers = {
+      onContextMenu: vi.fn(),
+      onPointerCancel: vi.fn(),
+      onPointerLeave: vi.fn(),
+      onPointerUp: vi.fn(),
+    }
+    const screen = render(() => <Button {...handlers}>Events</Button>)
+    const button = screen.getByRole('button', { name: 'Events' })
+
+    await fireEvent.pointerUp(button)
+    await fireEvent.pointerCancel(button)
+    await fireEvent.pointerLeave(button)
+    await fireEvent.contextMenu(button)
+
+    expect(handlers.onPointerUp).toHaveBeenCalledTimes(1)
+    expect(handlers.onPointerCancel).toHaveBeenCalledTimes(1)
+    expect(handlers.onPointerLeave).toHaveBeenCalledTimes(1)
+    expect(handlers.onContextMenu).toHaveBeenCalledTimes(1)
   })
 
   test('supports anchor rendering via as prop', () => {
@@ -173,6 +198,16 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-star')
+  })
+
+  test('keeps icon-only buttons named by the caller and hides the glyph', () => {
+    const screen = render(() => (
+      <Button size="icon-md" leading="i-lucide-search" aria-label="Search" />
+    ))
+    const button = screen.getByRole('button', { name: 'Search' })
+
+    expect(button.querySelector('[data-slot="label"]')).toBeNull()
+    expect(button.querySelector('[data-slot="leading"]')?.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('renders leading and trailing content in normal state', () => {
@@ -329,6 +364,13 @@ describe('Button', () => {
     expect(button.querySelector('[data-slot="label"]')).toBeNull()
   })
 
+  test('renders zero as label content', () => {
+    const screen = render(() => <Button>{0}</Button>)
+    const button = screen.getByRole('button', { name: '0' })
+
+    expect(button.querySelector('[data-slot="label"]')?.textContent).toBe('0')
+  })
+
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
       <Button loading loadingIcon="i-lucide-loader-circle">
@@ -432,6 +474,26 @@ describe('Button', () => {
     })
   })
 
+  test('suppresses repeated activation while an automatic action is pending', async () => {
+    const deferred = createDeferred()
+    const onClick = vi.fn(() => deferred.promise)
+    const screen = render(() => (
+      <Button loadingAuto onClick={onClick}>
+        Submit once
+      </Button>
+    ))
+    const button = screen.getByRole('button', { name: 'Submit once' })
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(button.hasAttribute('disabled')).toBe(true)
+
+    deferred.resolve()
+    await waitFor(() => expect(button.hasAttribute('disabled')).toBe(false))
+  })
+
   test('updates component children during auto loading lifecycle', async () => {
     const deferred = createDeferred()
     const onclick = vi.fn(() => deferred.promise)
@@ -515,7 +577,7 @@ describe('Button', () => {
       expect(onclick).toHaveBeenCalledTimes(1)
     })
 
-    test('activates on Space key for div with role=button', async () => {
+    test('activates on Space keyup for div with role=button without scrolling', async () => {
       const onclick = vi.fn()
       const screen = render(() => (
         <Button as="div" onClick={onclick}>
@@ -525,9 +587,58 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyDown(button, { key: ' ' })
+      const keyDown = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
+      button.dispatchEvent(keyDown)
+
+      expect(keyDown.defaultPrevented).toBe(true)
+      expect(onclick).not.toHaveBeenCalled()
+
+      await fireEvent.keyUp(button, { key: ' ' })
+      expect(onclick).toHaveBeenCalledTimes(1)
+    })
+
+    test('does not activate Space keyup without an eligible keydown', async () => {
+      const onclick = vi.fn()
+      const screen = render(() => (
+        <Button as="div" onClick={onclick}>
+          Click me
+        </Button>
+      ))
+      const button = screen.getByRole('button', { name: 'Click me' })
+
+      await fireEvent.keyUp(button, { key: ' ' })
+
+      expect(onclick).not.toHaveBeenCalled()
+    })
+
+    test('preserves keyboard modifiers on the dispatched click', async () => {
+      const onclick = vi.fn()
+      const screen = render(() => (
+        <Button as="div" onClick={onclick}>
+          Click me
+        </Button>
+      ))
+      const button = screen.getByRole('button', { name: 'Click me' })
+
+      await fireEvent.keyDown(button, { key: 'Enter', shiftKey: true, metaKey: true })
 
       expect(onclick).toHaveBeenCalledTimes(1)
+      expect(onclick.mock.calls[0]?.[0]).toMatchObject({ shiftKey: true, metaKey: true, detail: 0 })
+    })
+
+    test('ignores keyboard events bubbling from nested interactive content', async () => {
+      const onclick = vi.fn()
+      const screen = render(() => (
+        <Button as="div" onClick={onclick}>
+          <span data-testid="nested">Nested</span>
+        </Button>
+      ))
+
+      await fireEvent.keyDown(screen.getByTestId('nested'), { key: 'Enter' })
+      await fireEvent.keyDown(screen.getByTestId('nested'), { key: ' ' })
+      await fireEvent.keyUp(screen.getByTestId('nested'), { key: ' ' })
+
+      expect(onclick).not.toHaveBeenCalled()
     })
 
     test('does not activate on other keys for non-native button', async () => {
@@ -610,11 +721,8 @@ describe('Button', () => {
       expect(onclick).not.toHaveBeenCalled()
     })
 
-    test('prevents default pointer action when disabled for non-native button', async () => {
-      const onpointerdown = vi.fn((e: PointerEvent) => {
-        // The handler is called, but default should be prevented
-        expect(e.defaultPrevented).toBe(true)
-      })
+    test('prevents default pointer action without calling handlers when disabled', () => {
+      const onpointerdown = vi.fn()
       const screen = render(() => (
         <Button as="div" disabled onPointerDown={onpointerdown}>
           Disabled
@@ -623,9 +731,28 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Disabled' })
 
-      await fireEvent.pointerDown(button)
+      const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+      button.dispatchEvent(event)
 
-      expect(onpointerdown).toHaveBeenCalledTimes(1)
+      expect(event.defaultPrevented).toBe(true)
+      expect(onpointerdown).not.toHaveBeenCalled()
+    })
+
+    test('suppresses native-root handlers after becoming disabled', () => {
+      const onkeydown = vi.fn()
+      const onpointerdown = vi.fn()
+      const screen = render(() => (
+        <Button disabled onKeyDown={onkeydown} onPointerDown={onpointerdown}>
+          Disabled
+        </Button>
+      ))
+      const button = screen.getByRole('button', { name: 'Disabled' })
+
+      button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      button.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
+
+      expect(onkeydown).not.toHaveBeenCalled()
+      expect(onpointerdown).not.toHaveBeenCalled()
     })
 
     test('removes tabIndex when disabled for non-native button', () => {
@@ -683,6 +810,174 @@ describe('Button', () => {
       expect(onkeydown).toHaveBeenCalledTimes(1)
       expect(onclick).not.toHaveBeenCalled()
     })
+
+    test('prevents Space activation when keydown or keyup is canceled', async () => {
+      const onClickFromKeyDown = vi.fn()
+      const keyDownScreen = render(() => (
+        <Button
+          as="div"
+          onKeyDown={(event: KeyboardEvent) => event.preventDefault()}
+          onClick={onClickFromKeyDown}
+        >
+          Keydown canceled
+        </Button>
+      ))
+      const keyDownButton = keyDownScreen.getByRole('button', { name: 'Keydown canceled' })
+
+      await fireEvent.keyDown(keyDownButton, { key: ' ' })
+      await fireEvent.keyUp(keyDownButton, { key: ' ' })
+      expect(onClickFromKeyDown).not.toHaveBeenCalled()
+
+      const onClickFromKeyUp = vi.fn()
+      const keyUpScreen = render(() => (
+        <Button
+          as="div"
+          onKeyUp={(event: KeyboardEvent) => event.preventDefault()}
+          onClick={onClickFromKeyUp}
+        >
+          Keyup canceled
+        </Button>
+      ))
+      const keyUpButton = keyUpScreen.getByRole('button', { name: 'Keyup canceled' })
+
+      await fireEvent.keyDown(keyUpButton, { key: ' ' })
+      await fireEvent.keyUp(keyUpButton, { key: ' ' })
+      expect(onClickFromKeyUp).not.toHaveBeenCalled()
+    })
+
+    test('calls the keyup handler before Space activation', async () => {
+      const order: Array<string> = []
+      const screen = render(() => (
+        <Button as="div" onKeyUp={() => order.push('keyup')} onClick={() => order.push('click')}>
+          Ordered
+        </Button>
+      ))
+      const button = screen.getByRole('button', { name: 'Ordered' })
+
+      await fireEvent.keyDown(button, { key: ' ' })
+      await fireEvent.keyUp(button, { key: ' ' })
+
+      expect(order).toEqual(['keyup', 'click'])
+    })
+  })
+
+  test('applies non-native button semantics to a custom component without href', async () => {
+    const CustomRoot = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
+    const onclick = vi.fn()
+    const screen = render(() => (
+      <Button as={CustomRoot} onClick={onclick}>
+        Custom
+      </Button>
+    ))
+    const button = screen.getByRole('button', { name: 'Custom' })
+
+    expect(button.tagName).toBe('SPAN')
+    expect(button.getAttribute('tabindex')).toBe('0')
+    await fireEvent.keyDown(button, { key: 'Enter' })
+    expect(onclick).toHaveBeenCalledTimes(1)
+  })
+
+  test('updates native and non-native semantics when the root tag changes', () => {
+    const [tag, setTag] = createSignal<'button' | 'div'>('button')
+    const screen = render(() => <Button as={tag()}>Reactive root</Button>)
+
+    expect(screen.getByRole('button', { name: 'Reactive root' }).tagName).toBe('BUTTON')
+
+    setTag('div')
+    const root = screen.getByRole('button', { name: 'Reactive root' })
+    expect(root.tagName).toBe('DIV')
+    expect(root.getAttribute('tabindex')).toBe('0')
+    expect(root.hasAttribute('disabled')).toBe(false)
+  })
+
+  test('preserves caller role and tab order on an enabled non-native root', () => {
+    const screen = render(() => (
+      <Button as="div" role="menuitem" tabIndex={-1}>
+        Menu action
+      </Button>
+    ))
+    const button = screen.getByRole('menuitem', { name: 'Menu action' })
+
+    expect(button.getAttribute('tabindex')).toBe('-1')
+  })
+
+  test.each([undefined, ''] as const)(
+    'keeps anchor href=%s link semantics without Space activation',
+    async (href) => {
+      const onClick = vi.fn()
+      const screen = render(() => (
+        <Button as="a" href={href} onClick={onClick}>
+          Link semantics
+        </Button>
+      ))
+      const root = screen.container.querySelector('[data-slot="root"]')!
+
+      if (href === undefined) {
+        expect(root.getAttribute('role')).toBe('button')
+        return
+      }
+
+      expect(root.getAttribute('role')).toBeNull()
+      const keyDown = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
+      root.dispatchEvent(keyDown)
+      await fireEvent.keyUp(root, { key: ' ' })
+
+      expect(keyDown.defaultPrevented).toBe(false)
+      expect(onClick).not.toHaveBeenCalled()
+    },
+  )
+
+  test('hydrates render children and preserves activation across loading updates', async () => {
+    const markup = renderSsrFixture(
+      '/src/elements/button/button.ssr.fixture.tsx',
+      'renderButtonFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const [loading, setLoading] = createSignal(false)
+    const onClick = vi.fn()
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Button
+          loading={loading()}
+          leading="i-lucide-save"
+          trailing="i-lucide-arrow-right"
+          onClick={onClick}
+        >
+          {(state) => (
+            <Show when={state.loading} fallback="Save">
+              Saving
+            </Show>
+          )}
+        </Button>
+      ),
+      container,
+    )
+    const button = container.querySelector('[data-slot="root"]')!
+
+    expect(button).toBe(serverRoot)
+    expect(button.textContent).toBe('Save')
+    await fireEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(1)
+
+    setLoading(true)
+    expect(button.textContent).toBe('Saving')
+    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+    button.dispatchEvent(pointerDown)
+    await fireEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(1)
+
+    setLoading(false)
+    await fireEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(2)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 
   describe('anchor rendering compatibility', () => {

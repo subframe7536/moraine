@@ -1,8 +1,17 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, onCleanup, splitProps } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd/index.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
@@ -182,15 +191,22 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     local,
   )
-  const text = createMemo(() => merged.text)
-
   const tooltipId = useId(() => merged.id, 'tooltip')
+  const [open, setOpen] = useControllableValue<boolean>({
+    value: () => merged.open,
+    defaultValue: () => merged.defaultOpen ?? false,
+  })
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
+  let ownerAlive = true
+  let timerVersion = 0
+  let wasResolvedOpen = false
+  let disabledInitialized = false
+  let wasDisabled = false
 
   onCleanup(() => {
-    clearTimeout(timers.open)
-    clearTimeout(timers.close)
+    ownerAlive = false
+    invalidateTimers()
     clearActiveTooltip(tooltipId())
     clearSkipDelay(tooltipId())
   })
@@ -205,27 +221,34 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     timers.close = undefined
   }
 
-  function closeImmediately(close: () => void): void {
+  function invalidateTimers(): void {
+    timerVersion += 1
     clearOpenTimer()
     clearCloseTimer()
-    setShouldUseInstantMotion(true)
-    close()
-    clearActiveTooltip(tooltipId())
   }
 
-  function openTooltip(open: () => void, close: () => void, instantMotion: boolean): void {
+  function requestOpen(nextOpen: boolean): void {
+    setOpen(nextOpen)
+    merged.onOpenChange?.(nextOpen)
+  }
+
+  function closeImmediately(): void {
+    invalidateTimers()
+    setShouldUseInstantMotion(true)
+    requestOpen(false)
+
+    if (open()) {
+      setShouldUseInstantMotion(false)
+    }
+  }
+
+  function requestTooltipOpen(openTooltip: () => void, instantMotion: boolean): void {
     clearOpenTimer()
     setShouldUseInstantMotion(instantMotion)
-    setActiveTooltip({
-      id: tooltipId(),
-      close: () => {
-        closeImmediately(close)
-      },
-    })
-    open()
+    openTooltip()
   }
 
-  function scheduleOpen(open: () => void, close: () => void, isOpen: boolean): void {
+  function scheduleOpen(openTooltip: () => void, isOpen: boolean): void {
     if (merged.disabled) {
       return
     }
@@ -238,53 +261,94 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
 
     if (shouldOpenImmediately()) {
-      openTooltip(open, close, true)
+      requestTooltipOpen(openTooltip, true)
       return
     }
 
     if (merged.openDelay <= 0) {
-      openTooltip(open, close, false)
+      requestTooltipOpen(openTooltip, false)
       return
     }
 
     setShouldUseInstantMotion(false)
+    const version = ++timerVersion
     timers.open = setTimeout(() => {
-      openTooltip(open, close, false)
+      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+        return
+      }
+
+      requestTooltipOpen(openTooltip, false)
     }, merged.openDelay)
   }
 
   function scheduleClose(close: () => void, isOpen: boolean): void {
     clearOpenTimer()
 
-    if (merged.open === true) {
-      clearCloseTimer()
-      return
-    }
-
     if (!isOpen) {
       setShouldUseInstantMotion(false)
       return
     }
 
-    startSkipDelay(tooltipId(), merged.instantOpenDelay)
     clearCloseTimer()
 
     if (merged.closeDelay <= 0) {
       setShouldUseInstantMotion(false)
       close()
-      clearActiveTooltip(tooltipId())
       return
     }
 
+    const version = ++timerVersion
     timers.close = setTimeout(() => {
+      if (!ownerAlive || version !== timerVersion || merged.disabled) {
+        return
+      }
+
       setShouldUseInstantMotion(false)
       close()
-      clearActiveTooltip(tooltipId())
       clearCloseTimer()
     }, merged.closeDelay)
   }
 
+  createEffect(() => {
+    const disabled = Boolean(merged.disabled)
+
+    if (disabledInitialized && disabled && !wasDisabled) {
+      invalidateTimers()
+      setShouldUseInstantMotion(false)
+
+      if (open()) {
+        requestOpen(false)
+      }
+    }
+
+    wasDisabled = disabled
+    disabledInitialized = true
+  })
+
+  createEffect(() => {
+    const isResolvedOpen = Boolean(open()) && !merged.disabled
+
+    if (isResolvedOpen) {
+      if (!wasResolvedOpen) {
+        setActiveTooltip({
+          id: tooltipId(),
+          close: closeImmediately,
+        })
+      }
+
+      wasResolvedOpen = true
+      return
+    }
+
+    if (wasResolvedOpen) {
+      wasResolvedOpen = false
+      clearActiveTooltip(tooltipId())
+      startSkipDelay(tooltipId(), merged.instantOpenDelay)
+    }
+  })
+
   function Content(context: PopperContentContext): JSX.Element {
+    const text = createMemo(() => merged.text)
     const resolvedSide = createMemo<OverlayMenuSide>(() => {
       const runtimePlacement = context.currentPlacement()
 
@@ -340,15 +404,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   return (
     <PopperRoot
       id={tooltipId()}
-      open={merged.open}
-      defaultOpen={merged.defaultOpen}
-      onOpenChange={(open) => {
-        if (!open) {
-          clearActiveTooltip(tooltipId())
-        }
-
-        merged.onOpenChange?.(open)
-      }}
+      open={open()}
+      onOpenChange={requestOpen}
       disabled={merged.disabled}
       placement={merged.placement ?? 'top'}
       forceMount={merged.forceMount}
@@ -359,23 +416,31 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       describeTrigger
       transitionMode={shouldUseInstantMotion() ? 'none' : 'both'}
       onTriggerFocus={(props) => {
-        scheduleOpen(props.open, props.close, props.isOpen)
+        scheduleOpen(props.open, props.isOpen)
       }}
       onTriggerBlur={(props) => {
         scheduleClose(props.close, props.isOpen)
       }}
-      onTriggerPointerEnter={(props) => {
-        scheduleOpen(props.open, props.close, props.isOpen)
+      onTriggerPointerEnter={(props, event) => {
+        if (event.pointerType === 'mouse' || !event.pointerType) {
+          scheduleOpen(props.open, props.isOpen)
+        }
       }}
-      onTriggerPointerLeave={(props) => {
-        scheduleClose(props.close, props.isOpen)
+      onTriggerPointerLeave={(props, event) => {
+        if (event.pointerType === 'mouse' || !event.pointerType) {
+          scheduleClose(props.close, props.isOpen)
+        }
       }}
-      onContentPointerEnter={() => {
-        clearCloseTimer()
-        clearSkipDelay(tooltipId())
+      onContentPointerEnter={(_, event) => {
+        if (event.pointerType === 'mouse' || !event.pointerType) {
+          clearCloseTimer()
+          clearSkipDelay(tooltipId())
+        }
       }}
-      onContentPointerLeave={(props) => {
-        scheduleClose(props.close, props.isOpen)
+      onContentPointerLeave={(props, event) => {
+        if (event.pointerType === 'mouse' || !event.pointerType) {
+          scheduleClose(props.close, props.isOpen)
+        }
       }}
     >
       <PopperTrigger children={merged.children} describeTrigger toggleOnClick={false} />

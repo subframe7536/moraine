@@ -186,6 +186,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   const shouldRenderContent = createMemo(
     () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
   )
+  const triggerRender = createMemo(() => props.triggerRender)
 
   function setOpen(nextOpen: boolean): void {
     if (disabled() || nextOpen === resolvedOpen()) {
@@ -213,7 +214,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     type: 'button',
     'data-slot': 'trigger',
     get class() {
-      return cn('w-full cursor-pointer', props.classes?.trigger)
+      return cn('cursor-pointer', props.classes?.trigger)
     },
     get style() {
       return props.styles?.trigger
@@ -252,11 +253,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     triggerProps,
   }
 
-  const staticTrigger = (): JSX.Element => {
-    const triggerRender = props.triggerRender
-    return typeof triggerRender === 'function' ? undefined : triggerRender
-  }
-
   return (
     <div
       id={rootId()}
@@ -267,10 +263,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       class={cn(props.classes?.root, props.class)}
     >
       <Show
-        when={typeof props.triggerRender === 'function'}
-        fallback={<button {...triggerProps}>{staticTrigger()}</button>}
+        when={typeof triggerRender() === 'function'}
+        fallback={<button {...triggerProps}>{triggerRender() as JSX.Element}</button>}
       >
-        {renderComponentOrElement(props.triggerRender, triggerRenderProps)}
+        {renderComponentOrElement(triggerRender(), triggerRenderProps)}
       </Show>
 
       <Show when={shouldRenderContent()}>

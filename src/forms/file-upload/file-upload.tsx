@@ -23,6 +23,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { FileUploadVariantProps } from './file-upload.class.ts'
 import {
@@ -285,6 +286,62 @@ function revokeObjectUrl(url: string): void {
   URL.revokeObjectURL(url)
 }
 
+function isFileDragEvent(event: DragEvent): boolean {
+  if (!event.dataTransfer) {
+    return Boolean(event.target && 'files' in event.target)
+  }
+
+  return Array.from(event.dataTransfer.types).some(
+    (type) => type === 'Files' || type === 'application/x-moz-file',
+  )
+}
+
+function createFileList(files: File[]): FileList | undefined {
+  if (typeof DataTransfer === 'undefined') {
+    return undefined
+  }
+
+  try {
+    const transfer = new DataTransfer()
+
+    for (const file of files) {
+      transfer.items.add(file)
+    }
+
+    return transfer.files
+  } catch {
+    return undefined
+  }
+}
+
+function syncNativeInputFiles(input: HTMLInputElement | undefined, files: File[]): boolean {
+  if (!input) {
+    return false
+  }
+
+  const fileList = createFileList(files)
+  if (fileList) {
+    try {
+      input.files = fileList
+      const assignedFiles = Array.from(input.files ?? [])
+
+      return (
+        assignedFiles.length === files.length &&
+        assignedFiles.every((file, index) => file === files[index])
+      )
+    } catch {
+      // Some browsers reject FileList assignment; preserve the component state and leave the native input unchanged.
+    }
+  }
+
+  if (files.length === 0) {
+    input.value = ''
+    return true
+  }
+
+  return false
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes === 0) {
     return '0B'
@@ -327,18 +384,20 @@ function filterAcceptedFiles(
   const seenFiles = new Set(options.existingFiles.map(getFileIdentity))
 
   for (const file of files) {
+    const errors: FileError[] = []
+
     if (!isAcceptedFileType(file, options.accept)) {
-      rejected.push(createRejection(file, 'FILE_INVALID_TYPE'))
-      continue
+      errors.push('FILE_INVALID_TYPE')
     }
 
     if (options.minSize !== undefined && file.size < options.minSize) {
-      rejected.push(createRejection(file, 'FILE_TOO_SMALL'))
-      continue
+      errors.push('FILE_TOO_SMALL')
+    } else if (options.maxSize !== undefined && file.size > options.maxSize) {
+      errors.push('FILE_TOO_LARGE')
     }
 
-    if (options.maxSize !== undefined && file.size > options.maxSize) {
-      rejected.push(createRejection(file, 'FILE_TOO_LARGE'))
+    if (errors.length > 0) {
+      rejected.push({ file, errors })
       continue
     }
 
@@ -453,6 +512,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
+  const dropzone = createMemo(() => merged.dropzone)
+  const preview = createMemo(() => merged.preview)
 
   const generatedId = useId(() => merged.id, 'file-upload')
   const field = useFormField(
@@ -461,11 +522,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: null,
+      initialValue: merged.multiple ? [] : null,
     }),
   )
 
@@ -476,6 +538,18 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
+  const labelId = createMemo(() => `${field.id()}-label`)
+  const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
+  const controlAriaAttrs = createMemo(() => {
+    const attrs = { ...field.ariaAttrs() }
+    const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
+
+    if (describedBy) {
+      attrs['aria-describedby'] = describedBy
+    }
+
+    return attrs
+  })
 
   const resolvedMaxFiles = createMemo(() => {
     if (merged.maxFiles !== undefined) {
@@ -502,6 +576,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     field.emit('input')
   }
 
+  function commitSelectedFiles(files: File[]): void {
+    setSelectedFiles(files)
+    syncNativeInputFiles(hiddenInputEl, files)
+    emitValueChange(files)
+  }
+
   function openFileDialog(): void {
     if (field.disabled() || readOnly()) {
       return
@@ -510,12 +590,13 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     hiddenInputEl?.click()
   }
 
-  function handleFileReject(files: FileRejection[]): void {
-    merged.onFileReject?.(files)
-  }
-
   function processIncomingFiles(files: File[]): void {
-    if (files.length === 0 || field.disabled() || readOnly()) {
+    if (files.length === 0) {
+      return
+    }
+
+    if (field.disabled() || readOnly()) {
+      syncNativeInputFiles(hiddenInputEl, selectedFiles())
       return
     }
 
@@ -527,28 +608,35 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       maxSize: merged.maxSize,
     })
 
+    let nextFiles = currentFiles
+
     if (merged.multiple) {
       const bounded = constrainMultipleFiles(accepted, currentFiles.length, resolvedMaxFiles())
       rejected.push(...bounded.rejected)
 
       if (bounded.accepted.length > 0) {
-        const nextFiles = [...currentFiles, ...bounded.accepted]
-        setSelectedFiles(nextFiles)
-        emitValueChange(nextFiles)
+        nextFiles = [...currentFiles, ...bounded.accepted]
       }
     } else {
-      const bounded = constrainSingleFile(accepted)
+      const bounded =
+        resolvedMaxFiles() < 1
+          ? constrainMultipleFiles(accepted, 0, 0)
+          : constrainSingleFile(accepted)
       rejected.push(...bounded.rejected)
 
       if (bounded.accepted.length > 0) {
-        const nextFiles = [bounded.accepted[0]!]
-        setSelectedFiles(nextFiles)
-        emitValueChange(nextFiles)
+        nextFiles = [bounded.accepted[0]!]
       }
     }
 
+    if (nextFiles !== currentFiles) {
+      commitSelectedFiles(nextFiles)
+    } else {
+      syncNativeInputFiles(hiddenInputEl, currentFiles)
+    }
+
     if (rejected.length > 0) {
-      handleFileReject(rejected)
+      merged.onFileReject?.(rejected)
     }
   }
 
@@ -563,8 +651,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }
 
     const nextFiles = currentFiles.filter((_, fileIndex) => fileIndex !== index)
-    setSelectedFiles(nextFiles)
-    emitValueChange(nextFiles)
+    commitSelectedFiles(nextFiles)
   }
 
   function FileRemoveButton(props: { file: File; index: number }): JSX.Element {
@@ -592,15 +679,20 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   createEffect(() => {
     const files = selectedFiles()
+    const previewsEnabled = preview()
 
     setPreviewUrls((previous) => {
       const next = new Map(previous)
 
       for (const [file, url] of previous.entries()) {
-        if (!files.includes(file) || !isImageFile(file)) {
+        if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
           revokeObjectUrl(url)
           next.delete(file)
         }
+      }
+
+      if (!previewsEnabled) {
+        return next
       }
 
       for (const file of files) {
@@ -634,6 +726,16 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }
   })
 
+  useFormReset(
+    () => hiddenInputEl?.form,
+    () => {
+      setDragging(false)
+      setSelectedFiles([])
+      syncNativeInputFiles(hiddenInputEl, [])
+      field.setFormValue(merged.multiple ? [] : null)
+    },
+  )
+
   function Content(): JSX.Element {
     return (
       <div
@@ -660,6 +762,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
         <Show when={label()}>
           <span
+            id={labelId()}
             data-slot="label"
             style={merged.styles?.label}
             class={fileUploadLabelVariants(
@@ -675,6 +778,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
         <Show when={description()}>
           <span
+            id={descriptionId()}
             data-slot="description"
             style={merged.styles?.description}
             class={fileUploadDescriptionVariants(
@@ -713,14 +817,33 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   const onDropzoneDragOver: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
     callHandler(event, merged.onDragOver)
 
-    if (!event.defaultPrevented && !field.disabled() && !readOnly()) {
-      event.preventDefault()
-      setDragging(true)
+    if (event.defaultPrevented || field.disabled() || readOnly() || !isFileDragEvent(event)) {
+      return
     }
+
+    event.preventDefault()
+    try {
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'copy'
+      }
+    } catch {
+      // Some browser engines expose a read-only dropEffect.
+    }
+    setDragging(true)
   }
 
   const onDropzoneDragLeave: JSX.EventHandler<HTMLDivElement, DragEvent> = (event) => {
     callHandler(event, merged.onDragLeave)
+
+    if (event.defaultPrevented) {
+      return
+    }
+
+    const relatedTarget = event.relatedTarget
+    if (relatedTarget instanceof Node && event.currentTarget.contains(relatedTarget)) {
+      return
+    }
+
     setDragging(false)
   }
 
@@ -728,11 +851,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     callHandler(event, merged.onDrop)
     setDragging(false)
 
-    if (event.defaultPrevented || field.disabled() || readOnly()) {
+    if (event.defaultPrevented || field.disabled() || readOnly() || !isFileDragEvent(event)) {
       return
     }
 
     event.preventDefault()
+    event.stopPropagation()
     const files = Array.from(event.dataTransfer?.files ?? [])
     processIncomingFiles(files)
   }
@@ -740,6 +864,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   return (
     <Dynamic
       role="group"
+      aria-labelledby={label() ? labelId() : undefined}
+      aria-label={label() ? undefined : 'File upload'}
       disabled={field.disabled()}
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
@@ -757,7 +883,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       )}
     >
       <Show
-        when={merged.dropzone}
+        when={dropzone()}
         fallback={
           <button
             type="button"
@@ -774,6 +900,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             )}
             disabled={field.disabled()}
             aria-disabled={field.disabled() || readOnly() ? true : undefined}
+            aria-labelledby={label() ? labelId() : undefined}
+            aria-label={label() ? undefined : 'File upload'}
+            {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
             onBlur={(event) => field.emit('blur', event)}
             onClick={onControlClick}
@@ -786,6 +915,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           role="button"
           tabIndex={field.disabled() ? undefined : 0}
           aria-disabled={field.disabled() || readOnly() ? true : undefined}
+          aria-labelledby={label() ? labelId() : undefined}
+          aria-label={label() ? undefined : 'File upload'}
+          {...controlAriaAttrs()}
           data-slot="control"
           style={merged.styles?.control}
           data-dragging={dragging() ? '' : undefined}
@@ -817,17 +949,19 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
         onChange={(event) => {
           const files = Array.from(event.currentTarget.files ?? [])
           processIncomingFiles(files)
         }}
-        {...field.ariaAttrs()}
+        aria-labelledby={label() ? labelId() : undefined}
+        aria-label={label() ? undefined : 'File upload'}
+        {...controlAriaAttrs()}
       />
 
-      <Show when={merged.preview && selectedFiles().length > 0}>
+      <Show when={preview() && selectedFiles().length > 0}>
         <ul
           data-slot="files"
           style={merged.styles?.files}

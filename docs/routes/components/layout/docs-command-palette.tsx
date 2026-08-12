@@ -1,8 +1,8 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src/index.ts'
-import type { CommandPaletteT } from '../../../../src/index.ts'
+import type { CommandPaletteT, DialogT } from '../../../../src/index.ts'
 
 import type { SidebarPage } from './sidebar.tsx'
 
@@ -51,18 +51,17 @@ export function buildDocsCommandItems(pages: SidebarPage[]): CommandPaletteT.Gro
   return items
 }
 
-export function DocsSearchTrigger(props: {
-  onOpen?: () => void
-  variant?: DocsCommandPaletteVariant
-  class?: string
-}): JSX.Element {
-  const variant = () => props.variant ?? 'desktop'
+export function DocsSearchTrigger(
+  props: DialogT.TriggerProps & { variant?: DocsCommandPaletteVariant },
+): JSX.Element {
+  const [local, triggerProps] = splitProps(props, ['variant'])
+  const variant = () => local.variant ?? 'desktop'
 
   return (
     <Button
+      {...triggerProps}
       aria-label="Open search"
       aria-keyshortcuts="Meta+K Control+K"
-      onClick={() => props.onOpen?.()}
       variant="outline"
       size={variant() === 'mobile' ? 'icon-sm' : 'md'}
       leading="i-lucide-search"
@@ -71,7 +70,6 @@ export function DocsSearchTrigger(props: {
           <KbdGroup items={['⌘', 'K']} variant="outline" />
         </Show>
       }
-      class={props.class}
     >
       <Show when={variant() === 'desktop'}>Search docs</Show>
     </Button>

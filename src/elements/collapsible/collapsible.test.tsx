@@ -1,8 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { Show, createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+
 import { Collapsible } from './collapsible.tsx'
-import type { CollapsibleProps } from './collapsible.tsx'
+import type { CollapsibleProps, CollapsibleT } from './collapsible.tsx'
 
 function renderCollapsible(props?: {
   open?: boolean
@@ -57,6 +61,73 @@ describe('Collapsible', () => {
     await fireEvent.click(trigger)
 
     expect(root?.hasAttribute('data-expanded')).toBe(true)
+  })
+
+  test('evaluates a getter-backed trigger value once', () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(Collapsible, {
+        get triggerRender() {
+          reads += 1
+          return <span>Cached trigger</span>
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(screen.getByRole('button', { name: 'Cached trigger' })).not.toBeNull()
+  })
+
+  test('keeps closed content lazy and creates it once per actual mount', async () => {
+    let reads = 0
+    const screen = render(() =>
+      createComponent(Collapsible, {
+        triggerRender: <span>Toggle content</span>,
+        get children() {
+          reads += 1
+          return <span data-testid="lazy-content">Content</span>
+        },
+      }),
+    )
+    const trigger = screen.getByRole('button', { name: 'Toggle content' })
+
+    expect(reads).toBe(0)
+    await fireEvent.click(trigger)
+    expect(reads).toBe(1)
+    expect(screen.getByTestId('lazy-content')).not.toBeNull()
+
+    await fireEvent.click(trigger)
+    expect(screen.queryByTestId('lazy-content')).toBeNull()
+    await fireEvent.click(trigger)
+    expect(reads).toBe(2)
+  })
+
+  test('reactively replaces static and component trigger forms', async () => {
+    const [custom, setCustom] = createSignal(false)
+    let reads = 0
+    const screen = render(() =>
+      createComponent(Collapsible, {
+        get triggerRender() {
+          reads += 1
+          return (context: CollapsibleT.TriggerRenderProps) => (
+            <Show when={custom()} fallback={<button {...context.triggerProps}>Static</button>}>
+              <button data-testid="custom-trigger" {...context.triggerProps}>
+                Custom
+              </button>
+            </Show>
+          )
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(screen.getByRole('button', { name: 'Static' })).not.toBeNull()
+
+    setCustom(true)
+    expect(reads).toBe(1)
+    const trigger = screen.getByTestId('custom-trigger')
+    await fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('exposes only the component-based trigger render contract', () => {
@@ -235,6 +306,53 @@ describe('Collapsible', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
+  test('reactive disabled state suppresses trigger and render controls', async () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const onOpenChange = vi.fn()
+    let controls: { open: VoidFunction; toggle: VoidFunction } | undefined
+    const screen = render(() => (
+      <Collapsible
+        disabled={disabled()}
+        onOpenChange={onOpenChange}
+        triggerRender={(context) => {
+          controls = context
+          return <button {...context.triggerProps}>Toggle</button>
+        }}
+      >
+        Content
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+
+    setDisabled(true)
+    expect(trigger.hasAttribute('disabled')).toBe(true)
+    controls?.open()
+    controls?.toggle()
+    await fireEvent.click(trigger)
+
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('honors a canceled trigger event before toggling', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Collapsible onOpenChange={onOpenChange} triggerRender={<span>Prevented</span>}>
+        Content
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Prevented' })
+    const root = screen.container.querySelector('[data-slot="root"]')!
+    root.addEventListener('click', (event) => event.preventDefault(), { capture: true })
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+
+    trigger.dispatchEvent(click)
+
+    expect(click.defaultPrevented).toBe(true)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
+
   test('controlled open does not self-mutate and still calls onOpenChange', async () => {
     const onOpenChange = vi.fn()
     const screen = renderCollapsible({ open: true, onOpenChange })
@@ -246,6 +364,57 @@ describe('Collapsible', () => {
 
     expect(root?.hasAttribute('data-expanded')).toBe(true)
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('publishes each uncontrolled state change exactly once in order', async () => {
+    const onOpenChange = vi.fn()
+    const screen = renderCollapsible({ defaultOpen: false, onOpenChange })
+    const trigger = screen.getByTestId('trigger-control')
+
+    await fireEvent.click(trigger)
+    await fireEvent.click(trigger)
+
+    expect(onOpenChange.mock.calls).toEqual([[true], [false]])
+  })
+
+  test('cancels stale close completion when controlled state reopens', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Collapsible
+        open={open()}
+        transition
+        triggerRender={(context) => <button {...context.triggerProps}>Toggle</button>}
+      >
+        <span data-testid="content">Content</span>
+      </Collapsible>
+    ))
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
+
+    setOpen(false)
+    expect(wrapper.getAttribute('data-closed')).toBe('')
+    setOpen(true)
+    await fireEvent.transitionEnd(wrapper, { propertyName: 'height' })
+
+    expect(screen.getByTestId('content')).not.toBeNull()
+    expect(wrapper.getAttribute('data-expanded')).toBe('')
+  })
+
+  test('keeps nested collapsible ids and state independent', async () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen triggerRender={<span>Outer</span>}>
+        <Collapsible triggerRender={<span>Inner</span>}>Inner content</Collapsible>
+      </Collapsible>
+    ))
+    const outer = screen.getByRole('button', { name: 'Outer' })
+    const inner = screen.getByRole('button', { name: 'Inner' })
+
+    expect(outer.id).not.toBe(inner.id)
+    expect(outer.getAttribute('aria-expanded')).toBe('true')
+    expect(inner.getAttribute('aria-expanded')).toBe('false')
+
+    await fireEvent.click(inner)
+    expect(outer.getAttribute('aria-expanded')).toBe('true')
+    expect(inner.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('closed content is unmounted', () => {
@@ -365,5 +534,51 @@ describe('Collapsible', () => {
     await waitFor(() => {
       expect(root?.getAttribute('id')).toBe('collapsible-root')
     })
+  })
+
+  test('hydrates closed markup without content and supports open, close, and reopen', async () => {
+    const markup = renderSsrFixture(
+      '/src/elements/collapsible/collapsible.ssr.fixture.tsx',
+      'renderCollapsibleFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    let contentMounts = 0
+    const Content = () => {
+      contentMounts += 1
+      return <span data-testid="hydrated-content">Content</span>
+    }
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Collapsible triggerRender={<span>Details</span>}>
+          <Content />
+        </Collapsible>
+      ),
+      container,
+    )
+    const trigger = container.querySelector('[data-slot="trigger"]')!
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(contentMounts).toBe(0)
+    expect(container.querySelector('[data-slot="content"]')).toBeNull()
+
+    await fireEvent.click(trigger)
+    const contentWrapper = container.querySelector('[data-slot="content-wrapper"]')!
+    expect(contentMounts).toBe(1)
+    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
+    expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
+
+    await fireEvent.click(trigger)
+    expect(container.querySelector('[data-slot="content"]')).toBeNull()
+    await fireEvent.click(trigger)
+    expect(contentMounts).toBe(2)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 })

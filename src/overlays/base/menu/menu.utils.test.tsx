@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from 'vitest'
 import {
   createPointerGraceIntent,
   isPointInPointerGraceIntent,
+  onLayerKeyDown,
   useOverlayMenuLayerState,
 } from './menu.utils.ts'
 
@@ -50,6 +51,27 @@ function installWindowStub(): () => void {
     })
   }
 }
+
+describe('onLayerKeyDown', () => {
+  test('does not close the menu for Escape emitted during IME composition', () => {
+    const onClose = vi.fn()
+
+    createRoot((dispose) => {
+      const layer = useOverlayMenuLayerState()
+      const event = new KeyboardEvent('keydown', {
+        cancelable: true,
+        isComposing: true,
+        key: 'Escape',
+      })
+
+      onLayerKeyDown(event, layer, onClose)
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(onClose).not.toHaveBeenCalled()
+      dispose()
+    })
+  })
+})
 
 describe('createPointerGraceIntent', () => {
   test('keeps the right-side corridor between the leave point and submenu open', () => {
@@ -177,6 +199,120 @@ describe('createPointerGraceIntent', () => {
     } finally {
       restoreWindow()
       vi.useRealTimers()
+    }
+  })
+})
+
+describe('useOverlayMenuLayerState', () => {
+  test('normalizes and cycles typeahead while skipping disabled items', () => {
+    vi.useFakeTimers()
+    const elements = ['Banana', 'Blueberry', 'Bravo', 'Open file'].map((label) => {
+      const element = document.createElement('div')
+      element.textContent = label
+      element.tabIndex = -1
+      document.body.append(element)
+      return element
+    })
+
+    try {
+      createRoot((dispose) => {
+        const layer = useOverlayMenuLayerState()
+        const releases = elements.map((element, index) =>
+          layer.registerItem({
+            disabled: () => index === 1,
+            element: () => element,
+            hasSubmenu: false,
+            id: `item-${index}`,
+            textValue: () => element.textContent ?? undefined,
+          }),
+        )
+        const press = (key: string): KeyboardEvent => {
+          const event = new KeyboardEvent('keydown', { cancelable: true, key })
+          layer.handleTypeaheadKeyDown(event)
+          return event
+        }
+
+        expect(press('B').defaultPrevented).toBe(true)
+        expect(document.activeElement).toBe(elements[0])
+
+        press('B')
+        expect(document.activeElement).toBe(elements[2])
+
+        vi.advanceTimersByTime(500)
+        press('O')
+        expect(document.activeElement).toBe(elements[3])
+        expect(press(' ').defaultPrevented).toBe(true)
+        expect(document.activeElement).toBe(elements[3])
+
+        vi.advanceTimersByTime(500)
+        expect(press(' ').defaultPrevented).toBe(false)
+
+        for (const release of releases) {
+          release()
+        }
+        dispose()
+      })
+    } finally {
+      for (const element of elements) {
+        element.remove()
+      }
+      vi.useRealTimers()
+    }
+  })
+
+  test('recovers navigation after the highlighted item is removed and handles all-disabled lists', () => {
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    const disabled = document.createElement('div')
+    first.tabIndex = -1
+    second.tabIndex = -1
+    disabled.tabIndex = -1
+    document.body.append(first, second, disabled)
+
+    try {
+      createRoot((dispose) => {
+        const layer = useOverlayMenuLayerState()
+        const releaseFirst = layer.registerItem({
+          disabled: () => false,
+          element: () => first,
+          hasSubmenu: false,
+          id: 'first',
+          textValue: () => 'First',
+        })
+        const releaseSecond = layer.registerItem({
+          disabled: () => false,
+          element: () => second,
+          hasSubmenu: false,
+          id: 'second',
+          textValue: () => 'Second',
+        })
+
+        layer.focusFirstItem()
+        expect(document.activeElement).toBe(first)
+        releaseFirst()
+        expect(layer.highlightedItemId()).toBeUndefined()
+
+        layer.focusItemByOffset(1)
+        expect(document.activeElement).toBe(second)
+        releaseSecond()
+
+        const releaseDisabled = layer.registerItem({
+          disabled: () => true,
+          element: () => disabled,
+          hasSubmenu: false,
+          id: 'disabled',
+          textValue: () => 'Disabled',
+        })
+        layer.focusFirstItem()
+        expect(layer.highlightedItemId()).toBeUndefined()
+
+        releaseDisabled()
+        dispose()
+      })
+    } finally {
+      first.remove()
+      second.remove()
+      disabled.remove()
     }
   })
 })

@@ -1,7 +1,10 @@
-import { Stepper } from '@src'
+import { Stepper, Switch } from '@src'
+import { createSignal } from 'solid-js'
 
-export function LinearCheckout() {
-  const createCheckoutSteps = () => [
+export function ClickableVsReadOnly() {
+  const [clickable, setClickable] = createSignal(false)
+  const [linear, setLinear] = createSignal(true)
+  const checkoutSteps = [
     {
       title: 'Address',
       description: 'Where should we send the order?',
@@ -25,5 +28,19 @@ export function LinearCheckout() {
     },
   ]
 
-  return <Stepper items={createCheckoutSteps()} defaultValue="address" clickable />
+  return (
+    <div class="space-y-4">
+      <div class="flex flex-wrap gap-4">
+        <Switch checked={clickable()} label="Clickable" onChange={setClickable} />
+        <Switch checked={linear()} label="Linear" onChange={setLinear} />
+      </div>
+
+      <Stepper
+        items={checkoutSteps}
+        defaultValue="address"
+        clickable={clickable()}
+        linear={linear()}
+      />
+    </div>
+  )
 }

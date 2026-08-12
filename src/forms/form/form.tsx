@@ -4,12 +4,12 @@ import type {
   FormStore,
   SubmitEventHandler,
 } from '@formisch/solid'
-import { Form as FormischForm } from '@formisch/solid'
+import { Form as FormischForm, reset as resetForm } from '@formisch/solid'
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import { callHandler, cn } from '../../shared/utils.ts'
 
 import { FormProvider } from './form-context.ts'
 
@@ -52,7 +52,19 @@ export function Form<TSchema extends FormSchema>(props: FormProps<TSchema>): JSX
     'styles',
     'of',
     'onSubmit',
+    'onReset',
   ])
+
+  const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onReset)
+
+    if (!defaultPrevented) {
+      // Let the native reset and control-owned reset microtasks finish before
+      // Formisch restores the canonical input and metadata snapshot.
+      // oxlint-disable-next-line subf/solid-reactivity -- The reset event intentionally snapshots the current store later.
+      queueMicrotask(() => queueMicrotask(() => resetForm(local.of)))
+    }
+  }
 
   return (
     <FormProvider value={local.of as FormStore}>
@@ -60,6 +72,7 @@ export function Form<TSchema extends FormSchema>(props: FormProps<TSchema>): JSX
         {...formProps}
         of={local.of}
         onSubmit={local.onSubmit ?? (() => {})}
+        onReset={onReset}
         style={{ ...local.styles?.root, ...local.style }}
         class={cn('w-full data-submitting:opacity-80', local.classes?.root, local.class)}
         data-slot="root"

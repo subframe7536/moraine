@@ -1,9 +1,12 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Progress } from './progress.tsx'
-import type { ProgressProps } from './progress.tsx'
+import type { ProgressProps, ProgressT } from './progress.tsx'
 
 describe('Progress', () => {
   test('accepts static JSX for statusRender', () => {
@@ -129,8 +132,276 @@ describe('Progress', () => {
 
     expect(progress.hasAttribute('aria-valuenow')).toBe(false)
     expect(progress.hasAttribute('aria-valuetext')).toBe(false)
+    expect(progress.getAttribute('aria-valuemin')).toBe('0')
+    expect(progress.getAttribute('aria-valuemax')).toBe('100')
     expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
     expect(indicator?.hasAttribute('data-indeterminate')).toBe(true)
+  })
+
+  test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+    'treats non-finite value %s as indeterminate',
+    (value) => {
+      const screen = render(() => <Progress value={value} status />)
+      const progress = screen.getByRole('progressbar')
+
+      expect(progress.hasAttribute('data-indeterminate')).toBe(true)
+      expect(progress.hasAttribute('aria-valuenow')).toBe(false)
+      expect(progress.hasAttribute('aria-valuetext')).toBe(false)
+      expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
+      expect(
+        (screen.container.querySelector('[data-slot="indicator"]') as HTMLElement).style.transform,
+      ).toBe('')
+    },
+  )
+
+  test('preserves a zero maximum and reports zero-range completion consistently', () => {
+    const screen = render(() => <Progress value={12} max={0} status />)
+    const progress = screen.getByRole('progressbar')
+
+    expect(progress.getAttribute('aria-valuemax')).toBe('0')
+    expect(progress.getAttribute('aria-valuenow')).toBe('0')
+    expect(progress.getAttribute('aria-valuetext')).toBe('0%')
+    expect(progress.getAttribute('data-progress')).toBe('complete')
+    expect(screen.container.querySelector('[data-slot="status"]')?.textContent).toBe('0%')
+    expect(
+      (screen.container.querySelector('[data-slot="indicator"]') as HTMLElement).style.transform,
+    ).toBe('translateX(-100%)')
+  })
+
+  test('keeps fractional percentages synchronized without integer rounding', () => {
+    const screen = render(() => <Progress value={1} max={3} status />)
+    const progress = screen.getByRole('progressbar')
+    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement
+    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
+
+    expect(progress.getAttribute('aria-valuetext')).toBe('33.33333333333333%')
+    expect(status.textContent).toBe('33.33333333333333%')
+    expect(status.style.width).toBe('33.33333333333333%')
+    expect(indicator.style.transform).toBe('translateX(-66.66666666666667%)')
+  })
+
+  test('synchronizes loading, complete, and indeterminate data across rendered parts', () => {
+    const [value, setValue] = createSignal<number | null>(25)
+    const screen = render(() => (
+      <Progress value={value()} status max={['Waiting', 'Working', 'Done']} />
+    ))
+    const allParts = () =>
+      screen.container.querySelectorAll(
+        '[data-slot="root"], [data-slot="status"], [data-slot="track"], [data-slot="indicator"], [data-slot="steps"], [data-slot="step"]',
+      )
+
+    for (const part of allParts()) {
+      expect(part.getAttribute('data-progress')).toBe('complete')
+      expect(part.hasAttribute('data-indeterminate')).toBe(false)
+    }
+
+    setValue(1)
+    for (const part of allParts()) {
+      expect(part.getAttribute('data-progress')).toBe('loading')
+    }
+
+    setValue(null)
+    for (const part of allParts()) {
+      expect(part.hasAttribute('data-indeterminate')).toBe(true)
+      expect(part.hasAttribute('data-progress')).toBe(false)
+    }
+  })
+
+  test('single-evaluates reactive normalization and renderer props', () => {
+    const reads = { max: 0, statusRender: 0, stepRender: 0, value: 0 }
+    const screen = render(() =>
+      createComponent(Progress, {
+        get max() {
+          reads.max += 1
+          return ['One', 'Two', 'Three']
+        },
+        get statusRender() {
+          reads.statusRender += 1
+          return (context: ProgressT.StatusRenderProps) => <span>Status {context.percent}</span>
+        },
+        get stepRender() {
+          reads.stepRender += 1
+          return (context: ProgressT.StepRenderProps) => <span>{context.step}</span>
+        },
+        get value() {
+          reads.value += 1
+          return 1
+        },
+      }),
+    )
+
+    expect(screen.getByRole('progressbar')).not.toBeNull()
+    expect(reads).toEqual({ max: 1, statusRender: 1, stepRender: 1, value: 1 })
+  })
+
+  test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1])(
+    'falls back to max=100 for invalid maximum %s',
+    (max) => {
+      const screen = render(() => <Progress value={50} max={max} />)
+      const progress = screen.getByRole('progressbar')
+
+      expect(progress.getAttribute('aria-valuemax')).toBe('100')
+      expect(progress.getAttribute('aria-valuenow')).toBe('50')
+      expect(progress.getAttribute('aria-valuetext')).toBe('50%')
+    },
+  )
+
+  test('handles empty and single-step ranges without inventing a maximum', () => {
+    const empty = render(() => <Progress value={0} max={[]} />)
+    const single = render(() => (
+      <Progress
+        value={0}
+        max={['Only']}
+        stepRender={(context) => `${context.index}-${context.step}-${context.state}`}
+      />
+    ))
+
+    expect(empty.getByRole('progressbar').getAttribute('aria-valuemax')).toBe('0')
+    expect(empty.container.querySelector('[data-slot="steps"]')).toBeNull()
+    expect(single.getByRole('progressbar').getAttribute('aria-valuemax')).toBe('0')
+    expect(single.getByText('0-Only-first')).not.toBeNull()
+  })
+
+  test('keeps duplicate step nodes stable while value and state update', () => {
+    const steps = ['Same', 'Same', 'Done']
+    const [value, setValue] = createSignal(0)
+    const screen = render(() => <Progress value={value()} max={steps} />)
+    const initial = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+
+    setValue(1)
+    const updated = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+
+    expect(updated).toHaveLength(3)
+    expect(updated[0]).toBe(initial[0])
+    expect(updated[1]).toBe(initial[1])
+    expect(updated[2]).toBe(initial[2])
+    expect(updated[1]?.className).toContain('opacity-100')
+  })
+
+  test('reads conditional renderers only while their branches are mounted', () => {
+    const [value, setValue] = createSignal<number | null>(null)
+    const [max, setMax] = createSignal<number | string[]>(100)
+    let statusReads = 0
+    let stepReads = 0
+    const screen = render(() =>
+      createComponent(Progress, {
+        get max() {
+          return max()
+        },
+        get statusRender() {
+          statusReads += 1
+          return <span data-testid="status-render">Status</span>
+        },
+        get stepRender() {
+          stepReads += 1
+          return (context: ProgressT.StepRenderProps) => (
+            <span data-testid="step-render">{context.step}</span>
+          )
+        },
+        get value() {
+          return value()
+        },
+      }),
+    )
+
+    expect(statusReads).toBe(0)
+    expect(stepReads).toBe(0)
+
+    setValue(25)
+    expect(statusReads).toBe(1)
+    expect(screen.getByTestId('status-render')).not.toBeNull()
+    expect(stepReads).toBe(0)
+
+    setMax(['A', 'B'])
+    expect(stepReads).toBe(1)
+    expect(screen.getAllByTestId('step-render')).toHaveLength(2)
+
+    setValue(null)
+    setValue(1)
+    expect(statusReads).toBe(2)
+  })
+
+  test('updates to the latest value-label callback and contains thrown label errors', () => {
+    const [formatter, setFormatter] = createSignal<(value: number) => string>((value) => `${value}`)
+    const screen = render(() => (
+      <ErrorBoundary fallback={(error) => <span data-testid="error">{String(error)}</span>}>
+        <Progress value={2} max={4} getValueLabel={({ value }) => formatter()(value)} />
+      </ErrorBoundary>
+    ))
+    const progress = screen.getByRole('progressbar')
+
+    expect(progress.getAttribute('aria-valuetext')).toBe('2')
+    setFormatter(() => (value: number) => `${value} items`)
+    expect(progress.getAttribute('aria-valuetext')).toBe('2 items')
+
+    setFormatter(() => () => {
+      throw new Error('label failure')
+    })
+    expect(screen.getByTestId('error').textContent).toContain('label failure')
+  })
+
+  test('remains passive and non-tabbable while forwarding caller pointer events', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Progress value={25} onPointerDown={onPointerDown} />)
+    const progress = screen.getByRole('progressbar')
+    const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    progress.dispatchEvent(event)
+
+    expect(progress.hasAttribute('tabindex')).toBe(false)
+    expect(event.defaultPrevented).toBe(false)
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+  })
+
+  test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
+    const steps = ['Waiting', 'Working', 'Done']
+    const markup = renderSsrFixture(
+      '/src/elements/progress/progress.ssr.fixture.tsx',
+      'renderProgressFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const [value, setValue] = createSignal<number | null>(1)
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Progress
+          value={value()}
+          max={steps}
+          statusRender={(context) => <span>{context.percent}%</span>}
+          stepRender={(context) => <span>{context.step}</span>}
+        />
+      ),
+      container,
+    )
+    const root = container.querySelector('[data-slot="root"]')!
+
+    expect(root).toBe(serverRoot)
+    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
+      'status',
+      'track',
+      'steps',
+    ])
+    expect(root.getAttribute('data-progress')).toBe('loading')
+
+    setValue(null)
+    expect(root.hasAttribute('data-indeterminate')).toBe(true)
+    expect(container.querySelector('[data-slot="status"]')).toBeNull()
+    expect(container.querySelectorAll('[data-indeterminate]').length).toBeGreaterThan(1)
+
+    setValue(2)
+    expect(root.getAttribute('data-progress')).toBe('complete')
+    expect(container.querySelector('[data-slot="status"]')?.textContent).toBe('100%')
+    for (const part of container.querySelectorAll('[data-slot]')) {
+      expect(part.hasAttribute('data-indeterminate')).toBe(false)
+    }
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 
   test('applies orientation and animation classes', () => {

@@ -18,10 +18,12 @@ import {
   mergeProps,
   onMount,
   onCleanup,
+  untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -30,15 +32,19 @@ import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
 import { cn, useId } from '../../shared/utils.ts'
 
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayStackEntry } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
+  acquireAriaHideOutside,
   acquireBodyScrollLock,
+  createCompositionState,
+  createOutsidePressHandlers,
   focusContent,
   focusTrigger,
   getTransformOrigin,
+  isComposingKeyEvent,
   resolveDirection,
   trapFocusInContainer,
 } from './utils.ts'
@@ -72,8 +78,8 @@ interface PopperContentProps {
   onBlur?: () => void
   onFocus?: () => void
   onKeyDown: (event: KeyboardEvent) => void
-  onPointerEnter?: () => void
-  onPointerLeave?: () => void
+  onPointerEnter?: (event: PointerEvent) => void
+  onPointerLeave?: (event: PointerEvent) => void
   ref: (element: HTMLDivElement) => void
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
   tabIndex: number
@@ -102,12 +108,12 @@ export interface PopperRootProps {
   onPointerDownOutside?: (event: PointerEvent) => void
   onTriggerBlur?: (controls: PopperControls) => void
   onTriggerFocus?: (controls: PopperControls) => void
-  onTriggerPointerEnter?: (controls: PopperControls) => void
-  onTriggerPointerLeave?: (controls: PopperControls) => void
+  onTriggerPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+  onTriggerPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
   onContentBlur?: (controls: PopperControls) => void
   onContentFocus?: (controls: PopperControls) => void
-  onContentPointerEnter?: (controls: PopperControls) => void
-  onContentPointerLeave?: (controls: PopperControls) => void
+  onContentPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+  onContentPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
   open?: boolean
   overlap?: boolean
   overflowPadding?: number
@@ -149,8 +155,10 @@ interface PopperContext {
   setOpen: (open: boolean) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
+  contentMounted: Accessor<boolean>
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
+  positionerElement: Accessor<HTMLDivElement | undefined>
   setPositionerElement: (element: HTMLDivElement | undefined) => void
   positionerPositioned: Accessor<boolean>
   contentPresence: ReturnType<typeof useTransitionPresence>
@@ -204,13 +212,15 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     () => popperTestPlacementAccessor?.() ?? internalCurrentPlacement(),
   )
   const contentPresence = useTransitionPresence({
-    open: () => Boolean((isOpen() || merged.forceMount) && !merged.disabled),
+    open: isOpen,
     get mode() {
       return merged.transitionMode
     },
   })
+  const contentMounted = createMemo(
+    () => contentPresence.present() || Boolean(merged.forceMount && !merged.disabled),
+  )
 
-  let cleanupAutoUpdate: (() => void) | undefined
   let enablePositionerTransitionFrame: number | undefined
 
   function schedulePositionerTransition(): void {
@@ -258,9 +268,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
   })
 
   createEffect(() => {
-    if (!contentPresence.present()) {
-      cleanupAutoUpdate?.()
-      cleanupAutoUpdate = undefined
+    if (!contentMounted()) {
       setContentElement(undefined)
       setPositionerElement(undefined)
       setPositionerPositioned(false)
@@ -273,20 +281,34 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     const positioner = positionerElement()
 
     if (!contentPresence.present() || !trigger || !positioner) {
+      setPositionerPositioned(false)
+      if (positioner) {
+        positioner.style.visibility = 'hidden'
+      }
       return
     }
 
     const direction = resolveDirection()
+    const fallbackPlacements = typeof merged.flip === 'string' ? merged.flip.split(' ') : undefined
+    if (
+      fallbackPlacements &&
+      !fallbackPlacements.every((placement) =>
+        /^(?:top|bottom|left|right)(?:-(?:start|end))?$/.test(placement),
+      )
+    ) {
+      throw new Error('`flip` expects a space-delimited list of placements')
+    }
 
     const updatePosition = async () => {
-      if (!triggerElement() || !positionerElement()) {
-        return
-      }
-
       const nextTrigger = triggerElement()
       const nextPositioner = positionerElement()
 
-      if (!nextTrigger || !nextPositioner) {
+      if (
+        !nextTrigger ||
+        !nextPositioner ||
+        !nextTrigger.isConnected ||
+        !nextPositioner.isConnected
+      ) {
         return
       }
 
@@ -307,10 +329,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
         middleware.push(
           flip({
             padding: merged.overflowPadding,
-            fallbackPlacements:
-              typeof merged.flip === 'string'
-                ? (merged.flip.split(' ') as PopperPlacement[])
-                : undefined,
+            fallbackPlacements: fallbackPlacements as PopperPlacement[] | undefined,
           }),
         )
       }
@@ -371,6 +390,16 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
         },
       })
 
+      if (
+        triggerElement() !== nextTrigger ||
+        positionerElement() !== nextPositioner ||
+        !contentPresence.present() ||
+        !nextTrigger.isConnected ||
+        !nextPositioner.isConnected
+      ) {
+        return
+      }
+
       setInternalCurrentPlacement(position.placement)
       nextPositioner.style.setProperty(
         '--mo-popper-content-transform-origin',
@@ -389,12 +418,12 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       schedulePositionerTransition()
     }
 
-    cleanupAutoUpdate = autoUpdate(trigger, positioner, updatePosition)
-    void updatePosition()
+    const cleanupAutoUpdate = autoUpdate(trigger, positioner, updatePosition, {
+      elementResize: typeof ResizeObserver === 'function',
+    })
 
     onCleanup(() => {
-      cleanupAutoUpdate?.()
-      cleanupAutoUpdate = undefined
+      cleanupAutoUpdate()
       if (
         enablePositionerTransitionFrame !== undefined &&
         typeof cancelAnimationFrame === 'function'
@@ -402,6 +431,35 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
         cancelAnimationFrame(enablePositionerTransitionFrame)
         enablePositionerTransitionFrame = undefined
       }
+      if (positionerElement() === positioner) {
+        setPositionerPositioned(false)
+        positioner.style.visibility = 'hidden'
+      }
+    })
+  })
+
+  createEffect(() => {
+    const positioner = positionerElement()
+    const content = contentElement()
+
+    if (!positioner || !content) {
+      return
+    }
+
+    queueMicrotask(() => {
+      untrack(() => {
+        if (
+          positionerElement() === positioner &&
+          contentElement() === content &&
+          positioner.isConnected &&
+          content.isConnected
+        ) {
+          const contentZIndex = getComputedStyle(content).zIndex
+          if (contentZIndex && contentZIndex !== 'auto') {
+            positioner.style.zIndex = contentZIndex
+          }
+        }
+      })
     })
   })
 
@@ -410,8 +468,23 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       return
     }
 
+    const currentContent = contentElement()
+    const currentPositioner = positionerElement()
+    if (!currentContent || !currentPositioner) {
+      return
+    }
+
     const releaseScrollLock =
       merged.modal || merged.preventScroll ? acquireBodyScrollLock() : undefined
+    let active = true
+    let releaseAriaHide: (() => void) | undefined
+    if (merged.modal) {
+      queueMicrotask(() => {
+        if (active && currentContent.isConnected) {
+          releaseAriaHide = acquireAriaHideOutside(currentContent)
+        }
+      })
+    }
 
     const stackEntry: OverlayStackEntry = {
       contentElement,
@@ -420,46 +493,34 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     const releaseStack = pushOverlayLayer(stackEntry)
 
     if (merged.modal) {
-      const currentContent = contentElement()
-
       queueMicrotask(() => {
         focusContent(currentContent)
       })
     }
 
-    const isInside = (target: Node): boolean => {
-      if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
-        return true
-      }
+    const isInside = (target: Node): boolean => isInsideOverlayLayer(stackEntry, target)
 
-      return isInsideDescendantOverlay(stackEntry, target)
-    }
+    const composition = createCompositionState()
+    const outsidePress = createOutsidePressHandlers({
+      isInside,
+      isEnabled: () => isTopOverlay(stackEntry),
+      onPress: (event) => {
+        merged.onPointerDownOutside?.(event)
 
-    const onDocumentPointerDown = (event: PointerEvent) => {
-      const target = event.target
+        if (event.defaultPrevented) {
+          return
+        }
 
-      if (!(target instanceof Node) || isInside(target)) {
-        return
-      }
+        if (merged.dismissible) {
+          event.preventDefault()
+          setOpen(false)
+          return
+        }
 
-      if (!isTopOverlay(stackEntry)) {
-        return
-      }
-
-      merged.onPointerDownOutside?.(event)
-
-      if (event.defaultPrevented) {
-        return
-      }
-
-      if (merged.dismissible) {
-        setOpen(false)
-        return
-      }
-
-      event.preventDefault()
-      merged.onClosePrevent?.()
-    }
+        event.preventDefault()
+        merged.onClosePrevent?.()
+      },
+    })
     const onDocumentFocusIn = (event: FocusEvent) => {
       const target = event.target
 
@@ -504,7 +565,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       }
     }
     const onDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
+      if (event.key !== 'Escape' || isComposingKeyEvent(event, composition)) {
         return
       }
 
@@ -519,6 +580,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       }
 
       if (merged.dismissible) {
+        event.preventDefault()
         setOpen(false)
         return
       }
@@ -530,14 +592,21 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     useEventListenerMap(
       document,
       {
-        pointerdown: onDocumentPointerDown,
+        pointerdown: outsidePress.pointerdown,
+        pointermove: outsidePress.pointermove,
+        pointerup: outsidePress.pointerup,
+        pointercancel: outsidePress.pointercancel,
         focusin: onDocumentFocusIn,
         keydown: onDocumentKeyDown,
+        compositionstart: composition.onCompositionStart,
+        compositionend: composition.onCompositionEnd,
       },
-      true,
+      false,
     )
 
     onCleanup(() => {
+      active = false
+      releaseAriaHide?.()
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
       if (merged.restoreFocusOnClose && isTopOverlay(stackEntry)) {
@@ -557,8 +626,10 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     setOpen,
     contentElement,
     setContentElement,
+    contentMounted,
     triggerElement,
     setTriggerElement,
+    positionerElement,
     setPositionerElement,
     positionerPositioned,
     contentPresence,
@@ -586,7 +657,16 @@ export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
     },
     'data-slot': 'trigger',
     ref: (element: HTMLElement | undefined) => {
+      if (!element) {
+        return
+      }
+
       context.setTriggerElement(element)
+      onCleanup(() => {
+        if (context.triggerElement() === element) {
+          context.setTriggerElement(undefined)
+        }
+      })
     },
     onBlur: () => options.onTriggerBlur?.(context.getControls()),
     onClick: (event: MouseEvent) => {
@@ -595,8 +675,8 @@ export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
       }
     },
     onFocus: () => options.onTriggerFocus?.(context.getControls()),
-    onPointerEnter: () => options.onTriggerPointerEnter?.(context.getControls()),
-    onPointerLeave: () => options.onTriggerPointerLeave?.(context.getControls()),
+    onPointerEnter: (event) => options.onTriggerPointerEnter?.(context.getControls(), event),
+    onPointerLeave: (event) => options.onTriggerPointerLeave?.(context.getControls(), event),
   }
 
   onMount(() => {
@@ -631,11 +711,17 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
     onBlur: () => options.onContentBlur?.(context.getControls()),
     onFocus: () => options.onContentFocus?.(context.getControls()),
     onKeyDown: onContentKeyDown,
-    onPointerEnter: () => options.onContentPointerEnter?.(context.getControls()),
-    onPointerLeave: () => options.onContentPointerLeave?.(context.getControls()),
+    onPointerEnter: (event) => options.onContentPointerEnter?.(context.getControls(), event),
+    onPointerLeave: (event) => options.onContentPointerLeave?.(context.getControls(), event),
     ref: (element) => {
       context.setContentElement(element)
       context.contentPresence.setElement(element)
+      onCleanup(() => {
+        if (context.contentElement() === element) {
+          context.setContentElement(undefined)
+          context.contentPresence.setElement(undefined)
+        }
+      })
     },
     role: options.role,
     tabIndex: -1,
@@ -652,14 +738,21 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
   })
 
   return (
-    <Show when={context.contentPresence.present()}>
+    <Show when={context.contentMounted()}>
       <Portal>
         <div
-          ref={context.setPositionerElement}
+          ref={(element) => {
+            context.setPositionerElement(element)
+            onCleanup(() => {
+              if (context.positionerElement() === element) {
+                context.setPositionerElement(undefined)
+              }
+            })
+          }}
           data-slot="positioner"
           data-positioned={context.positionerPositioned() ? '' : undefined}
           style={{ visibility: 'hidden', ...props.positionerStyle }}
-          class={cn('left-0 top-0 fixed z-50', props.positionerClass)}
+          class={cn(OVERLAY_POSITIONER_CLASS, 'z-50', props.positionerClass)}
         >
           {renderComponentOrElement(contentRender(), {
             close: () => context.setOpen(false),

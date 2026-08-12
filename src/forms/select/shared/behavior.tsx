@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js'
+import { Show, createSignal, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
 import { Icon } from '../../../elements/icon/index.ts'
@@ -16,6 +16,7 @@ interface UseSelectFieldProps {
   name?: string
   size?: FormFieldSize
   disabled?: boolean
+  required?: boolean
   initialValue: unknown
 }
 
@@ -57,6 +58,7 @@ export function useSelectField(props: () => UseSelectFieldProps): UseFormFieldRe
         name: current.name,
         size: current.size,
         disabled: current.disabled,
+        required: current.required,
       }
     },
     () => ({
@@ -79,11 +81,20 @@ export function useSelectMenuControl(options: {
   open: VoidFunction
 }) {
   const [isDismissing, setIsDismissing] = createSignal(false)
+  let dismissGeneration = 0
+  let disposed = false
+
+  onCleanup(() => {
+    disposed = true
+  })
 
   function markDismissing() {
     setIsDismissing(true)
+    const generation = ++dismissGeneration
     queueMicrotask(() => {
-      setIsDismissing(false)
+      if (!disposed && dismissGeneration === generation) {
+        setIsDismissing(false)
+      }
     })
   }
 
@@ -120,34 +131,46 @@ export function useSelectMenuControl(options: {
  */
 function normalizeLeafOption<TItems extends BaseSelectItems<TItems>>(
   option: TItems,
+  valueOccurrences: Map<string, number>,
+  resolvedItem?: TItems,
 ): NormalizedOption<TItems> {
-  const value = option.value
-  const label = option.label
-  const normalizedValue = String(value ?? '')
-  const key = option.key ?? (typeof label === 'string' ? label : normalizedValue)
+  const renderItem = resolvedItem ?? ({ ...option } as TItems)
+  const value = renderItem.value ?? ''
+  const label = renderItem.label
+  const serializedValue = String(value)
+  const key = renderItem.key ?? (typeof label === 'string' ? label : serializedValue)
+  const identity = `${typeof value}:${serializedValue}:${key}`
+  const occurrence = valueOccurrences.get(identity) ?? 0
+  valueOccurrences.set(identity, occurrence + 1)
 
   return {
-    value: normalizedValue,
-    label: label ?? normalizedValue,
+    id: `${encodeURIComponent(identity)}:${occurrence}`,
+    value,
+    label: label ?? serializedValue,
     key,
-    disabled: Boolean(option.disabled),
+    disabled: Boolean(renderItem.disabled),
     raw: option,
+    renderItem: renderItem as TItems,
   }
 }
 
 export function normalizeOptions<TItems extends BaseSelectItems<TItems>>(
   options: TItems[] | undefined,
 ): Array<NormalizedOption<TItems> | NormalizedGroup<TItems>> {
-  return (options ?? []).map((option) => {
-    if (Array.isArray(option.children) && option.children.length > 0) {
+  const valueOccurrences = new Map<string, number>()
+
+  return (options ?? []).map((option, index) => {
+    const renderItem = { ...option }
+    if (Array.isArray(renderItem.children) && renderItem.children.length > 0) {
       return {
-        label: option.label ?? '',
-        options: option.children.map((child) => normalizeLeafOption(child)),
+        id: `group:${index}`,
+        label: renderItem.label ?? '',
+        options: renderItem.children.map((child) => normalizeLeafOption(child, valueOccurrences)),
         isGroup: true as const,
       }
     }
 
-    return normalizeLeafOption(option)
+    return normalizeLeafOption(option, valueOccurrences, renderItem as TItems)
   })
 }
 
@@ -175,8 +198,7 @@ export function findNormalizedOptionByValue<TItems>(
     return undefined
   }
 
-  const normalizedValue = String(value)
-  return options.find((option) => option.value === normalizedValue)
+  return options.find((option) => Object.is(option.value, value))
 }
 
 export function findNormalizedOptionByText<TItems>(
@@ -191,7 +213,7 @@ export function findNormalizedOptionByText<TItems>(
   return options.find(
     (option) =>
       option.key.toLowerCase() === normalizedValue ||
-      option.value.toLowerCase() === normalizedValue,
+      String(option.value).toLowerCase() === normalizedValue,
   )
 }
 
@@ -209,7 +231,7 @@ export function emitSelectValueChange<TValue>(
 export function mapNormalizedToRawValue<TRaw extends { value?: string | number }>(
   option: NormalizedOption<TRaw>,
 ): string | number {
-  return option.raw.value ?? option.value
+  return option.value
 }
 
 export function mapNormalizedListToRawValues<TRaw extends { value?: string | number }>(

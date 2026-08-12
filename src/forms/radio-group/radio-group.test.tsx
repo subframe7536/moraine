@@ -1,7 +1,14 @@
+import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
+import { createForm, Form } from '../form/index.ts'
 
 import { RadioGroup } from './radio-group.tsx'
 
@@ -109,6 +116,100 @@ describe('RadioGroup', () => {
     expect(onChange).toHaveBeenCalledWith('A')
   })
 
+  test('selects with Space on keyup and ignores Enter', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <RadioGroup items={['A', 'B']} onChange={onChange} />)
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+
+    radioA.focus()
+    const spaceDown = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: ' ' })
+    radioA.dispatchEvent(spaceDown)
+
+    expect(spaceDown.defaultPrevented).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(radioA.checked).toBe(false)
+
+    const spaceUp = new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: ' ' })
+    radioA.dispatchEvent(spaceUp)
+
+    expect(spaceUp.defaultPrevented).toBe(true)
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith('A')
+    expect(radioA.checked).toBe(true)
+
+    onChange.mockClear()
+    const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
+    screen.getByRole('radio', { name: 'B' }).dispatchEvent(enter)
+
+    expect(enter.defaultPrevented).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onChange={onChange} />
+    ))
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+
+    radioA.focus()
+    await fireEvent.keyDown(radioA, { key: 'ArrowDown', shiftKey: true })
+    expect(document.activeElement).toBe(radioB)
+    expect(radioB.checked).toBe(true)
+
+    for (const modifier of ['altKey', 'ctrlKey', 'metaKey'] as const) {
+      const event = new KeyboardEvent('keydown', {
+        bubbles: true,
+        cancelable: true,
+        key: 'ArrowDown',
+        [modifier]: true,
+      })
+      radioB.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+      expect(document.activeElement).toBe(radioB)
+    }
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('uses horizontal RTL direction and skips disabled items', async () => {
+    const screen = render(() => (
+      <RadioGroup
+        dir="rtl"
+        orientation="horizontal"
+        defaultValue="A"
+        items={['A', { value: 'B', label: 'B', disabled: true }, 'C']}
+      />
+    ))
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioC = screen.getByRole('radio', { name: 'C' }) as HTMLInputElement
+
+    radioA.focus()
+    await fireEvent.keyDown(radioA, { key: 'ArrowLeft' })
+
+    expect(document.activeElement).toBe(radioC)
+    expect(radioC.checked).toBe(true)
+  })
+
+  test('assigns one roving tab stop for empty, stale, and all-disabled groups', () => {
+    const empty = render(() => <RadioGroup items={[]} />)
+    expect(empty.queryAllByRole('radio')).toHaveLength(0)
+    empty.unmount()
+
+    const stale = render(() => (
+      <RadioGroup value="missing" items={[{ value: 'A', label: 'A', disabled: true }, 'B', 'C']} />
+    ))
+    const staleRadios = stale.getAllByRole('radio')
+    expect(staleRadios.map((radio) => radio.getAttribute('tabindex'))).toEqual(['-1', '0', '-1'])
+    stale.unmount()
+
+    const disabled = render(() => <RadioGroup disabled items={['A', 'B']} />)
+    expect(disabled.getAllByRole('radio').map((radio) => radio.getAttribute('tabindex'))).toEqual([
+      '-1',
+      '-1',
+    ])
+  })
+
   test('keeps controlled value until parent updates', async () => {
     const onChange = vi.fn()
     const screen = render(() => <RadioGroup items={['A', 'B']} value="A" onChange={onChange} />)
@@ -125,6 +226,137 @@ describe('RadioGroup', () => {
       expect(radioA.checked).toBe(true)
       expect(radioB.checked).toBe(false)
     })
+  })
+
+  test('synchronizes explicit controlled values with FormField and restores rejected DOM state', async () => {
+    const [value, setValue] = createSignal('A')
+    const onChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ plan: v.string() }),
+          initialInput: { plan: 'A' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="plan" label="Plan">
+            <RadioGroup value={value()} items={['A', 'B']} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+
+    await fireEvent.click(radioB)
+    expect(onChange).toHaveBeenCalledWith('B')
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+    expect(getInput(form)).toEqual({ plan: 'A' })
+
+    setValue('B')
+    expect(radioB.checked).toBe(true)
+    expect(getInput(form)).toEqual({ plan: 'B' })
+
+    setInput(form, { path: ['plan'], input: 'A' })
+    expect(radioB.checked).toBe(true)
+    expect(getInput(form)).toEqual({ plan: 'B' })
+  })
+
+  test('reacts to external Formisch input without publishing callbacks', () => {
+    const onChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ plan: v.string() }),
+          initialInput: { plan: 'A' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="plan" label="Plan">
+            <RadioGroup items={['A', 'B']} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
+
+    setInput(form, { path: ['plan'], input: 'B' })
+
+    expect((screen.getByRole('radio', { name: 'B' }) as HTMLInputElement).checked).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('uses unique item identity and canonicalizes duplicate values to the first item', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <RadioGroup
+          name="plan"
+          defaultValue="same"
+          items={[
+            { value: 'same', label: 'First', description: 'First description' },
+            { value: 'same', label: 'Second', description: 'Second description' },
+          ]}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const radios = screen.getAllByRole('radio') as HTMLInputElement[]
+
+    expect(new Set(radios.map((radio) => radio.id)).size).toBe(2)
+    expect(radios.map((radio) => radio.checked)).toEqual([true, false])
+    expect(new FormData(form).getAll('plan')).toEqual(['same'])
+
+    radios[0]?.focus()
+    await fireEvent.keyDown(radios[0]!, { key: 'ArrowDown' })
+
+    expect(document.activeElement).toBe(radios[1])
+    expect(radios.map((radio) => radio.checked)).toEqual([true, false])
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('links item labels and descriptions while retaining FormField group messages', () => {
+    const screen = render(() => (
+      <FormField label="Plan" description="Choose one">
+        <RadioGroup
+          items={[
+            { value: 'basic', label: 'Basic', description: 'Basic description' },
+            { value: 'pro', label: 'Pro', description: 'Pro description' },
+          ]}
+        />
+      </FormField>
+    ))
+    const group = screen.getByRole('radiogroup')
+    const groupLabel = screen.getByText('Plan')
+    const groupDescription = screen.getByText('Choose one')
+
+    expect(group.getAttribute('aria-labelledby')).toBe(groupLabel.id)
+    expect(group.getAttribute('aria-describedby')).toContain(groupDescription.id)
+
+    for (const name of ['Basic', 'Pro']) {
+      const radio = screen.getByRole('radio', { name })
+      const itemDescription = screen.getByText(`${name} description`)
+      expect(radio.getAttribute('aria-labelledby')).toBe(screen.getByText(name).id)
+      expect(radio.getAttribute('aria-describedby')).toContain(itemDescription.id)
+      expect(radio.getAttribute('aria-describedby')).toContain(groupDescription.id)
+    }
+  })
+
+  test('moves focus to the next tab stop when a focused item is removed', async () => {
+    const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+      'A',
+      'B',
+      'C',
+    ])
+    const screen = render(() => <RadioGroup value="B" items={items()} />)
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+
+    radioB.focus()
+    setItems((current) => current.filter((item) => item !== 'B'))
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'A' }))
   })
 
   test('applies horizontal table layout classes', () => {
@@ -208,6 +440,83 @@ describe('RadioGroup', () => {
     })
   })
 
+  test('respects canceled group clicks and nested interactive label descendants', async () => {
+    const onChange = vi.fn()
+    const canceled = render(() => (
+      <RadioGroup
+        variant="card"
+        items={['A', 'B']}
+        onClick={(event: MouseEvent) => event.preventDefault()}
+        onChange={onChange}
+      />
+    ))
+
+    await fireEvent.click(canceled.container.querySelectorAll('[data-slot="item"]')[1]!)
+    expect(onChange).not.toHaveBeenCalled()
+    canceled.unmount()
+
+    const nested = render(() => (
+      <RadioGroup
+        variant="card"
+        items={[{ value: 'A', label: <button type="button">Details</button> }]}
+        onChange={onChange}
+      />
+    ))
+    await fireEvent.click(nested.getByRole('button', { name: 'Details' }))
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('preserves native FormData, required validity, readonly submission, and reset snapshots', async () => {
+    const [defaultValue, setDefaultValue] = createSignal('A')
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <RadioGroup
+          name="plan"
+          required
+          defaultValue={defaultValue()}
+          items={['A', 'B']}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+
+    expect(form.checkValidity()).toBe(true)
+    expect(new FormData(form).getAll('plan')).toEqual(['A'])
+    setDefaultValue('B')
+    await fireEvent.click(radioB)
+    expect(new FormData(form).getAll('plan')).toEqual(['B'])
+
+    form.reset()
+    await Promise.resolve()
+
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+    expect(new FormData(form).getAll('plan')).toEqual(['A'])
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    screen.unmount()
+    const empty = render(() => (
+      <form>
+        <RadioGroup name="required-plan" required items={['A', 'B']} />
+      </form>
+    ))
+    expect((empty.container.querySelector('form') as HTMLFormElement).checkValidity()).toBe(false)
+    empty.unmount()
+
+    const readOnly = render(() => (
+      <form>
+        <RadioGroup name="readonly-plan" readOnly defaultValue="A" items={['A', 'B']} />
+      </form>
+    ))
+    expect(new FormData(readOnly.container.querySelector('form')!).getAll('readonly-plan')).toEqual(
+      ['A'],
+    )
+  })
+
   test('does not select option when clicking list item container', async () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} defaultValue="A" />)
 
@@ -264,4 +573,111 @@ describe('RadioGroup', () => {
     expect(base?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')
   })
+
+  test('hydrates item identity, descriptions, checked state, and the first keyboard action', async () => {
+    const markup = renderSsrFixture(
+      '/src/forms/radio-group/radio-group.ssr.fixture.tsx',
+      'renderRadioGroupFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('#plans')
+    const serverItems = Array.from(container.querySelectorAll('[data-slot="item"]'))
+    const serverInputs = Array.from(container.querySelectorAll('[data-slot="input"]'))
+    const [value, setValue] = createSignal('pro')
+    const reads = { items: 0, orientation: 0, variant: 0, indicator: 0, label: 0, description: 0 }
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () =>
+        createComponent(RadioGroup, {
+          id: 'plans',
+          name: 'plan',
+          get value() {
+            return value()
+          },
+          get items() {
+            reads.items += 1
+            return [
+              {
+                value: 'basic',
+                get label() {
+                  reads.label += 1
+                  return 'Basic'
+                },
+                get description() {
+                  reads.description += 1
+                  return 'Basic description'
+                },
+              },
+              {
+                value: 'pro',
+                get label() {
+                  reads.label += 1
+                  return 'Pro'
+                },
+                get description() {
+                  reads.description += 1
+                  return 'Pro description'
+                },
+              },
+              {
+                value: 'enterprise',
+                get label() {
+                  reads.label += 1
+                  return 'Enterprise'
+                },
+                get description() {
+                  reads.description += 1
+                  return 'Enterprise description'
+                },
+              },
+            ]
+          },
+          get orientation() {
+            reads.orientation += 1
+            return 'vertical' as const
+          },
+          get variant() {
+            reads.variant += 1
+            return 'list' as const
+          },
+          get indicator() {
+            reads.indicator += 1
+            return 'start' as const
+          },
+          onChange: setValue,
+        }),
+      container,
+    )
+    const root = container.querySelector('#plans')!
+    const items = Array.from(container.querySelectorAll('[data-slot="item"]'))
+    const inputs = Array.from(
+      container.querySelectorAll('[data-slot="input"]'),
+    ) as HTMLInputElement[]
+
+    expect(root).toBe(serverRoot)
+    expect(items).toEqual(serverItems)
+    expect(inputs).toEqual(serverInputs)
+    expect(inputs.map((input) => input.checked)).toEqual([false, true, false])
+    expect(inputs.map((input) => input.getAttribute('tabindex'))).toEqual(['-1', '0', '-1'])
+    expect(reads).toEqual({
+      items: 1,
+      orientation: 1,
+      variant: 1,
+      indicator: 1,
+      label: 3,
+      description: 3,
+    })
+
+    inputs[1]?.focus()
+    await fireEvent.keyDown(inputs[1]!, { key: 'ArrowDown' })
+    expect(inputs.map((input) => input.checked)).toEqual([false, false, true])
+    expect(document.activeElement).toBe(inputs[2])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
 })

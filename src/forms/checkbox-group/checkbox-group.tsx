@@ -1,8 +1,16 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, onMount, splitProps } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
 import { Checkbox } from '../checkbox/index.ts'
@@ -14,6 +22,7 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
 import {
@@ -157,7 +166,6 @@ export interface CheckboxGroupProps<TTrue = boolean, TFalse = boolean> extends C
 > {}
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
-  id: string
   value: string
   label?: JSX.Element
   description?: JSX.Element
@@ -165,6 +173,48 @@ interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
   checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
   indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
+}
+
+function getCheckboxGroupItemValue<TTrue = boolean, TFalse = boolean>(
+  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
+  index: number,
+): string {
+  return typeof item === 'string' ? item : (item.value ?? String(index))
+}
+
+function isCheckboxGroupItemDisabled<TTrue = boolean, TFalse = boolean>(
+  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
+): boolean {
+  return typeof item !== 'string' && Boolean(item.disabled)
+}
+
+function isCheckboxGroupItemIndeterminate<TTrue = boolean, TFalse = boolean>(
+  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
+): boolean {
+  return typeof item !== 'string' && Boolean(item.indeterminate)
+}
+
+function normalizeCheckboxGroupItem<TTrue = boolean, TFalse = boolean>(
+  item: string | CheckboxGroupT.Item<TTrue, TFalse>,
+  index: number,
+): NormalizedCheckboxGroupItem<TTrue, TFalse> {
+  if (typeof item === 'string') {
+    return {
+      value: item,
+      label: item,
+      disabled: false,
+    }
+  }
+
+  return {
+    value: getCheckboxGroupItemValue(item, index),
+    label: item.label,
+    description: item.description,
+    disabled: Boolean(item.disabled),
+    indeterminate: item.indeterminate,
+    checkedIcon: item.checkedIcon,
+    indeterminateIcon: item.indeterminateIcon,
+  }
 }
 
 /** Multi-select checkbox group with card, list, and table layout variants. */
@@ -203,6 +253,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     local,
   )
   const legend = createMemo(() => merged.legend)
+  const items = createMemo(() => merged.items ?? [])
+  const controlledValue = createMemo(() => merged.value)
+  const initialDefaultValue = untrack(() => [...(merged.defaultValue ?? [])])
 
   const groupId = useId(() => merged.id, 'checkbox-group')
   const field = useFormField(
@@ -211,84 +264,95 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       bind: false,
       defaultId: groupId(),
       defaultSize: 'md',
-      initialValue: merged.defaultValue || [],
+      initialValue: initialDefaultValue,
     }),
   )
 
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<string[]>(
-    merged.defaultValue ?? [],
-  )
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<string[]>(initialDefaultValue)
   let fieldsetEl: HTMLFieldSetElement | undefined
 
-  const selectedValues = createMemo(() => merged.value ?? uncontrolledValue())
+  const selectedValues = createMemo(() => controlledValue() ?? uncontrolledValue())
   const legendId = createMemo(() => `${groupId()}-legend`)
+  const requiredOwnerIndex = createMemo(() =>
+    items().findIndex((item) => !isCheckboxGroupItemDisabled(item)),
+  )
+  const hasEnabledSelection = createMemo(() => {
+    const values = selectedValues()
 
-  const normalizedItems = createMemo<NormalizedCheckboxGroupItem<TTrue, TFalse>[]>(() => {
-    const items = merged.items ?? []
-
-    return items.map((item, index) => {
-      if (typeof item === 'string') {
-        return {
-          id: `${groupId()}:${item}`,
-          value: item,
-          label: item,
-          disabled: false,
-        }
-      }
-
-      const value = item.value ?? String(index)
-
-      return {
-        id: `${groupId()}:${value}`,
-        value,
-        label: item.label,
-        description: item.description,
-        disabled: Boolean(item.disabled),
-        indeterminate: item.indeterminate,
-        checkedIcon: item.checkedIcon,
-        indeterminateIcon: item.indeterminateIcon,
-      }
+    return items().some((sourceItem, index) => {
+      return (
+        !isCheckboxGroupItemDisabled(sourceItem) &&
+        values.includes(getCheckboxGroupItemValue(sourceItem, index))
+      )
     })
+  })
+  const hasCheckedItem = createMemo(() => {
+    const values = selectedValues()
+
+    return items().some((sourceItem, index) => {
+      return (
+        !isCheckboxGroupItemIndeterminate(sourceItem) &&
+        values.includes(getCheckboxGroupItemValue(sourceItem, index))
+      )
+    })
+  })
+  const hasIndeterminateItem = createMemo(() =>
+    items().some((sourceItem) => isCheckboxGroupItemIndeterminate(sourceItem)),
+  )
+  const checkedIcon = createMemo(() => (hasCheckedItem() ? merged.checkedIcon : undefined))
+  const indeterminateIcon = createMemo(() =>
+    hasIndeterminateItem() ? merged.indeterminateIcon : undefined,
+  )
+
+  createEffect(() => {
+    const value = controlledValue()
+
+    if (value !== undefined) {
+      field.setFormValue([...value])
+    }
   })
 
   function onItemCheckedChange(value: string, checked: boolean): void {
-    const nextValues = checked
-      ? selectedValues().includes(value)
-        ? selectedValues()
-        : [...selectedValues(), value]
-      : selectedValues().filter((itemValue) => itemValue !== value)
+    const currentValues = selectedValues()
+    const isSelected = currentValues.includes(value)
 
-    if (merged.value === undefined) {
+    if (checked === isSelected) {
+      return
+    }
+
+    const nextValues = checked
+      ? [...currentValues, value]
+      : currentValues.filter((itemValue) => itemValue !== value)
+
+    if (controlledValue() === undefined) {
       setUncontrolledValue(nextValues)
     }
 
-    field.setFormValue(nextValues)
-    merged.onChange?.(nextValues)
+    field.setFormValue([...nextValues])
+    merged.onChange?.([...nextValues])
     field.emit('change')
     field.emit('input')
   }
 
-  onMount(() => {
-    const form = fieldsetEl?.closest('form')
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => fieldsetEl?.closest('form'),
+    () => {
+      const value = controlledValue()
+      const nextValue = value ?? initialDefaultValue
 
-    function onReset(): void {
-      queueMicrotask(() => {
-        const nextValue = merged.defaultValue ?? []
-        setUncontrolledValue(nextValue)
-        field.setFormValue(nextValue)
-      })
-    }
+      if (value === undefined) {
+        setUncontrolledValue([...initialDefaultValue])
+      }
 
-    useEventListener(form, 'reset', onReset)
-  })
+      field.setFormValue([...nextValue])
+    },
+  )
 
   return (
     <div
@@ -304,8 +368,10 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         }}
         id={groupId()}
         data-slot="fieldset"
+        disabled={field.disabled()}
         style={merged.styles?.fieldset}
         aria-labelledby={legend() ? legendId() : undefined}
+        aria-required={field.required() || undefined}
         class={checkboxGroupFieldsetVariants(
           {
             orientation: merged.orientation,
@@ -323,7 +389,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
             class={checkboxGroupLegendVariants(
               {
                 size: field.size(),
-                required: merged.required,
+                required: field.required(),
               },
               merged.classes?.legend,
             )}
@@ -332,41 +398,48 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           </legend>
         </Show>
 
-        <For each={normalizedItems()}>
-          {(item) => (
-            <Checkbox
-              id={item.id}
-              name={field.name()}
-              formFieldBind={false}
-              checked={selectedValues().includes(item.value)}
-              defaultChecked={merged.defaultValue?.includes(item.value)}
-              value={item.value}
-              label={item.label}
-              description={item.description}
-              disabled={item.disabled || field.disabled()}
-              readOnly={merged.readOnly}
-              indeterminate={item.indeterminate}
-              required={merged.required}
-              size={field.size()}
-              variant={merged.variant === 'list' ? 'list' : 'card'}
-              indicator={merged.indicator}
-              checkedIcon={item.checkedIcon ?? merged.checkedIcon}
-              indeterminateIcon={item.indeterminateIcon ?? merged.indeterminateIcon}
-              classes={{
-                root: checkboxGroupItemVariants(
-                  {
-                    tableSize: merged.variant === 'table' ? field.size() : undefined,
-                    tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
-                  },
-                  merged.variant === 'table' && 'relative rounded-none border border-muted',
-                  merged.classes?.item,
-                ),
-                ...merged.classes,
-              }}
-              styles={merged.styles}
-              onChange={(checked) => onItemCheckedChange(item.value, Boolean(checked))}
-            />
-          )}
+        <For each={items()}>
+          {(sourceItem, index) => {
+            const itemId = useId(undefined, 'checkbox-group-item')
+            const item = createMemo(() => normalizeCheckboxGroupItem(sourceItem, index()))
+
+            return (
+              <Checkbox
+                id={itemId()}
+                name={field.name()}
+                formFieldBind={false}
+                checked={selectedValues().includes(item().value)}
+                defaultChecked={initialDefaultValue.includes(item().value)}
+                value={item().value}
+                label={item().label}
+                description={item().description}
+                disabled={item().disabled || field.disabled()}
+                readOnly={merged.readOnly}
+                indeterminate={item().indeterminate}
+                required={Boolean(
+                  field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex(),
+                )}
+                size={field.size()}
+                variant={merged.variant === 'list' ? 'list' : 'card'}
+                indicator={merged.indicator}
+                checkedIcon={item().checkedIcon ?? checkedIcon()}
+                indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
+                classes={{
+                  root: checkboxGroupItemVariants(
+                    {
+                      tableSize: merged.variant === 'table' ? field.size() : undefined,
+                      tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
+                    },
+                    merged.variant === 'table' && 'relative rounded-none border border-muted',
+                    merged.classes?.item,
+                  ),
+                  ...merged.classes,
+                }}
+                styles={merged.styles}
+                onChange={(checked) => onItemCheckedChange(item().value, Boolean(checked))}
+              />
+            )
+          }}
         </For>
       </fieldset>
     </div>

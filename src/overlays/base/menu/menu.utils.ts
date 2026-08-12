@@ -3,6 +3,7 @@ import type { Middleware, Placement, ReferenceElement, VirtualElement } from '@f
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
+import { createTypeahead } from '../../../shared/typeahead.ts'
 import { useEventListenerMap } from '../../../shared/use-event-listener.ts'
 import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation.ts'
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack.ts'
@@ -17,7 +18,7 @@ export function getOverlayMenuTextValue(item: {
     return item.label
   }
 
-  if (typeof item.description === 'string') {
+  if ((item.label === undefined || item.label === null) && typeof item.description === 'string') {
     return item.description
   }
 
@@ -98,7 +99,6 @@ export interface OverlayMenuRegisteredItem {
 export interface OverlayMenuRegisteredSubmenu {
   close: () => void
   id: string
-  isOpen: Accessor<boolean>
 }
 
 export interface OverlayMenuPointerGraceIntent {
@@ -122,10 +122,12 @@ export interface OverlayMenuLayerState {
   focusFirstItem: () => void
   focusItemByOffset: (delta: number) => void
   focusLastItem: () => void
+  handleTypeaheadKeyDown: (event: KeyboardEvent) => boolean
   highlightedItemId: Accessor<string | undefined>
   queuePointerEnter: (element: HTMLElement, callback: () => void) => void
   registerItem: (item: OverlayMenuRegisteredItem) => () => void
   registerSubmenu: (submenu: OverlayMenuRegisteredSubmenu) => () => void
+  resetTypeahead: () => void
   setContentElement: (element: HTMLDivElement | undefined) => void
   setCurrentPlacement: (placement: Placement) => void
   setHighlightedItemId: (id?: string) => void
@@ -136,6 +138,7 @@ export interface OverlayMenuLayerState {
   shouldBlockPointerEnter: (event: PointerEvent) => boolean
 }
 const POINTER_GRACE_TIMEOUT = 300
+const TYPEAHEAD_RESET_TIMEOUT = 500
 
 export interface OverlayMenuCloseOptions {
   restoreFocus?: boolean
@@ -303,13 +306,9 @@ export function useOverlayMenuFloatingPosition(options: {
   overflowPadding: Accessor<number>
   placement: Accessor<Placement>
 }): void {
-  let cleanupAutoUpdate: (() => void) | undefined
-
   createEffect(() => {
     if (!options.open()) {
       options.onPositionedChange(false)
-      cleanupAutoUpdate?.()
-      cleanupAutoUpdate = undefined
       return
     }
 
@@ -371,6 +370,18 @@ export function useOverlayMenuFloatingPosition(options: {
         },
         strategy: 'absolute',
       })
+      const referenceContext = 'contextElement' in reference ? reference.contextElement : undefined
+
+      if (
+        !options.open() ||
+        options.floatingElement() !== floating ||
+        options.getReferenceElement() !== reference ||
+        !floating.isConnected ||
+        (reference instanceof Element && !reference.isConnected) ||
+        (referenceContext instanceof Element && !referenceContext.isConnected)
+      ) {
+        return
+      }
 
       options.onPlacementChange(position.placement)
       content?.style.setProperty(
@@ -380,7 +391,7 @@ export function useOverlayMenuFloatingPosition(options: {
 
       Object.assign(floating.style, {
         left: '0',
-        position: 'fixed',
+        position: 'absolute',
         top: '0',
         transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
         visibility: 'visible',
@@ -388,12 +399,16 @@ export function useOverlayMenuFloatingPosition(options: {
       options.onPositionedChange(true)
     }
 
-    cleanupAutoUpdate = autoUpdate(referenceElement, floatingElement, updatePosition)
-    void updatePosition()
+    const cleanupAutoUpdate = autoUpdate(referenceElement, floatingElement, updatePosition, {
+      elementResize: typeof ResizeObserver === 'function',
+    })
 
     onCleanup(() => {
-      cleanupAutoUpdate?.()
-      cleanupAutoUpdate = undefined
+      cleanupAutoUpdate()
+      if (options.floatingElement() === floatingElement) {
+        options.onPositionedChange(false)
+        floatingElement.style.visibility = 'hidden'
+      }
     })
   })
 }
@@ -415,7 +430,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
 
   const closeSubmenus = (exceptId?: string): void => {
     for (const submenu of [...submenus()].reverse()) {
-      if (submenu.id === exceptId || !submenu.isOpen()) {
+      if (submenu.id === exceptId) {
         continue
       }
 
@@ -466,6 +481,19 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const focusLastItem = (): void => {
     focusBoundary('last')
   }
+
+  const typeahead = createTypeahead({
+    getItems: items,
+    getStartIndex: () => items().findIndex((item) => item.id === highlightedItemId()),
+    getText: (item) => item.textValue(),
+    isDisabled: (item) => !item.element()?.isConnected || item.disabled(),
+    onMatch: (item) => {
+      closeSubmenus(item?.hasSubmenu ? item.id : undefined)
+      focusItem(item)
+    },
+    timeout: TYPEAHEAD_RESET_TIMEOUT,
+  })
+  const handleTypeaheadKeyDown = typeahead.handleKeyDown
 
   const registerItem = (item: OverlayMenuRegisteredItem): (() => void) => {
     setItems((currentItems) => [...currentItems, item])
@@ -563,10 +591,12 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusFirstItem,
     focusItemByOffset,
     focusLastItem,
+    handleTypeaheadKeyDown,
     highlightedItemId,
     queuePointerEnter,
     registerItem,
     registerSubmenu,
+    resetTypeahead: typeahead.reset,
     setContentElement,
     setCurrentPlacement,
     setHighlightedItemId,
@@ -586,6 +616,10 @@ export function useOverlayMenuDismiss(options: {
 }): void {
   createEffect(() => {
     if (!options.open() || typeof document === 'undefined') {
+      return
+    }
+
+    if (options.contentElement && !options.contentElement()) {
       return
     }
 
@@ -610,7 +644,7 @@ export function useOverlayMenuDismiss(options: {
         return
       }
 
-      if (!isTopOverlay(stackEntry)) {
+      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
         return
       }
 
@@ -623,7 +657,7 @@ export function useOverlayMenuDismiss(options: {
         return
       }
 
-      if (!isTopOverlay(stackEntry)) {
+      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
         return
       }
 
@@ -636,11 +670,11 @@ export function useOverlayMenuDismiss(options: {
         return
       }
 
-      if (event.key !== 'Escape') {
+      if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229) {
         return
       }
 
-      if (!isTopOverlay(stackEntry)) {
+      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
         return
       }
 
@@ -655,7 +689,7 @@ export function useOverlayMenuDismiss(options: {
         focusin: onDocumentFocusIn,
         keydown: onDocumentKeyDown,
       },
-      true,
+      false,
     )
   })
 }
@@ -684,9 +718,15 @@ export function onLayerKeyDown(
   layer: OverlayMenuLayerState,
   onClose: (options?: OverlayMenuCloseOptions) => void,
   closeParentKey?: string,
+  onTab?: (direction: 'forward' | 'backward') => void,
 ): void {
+  if (event.isComposing || event.keyCode === 229) {
+    return
+  }
+
   if (event.key === 'Tab') {
     event.preventDefault()
+    onTab?.(event.shiftKey ? 'backward' : 'forward')
     return
   }
 

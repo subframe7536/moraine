@@ -1,5 +1,14 @@
+import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { FormField } from '../form-field/index.ts'
+import { createForm, Form } from '../form/index.ts'
 
 import { InputNumber } from './input-number.tsx'
 
@@ -77,6 +86,18 @@ describe('InputNumber', () => {
     expect(minSpinbutton.value).toBe('0')
   })
 
+  test('reactively disables steppers after reaching a boundary', async () => {
+    const screen = render(() => <InputNumber defaultValue={9} minValue={0} maxValue={10} />)
+    const incrementButton = screen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement
+    const decrementButton = screen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement
+
+    expect(incrementButton.disabled).toBe(false)
+    await fireEvent.click(incrementButton)
+
+    expect(incrementButton.disabled).toBe(true)
+    expect(decrementButton.disabled).toBe(false)
+  })
+
   test('supports uncontrolled increment and decrement behavior', async () => {
     const screen = render(() => <InputNumber defaultValue={1} />)
     const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
@@ -105,6 +126,65 @@ describe('InputNumber', () => {
     expect(spinbutton.value).toBe('5')
   })
 
+  test.each([
+    ['tenths', 0.1, 0.2, '0.3'],
+    ['small exponent steps', 0, 1e-7, '0.0000001'],
+  ])(
+    'steps %s without exposing binary floating-point noise',
+    async (_name, value, step, expected) => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber defaultValue={value} step={step} onRawValueChange={onRawValueChange} />
+      ))
+
+      await fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+
+      expect((screen.getByRole('spinbutton') as HTMLInputElement).value).toBe(expected)
+      expect(onRawValueChange).toHaveBeenLastCalledWith(Number(expected))
+    },
+  )
+
+  test('steps from parseable dirty text when a controlled value lags', async () => {
+    const onRawValueChange = vi.fn()
+    const screen = render(() => <InputNumber value={0} onRawValueChange={onRawValueChange} />)
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '7.5' } })
+    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+
+    expect(onRawValueChange).toHaveBeenLastCalledWith(8.5)
+    expect(spinbutton.value).toBe('7.5')
+  })
+
+  test('does not emit changes for keyboard or wheel boundary no-ops', async () => {
+    const onChange = vi.fn()
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <InputNumber
+        defaultValue={10}
+        maxValue={10}
+        wheel
+        onChange={onChange}
+        onRawValueChange={onRawValueChange}
+      />
+    ))
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    spinbutton.focus()
+    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    const wheelEvent = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaY: -1,
+    })
+    spinbutton.dispatchEvent(wheelEvent)
+
+    expect(spinbutton.value).toBe('10')
+    expect(onChange).not.toHaveBeenCalled()
+    expect(onRawValueChange).not.toHaveBeenCalled()
+    expect(wheelEvent.defaultPrevented).toBe(true)
+  })
+
   test('supports PageUp and PageDown using largeStep', async () => {
     const screen = render(() => <InputNumber defaultValue={0} step={4} />)
     const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
@@ -129,6 +209,39 @@ describe('InputNumber', () => {
 
     await fireEvent.keyDown(spinbutton, { key: 'Home' })
     expect(spinbutton.value).toBe('-100')
+  })
+
+  test('leaves Home and End native when their corresponding bounds are absent', () => {
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <InputNumber defaultValue={20} onRawValueChange={onRawValueChange} />
+    ))
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const homeEvent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Home' })
+    const endEvent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'End' })
+
+    spinbutton.dispatchEvent(homeEvent)
+    spinbutton.dispatchEvent(endEvent)
+
+    expect(homeEvent.defaultPrevented).toBe(false)
+    expect(endEvent.defaultPrevented).toBe(false)
+    expect(onRawValueChange).not.toHaveBeenCalled()
+    expect(spinbutton.value).toBe('20')
+  })
+
+  test('commits and formats parseable dirty text on Enter', async () => {
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
+    ))
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '7.' } })
+    await fireEvent.keyDown(spinbutton, { key: 'Enter' })
+
+    expect(spinbutton.value).toBe('7')
+    expect(onRawValueChange).toHaveBeenCalledOnce()
+    expect(onRawValueChange).toHaveBeenCalledWith(7)
   })
 
   test('does not change value with wheel by default', () => {
@@ -190,7 +303,7 @@ describe('InputNumber', () => {
     disabledSpinbutton.dispatchEvent(disabledWheelEvent)
 
     expect(disabledSpinbutton.value).toBe('5')
-    expect(disabledWheelEvent.defaultPrevented).toBe(true)
+    expect(disabledWheelEvent.defaultPrevented).toBe(false)
 
     disabledScreen.unmount()
 
@@ -207,7 +320,53 @@ describe('InputNumber', () => {
     readOnlySpinbutton.dispatchEvent(readOnlyWheelEvent)
 
     expect(readOnlySpinbutton.value).toBe('5')
-    expect(readOnlyWheelEvent.defaultPrevented).toBe(true)
+    expect(readOnlyWheelEvent.defaultPrevented).toBe(false)
+  })
+
+  test('does not cancel wheel events when unfocused or when deltaY is zero', () => {
+    const screen = render(() => <InputNumber defaultValue={5} wheel />)
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const unfocusedEvent = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaY: -1,
+    })
+
+    spinbutton.dispatchEvent(unfocusedEvent)
+    expect(unfocusedEvent.defaultPrevented).toBe(false)
+
+    spinbutton.focus()
+    const zeroEvent = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaY: 0,
+    })
+    spinbutton.dispatchEvent(zeroEvent)
+
+    expect(zeroEvent.defaultPrevented).toBe(false)
+    expect(spinbutton.value).toBe('5')
+  })
+
+  test('exposes formatted spinbutton text and stepper relationships', () => {
+    const screen = render(() => <InputNumber id="quantity" defaultValue={12.5} locale="de-DE" />)
+    const spinbutton = screen.getByRole('spinbutton')
+    const incrementButton = screen.getByRole('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+
+    expect(spinbutton.getAttribute('aria-valuetext')).toBe('12,5')
+    expect(incrementButton.getAttribute('aria-controls')).toBe('quantity')
+    expect(decrementButton.getAttribute('aria-controls')).toBe('quantity')
+  })
+
+  test('makes readonly step controls unavailable', () => {
+    const screen = render(() => <InputNumber defaultValue={5} readOnly />)
+
+    expect((screen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    )
+    expect((screen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    )
   })
 
   test('serializes one native form value and honors disabled and readonly states', async () => {
@@ -248,6 +407,170 @@ describe('InputNumber', () => {
     const readOnlyForm = readOnlyScreen.container.querySelector('form') as HTMLFormElement
 
     expect(new FormData(readOnlyForm).getAll('quantity')).toEqual(['4'])
+  })
+
+  test('parses locale-formatted string props and emits locale-formatted changes in order', async () => {
+    const calls: Array<string> = []
+    const screen = render(() => (
+      <InputNumber
+        value="12,5"
+        rawValue={13.5}
+        locale="de-DE"
+        onRawValueChange={(value) => calls.push(`raw:${value}`)}
+        onChange={(value) => calls.push(`text:${value}`)}
+      />
+    ))
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    expect(spinbutton.value).toBe('13,5')
+    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+
+    expect(calls).toEqual(['raw:14.5', 'text:14,5'])
+  })
+
+  test('replaces dirty text when the explicit controlled value changes externally', async () => {
+    const [value, setValue] = createSignal(5)
+    const screen = render(() => <InputNumber value={value()} />)
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '-' } })
+    expect(spinbutton.value).toBe('-')
+
+    setValue(8)
+    expect(spinbutton.value).toBe('8')
+  })
+
+  test('keeps FormField aligned with explicit controlled and external Formisch values', async () => {
+    const [value, setValue] = createSignal(5)
+    const onRawValueChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ quantity: v.number() }),
+          initialInput: { quantity: 5 },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="quantity" label="Quantity">
+            <InputNumber value={value()} onRawValueChange={onRawValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
+    const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    expect(onRawValueChange).toHaveBeenCalledWith(7)
+    expect(getInput(form)).toEqual({ quantity: 5 })
+
+    setValue(8)
+    expect(spinbutton.value).toBe('8')
+    expect(getInput(form)).toEqual({ quantity: 8 })
+
+    setInput(form, { path: ['quantity'], input: 9 })
+    expect(spinbutton.value).toBe('8')
+    expect(getInput(form)).toEqual({ quantity: 8 })
+  })
+
+  test('reacts to external Formisch input without publishing callbacks', () => {
+    const onRawValueChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ quantity: v.number() }),
+          initialInput: { quantity: 4 },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="quantity" label="Quantity">
+            <InputNumber onRawValueChange={onRawValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
+    const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
+
+    setInput(form, { path: ['quantity'], input: 6 })
+
+    expect(spinbutton.value).toBe('6')
+    expect(onRawValueChange).not.toHaveBeenCalled()
+  })
+
+  test('restores the initial uncontrolled snapshot on reset without reset callbacks', async () => {
+    const [defaultValue, setDefaultValue] = createSignal(2)
+    const onChange = vi.fn()
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <InputNumber
+          name="quantity"
+          defaultValue={defaultValue()}
+          onChange={onChange}
+          onRawValueChange={onRawValueChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    setDefaultValue(9)
+    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    expect(spinbutton.value).toBe('7')
+
+    form.reset()
+    await Promise.resolve()
+
+    expect(spinbutton.value).toBe('2')
+    expect(new FormData(form).get('quantity')).toBe('2')
+    expect(onRawValueChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('restores the latest explicit controlled value on reset without callbacks', async () => {
+    const [value, setValue] = createSignal(5)
+    const onChange = vi.fn()
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <InputNumber
+          value={value()}
+          defaultValue={1}
+          onChange={onChange}
+          onRawValueChange={onRawValueChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    expect(spinbutton.value).toBe('7')
+
+    setValue(6)
+    expect(spinbutton.value).toBe('6')
+    const callbackCounts = [onChange.mock.calls.length, onRawValueChange.mock.calls.length]
+
+    form.reset()
+    await Promise.resolve()
+
+    expect(spinbutton.value).toBe('6')
+    expect([onChange.mock.calls.length, onRawValueChange.mock.calls.length]).toEqual(callbackCounts)
+  })
+
+  test('does not reset state when native reset is canceled', async () => {
+    const screen = render(() => (
+      <form onReset={(event) => event.preventDefault()}>
+        <InputNumber defaultValue={2} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    form.reset()
+    await Promise.resolve()
+
+    expect(spinbutton.value).toBe('7')
   })
 
   test('repeats increment while the trigger is held', async () => {
@@ -362,6 +685,72 @@ describe('InputNumber', () => {
 
       expect(Number(spinbutton.value)).toBe(valueBeforeCancel)
     } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('stops hold repeat when pointer capture is lost', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const screen = render(() => <InputNumber defaultValue={0} />)
+      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const incrementButton = screen.getByRole('button', { name: 'Increment' })
+
+      await fireEvent.pointerDown(incrementButton, {
+        button: 0,
+        pointerId: 51,
+        pointerType: 'mouse',
+      })
+      await vi.advanceTimersByTimeAsync(620)
+
+      const valueBeforeCaptureLoss = Number(spinbutton.value)
+      await fireEvent.lostPointerCapture(incrementButton, {
+        pointerId: 51,
+        pointerType: 'mouse',
+      })
+      await vi.advanceTimersByTimeAsync(240)
+
+      expect(Number(spinbutton.value)).toBe(valueBeforeCaptureLoss)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('clears all repeat timers and restores selection styles on unmount', async () => {
+    vi.useFakeTimers()
+    const previousUserSelect = document.body.style.getPropertyValue('user-select')
+    const previousWebkitUserSelect = document.body.style.getPropertyValue('-webkit-user-select')
+
+    try {
+      document.body.style.setProperty('user-select', 'text')
+      document.body.style.setProperty('-webkit-user-select', 'text')
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber defaultValue={0} onRawValueChange={onRawValueChange} />
+      ))
+
+      await fireEvent.pointerDown(screen.getByRole('button', { name: 'Increment' }), {
+        button: 0,
+        pointerId: 61,
+        pointerType: 'mouse',
+      })
+      await fireEvent.pointerDown(screen.getByRole('button', { name: 'Decrement' }), {
+        button: 0,
+        pointerId: 62,
+        pointerType: 'mouse',
+      })
+      expect(document.body.style.getPropertyValue('user-select')).toBe('none')
+
+      screen.unmount()
+      await vi.advanceTimersByTimeAsync(1_000)
+
+      expect(onRawValueChange).not.toHaveBeenCalled()
+      expect(document.body.style.getPropertyValue('user-select')).toBe('text')
+      expect(document.body.style.getPropertyValue('-webkit-user-select')).toBe('text')
+    } finally {
+      document.body.style.setProperty('user-select', previousUserSelect)
+      document.body.style.setProperty('-webkit-user-select', previousWebkitUserSelect)
       vi.useRealTimers()
     }
   })
@@ -572,6 +961,28 @@ describe('InputNumber', () => {
     expect(document.activeElement).toBe(spinbutton)
   })
 
+  test('rechecks disabled state before delayed autofocus and clears the timer on unmount', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const [disabled, setDisabled] = createSignal(false)
+      const screen = render(() => (
+        <InputNumber autofocus autofocusDelay={100} disabled={disabled()} />
+      ))
+      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+
+      setDisabled(true)
+      await vi.advanceTimersByTimeAsync(100)
+      expect(document.activeElement).not.toBe(spinbutton)
+
+      screen.unmount()
+      await vi.advanceTimersByTimeAsync(100)
+      expect(document.activeElement).not.toBe(spinbutton)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   test('uses vertical orientation behavior with both controls', async () => {
     const screen = render(() => <InputNumber orientation="vertical" defaultValue={1} />)
     const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
@@ -579,10 +990,10 @@ describe('InputNumber', () => {
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
     const controls = screen.container.querySelector('[data-slot="controls"]') as HTMLElement | null
 
-    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
+    expect(incrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
       'icon-chevron-up',
     )
-    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
+    expect(decrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
       'icon-chevron-down',
     )
     expect(controls?.className).toContain('flex-col')
@@ -609,8 +1020,10 @@ describe('InputNumber', () => {
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
-    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-plus')
-    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-minus')
+    expect(incrementButton.querySelector('[data-slot="leading"]')?.className).toContain('icon-plus')
+    expect(decrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
+      'icon-minus',
+    )
 
     await fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
@@ -694,6 +1107,30 @@ describe('InputNumber', () => {
 
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
+  })
+
+  test('single-evaluates orientation and conditional control props', () => {
+    const reads = { decrement: 0, increment: 0, orientation: 0 }
+    const screen = render(() =>
+      createComponent(InputNumber, {
+        get decrement() {
+          reads.decrement += 1
+          return true
+        },
+        get increment() {
+          reads.increment += 1
+          return true
+        },
+        get orientation() {
+          reads.orientation += 1
+          return 'vertical' as const
+        },
+      }),
+    )
+
+    expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
+    expect(reads).toEqual({ decrement: 1, increment: 1, orientation: 1 })
   })
 
   test('applies size and variant classes', () => {
@@ -931,4 +1368,119 @@ describe('InputNumber', () => {
       expect(spinbutton.value).toBe('10,5')
     })
   })
+
+  test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
+    const markup = renderSsrFixture(
+      '/src/forms/input-number/input-number.ssr.fixture.tsx',
+      'renderInputNumberFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverHorizontalRoot = container.querySelector('#horizontal-number-root')
+    const serverHorizontalInput = container.querySelector('#horizontal-number') as HTMLInputElement
+    const [value, setValue] = createSignal(12.5)
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => <InputNumber id="horizontal-number" value={value()} locale="de-DE" />,
+      container,
+    )
+    const horizontalRoot = container.querySelector('#horizontal-number-root')!
+    const horizontalInput = container.querySelector('#horizontal-number') as HTMLInputElement
+
+    expect(horizontalRoot).toBe(serverHorizontalRoot)
+    expect(horizontalInput).toBe(serverHorizontalInput)
+    expect(horizontalInput.value).toBe('12,5')
+    expect(
+      Array.from(horizontalRoot.children).map((child) => child.getAttribute('data-slot')),
+    ).toEqual(['decrement', 'input', 'increment'])
+
+    setValue(13.5)
+    await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
+
+  test('hydrates vertical control order without replacing server nodes', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/input-number/input-number.ssr.fixture.tsx',
+      'renderVerticalInputNumberFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('#vertical-number-root')
+    const serverInput = container.querySelector('#vertical-number') as HTMLInputElement
+    const serverControls = serverRoot?.querySelector('[data-slot="controls"]')
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <InputNumber
+          id="vertical-number"
+          defaultValue={-2.5}
+          locale="en-US"
+          orientation="vertical"
+        />
+      ),
+      container,
+    )
+    const root = container.querySelector('#vertical-number-root')!
+    const input = container.querySelector('#vertical-number') as HTMLInputElement
+
+    expect(root).toBe(serverRoot)
+    expect(input).toBe(serverInput)
+    expect(root.querySelector('[data-slot="controls"]')).toBe(serverControls)
+    expect(input.value).toBe('-2.5')
+    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
+      'input',
+      'controls',
+    ])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
+
+  test('hydrates with both conditional controls hidden', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/input-number/input-number.ssr.fixture.tsx',
+      'renderHiddenInputNumberFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('#hidden-controls-number-root')
+    const serverInput = container.querySelector('#hidden-controls-number') as HTMLInputElement
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <InputNumber
+          id="hidden-controls-number"
+          defaultValue={3.25}
+          locale="en-US"
+          increment={false}
+          decrement={false}
+        />
+      ),
+      container,
+    )
+    const root = container.querySelector('#hidden-controls-number-root')!
+    const input = container.querySelector('#hidden-controls-number') as HTMLInputElement
+
+    expect(root).toBe(serverRoot)
+    expect(input).toBe(serverInput)
+    expect(input.value).toBe('3.25')
+    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
+      'input',
+    ])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 20_000)
 })

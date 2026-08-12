@@ -4,6 +4,8 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Card } from '../../elements/card/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
@@ -64,6 +66,9 @@ export namespace DialogT {
   > {
     /** Whether to render the overlay element. */
     overlay?: boolean
+
+    /** Accessible name used when the dialog has no rendered title. */
+    ariaLabel?: string
 
     /**
      * Primary title displayed in the dialog header.
@@ -154,6 +159,7 @@ export function Dialog(props: DialogProps): JSX.Element {
     'onOpenChange',
     'onExitComplete',
     'overlay',
+    'ariaLabel',
     'dismissible',
     'onClosePrevent',
     'title',
@@ -178,12 +184,21 @@ export function Dialog(props: DialogProps): JSX.Element {
     },
     local,
   )
-  const title = createMemo(() => merged.title)
-  const description = createMemo(() => merged.description)
-  const header = createMemo(() => merged.header)
+  const title = createLazyMemo(() => merged.title)
+  const description = createLazyMemo(() => merged.description)
+  const header = createLazyMemo(() => merged.header)
+  const body = createLazyMemo(() => merged.body)
+  const footer = createLazyMemo(() => merged.footer)
+  const closeIcon = createLazyMemo(() => merged.closeIcon)
+  const triggerRender = createMemo(() => merged.children)
   const rootId = useId(() => merged.id, 'dialog')
-  const titleId = createMemo(() => (title() ? `${rootId()}-title` : undefined))
-  const descriptionId = createMemo(() => (description() ? `${rootId()}-description` : undefined))
+  const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
+  const titleId = createLazyMemo(() =>
+    !hasCustomHeader() && hasJsxContent(title()) ? `${rootId()}-title` : undefined,
+  )
+  const descriptionId = createLazyMemo(() =>
+    !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
+  )
 
   const popupLayout = () => {
     if (merged.fullscreen) {
@@ -198,23 +213,23 @@ export function Dialog(props: DialogProps): JSX.Element {
   }
 
   const headerContent = (close: () => void) => {
-    if (header()) {
+    if (hasCustomHeader()) {
       return header()
     }
 
-    if (!title() && !description() && !merged.close) {
+    if (!hasJsxContent(title()) && !hasJsxContent(description()) && !merged.close) {
       return undefined
     }
 
     return (
       <>
-        <Show when={title() || description()}>
+        <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
             class={cn('flex-1 gap-1.5 grid min-w-0', merged.classes?.wrapper)}
           >
-            <Show when={title()}>
+            <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
@@ -228,7 +243,7 @@ export function Dialog(props: DialogProps): JSX.Element {
               </h2>
             </Show>
 
-            <Show when={description()}>
+            <Show when={hasJsxContent(description())}>
               <p
                 id={descriptionId()}
                 data-slot="description"
@@ -255,7 +270,7 @@ export function Dialog(props: DialogProps): JSX.Element {
               close()
             }}
           >
-            <Icon name={merged.closeIcon} />
+            <Icon name={closeIcon()} />
           </button>
         </Show>
       </>
@@ -275,7 +290,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       hasOverlay={merged.overlay}
       hasContent
     >
-      <ModalTrigger children={merged.children} />
+      <ModalTrigger children={triggerRender()} />
       <ModalContent
         overlay={merged.overlay}
         overlayClass={popupOverlayVariants(
@@ -292,12 +307,13 @@ export function Dialog(props: DialogProps): JSX.Element {
           merged.classes?.content,
         )}
         style={merged.styles?.content}
+        ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
         contentRender={(context) => (
           <Card
             header={headerContent(context.close)}
-            footer={merged.footer}
+            footer={footer()}
             classes={{
               root: dialogCardVariants({ layout: popupLayout() }),
               header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
@@ -308,7 +324,7 @@ export function Dialog(props: DialogProps): JSX.Element {
               ],
             }}
           >
-            {merged.body}
+            {body()}
           </Card>
         )}
       />

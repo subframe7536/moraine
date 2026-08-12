@@ -1,7 +1,10 @@
 import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Badge as ExportedBadge } from '../../index.ts'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Badge } from './badge.tsx'
 
@@ -78,9 +81,169 @@ describe('Badge', () => {
 
     const trailingButton = screen.container.querySelector('[data-slot="trailing"]')
     expect(trailingButton?.tagName).toBe('BUTTON')
+    expect(trailingButton?.getAttribute('aria-label')).toBe('Remove Removable')
 
     await fireEvent.click(trailingButton!)
     expect(onTrailingClick).toHaveBeenCalledTimes(1)
+  })
+
+  test('uses the title for the trailing button accessible name', () => {
+    const screen = render(() => (
+      <Badge title="Stable label" trailing="i-lucide-x" onTrailingClick={() => undefined}>
+        <span>Rich label</span>
+      </Badge>
+    ))
+
+    expect(
+      screen.container.querySelector('[data-slot="trailing"]')?.getAttribute('aria-label'),
+    ).toBe('Remove Stable label')
+  })
+
+  test('keeps standalone pointer events native and composes the caller handler', () => {
+    const onPointerDown = vi.fn((_data: string, _event: PointerEvent) => undefined)
+    const onAncestorPointerDown = vi.fn()
+    const screen = render(() => (
+      <div onPointerDown={onAncestorPointerDown}>
+        <Badge onPointerDown={onPointerDown}>Native</Badge>
+      </div>
+    ))
+    const badge = screen.container.querySelector('[data-slot="root"]')!
+    const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    badge.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(onAncestorPointerDown).toHaveBeenCalledTimes(1)
+  })
+
+  test('forwards tuple pointer handlers', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>)
+    const badge = screen.container.querySelector('[data-slot="root"]')!
+
+    badge.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
+
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(onPointerDown).toHaveBeenCalledWith('payload', expect.any(PointerEvent))
+  })
+
+  test('renders zero as label content', () => {
+    const screen = render(() => <Badge>{0}</Badge>)
+
+    expect(screen.container.querySelector('[data-slot="label"]')?.textContent).toBe('0')
+  })
+
+  test('reactively adds and removes the trailing action without duplicate callbacks', async () => {
+    const [interactive, setInteractive] = createSignal(false)
+    const onTrailingClick = vi.fn()
+    const screen = render(() => (
+      <Badge trailing="i-lucide-x" onTrailingClick={interactive() ? onTrailingClick : undefined}>
+        Reactive
+      </Badge>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
+
+    setInteractive(true)
+    const button = screen.container.querySelector('[data-slot="trailing"]')!
+    expect(button.tagName).toBe('BUTTON')
+    await fireEvent.click(button)
+    expect(onTrailingClick).toHaveBeenCalledTimes(1)
+
+    setInteractive(false)
+    expect(screen.container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
+  })
+
+  test('evaluates getter-backed conditional JSX inputs once', () => {
+    const reads = {
+      children: 0,
+      leading: 0,
+      trailing: 0,
+      onTrailingClick: 0,
+      title: 0,
+    }
+    const screen = render(() =>
+      createComponent(Badge, {
+        get children() {
+          reads.children += 1
+          return 'Cached'
+        },
+        get leading() {
+          reads.leading += 1
+          return 'i-lucide-check'
+        },
+        get trailing() {
+          reads.trailing += 1
+          return 'i-lucide-x'
+        },
+        get onTrailingClick() {
+          reads.onTrailingClick += 1
+          return () => undefined
+        },
+        get title() {
+          reads.title += 1
+          return 'Cached'
+        },
+      }),
+    )
+
+    expect(screen.container.textContent).toContain('Cached')
+    expect(reads).toEqual({
+      children: 1,
+      leading: 1,
+      trailing: 1,
+      onTrailingClick: 1,
+      title: 1,
+    })
+  })
+
+  test('hydrates stable slot order before reactively adding and removing the action', async () => {
+    const markup = renderSsrFixture(
+      '/src/elements/badge/badge.ssr.fixture.tsx',
+      'renderBadgeFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    expect(serverRoot?.getAttribute('data-hk')).toBe('00')
+    const [interactive, setInteractive] = createSignal(false)
+    const onTrailingClick = vi.fn()
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Badge
+          leading="i-lucide-check"
+          trailing="i-lucide-x"
+          onTrailingClick={interactive() ? onTrailingClick : undefined}
+        >
+          Server label
+        </Badge>
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(
+      Array.from(serverRoot?.children ?? []).map((element) => element.getAttribute('data-slot')),
+    ).toEqual(['leading', 'label', 'trailing'])
+
+    setInteractive(true)
+    const button = container.querySelector('[data-slot="trailing"]')!
+    expect(button.tagName).toBe('BUTTON')
+    expect(typeof (button as Element & { $$click?: (event: MouseEvent) => void }).$$click).toBe(
+      'function',
+    )
+    await fireEvent.click(button)
+    expect(onTrailingClick).toHaveBeenCalledTimes(1)
+
+    setInteractive(false)
+    expect(container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 
   test('supports slot and attribute overrides used by select tags', () => {

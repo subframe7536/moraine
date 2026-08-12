@@ -7,6 +7,7 @@ import {
   mergeProps,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -88,15 +89,15 @@ export function resolveFallbackText(text: string | undefined, alt: string | unde
   }
 
   const initials = (alt ?? '')
-    .split(' ')
-    .map((word) => word.trim())
+    .trim()
+    .split(/\s+/u)
     .filter(Boolean)
-    .map((word) => word.charAt(0))
+    .map((word) => Array.from(word)[0] ?? '')
     .join('')
-    .slice(0, 2)
     .toUpperCase()
+  const resolvedInitials = Array.from(initials).slice(0, 2).join('')
 
-  return initials || '\u00A0'
+  return resolvedInitials || '\u00A0'
 }
 
 export interface AvatarFaceProps extends AvatarT.Item {
@@ -133,8 +134,16 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     },
     local,
   )
+  const source = createMemo(() => merged.src?.trim() || undefined)
+  const alt = createMemo(() => merged.alt)
+  const text = createMemo(() => merged.text)
   const fallback = createMemo(() => merged.fallback)
   const badge = createMemo(() => merged.badge)
+  const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
+  const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
+  const rootAriaLabel = createMemo(
+    () => (rest as JSX.AriaAttributes)['aria-label'] as string | undefined,
+  )
   const [status, setStatusSignal] = createSignal<AvatarStatus>('idle')
   const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 
@@ -147,11 +156,11 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
     currentStatus = nextStatus
     setStatusSignal(nextStatus)
-    merged.onStatusChange?.(nextStatus)
+    untrack(() => merged.onStatusChange)?.(nextStatus)
   }
 
   createEffect(() => {
-    const source = merged.src?.trim() || undefined
+    const currentSource = source()
     let cancelled = false
 
     onCleanup(() => {
@@ -160,7 +169,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
     setResolvedSrc(undefined)
 
-    if (!source || typeof window === 'undefined' || typeof window.Image !== 'function') {
+    if (!currentSource || typeof window === 'undefined' || typeof window.Image !== 'function') {
       setStatus('error')
       return
     }
@@ -172,7 +181,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       if (cancelled) {
         return
       }
-      setResolvedSrc(source)
+      setResolvedSrc(currentSource)
       setStatus('loaded')
     }
 
@@ -184,13 +193,23 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       setStatus('error')
     }
 
-    loader.src = source
+    loader.src = currentSource
+
+    if (loader.complete) {
+      if (loader.naturalWidth > 0) {
+        setResolvedSrc(currentSource)
+        setStatus('loaded')
+      } else {
+        setStatus('error')
+      }
+    }
   })
 
   return (
     <span
       data-slot={merged.rootSlot ?? 'root'}
       data-status={status()}
+      role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
       style={
         merged.rootSlot === 'item' ? merged.style : { ...merged.styles?.root, ...merged.style }
@@ -204,7 +223,8 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         data-slot="image"
         style={merged.styles?.image}
         src={resolvedSrc()}
-        alt={merged.alt ?? ''}
+        alt={alt() ?? ''}
+        aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
         class={avatarImageVariants(
           { transition: merged.transition },
           status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
@@ -214,6 +234,17 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <span
         data-slot="fallback"
+        role={
+          status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
+            ? 'img'
+            : undefined
+        }
+        aria-label={
+          status() !== 'loaded' && rootAriaLabel() === undefined
+            ? fallbackAccessibleLabel()
+            : undefined
+        }
+        aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
         style={merged.styles?.fallback}
         class={avatarFallbackVariants(
           {
@@ -224,7 +255,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
           merged.classes?.fallback,
         )}
       >
-        <Show when={fallback()} fallback={resolveFallbackText(merged.text, merged.alt)}>
+        <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}

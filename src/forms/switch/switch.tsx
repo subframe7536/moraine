@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
@@ -15,6 +15,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SwitchVariantProps } from './switch.class.ts'
 import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class.ts'
@@ -151,7 +152,10 @@ export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  type RootProps = SwitchProps<TTrue, TFalse> & {
+    onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  }
+  const [local, rest] = splitProps(props as RootProps, [
     'id',
     'name',
     'disabled',
@@ -175,6 +179,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'styles',
     'class',
     'style',
+    'onClick',
   ])
   const merged = mergeProps(
     {
@@ -189,6 +194,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
+  const loadingIcon = createMemo(() => merged.loadingIcon)
+  const checkedIcon = createMemo(() => merged.checkedIcon)
+  const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
+  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
+  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
 
   const generatedId = useId(() => merged.id, 'switch')
   const field = useFormField(
@@ -197,6 +207,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled || merged.loading,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
@@ -211,6 +222,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const descriptionId = createMemo(() => `${field.id()}-description`)
 
   let inputEl: HTMLInputElement | undefined
+  const initialDefaultChecked = untrack(() => Boolean(merged.defaultChecked))
 
   function toCheckedState(value: unknown): boolean {
     if (value === merged.trueValue) {
@@ -278,10 +290,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const switchAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
-    const describedBy = [
-      attrs['aria-describedby'],
-      merged.description ? descriptionId() : undefined,
-    ]
+    const describedBy = [attrs['aria-describedby'], showDescription() ? descriptionId() : undefined]
       .filter(Boolean)
       .join(' ')
 
@@ -306,37 +315,24 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     onChange(!checked())
   }
 
-  onMount(() => {
-    const form = inputEl?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const controlledChecked = merged.checked
+      const nextChecked =
+        controlledChecked === undefined ? initialDefaultChecked : toCheckedState(controlledChecked)
 
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity
-      queueMicrotask(() => {
-        const nextChecked = Boolean(merged.defaultChecked)
+      if (controlledChecked === undefined) {
         setChecked(nextChecked)
+      }
 
-        if (inputEl) {
-          inputEl.checked = nextChecked
-        }
+      if (inputEl) {
+        inputEl.checked = nextChecked
+      }
 
-        field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
-  })
-
-  function onRootKeyDown(event: KeyboardEvent): void {
-    if (event.key !== ' ' && event.key !== 'Enter') {
-      return
-    }
-
-    event.preventDefault()
-    toggle()
-  }
+      field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
+    },
+  )
 
   function onPointerDown(
     event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],
@@ -353,11 +349,23 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
-      return merged.loadingIcon
+      return loadingIcon()
     }
 
-    return checked() ? merged.checkedIcon : merged.uncheckedIcon
+    return checked() ? checkedIcon() : uncheckedIcon()
   })
+
+  const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onClick)
+    if (defaultPrevented || event.button !== 0) {
+      return
+    }
+
+    const target = event.target
+    if (target instanceof Element && target.closest('[data-slot="track"]')) {
+      toggle()
+    }
+  }
 
   return (
     <div
@@ -365,6 +373,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('flex flex-row', merged.classes?.root, merged.class)}
+      onClick={onRootClick}
     >
       <HiddenInput
         ref={(element) => {
@@ -375,7 +384,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         name={field.name()}
         value={merged.value}
         checked={Boolean(checked())}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
         tabIndex={-1}
@@ -403,10 +412,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-slot="track"
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
-        aria-labelledby={merged.label ? labelId() : undefined}
+        aria-labelledby={showLabel() ? labelId() : undefined}
         {...switchAriaAttrs()}
         style={merged.styles?.track}
         class={switchTrackVariants(
@@ -417,8 +426,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           field.disabled() && 'effect-dis',
         )}
         onPointerDown={onPointerDown}
-        onClick={() => toggle()}
-        onKeyDown={onRootKeyDown}
         data-checked={checked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-readonly={readOnly() ? '' : undefined}
@@ -453,7 +460,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         </span>
       </button>
 
-      <Show when={label() || description()}>
+      <Show when={showLabel() || showDescription()}>
         <span
           data-slot="wrapper"
           style={merged.styles?.wrapper}
@@ -464,15 +471,15 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             merged.classes?.wrapper,
           )}
         >
-          <Show when={label()}>
+          <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
               style={merged.styles?.label}
               class={cn(
-                'text-foreground font-medium block cursor-pointer',
-                merged.required && "after:(text-destructive ms-0.5 content-['*'])",
+                'text-foreground font-medium block cursor-pointer select-none',
+                field.required() && "after:(text-destructive ms-0.5 content-['*'])",
                 merged.classes?.label,
               )}
             >
@@ -480,7 +487,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             </label>
           </Show>
 
-          <Show when={description()}>
+          <Show when={showDescription()}>
             <span
               id={descriptionId()}
               data-slot="description"

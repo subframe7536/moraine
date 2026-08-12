@@ -87,7 +87,7 @@
     "satteri": "^0.9.5",
     "satteri-expressive-code": "^0.1.18",
     "solid-file-router": "^0.7.2",
-    "solid-toaster": "^0.1.5",
+    "solid-toaster": "^0.1.7",
     "tailwindcss": "^4.3.2",
     "tsdown": "^0.22.7",
     "typescript": "^7.0.2",

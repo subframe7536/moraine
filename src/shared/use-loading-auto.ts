@@ -27,10 +27,10 @@ export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
   isLoading: Accessor<boolean>
   onClick: JSX.EventHandler<T, E>
 } {
-  const [loadingAutoState, setLoadingAutoState] = createSignal(false)
+  const [pendingActionCount, setPendingActionCount] = createSignal(0)
 
   const isLoading = createMemo(() =>
-    Boolean(options.loading?.() || (options.loadingAuto?.() && loadingAutoState())),
+    Boolean(options.loading?.() || (options.loadingAuto?.() && pendingActionCount() > 0)),
   )
 
   const onClick: JSX.EventHandler<T, E> = (event) => {
@@ -40,10 +40,11 @@ export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
       return
     }
 
-    setLoadingAutoState(true)
-    Promise.resolve(handlerResult).finally(() => {
-      setLoadingAutoState(false)
-    })
+    setPendingActionCount((count) => count + 1)
+    const settle = (): void => {
+      setPendingActionCount((count) => Math.max(0, count - 1))
+    }
+    void Promise.resolve(handlerResult).then(settle, settle)
   }
 
   return {

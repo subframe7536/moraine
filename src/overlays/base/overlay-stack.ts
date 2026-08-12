@@ -32,6 +32,15 @@ export function isTopOverlay(entry: OverlayStackEntry): boolean {
   return overlayStack[overlayStack.length - 1] === entry
 }
 
+/** Returns whether a target belongs to this layer, its trigger, or a nested layer above it. */
+export function isInsideOverlayLayer(entry: OverlayStackEntry, target: Node): boolean {
+  if (entry.contentElement()?.contains(target) || entry.triggerElement()?.contains(target)) {
+    return true
+  }
+
+  return isInsideDescendantOverlay(entry, target)
+}
+
 /**
  * Returns true when the target lives inside any overlay that was pushed onto
  * the stack AFTER the supplied entry. Used so that an outer overlay treats
@@ -50,6 +59,27 @@ export function isInsideDescendantOverlay(entry: OverlayStackEntry, target: Node
     const trigger = above?.triggerElement()
 
     if (content?.contains(target) || trigger?.contains(target)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/** Returns whether a branch contains content from a layer above the layer owning `target`. */
+export function containsOverlayContentAbove(target: Node, branch: Element): boolean {
+  const ownerIndex = overlayStack.findIndex((entry) => {
+    const content = entry.contentElement()
+    return content === target || content?.contains(target)
+  })
+
+  if (ownerIndex === -1) {
+    return false
+  }
+
+  for (let index = ownerIndex + 1; index < overlayStack.length; index++) {
+    const content = overlayStack[index]?.contentElement()
+    if (content && (content === branch || branch.contains(content))) {
       return true
     }
   }

@@ -202,6 +202,28 @@ describe('useSelectableCollectionNavigation', () => {
       onNavigationKeyDown(endEvent, 'b', 'horizontal')
       expect(onSelect).toHaveBeenCalledWith('d')
     })
+
+    test('Home and End are no-ops when already at the enabled boundary', () => {
+      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
+      const onSelect = vi.fn()
+      const focusValue = vi.fn()
+      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+        items,
+        getValue: (item) => item.value,
+        onSelect,
+        focusValue,
+      })
+
+      const homeEvent = createMockKeyboardEvent('Home')
+      onNavigationKeyDown(homeEvent, 'a', 'horizontal')
+      const endEvent = createMockKeyboardEvent('End')
+      onNavigationKeyDown(endEvent, 'b', 'horizontal')
+
+      expect(homeEvent.preventDefault).toHaveBeenCalledOnce()
+      expect(endEvent.preventDefault).toHaveBeenCalledOnce()
+      expect(onSelect).not.toHaveBeenCalled()
+      expect(focusValue).not.toHaveBeenCalled()
+    })
   })
 
   describe('activation modes', () => {
@@ -324,6 +346,26 @@ describe('useSelectableCollectionNavigation', () => {
     expect(onSelect).not.toHaveBeenCalled()
   })
 
+  test('does not handle an event already canceled by the caller', () => {
+    const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
+    const onSelect = vi.fn()
+    const getDirection = vi.fn(() => 'ltr' as const)
+    const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      items,
+      getValue: (item) => item.value,
+      onSelect,
+      getDirection,
+    })
+    const event = createMockKeyboardEvent('ArrowRight')
+    Object.defineProperty(event, 'defaultPrevented', { value: true })
+
+    onNavigationKeyDown(event, 'a', 'horizontal')
+
+    expect(event.preventDefault).not.toHaveBeenCalled()
+    expect(getDirection).not.toHaveBeenCalled()
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
   describe('looping behavior', () => {
     test('wraps from last to first when loop is true', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
@@ -404,6 +446,28 @@ describe('useSelectableCollectionNavigation', () => {
   })
 
   describe('edge cases', () => {
+    test('recovers from a current value removed from the dynamic collection', () => {
+      const [items, setItems] = createSignal<TestItem[]>([
+        { value: 'a' },
+        { value: 'b' },
+        { value: 'c' },
+      ])
+      const onSelect = vi.fn()
+      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+        items,
+        getValue: (item) => item.value,
+        onSelect,
+      })
+
+      setItems((current) => current.filter((item) => item.value !== 'a'))
+
+      onNavigationKeyDown(createMockKeyboardEvent('ArrowDown'), 'a', 'vertical')
+      expect(onSelect).toHaveBeenLastCalledWith('b')
+
+      onNavigationKeyDown(createMockKeyboardEvent('ArrowUp'), 'a', 'vertical')
+      expect(onSelect).toHaveBeenLastCalledWith('c')
+    })
+
     test('handles Spacebar legacy key name', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()

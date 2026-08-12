@@ -1,5 +1,9 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Popup } from './popup.tsx'
 
@@ -34,6 +38,144 @@ describe('Popup', () => {
 
     expect(content?.textContent).toContain('Popup content')
     expect(content?.getAttribute('role')).toBe('dialog')
+  })
+
+  test('uses the title to provide the dialog accessible name', () => {
+    render(() => (
+      <Popup
+        open
+        id="account-popup"
+        title="Popup title"
+        description="Popup description"
+        content="Body"
+      />
+    ))
+
+    const dialog = screen.getByRole('dialog', { name: 'Popup title' })
+    const title = document.body.querySelector('[data-slot="title"]')
+    const description = document.body.querySelector('[data-slot="description"]')
+
+    expect(title?.id).toBe('account-popup-title')
+    expect(description?.id).toBe('account-popup-description')
+    expect(dialog.getAttribute('aria-labelledby')).toBe('account-popup-title')
+    expect(dialog.getAttribute('aria-describedby')).toBe('account-popup-description')
+    expect(title?.textContent).toBe('Popup title')
+  })
+
+  test('uses ariaLabel when the popup has no title', () => {
+    render(() => <Popup open ariaLabel="Account actions" content="Body" />)
+
+    const dialog = screen.getByRole('dialog', { name: 'Account actions' })
+
+    expect(dialog.getAttribute('aria-label')).toBe('Account actions')
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+  })
+
+  test('prefers the title over ariaLabel when both are provided', () => {
+    render(() => <Popup open title="Popup title" ariaLabel="Fallback name" content="Body" />)
+
+    const dialog = screen.getByRole('dialog', { name: 'Popup title' })
+
+    expect(dialog.getAttribute('aria-label')).toBeNull()
+    expect(dialog.getAttribute('aria-labelledby')).not.toBeNull()
+  })
+
+  test('updates the labelled-by relationship and accessible name when the title changes', async () => {
+    const [title, setTitle] = createSignal<string | undefined>('Initial title')
+
+    render(() => <Popup open title={title()} ariaLabel="Fallback name" content="Body" />)
+
+    const dialog = screen.getByRole('dialog', { name: 'Initial title' })
+    const titleElement = document.body.querySelector('[data-slot="title"]')!
+    const titleId = titleElement.id
+
+    setTitle('Updated title')
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Updated title' })).toBe(dialog)
+      expect(dialog.getAttribute('aria-labelledby')).toBe(titleId)
+      expect(titleElement.textContent).toBe('Updated title')
+    })
+
+    setTitle(undefined)
+
+    await waitFor(() => {
+      expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+      expect(dialog.getAttribute('aria-label')).toBe('Fallback name')
+      expect(screen.getByRole('dialog', { name: 'Fallback name' })).toBe(dialog)
+      expect(document.body.querySelector('[data-slot="title"]')).toBeNull()
+    })
+  })
+
+  test('does not infer the accessible name from content without title or ariaLabel', () => {
+    render(() => <Popup open content="Body" />)
+
+    const dialog = screen.getByRole('dialog')
+
+    expect(dialog.getAttribute('aria-label')).toBeNull()
+    expect(dialog.getAttribute('aria-labelledby')).toBeNull()
+    expect(dialog.textContent).toContain('Body')
+  })
+
+  test('evaluates content, title, and description getters once', () => {
+    const reads = { content: 0, description: 0, title: 0 }
+
+    render(() =>
+      createComponent(Popup, {
+        open: true,
+        get content() {
+          reads.content += 1
+          return 'Body'
+        },
+        get description() {
+          reads.description += 1
+          return 'Description'
+        },
+        get title() {
+          reads.title += 1
+          return 'Title'
+        },
+      }),
+    )
+
+    expect(reads).toEqual({ content: 1, description: 1, title: 1 })
+  })
+
+  test('hydrates the closed popup without replacing the trigger before opening', async () => {
+    const markup = renderSsrFixture(
+      '/src/overlays/popup/popup.ssr.fixture.tsx',
+      'renderPopupFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverTrigger = container.querySelector('[data-slot="trigger"]')!
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Popup title="Hydrated popup" content="Hydrated body">
+          {(props) => (
+            <button {...props} type="button">
+              Open popup
+            </button>
+          )}
+        </Popup>
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="trigger"]')).toBe(serverTrigger)
+
+    await fireEvent.click(serverTrigger)
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Hydrated popup' })).not.toBeNull()
+    })
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
   })
 
   test('renders into portal by default', () => {
@@ -282,6 +424,52 @@ describe('Popup', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('keeps content inside the overlay until both exit motions settle', async () => {
+    let resolveOverlayExit!: () => void
+    let resolveContentExit!: () => void
+    const overlayExit = new Promise<void>((resolve) => {
+      resolveOverlayExit = resolve
+    })
+    const contentExit = new Promise<void>((resolve) => {
+      resolveContentExit = resolve
+    })
+    const [open, setOpen] = createSignal(true)
+
+    render(() => (
+      <Popup open={open()} content="Body">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popup>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+
+    Object.defineProperty(overlay, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: overlayExit }],
+    })
+    Object.defineProperty(content, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: contentExit }],
+    })
+
+    setOpen(false)
+    await Promise.resolve()
+    resolveOverlayExit()
+    await waitFor(() => {
+      expect(content.parentElement).toBe(overlay)
+    })
+
+    resolveContentExit()
+    await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
   })

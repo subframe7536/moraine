@@ -1,12 +1,11 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
@@ -15,6 +14,8 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxVariantProps } from './checkbox.class.ts'
 import {
@@ -217,6 +218,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       bind: merged.formFieldBind,
@@ -238,6 +240,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
     return toCheckedState(merged.defaultChecked)
   })
+  const initialDefaultChecked = untrack(defaultCheckedState)
 
   let inputEl: HTMLInputElement | undefined
 
@@ -281,7 +284,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
       return undefined
     },
-    defaultValue: defaultCheckedState,
+    defaultValue: () => initialDefaultChecked,
   })
 
   const resolvedChecked = createMemo<boolean | undefined>(() => {
@@ -296,6 +299,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
     return checked() === 'indeterminate'
   })
+  const activeIcon = createMemo(() =>
+    indeterminate() ? merged.indeterminateIcon : merged.checkedIcon,
+  )
 
   createEffect(() => {
     if (merged.formFieldBind === false || merged.checked === undefined) {
@@ -323,9 +329,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
   const readOnly = createMemo(() => Boolean(merged.readOnly))
   const labelId = createMemo(() => `${field.id()}-label`)
-  const descriptionId = createMemo(() =>
-    merged.description ? `${field.id()}-description` : undefined,
-  )
+  const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
   const checkboxAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
@@ -344,31 +348,32 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
   })
 
-  onMount(() => {
-    const form = inputEl?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const explicitlyControlled = merged.checked !== undefined
+      const nextChecked = explicitlyControlled ? checked() : initialDefaultChecked
 
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity
-      queueMicrotask(() => {
-        const nextChecked = defaultCheckedState()
+      if (!explicitlyControlled) {
         setChecked(nextChecked)
 
-        if (inputEl) {
-          inputEl.checked = nextChecked === true
-          inputEl.indeterminate = nextChecked === 'indeterminate'
-        }
-
         if (merged.formFieldBind !== false) {
-          field.setFormValue(nextChecked === true ? merged.trueValue : merged.falseValue)
+          field.setFormValue(
+            nextChecked === 'indeterminate'
+              ? undefined
+              : nextChecked
+                ? merged.trueValue
+                : merged.falseValue,
+          )
         }
-      })
-    }
+      }
 
-    useEventListener(form, 'reset', onReset)
-  })
+      if (inputEl) {
+        inputEl.checked = nextChecked === true
+        inputEl.indeterminate = nextChecked === 'indeterminate'
+      }
+    },
+  )
 
   function toggle(): void {
     if (field.disabled() || readOnly()) {
@@ -378,13 +383,27 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     onChange(!resolvedChecked())
   }
 
+  let enterPressed = false
+
   function onControlKeyDown(event: KeyboardEvent): void {
-    if (event.key !== ' ') {
+    if (event.key !== 'Enter') {
       return
     }
 
+    enterPressed = true
     event.preventDefault()
-    toggle()
+  }
+
+  function onControlKeyUp(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      enterPressed = false
+    }
+  }
+
+  function onControlClick(event: MouseEvent): void {
+    if (enterPressed) {
+      event.preventDefault()
+    }
   }
 
   const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
@@ -403,12 +422,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     if (defaultPrevented) {
       return
     }
-    if (merged.variant !== 'card') {
+    if (event.button !== 0) {
       return
     }
 
     const target = event.target
-    if (target instanceof HTMLElement && target.closest('[data-slot="control"]')) {
+    if (!(target instanceof Element)) {
+      return
+    }
+
+    if (target.closest('[data-slot="control"]')) {
+      toggle()
+      return
+    }
+
+    if (merged.variant !== 'card' || isInteractiveTarget(target)) {
       return
     }
 
@@ -444,7 +472,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         name={field.name()}
         value={merged.value}
         checked={Boolean(resolvedChecked())}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
         tabIndex={-1}
@@ -474,10 +502,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         data-slot="control"
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
-        aria-labelledby={merged.label ? labelId() : undefined}
+        aria-labelledby={label() ? labelId() : undefined}
         style={merged.styles?.control}
         class={checkboxBaseVariants(
           { size: field.size() },
@@ -486,14 +514,18 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           field.disabled() && 'effect-dis',
         )}
         onPointerDown={onPointerDown}
-        onClick={() => toggle()}
+        onClick={onControlClick}
         onKeyDown={onControlKeyDown}
+        onKeyUp={onControlKeyUp}
+        onBlur={() => {
+          enterPressed = false
+        }}
         {...checkboxAriaAttrs()}
         data-checked={resolvedChecked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-indeterminate={indeterminate() ? '' : undefined}
         data-readonly={readOnly() ? '' : undefined}
-        data-required={merged.required ? '' : undefined}
+        data-required={field.required() ? '' : undefined}
       >
         <Show when={resolvedChecked() || indeterminate()}>
           <span
@@ -507,10 +539,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             data-disabled={field.disabled() ? '' : undefined}
             data-indeterminate={indeterminate() ? '' : undefined}
             data-readonly={readOnly() ? '' : undefined}
-            data-required={merged.required ? '' : undefined}
+            data-required={field.required() ? '' : undefined}
           >
             <Icon
-              name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+              name={activeIcon()}
               class={checkboxIconVariants({ size: field.size() }, merged.classes?.icon)}
             />
           </span>
@@ -539,7 +571,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   data-slot="label"
                   style={merged.styles?.label}
                   class={checkboxLabelVariants(
-                    { required: merged.required },
+                    { required: field.required() },
                     merged.classes?.label,
                   )}
                 >
@@ -551,7 +583,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 id={labelId()}
                 data-slot="label"
                 style={merged.styles?.label}
-                class={checkboxLabelVariants({ required: merged.required }, merged.classes?.label)}
+                class={checkboxLabelVariants({ required: field.required() }, merged.classes?.label)}
               >
                 {label()}
               </p>

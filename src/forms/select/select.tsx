@@ -1,5 +1,5 @@
 import type { Component, JSX } from 'solid-js'
-import { Show } from 'solid-js'
+import { Show, createMemo, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
@@ -96,6 +96,8 @@ export namespace SelectT {
         | 'emptyRender'
         | 'initialValue'
         | 'onInputKeyDown'
+        | '_onFormReset'
+        | '_isValueControlled'
         | 'onOptionSelect'
         | 'optionRender'
         | 'selectedValues'
@@ -161,13 +163,20 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   props: SelectProps<TItem>,
 ): JSX.Element {
   type Item = SelectT.Item<TItem>
+  const initialDefaultValue = untrack(() => props.defaultValue ?? null)
+  const optionRender = createMemo(() => props.optionRender)
+  const labelRender = createMemo(() => props.labelRender)
+  const emptyRender = createMemo(() => props.emptyRender)
+  const leadingIcon = createMemo(() => props.leadingIcon)
+  const loadingIcon = createMemo(() => props.loadingIcon)
+  const trailingIcon = createMemo(() => props.trailingIcon)
   const [selectedValue, setSelectedValue] = useControllableValue<TItem | null>({
     value: () => props.value,
-    defaultValue: () => props.defaultValue ?? null,
+    defaultValue: () => initialDefaultValue,
   })
 
   function getInitialValue(): TItem | '' {
-    return props.defaultValue === null || props.defaultValue === undefined ? '' : props.defaultValue
+    return initialDefaultValue ?? ''
   }
 
   function getSelectedValues(): TItem[] {
@@ -175,10 +184,31 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     return value === null || value === undefined ? [] : [value]
   }
 
+  function getCurrentValue(
+    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
+  ): TItem | null {
+    if (props.value !== undefined) {
+      return props.value
+    }
+
+    const fieldValue = api.field.value()
+    if (fieldValue === null) {
+      return null
+    }
+
+    if (typeof fieldValue === 'string' || typeof fieldValue === 'number') {
+      if (fieldValue !== '' || findNormalizedOptionByValue(api.allFlatOptions(), fieldValue)) {
+        return fieldValue as TItem
+      }
+    }
+
+    return selectedValue() ?? null
+  }
+
   function findSelectedOption(
-    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions'>,
+    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
   ): NormalizedOption<Item> | null {
-    const value = selectedValue()
+    const value = getCurrentValue(api)
     return findNormalizedOptionByValue(api.allFlatOptions(), value) ?? null
   }
 
@@ -187,17 +217,33 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     api: BaseSelectT.OptionSelectContext<Item>,
   ): void {
     const nextValue = option ? (mapNormalizedToRawValue(option) as TItem) : null
-    setSelectedValue(nextValue)
+    const currentValue = getCurrentValue(api)
+    if (Object.is(nextValue, currentValue)) {
+      return
+    }
+
+    const isControlled = props.value !== undefined
+    if (!isControlled) {
+      setSelectedValue(nextValue)
+      api.field.setFormValue(nextValue ?? '')
+    }
     api.setInputValue(option?.key ?? '')
-    api.field.setFormValue(nextValue ?? '')
     props.onChange?.(nextValue)
+    if (isControlled) {
+      api.field.setFormValue(props.value ?? '')
+    }
     api.field.emit('change')
     api.field.emit('input')
   }
 
   function displayValue(api: BaseSelectT.StateApi<Item>): string | JSX.Element {
     const selected = findSelectedOption(api)
-    return selected ? (selected.label ?? selected.key) : props.placeholder
+    if (selected) {
+      return selected.label ?? selected.key
+    }
+
+    const value = getCurrentValue(api)
+    return value === null || value === undefined ? props.placeholder : String(value)
   }
 
   function renderDefaultOption(option: (Item & SelectT.OptionRenderState) | null): JSX.Element {
@@ -205,7 +251,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       option,
       classes: props.classes,
       styles: props.styles,
-      labelRender: props.labelRender,
+      labelRender: labelRender(),
     })
   }
 
@@ -213,11 +259,18 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     <BaseSelect<Item>
       {...props}
       initialValue={getInitialValue()}
+      _isValueControlled={props.value !== undefined}
       multiple={false}
       selectedValues={getSelectedValues()}
       onOptionSelect={(option, api) => updateSelection(option, api)}
+      _onFormReset={(api) => {
+        const value = props.value !== undefined ? props.value : initialDefaultValue
+        setSelectedValue(initialDefaultValue)
+        api.setInputValue('')
+        api.field.setFormValue(value ?? '')
+      }}
       emptyRender={createEmptyRenderer({
-        emptyRender: props.emptyRender,
+        emptyRender: emptyRender(),
         buildProps: (api: BaseSelectT.StateApi<Item>) => {
           return {
             get inputValue() {
@@ -236,10 +289,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       })}
       optionRender={(renderProps) => (
         <Show
-          when={props.optionRender !== undefined}
+          when={optionRender() !== undefined}
           fallback={renderDefaultOption(renderProps.option)}
         >
-          {renderComponentOrElement(props.optionRender, {
+          {renderComponentOrElement(optionRender(), {
             get option() {
               return renderProps.option
             },
@@ -253,7 +306,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-slot="control"
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
-            data-required={props.required ? '' : undefined}
+            data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
               { variant: props.variant, search: api.isSearchable() },
@@ -261,7 +314,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             )}
             {...api.controlProps()}
           >
-            <Show when={props.leadingIcon}>
+            <Show when={leadingIcon()}>
               {(icon) => (
                 <Icon
                   name={icon()}
@@ -288,7 +341,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                       size: api.field.size(),
                     },
                     'text-start truncate',
-                    !selectedValue() && 'text-muted-foreground',
+                    getCurrentValue(api) === null && 'text-muted-foreground',
                     props.classes?.input,
                   )}
                 >
@@ -318,8 +371,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             <Icon
               name={
                 props.loading
-                  ? (props.loadingIcon ?? 'icon-loading')
-                  : (props.trailingIcon ?? 'icon-chevron-down')
+                  ? (loadingIcon() ?? 'icon-loading')
+                  : (trailingIcon() ?? 'icon-chevron-down')
               }
               slotName="trigger"
               data-loading={props.loading ? '' : undefined}

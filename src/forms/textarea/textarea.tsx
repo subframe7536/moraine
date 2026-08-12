@@ -6,12 +6,13 @@ import {
   createSignal,
   mergeProps,
   on,
+  onCleanup,
   onMount,
   splitProps,
 } from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { applyInputModifiers } from '../../shared/input-modifiers.ts'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
@@ -22,6 +23,9 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
 import type { TextareaVariantProps } from './textarea.class.ts'
 import {
@@ -236,16 +240,19 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   const merged = mergeProps(
     {
       rows: 3,
-      maxrows: 0,
+      maxRows: 0,
       autofocusDelay: 0,
-      autoresizeDelay: 0,
+      autoResizeDelay: 0,
       variant: 'outlined' as TextareaVariantProps['variant'],
-      autoresize: false,
+      autoResize: false,
     },
     local,
   )
   const header = createMemo(() => merged.header)
   const footer = createMemo(() => merged.footer)
+  const showHeader = createMemo(() => hasNonEmptyJsxContent(header()))
+  const showFooter = createMemo(() => hasNonEmptyJsxContent(footer()))
+  const modelModifiers = createMemo(() => merged.modelModifiers)
 
   const generatedId = useId(() => merged.id, 'textarea')
   const field = useFormField(
@@ -254,6 +261,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
@@ -265,49 +273,40 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   let textareaEl: HTMLTextAreaElement | undefined
   const [isFocused, setIsFocused] = createSignal(false)
 
-  const isLazy = createMemo(() => Boolean(merged.modelModifiers?.lazy))
-
-  const textareaValueProps = createMemo<{
-    value?: TextareaT.Value
-    defaultValue?: TextareaT.Value
-  }>(() => {
-    if (merged.value !== undefined) {
-      return { value: merged.value }
-    }
-
-    if (field.value() !== undefined) {
-      return { value: field.value() as TextareaT.Value }
-    }
-
-    if (merged.defaultValue !== undefined) {
-      return { defaultValue: merged.defaultValue }
-    }
-
-    return {}
+  const textControl = useTextControlValue<TextareaT.Value, M>({
+    defaultValue: () => merged.defaultValue,
+    getElement: () => textareaEl,
+    getFormValue: field.value,
+    modelModifiers,
+    onValueChange: () => merged.onValueChange,
+    setFormValue: field.setFormValue,
+    value: () => merged.value,
   })
+  const isLazy = textControl.isLazy
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
+    'data-required': field.required() ? '' : undefined,
     'data-readonly': merged.readOnly ? '' : undefined,
   }))
 
-  function updateInputValue(value: string): void {
-    const nextValue = applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers)
-    field.setFormValue(nextValue)
-    merged.onValueChange?.(nextValue)
-    field.emit('input')
-  }
+  const restoreControlledValue = textControl.restoreControlledValue
+
+  let initialOverflow = ''
 
   function autoResize(): void {
-    if (!merged.autoResize || !textareaEl) {
+    if (!textareaEl) {
       return
     }
 
     const rows = merged.rows ?? 3
     textareaEl.rows = rows
 
-    const prevOverflow = textareaEl.style.overflow
+    if (!merged.autoResize) {
+      textareaEl.style.overflow = initialOverflow
+      return
+    }
+
     textareaEl.style.overflow = 'hidden'
 
     const styles = window.getComputedStyle(textareaEl)
@@ -315,37 +314,55 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     const lineHeight = getLineHeight(styles)
 
     const nextRows = calculateNeededRows(textareaEl, padding, lineHeight)
-    if (nextRows > rows) {
-      textareaEl.rows = merged.maxRows ? Math.min(nextRows, merged.maxRows) : nextRows
+    const maxRows = merged.maxRows ?? 0
+    textareaEl.rows = Math.max(rows, maxRows > 0 ? Math.min(nextRows, maxRows) : nextRows)
+    textareaEl.style.overflow = maxRows > 0 && nextRows > maxRows ? 'auto' : 'hidden'
+  }
+
+  let autoResizeTimer: ReturnType<typeof setTimeout> | undefined
+
+  function scheduleAutoResize(delay = 0): void {
+    if (autoResizeTimer !== undefined) {
+      clearTimeout(autoResizeTimer)
     }
 
-    textareaEl.style.overflow = prevOverflow
+    autoResizeTimer = setTimeout(() => {
+      autoResizeTimer = undefined
+      autoResize()
+    }, delay)
   }
 
   const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, merged.onInput)
     if (defaultPrevented) {
+      if (!isLazy()) {
+        restoreControlledValue()
+      }
       return
     }
     autoResize()
 
     if (!isLazy()) {
-      updateInputValue(event.currentTarget.value)
+      textControl.updateValue(event.currentTarget.value)
+      field.emit('input')
+      restoreControlledValue()
     }
   }
 
   const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
     const value = event.currentTarget.value
     if (isLazy()) {
-      updateInputValue(value)
+      textControl.updateValue(value)
+      field.emit('input')
     }
 
-    if (merged.modelModifiers?.trim) {
+    if (modelModifiers()?.trim) {
       event.currentTarget.value = value.trim()
     }
 
     field.emit('change')
-    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, merged.modelModifiers))
+    merged.onChange?.(textControl.applyValue(value))
+    restoreControlledValue()
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
@@ -385,26 +402,55 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
   createEffect(
     on(
-      () => merged.value,
-      () => {
-        // oxlint-disable-next-line subf/solid-reactivity
-        queueMicrotask(() => {
-          autoResize()
-        })
-      },
+      [
+        () => merged.autoResize,
+        () => merged.rows,
+        () => merged.maxRows,
+        () => merged.autoResizeDelay,
+        () => merged.value,
+        field.value,
+      ],
+      () => scheduleAutoResize(),
     ),
   )
 
+  let autofocusTimer: ReturnType<typeof setTimeout> | undefined
+
+  onCleanup(() => {
+    if (autofocusTimer !== undefined) {
+      clearTimeout(autofocusTimer)
+    }
+    if (autoResizeTimer !== undefined) {
+      clearTimeout(autoResizeTimer)
+    }
+  })
+
+  useFormReset(
+    () => textareaEl?.form,
+    () => {
+      restoreControlledValue()
+      scheduleAutoResize()
+    },
+  )
+
   onMount(() => {
+    if (textareaEl) {
+      initialOverflow = textareaEl.style.overflow
+      if (textControl.initialDefaultValue !== undefined) {
+        textareaEl.defaultValue = String(textControl.initialDefaultValue)
+      }
+      restoreControlledValue()
+    }
+
     if (merged.autofocus) {
-      setTimeout(() => {
-        textareaEl?.focus()
+      autofocusTimer = setTimeout(() => {
+        if (!field.disabled()) {
+          textareaEl?.focus()
+        }
       }, merged.autofocusDelay)
     }
 
-    setTimeout(() => {
-      autoResize()
-    }, merged.autoResizeDelay)
+    scheduleAutoResize(merged.autoResizeDelay)
   })
 
   return (
@@ -424,7 +470,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       {...dataAttrs()}
       {...rest}
     >
-      <Show when={header()}>
+      <Show when={showHeader()}>
         <div
           data-slot="header"
           style={merged.styles?.header}
@@ -445,11 +491,11 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         name={field.name()}
         rows={merged.rows ?? 3}
         placeholder={merged.placeholder}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={merged.readOnly}
         maxLength={merged.maxLength}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={merged.readOnly || undefined}
         data-slot="input"
@@ -467,12 +513,12 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         onFocus={onFocus}
         {...dataAttrs()}
         {...field.ariaAttrs()}
-        {...textareaValueProps()}
+        {...textControl.valueProps()}
       />
 
       {merged.children}
 
-      <Show when={footer()}>
+      <Show when={showFooter()}>
         <div
           data-slot="footer"
           style={merged.styles?.footer}
@@ -487,17 +533,5 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         </div>
       </Show>
     </div>
-  )
-}
-
-function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) {
-    return false
-  }
-
-  return Boolean(
-    target.closest(
-      'button, a, input, textarea, select, [role="button"], [tabindex]:not([tabindex="-1"])',
-    ),
   )
 }

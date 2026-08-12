@@ -27,7 +27,14 @@
           "description": "Stores async loading, loaded, or error status."
         }
       ],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
     },
     {
       "name": "count",

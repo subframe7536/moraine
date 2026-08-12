@@ -1,7 +1,12 @@
 import { A, Route, Router } from '@solidjs/router'
-import { render } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+
+import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture.tsx'
 import { Breadcrumb } from './breadcrumb.tsx'
 import type { BreadcrumbT } from './breadcrumb.tsx'
 
@@ -244,4 +249,117 @@ describe('Breadcrumb', () => {
       ),
     ).toBe(true)
   })
+
+  test('reads itemRender once and invokes it once per item', () => {
+    let reads = 0
+    const itemRender = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
+      <span data-slot="custom-item">{context.item.label}</span>
+    ))
+
+    const screen = render(() =>
+      createComponent(Breadcrumb, {
+        items: [
+          { label: 'Home', href: '/' },
+          { label: 'Disabled', href: '/disabled', disabled: true },
+          { label: 'Current', href: '/current', active: true },
+        ],
+        get itemRender() {
+          reads += 1
+          return itemRender
+        },
+      }),
+    )
+
+    expect(reads).toBe(1)
+    expect(itemRender).toHaveBeenCalledTimes(3)
+    expect(screen.container.querySelectorAll('[data-slot="custom-item"]')).toHaveLength(3)
+    expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(2)
+  })
+
+  test('keeps one current page while items are inserted, reordered, and removed', () => {
+    const [items, setItems] = createSignal<BreadcrumbT.Item[]>([
+      { label: 'Home', href: '/', active: true },
+      { label: 'Docs', href: '/docs', active: true },
+      { label: 'API', href: '/api' },
+    ])
+    const screen = render(() => <Breadcrumb items={items()} />)
+    const currentLabel = () =>
+      screen.container.querySelector('[aria-current="page"]')?.textContent?.trim()
+
+    expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
+    expect(currentLabel()).toBe('Home')
+
+    setItems([
+      { label: 'Intro', href: '/intro' },
+      { label: 'Docs', href: '/docs', active: true },
+      { label: 'Home', href: '/', active: true },
+    ])
+    expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
+    expect(currentLabel()).toBe('Docs')
+
+    setItems([
+      { label: 'Intro', href: '/intro' },
+      { label: 'Reference', href: '/reference' },
+    ])
+    expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(1)
+    expect(currentLabel()).toBe('Reference')
+
+    setItems([])
+    expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(0)
+    expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
+  })
+
+  test('renders numeric zero but omits empty and boolean label wrappers', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        items={[
+          { label: 0, href: '/zero' },
+          { label: '', href: '/empty' },
+          { label: false, href: '/false' },
+        ]}
+      />
+    ))
+
+    expect(screen.getByRole('link', { name: '0' })).not.toBeNull()
+    expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(1)
+  })
+
+  test('hydrates a custom renderer without replacing the trail and preserves activation', async () => {
+    const markup = renderSsrFixture(
+      '/src/navigation/breadcrumb/breadcrumb.ssr.fixture.tsx',
+      'renderBreadcrumbFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const serverList = container.querySelector('[data-slot="list"]')
+    const serverFirstLink = container.querySelector('[data-slot="custom-link"]')
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Breadcrumb
+          aria-label="Fixture breadcrumbs"
+          itemRender={renderBreadcrumbItem}
+          items={[
+            { label: 0, href: '/zero', onClick },
+            { label: 'Current', href: '/current' },
+          ]}
+        />
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
+    expect(container.querySelector('[data-slot="custom-link"]')).toBe(serverFirstLink)
+    await fireEvent.click(serverFirstLink!)
+    expect(onClick).toHaveBeenCalledTimes(1)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

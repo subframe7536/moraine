@@ -21,14 +21,16 @@ export function Uncontrolled() {
               <Button
                 {...context.triggerProps}
                 variant="ghost"
-                class="text-sm w-full justify-between"
+                class="w-full justify-between"
+                trailing={
+                  <Icon
+                    name="i-lucide-chevron-down"
+                    aria-hidden="true"
+                    class={context.isOpen ? 'rotate-180' : ''}
+                  />
+                }
               >
-                <span>How do I reset my password?</span>
-                <Icon
-                  name="i-lucide-chevron-down"
-                  aria-hidden="true"
-                  class={`text-muted-foreground shrink-0 size-4 transition-transform ${context.isOpen ? 'rotate-180' : ''}`}
-                />
+                How do I reset my password?
               </Button>
             )}
           >

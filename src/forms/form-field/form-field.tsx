@@ -1,10 +1,19 @@
 import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import { useField } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createMemo,
+  createSignal,
+  mergeProps,
+  splitProps,
+  untrack,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -237,7 +246,7 @@ export function FormField<
     }
   }
 
-  const selectedControlId = createMemo(() => {
+  function selectedControlId(): string | undefined {
     const controls = registeredControls()
 
     for (let index = controls.length - 1; index >= 0; index -= 1) {
@@ -249,17 +258,9 @@ export function FormField<
     }
 
     return undefined
-  })
+  }
 
-  const resolvedLabelTargetId = createMemo(() => {
-    const controls = registeredControls()
-
-    if (controls.length === 0) {
-      return merged.id ?? ariaId()
-    }
-
-    return selectedControlId()
-  })
+  const resolvedLabelTargetId = selectedControlId
 
   const resolvedError = createMemo(() => {
     const value = error()
@@ -275,6 +276,43 @@ export function FormField<
     return field?.errors?.[0]
   })
 
+  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
+  const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
+  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
+
+  const shouldShowError = createMemo(() => {
+    const value = resolvedError()
+
+    if (value === undefined || value === null || value === false || value === true) {
+      return false
+    }
+
+    if (typeof value === 'string') {
+      return value.length > 0
+    }
+
+    return true
+  })
+  const showError = createMemo(() => error() !== false && shouldShowError())
+  const showHelp = createMemo(() => !showError() && hasNonEmptyJsxContent(help()))
+  const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
+    const describedBy = [
+      ...new Set(
+        [
+          showHint() ? `${ariaId()}-hint` : undefined,
+          showDescription() ? `${ariaId()}-description` : undefined,
+          showError() ? `${ariaId()}-error` : undefined,
+          showHelp() ? `${ariaId()}-help` : undefined,
+        ].filter((id): id is string => Boolean(id)),
+      ),
+    ]
+
+    return {
+      'aria-invalid': hasNonEmptyJsxContent(resolvedError()) || undefined,
+      'aria-labelledby': showLabel() ? `${ariaId()}-label` : undefined,
+      'aria-describedby': describedBy.length > 0 ? describedBy.join(' ') : undefined,
+    }
+  })
   const fieldContextValue: FormFieldContextOptions = {
     get error() {
       return resolvedError()
@@ -292,39 +330,42 @@ export function FormField<
       return field
     },
     get hint() {
-      return merged.hint
+      return hint()
     },
     get description() {
-      return merged.description
+      return description()
     },
     get help() {
-      return merged.help
+      return help()
+    },
+    get required() {
+      return merged.required
     },
     get ariaId() {
       return ariaId()
     },
+    get labelId() {
+      return showLabel() ? `${ariaId()}-label` : undefined
+    },
     get controlId() {
       return selectedControlId()
     },
+    ariaAttrs: fieldAriaAttrs,
     registerControl,
   }
 
-  const shouldShowError = createMemo(() => {
-    const value = resolvedError()
+  function renderFieldRoot(): JSX.Element {
+    const body = resolveChildren(() => merged.children as JSX.Element)
+    const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(
+      body() as FormFieldT.Base<TSchema, T>['children'],
+      {
+        get error() {
+          return resolvedError()
+        },
+      },
+    )
 
-    if (value === undefined || value === null || value === false || value === true) {
-      return false
-    }
-
-    if (typeof value === 'string') {
-      return value.length > 0
-    }
-
-    return true
-  })
-
-  return (
-    <FormFieldProvider value={fieldContextValue}>
+    return (
       <Dynamic
         data-slot="root"
         data-orientation={merged.orientation}
@@ -345,13 +386,14 @@ export function FormField<
           style={merged.styles?.wrapper}
           class={cn(merged.orientation === 'horizontal' && 'flex-1', merged.classes?.wrapper)}
         >
-          <Show when={label()}>
+          <Show when={showLabel()}>
             <div
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
               class={cn('flex gap-1 items-center justify-between', merged.classes?.labelWrapper)}
             >
               <label
+                id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
                 style={merged.styles?.label}
@@ -365,7 +407,7 @@ export function FormField<
                 {label()}
               </label>
 
-              <Show when={hint()}>
+              <Show when={showHint()}>
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
@@ -378,7 +420,7 @@ export function FormField<
             </div>
           </Show>
 
-          <Show when={description()}>
+          <Show when={showDescription()}>
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
@@ -392,7 +434,7 @@ export function FormField<
 
         <div
           class={
-            label() || description()
+            showLabel() || showDescription()
               ? formFieldContainerVariants(
                   {
                     orientation: merged.orientation,
@@ -402,16 +444,12 @@ export function FormField<
               : cn(merged.classes?.container)
           }
         >
-          {renderComponentOrElement<FormFieldT.RenderContext>(merged.children, {
-            get error() {
-              return resolvedError()
-            },
-          })}
+          {fieldChildren}
 
           <Show
-            when={error() !== false && shouldShowError()}
+            when={showError()}
             fallback={
-              <Show when={help()}>
+              <Show when={showHelp()}>
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
@@ -434,6 +472,8 @@ export function FormField<
           </Show>
         </div>
       </Dynamic>
-    </FormFieldProvider>
-  )
+    )
+  }
+
+  return <FormFieldProvider value={fieldContextValue}>{renderFieldRoot()}</FormFieldProvider>
 }

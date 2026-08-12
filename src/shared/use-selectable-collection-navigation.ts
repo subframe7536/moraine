@@ -111,7 +111,16 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string |
     const enabledItems = getEnabledItems()
     const currentIndex = enabledItems.findIndex((item) => options.getValue(item) === currentValue)
 
-    if (currentIndex < 0 || enabledItems.length === 0) {
+    if (enabledItems.length === 0) {
+      return
+    }
+
+    if (currentIndex < 0) {
+      const boundaryItem = offset >= 0 ? enabledItems[0] : enabledItems[enabledItems.length - 1]
+
+      if (boundaryItem) {
+        applySelection(options.getValue(boundaryItem))
+      }
       return
     }
 
@@ -134,7 +143,7 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string |
     applySelection(nextValue)
   }
 
-  function moveToBoundary(kind: 'first' | 'last'): void {
+  function moveToBoundary(kind: 'first' | 'last', currentValue?: TValue): void {
     const enabledItems = getEnabledItems()
     const nextItem = kind === 'first' ? enabledItems[0] : enabledItems[enabledItems.length - 1]
 
@@ -142,7 +151,11 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string |
       return
     }
 
-    applySelection(options.getValue(nextItem))
+    const nextValue = options.getValue(nextItem)
+
+    if (nextValue !== currentValue) {
+      applySelection(nextValue)
+    }
   }
 
   function moveFromBoundaryForOffset(offset: number): void {
@@ -167,6 +180,10 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string |
     currentValue: TValue | undefined,
     orientation: Orientation,
   ): void {
+    if (event.defaultPrevented) {
+      return
+    }
+
     const normalizedKey = event.key === 'Spacebar' ? ' ' : event.key
 
     // Detect text direction for RTL-aware horizontal navigation
@@ -200,13 +217,13 @@ export function useSelectableCollectionNavigation<TItem, TValue extends string |
 
     if (normalizedKey === 'Home') {
       event.preventDefault()
-      focusBoundary('first')
+      moveToBoundary('first', currentValue)
       return
     }
 
     if (normalizedKey === 'End') {
       event.preventDefault()
-      focusBoundary('last')
+      moveToBoundary('last', currentValue)
       return
     }
 

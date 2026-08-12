@@ -179,6 +179,13 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   )
 
   const items = createMemo(() => merged.items ?? [])
+  const itemRender = createMemo(() => merged.itemRender)
+  const currentIndex = createMemo(() => {
+    const resolvedItems = items()
+    const explicitIndex = resolvedItems.findIndex((item) => item.active)
+
+    return explicitIndex >= 0 ? explicitIndex : resolvedItems.length - 1
+  })
 
   return (
     <nav
@@ -196,7 +203,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
         <For each={items()}>
           {(item, index) => {
             const isLast = createMemo(() => index() === items().length - 1)
-            const isCurrent = createMemo(() => item.active ?? isLast())
+            const isCurrent = createMemo(() => index() === currentIndex())
             const isDisabled = createMemo(() => Boolean(item.disabled || isCurrent()))
             const href = createMemo(() => {
               const defaultHref = item.to ?? item.href
@@ -211,7 +218,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                   class={cn('flex min-w-0 items-center', merged.classes?.item)}
                 >
                   <Show
-                    when={merged.itemRender !== undefined}
+                    when={itemRender()}
                     fallback={
                       <Button
                         as="a"
@@ -238,18 +245,20 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       </Button>
                     }
                   >
-                    {renderComponentOrElement(merged.itemRender, {
-                      item,
-                      get index() {
-                        return index()
-                      },
-                      get current() {
-                        return isCurrent()
-                      },
-                      get disabled() {
-                        return isDisabled()
-                      },
-                    })}
+                    {(renderer) =>
+                      renderComponentOrElement(renderer(), {
+                        item,
+                        get index() {
+                          return index()
+                        },
+                        get current() {
+                          return isCurrent()
+                        },
+                        get disabled() {
+                          return isDisabled()
+                        },
+                      })
+                    }
                   </Show>
                 </li>
 

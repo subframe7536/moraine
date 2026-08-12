@@ -6,31 +6,37 @@ export interface UseControllableValueOptions<T> {
   defaultValue?: Accessor<T | undefined>
 }
 
+type ControllableValueUpdate<T> = T | undefined | ((previous: T | undefined) => T | undefined)
+
 export function useControllableValue<T>(options: UseControllableValueOptions<T>) {
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<T | undefined>(undefined)
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<T | undefined>(
+    untrack(() => options.defaultValue?.()),
+  )
+  const controlledValue = createMemo(() => options.value())
+  const isControlled = createMemo(() => controlledValue() !== undefined)
 
   const value = createMemo<T | undefined>(() => {
-    const controlledValue = options.value()
-
-    if (controlledValue !== undefined) {
-      return controlledValue
+    if (isControlled()) {
+      return controlledValue()
     }
 
-    const localValue = uncontrolledValue()
-
-    if (localValue !== undefined) {
-      return localValue
-    }
-
-    return untrack(() => options.defaultValue?.())
+    return uncontrolledValue()
   })
 
-  function setValue(nextValue: T | undefined): void {
-    if (options.value() !== undefined) {
-      return
-    }
+  function setValue(update: ControllableValueUpdate<T>): void {
+    untrack(() => {
+      const currentValue = value()
+      const nextValue =
+        typeof update === 'function'
+          ? (update as (previous: T | undefined) => T | undefined)(currentValue)
+          : update
 
-    setUncontrolledValue(() => nextValue)
+      if (Object.is(nextValue, currentValue) || isControlled()) {
+        return
+      }
+
+      setUncontrolledValue(() => nextValue)
+    })
   }
 
   return [value, setValue] as const

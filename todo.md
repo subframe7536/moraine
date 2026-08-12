@@ -11,8 +11,9 @@
   - [x] popup
   - [x] sheet
   - [x] cleanup button-group arbitrary class detector
-- [ ] compare every component with base-ui one-by-one using subagents, sync cross-platform adaption / edge case / keyboard navigation / accessibility / focus management and other missing logic
+- [x] audit the explicitly scoped components with mature Base UI / Kobalte counterparts one-by-one, syncing compatible cross-platform, edge-case, keyboard, accessibility, and focus behavior; components without a plan are excluded rather than claimed as parity-complete
 - [ ] inspect all components' class compare to shadcn/ui one-by-one using subagents, to get a better understanding of the spacing, sizing, and transition design system, and then apply it to our components
+  - [ ] classes and styles should become stateful
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
 
 # V1

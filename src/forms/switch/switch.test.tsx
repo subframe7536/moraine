@@ -1,5 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
+
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Switch } from './switch.tsx'
 
@@ -33,23 +37,25 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, true)
   })
 
-  test('toggles with Space and Enter keys', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
+  test.each([' ', 'Enter'])(
+    'toggles once from an explicit synthetic %s compatibility click',
+    async (key) => {
+      const onChange = vi.fn()
+      const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
+      const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
-    await fireEvent.keyDown(switchInput, { key: ' ' })
+      await fireEvent.keyDown(switchInput, { key })
+      await fireEvent.keyUp(switchInput, { key })
 
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenLastCalledWith(true)
-    expectSwitchChecked(switchInput, true)
+      expect(onChange).not.toHaveBeenCalled()
 
-    await fireEvent.keyDown(switchInput, { key: 'Enter' })
+      await fireEvent.click(switchInput, { detail: 0 })
 
-    expect(onChange).toHaveBeenCalledTimes(2)
-    expect(onChange).toHaveBeenLastCalledWith(false)
-    expectSwitchChecked(switchInput, false)
-  })
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenLastCalledWith(true)
+      expectSwitchChecked(switchInput, true)
+    },
+  )
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
@@ -58,8 +64,6 @@ describe('Switch', () => {
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
 
     await fireEvent.click(switchInput)
-    await fireEvent.keyDown(switchInput, { key: ' ' })
-    await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -107,9 +111,6 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
 
-    await fireEvent.keyDown(switchInput, { key: ' ' })
-    await fireEvent.keyDown(switchInput, { key: 'Enter' })
-
     expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -127,9 +128,6 @@ describe('Switch', () => {
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
-
-    await fireEvent.keyDown(switchInput, { key: ' ' })
-    await fireEvent.keyDown(switchInput, { key: 'Enter' })
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -206,6 +204,55 @@ describe('Switch', () => {
     })
   })
 
+  test('resets uncontrolled state to the initial default without emitting changes', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch name="enabled" defaultChecked={false} label="Enabled" onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+
+    await fireEvent.click(switchInput)
+    expectSwitchChecked(switchInput, true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    form.reset()
+
+    await waitFor(() => expectSwitchChecked(switchInput, false))
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('resets controlled switches to their latest value without callbacks or form value drift', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch
+          checked={0}
+          falseValue={0}
+          label="Visibility"
+          name="visibility"
+          trueValue={1}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
+
+    await fireEvent.click(switchInput)
+    expect(onChange).toHaveBeenCalledWith(1)
+
+    form.reset()
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, false)
+      expect(new FormData(form).has('visibility')).toBe(false)
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
   test('applies xl size classes on base and wrapper', () => {
     const screen = render(() => <Switch label="Classes" size="xl" />)
 
@@ -218,9 +265,11 @@ describe('Switch', () => {
     expect(track?.className).toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
     expect(track?.className).toContain('focus-visible:effect-fv-border')
+    expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
     expect(track?.className).toContain('w-11')
     expect(wrapper?.className).toContain('ms-3')
     expect(wrapper?.className).toContain('text-base')
+    expect(screen.getByText('Classes').className).toContain('select-none')
   })
 
   test('applies compact wrapper spacing on xs size', () => {
@@ -237,4 +286,106 @@ describe('Switch', () => {
 
     expect(root?.style.width).toBe('200px')
   })
+
+  test('runs the caller click handler before toggling and respects cancellation', async () => {
+    const onChange = vi.fn()
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const screen = render(() => <Switch label="Canceled" onChange={onChange} onClick={onClick} />)
+    const switchInput = screen.getByRole('switch', { name: 'Canceled' })
+
+    await fireEvent.click(switchInput, { shiftKey: true })
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick.mock.calls[0]?.[0].shiftKey).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+    expectSwitchChecked(switchInput, false)
+  })
+
+  test('evaluates conditional JSX props once and preserves numeric content', () => {
+    const reads = {
+      checkedIcon: 0,
+      description: 0,
+      label: 0,
+      loadingIcon: 0,
+      uncheckedIcon: 0,
+    }
+    const screen = render(() =>
+      createComponent(Switch, {
+        loading: true,
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get description() {
+          reads.description += 1
+          return 0
+        },
+        get label() {
+          reads.label += 1
+          return 0
+        },
+        get loadingIcon() {
+          reads.loadingIcon += 1
+          return <span>Loading</span>
+        },
+        get uncheckedIcon() {
+          reads.uncheckedIcon += 1
+          return <span>Unchecked</span>
+        },
+      }),
+    )
+
+    expect(screen.getByRole('switch', { name: '0' })).not.toBeNull()
+    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(screen.getByText('Loading')).not.toBeNull()
+    expect(reads).toEqual({
+      checkedIcon: 1,
+      description: 1,
+      label: 1,
+      loadingIcon: 1,
+      uncheckedIcon: 1,
+    })
+  })
+
+  test('hydrates checked conditional content without replacing server nodes', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/switch/switch.ssr.fixture.tsx',
+      'renderSwitchFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]') as HTMLElement
+    const serverTrack = container.querySelector('[data-slot="track"]') as HTMLElement
+    const serverInput = container.querySelector('[data-slot="input"]') as HTMLInputElement
+    const [checked, setChecked] = createSignal(true)
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Switch
+          id="ssr-switch"
+          checked={checked()}
+          label={0}
+          description="Server description"
+          checkedIcon={<span data-testid="checked-icon">Checked</span>}
+        />
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('[data-slot="track"]')).toBe(serverTrack)
+    expect(container.querySelector('[data-slot="input"]')).toBe(serverInput)
+    expectSwitchChecked(serverTrack, true)
+    expect(container.querySelector('[data-testid="checked-icon"]')).not.toBeNull()
+
+    setChecked(false)
+    expectSwitchChecked(serverTrack, false)
+    expect(container.querySelector('[data-testid="checked-icon"]')).toBeNull()
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

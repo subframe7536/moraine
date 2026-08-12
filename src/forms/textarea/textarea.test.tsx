@@ -1,10 +1,20 @@
+import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
+
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { FormField } from '../form-field/index.ts'
+import { createForm, Form } from '../form/index.ts'
 
 import { Textarea } from './textarea.tsx'
 import type { TextareaProps } from './textarea.tsx'
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.restoreAllMocks()
 })
 
@@ -296,4 +306,170 @@ describe('Textarea', () => {
     const props: TextareaProps = { as: 'section' }
     expect(props).toBeDefined()
   })
+
+  test('keeps the DOM and FormField aligned when a controlled edit is rejected', async () => {
+    const [value, setValue] = createSignal('Locked')
+    const onValueChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Locked' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Textarea value={value()} onValueChange={onValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
+    const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
+
+    await fireEvent.input(textarea, { target: { value: 'Rejected' } })
+
+    expect(onValueChange).toHaveBeenCalledWith('Rejected')
+    expect(textarea.value).toBe('Locked')
+    expect(getInput(form)).toEqual({ value: 'Locked' })
+
+    setValue('Accepted')
+    expect(textarea.value).toBe('Accepted')
+    expect(getInput(form)).toEqual({ value: 'Accepted' })
+  })
+
+  test('resizes for external Formisch values and reactive row constraints', () => {
+    vi.useFakeTimers()
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          paddingTop: '4',
+          paddingBottom: '4',
+          lineHeight: '16',
+        }) as CSSStyleDeclaration,
+    )
+    const [rows, setRows] = createSignal(2)
+    const [maxRows, setMaxRows] = createSignal(3)
+    const [autoResize, setAutoResize] = createSignal(true)
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Initial' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Textarea autoResize={autoResize()} rows={rows()} maxRows={maxRows()} />
+          </FormField>
+        </Form>
+      ),
+    )
+    const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
+    let scrollHeight = 72
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight,
+    })
+
+    vi.runAllTimers()
+    expect(textarea.rows).toBe(3)
+    expect(textarea.style.overflow).toBe('auto')
+
+    scrollHeight = 40
+    setInput(form, { path: ['value'], input: 'External' })
+    vi.runAllTimers()
+    expect(textarea.rows).toBe(2)
+    expect(textarea.style.overflow).toBe('hidden')
+
+    scrollHeight = 120
+    setMaxRows(5)
+    vi.runAllTimers()
+    expect(textarea.rows).toBe(5)
+
+    setRows(4)
+    setAutoResize(false)
+    vi.runAllTimers()
+    expect(textarea.rows).toBe(4)
+    expect(textarea.style.overflow).toBe('')
+  })
+
+  test('cancels pending autofocus and autoresize timers on unmount', () => {
+    vi.useFakeTimers()
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle')
+    const screen = render(() => (
+      <Textarea autofocus autofocusDelay={100} autoResize autoResizeDelay={100} />
+    ))
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
+    const focus = vi.spyOn(textarea, 'focus')
+
+    screen.unmount()
+    getComputedStyle.mockClear()
+    vi.runAllTimers()
+
+    expect(focus).not.toHaveBeenCalled()
+    expect(getComputedStyle).not.toHaveBeenCalled()
+  })
+
+  test('single-evaluates conditional slots, children, and modifier config', () => {
+    const reads = { children: 0, footer: 0, header: 0, modelModifiers: 0 }
+    const screen = render(() =>
+      createComponent(Textarea, {
+        get children() {
+          reads.children += 1
+          return <span>Child</span>
+        },
+        get footer() {
+          reads.footer += 1
+          return 0
+        },
+        get header() {
+          reads.header += 1
+          return 0
+        },
+        get modelModifiers() {
+          reads.modelModifiers += 1
+          return { trim: true }
+        },
+      }),
+    )
+
+    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(screen.getByText('Child')).not.toBeNull()
+    expect(reads).toEqual({ children: 1, footer: 1, header: 1, modelModifiers: 1 })
+  })
+
+  test('hydrates slots and initial value without replacing server nodes', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/textarea/textarea.ssr.fixture.tsx',
+      'renderTextareaFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]') as HTMLElement
+    const serverTextarea = container.querySelector('textarea') as HTMLTextAreaElement
+    const serverHeader = container.querySelector('[data-slot="header"]') as HTMLElement
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Textarea id="ssr-textarea" value="Server value" header={0} footer="Footer">
+          <span data-testid="child">Child</span>
+        </Textarea>
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('textarea')).toBe(serverTextarea)
+    expect(container.querySelector('[data-slot="header"]')).toBe(serverHeader)
+    expect(serverTextarea.value).toBe('Server value')
+    expect(Array.from(serverRoot.children).map((child) => child.getAttribute('data-slot'))).toEqual(
+      ['header', 'input', null, 'footer'],
+    )
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

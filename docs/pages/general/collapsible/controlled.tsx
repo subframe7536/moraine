@@ -6,7 +6,7 @@ export function Controlled() {
   const [locked, setLocked] = createSignal(false)
 
   return (
-    <div class="max-w-xl space-y-3">
+    <div class="max-w-md w-full space-y-3">
       <div class="flex flex-wrap gap-2 items-center">
         <Button size="sm" onClick={() => !locked() && setOpen((value) => !value)}>
           {open() ? 'Hide invoice details' : 'Show invoice details'}
@@ -25,18 +25,21 @@ export function Controlled() {
         disabled={locked()}
         onOpenChange={setOpen}
         classes={{
-          root: 'w-108 rounded-lg b-(1 border)',
+          root: 'w-full rounded-lg b-(1 border)',
           trigger:
             'w-full px-4 py-3 text-left text-sm font-medium flex items-center justify-between data-disabled:opacity-60',
           content: 'px-4 pb-4 text-sm text-foreground',
         }}
         triggerRender={(context) => (
-          <button {...context.triggerProps} class="flex w-full items-center justify-between">
+          <button {...context.triggerProps}>
             <span>June invoice #INV-2048</span>
             <Icon
               name="i-lucide-chevron-down"
-              aria-label="Toggle invoice details"
-              class={cn('text-muted-foreground transition-transform', open() ? 'rotate-180' : '')}
+              aria-hidden="true"
+              class={cn(
+                'text-muted-foreground transition-transform',
+                context.isOpen ? 'rotate-180' : '',
+              )}
             />
           </button>
         )}

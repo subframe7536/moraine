@@ -8,12 +8,12 @@ import {
   onMount,
   splitProps,
   Show,
+  untrack,
 } from 'solid-js'
 
 import { Button } from '../../elements/button/index.ts'
 import type { ButtonT } from '../../elements/button/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
@@ -24,6 +24,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
 import {
@@ -128,14 +129,13 @@ function formatLocaleNumber(value: number, locale?: string): string {
   }).format(value)
 }
 
-function toNumber(value: string | number | undefined, fallback: number): number {
+function toNumber(value: string | number | undefined, fallback: number, locale?: string): number {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : fallback
   }
 
   if (typeof value === 'string' && value.trim() !== '') {
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : fallback
+    return parseLocaleNumber(value, locale) ?? fallback
   }
 
   return fallback
@@ -143,6 +143,34 @@ function toNumber(value: string | number | undefined, fallback: number): number 
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+function getDecimalPrecision(value: number): number {
+  const [coefficient = '', exponentText] = String(value).toLowerCase().split('e')
+  const fractionLength = coefficient.split('.')[1]?.length ?? 0
+  const exponent = Number(exponentText ?? 0)
+
+  return Math.max(0, fractionLength - exponent)
+}
+
+/** Adds decimal step values without exposing binary arithmetic noise. */
+function addDecimal(value: number, amount: number): number {
+  const result = value + amount
+  const precision = Math.max(getDecimalPrecision(value), getDecimalPrecision(amount))
+  const multiplier = 10 ** precision
+
+  if (!Number.isFinite(multiplier)) {
+    return result
+  }
+
+  const multipliedValue = Math.round(value * multiplier)
+  const multipliedAmount = Math.round(amount * multiplier)
+
+  if (!Number.isSafeInteger(multipliedValue) || !Number.isSafeInteger(multipliedAmount)) {
+    return result
+  }
+
+  return (multipliedValue + multipliedAmount) / multiplier
 }
 
 export namespace InputNumberT {
@@ -412,6 +440,19 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     local,
   )
 
+  const initialDefaultValue = untrack(() => toNumber(merged.defaultValue, 0, merged.locale))
+  const initialValue = untrack(() => {
+    if (merged.rawValue !== undefined) {
+      return toNumber(merged.rawValue, 0)
+    }
+
+    if (merged.value !== undefined) {
+      return toNumber(merged.value, 0, merged.locale)
+    }
+
+    return initialDefaultValue
+  })
+
   const generatedId = useId(() => merged.id, 'input-number')
   const field = useFormField(
     () => ({
@@ -419,36 +460,43 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       name: merged.name,
       size: merged.size,
       disabled: merged.disabled,
+      required: local.required,
     }),
     () => ({
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: merged.rawValue ?? merged.value ?? merged.defaultValue ?? 0,
+      initialValue,
     }),
   )
 
   let inputEl: HTMLInputElement | undefined
 
-  // Track the raw input string separately from the committed numeric value
-  const [inputText, setInputText] = createSignal<string>('')
+  const explicitControlledValue = createMemo<number | undefined>(() => {
+    if (merged.rawValue !== undefined) {
+      return toNumber(merged.rawValue, 0)
+    }
+
+    if (merged.value !== undefined) {
+      return toNumber(merged.value, 0, merged.locale)
+    }
+
+    return undefined
+  })
 
   const [resolvedValue, setResolvedValue] = useControllableValue<number>({
     value: () => {
-      if (merged.rawValue !== undefined) {
-        return toNumber(merged.rawValue, 0)
-      }
-
-      if (merged.value !== undefined) {
-        return toNumber(merged.value, 0)
+      const controlledValue = explicitControlledValue()
+      if (controlledValue !== undefined) {
+        return controlledValue
       }
 
       if (field.value() !== undefined) {
-        return toNumber(field.value() as string | number | undefined, 0)
+        return toNumber(field.value() as string | number | undefined, 0, merged.locale)
       }
 
       return undefined
     },
-    defaultValue: () => toNumber(merged.defaultValue, 0),
+    defaultValue: () => initialDefaultValue,
   })
 
   const minValue = createMemo(() => merged.minValue ?? Number.MIN_SAFE_INTEGER)
@@ -458,20 +506,49 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const currentValue = createMemo(() => clamp(resolvedValue() ?? 0, minValue(), maxValue()))
+  const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
+  const initialResetValue = untrack(currentValue)
+
+  // Editable text is intentionally separate from the committed number so partial input survives.
+  const [inputText, setInputText] = createSignal(
+    untrack(() => formatLocaleNumber(initialResetValue, merged.locale)),
+  )
+  const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
     'data-readonly': readOnly() ? '' : undefined,
-    'data-required': merged.required ? '' : undefined,
+    'data-required': field.required() ? '' : undefined,
   }))
 
-  // Sync inputText with currentValue when it changes externally
+  // Explicit controlled props remain authoritative for FormField integrations.
+  createEffect(() => {
+    const value = explicitControlledValue()
+    if (value !== undefined) {
+      const boundedValue = clamp(value, minValue(), maxValue())
+      const formValue = toNumber(field.value() as string | number | undefined, 0, merged.locale)
+      if (!Object.is(formValue, boundedValue)) {
+        field.setFormValue(boundedValue)
+      }
+    }
+  })
+
+  // Sync external numeric or locale changes without clobbering accepted manual text.
   createEffect(() => {
     const value = currentValue()
-    const formatted = formatLocaleNumber(value, merged.locale)
-    // Update inputText when value changes from external source
-    // This handles controlled components and initial values
-    setInputText(formatted)
+    const locale = merged.locale
+
+    untrack(() => {
+      if (hasDirtyInput()) {
+        const parsed = parseLocaleNumber(inputText(), locale)
+        if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
+          return
+        }
+      }
+
+      setHasDirtyInput(false)
+      setInputText(formatLocaleNumber(value, locale))
+    })
   })
 
   const resolvedOrientation = createMemo<InputNumberOrientation>(
@@ -495,33 +572,79 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   })
 
   const isVertical = createMemo(() => resolvedOrientation() === 'vertical')
+  const showIncrement = createMemo(() => merged.increment !== false)
+  const showDecrement = createMemo(() => merged.decrement !== false)
 
   const isBorderless = createMemo(() => merged.variant === 'ghost' || merged.variant === 'none')
 
-  function commitValue(nextValue: number): void {
-    if (field.disabled() || readOnly()) {
-      return
+  function commitValue(nextValue: number): boolean {
+    if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
+      return false
     }
 
     const boundedValue = clamp(nextValue, minValue(), maxValue())
+    if (Object.is(boundedValue, currentValue())) {
+      return false
+    }
 
-    setResolvedValue(boundedValue)
-    // Don't update inputText here - let the effect handle it based on currentValue
-    // This ensures controlled components work correctly
+    const controlledValue = explicitControlledValue()
 
-    field.setFormValue(boundedValue)
+    if (controlledValue === undefined) {
+      setResolvedValue(boundedValue)
+      field.setFormValue(boundedValue)
+    }
+
     merged.onRawValueChange?.(boundedValue)
-    merged.onChange?.(String(boundedValue))
+    merged.onChange?.(formatLocaleNumber(boundedValue, merged.locale))
+
+    if (controlledValue !== undefined) {
+      const latestControlledValue = explicitControlledValue()
+      field.setFormValue(
+        latestControlledValue === undefined
+          ? boundedValue
+          : clamp(latestControlledValue, minValue(), maxValue()),
+      )
+    }
+
     field.emit('change')
     field.emit('input')
+    return true
+  }
+
+  function getStepBase(): number {
+    if (hasDirtyInput()) {
+      const parsed = parseLocaleNumber(inputText(), merged.locale)
+      if (parsed !== undefined) {
+        return parsed
+      }
+    }
+
+    return currentValue()
+  }
+
+  function stepBy(amount: number): void {
+    const wasDirty = hasDirtyInput()
+    const nextValue = addDecimal(getStepBase(), amount)
+    const boundedValue = clamp(nextValue, minValue(), maxValue())
+    const changed = commitValue(nextValue)
+
+    if (changed && Object.is(currentValue(), boundedValue)) {
+      setHasDirtyInput(false)
+      setInputText(formattedValue())
+      return
+    }
+
+    if (!wasDirty) {
+      setInputText(formattedValue())
+    }
   }
 
   function incrementValue(amount = stepValue()): void {
-    commitValue(currentValue() + amount)
+    stepBy(amount)
   }
 
   function decrementValue(amount = stepValue()): void {
-    commitValue(currentValue() - amount)
+    stepBy(-amount)
   }
 
   const selectionState = {
@@ -767,7 +890,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   onCleanup(() => {
     clearRepeatTimers(pressStates.increment)
     clearRepeatTimers(pressStates.decrement)
-    unlockSelection()
+    while (selectionState.count > 0) {
+      unlockSelection()
+    }
   })
 
   function resolveControlProps(kind: ControlKind): ButtonT.Props {
@@ -775,44 +900,52 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     return {
       slotName: kind,
-      styles: { root: merged.styles?.[kind] },
-      disabled:
-        field.disabled() ||
-        (isIncrement
-          ? merged.incrementDisabled || currentValue() >= maxValue()
-          : merged.decrementDisabled || currentValue() <= minValue()),
       variant: 'ghost',
-      size: `icon-${field.size()}`,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
-      leading: <Icon name={isIncrement ? incrementIcon() : decrementIcon()} />,
+      get styles() {
+        return { root: merged.styles?.[kind] }
+      },
+      get disabled() {
+        return (
+          field.disabled() ||
+          readOnly() ||
+          (isIncrement
+            ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
+            : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
+        )
+      },
+      get size() {
+        return `icon-${field.size()}` as ButtonT.Variant['size']
+      },
+      get 'aria-controls'() {
+        return field.id()
+      },
+      get leading() {
+        return isIncrement ? incrementIcon() : decrementIcon()
+      },
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
       onPointerUp: (event) => onControlPointerUp(kind, event),
       onPointerCancel: (event) => onControlPointerCancel(kind, event),
+      onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
       onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
-      classes: {
-        root: inputNumberControlButtonVariants(
-          {
-            control: kind,
-            divided: !isIncrement && isVertical() && merged.increment,
-            orientation: resolvedOrientation(),
-          },
-          'select-none touch-none',
-          isBorderless() && 'border-transparent',
-          merged.variant === 'none' && 'hover:bg-transparent',
-          merged.classes?.[kind],
-        ),
+      get classes() {
+        return {
+          root: inputNumberControlButtonVariants(
+            {
+              control: kind,
+              divided: !isIncrement && isVertical() && showIncrement(),
+              orientation: resolvedOrientation(),
+            },
+            'select-none touch-none',
+            isBorderless() && 'border-transparent',
+            merged.variant === 'none' && 'hover:bg-transparent',
+            merged.classes?.[kind],
+          ),
+        }
       },
     } as const
-  }
-
-  function IncrementControl(): JSX.Element {
-    return <Button as="button" {...resolveControlProps('increment')} />
-  }
-
-  function DecrementControl(): JSX.Element {
-    return <Button as="button" {...resolveControlProps('decrement')} />
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
@@ -826,12 +959,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     const parsed = parseLocaleNumber(rawInput, merged.locale)
 
     if (parsed !== undefined) {
-      // Valid number (including partial like "7.") - commit it
       commitValue(parsed)
-    } else {
-      // Invalid or empty - revert to current value
-      setInputText(formatLocaleNumber(currentValue(), merged.locale))
     }
+
+    setHasDirtyInput(false)
+    setInputText(formattedValue())
 
     field.emit('blur', event)
   }
@@ -846,16 +978,19 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   const onWheel: JSX.EventHandler<HTMLInputElement, WheelEvent> = (event) => {
-    if (!merged.wheel || (document.activeElement !== inputEl && !field.disabled())) {
+    if (
+      !merged.wheel ||
+      document.activeElement !== inputEl ||
+      field.disabled() ||
+      readOnly() ||
+      event.ctrlKey ||
+      event.deltaY === 0
+    ) {
       return
     }
 
     if (event.cancelable) {
       event.preventDefault()
-    }
-
-    if (field.disabled() || readOnly() || event.deltaY === 0) {
-      return
     }
 
     if (event.deltaY < 0) {
@@ -866,18 +1001,51 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     decrementValue()
   }
 
+  let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
+
+  onCleanup(() => {
+    if (autofocusTimeoutId !== undefined) {
+      clearTimeout(autofocusTimeoutId)
+    }
+  })
+
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const controlledValue = explicitControlledValue()
+      const nextValue = clamp(
+        controlledValue === undefined ? initialResetValue : controlledValue,
+        minValue(),
+        maxValue(),
+      )
+
+      if (controlledValue === undefined) {
+        setResolvedValue(nextValue)
+      }
+      field.setFormValue(nextValue)
+      setHasDirtyInput(false)
+      const nextInputText = formatLocaleNumber(nextValue, merged.locale)
+      setInputText(nextInputText)
+      if (inputEl) {
+        inputEl.value = nextInputText
+      }
+    },
+  )
+
   onMount(() => {
+    if (inputEl) {
+      inputEl.defaultValue = formatLocaleNumber(initialResetValue, merged.locale)
+    }
+
     if (!merged.autofocus) {
       return
     }
 
-    const autofocusTimeoutId = setTimeout(() => {
-      inputEl?.focus()
+    autofocusTimeoutId = setTimeout(() => {
+      if (!field.disabled()) {
+        inputEl?.focus()
+      }
     }, merged.autofocusDelay ?? 0)
-
-    onCleanup(() => {
-      clearTimeout(autofocusTimeoutId)
-    })
   })
 
   return (
@@ -897,8 +1065,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       {...dataAttrs()}
       {...rest}
     >
-      <Show when={!isVertical() && merged.decrement}>
-        <DecrementControl />
+      <Show when={!isVertical() && showDecrement()}>
+        <Button as="button" {...resolveControlProps('decrement')} />
       </Show>
 
       <input
@@ -909,28 +1077,35 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         ref={(e) => (inputEl = e)}
         name={field.name()}
         value={inputText()}
-        required={merged.required}
+        required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
-        aria-required={merged.required || undefined}
+        aria-required={field.required() || undefined}
         aria-disabled={field.disabled() || undefined}
         aria-readonly={readOnly() || undefined}
         aria-valuemin={minValue()}
         aria-valuemax={maxValue()}
         aria-valuenow={currentValue()}
+        aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
         style={merged.styles?.input}
         class={inputNumberBaseVariants(
           {
             size: field.size(),
-            align: resolveInputNumberAlign(resolvedOrientation(), merged.decrement),
+            align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
           },
           merged.classes?.input,
         )}
         onInput={(event) => {
+          if (field.disabled() || readOnly()) {
+            event.currentTarget.value = inputText()
+            return
+          }
+
           const rawInput = event.currentTarget.value
           setInputText(rawInput)
+          setHasDirtyInput(true)
 
           // Only commit if it's a complete valid number
           const parsed = parseLocaleNumber(rawInput, merged.locale)
@@ -939,8 +1114,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           }
         }}
         onChange={(event) => {
+          if (field.disabled() || readOnly()) {
+            event.currentTarget.value = inputText()
+            return
+          }
+
           const rawInput = event.currentTarget.value
           setInputText(rawInput)
+          setHasDirtyInput(true)
 
           // On change (typically blur), try to parse and commit
           const parsed = parseLocaleNumber(rawInput, merged.locale)
@@ -955,6 +1136,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           }
         }}
         onKeyDown={(event) => {
+          if (field.disabled() || readOnly()) {
+            return
+          }
+
           if (event.key === 'ArrowUp') {
             event.preventDefault()
             incrementValue()
@@ -980,14 +1165,34 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           }
 
           if (event.key === 'Home') {
+            if (merged.minValue === undefined) {
+              return
+            }
             event.preventDefault()
             commitValue(minValue())
+            setHasDirtyInput(false)
+            setInputText(formattedValue())
             return
           }
 
           if (event.key === 'End') {
+            if (merged.maxValue === undefined) {
+              return
+            }
             event.preventDefault()
             commitValue(maxValue())
+            setHasDirtyInput(false)
+            setInputText(formattedValue())
+            return
+          }
+
+          if (event.key === 'Enter') {
+            const parsed = parseLocaleNumber(inputText(), merged.locale)
+            if (parsed !== undefined) {
+              commitValue(parsed)
+            }
+            setHasDirtyInput(false)
+            setInputText(formattedValue())
           }
         }}
         onBlur={onBlur}
@@ -997,7 +1202,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         {...field.ariaAttrs()}
       />
 
-      <Show when={isVertical() && (merged.increment || merged.decrement)}>
+      <Show when={isVertical() && (showIncrement() || showDecrement())}>
         <div
           data-slot="controls"
           class={inputNumberControlColumnVariants({
@@ -1005,17 +1210,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             borderless: isBorderless(),
           })}
         >
-          <Show when={merged.increment}>
-            <IncrementControl />
+          <Show when={showIncrement()}>
+            <Button as="button" {...resolveControlProps('increment')} />
           </Show>
-          <Show when={merged.decrement}>
-            <DecrementControl />
+          <Show when={showDecrement()}>
+            <Button as="button" {...resolveControlProps('decrement')} />
           </Show>
         </div>
       </Show>
 
-      <Show when={!isVertical() && merged.increment}>
-        <IncrementControl />
+      <Show when={!isVertical() && showIncrement()}>
+        <Button as="button" {...resolveControlProps('increment')} />
       </Show>
     </div>
   )

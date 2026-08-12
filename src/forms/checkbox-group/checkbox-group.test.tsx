@@ -1,5 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { FormField } from '../form-field/form-field.tsx'
+import { createForm, Form } from '../form/index.ts'
 
 import { CheckboxGroup } from './checkbox-group.tsx'
 
@@ -82,12 +90,17 @@ describe('CheckboxGroup', () => {
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
     await fireEvent.keyDown(checkboxA, { key: ' ' })
+    await fireEvent.keyUp(checkboxA, { key: ' ' })
+    expect(onChange).not.toHaveBeenCalled()
+    await fireEvent.click(checkboxA)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A'])
     expectCheckboxChecked(checkboxA, true)
 
     await fireEvent.keyDown(checkboxA, { key: ' ' })
+    await fireEvent.keyUp(checkboxA, { key: ' ' })
+    await fireEvent.click(checkboxA)
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith([])
@@ -179,6 +192,113 @@ describe('CheckboxGroup', () => {
     expect(checkbox.getAttribute('aria-required')).toBe('true')
     expect(input.getAttribute('required')).not.toBeNull()
     expect(description).not.toBeNull()
+  })
+
+  test('treats required as at least one enabled selection', async () => {
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="channels" legend="Channels" items={['Email', 'SMS']} required />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')!
+    const inputs = Array.from(
+      screen.container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+    )
+
+    expect(fieldset.getAttribute('aria-required')).toBe('true')
+    expect(inputs.filter((input) => input.required)).toHaveLength(1)
+    expect(form.checkValidity()).toBe(false)
+
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+
+    expect(inputs.every((input) => !input.required)).toBe(true)
+    expect(form.checkValidity()).toBe(true)
+    expect(new FormData(form).getAll('channels')).toEqual(['SMS'])
+
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+    expect(inputs.filter((input) => input.required)).toHaveLength(1)
+    expect(form.checkValidity()).toBe(false)
+  })
+
+  test('assigns required validity to the first enabled item and rejects stale selections', async () => {
+    const [value, setValue] = createSignal(['missing'])
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup
+          items={[
+            { value: 'disabled', label: 'Disabled', disabled: true },
+            { value: 'enabled', label: 'Enabled' },
+          ]}
+          value={value()}
+          required
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const disabledInput = getHiddenCheckbox(screen.container, 'disabled')
+    const enabledInput = getHiddenCheckbox(screen.container, 'enabled')
+
+    expect(disabledInput.required).toBe(false)
+    expect(enabledInput.required).toBe(true)
+    expect(form.checkValidity()).toBe(false)
+
+    setValue(['enabled'])
+
+    await waitFor(() => {
+      expect(enabledInput.required).toBe(false)
+      expect(form.checkValidity()).toBe(true)
+    })
+  })
+
+  test('gives duplicate values unique stable ids and serializes repeated entries in item order', async () => {
+    const first = { value: 'same', label: 'First' }
+    const second = { value: 'same', label: 'Second' }
+    const [items, setItems] = createSignal([first, second])
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="choices" items={items()} onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const firstControl = screen.getByRole('checkbox', { name: 'First' })
+    const secondControl = screen.getByRole('checkbox', { name: 'Second' })
+    const firstId = firstControl.id
+    const secondId = secondControl.id
+
+    expect(firstId).not.toBe(secondId)
+    expect(screen.getByText('First').getAttribute('for')).toBe(firstId)
+    expect(screen.getByText('Second').getAttribute('for')).toBe(secondId)
+
+    await fireEvent.click(firstControl)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenLastCalledWith(['same'])
+    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+
+    setItems([second, first])
+    expect(screen.getByRole('checkbox', { name: 'First' }).id).toBe(firstId)
+    expect(screen.getByRole('checkbox', { name: 'Second' }).id).toBe(secondId)
+    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+  })
+
+  test('gives duplicate primitive empty values unique ids and preserves both form entries', async () => {
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="choices" items={['', '']} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const controls = Array.from(
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="control"]'),
+    )
+
+    expect(controls).toHaveLength(2)
+    expect(controls[0]?.id).not.toBe(controls[1]?.id)
+
+    await fireEvent.click(controls[0]!)
+
+    expect(new FormData(form).getAll('choices')).toEqual(['', ''])
   })
 
   test('applies horizontal table layout classes', () => {
@@ -333,4 +453,144 @@ describe('CheckboxGroup', () => {
       expect(new FormData(form).getAll('choices')).toEqual(['A'])
     })
   })
+
+  test('uses the initial default snapshot and preserves a controlled value on reset', async () => {
+    const [defaultValue, setDefaultValue] = createSignal(['A'])
+    const [controlledValue, setControlledValue] = createSignal<string[] | undefined>()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup
+          items={['A', 'B']}
+          defaultValue={defaultValue()}
+          value={controlledValue()}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
+    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
+
+    setDefaultValue(['B'])
+    form.reset()
+    await waitFor(() => {
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), true)
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), false)
+    })
+
+    setControlledValue(['B'])
+    form.reset()
+    await waitFor(() => {
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), false)
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('synchronizes external controlled values into FormField submission', async () => {
+    const [value, setValue] = createSignal<string[]>([])
+    const onSubmit = vi.fn()
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.array(v.string()) }),
+          initialInput: { choices: [] },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <FormField name="choices" label="Choices">
+            <CheckboxGroup items={['A', 'B']} value={value()} />
+          </FormField>
+        </Form>
+      ),
+    )
+
+    setValue(['B'])
+    await fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ choices: ['B'] })
+  })
+
+  test('single-evaluates group JSX and collection props', () => {
+    const reads = { checkedIcon: 0, indeterminateIcon: 0, items: 0, legend: 0 }
+    const screen = render(() =>
+      createComponent(CheckboxGroup, {
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get indeterminateIcon() {
+          reads.indeterminateIcon += 1
+          return <span>Mixed</span>
+        },
+        get items() {
+          reads.items += 1
+          return [{ value: 'a', label: 'Alpha', indeterminate: true }]
+        },
+        get legend() {
+          reads.legend += 1
+          return 'Options'
+        },
+      }),
+    )
+
+    expect(screen.getByText('Options')).not.toBeNull()
+    expect(screen.getByText('Alpha')).not.toBeNull()
+    expect(screen.getByText('Mixed')).not.toBeNull()
+    expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 1, items: 1, legend: 1 })
+  })
+
+  test('hydrates duplicate items with stable ids and DOM order before interaction', () => {
+    const markup = renderSsrFixture(
+      '/src/forms/checkbox-group/checkbox-group.ssr.fixture.tsx',
+      'renderCheckboxGroupFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const [value, setValue] = createSignal<string[]>(['same'])
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <CheckboxGroup
+          legend="Server options"
+          items={[
+            { value: 'same', label: 'First' },
+            { value: 'same', label: 'Second' },
+          ]}
+          value={value()}
+        />
+      ),
+      container,
+    )
+    const root = container.querySelector('[data-slot="root"]')!
+    const controls = Array.from(container.querySelectorAll<HTMLElement>('[data-slot="control"]'))
+
+    expect(root).toBe(serverRoot)
+    expect(new Set(controls.map((control) => control.id)).size).toBe(2)
+    expect(controls.map((control) => control.getAttribute('aria-checked'))).toEqual([
+      'true',
+      'true',
+    ])
+
+    setValue([])
+    expect(controls.map((control) => control.getAttribute('aria-checked'))).toEqual([
+      'false',
+      'false',
+    ])
+    expect(
+      Array.from(container.querySelector('[data-slot="fieldset"]')!.children).map((child) =>
+        child.getAttribute('data-slot'),
+      ),
+    ).toEqual(['legend', 'root', 'root'])
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 })

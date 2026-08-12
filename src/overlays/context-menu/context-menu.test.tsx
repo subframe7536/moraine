@@ -1,11 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils.ts'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { ContextMenu } from './context-menu.tsx'
-import type { ContextMenuProps } from './context-menu.tsx'
+import type { ContextMenuProps, ContextMenuT } from './context-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
   const contents = Array.from(
@@ -131,6 +133,68 @@ describe('ContextMenu', () => {
     })
   })
 
+  test('hydrates the trigger once and opens from keyboard and long press', async () => {
+    const markup = renderSsrFixture(
+      '/src/overlays/context-menu/context-menu.ssr.fixture.tsx',
+      'renderContextMenuFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverTrigger = container.querySelector('[data-slot="trigger"]') as HTMLElement
+    let triggerReads = 0
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () =>
+        createComponent(ContextMenu, {
+          id: 'ssr-context',
+          items: [{ label: 'Archive' }, { label: 'Delete' }],
+          get children() {
+            triggerReads += 1
+            return (props: ContextMenuT.TriggerProps) => <div {...props}>Row Item</div>
+          },
+        }),
+      container,
+    )
+
+    try {
+      expect(container.querySelector('[data-slot="trigger"]')).toBe(serverTrigger)
+      expect(triggerReads).toBe(1)
+
+      await fireEvent.keyDown(serverTrigger, { key: 'ContextMenu' })
+      await waitFor(() => {
+        expect(
+          document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+        ).toContain('Archive')
+      })
+
+      let content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      await fireEvent.keyDown(content, { key: 'Escape' })
+      await finishMenuExitMotion()
+
+      vi.useFakeTimers()
+      await fireEvent.pointerDown(serverTrigger, {
+        pointerId: 21,
+        pointerType: 'touch',
+        clientX: 30,
+        clientY: 40,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      await fireEvent.keyDown(content, { key: 'Escape' })
+      await finishMenuExitMotion()
+      await Promise.resolve()
+    } finally {
+      dispose()
+      restoreHydrationState()
+      container.remove()
+      vi.useRealTimers()
+    }
+  })
+
   test('exposes trigger data state while opened, closed, and disabled', async () => {
     const screen = render(() => (
       <ContextMenu disabled items={[{ label: 'Disabled action' }]}>
@@ -193,6 +257,43 @@ describe('ContextMenu', () => {
     expect(trigger?.getAttribute('aria-haspopup')).toBe('caller-menu')
   })
 
+  test('exposes disabled semantics for native and non-native triggers with caller overrides', () => {
+    render(() => (
+      <>
+        <ContextMenu disabled items={[]}>
+          {(props) => <div {...props}>Disabled div</div>}
+        </ContextMenu>
+        <ContextMenu disabled items={[]}>
+          {(props) => (
+            <button {...props} type="button">
+              Disabled button
+            </button>
+          )}
+        </ContextMenu>
+        <ContextMenu disabled items={[]}>
+          {(props) => (
+            <div {...props} aria-disabled="false" tabIndex={2}>
+              Overridden div
+            </div>
+          )}
+        </ContextMenu>
+      </>
+    ))
+
+    const disabledDiv = document.body.querySelectorAll('[data-slot="trigger"]')[0] as HTMLElement
+    const button = document.body.querySelector('button') as HTMLButtonElement
+    const overriddenDiv = document.body.querySelectorAll('[data-slot="trigger"]')[2] as HTMLElement
+
+    expect(disabledDiv.hasAttribute('disabled')).toBe(false)
+    expect(disabledDiv.getAttribute('aria-disabled')).toBe('true')
+    expect(disabledDiv.tabIndex).toBe(-1)
+    expect(button.disabled).toBe(true)
+    expect(button.hasAttribute('aria-disabled')).toBe(false)
+    expect(button.hasAttribute('tabindex')).toBe(false)
+    expect(overriddenDiv.getAttribute('aria-disabled')).toBe('false')
+    expect(overriddenDiv.tabIndex).toBe(2)
+  })
+
   test('calls the trigger contextmenu handler for native right-clicks', async () => {
     const onContextMenu = vi.fn((event: MouseEvent) => event.preventDefault())
     const onOpenChange = vi.fn()
@@ -250,7 +351,7 @@ describe('ContextMenu', () => {
     }
   })
 
-  test('focuses content on open, ignores printable keys, and restores trigger wrapper focus on escape', async () => {
+  test('focuses content on open, supports typeahead, and restores trigger wrapper focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
@@ -282,7 +383,9 @@ describe('ContextMenu', () => {
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     await fireEvent.keyDown(content, { key: 'd' })
 
-    expect(document.body.querySelector('[data-slot="item"][data-highlighted]')).toBeNull()
+    expect(
+      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+    ).toContain('Duplicate')
 
     await fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()
@@ -419,6 +522,185 @@ describe('ContextMenu', () => {
       await vi.advanceTimersByTimeAsync(1)
       expect(onOpenChange).toHaveBeenCalledWith(true)
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('cancels a pending long press when a second pointer joins the gesture', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+      const row = screen.getByText('Row Item')
+
+      await fireEvent.pointerDown(row, {
+        pointerId: 1,
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await fireEvent.pointerDown(row, {
+        pointerId: 2,
+        pointerType: 'touch',
+        clientX: 31,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('uses live controlled state and open handler when the long press completes', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const firstHandler = vi.fn()
+      const secondHandler = vi.fn()
+      const [controlledOpen, setControlledOpen] = createSignal<boolean | undefined>(undefined)
+      const [onOpenChange, setOnOpenChange] = createSignal(firstHandler)
+      const screen = render(() => (
+        <ContextMenu
+          open={controlledOpen()}
+          onOpenChange={onOpenChange()}
+          items={[{ label: 'Touch action' }]}
+        >
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+
+      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+        pointerId: 5,
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      setControlledOpen(false)
+      setOnOpenChange(() => secondHandler)
+      await vi.advanceTimersByTimeAsync(700)
+
+      expect(firstHandler).not.toHaveBeenCalled()
+      expect(secondHandler).toHaveBeenCalledTimes(1)
+      expect(secondHandler).toHaveBeenCalledWith(true)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('guards the completing long-press pointer but allows the next independent outside press', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const screen = render(() => (
+        <ContextMenu items={[{ label: 'Touch action' }]}>
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+
+      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+        pointerId: 7,
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+
+      const completingEvent = new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 7,
+        pointerType: 'touch',
+      })
+      document.body.dispatchEvent(completingEvent)
+      expect(completingEvent.defaultPrevented).toBe(true)
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+
+      await fireEvent.pointerDown(document.body, {
+        pointerId: 8,
+        pointerType: 'touch',
+      })
+      expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('consumes only the matching follow-up contextmenu and expires stale suppression', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+      const row = screen.getByText('Row Item')
+
+      await fireEvent.pointerDown(row, {
+        pointerId: 9,
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+      await fireEvent.contextMenu(row, { clientX: 21, clientY: 34 })
+      await fireEvent.pointerUp(row, { pointerId: 9, pointerType: 'touch' })
+      expect(onOpenChange).toHaveBeenCalledTimes(1)
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+
+      await fireEvent.pointerDown(document.body, { pointerId: 10, pointerType: 'touch' })
+      await finishMenuExitMotion()
+      await fireEvent.pointerDown(row, {
+        pointerId: 11,
+        pointerType: 'touch',
+        clientX: 40,
+        clientY: 50,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+      await fireEvent.pointerUp(row, { pointerId: 11, pointerType: 'touch' })
+      await vi.advanceTimersByTimeAsync(1_000)
+      await fireEvent.contextMenu(row, { clientX: 40, clientY: 50 })
+
+      expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true, false])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('does not consume a contextmenu from a different observable point', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const onOpenChange = vi.fn()
+      const screen = render(() => (
+        <ContextMenu onOpenChange={onOpenChange} items={[{ label: 'Touch action' }]}>
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+      const row = screen.getByText('Row Item')
+
+      await fireEvent.pointerDown(row, {
+        pointerId: 12,
+        pointerType: 'touch',
+        clientX: 21,
+        clientY: 34,
+      })
+      await vi.advanceTimersByTimeAsync(700)
+      await fireEvent.contextMenu(row, { clientX: 60, clientY: 70 })
+
+      expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false])
     } finally {
       vi.useRealTimers()
     }

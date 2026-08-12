@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
@@ -14,7 +15,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { callRef, cn, useId } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
@@ -155,12 +156,6 @@ export namespace AccordionT {
  */
 export interface AccordionProps extends AccordionT.Props {}
 
-interface NormalizedAccordionItem {
-  disabled: boolean
-  item: AccordionT.Item
-  value: string
-}
-
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -179,6 +174,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'ref',
   ])
   const merged = mergeProps(
     {
@@ -198,20 +194,57 @@ export function Accordion(props: AccordionProps): JSX.Element {
     defaultValue: () => merged.defaultValue ?? [],
   })
   const resolvedSelectedValues = createMemo(() => selectedValues() ?? [])
-  const normalizedItems = createMemo<NormalizedAccordionItem[]>(() =>
-    (merged.items ?? []).map((item, index) => ({
-      disabled: Boolean(merged.disabled || item.disabled),
-      item,
-      value: item.value ?? String(index),
-    })),
-  )
+  const items = createMemo(() => merged.items ?? [])
+  const allocatedIdOccurrences = new Map<string, Set<number>>()
+  let rootElement: HTMLDivElement | undefined
+  let lastFocusedIndex = -1
+  let lastFocusedTrigger: HTMLButtonElement | undefined
+  let focusRecoveryVersion = 0
 
-  function getTriggerId(itemValue: string): string {
-    return `${rootId()}-${itemValue}-trigger`
+  function allocateItemIdSegment(base: string): [string, VoidFunction] {
+    const occurrences = allocatedIdOccurrences.get(base) ?? new Set<number>()
+    let occurrence = 1
+
+    while (occurrences.has(occurrence)) {
+      occurrence += 1
+    }
+
+    occurrences.add(occurrence)
+    allocatedIdOccurrences.set(base, occurrences)
+
+    return [occurrence === 1 ? base : `${base}-${occurrence}`, () => occurrences.delete(occurrence)]
   }
 
-  function getContentId(itemValue: string): string {
-    return `${rootId()}-${itemValue}-content`
+  function getTriggers(): HTMLButtonElement[] {
+    if (!rootElement) {
+      return []
+    }
+
+    const triggers: HTMLButtonElement[] = []
+
+    for (const itemElement of rootElement.children) {
+      if (!(itemElement instanceof HTMLElement) || itemElement.dataset.slot !== 'item') {
+        continue
+      }
+
+      for (const header of itemElement.children) {
+        if (!(header instanceof HTMLElement) || header.dataset.slot !== 'header') {
+          continue
+        }
+
+        for (const trigger of header.children) {
+          if (trigger instanceof HTMLButtonElement && trigger.dataset.slot === 'trigger') {
+            triggers.push(trigger)
+          }
+        }
+      }
+    }
+
+    return triggers
+  }
+
+  function getEnabledTriggers(): HTMLButtonElement[] {
+    return getTriggers().filter((trigger) => !trigger.disabled)
   }
 
   function setValue(nextValue: string[]): void {
@@ -243,39 +276,27 @@ export function Accordion(props: AccordionProps): JSX.Element {
     setValue([itemValue])
   }
 
-  function focusTrigger(itemValue: string): void {
-    const trigger = document.getElementById(getTriggerId(itemValue))
-
-    trigger?.focus()
-  }
-
   function focusTriggerByKey(
-    currentValue: string,
+    currentTrigger: HTMLButtonElement,
     key: 'ArrowDown' | 'ArrowUp' | 'Home' | 'End',
   ): void {
-    const enabledItems = normalizedItems().filter((item) => !item.disabled)
+    const enabledTriggers = getEnabledTriggers()
 
-    if (enabledItems.length === 0) {
+    if (enabledTriggers.length === 0) {
       return
     }
 
     if (key === 'Home') {
-      const firstItem = enabledItems[0]
-      if (firstItem) {
-        focusTrigger(firstItem.value)
-      }
+      enabledTriggers[0]?.focus()
       return
     }
 
     if (key === 'End') {
-      const lastItem = enabledItems[enabledItems.length - 1]
-      if (lastItem) {
-        focusTrigger(lastItem.value)
-      }
+      enabledTriggers[enabledTriggers.length - 1]?.focus()
       return
     }
 
-    const currentIndex = enabledItems.findIndex((item) => item.value === currentValue)
+    const currentIndex = enabledTriggers.indexOf(currentTrigger)
 
     if (currentIndex === -1) {
       return
@@ -285,19 +306,48 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
     const nextIndex = currentIndex + direction
 
-    if (!merged.loopFocus && (nextIndex < 0 || nextIndex >= enabledItems.length)) {
+    if (!merged.loopFocus && (nextIndex < 0 || nextIndex >= enabledTriggers.length)) {
       return
     }
 
-    const nextItem = enabledItems[(nextIndex + enabledItems.length) % enabledItems.length]
-
-    if (nextItem) {
-      focusTrigger(nextItem.value)
-    }
+    enabledTriggers[(nextIndex + enabledTriggers.length) % enabledTriggers.length]?.focus()
   }
+
+  createEffect(() => {
+    const enabledItemCount = items().filter((item) => !merged.disabled && !item.disabled).length
+    const version = ++focusRecoveryVersion
+
+    queueMicrotask(() => {
+      if (version !== focusRecoveryVersion || !lastFocusedTrigger || enabledItemCount === 0) {
+        return
+      }
+
+      const activeElement = document.activeElement
+      if (activeElement !== document.body && activeElement !== lastFocusedTrigger) {
+        return
+      }
+
+      if (!lastFocusedTrigger.disabled && lastFocusedTrigger.isConnected) {
+        lastFocusedTrigger.focus()
+        return
+      }
+
+      const enabledTriggers = getEnabledTriggers()
+      const targetIndex = Math.min(lastFocusedIndex, enabledTriggers.length - 1)
+      enabledTriggers[Math.max(0, targetIndex)]?.focus()
+    })
+  })
+
+  onCleanup(() => {
+    focusRecoveryVersion += 1
+  })
 
   return (
     <div
+      ref={(element) => {
+        rootElement = element
+        callRef(local.ref, element)
+      }}
       id={rootId()}
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
@@ -310,13 +360,21 @@ export function Accordion(props: AccordionProps): JSX.Element {
         merged.class,
       )}
     >
-      <For each={normalizedItems()}>
-        {(entry) => {
-          const expanded = createMemo(() => resolvedSelectedValues().includes(entry.value))
+      <For each={items()}>
+        {(item) => {
+          const fallbackValue = useId(undefined, 'accordion-item')
+          const itemValue = createMemo(() => item.value ?? fallbackValue())
+          const [itemIdSegment, releaseItemId] = allocateItemIdSegment(untrack(itemValue))
+          onCleanup(releaseItemId)
+
+          const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
+          const leading = createMemo(() => item.leading)
+          const label = createMemo(() => item.label)
+          const expanded = createMemo(() => resolvedSelectedValues().includes(itemValue()))
           const [contentExpanded, setContentExpanded] = createSignal(untrack(expanded))
           const itemDataAttrs = createMemo(() => ({
             'data-closed': expanded() ? undefined : '',
-            'data-disabled': entry.disabled ? '' : undefined,
+            'data-disabled': disabled() ? '' : undefined,
             'data-expanded': expanded() ? '' : undefined,
           }))
           const {
@@ -325,15 +383,27 @@ export function Accordion(props: AccordionProps): JSX.Element {
             setContentElement,
           } = useDisclosureState({
             open: contentExpanded,
-            disabled: () => entry.disabled,
+            disabled,
           })
           const contentPresence = useTransitionPresence({
             open: expanded,
             mode: 'transition',
           })
-          const triggerId = createMemo(() => getTriggerId(entry.value))
-          const contentId = createMemo(() => getContentId(entry.value))
+          const triggerId = createMemo(() => `${rootId()}-${itemIdSegment}-trigger`)
+          const contentId = createMemo(() => `${rootId()}-${itemIdSegment}-content`)
           let contentElement: HTMLDivElement | undefined
+          let spaceKeyDown = false
+
+          function renderContent(): JSX.Element {
+            // Create this memo only after the expanded branch mounts so closed content is not evaluated and hydration creates nodes in the same order.
+            const content = createMemo(() => item.content)
+
+            return (
+              <Show when={content()}>
+                {(value) => <div class="style-accordion-content pb-2.5">{value()}</div>}
+              </Show>
+            )
+          }
 
           function openContentElement(): void {
             if (!contentElement || contentExpanded()) {
@@ -363,8 +433,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
 
           function onTriggerClick(event: MouseEvent): void {
-            if (!event.defaultPrevented && !entry.disabled) {
-              toggleValue(entry.value)
+            spaceKeyDown = false
+            if (!event.defaultPrevented && !disabled()) {
+              toggleValue(itemValue())
             }
           }
 
@@ -380,16 +451,38 @@ export function Accordion(props: AccordionProps): JSX.Element {
               return
             }
 
-            event.preventDefault()
-
-            if (event.key === 'Enter' || event.key === ' ') {
-              if (!entry.disabled) {
-                toggleValue(entry.value)
+            if (event.key === 'Enter') {
+              event.preventDefault()
+              if (!event.repeat && !disabled()) {
+                toggleValue(itemValue())
               }
               return
             }
 
-            focusTriggerByKey(entry.value, event.key)
+            if (event.key === ' ') {
+              event.preventDefault()
+              if (!event.repeat) {
+                spaceKeyDown = true
+              }
+              return
+            }
+
+            event.preventDefault()
+            focusTriggerByKey(event.currentTarget as HTMLButtonElement, event.key)
+          }
+
+          function onTriggerKeyUp(event: KeyboardEvent): void {
+            if (event.key !== ' ') {
+              return
+            }
+
+            event.preventDefault()
+            const shouldToggle = spaceKeyDown && !disabled()
+            spaceKeyDown = false
+
+            if (shouldToggle) {
+              toggleValue(itemValue())
+            }
           }
 
           return (
@@ -402,9 +495,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
               )}
               {...itemDataAttrs()}
             >
-              <div
+              <h3
                 data-slot="header"
-                role="heading"
                 style={merged.styles?.header}
                 class={cn('flex', merged.classes?.header)}
                 {...itemDataAttrs()}
@@ -414,7 +506,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   type="button"
                   aria-controls={expanded() ? contentId() : undefined}
                   aria-expanded={expanded()}
-                  disabled={entry.disabled}
+                  disabled={disabled()}
                   data-slot="trigger"
                   style={merged.styles?.trigger}
                   class={cn(
@@ -423,25 +515,37 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   )}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
+                  onKeyUp={onTriggerKeyUp}
+                  onBlur={() => {
+                    spaceKeyDown = false
+                  }}
+                  onFocus={(event) => {
+                    lastFocusedIndex = getTriggers().indexOf(event.currentTarget)
+                    lastFocusedTrigger = event.currentTarget
+                  }}
                   {...itemDataAttrs()}
                 >
-                  <Show when={entry.item.leading}>
-                    <Icon
-                      name={entry.item.leading}
-                      slotName="leading"
-                      style={merged.styles?.leading}
-                      class={cn('shrink-0 size-5', merged.classes?.leading)}
-                    />
+                  <Show when={leading()}>
+                    {(value) => (
+                      <Icon
+                        name={value()}
+                        slotName="leading"
+                        style={merged.styles?.leading}
+                        class={cn('shrink-0 size-5', merged.classes?.leading)}
+                      />
+                    )}
                   </Show>
 
-                  <Show when={entry.item.label}>
-                    <span
-                      data-slot="label"
-                      style={merged.styles?.label}
-                      class={cn('text-start break-words', merged.classes?.label)}
-                    >
-                      {entry.item.label}
-                    </span>
+                  <Show when={label()}>
+                    {(value) => (
+                      <span
+                        data-slot="label"
+                        style={merged.styles?.label}
+                        class={cn('text-start break-words', merged.classes?.label)}
+                      >
+                        {value()}
+                      </span>
+                    )}
                   </Show>
 
                   <Show when={trailing()}>
@@ -456,7 +560,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     />
                   </Show>
                 </button>
-              </div>
+              </h3>
 
               <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
                 <div
@@ -483,9 +587,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   )}
                   {...contentDataAttrs()}
                 >
-                  <Show when={entry.item.content}>
-                    <div class="style-accordion-content pb-2.5">{entry.item.content}</div>
-                  </Show>
+                  {renderContent()}
                 </div>
               </Show>
             </div>

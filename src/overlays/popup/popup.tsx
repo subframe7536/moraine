@@ -1,8 +1,12 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
 import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
@@ -17,6 +21,12 @@ export namespace PopupT {
 
     /** Positioned popup content panel. */
     content?: T
+
+    /** Accessible title rendered inside the popup content panel. */
+    title?: T
+
+    /** Supporting text associated with the popup title. */
+    description?: T
   }
 
   export type Variant = PopupVariantProps
@@ -42,6 +52,15 @@ export namespace PopupT {
 
     /** Modal content rendered inside the content surface. */
     content?: ComponentOrElement<ModalContentContext>
+
+    /** Accessible title rendered inside the content surface. */
+    title?: JSX.Element
+
+    /** Supporting text rendered below the title. */
+    description?: JSX.Element
+
+    /** Accessible name used when the popup has no rendered title. */
+    ariaLabel?: string
 
     /**
      * Whether to allow scrolling within the popup.
@@ -91,6 +110,9 @@ export function Popup(props: PopupProps): JSX.Element {
     'dismissible',
     'onClosePrevent',
     'content',
+    'title',
+    'description',
+    'ariaLabel',
     'scrollable',
     'fullscreen',
     'children',
@@ -105,6 +127,42 @@ export function Popup(props: PopupProps): JSX.Element {
     local,
   )
   const content = createMemo(() => merged.content)
+  const title = createLazyMemo(() => merged.title)
+  const description = createLazyMemo(() => merged.description)
+  const rootId = useId(() => merged.id, 'popup')
+  const hasTitle = createLazyMemo(() => hasJsxContent(title()))
+  const hasDescription = createLazyMemo(() => hasJsxContent(description()))
+  const titleId = createLazyMemo(() => (hasTitle() ? `${rootId()}-title` : undefined))
+  const descriptionId = createLazyMemo(() =>
+    hasDescription() ? `${rootId()}-description` : undefined,
+  )
+  const hasContent = createMemo(() => hasJsxContent(content()) || hasTitle() || hasDescription())
+
+  const renderContent = (context: ModalContentContext): JSX.Element => (
+    <>
+      <Show when={hasTitle()}>
+        <h2
+          id={titleId()}
+          data-slot="title"
+          style={merged.styles?.title}
+          class={cn(merged.classes?.title)}
+        >
+          {title()}
+        </h2>
+      </Show>
+      <Show when={hasDescription()}>
+        <p
+          id={descriptionId()}
+          data-slot="description"
+          style={merged.styles?.description}
+          class={cn(merged.classes?.description)}
+        >
+          {description()}
+        </p>
+      </Show>
+      <Show when={hasJsxContent(content())}>{renderComponentOrElement(content()!, context)}</Show>
+    </>
+  )
 
   const contentLayout = () => {
     if (merged.fullscreen) {
@@ -129,10 +187,10 @@ export function Popup(props: PopupProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
       preventScroll={!merged.scrollable}
       hasOverlay={merged.overlay}
-      hasContent={Boolean(content())}
+      hasContent={hasContent()}
     >
       <ModalTrigger children={merged.children} />
-      <Show when={content()}>
+      <Show when={hasContent()}>
         <ModalContent
           overlay={merged.overlay}
           overlayClass={popupOverlayVariants(
@@ -149,7 +207,10 @@ export function Popup(props: PopupProps): JSX.Element {
             merged.classes?.content,
           )}
           style={merged.styles?.content}
-          contentRender={content()!}
+          ariaLabel={hasTitle() ? undefined : merged.ariaLabel}
+          ariaLabelledBy={titleId()}
+          ariaDescribedBy={descriptionId()}
+          contentRender={renderContent}
         />
       </Show>
     </ModalRoot>

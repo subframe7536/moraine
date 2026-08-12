@@ -7,6 +7,7 @@ import {
   createSignal,
   mergeProps,
   on,
+  onCleanup,
   splitProps,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
@@ -19,8 +20,10 @@ import {
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
 } from '../../overlays/base/menu/index.ts'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createTypeahead } from '../../shared/typeahead.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
@@ -32,6 +35,7 @@ import type {
   FormIdentityOptions,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SelectControlVariantProps } from './select.class.ts'
 import { selectItemVariants } from './select.class.ts'
@@ -118,6 +122,8 @@ export namespace BaseSelectT {
     key: string
     /** Group label content. */
     label: JSX.Element
+    /** Normalized option keys owned by this group. */
+    optionKeys: string[]
   }
 
   export interface VirtualItemEntry<TItem extends Item> {
@@ -228,7 +234,14 @@ export namespace BaseSelectT {
     /** Custom rendered empty state. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Called when an option is selected by pointer or keyboard. */
-    onOptionSelect: (option: NormalizedOption<TItem>, context: OptionSelectContext<TItem>) => void
+    onOptionSelect: (
+      option: NormalizedOption<TItem> | null,
+      context: OptionSelectContext<TItem>,
+    ) => void
+    /** Internal reset bridge used by Select and MultiSelect wrappers. */
+    _onFormReset?: (context: OptionSelectContext<TItem>) => void
+    /** Whether the wrapper has an explicit controlled value. */
+    _isValueControlled?: boolean
     /**
      * Called on option item keydown. Can be used to intercept keys for custom behavior.
      */
@@ -310,6 +323,39 @@ function matchesFilter<TOption extends { key: string }>(
   return (SELECT_FILTER_STRATEGIES[filter] ?? SELECT_FILTER_STRATEGIES.contains)(text, input)
 }
 
+function resolveSelectedOptions<TItem>(
+  options: NormalizedOption<TItem>[],
+  values: BaseSelectT.Value[],
+): {
+  entries: Array<
+    | { type: 'option'; option: NormalizedOption<TItem> }
+    | { type: 'unmatched'; value: BaseSelectT.Value }
+  >
+  options: NormalizedOption<TItem>[]
+} {
+  const selectedIds = new Set<string>()
+  const selectedOptions: NormalizedOption<TItem>[] = []
+  const entries: Array<
+    | { type: 'option'; option: NormalizedOption<TItem> }
+    | { type: 'unmatched'; value: BaseSelectT.Value }
+  > = []
+
+  for (const value of values) {
+    const option = options.find(
+      (candidate) => !selectedIds.has(candidate.id) && Object.is(candidate.value, value),
+    )
+    if (option) {
+      selectedIds.add(option.id)
+      selectedOptions.push(option)
+      entries.push({ type: 'option', option })
+    } else {
+      entries.push({ type: 'unmatched', value })
+    }
+  }
+
+  return { entries, options: selectedOptions }
+}
+
 function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
   const highlightedItem = listbox?.querySelector<HTMLElement>(
     '[data-slot="item"][data-highlighted]',
@@ -337,7 +383,7 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   highlightedKey: Accessor<string | undefined>
   isOpen: Accessor<boolean>
   isPresent: Accessor<boolean>
-  selectedValues: Accessor<BaseSelectT.Value[]>
+  selectedOptionIds: Accessor<Set<string>>
   setHighlightedKey: (key: string | undefined) => void
   visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
 }) {
@@ -346,7 +392,7 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
     string
   >({
     items: options.visibleFlatOptions,
-    getValue: (option) => option.key,
+    getValue: (option) => option.id,
     isDisabled: (option) => option.disabled,
     activationMode: () => 'manual',
     focusValue: options.setHighlightedKey,
@@ -357,12 +403,12 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
   function getFocusedOption(): NormalizedOption<TItem> | undefined {
     const key =
       options.highlightedKey() ??
-      options.visibleFlatOptions().find((option) => !option.disabled)?.key
+      options.visibleFlatOptions().find((option) => !option.disabled)?.id
     if (!key) {
       return undefined
     }
 
-    return options.visibleFlatOptions().find((option) => option.key === key)
+    return options.visibleFlatOptions().find((option) => option.id === key)
   }
 
   createEffect(() => {
@@ -377,14 +423,14 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
 
     const highlighted = options.highlightedKey()
     const enabledOptions = options.visibleFlatOptions().filter((option) => !option.disabled)
-    if (highlighted && enabledOptions.some((option) => option.key === highlighted)) {
+    if (highlighted && enabledOptions.some((option) => option.id === highlighted)) {
       return
     }
 
-    const selectedValueSet = new Set(options.selectedValues().map((value) => String(value)))
-    const selectedOption = enabledOptions.find((option) => selectedValueSet.has(option.value))
+    const selectedIds = options.selectedOptionIds()
+    const selectedOption = enabledOptions.find((option) => selectedIds.has(option.id))
 
-    options.setHighlightedKey(selectedOption?.key ?? enabledOptions[0]?.key)
+    options.setHighlightedKey(selectedOption?.id ?? enabledOptions[0]?.id)
   })
 
   return {
@@ -406,6 +452,11 @@ function useBaseSelectOverlay(options: {
   overflowPadding: Accessor<number>
   positionerElement: Accessor<HTMLDivElement | undefined>
 }) {
+  let disposed = false
+  onCleanup(() => {
+    disposed = true
+  })
+
   useOverlayMenuFloatingPosition({
     contentElement: options.contentElement,
     floatingElement: options.positionerElement,
@@ -413,7 +464,7 @@ function useBaseSelectOverlay(options: {
     gutter: options.gutter,
     onPositionedChange: () => undefined,
     onPlacementChange: options.onPlacementChange,
-    open: options.isOpen,
+    open: options.contentPresence.present,
     overflowPadding: options.overflowPadding,
     placement: () => 'bottom-start',
   })
@@ -432,6 +483,14 @@ function useBaseSelectOverlay(options: {
     }
 
     queueMicrotask(() => {
+      if (
+        disposed ||
+        options.positionerElement() !== positioner ||
+        options.contentElement() !== content
+      ) {
+        return
+      }
+
       positioner.style.zIndex = getComputedStyle(content).zIndex
     })
   })
@@ -447,7 +506,9 @@ function useBaseSelectOverlay(options: {
       options.menuControl.onContentInteractOutside()
       options.closeMenu()
     },
+    contentElement: options.contentElement,
     open: options.isOpen,
+    triggerElement: options.getControlElement,
   })
 }
 
@@ -486,6 +547,8 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'optionRender',
     'emptyRender',
     'onOptionSelect',
+    '_onFormReset',
+    '_isValueControlled',
     'onInputKeyDown',
     'onScrollBottom',
     'scrollBottomThreshold',
@@ -520,13 +583,19 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     },
     local as BaseSelectProps<TItem>,
   )
+  const childrenRender = createMemo(() => merged.children)
+  const optionRender = createMemo(() => merged.optionRender)
+  const emptyRender = createMemo(() => merged.emptyRender)
+  const virtualRender = createMemo(() => merged.virtualRender)
   const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'base-select-listbox')
+  const getOptionId = (key: string): string => `${listboxId()}-${encodeURIComponent(String(key))}`
 
   const field = useSelectField(() => ({
     id: merged.id,
     name: merged.name,
     size: merged.size,
     disabled: merged.disabled,
+    required: local.required,
     initialValue: merged.initialValue,
   }))
   const isSearchable = createMemo(() => Boolean(merged.search))
@@ -540,19 +609,65 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const allFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
     flattenOptions(normalizedOptions()),
   )
-  const selectedValues = createMemo(() =>
-    (merged.selectedValues ?? []).map((value) => String(value)),
+  const propSelectedValues = createMemo(() => merged.selectedValues ?? [])
+  const selectedValues = createMemo<BaseSelectT.Value[]>(() => {
+    if (merged._isValueControlled) {
+      return propSelectedValues()
+    }
+
+    const value = field.value()
+    if (merged.multiple) {
+      return Array.isArray(value)
+        ? value.filter(
+            (item): item is BaseSelectT.Value =>
+              typeof item === 'string' || typeof item === 'number',
+          )
+        : propSelectedValues()
+    }
+
+    if (value === null) {
+      return []
+    }
+
+    return typeof value === 'string' || typeof value === 'number' ? [value] : propSelectedValues()
+  })
+
+  createEffect(() => {
+    if (!merged._isValueControlled) {
+      return
+    }
+
+    const values = propSelectedValues()
+    const nextValue = merged.multiple ? [...values] : (values[0] ?? '')
+    const currentValue = field.value()
+    const isEqual = Array.isArray(nextValue)
+      ? Array.isArray(currentValue) &&
+        nextValue.length === currentValue.length &&
+        nextValue.every((value, index) => Object.is(value, currentValue[index]))
+      : Object.is(nextValue, currentValue)
+
+    if (!isEqual) {
+      field.setFormValue(nextValue)
+    }
+  })
+  const selectedResolution = createMemo(() =>
+    resolveSelectedOptions(allFlatOptions(), selectedValues()),
   )
-  const nativeFormOptions = createMemo<NormalizedOption<TItem>[]>(() => {
-    const optionsByValue = new Map(allFlatOptions().map((option) => [option.value, option]))
-    const selected = selectedValues()
-      .map((value) => optionsByValue.get(value))
-      .filter((option): option is NormalizedOption<TItem> => option !== undefined)
-    const selectedValuesSet = new Set(selected.map((option) => option.value))
+  const selectedOptions = createMemo(() => selectedResolution().options)
+  const selectedOptionIds = createMemo(() => new Set(selectedOptions().map((option) => option.id)))
+  const nativeFormEntries = createMemo<
+    Array<
+      | { type: 'option'; option: NormalizedOption<TItem> }
+      | { type: 'unmatched'; value: BaseSelectT.Value }
+    >
+  >(() => {
+    const selectedIds = selectedOptionIds()
 
     return [
-      ...selected,
-      ...allFlatOptions().filter((option) => !selectedValuesSet.has(option.value)),
+      ...selectedResolution().entries,
+      ...allFlatOptions()
+        .filter((option) => !selectedIds.has(option.id))
+        .map((option) => ({ type: 'option' as const, option })),
     ]
   })
 
@@ -567,6 +682,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   let listboxRef: HTMLDivElement | undefined
   let nativeFormSelectRef: HTMLSelectElement | undefined
   let hasReachedScrollBottom = false
+  let disposed = false
+
+  onCleanup(() => {
+    disposed = true
+  })
 
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
@@ -590,18 +710,23 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     ),
   )
 
-  createEffect(() => {
+  function syncNativeSelectState(): void {
     const select = nativeFormSelectRef
     if (!select) {
       return
     }
 
-    const values = new Set(selectedValues())
+    const selectedIds = selectedOptionIds()
     for (const option of select.options) {
       option.selected = option.hasAttribute('data-empty-option')
-        ? !merged.multiple && values.size === 0
-        : values.has(option.value)
+        ? !merged.multiple && selectedValues().length === 0
+        : option.hasAttribute('data-unmatched-option') ||
+          selectedIds.has(option.dataset.optionId ?? '')
     }
+  }
+
+  createEffect(() => {
+    syncNativeSelectState()
   })
 
   const visibleOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(() => {
@@ -648,10 +773,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     flattenOptions(visibleOptions()),
   )
   const visibleOptionByKey = createMemo(
-    () => new Map(visibleFlatOptions().map((option) => [option.key, option])),
+    () => new Map(visibleFlatOptions().map((option) => [option.id, option])),
   )
   const visibleOptionPositionByKey = createMemo(
-    () => new Map(visibleFlatOptions().map((option, index) => [option.key, index + 1])),
+    () => new Map(visibleFlatOptions().map((option, index) => [option.id, index + 1])),
   )
   const virtualEntries = createMemo<BaseSelectT.VirtualEntry<TItem>[]>(() => {
     const entries: BaseSelectT.VirtualEntry<TItem>[] = []
@@ -660,7 +785,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       if (!item.isGroup) {
         entries.push({
           type: 'item',
-          key: item.key,
+          key: item.id,
           item: item.raw,
           disabled: item.disabled,
         })
@@ -671,12 +796,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         type: 'label',
         key: `group-${index}`,
         label: item.label,
+        optionKeys: item.options.map((option) => option.id),
       })
 
       for (const option of item.options) {
         entries.push({
           type: 'item',
-          key: option.key,
+          key: option.id,
           item: option.raw,
           disabled: option.disabled,
         })
@@ -685,7 +811,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
     return entries
   })
-  const selectedValueSet = createMemo(() => new Set(selectedValues()))
 
   function setMenuOpen(nextOpen: boolean): void {
     if (field.disabled()) {
@@ -714,10 +839,37 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     highlightedKey,
     isOpen,
     isPresent: contentPresence.present,
-    selectedValues: () => merged.selectedValues ?? [],
+    selectedOptionIds,
     setHighlightedKey,
     visibleFlatOptions,
   })
+  const typeahead = createTypeahead({
+    getItems: visibleFlatOptions,
+    getStartIndex: () => {
+      const options = visibleFlatOptions()
+      return isOpen()
+        ? options.findIndex((option) => option.id === highlightedKey())
+        : options.findIndex((option) => selectedOptionIds().has(option.id))
+    },
+    getText: (option) => option.key,
+    isDisabled: (option) => option.disabled,
+    onMatch: (option) => {
+      if (isOpen()) {
+        setHighlightedKey(option.id)
+        return
+      }
+
+      selectOption(option)
+    },
+  })
+
+  function handleTypeaheadKeyDown(event: KeyboardEvent): boolean {
+    if (isSearchable() || merged.multiple || event.ctrlKey || event.metaKey || event.altKey) {
+      return false
+    }
+
+    return typeahead.handleKeyDown(event)
+  }
 
   function setInputValue(inputValue: string): void {
     if (!menuControl.isDismissing()) {
@@ -738,11 +890,33 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       setInputValue,
     })
 
-    if (merged.closeOnSelect) {
+    if (merged.closeOnSelect && isOpen()) {
       closeMenu()
-      queueMicrotask(() => comboboxRef?.focus())
+      const focusTarget = comboboxRef
+      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus must validate the latest open state.
+      queueMicrotask(() => {
+        if (!disposed && !isOpen() && comboboxRef === focusTarget && focusTarget?.isConnected) {
+          focusTarget.focus()
+        }
+      })
     }
   }
+
+  useFormReset(
+    () => nativeFormSelectRef?.form,
+    () => {
+      if (disposed) {
+        return
+      }
+
+      merged._onFormReset?.({
+        allFlatOptions,
+        field,
+        setInputValue,
+      })
+      syncNativeSelectState()
+    },
+  )
 
   const stateApi: BaseSelectT.StateApi<TItem> = {
     allFlatOptions,
@@ -780,9 +954,19 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       return
     }
 
-    if ((event.key === ' ' || event.key === 'Spacebar') && isOpen()) {
-      const option = navigation.getFocusedOption()
+    if (handleTypeaheadKeyDown(event)) {
+      return
+    }
+
+    if ((event.key === ' ' || event.key === 'Spacebar') && !isSearchable()) {
       event.preventDefault()
+
+      if (!isOpen()) {
+        setMenuOpen(true)
+        return
+      }
+
+      const option = navigation.getFocusedOption()
       if (option && !option.disabled) {
         selectOption(option)
       }
@@ -808,12 +992,20 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     }
 
     if (event.key === 'Home') {
+      if (!isOpen()) {
+        return
+      }
+
       event.preventDefault()
       navigation.focusBoundaryItem('first')
       return
     }
 
     if (event.key === 'End') {
+      if (!isOpen()) {
+        return
+      }
+
       event.preventDefault()
       navigation.focusBoundaryItem('last')
       return
@@ -841,9 +1033,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     }
   }
 
-  const activeDescendantId = createMemo(() =>
-    highlightedKey() ? `${listboxId()}-${encodeURIComponent(String(highlightedKey()))}` : undefined,
-  )
+  const activeDescendantId = createMemo(() => {
+    const key = highlightedKey()
+    return key ? getOptionId(key) : undefined
+  })
 
   const controlProps = createMemo<JSX.HTMLAttributes<HTMLDivElement>>(() => {
     const sharedProps: JSX.HTMLAttributes<HTMLDivElement> = {
@@ -854,8 +1047,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         }
       },
       onPointerDown: (event: PointerEvent) => {
-        event.preventDefault()
-        comboboxRef?.focus()
+        if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+          event.preventDefault()
+          comboboxRef?.focus()
+        }
       },
       onClick: menuControl.toggleMenu,
     }
@@ -873,7 +1068,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       'aria-haspopup': 'listbox',
       'aria-activedescendant': activeDescendantId(),
       'aria-invalid': field.invalid() ? 'true' : undefined,
-      'aria-required': merged.required || undefined,
+      'aria-required': field.required() || undefined,
       'aria-disabled': field.disabled() || undefined,
       tabIndex: field.disabled() ? undefined : 0,
       onKeyDown: handleKeyDown,
@@ -898,7 +1093,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'aria-activedescendant': activeDescendantId(),
     disabled: field.disabled(),
     'aria-invalid': field.invalid() ? 'true' : undefined,
-    'aria-required': merged.required || undefined,
+    'aria-required': field.required() || undefined,
     'aria-disabled': field.disabled() || undefined,
     maxLength: merged.searchMaxLength,
     value: currentInputText(),
@@ -935,7 +1130,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       return
     }
 
-    if (merged.virtualRender && merged.scrollToItem) {
+    if (virtualRender() && merged.scrollToItem) {
       const entryIndex = virtualEntries().findIndex(
         (entry) => entry.type === 'item' && entry.key === key,
       )
@@ -945,8 +1140,21 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       }
     }
 
+    const listbox = listboxRef
+    const content = contentElement()
+    // oxlint-disable-next-line subf/solid-reactivity -- Delayed scrolling must validate the latest highlight and popup state.
     queueMicrotask(() => {
-      scrollHighlightedItemIntoView(listboxRef)
+      if (
+        disposed ||
+        !isOpen() ||
+        highlightedKey() !== key ||
+        listboxRef !== listbox ||
+        contentElement() !== content
+      ) {
+        return
+      }
+
+      scrollHighlightedItemIntoView(listbox)
     })
   })
 
@@ -974,30 +1182,28 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     option: NormalizedOption<TItem>,
     virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
-    const isSelected = createMemo(() => selectedValueSet().has(option.value))
+    const isSelected = createMemo(() => selectedOptionIds().has(option.id))
     const renderContext = createMemo(() => ({
-      ...option.raw,
+      ...option.renderItem,
       isSelected: isSelected(),
-      isHighlighted: highlightedKey() === option.key,
+      isHighlighted: highlightedKey() === option.id,
       isDisabled: option.disabled,
     }))
     const itemAttributes = createMemo(() => merged.itemProps?.(renderContext()))
 
     return (
       <div
-        id={`${listboxId()}-${encodeURIComponent(option.key)}`}
+        id={getOptionId(option.id)}
         role="option"
         tabIndex={-1}
         data-slot="item"
         data-disabled={option.disabled ? '' : undefined}
-        data-highlighted={highlightedKey() === option.key ? '' : undefined}
+        data-highlighted={highlightedKey() === option.id ? '' : undefined}
         data-selected={isSelected() ? '' : undefined}
         aria-disabled={option.disabled || undefined}
         aria-selected={isSelected() ? 'true' : 'false'}
-        aria-posinset={
-          merged.virtualRender ? visibleOptionPositionByKey().get(option.key) : undefined
-        }
-        aria-setsize={merged.virtualRender ? visibleFlatOptions().length : undefined}
+        aria-posinset={virtualRender() ? visibleOptionPositionByKey().get(option.id) : undefined}
+        aria-setsize={virtualRender() ? visibleFlatOptions().length : undefined}
         {...itemAttributes()}
         {...virtualProps}
         ref={(element) => {
@@ -1019,13 +1225,17 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
           if (!event.defaultPrevented && event.pointerType === 'mouse' && !option.disabled) {
-            setHighlightedKey(option.key)
+            setHighlightedKey(option.id)
           }
         }}
         onPointerDown={(event) => {
           callHandler(event, itemAttributes()?.onPointerDown)
           callHandler(event, virtualProps?.onPointerDown)
-          if (!event.defaultPrevented) {
+          if (
+            !event.defaultPrevented &&
+            event.pointerType !== 'touch' &&
+            event.pointerType !== 'pen'
+          ) {
             event.preventDefault()
           }
         }}
@@ -1036,11 +1246,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             return
           }
 
-          setHighlightedKey(option.key)
+          setHighlightedKey(option.id)
           selectOption(option)
         }}
       >
-        {renderComponentOrElement(merged.optionRender, {
+        {renderComponentOrElement(optionRender(), {
           get option() {
             return renderContext()
           },
@@ -1055,9 +1265,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     virtualProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
     if (entry.type === 'label') {
+      const labelId = `${listboxId()}-${entry.key}-label`
+
       return (
         <div
-          role="presentation"
+          role="group"
+          aria-labelledby={labelId}
+          aria-owns={entry.optionKeys.map(getOptionId).join(' ') || undefined}
           data-slot="group"
           {...virtualProps}
           style={{
@@ -1067,6 +1281,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group, virtualProps?.class)}
         >
           <span
+            id={labelId}
             data-slot="label"
             style={merged.styles?.label}
             class={cn(
@@ -1093,7 +1308,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     | NormalizedGroup<TItem>
 
   const listEntries = createMemo<readonly SelectListEntry[]>(() =>
-    merged.virtualRender ? virtualEntries() : visibleOptions(),
+    virtualRender() ? virtualEntries() : visibleOptions(),
   )
   const RuntimeList = List as unknown as Component<
     ListProps<SelectListEntry, 'div', HTMLDivElement> & JSX.HTMLAttributes<HTMLDivElement>
@@ -1104,7 +1319,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     index: number,
     rowProps?: ListT.RowProps<HTMLDivElement>,
   ): JSX.Element {
-    if (merged.virtualRender) {
+    if (virtualRender()) {
       return renderVirtualEntry(entry as BaseSelectT.VirtualEntry<TItem>, index, rowProps)
     }
 
@@ -1113,14 +1328,18 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       return renderVisibleOption(option)
     }
 
+    const groupLabelId = `${listboxId()}-group-${index}-label`
+
     return (
       <div
         data-slot="group"
         role="group"
+        aria-labelledby={groupLabelId}
         style={merged.styles?.group}
         class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
       >
         <span
+          id={groupLabelId}
           data-slot="label"
           style={merged.styles?.label}
           class={cn(
@@ -1140,7 +1359,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
-      data-required={merged.required ? '' : undefined}
+      data-required={field.required() ? '' : undefined}
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
@@ -1154,26 +1373,52 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         disabled={field.disabled()}
         multiple={merged.multiple}
         name={field.name()}
-        required={merged.required}
+        required={field.required()}
         tabIndex={-1}
+        onChange={(event) => {
+          if (field.disabled() || merged.multiple) {
+            syncNativeSelectState()
+            return
+          }
+
+          const optionId = event.currentTarget.selectedOptions[0]?.dataset.optionId
+          const option = allFlatOptions().find((candidate) => candidate.id === optionId) ?? null
+          merged.onOptionSelect(option, {
+            allFlatOptions,
+            field,
+            setInputValue,
+          })
+          syncNativeSelectState()
+        }}
       >
         <Show when={!merged.multiple}>
           <option data-empty-option value="" selected={selectedValues().length === 0} />
         </Show>
-        <For each={nativeFormOptions()}>
-          {(option) => (
-            <option
-              value={option.value}
-              disabled={option.disabled}
-              selected={selectedValues().includes(option.value)}
-            >
-              {option.key}
-            </option>
-          )}
+        <For each={nativeFormEntries()}>
+          {(entry) => {
+            if (entry.type === 'unmatched') {
+              return (
+                <option data-unmatched-option value={entry.value} selected>
+                  {String(entry.value)}
+                </option>
+              )
+            }
+
+            return (
+              <option
+                value={entry.option.value}
+                data-option-id={entry.option.id}
+                disabled={entry.option.disabled}
+                selected={selectedOptionIds().has(entry.option.id)}
+              >
+                {entry.option.key}
+              </option>
+            )
+          }}
         </For>
       </select>
 
-      {props.children({
+      {childrenRender()({
         ...stateApi,
         controlProps,
         focusInput: () => comboboxRef?.focus(),
@@ -1190,12 +1435,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             ref={(element) => {
               setPositionerElement(element)
               if (element) {
-                element.style.position = 'fixed'
+                element.style.position = 'absolute'
                 element.style.visibility = 'hidden'
               }
             }}
             data-slot="positioner"
-            class="left-0 top-0 fixed"
+            class={OVERLAY_POSITIONER_CLASS}
           >
             <div
               {...contentPresence.dataAttrs()}
@@ -1217,9 +1462,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               <Show
                 when={visibleFlatOptions().length > 0}
                 fallback={
-                  merged.emptyRender !== undefined
-                    ? renderComponentOrElement(merged.emptyRender, stateApi)
-                    : renderComponentOrElement(merged.optionRender, { option: null })
+                  emptyRender() !== undefined
+                    ? renderComponentOrElement(emptyRender(), stateApi)
+                    : renderComponentOrElement(optionRender(), { option: null })
                 }
               >
                 <RuntimeList
@@ -1229,7 +1474,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     renderListEntry(context.item, context.index, context.props)
                   }
                   virtualRender={
-                    merged.virtualRender as
+                    virtualRender() as
                       | Component<
                           ListT.VirtualRenderProps<SelectListEntry, HTMLElement, HTMLDivElement>
                         >

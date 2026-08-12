@@ -156,24 +156,28 @@ export function Progress(props: ProgressProps): JSX.Element {
     local,
   )
 
-  const steps = createMemo<string[]>(() => (Array.isArray(merged.max) ? merged.max : []))
+  const rawValue = createMemo(() => merged.value)
+  const rawMax = createMemo(() => merged.max)
+  const getValueLabel = createMemo(() => merged.getValueLabel)
+  const steps = createMemo<string[]>(() => {
+    const max = rawMax()
+    return Array.isArray(max) ? max : []
+  })
   const hasSteps = createMemo(() => steps().length > 0)
-  const realMax = createMemo(() => resolveMaxValue(merged.max))
-  const isIndeterminate = createMemo(() => merged.value === null || merged.value === undefined)
+  const realMax = createMemo(() => resolveMaxValue(rawMax()))
+  const isIndeterminate = createMemo(() => {
+    const value = rawValue()
+    return value === null || value === undefined || !Number.isFinite(value)
+  })
 
   const minValue = 0
-  const resolvedMax = createMemo(() => (realMax() <= 0 ? 1 : realMax()))
+  const resolvedMax = createMemo(() => realMax())
   const resolvedValue = createMemo(() => {
     if (isIndeterminate()) {
       return minValue
     }
 
-    const value = Number(merged.value)
-    if (!Number.isFinite(value)) {
-      return minValue
-    }
-
-    return clamp(value, minValue, resolvedMax())
+    return clamp(rawValue() as number, minValue, resolvedMax())
   })
 
   const percent = createMemo<number | undefined>(() => {
@@ -188,20 +192,31 @@ export function Progress(props: ProgressProps): JSX.Element {
 
     const ratio = (resolvedValue() - minValue) / range
     const bounded = Math.min(Math.max(ratio, 0), 1)
-    return Math.round(bounded * 100)
+    return bounded * 100
   })
 
-  const dataAttrs = createMemo(() => ({
-    'data-indeterminate': isIndeterminate() ? '' : undefined,
-  }))
+  const dataAttrs = createMemo(() => {
+    if (isIndeterminate()) {
+      return {
+        'data-indeterminate': '',
+        'data-progress': undefined,
+      }
+    }
+
+    return {
+      'data-indeterminate': undefined,
+      'data-progress': resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
+    }
+  })
 
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
       return undefined
     }
 
-    if (merged.getValueLabel) {
-      return merged.getValueLabel({ value: resolvedValue(), min: minValue, max: resolvedMax() })
+    const valueLabel = getValueLabel()
+    if (valueLabel) {
+      return valueLabel({ value: resolvedValue(), min: minValue, max: resolvedMax() })
     }
 
     return `${percent() ?? 0}%`
@@ -257,8 +272,8 @@ export function Progress(props: ProgressProps): JSX.Element {
   return (
     <div
       role="progressbar"
-      aria-valuemin={isIndeterminate() ? undefined : minValue}
-      aria-valuemax={isIndeterminate() ? undefined : resolvedMax()}
+      aria-valuemin={minValue}
+      aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
@@ -274,29 +289,41 @@ export function Progress(props: ProgressProps): JSX.Element {
         merged.class,
       )}
     >
-      <Show when={!isIndeterminate() && (merged.status || merged.statusRender !== undefined)}>
-        <div
-          data-slot="status"
-          class={progressStatusVariants(
-            {
-              orientation: merged.orientation,
-              size: merged.size,
-            },
-            merged.classes?.status,
-          )}
-          style={{
-            ...statusStyle(),
-            ...merged.styles?.status,
-          }}
-        >
-          <Show when={merged.statusRender !== undefined} fallback={`${percent() ?? 0}%`}>
-            {renderComponentOrElement(merged.statusRender, {
-              get percent() {
-                return percent()
-              },
-            })}
-          </Show>
-        </div>
+      <Show when={!isIndeterminate()}>
+        {(_determinate) => {
+          const statusRender = createMemo(() => merged.statusRender)
+          const shouldRenderStatus = createMemo(() =>
+            Boolean(merged.status || statusRender() !== undefined),
+          )
+
+          return (
+            <Show when={shouldRenderStatus()}>
+              <div
+                data-slot="status"
+                class={progressStatusVariants(
+                  {
+                    orientation: merged.orientation,
+                    size: merged.size,
+                  },
+                  merged.classes?.status,
+                )}
+                style={{
+                  ...statusStyle(),
+                  ...merged.styles?.status,
+                }}
+                {...dataAttrs()}
+              >
+                <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
+                  {renderComponentOrElement(statusRender(), {
+                    get percent() {
+                      return percent()
+                    },
+                  })}
+                </Show>
+              </div>
+            </Show>
+          )
+        }}
       </Show>
 
       <div
@@ -329,47 +356,55 @@ export function Progress(props: ProgressProps): JSX.Element {
       </div>
 
       <Show when={hasSteps()}>
-        <div
-          data-slot="steps"
-          style={merged.styles?.steps}
-          class={progressStepsVariants(
-            {
-              orientation: merged.orientation,
-              size: merged.size,
-            },
-            merged.classes?.steps,
-          )}
-        >
-          <For each={steps()}>
-            {(step, index) => (
-              <div
-                data-slot="step"
-                style={merged.styles?.step}
-                class={progressStepVariants(
-                  {
-                    state: stepState(index()),
-                    size: merged.size,
-                  },
-                  merged.classes?.step,
+        {(_hasSteps) => {
+          const stepRender = createMemo(() => merged.stepRender)
+
+          return (
+            <div
+              data-slot="steps"
+              style={merged.styles?.steps}
+              class={progressStepsVariants(
+                {
+                  orientation: merged.orientation,
+                  size: merged.size,
+                },
+                merged.classes?.steps,
+              )}
+              {...dataAttrs()}
+            >
+              <For each={steps()}>
+                {(step, index) => (
+                  <div
+                    data-slot="step"
+                    style={merged.styles?.step}
+                    class={progressStepVariants(
+                      {
+                        state: stepState(index()),
+                        size: merged.size,
+                      },
+                      merged.classes?.step,
+                    )}
+                    {...dataAttrs()}
+                  >
+                    <Show when={stepRender() !== undefined} fallback={step}>
+                      {renderComponentOrElement(stepRender(), {
+                        get step() {
+                          return step
+                        },
+                        get index() {
+                          return index()
+                        },
+                        get state() {
+                          return stepState(index())
+                        },
+                      })}
+                    </Show>
+                  </div>
                 )}
-              >
-                <Show when={merged.stepRender !== undefined} fallback={step}>
-                  {renderComponentOrElement(merged.stepRender, {
-                    get step() {
-                      return step
-                    },
-                    get index() {
-                      return index()
-                    },
-                    get state() {
-                      return stepState(index())
-                    },
-                  })}
-                </Show>
-              </div>
-            )}
-          </For>
-        </div>
+              </For>
+            </div>
+          )
+        }}
       </Show>
     </div>
   )
