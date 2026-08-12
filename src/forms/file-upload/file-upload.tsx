@@ -7,7 +7,6 @@ import {
   createSignal,
   mergeProps,
   onCleanup,
-  onMount,
   splitProps,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
@@ -16,7 +15,6 @@ import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
@@ -25,6 +23,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { FileUploadVariantProps } from './file-upload.class.ts'
 import {
@@ -731,24 +730,15 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }
   })
 
-  onMount(() => {
-    const form = hiddenInputEl?.form
-    if (!form) {
-      return
-    }
-
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity -- Reset uses the live mode to restore its value shape.
-      queueMicrotask(() => {
-        setDragging(false)
-        setSelectedFiles([])
-        syncNativeInputFiles(hiddenInputEl, [])
-        field.setFormValue(merged.multiple ? [] : null)
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
-  })
+  useFormReset(
+    () => hiddenInputEl?.form,
+    () => {
+      setDragging(false)
+      setSelectedFiles([])
+      syncNativeInputFiles(hiddenInputEl, [])
+      field.setFormValue(merged.multiple ? [] : null)
+    },
+  )
 
   function Content(): JSX.Element {
     return (

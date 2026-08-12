@@ -43,16 +43,16 @@ Align InputNumber's spinbutton editing, locale parsing/formatting, stepping, hol
 
 ## Parsing, Step, and Form Classification
 
-| Surface | Outcome |
-| --- | --- |
-| Empty/sign/decimal partials | Preserved as draft text until blur, Enter, or a step interaction |
-| Locale decimal/group strings | Parsed through the configured locale; callbacks format through the same locale |
-| Scientific notation | Accepted when JavaScript numeric parsing yields a finite value; no new notation API |
-| NaN/infinity | Never committed as numeric state |
-| Decimal step noise | Cleaned with safe integer scaling; unrelated unsafe-magnitude precision is not rounded |
-| `rawValue` / `value` | `rawValue` is authoritative; `value` accepts locale-formatted string or finite number |
-| FormData/validity | The visible native text input remains the single serialized, required, disabled, and readonly owner |
-| Reset | Mount-time uncontrolled snapshot or latest explicit controlled value; no callbacks |
+| Surface                      | Outcome                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| Empty/sign/decimal partials  | Preserved as draft text until blur, Enter, or a step interaction                                    |
+| Locale decimal/group strings | Parsed through the configured locale; callbacks format through the same locale                      |
+| Scientific notation          | Accepted when JavaScript numeric parsing yields a finite value; no new notation API                 |
+| NaN/infinity                 | Never committed as numeric state                                                                    |
+| Decimal step noise           | Cleaned with safe integer scaling; unrelated unsafe-magnitude precision is not rounded              |
+| `rawValue` / `value`         | `rawValue` is authoritative; `value` accepts locale-formatted string or finite number               |
+| FormData/validity            | The visible native text input remains the single serialized, required, disabled, and readonly owner |
+| Reset                        | Mount-time uncontrolled snapshot or latest explicit controlled value; no callbacks                  |
 
 ## Intentional Divergences and STOP Decisions
 

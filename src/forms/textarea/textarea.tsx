@@ -25,6 +25,7 @@ import type {
   FormValueOptions,
 } from '../form-field/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { TextareaVariantProps } from './textarea.class.ts'
 import {
@@ -470,21 +471,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       restoreControlledValue()
     }
 
-    const form = textareaEl?.form
-    if (form) {
-      const onReset = (event: Event) => {
-        // oxlint-disable-next-line subf/solid-reactivity -- Reset must reconcile the latest controlled value and dimensions.
-        queueMicrotask(() => {
-          if (!event.defaultPrevented) {
-            restoreControlledValue()
-            scheduleAutoResize()
-          }
-        })
-      }
-
-      form.addEventListener('reset', onReset)
-      onCleanup(() => form.removeEventListener('reset', onReset))
-    }
+    useFormReset(
+      () => textareaEl?.form,
+      () => {
+        restoreControlledValue()
+        scheduleAutoResize()
+      },
+    )
 
     if (merged.autofocus) {
       autofocusTimer = setTimeout(() => {

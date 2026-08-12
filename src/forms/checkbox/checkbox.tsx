@@ -1,12 +1,11 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount, splitProps, untrack } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
@@ -16,6 +15,7 @@ import type {
   FormRequiredOption,
 } from '../form-field/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxVariantProps } from './checkbox.class.ts'
 import {
@@ -348,41 +348,32 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
   })
 
-  onMount(() => {
-    const form = inputEl?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const explicitlyControlled = merged.checked !== undefined
+      const nextChecked = explicitlyControlled ? checked() : initialDefaultChecked
 
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity
-      queueMicrotask(() => {
-        const explicitlyControlled = merged.checked !== undefined
-        const nextChecked = explicitlyControlled ? checked() : initialDefaultChecked
+      if (!explicitlyControlled) {
+        setChecked(nextChecked)
 
-        if (!explicitlyControlled) {
-          setChecked(nextChecked)
-
-          if (merged.formFieldBind !== false) {
-            field.setFormValue(
-              nextChecked === 'indeterminate'
-                ? undefined
-                : nextChecked
-                  ? merged.trueValue
-                  : merged.falseValue,
-            )
-          }
+        if (merged.formFieldBind !== false) {
+          field.setFormValue(
+            nextChecked === 'indeterminate'
+              ? undefined
+              : nextChecked
+                ? merged.trueValue
+                : merged.falseValue,
+          )
         }
+      }
 
-        if (inputEl) {
-          inputEl.checked = nextChecked === true
-          inputEl.indeterminate = nextChecked === 'indeterminate'
-        }
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
-  })
+      if (inputEl) {
+        inputEl.checked = nextChecked === true
+        inputEl.indeterminate = nextChecked === 'indeterminate'
+      }
+    },
+  )
 
   function toggle(): void {
     if (field.disabled() || readOnly()) {

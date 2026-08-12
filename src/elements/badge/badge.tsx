@@ -134,7 +134,12 @@ export function Badge(props: BadgeProps): JSX.Element {
         local.classes?.root,
         local.class,
       )}
-      onPointerDown={local.onPointerDown}
+      onPointerDown={(event) => {
+        const handler = local.onPointerDown
+        if (typeof handler === 'function') {
+          handler(event)
+        }
+      }}
     >
       <Show when={leading()}>
         {(leading) => (

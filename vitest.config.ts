@@ -17,11 +17,11 @@ export default defineConfig({
         'node_modules/satteri/satteri_napi.wasi.cjs',
       ),
     },
-    conditions: ['node', 'import', 'default'],
     dedupe: ['solid-js', '@solidjs/router'],
   },
   plugins: [solid({ hot: false, solid: { hydratable: true } })],
   test: {
+    globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
     include: ['src/**/*.{test,spec}.?(c|m)[jt]s?(x)', 'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     environment: 'jsdom',
     globals: true,

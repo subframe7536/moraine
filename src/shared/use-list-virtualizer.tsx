@@ -81,7 +81,7 @@ export function useListVirtualizer<
   const virtualRender: Component<VirtualRenderProps<TItem, TScrollElement, TItemElement>> = (
     props,
   ) => {
-    const renderRow = props.render
+    const renderRow = createMemo(() => props.render)
     const [mounted, setMounted] = createSignal(false)
     const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
     const [totalSize, setTotalSize] = createSignal(0)
@@ -225,7 +225,7 @@ export function useListVirtualizer<
                     queueMicrotask(() => virtualizer.measureElement(null))
                   })
 
-                  return renderRow(current.item, current.index, {
+                  return renderRow()(current.item, current.index, {
                     'data-index': current.index,
                     ref: (element) => {
                       // Solid invokes spread refs before all following attributes are applied.

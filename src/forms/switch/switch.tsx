@@ -1,12 +1,11 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, onMount, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
@@ -15,6 +14,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SwitchVariantProps } from './switch.class.ts'
 import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class.ts'
@@ -313,28 +313,19 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     onChange(!checked())
   }
 
-  onMount(() => {
-    const form = inputEl?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const nextChecked = Boolean(merged.defaultChecked)
+      setChecked(nextChecked)
 
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity
-      queueMicrotask(() => {
-        const nextChecked = Boolean(merged.defaultChecked)
-        setChecked(nextChecked)
+      if (inputEl) {
+        inputEl.checked = nextChecked
+      }
 
-        if (inputEl) {
-          inputEl.checked = nextChecked
-        }
-
-        field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
-  })
+      field.setFormValue(nextChecked ? merged.trueValue : merged.falseValue)
+    },
+  )
 
   function onPointerDown(
     event: Parameters<JSX.EventHandler<HTMLButtonElement, PointerEvent>>[0],

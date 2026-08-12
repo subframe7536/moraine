@@ -6,13 +6,11 @@ import {
   createMemo,
   createSignal,
   mergeProps,
-  onMount,
   splitProps,
   untrack,
 } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
 import { Checkbox } from '../checkbox/index.ts'
@@ -24,6 +22,7 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
 import {
@@ -341,28 +340,19 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  onMount(() => {
-    const form = fieldsetEl?.closest('form')
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => fieldsetEl?.closest('form'),
+    () => {
+      const value = controlledValue()
+      const nextValue = value ?? initialDefaultValue
 
-    function onReset(): void {
-      // oxlint-disable-next-line subf/solid-reactivity -- Reset must read the latest controlled value.
-      queueMicrotask(() => {
-        const value = controlledValue()
-        const nextValue = value ?? initialDefaultValue
+      if (value === undefined) {
+        setUncontrolledValue([...initialDefaultValue])
+      }
 
-        if (value === undefined) {
-          setUncontrolledValue([...initialDefaultValue])
-        }
-
-        field.setFormValue([...nextValue])
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
-  })
+      field.setFormValue([...nextValue])
+    },
+  )
 
   return (
     <div

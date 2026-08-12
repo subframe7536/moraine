@@ -1,4 +1,4 @@
-import { createMemo, createRoot, createSignal } from 'solid-js'
+import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import { useControllableValue } from './use-controllable-value.ts'
@@ -78,11 +78,15 @@ describe('useControllableValue', () => {
         return value()
       })
 
-      expect(observedValue()).toBeNaN()
+      let initial: number | undefined
+      createRenderEffect(() => {
+        initial = observedValue()
+      })
+      expect(initial).toBeNaN()
 
       setValue(Number.NaN)
 
-      expect(observedValue()).toBeNaN()
+      expect(initial).toBeNaN()
       expect(evaluations).toBe(1)
       dispose()
     })

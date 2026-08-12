@@ -21,6 +21,7 @@ import type { IconT } from '../../../elements/icon/index.ts'
 import { KbdGroup } from '../../../elements/kbd/index.ts'
 import { List } from '../../../elements/list/index.ts'
 import type { ListProps } from '../../../elements/list/index.ts'
+import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
 import type { ElementProps } from '../../../shared/types.ts'
@@ -1477,7 +1478,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         }
       }}
       data-slot="positioner"
-      class="left-0 top-0 absolute"
+      class={OVERLAY_POSITIONER_CLASS}
     >
       <RuntimeList
         as="div"
@@ -1604,26 +1605,28 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     const triggerElement = merged.triggerElement
 
     queueMicrotask(() => {
-      if (merged.open || pendingFocusOnClose() !== pendingFocus) {
-        return
-      }
-
-      if (pendingFocus === 'trigger') {
-        focusTrigger(triggerElement)
-      } else if (triggerElement) {
-        const focusableElements = getFocusableElements(document.body).filter(
-          (element) => ![...branches].some((branch) => branch.contains(element)),
-        )
-        const triggerIndexes = focusableElements.flatMap((element, index) =>
-          element === triggerElement || triggerElement.contains(element) ? [index] : [],
-        )
-        const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
-        if (triggerIndex !== undefined) {
-          focusWithoutScrolling(focusableElements[triggerIndex + 1])
+      untrack(() => {
+        if (merged.open || pendingFocusOnClose() !== pendingFocus) {
+          return
         }
-      }
 
-      setPendingFocusOnClose(undefined)
+        if (pendingFocus === 'trigger') {
+          focusTrigger(triggerElement)
+        } else if (triggerElement) {
+          const focusableElements = getFocusableElements(document.body).filter(
+            (element) => ![...branches].some((branch) => branch.contains(element)),
+          )
+          const triggerIndexes = focusableElements.flatMap((element, index) =>
+            element === triggerElement || triggerElement.contains(element) ? [index] : [],
+          )
+          const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+          if (triggerIndex !== undefined) {
+            focusWithoutScrolling(focusableElements[triggerIndex + 1])
+          }
+        }
+
+        setPendingFocusOnClose(undefined)
+      })
     })
   })
 

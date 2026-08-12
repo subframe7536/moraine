@@ -1,6 +1,7 @@
 import type { JSX, Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
+import { useFormReset } from '../../shared/use-form-reset.ts'
 import type { SliderVariantProps } from '../slider.class.ts'
 import {
   clamp,
@@ -189,37 +190,23 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     pendingValues = undefined
   })
 
-  onMount(() => {
-    const root = trackElement()?.closest('[data-slot="root"]')
-    const form = root?.querySelector('input')?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => trackElement()?.closest('[data-slot="root"]')?.querySelector('input')?.form,
+    () => {
+      const root = trackElement()?.closest('[data-slot="root"]')
+      pendingValues = undefined
+      const controlledValues = getControlledValues()
+      const nextValues = controlledValues ?? initialValues
+      if (controlledValues === undefined) {
+        setDisplayValues([...initialValues])
+      }
 
-    const onReset = (event: Event) => {
-      // oxlint-disable-next-line subf/solid-reactivity -- Reset must reconcile the latest controlled value after native reset.
-      queueMicrotask(() => {
-        if (event.defaultPrevented) {
-          return
-        }
-
-        pendingValues = undefined
-        const controlledValues = getControlledValues()
-        const nextValues = controlledValues ?? initialValues
-        if (controlledValues === undefined) {
-          setDisplayValues([...initialValues])
-        }
-
-        root?.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input, index) => {
-          input.value = String(nextValues[index] ?? merged.min)
-        })
-        options.onValueReset?.(getPublicValue(nextValues))
+      root?.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input, index) => {
+        input.value = String(nextValues[index] ?? merged.min)
       })
-    }
-
-    form.addEventListener('reset', onReset)
-    onCleanup(() => form.removeEventListener('reset', onReset))
-  })
+      options.onValueReset?.(getPublicValue(nextValues))
+    },
+  )
 
   function areValuesEqual(left: number[], right: number[]): boolean {
     return (

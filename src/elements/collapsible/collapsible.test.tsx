@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { Show, createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -109,14 +109,12 @@ describe('Collapsible', () => {
       createComponent(Collapsible, {
         get triggerRender() {
           reads += 1
-          if (!custom()) {
-            return <span>Static</span>
-          }
-
           return (context: CollapsibleT.TriggerRenderProps) => (
-            <button data-testid="custom-trigger" {...context.triggerProps}>
-              Custom
-            </button>
+            <Show when={custom()} fallback={<button {...context.triggerProps}>Static</button>}>
+              <button data-testid="custom-trigger" {...context.triggerProps}>
+                Custom
+              </button>
+            </Show>
           )
         },
       }),
@@ -126,7 +124,7 @@ describe('Collapsible', () => {
     expect(screen.getByRole('button', { name: 'Static' })).not.toBeNull()
 
     setCustom(true)
-    expect(reads).toBe(2)
+    expect(reads).toBe(1)
     const trigger = screen.getByTestId('custom-trigger')
     await fireEvent.click(trigger)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')

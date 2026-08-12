@@ -369,8 +369,7 @@ export function useOverlayMenuFloatingPosition(options: {
         },
         strategy: 'absolute',
       })
-      const referenceContext =
-        'contextElement' in reference ? reference.contextElement : undefined
+      const referenceContext = 'contextElement' in reference ? reference.contextElement : undefined
 
       if (
         !options.open() ||
@@ -495,8 +494,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   }
 
   const handleTypeaheadKeyDown = (event: KeyboardEvent): boolean => {
-    const character =
-      event.key.length === 1 || !/^[A-Z]/i.test(event.key) ? event.key : ''
+    const character = event.key.length === 1 || !/^[A-Z]/i.test(event.key) ? event.key : ''
     if (!character || event.ctrlKey || event.metaKey || event.altKey) {
       return false
     }
@@ -515,9 +513,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     const normalizedCharacter = normalize(character)
 
     if (typeaheadSearch === '') {
-      const highlightedIndex = registeredItems.findIndex(
-        (item) => item.id === highlightedItemId(),
-      )
+      const highlightedIndex = registeredItems.findIndex((item) => item.id === highlightedItemId())
       typeaheadStartIndex = highlightedIndex + 1
     }
 

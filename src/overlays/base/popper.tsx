@@ -18,10 +18,12 @@ import {
   mergeProps,
   onMount,
   onCleanup,
+  untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -442,17 +444,19 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     }
 
     queueMicrotask(() => {
-      if (
-        positionerElement() === positioner &&
-        contentElement() === content &&
-        positioner.isConnected &&
-        content.isConnected
-      ) {
-        const contentZIndex = getComputedStyle(content).zIndex
-        if (contentZIndex && contentZIndex !== 'auto') {
-          positioner.style.zIndex = contentZIndex
+      untrack(() => {
+        if (
+          positionerElement() === positioner &&
+          contentElement() === content &&
+          positioner.isConnected &&
+          content.isConnected
+        ) {
+          const contentZIndex = getComputedStyle(content).zIndex
+          if (contentZIndex && contentZIndex !== 'auto') {
+            positioner.style.zIndex = contentZIndex
+          }
         }
-      }
+      })
     })
   })
 
@@ -751,7 +755,7 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
           data-slot="positioner"
           data-positioned={context.positionerPositioned() ? '' : undefined}
           style={{ visibility: 'hidden', ...props.positionerStyle }}
-          class={cn('left-0 top-0 absolute z-50', props.positionerClass)}
+          class={cn(OVERLAY_POSITIONER_CLASS, 'z-50', props.positionerClass)}
         >
           {renderComponentOrElement(contentRender(), {
             close: () => context.setOpen(false),

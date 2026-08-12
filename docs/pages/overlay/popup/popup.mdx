@@ -23,6 +23,17 @@ trigger
 └── content (portal)
 ```
 
+## Accessible Naming
+
+Popup content is exposed as a dialog. Use `title` to render its accessible title and automatically
+connect `aria-labelledby`; use `description` for `aria-describedby`. When no title is rendered,
+`ariaLabel` provides the accessible name. The `content` prop remains body content and is not inferred
+as the dialog name.
+
+```tsx
+<Popup title="Account actions" description="Choose an action" content={<div>Actions</div>} />
+```
+
 ## Examples
 
 ### Default Container

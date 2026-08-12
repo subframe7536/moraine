@@ -282,13 +282,15 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       const restoreTarget = capturedRestoreTarget
 
       queueMicrotask(() => {
-        if (isPresent() || focusTrigger(trigger)) {
-          return
-        }
+        untrack(() => {
+          if (isPresent() || focusTrigger(trigger)) {
+            return
+          }
 
-        if (restoreTarget !== trigger) {
-          focusTrigger(restoreTarget)
-        }
+          if (restoreTarget !== trigger) {
+            focusTrigger(restoreTarget)
+          }
+        })
       })
     })
   })

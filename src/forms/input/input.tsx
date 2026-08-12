@@ -25,6 +25,7 @@ import type {
   FormValueOptions,
 } from '../form-field/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputVariantProps } from './input.class.ts'
 import {
@@ -423,21 +424,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       restoreControlledValue()
     }
 
-    const form = inputEl?.form
-
-    if (form) {
-      const onReset = (event: Event) => {
-        // oxlint-disable-next-line subf/solid-reactivity -- Reset must restore the latest controlled value.
-        queueMicrotask(() => {
-          if (!event.defaultPrevented) {
-            restoreControlledValue()
-          }
-        })
-      }
-
-      form.addEventListener('reset', onReset)
-      onCleanup(() => form.removeEventListener('reset', onReset))
-    }
+    useFormReset(() => inputEl?.form, restoreControlledValue)
 
     if (!merged.autofocus) {
       return

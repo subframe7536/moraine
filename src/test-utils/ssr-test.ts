@@ -1,4 +1,6 @@
-import { execFileSync } from 'node:child_process'
+import { inject } from 'vitest'
+
+const ssrFixtures = (): Record<string, string> => inject('ssrFixtures')
 
 interface HydrationState {
   completed: WeakSet<Node>
@@ -13,11 +15,12 @@ type HydrationGlobal = typeof globalThis & {
 }
 
 export function renderSsrFixture(modulePath: `/src/${string}`, exportName: string): string {
-  return execFileSync(
-    'bun',
-    ['run', 'src/test-utils/render-ssr-fixture.ts', modulePath, exportName],
-    { cwd: process.cwd(), encoding: 'utf8' },
-  )
+  const key = `${modulePath}#${exportName}`
+  const markup = ssrFixtures()?.[key]
+  if (typeof markup !== 'string') {
+    throw new TypeError(`SSR fixture not found: ${key}`)
+  }
+  return markup
 }
 
 export function installHydrationState(): () => void {

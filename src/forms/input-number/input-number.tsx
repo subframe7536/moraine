@@ -24,6 +24,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
 import {
@@ -1013,38 +1014,29 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       inputEl.defaultValue = formatLocaleNumber(initialResetValue, merged.locale)
     }
 
-    const form = inputEl?.form
-    if (form) {
-      const onReset = (event: Event) => {
+    useFormReset(
+      () => inputEl?.form,
+      () => {
         // oxlint-disable-next-line subf/solid-reactivity -- Reset must read the latest controlled prop.
-        queueMicrotask(() => {
-          if (event.defaultPrevented) {
-            return
-          }
+        const controlledValue = explicitControlledValue()
+        const nextValue = clamp(
+          controlledValue === undefined ? initialResetValue : controlledValue,
+          minValue(),
+          maxValue(),
+        )
 
-          const controlledValue = explicitControlledValue()
-          const nextValue = clamp(
-            controlledValue === undefined ? initialResetValue : controlledValue,
-            minValue(),
-            maxValue(),
-          )
-
-          if (controlledValue === undefined) {
-            setResolvedValue(nextValue)
-          }
-          field.setFormValue(nextValue)
-          setHasDirtyInput(false)
-          const nextInputText = formatLocaleNumber(nextValue, merged.locale)
-          setInputText(nextInputText)
-          if (inputEl) {
-            inputEl.value = nextInputText
-          }
-        })
-      }
-
-      form.addEventListener('reset', onReset)
-      onCleanup(() => form.removeEventListener('reset', onReset))
-    }
+        if (controlledValue === undefined) {
+          setResolvedValue(nextValue)
+        }
+        field.setFormValue(nextValue)
+        setHasDirtyInput(false)
+        const nextInputText = formatLocaleNumber(nextValue, merged.locale)
+        setInputText(nextInputText)
+        if (inputEl) {
+          inputEl.value = nextInputText
+        }
+      },
+    )
 
     if (!merged.autofocus) {
       return

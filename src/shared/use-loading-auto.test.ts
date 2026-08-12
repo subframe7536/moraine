@@ -3,7 +3,11 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { useLoadingAutoClick } from './use-loading-auto.ts'
 
-function deferred(): { promise: Promise<void>; reject: (reason?: unknown) => void; resolve: () => void } {
+function deferred(): {
+  promise: Promise<void>
+  reject: (reason?: unknown) => void
+  resolve: () => void
+} {
   let reject: ((reason?: unknown) => void) | undefined
   let resolve: (() => void) | undefined
   const promise = new Promise<void>((nextResolve, nextReject) => {
@@ -103,9 +107,12 @@ describe('useLoadingAutoClick', () => {
 
   test('does not enter loading for synchronous returns or thrown errors', () => {
     const error = new Error('sync failure')
-    const onClick = vi.fn().mockReturnValueOnce('done').mockImplementationOnce(() => {
-      throw error
-    })
+    const onClick = vi
+      .fn()
+      .mockReturnValueOnce('done')
+      .mockImplementationOnce(() => {
+        throw error
+      })
     const lifecycle = createRoot((dispose) => ({
       dispose,
       state: useLoadingAutoClick<HTMLButtonElement>({

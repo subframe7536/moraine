@@ -8,7 +8,6 @@ import {
   mergeProps,
   on,
   onCleanup,
-  onMount,
   splitProps,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
@@ -21,11 +20,11 @@ import {
   useOverlayMenuDismiss,
   useOverlayMenuFloatingPosition,
 } from '../../overlays/base/menu/index.ts'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
@@ -35,6 +34,7 @@ import type {
   FormIdentityOptions,
   FormRequiredOption,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SelectControlVariantProps } from './select.class.ts'
 import { selectItemVariants } from './select.class.ts'
@@ -962,28 +962,21 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     }
   }
 
-  onMount(() => {
-    const form = nativeFormSelectRef?.form
-    if (!form) {
-      return
-    }
+  useFormReset(
+    () => nativeFormSelectRef?.form,
+    () => {
+      if (disposed) {
+        return
+      }
 
-    useEventListener(form, 'reset', (event) => {
-      // oxlint-disable-next-line subf/solid-reactivity -- Reset state is resolved after native reset and cancellation.
-      queueMicrotask(() => {
-        if (disposed || event.defaultPrevented) {
-          return
-        }
-
-        merged._onFormReset?.({
-          allFlatOptions,
-          field,
-          setInputValue,
-        })
-        syncNativeSelectState()
+      merged._onFormReset?.({
+        allFlatOptions,
+        field,
+        setInputValue,
       })
-    })
-  })
+      syncNativeSelectState()
+    },
+  )
 
   const stateApi: BaseSelectT.StateApi<TItem> = {
     allFlatOptions,
@@ -1507,7 +1500,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               }
             }}
             data-slot="positioner"
-            class="left-0 top-0 absolute"
+            class={OVERLAY_POSITIONER_CLASS}
           >
             <div
               {...contentPresence.dataAttrs()}

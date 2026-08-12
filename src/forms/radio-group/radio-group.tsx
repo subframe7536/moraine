@@ -15,7 +15,6 @@ import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { callRef, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
@@ -26,6 +25,7 @@ import type {
   FormRequiredOption,
   FormValueOptions,
 } from '../form-field/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { RadioGroupVariantProps } from './radio-group.class.ts'
 import {
@@ -389,31 +389,20 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         input.defaultChecked = isSelected(item)
       }
     }
-
-    const form = groupEl?.closest('form')
-    if (!form) {
-      return
-    }
-
-    function onReset(event: Event): void {
-      // oxlint-disable-next-line subf/solid-reactivity -- Reset must restore the latest controlled value.
-      queueMicrotask(() => {
-        if (event.defaultPrevented) {
-          return
-        }
-
-        const value = controlledValue()
-        const nextValue = value ?? initialDefaultValue
-        if (value === undefined) {
-          setUncontrolledValue(initialDefaultValue)
-        }
-        field.setFormValue(nextValue)
-        syncInputCheckedState()
-      })
-    }
-
-    useEventListener(form, 'reset', onReset)
   })
+
+  useFormReset(
+    () => groupEl?.closest('form'),
+    () => {
+      const value = controlledValue()
+      const nextValue = value ?? initialDefaultValue
+      if (value === undefined) {
+        setUncontrolledValue(initialDefaultValue)
+      }
+      field.setFormValue(nextValue)
+      syncInputCheckedState()
+    },
+  )
 
   return (
     <div

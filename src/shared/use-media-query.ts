@@ -9,7 +9,10 @@ export function createMediaQuery(
 ): Accessor<boolean> {
   const [matches, setMatches] = createSignal(defaultValue)
   createEffect(() => {
-    const resolvedQuery = (typeof query === 'function' ? query() : query).replace(/^@media( ?)/m, '')
+    const resolvedQuery = (typeof query === 'function' ? query() : query).replace(
+      /^@media( ?)/m,
+      '',
+    )
 
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return
