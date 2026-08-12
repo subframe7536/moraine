@@ -6,8 +6,8 @@ import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
-import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
+import { Modal } from '../base/modal.tsx'
+import type { ModalContentContext, ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { sheetContentVariants } from './sheet.class.ts'
@@ -55,7 +55,7 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends Pick<
-    ModalRootProps,
+    ModalProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -198,7 +198,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     closeContent() !== false
 
   return (
-    <ModalRoot
+    <Modal
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
@@ -206,17 +206,18 @@ export function Sheet(props: SheetProps): JSX.Element {
       onExitComplete={merged.onExitComplete}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
-      hasOverlay={merged.overlay}
-      hasContent
     >
-      <ModalTrigger children={triggerRender()} />
-      <ModalContent
-        overlay={merged.overlay}
-        overlayClass={cn(
-          'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
-          merged.classes?.overlay,
-        )}
-        overlayStyle={merged.styles?.overlay}
+      <Modal.Trigger children={triggerRender()} />
+      <Show when={merged.overlay}>
+        <Modal.Overlay
+          class={cn(
+            'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
+            merged.classes?.overlay,
+          )}
+          style={merged.styles?.overlay}
+        />
+      </Show>
+      <Modal.Content
         contentAttributes={{ 'data-side': merged.side }}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
@@ -340,6 +341,6 @@ export function Sheet(props: SheetProps): JSX.Element {
           </>
         )}
       />
-    </ModalRoot>
+    </Modal>
   )
 }

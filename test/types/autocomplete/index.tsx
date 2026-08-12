@@ -6,7 +6,7 @@ import {
   Dialog,
   DropdownMenu,
   Icon,
-  ModalRoot,
+  Modal,
   Popover,
   Sheet,
   Tooltip,
@@ -49,7 +49,10 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 />
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as="input" type="checkbox" />
-;<ModalRoot hasOverlay={false} hasContent={false} />
+;<Modal defaultOpen>
+  <Modal.Overlay />
+  <Modal.Content ariaLabel="Type fixture" contentRender="Modal content" />
+</Modal>
 ;<Dialog>
   {(props) => (
     <a {...props} href="/dialog">

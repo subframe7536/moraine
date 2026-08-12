@@ -1,14 +1,13 @@
-import { Button, ModalContent, ModalRoot, ModalTrigger } from '@src'
+import { Button, Modal } from '@src'
 
 export function Basic() {
   return (
-    <ModalRoot hasOverlay hasContent>
-      <ModalTrigger>{(props) => <Button {...props}>Open modal</Button>}</ModalTrigger>
-      <ModalContent
-        overlay
+    <Modal>
+      <Modal.Trigger>{(props) => <Button {...props}>Open modal</Button>}</Modal.Trigger>
+      <Modal.Overlay class="bg-black/10 inset-0 fixed z-50 backdrop-blur-xs" />
+      <Modal.Content
         ariaLabel="Custom modal"
-        overlayClass="bg-black/10 p-4 grid place-items-center inset-0 fixed z-50 backdrop-blur-xs"
-        class="p-6 outline-none surface-overlay rounded-xl bg-background max-w-md w-full z-50"
+        class="p-6 outline-none surface-overlay rounded-xl bg-background max-w-md w-full left-1/2 top-1/2 fixed z-50 -translate-x-1/2 -translate-y-1/2"
         contentRender={(context) => (
           <div class="gap-4 grid">
             <p class="text-sm text-foreground">
@@ -20,6 +19,6 @@ export function Basic() {
           </div>
         )}
       />
-    </ModalRoot>
+    </Modal>
   )
 }

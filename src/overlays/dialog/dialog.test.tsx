@@ -8,7 +8,7 @@ import { Button } from '../../elements/button/index.ts'
 import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/index.ts'
+import { Modal } from '../base/index.ts'
 import type { ModalContentContext } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
@@ -28,18 +28,15 @@ function TestModal(props: TestModalProps): JSX.Element {
   const content = createMemo(() => props.content)
 
   return (
-    <ModalRoot
-      open={props.open}
-      defaultOpen={props.defaultOpen}
-      hasOverlay={Boolean(props.overlay)}
-      hasContent={Boolean(content())}
-      onOpenChange={props.onOpenChange}
-    >
-      <ModalTrigger children={trigger()} />
-      <Show when={content()}>
-        <ModalContent overlay={props.overlay} contentRender={content()!} />
+    <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
+      <Modal.Trigger children={trigger()} />
+      <Show when={props.overlay}>
+        <Modal.Overlay />
       </Show>
-    </ModalRoot>
+      <Show when={content()}>
+        <Modal.Content contentRender={content()!} />
+      </Show>
+    </Modal>
   )
 }
 
@@ -643,7 +640,9 @@ describe('Modal', () => {
     const content = contents[contents.length - 1]
 
     expect(overlay).not.toBeNull()
-    expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(overlay?.contains(content ?? null)).toBe(false)
+    expect(overlay?.parentElement).not.toBe(content?.parentElement)
+    expect(overlay?.parentElement?.parentElement).toBe(content?.parentElement?.parentElement)
     expect(document.body.style.overflow).toBe('hidden')
   })
 

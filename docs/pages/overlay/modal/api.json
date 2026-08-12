@@ -1,0 +1,70 @@
+{
+  "component": {
+    "key": "modal",
+    "name": "Modal",
+    "category": "overlays",
+    "polymorphic": false,
+    "description": "Low-level modal primitives for composing custom dialog surfaces.",
+    "sourcePath": "src/overlays/base/modal.tsx"
+  },
+  "slots": [],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Composed trigger and content primitives."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled."
+      },
+      {
+        "name": "dismissible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape should dismiss the shell."
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
+      },
+      {
+        "name": "onClosePrevent",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
+      },
+      {
+        "name": "onExitComplete",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called after the modal has fully finished its exit motion."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
+      },
+      {
+        "name": "preventScroll",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether body scroll should be locked while the shell is present."
+      }
+    ],
+    "inherited": []
+  }
+}

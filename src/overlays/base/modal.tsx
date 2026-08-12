@@ -25,7 +25,7 @@ export interface ModalContentContext {
   close: () => void
 }
 
-export interface ModalRootProps {
+export interface ModalProps {
   /** Unique identifier used to derive the content id. */
   id?: string
   /** Controlled open state. */
@@ -42,10 +42,6 @@ export interface ModalRootProps {
   onClosePrevent?: () => void
   /** Whether body scroll should be locked while the shell is present. */
   preventScroll?: boolean
-  /** Whether the composed modal contains an overlay surface. */
-  hasOverlay: boolean
-  /** Whether the composed modal contains a content surface. */
-  hasContent: boolean
   /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
@@ -63,12 +59,18 @@ export interface ModalContentProps {
   ariaDescribedBy?: string
   class?: string
   style?: JSX.CSSProperties
-  overlay?: boolean
-  overlayClass?: string
-  overlayStyle?: JSX.CSSProperties
 }
 
+export interface ModalOverlayProps {
+  ref?: (element: HTMLDivElement | undefined) => void
+  class?: string
+  style?: JSX.CSSProperties
+}
+
+type ModalSurface = 'content' | 'overlay'
+
 interface ModalContext {
+  open: Accessor<boolean>
   contentId: Accessor<string>
   updateOpen: (open: boolean) => void
   dismissible: Accessor<boolean>
@@ -76,14 +78,18 @@ interface ModalContext {
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
-  overlayPresence: ReturnType<typeof useTransitionPresence>
-  contentPresence: ReturnType<typeof useTransitionPresence>
+  contentPresent: Accessor<boolean>
+  registerSurface: (
+    surface: ModalSurface,
+    presence: ReturnType<typeof useTransitionPresence>,
+  ) => () => void
   isPresent: Accessor<boolean>
 }
 
 const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
 
-export function ModalRoot(props: ModalRootProps): JSX.Element {
+/** Low-level modal primitives for composing custom dialog surfaces. */
+export function Modal(props: ModalProps): JSX.Element {
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
@@ -92,14 +98,14 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [surfaces, setSurfaces] = createSignal<
+    Array<{ surface: ModalSurface; presence: ReturnType<typeof useTransitionPresence> }>
+  >([])
   const dismissible = createMemo(() => props.dismissible ?? true)
-  const overlayPresence = useTransitionPresence({
-    open: () => Boolean(open() && props.hasOverlay),
-  })
-  const contentPresence = useTransitionPresence({
-    open: () => Boolean(open() && props.hasContent),
-  })
-  const isPresent = createMemo(() => overlayPresence.present() || contentPresence.present())
+  const isPresent = createMemo(() => surfaces().some(({ presence }) => presence.present()))
+  const contentPresent = createMemo(() =>
+    surfaces().some(({ surface, presence }) => surface === 'content' && presence.present()),
+  )
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
@@ -124,15 +130,6 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
       wasPresent = false
       props.onExitComplete?.()
     }
-  })
-
-  createEffect(() => {
-    if (contentPresence.present()) {
-      return
-    }
-
-    setContentElement(undefined)
-    contentPresence.setElement(undefined)
   })
 
   createEffect(() => {
@@ -285,6 +282,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   })
 
   const context: ModalContext = {
+    open: () => Boolean(open()),
     contentId,
     updateOpen,
     dismissible,
@@ -292,23 +290,30 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     setTriggerElement,
     contentElement,
     setContentElement,
-    overlayPresence,
-    contentPresence,
+    contentPresent,
+    registerSurface: (surface, presence) => {
+      const entry = { surface, presence }
+      setSurfaces((current) => [...current, entry])
+
+      return () => {
+        setSurfaces((current) => current.filter((candidate) => candidate !== entry))
+      }
+    },
     isPresent,
   }
 
   return <ModalProvider value={context}>{props.children}</ModalProvider>
 }
 
-export function ModalTrigger(props: ModalTriggerProps): JSX.Element {
+function ModalTrigger(props: ModalTriggerProps): JSX.Element {
   const context = useModalContext()
   const triggerRender = createMemo(() => props.children)
   const triggerProps: OverlayTriggerProps = {
     get 'aria-controls'() {
-      return context.contentPresence.present() ? context.contentId() : undefined
+      return context.contentPresent() ? context.contentId() : undefined
     },
     get 'aria-expanded'() {
-      return context.contentPresence.present() ? 'true' : 'false'
+      return context.contentPresent() ? 'true' : 'false'
     },
     'data-slot': 'trigger',
     ref: (element: HTMLElement | undefined) => {
@@ -334,58 +339,93 @@ export function ModalTrigger(props: ModalTriggerProps): JSX.Element {
   )
 }
 
-export function ModalContent(props: ModalContentProps): JSX.Element {
+function ModalContent(props: ModalContentProps): JSX.Element {
   const context = useModalContext()
   const contentRender = createMemo(() => props.contentRender)
+  const presence = useTransitionPresence({ open: context.open })
+  const unregister = context.registerSurface('content', presence)
+  onCleanup(unregister)
+
+  createEffect(() => {
+    if (presence.present()) {
+      return
+    }
+
+    context.setContentElement(undefined)
+    presence.setElement(undefined)
+  })
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
     trapFocusInContainer(event, context.contentElement())
   }
 
-  const renderSurface = (): JSX.Element => (
-    <Show when={context.contentPresence.present()}>
-      <div
-        {...props.contentAttributes}
-        {...context.contentPresence.dataAttrs()}
-        ref={(element) => {
-          context.setContentElement(element)
-          context.contentPresence.setElement(element)
-          props.ref?.(element)
-        }}
-        id={context.contentId()}
-        role="dialog"
-        aria-modal="true"
-        aria-label={props.ariaLabel}
-        aria-labelledby={props.ariaLabelledBy}
-        aria-describedby={props.ariaDescribedBy}
-        tabIndex={-1}
-        data-slot="content"
-        style={props.style}
-        class={props.class}
-        onKeyDown={onContentKeyDown}
-      >
-        {renderComponentOrElement(contentRender(), {
-          close: () => context.updateOpen(false),
-        })}
-      </div>
-    </Show>
-  )
-
   return (
-    <Show when={context.isPresent()}>
+    <Show when={presence.present()}>
       <Portal>
-        <Show when={props.overlay} fallback={renderSurface()}>
-          <div
-            data-slot="overlay"
-            {...context.overlayPresence.dataAttrs()}
-            ref={context.overlayPresence.setElement}
-            style={props.overlayStyle}
-            class={props.overlayClass}
-          >
-            {renderSurface()}
-          </div>
-        </Show>
+        <div
+          {...props.contentAttributes}
+          {...presence.dataAttrs()}
+          ref={(element) => {
+            context.setContentElement(element)
+            presence.setElement(element)
+            props.ref?.(element)
+            onCleanup(() => {
+              if (context.contentElement() === element) {
+                context.setContentElement(undefined)
+                presence.setElement(undefined)
+                props.ref?.(undefined)
+              }
+            })
+          }}
+          id={context.contentId()}
+          role="dialog"
+          aria-modal="true"
+          aria-label={props.ariaLabel}
+          aria-labelledby={props.ariaLabelledBy}
+          aria-describedby={props.ariaDescribedBy}
+          tabIndex={-1}
+          data-slot="content"
+          style={props.style}
+          class={props.class}
+          onKeyDown={onContentKeyDown}
+        >
+          {renderComponentOrElement(contentRender(), {
+            close: () => context.updateOpen(false),
+          })}
+        </div>
       </Portal>
     </Show>
   )
 }
+
+function ModalOverlay(props: ModalOverlayProps): JSX.Element {
+  const context = useModalContext()
+  const presence = useTransitionPresence({ open: context.open })
+  const unregister = context.registerSurface('overlay', presence)
+  onCleanup(unregister)
+
+  return (
+    <Show when={presence.present()}>
+      <Portal>
+        <div
+          data-slot="overlay"
+          {...presence.dataAttrs()}
+          ref={(element) => {
+            presence.setElement(element)
+            props.ref?.(element)
+            onCleanup(() => {
+              presence.setElement(undefined)
+              props.ref?.(undefined)
+            })
+          }}
+          style={props.style}
+          class={props.class}
+        />
+      </Portal>
+    </Show>
+  )
+}
+
+Modal.Content = ModalContent
+Modal.Overlay = ModalOverlay
+Modal.Trigger = ModalTrigger

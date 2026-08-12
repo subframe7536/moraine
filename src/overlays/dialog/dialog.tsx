@@ -8,8 +8,8 @@ import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
-import type { ModalRootProps } from '../base/modal.tsx'
+import { Modal } from '../base/modal.tsx'
+import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { dialogCardVariants, dialogContentVariants, dialogOverlayVariants } from './dialog.class.ts'
@@ -54,7 +54,7 @@ export namespace DialogT {
    * Base props for the Dialog component.
    */
   export interface Base extends Pick<
-    ModalRootProps,
+    ModalProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -277,7 +277,7 @@ export function Dialog(props: DialogProps): JSX.Element {
   }
 
   return (
-    <ModalRoot
+    <Modal
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
@@ -285,19 +285,20 @@ export function Dialog(props: DialogProps): JSX.Element {
       onExitComplete={merged.onExitComplete}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
-      hasOverlay={merged.overlay}
-      hasContent
     >
-      <ModalTrigger children={triggerRender()} />
-      <ModalContent
-        overlay={merged.overlay}
-        overlayClass={dialogOverlayVariants(
-          {
-            scrollable: merged.scrollable,
-          },
-          merged.classes?.overlay,
-        )}
-        overlayStyle={merged.styles?.overlay}
+      <Modal.Trigger children={triggerRender()} />
+      <Show when={merged.overlay}>
+        <Modal.Overlay
+          class={dialogOverlayVariants(
+            {
+              scrollable: merged.scrollable,
+            },
+            merged.classes?.overlay,
+          )}
+          style={merged.styles?.overlay}
+        />
+      </Show>
+      <Modal.Content
         class={dialogContentVariants(
           {
             layout: dialogLayout(),
@@ -326,6 +327,6 @@ export function Dialog(props: DialogProps): JSX.Element {
           </Card>
         )}
       />
-    </ModalRoot>
+    </Modal>
   )
 }

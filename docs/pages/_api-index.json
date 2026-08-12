@@ -273,6 +273,14 @@
       "sourcePath": "src/navigation/tabs/tabs.tsx"
     },
     {
+      "key": "modal",
+      "name": "Modal",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Low-level modal primitives for composing custom dialog surfaces.",
+      "sourcePath": "src/overlays/base/modal.tsx"
+    },
+    {
       "key": "context-menu",
       "name": "ContextMenu",
       "category": "overlays",

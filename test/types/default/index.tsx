@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   Icon,
   List,
-  ModalRoot,
+  Modal,
   Popover,
   Sheet,
   Tooltip,
@@ -26,7 +26,10 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
-;<ModalRoot hasOverlay={false} hasContent={false} />
+;<Modal defaultOpen>
+  <Modal.Overlay />
+  <Modal.Content ariaLabel="Type fixture" contentRender="Modal content" />
+</Modal>
 
 ;<Dialog>
   {(props) => (

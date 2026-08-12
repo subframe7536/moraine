@@ -13,8 +13,8 @@ import { KbdGroup } from '../../elements/kbd/index.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
+import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { tooltipContentVariants } from './tooltip.class.ts'
@@ -44,7 +44,7 @@ export namespace TooltipT {
    * Base props for the Tooltip component.
    */
   export interface Base extends Pick<
-    PopperRootProps,
+    PopperProps,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
   > {
     /**
@@ -402,7 +402,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   return (
-    <PopperRoot
+    <Popper
       id={tooltipId()}
       open={open()}
       onOpenChange={requestOpen}
@@ -443,8 +443,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         }
       }}
     >
-      <PopperTrigger children={merged.children} describeTrigger toggleOnClick={false} />
-      <PopperContent
+      <Popper.Trigger children={merged.children} describeTrigger toggleOnClick={false} />
+      <Popper.Content
         positionerClass={
           shouldUseInstantMotion()
             ? 'data-positioned:transition-transform data-positioned:duration-150 data-positioned:ease-out'
@@ -452,6 +452,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         }
         contentRender={Content}
       />
-    </PopperRoot>
+    </Popper>
   )
 }

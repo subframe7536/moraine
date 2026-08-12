@@ -10,7 +10,7 @@ export const dialogOverlayVariants = cva(
     },
     variants: {
       scrollable: {
-        true: 'p-4 grid place-items-center overflow-y-auto sm:py-8',
+        true: 'block',
         false: 'block',
       },
     },
@@ -27,7 +27,8 @@ export const dialogContentVariants = cva(
       layout: {
         default:
           'grid max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-lg -translate-x-1/2 -translate-y-1/2',
-        scrollable: 'grid max-w-[calc(100%-2rem)] w-full relative sm:max-w-lg',
+        scrollable:
+          'p-4 grid size-full pointer-events-none inset-0 place-items-center fixed overflow-y-auto sm:py-8',
         fullscreen: 'flex flex-col size-full max-w-none inset-0 fixed',
       },
     },
@@ -43,7 +44,7 @@ export const dialogCardVariants = cva(
     variants: {
       layout: {
         default: 'rounded-xl',
-        scrollable: 'rounded-xl',
+        scrollable: 'rounded-xl max-w-[calc(100%-2rem)] pointer-events-auto sm:max-w-lg',
         fullscreen: 'border-0 rounded-none h-full ring-0',
       },
     },

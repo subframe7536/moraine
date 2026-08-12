@@ -13,20 +13,20 @@ surface cannot be expressed by either component.
 ## Import
 
 ```tsx
-import { ModalContent, ModalRoot, ModalTrigger } from 'moraine'
+import { Modal } from 'moraine'
 ```
 
 ## Composition
 
-`ModalRoot` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
-`ModalTrigger` connects a single trigger element. `ModalContent` portals the optional backdrop and
-the `role="dialog"` surface.
+`Modal` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
+`Modal.Trigger` connects a single trigger element. `Modal.Overlay` and `Modal.Content` are
+independent portal surfaces; composing either one automatically activates the modal runtime.
 
 ```text
-ModalRoot
-├── ModalTrigger
-└── ModalContent (portal)
-    ├── overlay (optional)
+Modal
+├── Modal.Trigger
+├── Modal.Overlay (optional portal)
+└── Modal.Content (portal)
     └── custom content
 ```
 

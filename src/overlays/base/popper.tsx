@@ -69,7 +69,7 @@ interface PopperContentProps {
   tabIndex: number
 }
 
-export interface PopperRootProps {
+export interface PopperProps {
   ariaDescribedBy?: string
   ariaLabelledBy?: string
   closeOnOutsideFocus?: boolean
@@ -132,7 +132,7 @@ export interface PopperContentContext {
 }
 
 interface PopperContext {
-  options: PopperRootProps
+  options: PopperProps
   contentId: Accessor<string>
   isOpen: Accessor<boolean>
   getControls: () => PopperControls
@@ -155,7 +155,8 @@ export function setPopperTestPlacementAccessor(accessor: Accessor<string> | unde
   popperTestPlacementAccessor = accessor
 }
 
-export function PopperRoot(props: PopperRootProps): JSX.Element {
+/** Low-level positioned overlay primitives. */
+export function Popper(props: PopperProps): JSX.Element {
   const merged = mergeProps(
     {
       closeOnOutsideFocus: true,
@@ -422,7 +423,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
   return <PopperProvider value={context}>{props.children}</PopperProvider>
 }
 
-export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
+function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
   const triggerRender = createMemo(() => props.children)
@@ -475,7 +476,7 @@ export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   )
 }
 
-export function PopperContent(props: PopperContentComponentProps): JSX.Element {
+function PopperContent(props: PopperContentComponentProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
   const contentRender = createMemo(() => props.contentRender)
@@ -547,3 +548,6 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
     </Show>
   )
 }
+
+Popper.Content = PopperContent
+Popper.Trigger = PopperTrigger

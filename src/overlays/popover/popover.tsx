@@ -3,8 +3,8 @@ import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps }
 
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
-import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
+import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { popoverContentVariants } from './popover.class.ts'
@@ -30,7 +30,7 @@ export namespace PopoverT {
    * Base props for the Popover component.
    */
   export interface Base extends Pick<
-    PopperRootProps,
+    PopperProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -254,7 +254,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   return (
-    <PopperRoot
+    <Popper
       id={merged.id}
       placement={merged.placement}
       open={merged.open}
@@ -368,8 +368,8 @@ export function Popover(props: PopoverProps): JSX.Element {
         merged.onClosePrevent?.()
       }}
     >
-      <PopperTrigger children={merged.children} describeTrigger={false} toggleOnClick />
-      <PopperContent contentRender={Content} />
-    </PopperRoot>
+      <Popper.Trigger children={merged.children} describeTrigger={false} toggleOnClick />
+      <Popper.Content contentRender={Content} />
+    </Popper>
   )
 }
