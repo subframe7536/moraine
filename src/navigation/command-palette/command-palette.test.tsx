@@ -183,6 +183,62 @@ describe('CommandPalette', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  test('prevents mouse pointerdown but preserves touch and pen tap synthesis', async () => {
+    const onSelect = vi.fn()
+    render(() => (
+      <CommandPalette
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        closeOnSelect={false}
+        onSelect={onSelect}
+      />
+    ))
+    const item = body().getByText('Action').closest('[data-slot="item"]') as HTMLElement
+    const mouseEvent = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'mouse',
+    })
+    const touchEvent = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'touch',
+    })
+    const penEvent = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'pen',
+    })
+
+    item.dispatchEvent(mouseEvent)
+    item.dispatchEvent(touchEvent)
+    item.dispatchEvent(penEvent)
+    await fireEvent.click(item)
+
+    expect(mouseEvent.defaultPrevented).toBe(true)
+    expect(touchEvent.defaultPrevented).toBe(false)
+    expect(penEvent.defaultPrevented).toBe(false)
+    expect(onSelect).toHaveBeenCalledTimes(1)
+  })
+
+  test('preserves caller pointerdown cancellation', () => {
+    render(() => (
+      <CommandPalette
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        itemProps={() => ({ onPointerDown: (event) => event.preventDefault() })}
+      />
+    ))
+    const item = body().getByText('Action').closest('[data-slot="item"]') as HTMLElement
+    const touchEvent = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'touch',
+    })
+
+    item.dispatchEvent(touchEvent)
+
+    expect(touchEvent.defaultPrevented).toBe(true)
+  })
+
   test('keeps the palette open when closeOnSelect is false', async () => {
     const onSelect = vi.fn()
     const onClose = vi.fn()

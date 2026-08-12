@@ -580,6 +580,89 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
+  function createSelectableItemHandlers(options: {
+    activate: () => void
+    disabled: () => boolean
+    element: Accessor<HTMLDivElement | undefined>
+    itemAttributes: Accessor<ElementProps<HTMLDivElement> | undefined>
+    itemId: Accessor<string>
+  }): Pick<
+    JSX.HTMLAttributes<HTMLDivElement>,
+    'onClick' | 'onFocus' | 'onKeyDown' | 'onPointerEnter' | 'onPointerMove' | 'onPointerLeave'
+  > {
+    const highlight = (): void => {
+      layer.closeSubmenus()
+      layer.setHighlightedItemId(options.itemId())
+      focusElement(options.element())
+    }
+
+    const handlePointerMove = (event: PointerEvent & { currentTarget: HTMLDivElement }): void => {
+      if (event.pointerType !== 'mouse') {
+        return
+      }
+
+      if (options.disabled()) {
+        layer.focusContent()
+        return
+      }
+
+      if (layer.shouldBlockPointerEnter(event)) {
+        layer.queuePointerEnter(event.currentTarget, highlight)
+        event.preventDefault()
+        return
+      }
+
+      highlight()
+    }
+
+    return {
+      onClick: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onClick)
+        if (!defaultPrevented) {
+          options.activate()
+        }
+      },
+      onFocus: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onFocus)
+        if (!defaultPrevented) {
+          layer.closeSubmenus()
+          layer.setHighlightedItemId(options.itemId())
+        }
+      },
+      onKeyDown: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onKeyDown)
+        if (
+          !defaultPrevented &&
+          !event.repeat &&
+          !options.disabled() &&
+          (event.key === 'Enter' || event.key === ' ')
+        ) {
+          event.preventDefault()
+          options.activate()
+        }
+      },
+      onPointerEnter: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerEnter)
+        if (!defaultPrevented) {
+          handlePointerMove(event)
+        }
+      },
+      onPointerMove: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerMove)
+        if (!defaultPrevented) {
+          handlePointerMove(event)
+        }
+      },
+      onPointerLeave: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerLeave)
+        if (!defaultPrevented && event.pointerType === 'mouse') {
+          layer.clearQueuedPointerEnter(event.currentTarget)
+          layer.focusContent()
+        }
+      },
+    }
+  }
+
   function LeafItem(itemProps: { item: TItem }): JSX.Element {
     const itemId = useId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
@@ -608,11 +691,13 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       props.closeRoot({ restoreFocus: true })
     }
 
-    const onPointerMove = (): void => {
-      layer.closeSubmenus()
-      layer.setHighlightedItemId(itemId())
-      focusElement(element())
-    }
+    const handlers = createSelectableItemHandlers({
+      activate,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
 
     return (
       <div
@@ -633,99 +718,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           ...toStyleObject(itemAttributes()?.style),
         }}
         class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
-        onClick={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
-          if (!defaultPrevented) {
-            activate()
-          }
-        }}
-        onFocus={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
-          if (defaultPrevented) {
-            return
-          }
-
-          layer.closeSubmenus()
-          layer.setHighlightedItemId(itemId())
-        }}
-        onKeyDown={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.repeat) {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            return
-          }
-
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            activate()
-          }
-        }}
-        onPointerEnter={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerMove={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerLeave={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          layer.clearQueuedPointerEnter(event.currentTarget)
-          layer.focusContent()
-        }}
+        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -776,11 +769,13 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       itemProps.item.onSelect?.()
     }
 
-    const onPointerMove = (): void => {
-      layer.closeSubmenus()
-      layer.setHighlightedItemId(itemId())
-      focusElement(element())
-    }
+    const handlers = createSelectableItemHandlers({
+      activate: toggle,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
 
     return (
       <div
@@ -803,99 +798,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           ...toStyleObject(itemAttributes()?.style),
         }}
         class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
-        onClick={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
-          if (!defaultPrevented) {
-            toggle()
-          }
-        }}
-        onFocus={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
-          if (defaultPrevented) {
-            return
-          }
-
-          layer.closeSubmenus()
-          layer.setHighlightedItemId(itemId())
-        }}
-        onKeyDown={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.repeat) {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            return
-          }
-
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            toggle()
-          }
-        }}
-        onPointerEnter={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerMove={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerLeave={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          layer.clearQueuedPointerEnter(event.currentTarget)
-          layer.focusContent()
-        }}
+        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -963,11 +866,13 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       itemProps.item.onSelect?.()
     }
 
-    const onPointerMove = (): void => {
-      layer.closeSubmenus()
-      layer.setHighlightedItemId(itemId())
-      focusElement(element())
-    }
+    const handlers = createSelectableItemHandlers({
+      activate: select,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
 
     return (
       <div
@@ -990,99 +895,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           ...toStyleObject(itemAttributes()?.style),
         }}
         class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
-        onClick={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
-          if (!defaultPrevented) {
-            select()
-          }
-        }}
-        onFocus={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
-          if (defaultPrevented) {
-            return
-          }
-
-          layer.closeSubmenus()
-          layer.setHighlightedItemId(itemId())
-        }}
-        onKeyDown={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.repeat) {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            return
-          }
-
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            select()
-          }
-        }}
-        onPointerEnter={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerMove={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          if (itemProps.item.disabled) {
-            layer.focusContent()
-            return
-          }
-
-          if (layer.shouldBlockPointerEnter(event)) {
-            layer.queuePointerEnter(event.currentTarget, onPointerMove)
-            event.preventDefault()
-            return
-          }
-
-          onPointerMove()
-        }}
-        onPointerLeave={(event) => {
-          const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
-          if (defaultPrevented) {
-            return
-          }
-
-          if (event.pointerType !== 'mouse') {
-            return
-          }
-
-          layer.clearQueuedPointerEnter(event.currentTarget)
-          layer.focusContent()
-        }}
+        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}

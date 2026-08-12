@@ -1,8 +1,8 @@
 # Base UI Parity Plan Index
 
-Status: Complete. All foundation and component parity plans are classified and implemented.
+Status: Complete for the explicitly listed scope.
 
-This directory splits the full Moraine behavior-parity sweep into independently assignable plans. Each component plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
+This directory splits a deliberately scoped Moraine behavior-parity sweep into independently assignable plans. Parity is required only for targets with a mature upstream behavior counterpart and an explicit plan below; it is not a requirement for every Moraine component. Each plan contains its own local surface, upstream references, audit dimensions, implementation constraints, tests, dependencies, and completion criteria.
 
 ## Fixed Reference Revisions
 
@@ -15,10 +15,11 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 ## Audit Snapshot
 
 - The sweep was completed on 2026-08-12 against the fixed upstream revisions below.
-- All 11 foundation plans plus every element and form plan are implementation-complete in the current working tree.
-- All three navigation plans and all six overlay plans are implementation-complete with focused SSR/hydration, dynamic ownership, controlled-state, keyboard, pointer, focus, ARIA, and cleanup coverage.
+- All 11 listed foundation plans plus every listed element and form plan are implementation-complete in the current working tree.
+- All listed navigation and overlay plans, including CommandPalette, are implementation-complete.
 - Every confirmed outcome is classified in `parity-matrix.md`; shared Modal, Popper, trigger, and Menu ownership remains centralized.
-- Current repository validation passes 76 test files / 1549 tests, repository-wide `bun run qa`, TypeScript typecheck, library build, both public type suites, and production docs build.
+- Current repository validation passes 79 test files / 1571 tests, `bun run qa`, TypeScript typecheck, library build, both public type suites, and production docs build.
+- `solid-toaster` 0.1.7 is retained as a verification prerequisite: 0.1.5 imports a client-only Solid API during the docs SSG build, while 0.1.7 removes that server-build failure.
 - Production SSR desktop checks for `/`, `/dialog`, `/sheet`, `/popover`, `/tooltip`, `/dropdown-menu`, and `/context-menu` contain no error-level console messages, dangling ARIA references, or horizontal overflow. The available in-app browser did not execute module hydration or apply viewport overrides, and no Chrome runtime was connected, so real client interaction and responsive paint remain explicitly `unverified-platform` rather than claimed from this environment.
 
 ## Global Decisions
@@ -28,6 +29,7 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 - Use the smallest local change that closes a confirmed observable gap.
 - Every closed gap requires a regression test. Shared behavior receives focused state-machine coverage plus one smoke test per distinct consumer pattern.
 - Keep styles, spacing, sizes, and visual transition design out of scope; those belong to the following Shadcn design-system task.
+- Existing components without a listed plan are not audited or claimed to match Base UI/Kobalte. In particular, `card`, `icon`, `kbd`, `resizable`, `sidebar-frame`, and `stepper` are excluded from this sweep.
 - Do not add browser-mode or Playwright dependencies. Reuse platform guards proven by Base UI source/tests, simulate them in jsdom where reliable, and mark behavior requiring a real engine/device as unverified-platform.
 - If conditional JSX, slots, children, content, labels, icons, or render props change, apply the SSR single-evaluation and hydration-order gate from build-ssr-safe-component.
 
@@ -93,6 +95,7 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 ## Navigation Plans
 
 - [Breadcrumb](navigation/breadcrumb.md)
+- [CommandPalette](navigation/command-palette.md)
 - [Pagination](navigation/pagination.md)
 - [Tabs](navigation/tabs.md)
 
@@ -108,7 +111,7 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 
 ## Final Acceptance
 
-- All 29 component plans with direct upstream counterparts and 11 foundation plans are classified in parity-matrix.md.
+- Every explicitly listed component plan and all 11 foundation plans are classified in parity-matrix.md.
 - Every compatible gap is either fixed with tests or explicitly preserved as an intentional divergence.
 - No code gap remains hidden behind unverified-platform; that label is only for proof that jsdom cannot provide.
 - No new test warning, generated output, dependency, lockfile, or unrelated formatting change is introduced.

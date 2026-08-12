@@ -68,7 +68,7 @@ Bring RadioGroup selection, roving focus, keyboard, native form, ARIA, pointer, 
 - FormField and Form — 39/39.
 - Checkbox and CheckboxGroup — 53/53; their SSR fixtures pass when isolated from concurrent fixture compilation.
 - `bun run typecheck`, targeted oxlint, formatting, `bun run build`, and `git diff --check` pass.
-- Full QA remains blocked by the pre-existing `src/shared/use-loading-auto.test.ts` lint finding; production preview remains blocked by the pre-existing client-only `solid-toaster` server import.
+- Repository QA and production docs build pass; real browser/device behavior remains separately classified as `unverified-platform`.
 
 ## Completion Criteria
 

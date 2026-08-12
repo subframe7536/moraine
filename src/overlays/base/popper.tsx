@@ -39,9 +39,12 @@ import { validateOverlayTrigger } from './trigger.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
+  createCompositionState,
+  createOutsidePressHandlers,
   focusContent,
   focusTrigger,
   getTransformOrigin,
+  isComposingKeyEvent,
   resolveDirection,
   trapFocusInContainer,
 } from './utils.ts'
@@ -497,32 +500,27 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
     const isInside = (target: Node): boolean => isInsideOverlayLayer(stackEntry, target)
 
-    const onDocumentPointerDown = (event: PointerEvent) => {
-      const target = event.target
+    const composition = createCompositionState()
+    const outsidePress = createOutsidePressHandlers({
+      isInside,
+      isEnabled: () => isTopOverlay(stackEntry),
+      onPress: (event) => {
+        merged.onPointerDownOutside?.(event)
 
-      if (event.button !== 0 || event.ctrlKey || !(target instanceof Node) || isInside(target)) {
-        return
-      }
+        if (event.defaultPrevented) {
+          return
+        }
 
-      if (!isTopOverlay(stackEntry)) {
-        return
-      }
+        if (merged.dismissible) {
+          event.preventDefault()
+          setOpen(false)
+          return
+        }
 
-      merged.onPointerDownOutside?.(event)
-
-      if (event.defaultPrevented) {
-        return
-      }
-
-      if (merged.dismissible) {
         event.preventDefault()
-        setOpen(false)
-        return
-      }
-
-      event.preventDefault()
-      merged.onClosePrevent?.()
-    }
+        merged.onClosePrevent?.()
+      },
+    })
     const onDocumentFocusIn = (event: FocusEvent) => {
       const target = event.target
 
@@ -567,7 +565,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       }
     }
     const onDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
+      if (event.key !== 'Escape' || isComposingKeyEvent(event, composition)) {
         return
       }
 
@@ -594,9 +592,14 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     useEventListenerMap(
       document,
       {
-        pointerdown: onDocumentPointerDown,
+        pointerdown: outsidePress.pointerdown,
+        pointermove: outsidePress.pointermove,
+        pointerup: outsidePress.pointerup,
+        pointercancel: outsidePress.pointercancel,
         focusin: onDocumentFocusIn,
         keydown: onDocumentKeyDown,
+        compositionstart: composition.onCompositionStart,
+        compositionend: composition.onCompositionEnd,
       },
       false,
     )

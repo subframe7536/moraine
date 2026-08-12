@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { ModalContent, ModalRoot, ModalTrigger } from './modal.tsx'
 import { pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
+import { getFocusableElements } from './utils.ts'
 
 describe('Modal primitives', () => {
   test('forwards an explicit accessible name to modal content', () => {
@@ -199,6 +200,66 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('ignores Escape while an IME composition is active', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <ModalRoot defaultOpen onOpenChange={onOpenChange} hasOverlay={false} hasContent>
+        <ModalContent contentRender={<input data-testid="editor" />} />
+      </ModalRoot>
+    ))
+    await Promise.resolve()
+    const editor = document.body.querySelector('[data-testid="editor"]')!
+
+    await fireEvent.compositionStart(editor)
+    await fireEvent.keyDown(editor, { key: 'Escape' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    await fireEvent.compositionEnd(editor)
+    await fireEvent.keyDown(editor, { key: 'Escape' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    screen.unmount()
+  })
+
+  test('dismisses a completed touch tap but not touch pointerdown, movement, or multitouch', async () => {
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <ModalRoot defaultOpen onOpenChange={onOpenChange} hasOverlay={false} hasContent>
+        <ModalContent contentRender={<span>Content</span>} />
+      </ModalRoot>
+    ))
+    await Promise.resolve()
+
+    await fireEvent.pointerDown(outside, {
+      pointerId: 1,
+      pointerType: 'touch',
+      clientX: 10,
+      clientY: 10,
+    })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await fireEvent.pointerMove(outside, {
+      pointerId: 1,
+      pointerType: 'touch',
+      clientX: 30,
+      clientY: 10,
+    })
+    await fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    await fireEvent.pointerDown(outside, { pointerId: 2, pointerType: 'touch' })
+    await fireEvent.pointerDown(outside, { pointerId: 3, pointerType: 'touch' })
+    await fireEvent.pointerUp(outside, { pointerId: 2, pointerType: 'touch' })
+    await fireEvent.pointerUp(outside, { pointerId: 3, pointerType: 'touch' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    await fireEvent.pointerDown(outside, { pointerId: 4, pointerType: 'touch' })
+    await fireEvent.pointerUp(outside, { pointerId: 4, pointerType: 'touch' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    screen.unmount()
+    outside.remove()
+  })
+
   test('does not dismiss or report prevention for an outside right-click', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
@@ -293,6 +354,54 @@ describe('Modal primitives', () => {
     expect(document.activeElement).toBe(second)
     screen.unmount()
     outside.remove()
+  })
+
+  test('recovers focus when the focused child removes itself during pointerdown', async () => {
+    const [showButton, setShowButton] = createSignal(true)
+    const screen = render(() => (
+      <ModalRoot defaultOpen hasOverlay={false} hasContent>
+        <ModalContent
+          contentRender={() => (
+            <Show when={showButton()} fallback={<span>Remaining content</span>}>
+              <button type="button" data-testid="remove" onPointerDown={() => setShowButton(false)}>
+                Remove
+              </button>
+            </Show>
+          )}
+        />
+      </ModalRoot>
+    ))
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+    const button = document.body.querySelector('[data-testid="remove"]') as HTMLButtonElement
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    button.focus()
+
+    await fireEvent.pointerDown(button, { pointerType: 'mouse' })
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(content)
+    screen.unmount()
+  })
+
+  test('filters CSS-hidden controls and includes media controls in focus order', () => {
+    const container = document.createElement('div')
+    container.innerHTML = `
+      <button>Visible</button>
+      <div style="display: none"><button>Display hidden</button></div>
+      <button style="visibility: hidden">Visibility hidden</button>
+      <audio controls tabindex="0"></audio>
+      <video controls tabindex="0"></video>
+    `
+    document.body.append(container)
+
+    expect(getFocusableElements(container).map((element) => element.tagName)).toEqual([
+      'BUTTON',
+      'AUDIO',
+      'VIDEO',
+    ])
+    container.remove()
   })
 
   test('restores the previously focused element when an open modal has no trigger', async () => {

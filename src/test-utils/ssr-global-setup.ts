@@ -36,8 +36,11 @@ const fixtureModules = [
   '/src/overlays/tooltip/tooltip.ssr.fixture.tsx',
 ]
 
-async function renderFixtures(project: TestProject): Promise<void> {
-  const server = await createServer({
+export async function renderFixtures(
+  project: TestProject,
+  createViteServer: typeof createServer = createServer,
+): Promise<void> {
+  const server = await createViteServer({
     appType: 'custom',
     configFile: false,
     root: project.config.root,
@@ -52,26 +55,31 @@ async function renderFixtures(project: TestProject): Promise<void> {
   ).runner
   const markup: Record<string, string> = {}
 
-  for (const modulePath of fixtureModules) {
-    const fixtureModule = await runner.import<SsrFixtureModule>(modulePath)
-    for (const [exportName, candidate] of Object.entries(fixtureModule)) {
-      if (!/^render.*Fixture$/.test(exportName)) {
-        continue
-      }
-      if (typeof candidate !== 'function') {
-        throw new TypeError(`SSR fixture export is not callable: ${modulePath}#${exportName}`)
-      }
+  try {
+    for (const modulePath of fixtureModules) {
+      const fixtureModule = await runner.import<SsrFixtureModule>(modulePath)
+      for (const [exportName, candidate] of Object.entries(fixtureModule)) {
+        if (!/^render.*Fixture$/.test(exportName)) {
+          continue
+        }
+        if (typeof candidate !== 'function') {
+          throw new TypeError(`SSR fixture export is not callable: ${modulePath}#${exportName}`)
+        }
 
-      const value = (candidate as SsrFixture)()
-      if (typeof value !== 'string') {
-        throw new TypeError(`SSR fixture export must return a string: ${modulePath}#${exportName}`)
+        const value = (candidate as SsrFixture)()
+        if (typeof value !== 'string') {
+          throw new TypeError(
+            `SSR fixture export must return a string: ${modulePath}#${exportName}`,
+          )
+        }
+        markup[`${modulePath}#${exportName}`] = value
       }
-      markup[`${modulePath}#${exportName}`] = value
     }
-  }
 
-  project.provide('ssrFixtures', markup)
-  await server.close()
+    project.provide('ssrFixtures', markup)
+  } finally {
+    await server.close()
+  }
 }
 
 export async function setup(project: TestProject): Promise<void> {

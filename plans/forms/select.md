@@ -4,7 +4,7 @@
 
 - Implementation complete on 2026-08-11 from the working tree rooted at `3c02b36`.
 - Reference revisions are fixed at Base UI `3011fba8f` and Kobalte `2e8ce473`.
-- Focused Select coverage passes 91/91; MultiSelect, Menu, navigation, FormField, and Form dependencies pass 106/106 when SSR fixtures run in isolation.
+- Focused Select and its MultiSelect, Menu, navigation, FormField, and Form dependencies pass; current repository-wide counts are recorded in the plan index.
 
 ## Goal
 
@@ -62,12 +62,11 @@ Bring single Select keyboard, ARIA, pointer, controlled-state, native form, virt
 
 ## Validation
 
-- `bun run test src/forms/select/select.test.tsx` — 91/91.
-- `bun run test src/forms/select/select.test.tsx src/forms/select/multi-select.test.tsx` — 128/128.
-- Menu and shared navigation — 30/30.
-- FormField and Form — 39/39 when their SSR fixtures run in isolation.
+- `bun run test src/forms/select/select.test.tsx` passes.
+- `bun run test src/forms/select/select.test.tsx src/forms/select/multi-select.test.tsx` passes.
+- Menu, shared navigation, FormField, and Form dependency suites pass.
 - `bun run typecheck`, targeted oxlint/formatting, `bun run build`, and `git diff --check` pass.
-- Full QA remains blocked by the pre-existing `src/shared/use-loading-auto.test.ts` lint finding; production preview remains blocked by the pre-existing client-only `solid-toaster` server import.
+- Repository QA and production docs build pass; real browser/device behavior remains separately classified as `unverified-platform`.
 
 ## Completion Criteria
 

@@ -67,7 +67,7 @@ Make FormField's label, description, help, error, control registration, Formisch
 - Serial SSR dependencies: Form 10/10, Checkbox 28/28, CheckboxGroup 25/25, FileUpload 33/33.
 - Remaining consumers: Input, Textarea, Switch, RadioGroup, InputNumber, Slider, Select, and MultiSelect — 252/252.
 - `bun run typecheck` and targeted oxlint pass.
-- Production browser hydration and assistive-technology announcements remain `unverified-platform`; the existing docs build is blocked by the unrelated server import of client-only `solid-toaster`.
+- Production docs build passes. Real browser hydration behavior and assistive-technology announcements remain `unverified-platform`.
 
 ## Completion Criteria
 

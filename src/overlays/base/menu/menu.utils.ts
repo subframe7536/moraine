@@ -670,7 +670,7 @@ export function useOverlayMenuDismiss(options: {
         return
       }
 
-      if (event.key !== 'Escape') {
+      if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229) {
         return
       }
 
@@ -720,6 +720,10 @@ export function onLayerKeyDown(
   closeParentKey?: string,
   onTab?: (direction: 'forward' | 'backward') => void,
 ): void {
+  if (event.isComposing || event.keyCode === 229) {
+    return
+  }
+
   if (event.key === 'Tab') {
     event.preventDefault()
     onTab?.(event.shiftKey ? 'backward' : 'forward')

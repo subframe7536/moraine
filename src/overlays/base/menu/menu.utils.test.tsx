@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from 'vitest'
 import {
   createPointerGraceIntent,
   isPointInPointerGraceIntent,
+  onLayerKeyDown,
   useOverlayMenuLayerState,
 } from './menu.utils.ts'
 
@@ -50,6 +51,27 @@ function installWindowStub(): () => void {
     })
   }
 }
+
+describe('onLayerKeyDown', () => {
+  test('does not close the menu for Escape emitted during IME composition', () => {
+    const onClose = vi.fn()
+
+    createRoot((dispose) => {
+      const layer = useOverlayMenuLayerState()
+      const event = new KeyboardEvent('keydown', {
+        cancelable: true,
+        isComposing: true,
+        key: 'Escape',
+      })
+
+      onLayerKeyDown(event, layer, onClose)
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(onClose).not.toHaveBeenCalled()
+      dispose()
+    })
+  })
+})
 
 describe('createPointerGraceIntent', () => {
   test('keeps the right-side corridor between the leave point and submenu open', () => {

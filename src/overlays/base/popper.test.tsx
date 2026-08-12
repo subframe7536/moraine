@@ -298,6 +298,44 @@ describe('Popper primitives', () => {
     outside.remove()
   })
 
+  test('delays touch outside dismissal until a completed tap', async () => {
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <PopperRoot defaultOpen onOpenChange={onOpenChange}>
+        <PopperTrigger children={(props) => <button {...props}>Open</button>} />
+        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+      </PopperRoot>
+    ))
+
+    await fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    screen.unmount()
+    outside.remove()
+  })
+
+  test('ignores Escape while an IME composition is active', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <PopperRoot defaultOpen onOpenChange={onOpenChange}>
+        <PopperTrigger children={(props) => <button {...props}>Open</button>} />
+        <PopperContent contentRender={(context) => <input {...context.contentProps} />} />
+      </PopperRoot>
+    ))
+    const content = document.body.querySelector('input')!
+
+    await fireEvent.compositionStart(content)
+    await fireEvent.keyDown(content, { key: 'Escape' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await fireEvent.compositionEnd(content)
+    await fireEvent.keyDown(content, { key: 'Escape' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    screen.unmount()
+  })
+
   test('does not acquire global resources without a mounted content surface', async () => {
     const onEscapeKeyDown = vi.fn()
     const screen = render(() => (

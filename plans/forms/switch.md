@@ -94,7 +94,7 @@ Audit and port missing Switch keyboard, pointer, ARIA, native form, controlled-s
 
 ## Validation
 
-- Focused Switch suite: 19 tests passing.
+- Focused Switch suite passes; current repository-wide counts are recorded in the plan index.
 - Checkbox, FormField, and Form dependency suites pass.
 - Targeted lint and TypeScript typecheck pass.
 

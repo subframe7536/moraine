@@ -16,9 +16,12 @@ import { validateOverlayTrigger } from './trigger.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
+  createCompositionState,
+  createOutsidePressHandlers,
   focusContent,
   focusWithoutScrolling,
   focusTrigger,
+  isComposingKeyEvent,
   trapFocusInContainer,
 } from './utils.ts'
 
@@ -194,29 +197,55 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
 
     const isInside = (target: Node): boolean => isInsideOverlayLayer(dismissEntry, target)
 
+    const composition = createCompositionState()
+    const outsidePress = createOutsidePressHandlers({
+      isInside,
+      isEnabled: () => isTopOverlay(dismissEntry),
+      onPress: (event) => {
+        if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
+          return
+        }
+
+        if (dismissible()) {
+          event.preventDefault()
+          updateOpen(false)
+          return
+        }
+
+        event.preventDefault()
+        props.onClosePrevent?.()
+      },
+    })
+
     const onDocumentPointerDown = (event: PointerEvent): void => {
       const target = event.target
-
+      const currentContent = contentElement()
       if (
-        !(target instanceof Node) ||
-        isInside(target) ||
-        event.button !== 0 ||
-        (event.ctrlKey && event.button === 0)
+        target instanceof Node &&
+        currentContent &&
+        (currentContent.contains(target) || event.composedPath().includes(currentContent))
       ) {
-        return
-      }
-      if (!isTopOverlay(dismissEntry) || event.defaultPrevented) {
-        return
+        queueMicrotask(() => {
+          untrack(() => {
+            if (!isPresent() || !isTopOverlay(dismissEntry) || !currentContent.isConnected) {
+              return
+            }
+
+            const activeElement = document.activeElement
+            if (activeElement instanceof Node && currentContent.contains(activeElement)) {
+              return
+            }
+
+            if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
+              focusWithoutScrolling(lastFocusedElement)
+            } else {
+              focusContent(currentContent)
+            }
+          })
+        })
       }
 
-      if (dismissible()) {
-        event.preventDefault()
-        updateOpen(false)
-        return
-      }
-
-      event.preventDefault()
-      props.onClosePrevent?.()
+      outsidePress.pointerdown(event)
     }
 
     const onDocumentFocusIn = (event: FocusEvent): void => {
@@ -250,7 +279,12 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     }
 
     const onDocumentKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape' || !isTopOverlay(dismissEntry) || event.defaultPrevented) {
+      if (
+        event.key !== 'Escape' ||
+        isComposingKeyEvent(event, composition) ||
+        !isTopOverlay(dismissEntry) ||
+        event.defaultPrevented
+      ) {
         return
       }
 
@@ -266,8 +300,13 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
 
     useEventListenerMap(document, {
       pointerdown: onDocumentPointerDown,
+      pointermove: outsidePress.pointermove,
+      pointerup: outsidePress.pointerup,
+      pointercancel: outsidePress.pointercancel,
       focusin: onDocumentFocusIn,
       keydown: onDocumentKeyDown,
+      compositionstart: composition.onCompositionStart,
+      compositionend: composition.onCompositionEnd,
     })
 
     onCleanup(() => {

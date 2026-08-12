@@ -13,11 +13,127 @@ const FOCUSABLE_SELECTOR_PARTS = [
   'iframe',
   'object',
   'embed',
+  'audio[controls]',
+  'video[controls]',
   '[contenteditable]',
   '[tabindex]:not([tabindex="-1"])',
 ] as const
 
 export const FOCUSABLE_SELECTOR = FOCUSABLE_SELECTOR_PARTS.join(',')
+
+export interface CompositionState {
+  isComposing: () => boolean
+  onCompositionStart: () => void
+  onCompositionEnd: () => void
+}
+
+export function createCompositionState(): CompositionState {
+  let composing = false
+
+  return {
+    isComposing: () => composing,
+    onCompositionStart: () => {
+      composing = true
+    },
+    onCompositionEnd: () => {
+      composing = false
+    },
+  }
+}
+
+export function isComposingKeyEvent(event: KeyboardEvent, state: CompositionState): boolean {
+  return event.isComposing || event.keyCode === 229 || state.isComposing()
+}
+
+interface OutsidePressOptions {
+  isInside: (target: Node) => boolean
+  isEnabled: () => boolean
+  onPress: (event: PointerEvent) => void
+}
+
+interface PendingPointer {
+  event: PointerEvent
+  startX: number
+  startY: number
+  timeoutId: ReturnType<typeof setTimeout>
+  valid: boolean
+}
+
+export interface OutsidePressHandlers {
+  pointerdown: (event: PointerEvent) => void
+  pointermove: (event: PointerEvent) => void
+  pointerup: (event: PointerEvent) => void
+  pointercancel: (event: PointerEvent) => void
+}
+
+/** Delays coarse-pointer dismissal until a completed tap so scrolling cannot close an overlay. */
+export function createOutsidePressHandlers(options: OutsidePressOptions): OutsidePressHandlers {
+  const pendingPointers = new Map<number, PendingPointer>()
+
+  const clearPointer = (event: PointerEvent): PendingPointer | undefined => {
+    const pending = pendingPointers.get(event.pointerId)
+    pendingPointers.delete(event.pointerId)
+    if (pending) {
+      clearTimeout(pending.timeoutId)
+    }
+    return pending
+  }
+
+  return {
+    pointerdown: (event) => {
+      const target = event.target
+      if (
+        event.button !== 0 ||
+        event.ctrlKey ||
+        !(target instanceof Node) ||
+        options.isInside(target) ||
+        !options.isEnabled()
+      ) {
+        return
+      }
+
+      if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+        options.onPress(event)
+        return
+      }
+
+      const timeoutId = setTimeout(() => {
+        pendingPointers.delete(event.pointerId)
+      }, 1000)
+      pendingPointers.set(event.pointerId, {
+        event,
+        startX: event.clientX,
+        startY: event.clientY,
+        timeoutId,
+        valid: !event.defaultPrevented,
+      })
+      if (pendingPointers.size > 1) {
+        for (const pending of pendingPointers.values()) {
+          pending.valid = false
+        }
+      }
+    },
+    pointermove: (event) => {
+      const pending = pendingPointers.get(event.pointerId)
+      if (
+        pending &&
+        (Math.abs(event.clientX - pending.startX) > 5 ||
+          Math.abs(event.clientY - pending.startY) > 5)
+      ) {
+        pending.valid = false
+      }
+    },
+    pointerup: (event) => {
+      const pending = clearPointer(event)
+      if (pending?.valid && pendingPointers.size === 0 && options.isEnabled()) {
+        options.onPress(pending.event)
+      }
+    },
+    pointercancel: (event) => {
+      clearPointer(event)
+    },
+  }
+}
 
 type FloatingSide = 'top' | 'right' | 'bottom' | 'left'
 
@@ -240,6 +356,15 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
       let ancestor: HTMLElement | null = element
       while (ancestor) {
         if ((ancestor as HTMLElement & { inert?: boolean }).inert === true) {
+          return false
+        }
+
+        const style = ancestor.ownerDocument.defaultView?.getComputedStyle(ancestor)
+        if (
+          style?.display === 'none' ||
+          style?.visibility === 'hidden' ||
+          style?.visibility === 'collapse'
+        ) {
           return false
         }
         ancestor = ancestor.parentElement

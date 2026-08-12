@@ -5,7 +5,7 @@
 - Complete. Audited from the working tree rooted at `3c02b36` and implemented on 2026-08-11 after the Select-owned BaseSelect fixes.
 - Reference revisions are fixed at Base UI 3011fba8f and Kobalte 2e8ce473.
 - Focused result: 59 MultiSelect tests pass, including isolated `renderToString -> hydrate -> tag remove -> ArrowDown` coverage. Select + MultiSelect pass 150/150; Menu/navigation pass 30/30; FormField and Form pass 39/39; typecheck and build pass.
-- `bun run qa` and production docs preview retain the pre-existing `src/shared/use-loading-auto.test.ts` lint and `solid-toaster` server-import blockers recorded by earlier completed plans; targeted oxlint/oxfmt and `git diff --check` pass.
+- Repository QA and production docs build pass; targeted checks and `git diff --check` also pass.
 
 ## Goal
 

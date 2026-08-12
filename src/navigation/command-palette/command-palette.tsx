@@ -795,7 +795,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         onPointerDown={(event) => {
           callHandler(event, itemAttributes()?.onPointerDown)
           callHandler(event, virtualProps?.onPointerDown)
-          if (!event.defaultPrevented) {
+          if (
+            !event.defaultPrevented &&
+            event.pointerType !== 'touch' &&
+            event.pointerType !== 'pen'
+          ) {
             event.preventDefault()
           }
         }}
