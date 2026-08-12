@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -455,18 +456,21 @@ describe('Input', () => {
   })
 
   test('keeps FormField aligned when a controlled request is rejected or replaced externally', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Locked' },
-    })
     const [value, setValue] = createSignal('Locked')
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Value">
-          <Input value={value()} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Locked' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Input value={value()} />
+          </FormField>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
     await fireEvent.input(input, {
@@ -483,18 +487,21 @@ describe('Input', () => {
   })
 
   test('reacts to external Formisch input without publishing user callbacks', () => {
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Initial' },
-    })
     const onValueChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Value">
-          <Input onValueChange={onValueChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Initial' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Input onValueChange={onValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
     setInput(form, { path: ['value'], input: 'External' })

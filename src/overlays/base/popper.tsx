@@ -32,7 +32,7 @@ import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
 import { cn, useId } from '../../shared/utils.ts'
 
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayStackEntry } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
@@ -495,13 +495,7 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       })
     }
 
-    const isInside = (target: Node): boolean => {
-      if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
-        return true
-      }
-
-      return isInsideDescendantOverlay(stackEntry, target)
-    }
+    const isInside = (target: Node): boolean => isInsideOverlayLayer(stackEntry, target)
 
     const onDocumentPointerDown = (event: PointerEvent) => {
       const target = event.target

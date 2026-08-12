@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, splitProps } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
@@ -196,8 +197,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const loadingIcon = createMemo(() => merged.loadingIcon)
   const checkedIcon = createMemo(() => merged.checkedIcon)
   const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
-  const showLabel = createMemo(() => isPresent(label()))
-  const showDescription = createMemo(() => isPresent(description()))
+  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
+  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
 
   const generatedId = useId(() => merged.id, 'switch')
   const field = useFormField(
@@ -221,6 +222,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const descriptionId = createMemo(() => `${field.id()}-description`)
 
   let inputEl: HTMLInputElement | undefined
+  const initialDefaultChecked = untrack(() => Boolean(merged.defaultChecked))
 
   function toCheckedState(value: unknown): boolean {
     if (value === merged.trueValue) {
@@ -316,8 +318,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   useFormReset(
     () => inputEl?.form,
     () => {
-      const nextChecked = Boolean(merged.defaultChecked)
-      setChecked(nextChecked)
+      const controlledChecked = merged.checked
+      const nextChecked =
+        controlledChecked === undefined ? initialDefaultChecked : toCheckedState(controlledChecked)
+
+      if (controlledChecked === undefined) {
+        setChecked(nextChecked)
+      }
 
       if (inputEl) {
         inputEl.checked = nextChecked
@@ -494,8 +501,4 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </Show>
     </div>
   )
-}
-
-function isPresent(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== false && value !== ''
 }

@@ -102,6 +102,7 @@ Base UI source and tests define the target behavior. Kobalte is the preferred tr
 - [Dialog](overlays/dialog.md)
 - [DropdownMenu](overlays/dropdown-menu.md)
 - [Popover](overlays/popover.md)
+- [Popup](overlays/popup.md)
 - [Sheet](overlays/sheet.md)
 - [Tooltip](overlays/tooltip.md)
 

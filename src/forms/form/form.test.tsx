@@ -1,10 +1,11 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { Input } from '../input/index.ts'
@@ -19,22 +20,25 @@ const Schema = v.object({
 
 describe('Form', () => {
   test('submits Formisch output through the high-level adapters', async () => {
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: 'initial@example.com', enabled: false },
-    })
     const onSubmit = vi.fn()
-    const screen = render(() => (
-      <Form of={form} onSubmit={onSubmit}>
-        <FormField name="email" label="Email">
-          <Input />
-        </FormField>
-        <FormField name="enabled" label="Enabled">
-          <Switch />
-        </FormField>
-        <Button type="submit">Save</Button>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: 'initial@example.com', enabled: false },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <FormField name="email" label="Email">
+            <Input />
+          </FormField>
+          <FormField name="enabled" label="Enabled">
+            <Switch />
+          </FormField>
+          <Button type="submit">Save</Button>
+        </Form>
+      ),
+    )
 
     expect((screen.getByLabelText('Email') as HTMLInputElement).value).toBe('initial@example.com')
     await fireEvent.input(screen.getByLabelText('Email'), { target: { value: 'dev@example.com' } })
@@ -46,23 +50,26 @@ describe('Form', () => {
   })
 
   test('renders field errors and forwards native form props', async () => {
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: '', enabled: false },
-      validate: 'blur',
-    })
-    const screen = render(() => (
-      <Form
-        of={form}
-        aria-label="Settings"
-        classes={{ root: 'root-override' }}
-        styles={{ root: { width: '200px' } }}
-      >
-        <FormField name="email" label="Email">
-          <Input />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: '', enabled: false },
+          validate: 'blur',
+        }),
+      (form) => (
+        <Form
+          of={form}
+          aria-label="Settings"
+          classes={{ root: 'root-override' }}
+          styles={{ root: { width: '200px' } }}
+        >
+          <FormField name="email" label="Email">
+            <Input />
+          </FormField>
+        </Form>
+      ),
+    )
 
     const input = screen.getByLabelText('Email')
     await fireEvent.focus(input)
@@ -76,17 +83,20 @@ describe('Form', () => {
   })
 
   test('uses a control initialValue only when Formisch has no field input', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.optional(v.string()) }),
-      initialInput: {},
-    })
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Value">
-          <Input defaultValue="Fallback" />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.optional(v.string()) }),
+          initialInput: {},
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Input defaultValue="Fallback" />
+          </FormField>
+        </Form>
+      ),
+    )
 
     await waitFor(() => {
       expect((screen.getByLabelText('Value') as HTMLInputElement).value).toBe('Fallback')
@@ -94,19 +104,22 @@ describe('Form', () => {
   })
 
   test('blocks invalid submission and renders the first field error', async () => {
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: '', enabled: false },
-    })
     const onSubmit = vi.fn()
-    const screen = render(() => (
-      <Form of={form} onSubmit={onSubmit}>
-        <FormField name="email" label="Email">
-          <Input />
-        </FormField>
-        <Button type="submit">Save</Button>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: '', enabled: false },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <FormField name="email" label="Email">
+            <Input />
+          </FormField>
+          <Button type="submit">Save</Button>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Email')
     await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -118,23 +131,26 @@ describe('Form', () => {
 
   test('preserves the native submitter and exposes exact async submitting state', async () => {
     let resolveSubmit: (() => void) | undefined
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: 'dev@example.com', enabled: false },
-    })
     const onSubmit = vi.fn(
       (_output: v.InferOutput<typeof Schema>, _event: SubmitEvent) =>
         new Promise<void>((resolve) => {
           resolveSubmit = resolve
         }),
     )
-    const screen = render(() => (
-      <Form of={form} onSubmit={onSubmit}>
-        <Button type="submit" name="intent" value="save">
-          Save
-        </Button>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: 'dev@example.com', enabled: false },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <Button type="submit" name="intent" value="save">
+            Save
+          </Button>
+        </Form>
+      ),
+    )
     const formElement = screen.container.querySelector('form')!
     const submitter = screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement
 
@@ -150,15 +166,18 @@ describe('Form', () => {
   })
 
   test('captures rejected submit handlers as form errors and clears submitting state', async () => {
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: 'dev@example.com', enabled: false },
-    })
-    const screen = render(() => (
-      <Form of={form} onSubmit={() => Promise.reject(new Error('Submit failed'))}>
-        <Button type="submit">Save</Button>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: 'dev@example.com', enabled: false },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={() => Promise.reject(new Error('Submit failed'))}>
+          <Button type="submit">Save</Button>
+        </Form>
+      ),
+    )
     const formElement = screen.container.querySelector('form')!
 
     await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -168,28 +187,31 @@ describe('Form', () => {
   })
 
   test('resets native controls and Formisch state after the caller handler', async () => {
-    const form = createForm({
-      schema: Schema,
-      initialInput: { email: 'initial@example.com', enabled: false },
-      validate: 'blur',
-    })
     const resetSnapshots: unknown[] = []
-    const screen = render(() => (
-      <Form
-        of={form}
-        onReset={() => {
-          resetSnapshots.push({ dirty: form.isDirty, input: getInput(form) })
-        }}
-      >
-        <FormField name="email" label="Email">
-          <Input />
-        </FormField>
-        <FormField name="enabled" label="Enabled">
-          <Switch />
-        </FormField>
-        <Button type="reset">Reset</Button>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: Schema,
+          initialInput: { email: 'initial@example.com', enabled: false },
+          validate: 'blur',
+        }),
+      (form) => (
+        <Form
+          of={form}
+          onReset={() => {
+            resetSnapshots.push({ dirty: form.isDirty, input: getInput(form) })
+          }}
+        >
+          <FormField name="email" label="Email">
+            <Input />
+          </FormField>
+          <FormField name="enabled" label="Enabled">
+            <Switch />
+          </FormField>
+          <Button type="reset">Reset</Button>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Email') as HTMLInputElement
 
     await fireEvent.input(input, { target: { value: 'invalid' } })
@@ -218,18 +240,21 @@ describe('Form', () => {
   })
 
   test('does not reset native or Formisch state when the caller cancels reset', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Initial' },
-    })
-    const screen = render(() => (
-      <Form of={form} onReset={(event) => event.preventDefault()}>
-        <FormField name="value" label="Value">
-          <Input />
-        </FormField>
-        <Button type="reset">Reset</Button>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Initial' },
+        }),
+      (form) => (
+        <Form of={form} onReset={(event) => event.preventDefault()}>
+          <FormField name="value" label="Value">
+            <Input />
+          </FormField>
+          <Button type="reset">Reset</Button>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
     await fireEvent.input(input, { target: { value: 'Changed' } })
@@ -242,26 +267,34 @@ describe('Form', () => {
 
   test('keeps sibling form providers and submissions isolated', async () => {
     const schema = v.object({ value: v.string() })
-    const firstForm = createForm({ schema, initialInput: { value: 'First' } })
-    const secondForm = createForm({ schema, initialInput: { value: 'Second' } })
     const firstSubmit = vi.fn()
     const secondSubmit = vi.fn()
-    const screen = render(() => (
-      <>
-        <Form of={firstForm} onSubmit={firstSubmit} aria-label="First form">
-          <FormField name="value" label="First value">
-            <Input />
-          </FormField>
-          <Button type="submit">Submit first</Button>
-        </Form>
-        <Form of={secondForm} onSubmit={secondSubmit} aria-label="Second form">
-          <FormField name="value" label="Second value">
-            <Input />
-          </FormField>
-          <Button type="submit">Submit second</Button>
-        </Form>
-      </>
-    ))
+    const { screen, value: forms } = renderWithOwner(
+      (): [
+        ReturnType<typeof createForm<typeof schema>>,
+        ReturnType<typeof createForm<typeof schema>>,
+      ] => [
+        createForm({ schema, initialInput: { value: 'First' } }),
+        createForm({ schema, initialInput: { value: 'Second' } }),
+      ],
+      ([firstForm, secondForm]) => (
+        <>
+          <Form of={firstForm} onSubmit={firstSubmit} aria-label="First form">
+            <FormField name="value" label="First value">
+              <Input />
+            </FormField>
+            <Button type="submit">Submit first</Button>
+          </Form>
+          <Form of={secondForm} onSubmit={secondSubmit} aria-label="Second form">
+            <FormField name="value" label="Second value">
+              <Input />
+            </FormField>
+            <Button type="submit">Submit second</Button>
+          </Form>
+        </>
+      ),
+    )
+    const [, secondForm] = forms
 
     await fireEvent.input(screen.getByLabelText('First value'), { target: { value: 'Changed' } })
     await fireEvent.click(screen.getByRole('button', { name: 'Submit first' }))

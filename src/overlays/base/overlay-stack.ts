@@ -32,6 +32,15 @@ export function isTopOverlay(entry: OverlayStackEntry): boolean {
   return overlayStack[overlayStack.length - 1] === entry
 }
 
+/** Returns whether a target belongs to this layer, its trigger, or a nested layer above it. */
+export function isInsideOverlayLayer(entry: OverlayStackEntry, target: Node): boolean {
+  if (entry.contentElement()?.contains(target) || entry.triggerElement()?.contains(target)) {
+    return true
+  }
+
+  return isInsideDescendantOverlay(entry, target)
+}
+
 /**
  * Returns true when the target lives inside any overlay that was pushed onto
  * the stack AFTER the supplied entry. Used so that an outer overlay treats

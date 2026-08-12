@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -58,15 +59,14 @@ async function finishSelectExitMotion(): Promise<void> {
 }
 
 test('single Select accepts arbitrary root props at type level', () => {
-  const node = <Select options={FRUITS} multiple />
+  const screen = render(() => (
+    <>
+      <Select options={FRUITS} multiple />
+      <Select options={FRUITS} allowCreate tokenSeparators={[',']} maxCount={2} />
+    </>
+  ))
 
-  expect(node).toBeDefined()
-})
-
-test('single Select accepts arbitrary root props at type level', () => {
-  const node = <Select options={FRUITS} allowCreate tokenSeparators={[',']} maxCount={2} />
-
-  expect(node).toBeDefined()
+  expect(screen.getAllByRole('combobox')).toHaveLength(2)
 })
 
 test('uses css variable classes for input sizing in single mode', () => {
@@ -1298,19 +1298,22 @@ describe('Select - form integration', () => {
   })
 
   test('keeps FormField aligned with the explicit controlled value', async () => {
-    const form = createForm({
-      schema: v.object({ fruit: v.string() }),
-      initialInput: { fruit: 'apple' },
-    })
     const [value, setValue] = createSignal('apple')
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="fruit" label="Fruit">
-          <Select options={FRUITS} value={value()} onChange={onChange} defaultOpen />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruit: v.string() }),
+          initialInput: { fruit: 'apple' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="fruit" label="Fruit">
+            <Select options={FRUITS} value={value()} onChange={onChange} defaultOpen />
+          </FormField>
+        </Form>
+      ),
+    )
 
     await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
     expect(onChange).toHaveBeenCalledWith('banana')
@@ -1327,18 +1330,21 @@ describe('Select - form integration', () => {
   })
 
   test('reacts to external Formisch input without publishing callbacks', () => {
-    const form = createForm({
-      schema: v.object({ fruit: v.string() }),
-      initialInput: { fruit: 'apple' },
-    })
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="fruit" label="Fruit">
-          <Select options={FRUITS} onChange={onChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruit: v.string() }),
+          initialInput: { fruit: 'apple' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="fruit" label="Fruit">
+            <Select options={FRUITS} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
 
     setInput(form, { path: ['fruit'], input: 'banana' })
 

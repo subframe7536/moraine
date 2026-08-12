@@ -9,11 +9,10 @@ import {
   onCleanup,
   onMount,
   splitProps,
-  untrack,
 } from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { applyInputModifiers } from '../../shared/input-modifiers.ts'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
@@ -26,6 +25,7 @@ import type {
 } from '../form-field/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
 import type { TextareaVariantProps } from './textarea.class.ts'
 import {
@@ -250,10 +250,9 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   )
   const header = createMemo(() => merged.header)
   const footer = createMemo(() => merged.footer)
-  const showHeader = createMemo(() => isPresent(header()))
-  const showFooter = createMemo(() => isPresent(footer()))
+  const showHeader = createMemo(() => hasNonEmptyJsxContent(header()))
+  const showFooter = createMemo(() => hasNonEmptyJsxContent(footer()))
   const modelModifiers = createMemo(() => merged.modelModifiers)
-  const initialDefaultValue = untrack(() => merged.defaultValue)
 
   const generatedId = useId(() => merged.id, 'textarea')
   const field = useFormField(
@@ -267,41 +266,23 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     () => ({
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: initialDefaultValue ?? '',
+      initialValue: merged.defaultValue ?? '',
     }),
   )
 
   let textareaEl: HTMLTextAreaElement | undefined
   const [isFocused, setIsFocused] = createSignal(false)
 
-  const isLazy = createMemo(() => Boolean(modelModifiers()?.lazy))
-
-  createEffect(() => {
-    const value = merged.value
-
-    if (value !== undefined) {
-      field.setFormValue(value)
-    }
+  const textControl = useTextControlValue<TextareaT.Value, M>({
+    defaultValue: () => merged.defaultValue,
+    getElement: () => textareaEl,
+    getFormValue: field.value,
+    modelModifiers,
+    onValueChange: () => merged.onValueChange,
+    setFormValue: field.setFormValue,
+    value: () => merged.value,
   })
-
-  const textareaValueProps = createMemo<{
-    value?: TextareaT.Value
-    defaultValue?: TextareaT.Value
-  }>(() => {
-    if (merged.value !== undefined) {
-      return { value: merged.value }
-    }
-
-    if (field.value() !== undefined) {
-      return { value: field.value() as TextareaT.Value }
-    }
-
-    if (initialDefaultValue !== undefined) {
-      return { value: initialDefaultValue, defaultValue: initialDefaultValue }
-    }
-
-    return {}
-  })
+  const isLazy = textControl.isLazy
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
@@ -309,27 +290,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'data-readonly': merged.readOnly ? '' : undefined,
   }))
 
-  function updateInputValue(value: string): void {
-    const nextValue = applyInputModifiers<ModifierValue<M>>(value, modelModifiers())
-    const controlledValue = merged.value
-
-    if (controlledValue === undefined) {
-      field.setFormValue(nextValue)
-    }
-    merged.onValueChange?.(nextValue)
-    if (controlledValue !== undefined && Object.is(merged.value, controlledValue)) {
-      field.setFormValue(controlledValue)
-    }
-    field.emit('input')
-  }
-
-  function restoreControlledValue(): void {
-    const value = merged.value
-
-    if (textareaEl && value !== undefined) {
-      textareaEl.value = String(value)
-    }
-  }
+  const restoreControlledValue = textControl.restoreControlledValue
 
   let initialOverflow = ''
 
@@ -382,7 +343,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     autoResize()
 
     if (!isLazy()) {
-      updateInputValue(event.currentTarget.value)
+      textControl.updateValue(event.currentTarget.value)
+      field.emit('input')
       restoreControlledValue()
     }
   }
@@ -390,7 +352,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
     const value = event.currentTarget.value
     if (isLazy()) {
-      updateInputValue(value)
+      textControl.updateValue(value)
+      field.emit('input')
     }
 
     if (modelModifiers()?.trim) {
@@ -398,7 +361,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     }
 
     field.emit('change')
-    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, modelModifiers()))
+    merged.onChange?.(textControl.applyValue(value))
     restoreControlledValue()
   }
 
@@ -462,22 +425,22 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     }
   })
 
+  useFormReset(
+    () => textareaEl?.form,
+    () => {
+      restoreControlledValue()
+      scheduleAutoResize()
+    },
+  )
+
   onMount(() => {
     if (textareaEl) {
       initialOverflow = textareaEl.style.overflow
-      if (initialDefaultValue !== undefined) {
-        textareaEl.defaultValue = String(initialDefaultValue)
+      if (textControl.initialDefaultValue !== undefined) {
+        textareaEl.defaultValue = String(textControl.initialDefaultValue)
       }
       restoreControlledValue()
     }
-
-    useFormReset(
-      () => textareaEl?.form,
-      () => {
-        restoreControlledValue()
-        scheduleAutoResize()
-      },
-    )
 
     if (merged.autofocus) {
       autofocusTimer = setTimeout(() => {
@@ -550,7 +513,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         onFocus={onFocus}
         {...dataAttrs()}
         {...field.ariaAttrs()}
-        {...textareaValueProps()}
+        {...textControl.valueProps()}
       />
 
       {merged.children}
@@ -571,8 +534,4 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       </Show>
     </div>
   )
-}
-
-function isPresent(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== false && value !== ''
 }

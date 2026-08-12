@@ -10,7 +10,7 @@ import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { useId } from '../../shared/utils.ts'
 
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
+import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
@@ -192,13 +192,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
         : undefined)
     lastFocusedElement = undefined
 
-    const isInside = (target: Node): boolean => {
-      if (contentElement()?.contains(target) || triggerElement()?.contains(target)) {
-        return true
-      }
-
-      return isInsideDescendantOverlay(dismissEntry, target)
-    }
+    const isInside = (target: Node): boolean => isInsideOverlayLayer(dismissEntry, target)
 
     const onDocumentPointerDown = (event: PointerEvent): void => {
       const target = event.target
@@ -385,7 +379,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <Show when={context.isPresent()}>
       <Portal>
-        <Show when={props.overlay && context.overlayPresence.present()} fallback={renderSurface()}>
+        <Show when={props.overlay} fallback={renderSurface()}>
           <div
             data-slot="overlay"
             {...context.overlayPresence.dataAttrs()}

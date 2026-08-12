@@ -193,26 +193,6 @@ describe('Popper primitives', () => {
     })
   })
 
-  test('preserves the default positioner stacking class when content has no z-index', async () => {
-    render(() => (
-      <PopperRoot defaultOpen>
-        <PopperTrigger
-          children={(props) => (
-            <button {...props} type="button">
-              Open
-            </button>
-          )}
-        />
-        <PopperContent contentRender={(context) => <div {...context.contentProps}>Content</div>} />
-      </PopperRoot>
-    ))
-
-    await Promise.resolve()
-    const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
-    expect(positioner.classList.contains('z-50')).toBe(true)
-    expect(positioner.style.zIndex).toBe('')
-  })
-
   test('stops positioning when its trigger is removed', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     render(() => (

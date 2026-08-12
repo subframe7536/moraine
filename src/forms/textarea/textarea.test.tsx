@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -307,19 +308,22 @@ describe('Textarea', () => {
   })
 
   test('keeps the DOM and FormField aligned when a controlled edit is rejected', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Locked' },
-    })
     const [value, setValue] = createSignal('Locked')
     const onValueChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Value">
-          <Textarea value={value()} onValueChange={onValueChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Locked' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Textarea value={value()} onValueChange={onValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
     const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
 
     await fireEvent.input(textarea, { target: { value: 'Rejected' } })
@@ -343,20 +347,23 @@ describe('Textarea', () => {
           lineHeight: '16',
         }) as CSSStyleDeclaration,
     )
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Initial' },
-    })
     const [rows, setRows] = createSignal(2)
     const [maxRows, setMaxRows] = createSignal(3)
     const [autoResize, setAutoResize] = createSignal(true)
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Value">
-          <Textarea autoResize={autoResize()} rows={rows()} maxRows={maxRows()} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Initial' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Value">
+            <Textarea autoResize={autoResize()} rows={rows()} maxRows={maxRows()} />
+          </FormField>
+        </Form>
+      ),
+    )
     const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
     let scrollHeight = 72
     Object.defineProperty(textarea, 'scrollHeight', {

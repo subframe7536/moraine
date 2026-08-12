@@ -5,6 +5,7 @@ import { Card } from '../../elements/card/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
@@ -191,14 +192,12 @@ export function Dialog(props: DialogProps): JSX.Element {
   const closeIcon = createLazyMemo(() => merged.closeIcon)
   const triggerRender = createMemo(() => merged.children)
   const rootId = useId(() => merged.id, 'dialog')
-  const isPresent = (value: JSX.Element): boolean =>
-    value !== undefined && value !== null && value !== false
-  const hasCustomHeader = createLazyMemo(() => isPresent(header()))
+  const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
   const titleId = createLazyMemo(() =>
-    !hasCustomHeader() && isPresent(title()) ? `${rootId()}-title` : undefined,
+    !hasCustomHeader() && hasJsxContent(title()) ? `${rootId()}-title` : undefined,
   )
   const descriptionId = createLazyMemo(() =>
-    !hasCustomHeader() && isPresent(description()) ? `${rootId()}-description` : undefined,
+    !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
   )
 
   const popupLayout = () => {
@@ -218,19 +217,19 @@ export function Dialog(props: DialogProps): JSX.Element {
       return header()
     }
 
-    if (!isPresent(title()) && !isPresent(description()) && !merged.close) {
+    if (!hasJsxContent(title()) && !hasJsxContent(description()) && !merged.close) {
       return undefined
     }
 
     return (
       <>
-        <Show when={isPresent(title()) || isPresent(description())}>
+        <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
             class={cn('flex-1 gap-1.5 grid min-w-0', merged.classes?.wrapper)}
           >
-            <Show when={isPresent(title())}>
+            <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
@@ -244,7 +243,7 @@ export function Dialog(props: DialogProps): JSX.Element {
               </h2>
             </Show>
 
-            <Show when={isPresent(description())}>
+            <Show when={hasJsxContent(description())}>
               <p
                 id={descriptionId()}
                 data-slot="description"

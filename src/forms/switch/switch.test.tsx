@@ -37,22 +37,25 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, true)
   })
 
-  test.each([' ', 'Enter'])('toggles once from the native %s key click sequence', async (key) => {
-    const onChange = vi.fn()
-    const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
-    const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
+  test.each([' ', 'Enter'])(
+    'toggles once from an explicit synthetic %s compatibility click',
+    async (key) => {
+      const onChange = vi.fn()
+      const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
+      const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
-    await fireEvent.keyDown(switchInput, { key })
-    await fireEvent.keyUp(switchInput, { key })
+      await fireEvent.keyDown(switchInput, { key })
+      await fireEvent.keyUp(switchInput, { key })
 
-    expect(onChange).not.toHaveBeenCalled()
+      expect(onChange).not.toHaveBeenCalled()
 
-    await fireEvent.click(switchInput, { detail: 0 })
+      await fireEvent.click(switchInput, { detail: 0 })
 
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenLastCalledWith(true)
-    expectSwitchChecked(switchInput, true)
-  })
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenLastCalledWith(true)
+      expectSwitchChecked(switchInput, true)
+    },
+  )
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
@@ -199,6 +202,55 @@ describe('Switch', () => {
       expectSwitchChecked(switchInput, true)
       expect(new FormData(form).get('enabled')).toBe('yes')
     })
+  })
+
+  test('resets uncontrolled state to the initial default without emitting changes', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch name="enabled" defaultChecked={false} label="Enabled" onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+
+    await fireEvent.click(switchInput)
+    expectSwitchChecked(switchInput, true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    form.reset()
+
+    await waitFor(() => expectSwitchChecked(switchInput, false))
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('resets controlled switches to their latest value without callbacks or form value drift', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch
+          checked={0}
+          falseValue={0}
+          label="Visibility"
+          name="visibility"
+          trueValue={1}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
+
+    await fireEvent.click(switchInput)
+    expect(onChange).toHaveBeenCalledWith(1)
+
+    form.reset()
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, false)
+      expect(new FormData(form).has('visibility')).toBe(false)
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
   })
 
   test('applies xl size classes on base and wrapper', () => {

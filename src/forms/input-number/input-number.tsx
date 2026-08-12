@@ -1009,34 +1009,33 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
   })
 
+  useFormReset(
+    () => inputEl?.form,
+    () => {
+      const controlledValue = explicitControlledValue()
+      const nextValue = clamp(
+        controlledValue === undefined ? initialResetValue : controlledValue,
+        minValue(),
+        maxValue(),
+      )
+
+      if (controlledValue === undefined) {
+        setResolvedValue(nextValue)
+      }
+      field.setFormValue(nextValue)
+      setHasDirtyInput(false)
+      const nextInputText = formatLocaleNumber(nextValue, merged.locale)
+      setInputText(nextInputText)
+      if (inputEl) {
+        inputEl.value = nextInputText
+      }
+    },
+  )
+
   onMount(() => {
     if (inputEl) {
       inputEl.defaultValue = formatLocaleNumber(initialResetValue, merged.locale)
     }
-
-    useFormReset(
-      () => inputEl?.form,
-      () => {
-        // oxlint-disable-next-line subf/solid-reactivity -- Reset must read the latest controlled prop.
-        const controlledValue = explicitControlledValue()
-        const nextValue = clamp(
-          controlledValue === undefined ? initialResetValue : controlledValue,
-          minValue(),
-          maxValue(),
-        )
-
-        if (controlledValue === undefined) {
-          setResolvedValue(nextValue)
-        }
-        field.setFormValue(nextValue)
-        setHasDirtyInput(false)
-        const nextInputText = formatLocaleNumber(nextValue, merged.locale)
-        setInputText(nextInputText)
-        if (inputEl) {
-          inputEl.value = nextInputText
-        }
-      },
-    )
 
     if (!merged.autofocus) {
       return

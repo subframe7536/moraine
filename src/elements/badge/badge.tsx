@@ -77,10 +77,7 @@ export namespace BadgeT {
 export interface BadgeProps extends BadgeT.Props {}
 /** Compact label component with leading/trailing icon slots and variant styles. */
 export function Badge(props: BadgeProps): JSX.Element {
-  type RootProps = BadgeProps & {
-    onPointerDown?: JSX.EventHandlerUnion<HTMLSpanElement, PointerEvent>
-  }
-  const [local, rest] = splitProps(props as RootProps, [
+  const [local, rest] = splitProps(props, [
     'size',
     'variant',
     'classes',
@@ -92,7 +89,6 @@ export function Badge(props: BadgeProps): JSX.Element {
     'onTrailingClick',
     'children',
     'title',
-    'onPointerDown',
   ])
   const size = () => local.size ?? 'md'
   const variant = () => local.variant ?? 'default'
@@ -134,12 +130,6 @@ export function Badge(props: BadgeProps): JSX.Element {
         local.classes?.root,
         local.class,
       )}
-      onPointerDown={(event) => {
-        const handler = local.onPointerDown
-        if (typeof handler === 'function') {
-          handler(event)
-        }
-      }}
     >
       <Show when={leading()}>
         {(leading) => (

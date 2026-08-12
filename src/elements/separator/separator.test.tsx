@@ -24,17 +24,6 @@ describe('Separator', () => {
     expect(borders[0]?.className).toContain('b-t')
   })
 
-  test('renders vertical orientation', () => {
-    const screen = render(() => <Separator orientation="vertical" />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const border = screen.container.querySelector('[data-slot="border"]')
-
-    expect(root?.getAttribute('data-orientation')).toBe('vertical')
-    expect(root?.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root?.className).toContain('flex-col')
-    expect(border?.className).toContain('border-s')
-  })
-
   test('updates orientation semantics and classes reactively', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => <Separator orientation={orientation()} />)

@@ -13,6 +13,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -168,10 +169,6 @@ export type FormFieldProps<
 
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
-function isPresent(value: unknown): boolean {
-  return value !== undefined && value !== null && value !== false && value !== ''
-}
-
 /** Form field wrapper providing label, description, and validation message layout. */
 export function FormField<
   TSchema extends FormSchema | undefined = undefined,
@@ -279,9 +276,9 @@ export function FormField<
     return field?.errors?.[0]
   })
 
-  const showLabel = createMemo(() => isPresent(label()))
-  const showHint = createMemo(() => showLabel() && isPresent(hint()))
-  const showDescription = createMemo(() => isPresent(description()))
+  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
+  const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
+  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
 
   const shouldShowError = createMemo(() => {
     const value = resolvedError()
@@ -297,7 +294,7 @@ export function FormField<
     return true
   })
   const showError = createMemo(() => error() !== false && shouldShowError())
-  const showHelp = createMemo(() => !showError() && isPresent(help()))
+  const showHelp = createMemo(() => !showError() && hasNonEmptyJsxContent(help()))
   const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
     const describedBy = [
       ...new Set(
@@ -311,7 +308,7 @@ export function FormField<
     ]
 
     return {
-      'aria-invalid': isPresent(resolvedError()) || undefined,
+      'aria-invalid': hasNonEmptyJsxContent(resolvedError()) || undefined,
       'aria-labelledby': showLabel() ? `${ariaId()}-label` : undefined,
       'aria-describedby': describedBy.length > 0 ? describedBy.join(' ') : undefined,
     }

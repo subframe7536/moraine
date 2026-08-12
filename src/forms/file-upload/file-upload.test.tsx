@@ -4,6 +4,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/form-field.tsx'
 import { createForm, Form } from '../form/index.ts'
@@ -628,18 +629,21 @@ describe('FileUpload', () => {
   })
 
   test('synchronizes accepted files and reset state with FormField submission', async () => {
-    const form = createForm({
-      schema: v.object({ attachment: v.any() }),
-      initialInput: { attachment: null },
-    })
     const onSubmit = vi.fn()
-    const screen = render(() => (
-      <Form of={form} onSubmit={onSubmit}>
-        <FormField name="attachment" label="Attachment">
-          <FileUpload />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ attachment: v.any() }),
+          initialInput: { attachment: null },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <FormField name="attachment" label="Attachment">
+            <FileUpload />
+          </FormField>
+        </Form>
+      ),
+    )
     const formElement = screen.container.querySelector('form') as HTMLFormElement
     const file = createFile('attachment.txt')
 

@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -440,19 +441,22 @@ describe('InputNumber', () => {
   })
 
   test('keeps FormField aligned with explicit controlled and external Formisch values', async () => {
-    const form = createForm({
-      schema: v.object({ quantity: v.number() }),
-      initialInput: { quantity: 5 },
-    })
     const [value, setValue] = createSignal(5)
     const onRawValueChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="quantity" label="Quantity">
-          <InputNumber value={value()} onRawValueChange={onRawValueChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ quantity: v.number() }),
+          initialInput: { quantity: 5 },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="quantity" label="Quantity">
+            <InputNumber value={value()} onRawValueChange={onRawValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
     const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
 
     await fireEvent.input(spinbutton, { target: { value: '7' } })
@@ -469,18 +473,21 @@ describe('InputNumber', () => {
   })
 
   test('reacts to external Formisch input without publishing callbacks', () => {
-    const form = createForm({
-      schema: v.object({ quantity: v.number() }),
-      initialInput: { quantity: 4 },
-    })
     const onRawValueChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="quantity" label="Quantity">
-          <InputNumber onRawValueChange={onRawValueChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ quantity: v.number() }),
+          initialInput: { quantity: 4 },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="quantity" label="Quantity">
+            <InputNumber onRawValueChange={onRawValueChange} />
+          </FormField>
+        </Form>
+      ),
+    )
     const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
 
     setInput(form, { path: ['quantity'], input: 6 })

@@ -3,6 +3,7 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
@@ -182,20 +183,18 @@ export function Sheet(props: SheetProps): JSX.Element {
   const footer = createLazyMemo(() => merged.footer)
   const triggerRender = createMemo(() => merged.children)
   const rootId = useId(() => merged.id, 'sheet')
-  const isPresent = (value: JSX.Element): boolean =>
-    value !== undefined && value !== null && value !== false
-  const hasCustomHeader = createLazyMemo(() => isPresent(header()))
+  const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
   const titleId = createLazyMemo(() =>
-    !hasCustomHeader() && isPresent(title()) ? `${rootId()}-title` : undefined,
+    !hasCustomHeader() && hasJsxContent(title()) ? `${rootId()}-title` : undefined,
   )
   const descriptionId = createLazyMemo(() =>
-    !hasCustomHeader() && isPresent(description()) ? `${rootId()}-description` : undefined,
+    !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
   )
 
   const hasDefaultHeader = () =>
-    isPresent(title()) ||
-    isPresent(description()) ||
-    isPresent(action()) ||
+    hasJsxContent(title()) ||
+    hasJsxContent(description()) ||
+    hasJsxContent(action()) ||
     closeContent() !== false
 
   return (
@@ -249,7 +248,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         style={merged.styles?.wrapper}
                         class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
                       >
-                        <Show when={isPresent(title())}>
+                        <Show when={hasJsxContent(title())}>
                           <h2
                             id={titleId()}
                             data-slot="title"
@@ -263,7 +262,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           </h2>
                         </Show>
 
-                        <Show when={isPresent(description())}>
+                        <Show when={hasJsxContent(description())}>
                           <p
                             id={descriptionId()}
                             data-slot="description"
@@ -275,7 +274,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                         </Show>
                       </div>
 
-                      <Show when={isPresent(action())}>
+                      <Show when={hasJsxContent(action())}>
                         <div
                           data-slot="actions"
                           style={merged.styles?.actions}
@@ -315,7 +314,7 @@ export function Sheet(props: SheetProps): JSX.Element {
               </div>
             </Show>
 
-            <Show when={isPresent(body())}>
+            <Show when={hasJsxContent(body())}>
               <div
                 data-slot="body"
                 style={merged.styles?.body}
@@ -329,7 +328,7 @@ export function Sheet(props: SheetProps): JSX.Element {
               </div>
             </Show>
 
-            <Show when={isPresent(footer())}>
+            <Show when={hasJsxContent(footer())}>
               <div
                 data-slot="footer"
                 style={merged.styles?.footer}

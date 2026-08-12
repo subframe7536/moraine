@@ -100,7 +100,7 @@ describe('Badge', () => {
   })
 
   test('keeps standalone pointer events native and composes the caller handler', () => {
-    const onPointerDown = vi.fn()
+    const onPointerDown = vi.fn((_data: string, _event: PointerEvent) => undefined)
     const onAncestorPointerDown = vi.fn()
     const screen = render(() => (
       <div onPointerDown={onAncestorPointerDown}>
@@ -115,6 +115,17 @@ describe('Badge', () => {
     expect(event.defaultPrevented).toBe(false)
     expect(onPointerDown).toHaveBeenCalledTimes(1)
     expect(onAncestorPointerDown).toHaveBeenCalledTimes(1)
+  })
+
+  test('forwards tuple pointer handlers', () => {
+    const onPointerDown = vi.fn()
+    const screen = render(() => <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>)
+    const badge = screen.container.querySelector('[data-slot="root"]')!
+
+    badge.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
+
+    expect(onPointerDown).toHaveBeenCalledTimes(1)
+    expect(onPointerDown).toHaveBeenCalledWith('payload', expect.any(PointerEvent))
   })
 
   test('renders zero as label content', () => {

@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -228,19 +229,22 @@ describe('RadioGroup', () => {
   })
 
   test('synchronizes explicit controlled values with FormField and restores rejected DOM state', async () => {
-    const form = createForm({
-      schema: v.object({ plan: v.string() }),
-      initialInput: { plan: 'A' },
-    })
     const [value, setValue] = createSignal('A')
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="plan" label="Plan">
-          <RadioGroup value={value()} items={['A', 'B']} onChange={onChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ plan: v.string() }),
+          initialInput: { plan: 'A' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="plan" label="Plan">
+            <RadioGroup value={value()} items={['A', 'B']} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
     const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
     const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
 
@@ -260,18 +264,21 @@ describe('RadioGroup', () => {
   })
 
   test('reacts to external Formisch input without publishing callbacks', () => {
-    const form = createForm({
-      schema: v.object({ plan: v.string() }),
-      initialInput: { plan: 'A' },
-    })
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="plan" label="Plan">
-          <RadioGroup items={['A', 'B']} onChange={onChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ plan: v.string() }),
+          initialInput: { plan: 'A' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="plan" label="Plan">
+            <RadioGroup items={['A', 'B']} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
 
     setInput(form, { path: ['plan'], input: 'B' })
 

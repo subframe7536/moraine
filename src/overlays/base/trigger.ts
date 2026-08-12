@@ -42,25 +42,23 @@ export function createOverlayTriggerRef(): {
   return { element, ref }
 }
 
-export function getOverlayTriggerDisabled(
+export function getOverlayTriggerAccessibility(
   element: HTMLElement | undefined,
   disabled: boolean,
-): boolean | undefined {
-  return isNativeButtonTrigger(element) ? disabled : undefined
-}
+): {
+  ariaDisabled: 'true' | undefined
+  disabled: boolean | undefined
+  tabIndex: number | undefined
+} {
+  if (isNativeButtonTrigger(element)) {
+    return { ariaDisabled: undefined, disabled, tabIndex: undefined }
+  }
 
-export function getOverlayTriggerAriaDisabled(
-  element: HTMLElement | undefined,
-  disabled: boolean,
-): 'true' | undefined {
-  return !isNativeButtonTrigger(element) && disabled ? 'true' : undefined
-}
-
-export function getOverlayTriggerTabIndex(
-  element: HTMLElement | undefined,
-  disabled: boolean,
-): number | undefined {
-  return isNativeButtonTrigger(element) ? undefined : disabled ? -1 : 0
+  return {
+    ariaDisabled: disabled ? 'true' : undefined,
+    disabled: undefined,
+    tabIndex: disabled ? -1 : 0,
+  }
 }
 
 export function validateOverlayTrigger(

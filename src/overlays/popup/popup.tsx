@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -129,15 +130,13 @@ export function Popup(props: PopupProps): JSX.Element {
   const title = createLazyMemo(() => merged.title)
   const description = createLazyMemo(() => merged.description)
   const rootId = useId(() => merged.id, 'popup')
-  const isPresent = (value: unknown): boolean =>
-    value !== undefined && value !== null && value !== false
-  const hasTitle = createLazyMemo(() => isPresent(title()))
-  const hasDescription = createLazyMemo(() => isPresent(description()))
+  const hasTitle = createLazyMemo(() => hasJsxContent(title()))
+  const hasDescription = createLazyMemo(() => hasJsxContent(description()))
   const titleId = createLazyMemo(() => (hasTitle() ? `${rootId()}-title` : undefined))
   const descriptionId = createLazyMemo(() =>
     hasDescription() ? `${rootId()}-description` : undefined,
   )
-  const hasContent = createMemo(() => isPresent(content()) || hasTitle() || hasDescription())
+  const hasContent = createMemo(() => hasJsxContent(content()) || hasTitle() || hasDescription())
 
   const renderContent = (context: ModalContentContext): JSX.Element => (
     <>
@@ -161,7 +160,7 @@ export function Popup(props: PopupProps): JSX.Element {
           {description()}
         </p>
       </Show>
-      <Show when={isPresent(content())}>{renderComponentOrElement(content()!, context)}</Show>
+      <Show when={hasJsxContent(content())}>{renderComponentOrElement(content()!, context)}</Show>
     </>
   )
 

@@ -3,6 +3,7 @@ import type { Middleware, Placement, ReferenceElement, VirtualElement } from '@f
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
 
+import { createTypeahead } from '../../../shared/typeahead.ts'
 import { useEventListenerMap } from '../../../shared/use-event-listener.ts'
 import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation.ts'
 import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack.ts'
@@ -420,10 +421,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
-  let typeaheadSearch = ''
-  let typeaheadStartIndex = 0
-  let typeaheadMatchIndex = -1
-  let typeaheadTimeoutId = 0
   let queuedPointerEnter:
     | {
         callback: () => void
@@ -485,85 +482,18 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusBoundary('last')
   }
 
-  const resetTypeahead = (): void => {
-    typeaheadSearch = ''
-    typeaheadStartIndex = 0
-    typeaheadMatchIndex = -1
-    window.clearTimeout(typeaheadTimeoutId)
-    typeaheadTimeoutId = 0
-  }
-
-  const handleTypeaheadKeyDown = (event: KeyboardEvent): boolean => {
-    const character = event.key.length === 1 || !/^[A-Z]/i.test(event.key) ? event.key : ''
-    if (!character || event.ctrlKey || event.metaKey || event.altKey) {
-      return false
-    }
-
-    if (character === ' ' && typeaheadSearch.trim().length === 0) {
-      return false
-    }
-
-    const registeredItems = items()
-    if (registeredItems.length === 0) {
-      return false
-    }
-
-    event.preventDefault()
-    const normalize = (value: string): string => value.normalize('NFKC').toLocaleLowerCase()
-    const normalizedCharacter = normalize(character)
-
-    if (typeaheadSearch === '') {
-      const highlightedIndex = registeredItems.findIndex((item) => item.id === highlightedItemId())
-      typeaheadStartIndex = highlightedIndex + 1
-    }
-
-    let nextSearch = typeaheadSearch + normalizedCharacter
-    let startIndex = typeaheadStartIndex
-    const findMatch = (search: string, initialIndex: number): number => {
-      for (let offset = 0; offset < registeredItems.length; offset += 1) {
-        const index = (initialIndex + offset) % registeredItems.length
-        const item = registeredItems[index]
-        const element = item?.element()
-
-        if (!item || !element?.isConnected || item.disabled()) {
-          continue
-        }
-
-        const textValue = item.textValue()
-        if (textValue && normalize(textValue).startsWith(search)) {
-          return index
-        }
-      }
-
-      return -1
-    }
-
-    let matchIndex = findMatch(nextSearch, startIndex)
-    if (
-      matchIndex === -1 &&
-      nextSearch.length > 1 &&
-      [...nextSearch].every((value) => value === normalizedCharacter)
-    ) {
-      nextSearch = normalizedCharacter
-      startIndex = typeaheadMatchIndex + 1
-      matchIndex = findMatch(nextSearch, startIndex)
-    }
-
-    if (matchIndex !== -1) {
-      const item = registeredItems[matchIndex]
+  const typeahead = createTypeahead({
+    getItems: items,
+    getStartIndex: () => items().findIndex((item) => item.id === highlightedItemId()),
+    getText: (item) => item.textValue(),
+    isDisabled: (item) => !item.element()?.isConnected || item.disabled(),
+    onMatch: (item) => {
       closeSubmenus(item?.hasSubmenu ? item.id : undefined)
       focusItem(item)
-      typeaheadSearch = nextSearch
-      typeaheadMatchIndex = matchIndex
-    } else if (character !== ' ') {
-      typeaheadSearch = ''
-      typeaheadMatchIndex = -1
-    }
-
-    window.clearTimeout(typeaheadTimeoutId)
-    typeaheadTimeoutId = window.setTimeout(resetTypeahead, TYPEAHEAD_RESET_TIMEOUT)
-    return true
-  }
+    },
+    timeout: TYPEAHEAD_RESET_TIMEOUT,
+  })
+  const handleTypeaheadKeyDown = typeahead.handleKeyDown
 
   const registerItem = (item: OverlayMenuRegisteredItem): (() => void) => {
     setItems((currentItems) => [...currentItems, item])
@@ -649,7 +579,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
 
   onCleanup(() => {
     window.clearTimeout(pointerGraceTimeoutId)
-    window.clearTimeout(typeaheadTimeoutId)
     queuedPointerEnter = undefined
   })
 
@@ -667,7 +596,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     queuePointerEnter,
     registerItem,
     registerSubmenu,
-    resetTypeahead,
+    resetTypeahead: typeahead.reset,
     setContentElement,
     setCurrentPlacement,
     setHighlightedItemId,

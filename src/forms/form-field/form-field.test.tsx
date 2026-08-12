@@ -6,6 +6,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { CheckboxGroup } from '../checkbox-group/index.ts'
 import { Checkbox } from '../checkbox/index.ts'
@@ -164,18 +165,21 @@ describe('FormField', () => {
     const schema = v.object({
       users: v.array(v.object({ email: v.pipe(v.string(), v.email('Invalid email')) })),
     })
-    const form = createForm({
-      schema,
-      initialInput: { users: [{ email: '' }] },
-      validate: 'blur',
-    })
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name={['users', 0, 'email']} label="Email">
-          <Input />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema,
+          initialInput: { users: [{ email: '' }] },
+          validate: 'blur',
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name={['users', 0, 'email']} label="Email">
+            <Input />
+          </FormField>
+        </Form>
+      ),
+    )
 
     const input = screen.getByLabelText('Email')
     await fireEvent.focus(input)
@@ -184,20 +188,23 @@ describe('FormField', () => {
   })
 
   test('manual error overrides Formisch and false suppresses it', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.pipe(v.string(), v.nonEmpty('Schema error')) }),
-      initialInput: { value: '' },
-    })
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="value" label="Manual" error="Manual error">
-          <Input />
-        </FormField>
-        <FormField name="value" label="Suppressed" error={false}>
-          <Input />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.pipe(v.string(), v.nonEmpty('Schema error')) }),
+          initialInput: { value: '' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="value" label="Manual" error="Manual error">
+            <Input />
+          </FormField>
+          <FormField name="value" label="Suppressed" error={false}>
+            <Input />
+          </FormField>
+        </Form>
+      ),
+    )
 
     expect(screen.getByText('Manual error')).not.toBeNull()
     await fireEvent.submit(screen.container.querySelector('form')!)
@@ -324,23 +331,26 @@ describe('FormField', () => {
   })
 
   test('notifies Formisch change validation for custom controls without a synthetic event', async () => {
-    const form = createForm({
-      schema: v.object({
-        enabled: v.pipe(
-          v.boolean(),
-          v.check((value) => value, 'Must stay enabled'),
-        ),
-      }),
-      initialInput: { enabled: true },
-      validate: 'change',
-    })
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="enabled" label="Enabled">
-          <Switch />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            enabled: v.pipe(
+              v.boolean(),
+              v.check((value) => value, 'Must stay enabled'),
+            ),
+          }),
+          initialInput: { enabled: true },
+          validate: 'change',
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="enabled" label="Enabled">
+            <Switch />
+          </FormField>
+        </Form>
+      ),
+    )
 
     await fireEvent.click(screen.getByRole('switch'))
 
@@ -456,18 +466,21 @@ describe('FormField', () => {
   })
 
   test('tracks an initially present reactive path', async () => {
-    const form = createForm({
-      schema: v.object({ first: v.string(), second: v.string() }),
-      initialInput: { first: 'First', second: 'Second' },
-    })
     const [name, setName] = createSignal<'first' | 'second'>('first')
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name={name()} label="Value">
-          <Input />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.string(), second: v.string() }),
+          initialInput: { first: 'First', second: 'Second' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name={name()} label="Value">
+            <Input />
+          </FormField>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
     expect(input.value).toBe('First')
@@ -479,18 +492,21 @@ describe('FormField', () => {
   })
 
   test('treats a missing initial path as an intentionally unbound field', async () => {
-    const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Stored' },
-    })
     const [name, setName] = createSignal<string>()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name={name()} label="Late path">
-          <Input defaultValue="Standalone" />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Stored' },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name={name()} label="Late path">
+            <Input defaultValue="Standalone" />
+          </FormField>
+        </Form>
+      ),
+    )
     const input = screen.getByLabelText('Late path') as HTMLInputElement
 
     setName('value')

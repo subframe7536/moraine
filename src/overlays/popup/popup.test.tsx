@@ -428,6 +428,52 @@ describe('Popup', () => {
     })
   })
 
+  test('keeps content inside the overlay until both exit motions settle', async () => {
+    let resolveOverlayExit!: () => void
+    let resolveContentExit!: () => void
+    const overlayExit = new Promise<void>((resolve) => {
+      resolveOverlayExit = resolve
+    })
+    const contentExit = new Promise<void>((resolve) => {
+      resolveContentExit = resolve
+    })
+    const [open, setOpen] = createSignal(true)
+
+    render(() => (
+      <Popup open={open()} content="Body">
+        {(props) => (
+          <button {...props} type="button">
+            Trigger
+          </button>
+        )}
+      </Popup>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+
+    Object.defineProperty(overlay, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: overlayExit }],
+    })
+    Object.defineProperty(content, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: contentExit }],
+    })
+
+    setOpen(false)
+    await Promise.resolve()
+    resolveOverlayExit()
+    await waitFor(() => {
+      expect(content.parentElement).toBe(overlay)
+    })
+
+    resolveContentExit()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
   test('applies styles override to trigger/content/overlay', () => {
     render(() => (
       <Popup

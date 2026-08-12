@@ -28,9 +28,7 @@ import type {
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import {
   createOverlayTriggerRef,
-  getOverlayTriggerAriaDisabled,
-  getOverlayTriggerDisabled,
-  getOverlayTriggerTabIndex,
+  getOverlayTriggerAccessibility,
   validateOverlayTrigger,
 } from '../base/trigger.ts'
 
@@ -140,13 +138,14 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     'data-slot': 'trigger',
     ref: trigger.ref,
     get disabled() {
-      return getOverlayTriggerDisabled(trigger.element(), Boolean(merged.disabled))
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
     },
     get 'aria-disabled'() {
-      return getOverlayTriggerAriaDisabled(trigger.element(), Boolean(merged.disabled))
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+        .ariaDisabled
     },
     get tabIndex() {
-      return getOverlayTriggerTabIndex(trigger.element(), Boolean(merged.disabled))
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
     },
     onClick: (event: MouseEvent) => {
       if (event.defaultPrevented || merged.disabled) {

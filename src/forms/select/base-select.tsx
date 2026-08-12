@@ -23,6 +23,7 @@ import {
 import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createTypeahead } from '../../shared/typeahead.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
@@ -842,94 +843,33 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     setHighlightedKey,
     visibleFlatOptions,
   })
-  let typeaheadSearch = ''
-  let typeaheadStartIndex = 0
-  let typeaheadMatchIndex = -1
-  let typeaheadTimeoutId: ReturnType<typeof setTimeout> | undefined
+  const typeahead = createTypeahead({
+    getItems: visibleFlatOptions,
+    getStartIndex: () => {
+      const options = visibleFlatOptions()
+      return isOpen()
+        ? options.findIndex((option) => option.id === highlightedKey())
+        : options.findIndex((option) => selectedOptionIds().has(option.id))
+    },
+    getText: (option) => option.key,
+    isDisabled: (option) => option.disabled,
+    onMatch: (option) => {
+      if (isOpen()) {
+        setHighlightedKey(option.id)
+        return
+      }
 
-  function resetTypeahead(): void {
-    typeaheadSearch = ''
-    typeaheadStartIndex = 0
-    typeaheadMatchIndex = -1
-    clearTimeout(typeaheadTimeoutId)
-    typeaheadTimeoutId = undefined
-  }
+      selectOption(option)
+    },
+  })
 
   function handleTypeaheadKeyDown(event: KeyboardEvent): boolean {
     if (isSearchable() || merged.multiple || event.ctrlKey || event.metaKey || event.altKey) {
       return false
     }
 
-    const character = event.key.length === 1 ? event.key : ''
-    if (!character || (character === ' ' && typeaheadSearch.length === 0)) {
-      return false
-    }
-
-    const options = visibleFlatOptions()
-    if (options.length === 0) {
-      return false
-    }
-
-    event.preventDefault()
-    const normalize = (value: string): string => value.normalize('NFKC').toLocaleLowerCase()
-    const normalizedCharacter = normalize(character)
-
-    if (typeaheadSearch === '') {
-      const currentIndex = isOpen()
-        ? options.findIndex((option) => option.id === highlightedKey())
-        : options.findIndex((option) => selectedOptionIds().has(option.id))
-      typeaheadStartIndex = currentIndex + 1
-    }
-
-    let nextSearch = typeaheadSearch + normalizedCharacter
-    let startIndex = typeaheadStartIndex
-    const findMatch = (search: string, initialIndex: number): number => {
-      for (let offset = 0; offset < options.length; offset += 1) {
-        const index = (initialIndex + offset) % options.length
-        const option = options[index]
-        if (!option || option.disabled) {
-          continue
-        }
-
-        if (normalize(option.key).startsWith(search)) {
-          return index
-        }
-      }
-
-      return -1
-    }
-
-    let matchIndex = findMatch(nextSearch, startIndex)
-    if (
-      matchIndex === -1 &&
-      nextSearch.length > 1 &&
-      [...nextSearch].every((value) => value === normalizedCharacter)
-    ) {
-      nextSearch = normalizedCharacter
-      startIndex = typeaheadMatchIndex + 1
-      matchIndex = findMatch(nextSearch, startIndex)
-    }
-
-    const match = options[matchIndex]
-    if (match) {
-      if (isOpen()) {
-        setHighlightedKey(match.id)
-      } else {
-        selectOption(match)
-      }
-      typeaheadSearch = nextSearch
-      typeaheadMatchIndex = matchIndex
-    } else if (character !== ' ') {
-      typeaheadSearch = ''
-      typeaheadMatchIndex = -1
-    }
-
-    clearTimeout(typeaheadTimeoutId)
-    typeaheadTimeoutId = setTimeout(resetTypeahead, 500)
-    return true
+    return typeahead.handleKeyDown(event)
   }
-
-  onCleanup(resetTypeahead)
 
   function setInputValue(inputValue: string): void {
     if (!menuControl.isDismissing()) {

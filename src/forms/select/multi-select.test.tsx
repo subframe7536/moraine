@@ -5,6 +5,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
@@ -265,18 +266,21 @@ describe('MultiSelect', () => {
   })
 
   test('restores rejected controlled arrays in tags, FormField, and native state', async () => {
-    const form = createForm({
-      schema: v.object({ fruits: v.array(v.string()) }),
-      initialInput: { fruits: ['apple'] },
-    })
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="fruits" label="Fruits">
-          <MultiSelect options={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruits: v.array(v.string()) }),
+          initialInput: { fruits: ['apple'] },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="fruits" label="Fruits">
+            <MultiSelect options={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
 
     await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
@@ -309,18 +313,21 @@ describe('MultiSelect', () => {
   })
 
   test('reacts to external Formisch arrays without publishing callbacks', () => {
-    const form = createForm({
-      schema: v.object({ fruits: v.array(v.string()) }),
-      initialInput: { fruits: ['apple'] },
-    })
     const onChange = vi.fn()
-    const screen = render(() => (
-      <Form of={form}>
-        <FormField name="fruits" label="Fruits">
-          <MultiSelect options={FRUITS} onChange={onChange} />
-        </FormField>
-      </Form>
-    ))
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruits: v.array(v.string()) }),
+          initialInput: { fruits: ['apple'] },
+        }),
+      (form) => (
+        <Form of={form}>
+          <FormField name="fruits" label="Fruits">
+            <MultiSelect options={FRUITS} onChange={onChange} />
+          </FormField>
+        </Form>
+      ),
+    )
 
     setInput(form, { path: ['fruits'], input: ['banana', 'apple'] })
 

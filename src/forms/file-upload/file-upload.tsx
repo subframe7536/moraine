@@ -330,7 +330,7 @@ function syncNativeInputFiles(input: HTMLInputElement | undefined, files: File[]
         assignedFiles.every((file, index) => file === files[index])
       )
     } catch {
-      // FileList assignment is not supported in every browser.
+      // Some browsers reject FileList assignment; preserve the component state and leave the native input unchanged.
     }
   }
 
@@ -590,10 +590,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     hiddenInputEl?.click()
   }
 
-  function handleFileReject(files: FileRejection[]): void {
-    merged.onFileReject?.(files)
-  }
-
   function processIncomingFiles(files: File[]): void {
     if (files.length === 0) {
       return
@@ -640,7 +636,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }
 
     if (rejected.length > 0) {
-      handleFileReject(rejected)
+      merged.onFileReject?.(rejected)
     }
   }
 

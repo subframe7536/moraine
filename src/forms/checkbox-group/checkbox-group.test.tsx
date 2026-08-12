@@ -4,6 +4,7 @@ import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/form-field.tsx'
 import { createForm, Form } from '../form/index.ts'
@@ -489,19 +490,22 @@ describe('CheckboxGroup', () => {
   })
 
   test('synchronizes external controlled values into FormField submission', async () => {
-    const form = createForm({
-      schema: v.object({ choices: v.array(v.string()) }),
-      initialInput: { choices: [] },
-    })
     const [value, setValue] = createSignal<string[]>([])
     const onSubmit = vi.fn()
-    const screen = render(() => (
-      <Form of={form} onSubmit={onSubmit}>
-        <FormField name="choices" label="Choices">
-          <CheckboxGroup items={['A', 'B']} value={value()} />
-        </FormField>
-      </Form>
-    ))
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.array(v.string()) }),
+          initialInput: { choices: [] },
+        }),
+      (form) => (
+        <Form of={form} onSubmit={onSubmit}>
+          <FormField name="choices" label="Choices">
+            <CheckboxGroup items={['A', 'B']} value={value()} />
+          </FormField>
+        </Form>
+      ),
+    )
 
     setValue(['B'])
     await fireEvent.submit(screen.container.querySelector('form')!)

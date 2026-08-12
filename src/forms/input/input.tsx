@@ -1,19 +1,9 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  mergeProps,
-  onCleanup,
-  onMount,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { applyInputModifiers } from '../../shared/input-modifiers.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
@@ -26,6 +16,7 @@ import type {
 } from '../form-field/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
 import type { InputVariantProps } from './input.class.ts'
 import {
@@ -235,7 +226,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const trailing = createMemo(() => merged.trailing)
   const loadingIcon = createMemo(() => merged.loadingIcon)
   const modelModifiers = createMemo(() => merged.modelModifiers)
-  const initialDefaultValue = untrack(() => merged.defaultValue)
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(
@@ -249,40 +239,23 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     () => ({
       defaultId: generatedId(),
       defaultSize: 'md',
-      initialValue: initialDefaultValue ?? '',
+      initialValue: merged.defaultValue ?? '',
     }),
   )
 
   let inputEl: HTMLInputElement | undefined
 
-  const isLazy = createMemo(() => Boolean(modelModifiers()?.lazy))
-
-  createEffect(() => {
-    const value = merged.value
-
-    if (value !== undefined) {
-      field.setFormValue(value)
-    }
+  const textControl = useTextControlValue<InputT.Value, M>({
+    defaultValue: () => merged.defaultValue,
+    getElement: () => inputEl,
+    getFormValue: field.value,
+    modelModifiers,
+    onValueChange: () => merged.onValueChange,
+    setFormValue: field.setFormValue,
+    shouldRestoreValue: () => merged.type !== 'file',
+    value: () => merged.value,
   })
-
-  const inputValueProps = createMemo<{
-    value?: InputT.Value
-    defaultValue?: InputT.Value
-  }>(() => {
-    if (merged.value !== undefined) {
-      return { value: merged.value }
-    }
-
-    if (field.value() !== undefined) {
-      return { value: field.value() as InputT.Value }
-    }
-
-    if (initialDefaultValue !== undefined) {
-      return { value: initialDefaultValue, defaultValue: initialDefaultValue }
-    }
-
-    return {}
-  })
+  const isLazy = textControl.isLazy
   const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
     if (leading()) {
       return 'leading'
@@ -324,27 +297,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'data-readonly': readOnly() ? '' : undefined,
   }))
 
-  function updateInputValue(value: string): void {
-    const nextValue = applyInputModifiers<ModifierValue<M>>(value, modelModifiers())
-    const controlledValue = merged.value
-
-    if (controlledValue === undefined) {
-      field.setFormValue(nextValue)
-    }
-    merged.onValueChange?.(nextValue)
-    if (controlledValue !== undefined && Object.is(merged.value, controlledValue)) {
-      field.setFormValue(controlledValue)
-    }
-    field.emit('input')
-  }
-
-  function restoreControlledValue(): void {
-    const value = merged.value
-
-    if (inputEl && value !== undefined && merged.type !== 'file') {
-      inputEl.value = String(value)
-    }
-  }
+  const restoreControlledValue = textControl.restoreControlledValue
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, merged.onInput)
@@ -356,7 +309,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }
 
     if (!isLazy()) {
-      updateInputValue(event.currentTarget.value)
+      textControl.updateValue(event.currentTarget.value)
+      field.emit('input')
       restoreControlledValue()
     }
   }
@@ -365,7 +319,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     const value = event.currentTarget.value
 
     if (isLazy()) {
-      updateInputValue(value)
+      textControl.updateValue(value)
+      field.emit('input')
     }
 
     if (modelModifiers()?.trim) {
@@ -373,7 +328,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }
 
     field.emit('change')
-    merged.onChange?.(applyInputModifiers<ModifierValue<M>>(value, modelModifiers()))
+    merged.onChange?.(textControl.applyValue(value))
     restoreControlledValue()
   }
 
@@ -418,13 +373,13 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }
   })
 
+  useFormReset(() => inputEl?.form, restoreControlledValue)
+
   onMount(() => {
-    if (inputEl && initialDefaultValue !== undefined && merged.type !== 'file') {
-      inputEl.defaultValue = String(initialDefaultValue)
+    if (inputEl && textControl.initialDefaultValue !== undefined && merged.type !== 'file') {
+      inputEl.defaultValue = String(textControl.initialDefaultValue)
       restoreControlledValue()
     }
-
-    useFormReset(() => inputEl?.form, restoreControlledValue)
 
     if (!merged.autofocus) {
       return
@@ -505,7 +460,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         onFocus={onFocus}
         {...dataAttrs()}
         {...field.ariaAttrs()}
-        {...inputValueProps()}
+        {...textControl.valueProps()}
       />
 
       {merged.children}
