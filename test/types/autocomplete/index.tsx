@@ -6,8 +6,8 @@ import {
   Dialog,
   DropdownMenu,
   Icon,
+  ModalRoot,
   Popover,
-  Popup,
   Sheet,
   Tooltip,
 } from 'moraine'
@@ -49,6 +49,7 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 />
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as="input" type="checkbox" />
+;<ModalRoot hasOverlay={false} hasContent={false} />
 ;<Dialog>
   {(props) => (
     <a {...props} href="/dialog">
@@ -72,13 +73,6 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
   )}
 </DropdownMenu>
 ;<ContextMenu items={[]}>{(props) => <div {...props}>Open menu</div>}</ContextMenu>
-;<Popup>
-  {(props) => (
-    <a {...props} href="/popup">
-      Open popup
-    </a>
-  )}
-</Popup>
 ;<Sheet>{(props) => <span {...props}>Open sheet</span>}</Sheet>
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.

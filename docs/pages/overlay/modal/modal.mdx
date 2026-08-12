@@ -1,0 +1,37 @@
+---
+title: Modal
+description: Low-level modal primitives for composing custom dialog surfaces.
+sidebar:
+  order: 1
+search:
+  tags: [modal, primitive, overlay, focus trap]
+---
+
+Use `Dialog` or `Sheet` for their standard layouts. Use the Modal primitives when a custom modal
+surface cannot be expressed by either component.
+
+## Import
+
+```tsx
+import { ModalContent, ModalRoot, ModalTrigger } from 'moraine'
+```
+
+## Composition
+
+`ModalRoot` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
+`ModalTrigger` connects a single trigger element. `ModalContent` portals the optional backdrop and
+the `role="dialog"` surface.
+
+```text
+ModalRoot
+├── ModalTrigger
+└── ModalContent (portal)
+    ├── overlay (optional)
+    └── custom content
+```
+
+Provide `ariaLabel`, `ariaLabelledBy`, or another accessible naming strategy for every modal.
+
+## Example
+
+<Example path="./basic" />

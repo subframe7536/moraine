@@ -1,14 +1,10 @@
-import { autoUpdate, computePosition, flip, offset, platform, shift, size } from '@floating-ui/dom'
-import type { Middleware, Placement, ReferenceElement, VirtualElement } from '@floating-ui/dom'
+import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import { createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createTypeahead } from '../../../shared/typeahead.ts'
-import { useEventListenerMap } from '../../../shared/use-event-listener.ts'
 import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation.ts'
-import { isInsideDescendantOverlay, isTopOverlay, pushOverlayLayer } from '../overlay-stack.ts'
-import type { OverlayStackEntry } from '../overlay-stack.ts'
-import { focusWithoutScrolling, getTransformOrigin, resolveDirection } from '../utils.ts'
+import { focusWithoutScrolling } from '../utils.ts'
 
 export function getOverlayMenuTextValue(item: {
   label?: JSX.Element
@@ -295,124 +291,6 @@ export function focusElement(element: HTMLElement | undefined): void {
   element.scrollIntoView?.({ block: 'nearest' })
 }
 
-export function useOverlayMenuFloatingPosition(options: {
-  contentElement: Accessor<HTMLElement | undefined>
-  floatingElement: Accessor<HTMLElement | undefined>
-  getReferenceElement: () => ReferenceElement | undefined
-  gutter: Accessor<number>
-  onPositionedChange: (positioned: boolean) => void
-  onPlacementChange: (placement: Placement) => void
-  open: Accessor<boolean>
-  overflowPadding: Accessor<number>
-  placement: Accessor<Placement>
-}): void {
-  createEffect(() => {
-    if (!options.open()) {
-      options.onPositionedChange(false)
-      return
-    }
-
-    const floatingElement = options.floatingElement()
-    const referenceElement = options.getReferenceElement()
-
-    if (!floatingElement || !referenceElement) {
-      options.onPositionedChange(false)
-      return
-    }
-
-    const direction = resolveDirection()
-
-    const updatePosition = async () => {
-      const content = options.contentElement()
-      const floating = options.floatingElement()
-      const reference = options.getReferenceElement()
-
-      if (!floating || !reference) {
-        return
-      }
-
-      const measuredElement = content ?? floating
-
-      const overflowPadding = options.overflowPadding()
-      const middleware: Middleware[] = [
-        offset({ mainAxis: options.gutter() }),
-        flip({ padding: overflowPadding }),
-        shift({ crossAxis: true, mainAxis: true, padding: overflowPadding }),
-        size({
-          padding: overflowPadding,
-          apply({ availableHeight, availableWidth, rects }) {
-            measuredElement.style.setProperty(
-              '--mo-popper-anchor-width',
-              `${Math.round(rects.reference.width)}px`,
-            )
-            measuredElement.style.setProperty(
-              '--mo-popper-content-available-width',
-              `${Math.floor(availableWidth)}px`,
-            )
-            measuredElement.style.setProperty(
-              '--mo-popper-content-available-height',
-              `${Math.floor(availableHeight)}px`,
-            )
-            measuredElement.style.setProperty(
-              '--mo-popper-content-overflow-padding',
-              `${overflowPadding}px`,
-            )
-          },
-        }),
-      ]
-
-      const position = await computePosition(reference, floating, {
-        middleware,
-        placement: options.placement(),
-        platform: {
-          ...platform,
-          isRTL: () => direction === 'rtl',
-        },
-        strategy: 'absolute',
-      })
-      const referenceContext = 'contextElement' in reference ? reference.contextElement : undefined
-
-      if (
-        !options.open() ||
-        options.floatingElement() !== floating ||
-        options.getReferenceElement() !== reference ||
-        !floating.isConnected ||
-        (reference instanceof Element && !reference.isConnected) ||
-        (referenceContext instanceof Element && !referenceContext.isConnected)
-      ) {
-        return
-      }
-
-      options.onPlacementChange(position.placement)
-      content?.style.setProperty(
-        '--mo-popper-content-transform-origin',
-        getTransformOrigin(position.placement, direction),
-      )
-
-      Object.assign(floating.style, {
-        left: '0',
-        position: 'absolute',
-        top: '0',
-        transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
-        visibility: 'visible',
-      })
-      options.onPositionedChange(true)
-    }
-
-    const cleanupAutoUpdate = autoUpdate(referenceElement, floatingElement, updatePosition, {
-      elementResize: typeof ResizeObserver === 'function',
-    })
-
-    onCleanup(() => {
-      cleanupAutoUpdate()
-      if (options.floatingElement() === floatingElement) {
-        options.onPositionedChange(false)
-        floatingElement.style.visibility = 'hidden'
-      }
-    })
-  })
-}
-
 export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
@@ -605,93 +483,6 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
       pointerGraceIntent !== null &&
       isPointInPointerGraceIntent([event.clientX, event.clientY], pointerGraceIntent),
   }
-}
-
-export function useOverlayMenuDismiss(options: {
-  containsTarget: (node: Node) => boolean
-  contentElement?: Accessor<HTMLElement | undefined>
-  triggerElement?: Accessor<HTMLElement | undefined>
-  onClose: () => void
-  open: Accessor<boolean>
-}): void {
-  createEffect(() => {
-    if (!options.open() || typeof document === 'undefined') {
-      return
-    }
-
-    if (options.contentElement && !options.contentElement()) {
-      return
-    }
-
-    const stackEntry: OverlayStackEntry = {
-      contentElement: options.contentElement ?? (() => undefined),
-      triggerElement: options.triggerElement ?? (() => undefined),
-    }
-    onCleanup(pushOverlayLayer(stackEntry))
-
-    const isInside = (node: Node): boolean => {
-      if (options.containsTarget(node)) {
-        return true
-      }
-
-      return isInsideDescendantOverlay(stackEntry, node)
-    }
-
-    const onDocumentPointerDown = (event: PointerEvent): void => {
-      const target = event.target
-
-      if (!(target instanceof Node) || isInside(target)) {
-        return
-      }
-
-      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
-        return
-      }
-
-      options.onClose()
-    }
-    const onDocumentFocusIn = (event: FocusEvent): void => {
-      const target = event.target
-
-      if (!(target instanceof Node) || isInside(target)) {
-        return
-      }
-
-      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
-        return
-      }
-
-      options.onClose()
-    }
-    const onDocumentKeyDown = (event: KeyboardEvent): void => {
-      const target = event.target
-
-      if (target instanceof Node && isInside(target)) {
-        return
-      }
-
-      if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229) {
-        return
-      }
-
-      if (!isTopOverlay(stackEntry) || event.defaultPrevented) {
-        return
-      }
-
-      event.preventDefault()
-      options.onClose()
-    }
-
-    useEventListenerMap(
-      document,
-      {
-        pointerdown: onDocumentPointerDown,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-      },
-      false,
-    )
-  })
 }
 
 export function focusLayerFromStrategy(

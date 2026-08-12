@@ -11,9 +11,8 @@ import { cn, useId } from '../../shared/utils.ts'
 import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
 import type { ModalRootProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { popupContentVariants, popupOverlayVariants } from '../popup/popup.class.ts'
 
-import { dialogCardVariants } from './dialog.class.ts'
+import { dialogCardVariants, dialogContentVariants, dialogOverlayVariants } from './dialog.class.ts'
 import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
@@ -200,7 +199,7 @@ export function Dialog(props: DialogProps): JSX.Element {
     !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
   )
 
-  const popupLayout = () => {
+  const dialogLayout = () => {
     if (merged.fullscreen) {
       return 'fullscreen'
     }
@@ -286,23 +285,22 @@ export function Dialog(props: DialogProps): JSX.Element {
       onExitComplete={merged.onExitComplete}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
-      preventScroll={!merged.scrollable}
       hasOverlay={merged.overlay}
       hasContent
     >
       <ModalTrigger children={triggerRender()} />
       <ModalContent
         overlay={merged.overlay}
-        overlayClass={popupOverlayVariants(
+        overlayClass={dialogOverlayVariants(
           {
             scrollable: merged.scrollable,
           },
           merged.classes?.overlay,
         )}
         overlayStyle={merged.styles?.overlay}
-        class={popupContentVariants(
+        class={dialogContentVariants(
           {
-            layout: popupLayout(),
+            layout: dialogLayout(),
           },
           merged.classes?.content,
         )}
@@ -315,7 +313,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             header={headerContent(context.close)}
             footer={footer()}
             classes={{
-              root: dialogCardVariants({ layout: popupLayout() }),
+              root: dialogCardVariants({ layout: dialogLayout() }),
               header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
               body: ['text-sm', merged.classes?.body],
               footer: [

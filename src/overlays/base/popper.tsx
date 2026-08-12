@@ -1,14 +1,4 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  hide,
-  offset,
-  platform,
-  shift,
-  size,
-} from '@floating-ui/dom'
-import type { Middleware, Placement } from '@floating-ui/dom'
+import type { Placement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
@@ -27,25 +17,19 @@ import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
 import { cn, useId } from '../../shared/utils.ts'
 
-import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
-import type { OverlayStackEntry } from './overlay-stack.ts'
+import { useFloatingPosition } from './floating.ts'
+import { useOverlayInteraction } from './interaction.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
-  createCompositionState,
-  createOutsidePressHandlers,
   focusContent,
   focusTrigger,
-  getTransformOrigin,
-  isComposingKeyEvent,
-  resolveDirection,
   trapFocusInContainer,
 } from './utils.ts'
 
@@ -221,24 +205,6 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     () => contentPresence.present() || Boolean(merged.forceMount && !merged.disabled),
   )
 
-  let enablePositionerTransitionFrame: number | undefined
-
-  function schedulePositionerTransition(): void {
-    if (positionerPositioned() || enablePositionerTransitionFrame !== undefined) {
-      return
-    }
-
-    if (typeof requestAnimationFrame !== 'function') {
-      setPositionerPositioned(true)
-      return
-    }
-
-    enablePositionerTransitionFrame = requestAnimationFrame(() => {
-      setPositionerPositioned(true)
-      enablePositionerTransitionFrame = undefined
-    })
-  }
-
   function setOpen(nextOpen: boolean): void {
     if (merged.disabled || nextOpen === isOpen()) {
       return
@@ -276,166 +242,24 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     }
   })
 
-  createEffect(() => {
-    const trigger = triggerElement()
-    const positioner = positionerElement()
-
-    if (!contentPresence.present() || !trigger || !positioner) {
-      setPositionerPositioned(false)
-      if (positioner) {
-        positioner.style.visibility = 'hidden'
-      }
-      return
-    }
-
-    const direction = resolveDirection()
-    const fallbackPlacements = typeof merged.flip === 'string' ? merged.flip.split(' ') : undefined
-    if (
-      fallbackPlacements &&
-      !fallbackPlacements.every((placement) =>
-        /^(?:top|bottom|left|right)(?:-(?:start|end))?$/.test(placement),
-      )
-    ) {
-      throw new Error('`flip` expects a space-delimited list of placements')
-    }
-
-    const updatePosition = async () => {
-      const nextTrigger = triggerElement()
-      const nextPositioner = positionerElement()
-
-      if (
-        !nextTrigger ||
-        !nextPositioner ||
-        !nextTrigger.isConnected ||
-        !nextPositioner.isConnected
-      ) {
-        return
-      }
-
-      const middleware: Middleware[] = [
-        // oxlint-disable-next-line subf/solid-reactivity
-        offset((opt) => {
-          const hasAlignment = Boolean(opt.placement.split('-')[1])
-
-          return {
-            mainAxis: merged.gutter,
-            crossAxis: !hasAlignment ? merged.shift : undefined,
-            alignmentAxis: merged.shift,
-          }
-        }),
-      ]
-
-      if (merged.flip !== false) {
-        middleware.push(
-          flip({
-            padding: merged.overflowPadding,
-            fallbackPlacements: fallbackPlacements as PopperPlacement[] | undefined,
-          }),
-        )
-      }
-
-      if (merged.slide || merged.overlap) {
-        middleware.push(
-          shift({
-            mainAxis: merged.slide,
-            crossAxis: merged.overlap,
-            padding: merged.overflowPadding,
-          }),
-        )
-      }
-
-      middleware.push(
-        size({
-          padding: merged.overflowPadding,
-          apply({ availableHeight, availableWidth, rects }) {
-            const referenceWidth = Math.round(rects.reference.width)
-
-            nextPositioner.style.setProperty('--mo-popper-anchor-width', `${referenceWidth}px`)
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-available-width',
-              `${Math.floor(availableWidth)}px`,
-            )
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-available-height',
-              `${Math.floor(availableHeight)}px`,
-            )
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-overflow-padding',
-              `${merged.overflowPadding}px`,
-            )
-
-            if (merged.sameWidth) {
-              nextPositioner.style.width = `${referenceWidth}px`
-            }
-
-            if (merged.fitViewport) {
-              nextPositioner.style.maxWidth = `${Math.floor(availableWidth)}px`
-              nextPositioner.style.maxHeight = `${Math.floor(availableHeight)}px`
-            }
-          },
-        }),
-      )
-
-      if (merged.hideWhenDetached) {
-        middleware.push(hide({ padding: merged.detachedPadding }))
-      }
-
-      const position = await computePosition(nextTrigger, nextPositioner, {
-        placement: merged.placement,
-        strategy: 'absolute',
-        middleware,
-        platform: {
-          ...platform,
-          isRTL: () => direction === 'rtl',
-        },
-      })
-
-      if (
-        triggerElement() !== nextTrigger ||
-        positionerElement() !== nextPositioner ||
-        !contentPresence.present() ||
-        !nextTrigger.isConnected ||
-        !nextPositioner.isConnected
-      ) {
-        return
-      }
-
-      setInternalCurrentPlacement(position.placement)
-      nextPositioner.style.setProperty(
-        '--mo-popper-content-transform-origin',
-        getTransformOrigin(position.placement, direction),
-      )
-
-      Object.assign(nextPositioner.style, {
-        left: '0',
-        top: '0',
-        transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
-        visibility:
-          merged.hideWhenDetached && position.middlewareData.hide?.referenceHidden
-            ? 'hidden'
-            : 'visible',
-      })
-      schedulePositionerTransition()
-    }
-
-    const cleanupAutoUpdate = autoUpdate(trigger, positioner, updatePosition, {
-      elementResize: typeof ResizeObserver === 'function',
-    })
-
-    onCleanup(() => {
-      cleanupAutoUpdate()
-      if (
-        enablePositionerTransitionFrame !== undefined &&
-        typeof cancelAnimationFrame === 'function'
-      ) {
-        cancelAnimationFrame(enablePositionerTransitionFrame)
-        enablePositionerTransitionFrame = undefined
-      }
-      if (positionerElement() === positioner) {
-        setPositionerPositioned(false)
-        positioner.style.visibility = 'hidden'
-      }
-    })
+  useFloatingPosition({
+    detachedPadding: () => merged.detachedPadding,
+    deferPositioned: true,
+    fitViewport: () => merged.fitViewport,
+    floatingElement: positionerElement,
+    flip: () => merged.flip,
+    getReferenceElement: triggerElement,
+    gutter: () => merged.gutter,
+    hideWhenDetached: () => merged.hideWhenDetached,
+    onPlacementChange: setInternalCurrentPlacement,
+    onPositionedChange: setPositionerPositioned,
+    open: contentPresence.present,
+    overlap: () => merged.overlap,
+    overflowPadding: () => merged.overflowPadding,
+    placement: () => merged.placement,
+    sameWidth: () => merged.sameWidth,
+    shift: () => merged.shift,
+    slide: () => merged.slide,
   })
 
   createEffect(() => {
@@ -486,52 +310,41 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       })
     }
 
-    const stackEntry: OverlayStackEntry = {
-      contentElement,
-      triggerElement,
-    }
-    const releaseStack = pushOverlayLayer(stackEntry)
-
     if (merged.modal) {
       queueMicrotask(() => {
         focusContent(currentContent)
       })
     }
 
-    const isInside = (target: Node): boolean => isInsideOverlayLayer(stackEntry, target)
-
-    const composition = createCompositionState()
-    const outsidePress = createOutsidePressHandlers({
-      isInside,
-      isEnabled: () => isTopOverlay(stackEntry),
-      onPress: (event) => {
-        merged.onPointerDownOutside?.(event)
-
-        if (event.defaultPrevented) {
-          return
-        }
-
-        if (merged.dismissible) {
-          event.preventDefault()
-          setOpen(false)
-          return
-        }
-
-        event.preventDefault()
-        merged.onClosePrevent?.()
-      },
+    onCleanup(() => {
+      active = false
+      releaseAriaHide?.()
+      releaseScrollLock?.()
     })
-    const onDocumentFocusIn = (event: FocusEvent) => {
-      const target = event.target
+  })
 
-      if (!(target instanceof Node) || isInside(target)) {
+  useOverlayInteraction({
+    enabled: contentPresence.present,
+    contentElement,
+    triggerElement,
+    requireContent: true,
+    onPointerOutside: (event) => {
+      merged.onPointerDownOutside?.(event)
+
+      if (event.defaultPrevented) {
         return
       }
 
-      if (!isTopOverlay(stackEntry)) {
+      if (merged.dismissible) {
+        event.preventDefault()
+        setOpen(false)
         return
       }
 
+      event.preventDefault()
+      merged.onClosePrevent?.()
+    },
+    onFocusOutside: (event) => {
       const interactEvent: PopperInteractOutsideEvent = {
         defaultPrevented: false,
         originalEvent: event,
@@ -557,22 +370,13 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
         if (merged.modal) {
           const currentContent = contentElement()
-
           queueMicrotask(() => {
             focusContent(currentContent)
           })
         }
       }
-    }
-    const onDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || isComposingKeyEvent(event, composition)) {
-        return
-      }
-
-      if (!isTopOverlay(stackEntry)) {
-        return
-      }
-
+    },
+    onEscape: (event) => {
       merged.onEscapeKeyDown?.(event)
 
       if (event.defaultPrevented) {
@@ -587,35 +391,14 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
       event.preventDefault()
       merged.onClosePrevent?.()
-    }
-
-    useEventListenerMap(
-      document,
-      {
-        pointerdown: outsidePress.pointerdown,
-        pointermove: outsidePress.pointermove,
-        pointerup: outsidePress.pointerup,
-        pointercancel: outsidePress.pointercancel,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-        compositionstart: composition.onCompositionStart,
-        compositionend: composition.onCompositionEnd,
-      },
-      false,
-    )
-
-    onCleanup(() => {
-      active = false
-      releaseAriaHide?.()
+    },
+    onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (merged.restoreFocusOnClose && isTopOverlay(stackEntry)) {
+      if (merged.restoreFocusOnClose && context.isTop()) {
         focusTrigger(triggerElement())
       }
-
-      releaseStack()
-      releaseScrollLock?.()
-    })
+    },
   })
 
   const context: PopperContext = {

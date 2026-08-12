@@ -8,7 +8,6 @@
   - [x] tooltip
   - [x] dropdown-menu
   - [x] context-menu
-  - [x] popup
   - [x] sheet
   - [x] cleanup button-group arbitrary class detector
 - [x] audit the explicitly scoped components with mature Base UI / Kobalte counterparts one-by-one, syncing compatible cross-platform, edge-case, keyboard, accessibility, and focus behavior; components without a plan are excluded rather than claimed as parity-complete

@@ -7,8 +7,8 @@ import {
   DropdownMenu,
   Icon,
   List,
+  ModalRoot,
   Popover,
-  Popup,
   Sheet,
   Tooltip,
 } from 'moraine'
@@ -26,6 +26,7 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
+;<ModalRoot hasOverlay={false} hasContent={false} />
 
 ;<Dialog>
   {(props) => (
@@ -62,13 +63,6 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
     </CustomRoot>
   )}
 </ContextMenu>
-;<Popup>
-  {(props) => (
-    <CustomRoot {...props} required="popup">
-      Open popup
-    </CustomRoot>
-  )}
-</Popup>
 ;<Sheet>
   {(props) => (
     <CustomRoot {...props} required="sheet">

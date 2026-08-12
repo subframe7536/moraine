@@ -131,7 +131,7 @@ describe('Modal', () => {
     expect(content?.className).toContain('data-expanded:animate-popup-in')
   })
 
-  test('composes dialog as popup container + card shell', () => {
+  test('composes dialog content with a card shell', () => {
     render(() => (
       <Dialog open title="Composed" body="Body">
         {(props) => (
@@ -644,6 +644,7 @@ describe('Modal', () => {
 
     expect(overlay).not.toBeNull()
     expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(document.body.style.overflow).toBe('hidden')
   })
 
   test('supports custom close content', () => {
