@@ -88,3 +88,8 @@ Use `bun` for all package management and script execution.
 - **Library:** `@solidjs/testing-library` for rendering and interaction.
 - **Coverage:** Aim to test standard usage, edge cases, and accessibility (aria attributes).
 - **Snapshot:** Use inline snapshots for small DOM structures, but prefer explicit assertions.
+
+## Special Cases
+
+- For common Combobox component, use Select component via `search` prop
+- For tag input, use MultiSelect component
