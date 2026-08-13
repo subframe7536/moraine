@@ -13,9 +13,9 @@ import {
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useEventListener } from '../../shared/use-event-listener.ts'
-import { useId } from '../../shared/utils.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
@@ -43,7 +43,10 @@ export namespace ContextMenuT {
   /**
    * Base props for the ContextMenu component.
    */
-  export interface Base extends Omit<OverlayMenuRootProps<Item>, 'itemProps' | 'itemRender'> {
+  export interface Base extends Omit<
+    OverlayMenuRootProps<Item>,
+    'classes' | 'itemProps' | 'itemRender' | 'styles'
+  > {
     /** Custom renderer for individual items. */
     itemRender?: ComponentOrElement<ItemRenderProps>
     /** Additional attributes for an interactive menu item. */
@@ -58,15 +61,13 @@ export namespace ContextMenuT {
    * Props for the ContextMenu component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the ContextMenu component.
  */
-export type ContextMenuProps = ContextMenuT.Props
-
-type ContextMenuRuntimeProps = ContextMenuT.Base
+export interface ContextMenuProps extends ContextMenuT.Props {}
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
@@ -99,7 +100,7 @@ function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
  * Menu triggered by right-click or long press on its child content.
  */
 export function ContextMenu(props: ContextMenuProps): JSX.Element {
-  const [local] = splitProps(props as ContextMenuRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -121,6 +122,8 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     'classes',
     'styles',
     'children',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -498,71 +501,105 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   }
 
   const triggerRender = createMemo(() => merged.children)
-  const triggerProps: OverlayTriggerProps = {
-    id: resolvedId(),
-    get 'aria-controls'() {
-      return resolvedOpen() ? contentId() : undefined
+  const userTriggerProps = mergeProps(rest, {
+    get class() {
+      return cn(props.class)
     },
-    'aria-haspopup': 'menu',
-    get 'aria-expanded'() {
-      return resolvedOpen() ? 'true' : 'false'
+    get style() {
+      return props.style
     },
-    get 'data-closed'() {
-      return resolvedOpen() ? undefined : ''
+  }) as Partial<OverlayTriggerProps>
+  const triggerProps = mergeProps(
+    {
+      id: resolvedId(),
+      get 'aria-controls'() {
+        return resolvedOpen() ? contentId() : undefined
+      },
+      'aria-haspopup': 'menu',
+      get 'aria-expanded'() {
+        return resolvedOpen() ? 'true' : 'false'
+      },
+      get 'data-closed'() {
+        return resolvedOpen() ? undefined : ''
+      },
+      get 'data-disabled'() {
+        return merged.disabled ? '' : undefined
+      },
+      get 'data-expanded'() {
+        return resolvedOpen() ? '' : undefined
+      },
+      'data-slot': 'trigger',
+      get disabled() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+      },
+      get 'aria-disabled'() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+          .ariaDisabled
+      },
+      get tabIndex() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+      },
     },
-    get 'data-disabled'() {
-      return merged.disabled ? '' : undefined
-    },
-    get 'data-expanded'() {
-      return resolvedOpen() ? '' : undefined
-    },
-    'data-slot': 'trigger',
-    ref: trigger.ref,
-    get disabled() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
-    },
-    get 'aria-disabled'() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
-        .ariaDisabled
-    },
-    get tabIndex() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
-    },
-    onContextMenu: (event: MouseEvent) => {
-      if (event.defaultPrevented) {
-        clearLongPressTimeout()
-        return
-      }
-      onContextMenu(event)
-    },
-    onPointerDown: (event: PointerEvent) => {
-      if (!event.defaultPrevented) {
-        onPointerDown(event)
-      }
-    },
-    onPointerMove: (event: PointerEvent) => {
-      if (!event.defaultPrevented) {
-        onPointerMove(event)
-      }
-    },
-    onPointerCancel,
-    onPointerUp,
-    onKeyDown: (event: KeyboardEvent) => {
-      if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
-        return
-      }
+    userTriggerProps,
+    {
+      ref: (element: HTMLElement | undefined) => {
+        trigger.ref(element)
+        callRef(userTriggerProps.ref, element)
+        if (element) {
+          onCleanup(() => {
+            callRef(userTriggerProps.ref, undefined)
+          })
+        }
+      },
+      onContextMenu: (event: MouseEvent) => {
+        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps.onContextMenu)
+        if (event.defaultPrevented) {
+          clearLongPressTimeout()
+          return
+        }
+        onContextMenu(event)
+      },
+      onPointerDown: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerDown)
+        if (!event.defaultPrevented) {
+          onPointerDown(event)
+        }
+      },
+      onPointerMove: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerMove)
+        if (!event.defaultPrevented) {
+          onPointerMove(event)
+        }
+      },
+      onPointerCancel: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerCancel)
+        if (!event.defaultPrevented) {
+          onPointerCancel(event)
+        }
+      },
+      onPointerUp: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerUp)
+        // Pointer-up cleanup must run even when a consumer prevents the native event.
+        onPointerUp(event)
+      },
+      onKeyDown: (event: KeyboardEvent) => {
+        callHandler<HTMLElement, KeyboardEvent>(event, userTriggerProps.onKeyDown)
+        if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
+          return
+        }
 
-      event.preventDefault()
-      event.stopPropagation()
+        event.preventDefault()
+        event.stopPropagation()
 
-      if (resolvedOpen()) {
-        commitOpen(false)
-        return
-      }
+        if (resolvedOpen()) {
+          commitOpen(false)
+          return
+        }
 
-      openFromTriggerCenter('first')
+        openFromTriggerCenter('first')
+      },
     },
-  }
+  ) as OverlayTriggerProps
 
   onMount(() => {
     if (triggerRender()) {

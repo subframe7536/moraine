@@ -10,7 +10,7 @@ import {
 } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd/index.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
@@ -77,12 +77,6 @@ export namespace TooltipT {
      */
     closeDelay?: number
 
-    /** Slot-based class overrides. */
-    classes?: Classes
-
-    /** Slot-based style overrides. */
-    styles?: Styles
-
     /**
      * Delay in milliseconds to skip the open delay for the next trigger after closing.
      * @default 300
@@ -107,19 +101,13 @@ export namespace TooltipT {
    * Props for the Tooltip component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Tooltip component.
  */
-export type TooltipProps = TooltipT.Props
-
-type TooltipRuntimeProps = TooltipT.Base &
-  TooltipT.Variant & {
-    classes?: TooltipT.Classes
-    styles?: TooltipT.Styles
-  }
+export interface TooltipProps extends TooltipT.Props {}
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
@@ -184,7 +172,7 @@ function shouldOpenImmediately(): boolean {
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const [local] = splitProps(props as TooltipRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -202,6 +190,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     'children',
     'classes',
     'styles',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -212,6 +202,14 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     local,
   )
+  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
+    get class() {
+      return cn(props.class)
+    },
+    get style() {
+      return props.style
+    },
+  }) as Partial<OverlayTriggerProps>
   const tooltipId = useId(() => merged.id, 'tooltip')
   const [open, setOpen] = useControllableValue<boolean>({
     value: () => merged.open,
@@ -464,7 +462,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         }
       }}
     >
-      <Popper.Trigger children={merged.children} describeTrigger toggleOnClick={false} />
+      <Popper.Trigger
+        children={merged.children}
+        describeTrigger
+        toggleOnClick={false}
+        triggerProps={triggerProps}
+      />
       <Popper.Content
         positionerClass={
           shouldUseInstantMotion()

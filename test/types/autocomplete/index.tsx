@@ -56,30 +56,36 @@ modalContentContext.close()
   <Modal.Overlay />
   <Modal.Content ariaLabel="Type fixture" contentRender="Modal content" />
 </Modal>
-;<Dialog>
+;<Dialog data-testid="dialog-trigger" hidden>
   {(props) => (
     <a {...props} href="/dialog">
       Open dialog
     </a>
   )}
 </Dialog>
-;<Popover>{(props) => <span {...props}>Open popover</span>}</Popover>
-;<Tooltip>
+;<Popover data-testid="popover-trigger" hidden>
+  {(props) => <span {...props}>Open popover</span>}
+</Popover>
+;<Tooltip data-testid="tooltip-trigger" hidden>
   {(props) => (
     <button {...props} type="button">
       Hover target
     </button>
   )}
 </Tooltip>
-;<DropdownMenu items={[]}>
+;<DropdownMenu items={[]} data-testid="dropdown-trigger" hidden>
   {(props) => (
     <button {...props} type="button">
       Open menu
     </button>
   )}
 </DropdownMenu>
-;<ContextMenu items={[]}>{(props) => <div {...props}>Open menu</div>}</ContextMenu>
-;<Sheet>{(props) => <span {...props}>Open sheet</span>}</Sheet>
+;<ContextMenu items={[]} data-testid="context-trigger" hidden>
+  {(props) => <div {...props}>Open menu</div>}
+</ContextMenu>
+;<Sheet data-testid="sheet-trigger" hidden>
+  {(props) => <span {...props}>Open sheet</span>}
+</Sheet>
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />

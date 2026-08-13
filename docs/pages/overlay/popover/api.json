@@ -69,10 +69,15 @@
         "description": "Render the popover trigger as a single HTMLElement root."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
-        "type": "PopoverT.Classes | undefined",
-        "description": "Slot-based class overrides."
+        "type": "PopoverT.Classes | undefined"
       },
       {
         "name": "closeDelay",
@@ -175,6 +180,11 @@
         "defaultValue": "false"
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "side",
         "required": false,
         "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
@@ -182,10 +192,14 @@
         "defaultValue": "bottom"
       },
       {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
         "name": "styles",
         "required": false,
-        "type": "PopoverT.Styles | undefined",
-        "description": "Slot-based style overrides."
+        "type": "PopoverT.Styles | undefined"
       }
     ],
     "inherited": []

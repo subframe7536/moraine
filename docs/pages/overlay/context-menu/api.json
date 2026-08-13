@@ -346,10 +346,15 @@
         "description": "Target area that opens the context menu on right-click or long press."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
-        "type": "OverlayMenuSharedClasses | undefined",
-        "description": "Slot class overrides for menu sections."
+        "type": "ContextMenuT.Classes | undefined"
       },
       {
         "name": "contentBottom",
@@ -447,6 +452,11 @@
         "defaultValue": "true"
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined",
@@ -454,10 +464,14 @@
         "defaultValue": "md"
       },
       {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
         "name": "styles",
         "required": false,
-        "type": "OverlayMenuSharedStyles | undefined",
-        "description": "Slot style overrides for menu sections."
+        "type": "ContextMenuT.Styles | undefined"
       },
       {
         "name": "submenuIcon",

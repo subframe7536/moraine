@@ -1,13 +1,23 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup, onMount, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  onMount,
+  untrack,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { DIALOG_OVERLAY_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { useId } from '../../shared/utils.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useOverlayInteraction } from './interaction.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
@@ -70,6 +80,9 @@ export namespace ModalT {
   export interface TriggerProps {
     /** Render the modal trigger as a single HTMLElement root. */
     children?: (props: OverlayTriggerProps) => JSX.Element
+
+    /** Root props forwarded by a public modal wrapper. */
+    triggerProps?: Partial<OverlayTriggerProps>
   }
 
   export interface ContentProps {
@@ -354,23 +367,39 @@ export function Modal(props: ModalProps): JSX.Element {
 function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
   const context = useModalContext()
   const triggerRender = createMemo(() => props.children)
-  const triggerProps: OverlayTriggerProps = {
-    get 'aria-controls'() {
-      return context.contentPresent() ? context.contentId() : undefined
+  const userTriggerProps = (): Partial<OverlayTriggerProps> | undefined => props.triggerProps
+  const triggerProps = mergeProps(
+    {
+      get 'aria-controls'() {
+        return context.contentPresent() ? context.contentId() : undefined
+      },
+      get 'aria-expanded'() {
+        return context.contentPresent() ? 'true' : 'false'
+      },
+      'data-slot': 'trigger',
     },
-    get 'aria-expanded'() {
-      return context.contentPresent() ? 'true' : 'false'
+    untrack(userTriggerProps) ?? {},
+    {
+      ref: (element: HTMLElement | undefined) => {
+        context.setTriggerElement(element)
+        callRef(userTriggerProps()?.ref, element)
+        if (element) {
+          onCleanup(() => {
+            if (context.triggerElement() === element) {
+              context.setTriggerElement(undefined)
+            }
+            callRef(userTriggerProps()?.ref, undefined)
+          })
+        }
+      },
+      onClick: (event: MouseEvent) => {
+        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
+        if (!event.defaultPrevented) {
+          context.updateOpen(true)
+        }
+      },
     },
-    'data-slot': 'trigger',
-    ref: (element: HTMLElement | undefined) => {
-      context.setTriggerElement(element)
-    },
-    onClick: (event: MouseEvent) => {
-      if (!event.defaultPrevented) {
-        context.updateOpen(true)
-      }
-    },
-  }
+  ) as OverlayTriggerProps
 
   onMount(() => {
     if (triggerRender()) {
@@ -465,7 +494,7 @@ function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
             })
           }}
           style={props.style}
-          class={props.class}
+          class={cn(DIALOG_OVERLAY_CLASS, props.class)}
         />
       </Portal>
     </Show>

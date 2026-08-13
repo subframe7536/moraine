@@ -4,7 +4,7 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { Modal } from '../base/modal.tsx'
 import type { ModalProps, ModalT } from '../base/modal.tsx'
@@ -98,12 +98,6 @@ export namespace SheetT {
      */
     transition?: boolean
 
-    /** Slot-based class overrides. */
-    classes?: Classes
-
-    /** Slot-based style overrides. */
-    styles?: Styles
-
     /**
      * Whether to show a close button, or a custom element to use as one.
      * @default true
@@ -138,23 +132,17 @@ export namespace SheetT {
    * Props for the Sheet component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Sheet component.
  */
-export type SheetProps = SheetT.Props
-
-type SheetRuntimeProps = SheetT.Base &
-  SheetT.Variant & {
-    classes?: SheetT.Classes
-    styles?: SheetT.Styles
-  }
+export interface SheetProps extends SheetT.Props {}
 
 /** Slide-in panel overlay from any screen edge with header, body, and footer slots. */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [local] = splitProps(props as SheetRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -177,6 +165,8 @@ export function Sheet(props: SheetProps): JSX.Element {
     'children',
     'classes',
     'styles',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -197,6 +187,14 @@ export function Sheet(props: SheetProps): JSX.Element {
   const body = createLazyMemo(() => merged.body)
   const footer = createLazyMemo(() => merged.footer)
   const triggerRender = createMemo(() => merged.children)
+  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
+    get class() {
+      return cn(props.class)
+    },
+    get style() {
+      return props.style
+    },
+  }) as Partial<OverlayTriggerProps>
   const rootId = useId(() => merged.id, 'sheet')
   const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
   const titleId = createLazyMemo(() =>
@@ -222,15 +220,9 @@ export function Sheet(props: SheetProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
     >
-      <Modal.Trigger children={triggerRender()} />
+      <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
       <Show when={merged.overlay}>
-        <Modal.Overlay
-          class={cn(
-            'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
-            merged.classes?.overlay,
-          )}
-          style={merged.styles?.overlay}
-        />
+        <Modal.Overlay class={cn(merged.classes?.overlay)} style={merged.styles?.overlay} />
       </Show>
       <Modal.Content
         contentAttributes={{ 'data-side': merged.side }}

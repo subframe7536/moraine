@@ -5,6 +5,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  onCleanup,
   onMount,
   splitProps,
 } from 'solid-js'
@@ -12,9 +13,9 @@ import {
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useId } from '../../shared/utils.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
@@ -43,7 +44,10 @@ export namespace DropdownMenuT {
   /**
    * Base props for the DropdownMenu component.
    */
-  export interface Base extends Omit<OverlayMenuRootProps<Item>, 'itemProps' | 'itemRender'> {
+  export interface Base extends Omit<
+    OverlayMenuRootProps<Item>,
+    'classes' | 'itemProps' | 'itemRender' | 'styles'
+  > {
     /** Custom renderer for individual items. */
     itemRender?: ComponentOrElement<ItemRenderProps>
     /** Additional attributes for an interactive menu item. */
@@ -58,21 +62,19 @@ export namespace DropdownMenuT {
    * Props for the DropdownMenu component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the DropdownMenu component.
  */
-export type DropdownMenuProps = DropdownMenuT.Props
-
-type DropdownMenuRuntimeProps = DropdownMenuT.Base
+export interface DropdownMenuProps extends DropdownMenuT.Props {}
 
 /**
  * Triggered action menu anchored to its child content.
  */
 export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
-  const [local] = splitProps(props as DropdownMenuRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -94,6 +96,8 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     'classes',
     'styles',
     'children',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -117,83 +121,106 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const trigger = createOverlayTriggerRef()
 
   const triggerRender = createMemo(() => merged.children)
-  const triggerProps: OverlayTriggerProps = {
-    id: resolvedId(),
-    get 'aria-controls'() {
-      return isOpen() ? contentId() : undefined
+  const userTriggerProps = mergeProps(rest, {
+    get class() {
+      return cn(props.class)
     },
-    'aria-haspopup': 'menu',
-    get 'aria-expanded'() {
-      return isOpen() ? 'true' : 'false'
+    get style() {
+      return props.style
     },
-    get 'data-closed'() {
-      return isOpen() ? undefined : ''
+  }) as Partial<OverlayTriggerProps>
+  const triggerProps = mergeProps(
+    {
+      id: resolvedId(),
+      get 'aria-controls'() {
+        return isOpen() ? contentId() : undefined
+      },
+      'aria-haspopup': 'menu',
+      get 'aria-expanded'() {
+        return isOpen() ? 'true' : 'false'
+      },
+      get 'data-closed'() {
+        return isOpen() ? undefined : ''
+      },
+      get 'data-disabled'() {
+        return merged.disabled ? '' : undefined
+      },
+      get 'data-expanded'() {
+        return isOpen() ? '' : undefined
+      },
+      'data-slot': 'trigger',
+      get disabled() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+      },
+      get 'aria-disabled'() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+          .ariaDisabled
+      },
+      get tabIndex() {
+        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+      },
     },
-    get 'data-disabled'() {
-      return merged.disabled ? '' : undefined
-    },
-    get 'data-expanded'() {
-      return isOpen() ? '' : undefined
-    },
-    'data-slot': 'trigger',
-    ref: trigger.ref,
-    get disabled() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
-    },
-    get 'aria-disabled'() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
-        .ariaDisabled
-    },
-    get tabIndex() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
-    },
-    onClick: (event: MouseEvent) => {
-      if (event.defaultPrevented || merged.disabled) {
-        return
-      }
-
-      if (isOpen()) {
-        commitOpen(false)
-        return
-      }
-
-      openWithStrategy('content')
-    },
-    onKeyDown: (event: KeyboardEvent) => {
-      if (event.defaultPrevented || merged.disabled) {
-        return
-      }
-
-      if (event.key === 'Escape' && isOpen()) {
-        event.preventDefault()
-        commitOpen(false)
-        return
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        openWithStrategy('first')
-        return
-      }
-
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        openWithStrategy('last')
-        return
-      }
-
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
+    userTriggerProps,
+    {
+      ref: (element: HTMLElement | undefined) => {
+        trigger.ref(element)
+        callRef(userTriggerProps.ref, element)
+        if (element) {
+          onCleanup(() => {
+            callRef(userTriggerProps.ref, undefined)
+          })
+        }
+      },
+      onClick: (event: MouseEvent) => {
+        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps.onClick)
+        if (event.defaultPrevented || merged.disabled) {
+          return
+        }
 
         if (isOpen()) {
           commitOpen(false)
           return
         }
 
-        openWithStrategy('first')
-      }
+        openWithStrategy('content')
+      },
+      onKeyDown: (event: KeyboardEvent) => {
+        callHandler<HTMLElement, KeyboardEvent>(event, userTriggerProps.onKeyDown)
+        if (event.defaultPrevented || merged.disabled) {
+          return
+        }
+
+        if (event.key === 'Escape' && isOpen()) {
+          event.preventDefault()
+          commitOpen(false)
+          return
+        }
+
+        if (event.key === 'ArrowDown') {
+          event.preventDefault()
+          openWithStrategy('first')
+          return
+        }
+
+        if (event.key === 'ArrowUp') {
+          event.preventDefault()
+          openWithStrategy('last')
+          return
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+
+          if (isOpen()) {
+            commitOpen(false)
+            return
+          }
+
+          openWithStrategy('first')
+        }
+      },
     },
-  }
+  ) as OverlayTriggerProps
 
   onMount(() => {
     if (triggerRender()) {

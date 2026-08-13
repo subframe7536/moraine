@@ -34,42 +34,42 @@ modalContentContext.close()
   <Modal.Content ariaLabel="Type fixture" contentRender="Modal content" />
 </Modal>
 
-;<Dialog>
+;<Dialog data-testid="dialog-trigger">
   {(props) => (
     <CustomRoot {...props} required="dialog">
       Open dialog
     </CustomRoot>
   )}
 </Dialog>
-;<Popover>
+;<Popover data-testid="popover-trigger">
   {(props) => (
     <CustomRoot {...props} required="popover">
       Open popover
     </CustomRoot>
   )}
 </Popover>
-;<Tooltip>
+;<Tooltip data-testid="tooltip-trigger">
   {(props) => (
     <CustomRoot {...props} required="tooltip">
       Hover target
     </CustomRoot>
   )}
 </Tooltip>
-;<DropdownMenu items={[]}>
+;<DropdownMenu items={[]} data-testid="dropdown-trigger">
   {(props) => (
     <CustomRoot {...props} required="dropdown">
       Open menu
     </CustomRoot>
   )}
 </DropdownMenu>
-;<ContextMenu items={[]}>
+;<ContextMenu items={[]} data-testid="context-trigger">
   {(props) => (
     <CustomRoot {...props} required="context">
       Open menu
     </CustomRoot>
   )}
 </ContextMenu>
-;<Sheet>
+;<Sheet data-testid="sheet-trigger">
   {(props) => (
     <CustomRoot {...props} required="sheet">
       Open sheet

@@ -52,6 +52,24 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('applies the shared dialog overlay classes by default', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Overlay />
+      </Modal>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]')
+    expect(overlay?.className).toContain('bg-black/10')
+    expect(overlay?.className).toContain('duration-150')
+    expect(overlay?.className).toContain('inset-0')
+    expect(overlay?.className).toContain('fixed')
+    expect(overlay?.className).toContain('z-50')
+    expect(overlay?.className).toContain('backdrop-blur-xs')
+    expect(overlay?.className).toContain('data-closed:animate-overlay-out')
+    expect(overlay?.className).toContain('data-expanded:animate-overlay-in')
+  })
+
   test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
     const background = document.createElement('main')
     background.textContent = 'Application'

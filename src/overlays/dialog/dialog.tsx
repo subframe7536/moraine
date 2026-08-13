@@ -6,13 +6,13 @@ import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { Modal } from '../base/modal.tsx'
 import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { DIALOG_OVERLAY_CLASS, dialogCardVariants, dialogContentVariants } from './dialog.class.ts'
+import { dialogCardVariants, dialogContentVariants } from './dialog.class.ts'
 import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
@@ -124,16 +124,6 @@ export namespace DialogT {
      */
     footer?: JSX.Element
 
-    /**
-     * Slot-based class overrides.
-     */
-    classes?: Classes
-
-    /**
-     * Slot-based style overrides.
-     */
-    styles?: Styles
-
     /** Render the dialog trigger as a single HTMLElement root. */
     children?: (props: OverlayTriggerProps) => JSX.Element
   }
@@ -142,22 +132,17 @@ export namespace DialogT {
    * Props for the Dialog component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Dialog component.
  */
-export type DialogProps = DialogT.Props
-
-type DialogRuntimeProps = DialogT.Base & {
-  classes?: DialogT.Classes
-  styles?: DialogT.Styles
-}
+export interface DialogProps extends DialogT.Props {}
 
 /** Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control. */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [local] = splitProps(props as DialogRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -179,6 +164,8 @@ export function Dialog(props: DialogProps): JSX.Element {
     'children',
     'classes',
     'styles',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -196,6 +183,14 @@ export function Dialog(props: DialogProps): JSX.Element {
   const footer = createLazyMemo(() => merged.footer)
   const closeIcon = createLazyMemo(() => merged.closeIcon)
   const triggerRender = createMemo(() => merged.children)
+  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
+    get class() {
+      return cn(props.class)
+    },
+    get style() {
+      return props.style
+    },
+  }) as Partial<OverlayTriggerProps>
   const rootId = useId(() => merged.id, 'dialog')
   const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
   const titleId = createLazyMemo(() =>
@@ -292,12 +287,9 @@ export function Dialog(props: DialogProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
     >
-      <Modal.Trigger children={triggerRender()} />
+      <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
       <Show when={merged.overlay}>
-        <Modal.Overlay
-          class={cn(DIALOG_OVERLAY_CLASS, merged.classes?.overlay)}
-          style={merged.styles?.overlay}
-        />
+        <Modal.Overlay class={cn(merged.classes?.overlay)} style={merged.styles?.overlay} />
       </Show>
       <Modal.Content
         class={dialogContentVariants(

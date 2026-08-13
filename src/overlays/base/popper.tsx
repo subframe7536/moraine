@@ -19,7 +19,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useFloatingPosition } from './floating.ts'
 import { useOverlayInteraction } from './interaction.ts'
@@ -263,6 +263,9 @@ export interface PopperProps {
 export interface PopperTriggerProps {
   /** Render the popper trigger as a single HTMLElement root. */
   children?: (props: OverlayTriggerProps) => JSX.Element
+
+  /** Root props forwarded by a public popper wrapper. */
+  triggerProps?: Partial<OverlayTriggerProps>
 
   /** Whether the trigger should reference the content with `aria-describedby`. */
   describeTrigger?: boolean
@@ -589,41 +592,68 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
   const triggerRender = createMemo(() => props.children)
-  const triggerProps: OverlayTriggerProps = {
-    get 'aria-controls'() {
-      return context.contentPresence.present() ? context.contentId() : undefined
+  const userTriggerProps = (): Partial<OverlayTriggerProps> | undefined => props.triggerProps
+  const triggerProps = mergeProps(
+    {
+      get 'aria-controls'() {
+        return context.contentPresence.present() ? context.contentId() : undefined
+      },
+      get 'aria-describedby'() {
+        return options.describeTrigger && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
+      },
+      get 'aria-expanded'() {
+        return context.isOpen() ? 'true' : 'false'
+      },
+      'data-slot': 'trigger',
     },
-    get 'aria-describedby'() {
-      return options.describeTrigger && context.contentPresence.present()
-        ? context.contentId()
-        : undefined
-    },
-    get 'aria-expanded'() {
-      return context.isOpen() ? 'true' : 'false'
-    },
-    'data-slot': 'trigger',
-    ref: (element: HTMLElement | undefined) => {
-      if (!element) {
-        return
-      }
-
-      context.setTriggerElement(element)
-      onCleanup(() => {
-        if (context.triggerElement() === element) {
-          context.setTriggerElement(undefined)
+    untrack(userTriggerProps) ?? {},
+    {
+      ref: (element: HTMLElement | undefined) => {
+        context.setTriggerElement(element)
+        callRef(userTriggerProps()?.ref, element)
+        if (element) {
+          onCleanup(() => {
+            if (context.triggerElement() === element) {
+              context.setTriggerElement(undefined)
+            }
+            callRef(userTriggerProps()?.ref, undefined)
+          })
         }
-      })
+      },
+      onBlur: (event: FocusEvent) => {
+        callHandler<HTMLElement, FocusEvent>(event, userTriggerProps()?.onBlur)
+        if (!event.defaultPrevented) {
+          options.onTriggerBlur?.(context.getControls())
+        }
+      },
+      onClick: (event: MouseEvent) => {
+        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
+        if (!event.defaultPrevented && options.toggleOnClick) {
+          context.getControls().toggle()
+        }
+      },
+      onFocus: (event: FocusEvent) => {
+        callHandler<HTMLElement, FocusEvent>(event, userTriggerProps()?.onFocus)
+        if (!event.defaultPrevented) {
+          options.onTriggerFocus?.(context.getControls())
+        }
+      },
+      onPointerEnter: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerEnter)
+        if (!event.defaultPrevented) {
+          options.onTriggerPointerEnter?.(context.getControls(), event)
+        }
+      },
+      onPointerLeave: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerLeave)
+        if (!event.defaultPrevented) {
+          options.onTriggerPointerLeave?.(context.getControls(), event)
+        }
+      },
     },
-    onBlur: () => options.onTriggerBlur?.(context.getControls()),
-    onClick: (event: MouseEvent) => {
-      if (!event.defaultPrevented && options.toggleOnClick) {
-        context.getControls().toggle()
-      }
-    },
-    onFocus: () => options.onTriggerFocus?.(context.getControls()),
-    onPointerEnter: (event) => options.onTriggerPointerEnter?.(context.getControls(), event),
-    onPointerLeave: (event) => options.onTriggerPointerLeave?.(context.getControls(), event),
-  }
+  ) as OverlayTriggerProps
 
   onMount(() => {
     if (triggerRender()) {

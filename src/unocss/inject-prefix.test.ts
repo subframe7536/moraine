@@ -136,6 +136,20 @@ export const SIZE_VARIANT = {
     expect(output).not.toContain(`${TEST_PREFIX}md`)
   })
 
+  test('prefixes class strings inside standalone *CLASS constants', async () => {
+    const output = await runTransform(
+      `
+export const DIALOG_OVERLAY_CLASS =
+  'bg-black/10 duration-150 data-closed:animate-overlay-out'
+`,
+      'src/example.class.ts',
+    )
+
+    expect(output).toContain(
+      ` '${TEST_PREFIX}bg-black/10 ${TEST_PREFIX}duration-150 ${TEST_PREFIX}data-closed:animate-overlay-out'`,
+    )
+  })
+
   test('prefixes only class operands inside tsx class expressions', async () => {
     const output = await runTransform(
       `

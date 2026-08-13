@@ -49,6 +49,10 @@ export const CHECKABLE_WRAPPER_ALIGN_VARIANT = {
   hidden: '',
 } as const
 
+/** Default backdrop classes for modal overlays. */
+export const DIALOG_OVERLAY_CLASS =
+  'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in'
+
 export const TABLE_EDGE_ORIENTATION_VARIANT = {
   horizontal: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg not-first-of-type:-ms-px',
   vertical: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg not-first-of-type:-mt-px',
