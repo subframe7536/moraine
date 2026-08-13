@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
+import { Button } from '../../elements/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -296,23 +297,19 @@ export function Sheet(props: SheetProps): JSX.Element {
                       </Show>
 
                       <Show when={closeContent() !== false}>
-                        <button
-                          type="button"
+                        <Button
                           data-slot="close"
-                          style={merged.styles?.close}
-                          class={cn(
-                            'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) focus-visible:effect-fv-border active:bg-accent-active',
-                            merged.classes?.close,
-                          )}
                           aria-label="Close"
-                          onClick={() => {
-                            props.close()
-                          }}
+                          variant="ghost"
+                          size="icon-md"
+                          style={merged.styles?.close}
+                          class={['absolute top-3 right-3', merged.classes?.close]}
+                          onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>
                             <Icon name="icon-close" />
                           </Show>
-                        </button>
+                        </Button>
                       </Show>
                     </>
                   }

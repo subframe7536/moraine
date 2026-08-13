@@ -92,13 +92,56 @@
       "name": "close",
       "description": "Button that dismisses the sheet.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
       "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
         {
           "name": "aria-label",
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
     },

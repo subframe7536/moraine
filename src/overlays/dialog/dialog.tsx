@@ -4,6 +4,7 @@ import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Card } from '../../elements/card/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
+import { Button } from '../../elements/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -257,21 +258,17 @@ export function Dialog(props: DialogProps): JSX.Element {
         </Show>
 
         <Show when={merged.close}>
-          <button
-            type="button"
+          <Button
             data-slot="close"
             aria-label="Close"
+            size="icon-md"
+            variant="ghost"
             style={merged.styles?.close}
-            class={cn(
-              'text-muted-foreground p-1 rounded-sm inline-flex shrink-0 size-7 cursor-pointer transition-colors items-center right-4 top-4 justify-center absolute focus-visible:effect-fv active:bg-accent-active hover:bg-accent-hover',
-              merged.classes?.close,
-            )}
-            onClick={() => {
-              close()
-            }}
+            class={['absolute top-2 right-2', merged.classes?.close]}
+            onClick={() => close()}
           >
             <Icon name={closeIcon()} />
-          </button>
+          </Button>
         </Show>
       </>
     )
