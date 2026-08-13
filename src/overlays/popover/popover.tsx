@@ -21,7 +21,13 @@ export namespace PopoverT {
     body?: T
   }
 
-  export type Variant = PopoverContentVariantProps
+  export interface Variant extends PopoverContentVariantProps {
+    /**
+     * Visual side styles applied after the positioned placement is resolved.
+     * @default 'bottom'
+     */
+    side?: PopoverContentVariantProps['side']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -64,7 +70,10 @@ export namespace PopoverT {
      */
     closeDelay?: number
 
+    /** Slot-based class overrides. */
     classes?: Classes
+
+    /** Slot-based style overrides. */
     styles?: Styles
 
     /**

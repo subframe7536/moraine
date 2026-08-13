@@ -20,13 +20,15 @@
         "name": "defaultOpen",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Initial open state when uncontrolled."
+        "description": "Initial open state when uncontrolled.",
+        "defaultValue": "false"
       },
       {
         "name": "dismissible",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether outside interaction and Escape should dismiss the shell."
+        "description": "Whether outside interaction and Escape should dismiss the shell.",
+        "defaultValue": "true"
       },
       {
         "name": "id",
@@ -62,7 +64,8 @@
         "name": "preventScroll",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether body scroll should be locked while the shell is present."
+        "description": "Whether body scroll should be locked while the shell is present.",
+        "defaultValue": "true"
       }
     ],
     "inherited": []

@@ -70,64 +70,226 @@ interface PopperContentProps {
 }
 
 export interface PopperProps {
+  /** Id of the element that describes the positioned content. */
   ariaDescribedBy?: string
+
+  /** Id of the element that labels the positioned content. */
   ariaLabelledBy?: string
+
+  /**
+   * Whether focus moving outside should close the content.
+   * @default true
+   */
   closeOnOutsideFocus?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Whether the trigger should reference the content with `aria-describedby`.
+   * @default false
+   */
   describeTrigger?: boolean
+
+  /**
+   * Padding from the clipping boundary used to detect a detached trigger.
+   * @default 0
+   */
   detachedPadding?: number
+
+  /**
+   * Whether trigger interactions and content rendering are disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether outside interaction and Escape dismiss the content.
+   * @default true
+   */
   dismissible?: boolean
+
+  /**
+   * Whether content dimensions should be constrained to the available viewport.
+   * @default false
+   */
   fitViewport?: boolean
+
+  /**
+   * Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.
+   * @default true
+   */
   flip?: boolean | string
+
+  /**
+   * Whether content remains mounted while closed.
+   * @default false
+   */
   forceMount?: boolean
+
+  /**
+   * Gap in pixels between the trigger and positioned content.
+   * @default 0
+   */
   gutter?: number
+
+  /**
+   * Whether content should be hidden when its trigger is detached from the clipping boundary.
+   * @default false
+   */
   hideWhenDetached?: boolean
+
+  /** Unique identifier used to derive the content id. */
   id?: string
+
+  /**
+   * Whether the content traps focus and hides outside content from assistive technology.
+   * @default false
+   */
   modal?: boolean
+
+  /** Called when a dismissal attempt is blocked. */
   onClosePrevent?: () => void
+
+  /** Called when Escape is pressed while the content is active. */
   onEscapeKeyDown?: (event: KeyboardEvent) => void
+
+  /** Called when focus moves outside the content and trigger. */
   onInteractOutside?: (event: PopperInteractOutsideEvent) => void
+
+  /** Called whenever the open state changes. */
   onOpenChange?: (open: boolean) => void
+
+  /** Called when a pointer press starts outside the content and trigger. */
   onPointerDownOutside?: (event: PointerEvent) => void
+
+  /** Called when the trigger loses focus. */
   onTriggerBlur?: (controls: PopperControls) => void
+
+  /** Called when the trigger receives focus. */
   onTriggerFocus?: (controls: PopperControls) => void
+
+  /** Called when the pointer enters the trigger. */
   onTriggerPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the pointer leaves the trigger. */
   onTriggerPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the positioned content loses focus. */
   onContentBlur?: (controls: PopperControls) => void
+
+  /** Called when the positioned content receives focus. */
   onContentFocus?: (controls: PopperControls) => void
+
+  /** Called when the pointer enters the positioned content. */
   onContentPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the pointer leaves the positioned content. */
   onContentPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Controlled open state. */
   open?: boolean
+
+  /**
+   * Whether the content may overlap its trigger while remaining inside the viewport.
+   * @default false
+   */
   overlap?: boolean
+
+  /**
+   * Padding in pixels between positioned content and the viewport boundary.
+   * @default 4
+   */
   overflowPadding?: number
+
+  /**
+   * Preferred content placement relative to the trigger.
+   * @default 'bottom'
+   */
   placement?: PopperPlacement
+
+  /**
+   * Whether body scroll should be locked while the content is present.
+   * @default false
+   */
   preventScroll?: boolean
+
+  /**
+   * Whether focus returns to the trigger after the content closes.
+   * @default true
+   */
   restoreFocusOnClose?: boolean
+
+  /** Semantic role applied to the positioned content. */
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
+
+  /**
+   * Whether the content width should match the trigger width.
+   * @default false
+   */
   sameWidth?: boolean
+
+  /**
+   * Cross-axis offset in pixels from the resolved placement.
+   * @default 0
+   */
   shift?: number
+
+  /**
+   * Whether the content may slide along its main axis to remain visible.
+   * @default true
+   */
   slide?: boolean
+
+  /**
+   * Whether clicking the trigger toggles the open state.
+   * @default true
+   */
   toggleOnClick?: boolean
+
+  /**
+   * CSS motion types observed before unmounting closed content.
+   * @default 'both'
+   */
   transitionMode?: TransitionPresenceMotion
+
+  /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
 
 export interface PopperTriggerProps {
+  /** Render the popper trigger as a single HTMLElement root. */
   children?: (props: OverlayTriggerProps) => JSX.Element
+
+  /** Whether the trigger should reference the content with `aria-describedby`. */
   describeTrigger?: boolean
+
+  /** Whether clicking the trigger toggles the open state. */
   toggleOnClick?: boolean
 }
 
 export interface PopperContentComponentProps {
+  /** Component or element rendered inside the positioned content. */
   contentRender: ComponentOrElement<PopperContentContext>
+
+  /** Class applied to the positioning wrapper. */
   positionerClass?: string
+
+  /** Style applied to the positioning wrapper. */
   positionerStyle?: JSX.CSSProperties
 }
 
 export interface PopperContentContext {
+  /** Closes the positioned content. */
   close: () => void
+
+  /** Attributes and event handlers to forward to the content root. */
   contentProps: PopperContentProps
+
+  /** Current placement after collision handling. */
   currentPlacement: Accessor<string>
 }
 

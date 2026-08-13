@@ -46,7 +46,19 @@ export namespace SheetT {
     footer?: T
   }
 
-  export type Variant = SheetVariantProps
+  export interface Variant extends SheetVariantProps {
+    /**
+     * Edge of the viewport from which the sheet enters.
+     * @default 'right'
+     */
+    side?: SheetVariantProps['side']
+
+    /**
+     * Whether to inset the sheet from the viewport on larger screens.
+     * @default false
+     */
+    inset?: SheetVariantProps['inset']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -86,7 +98,10 @@ export namespace SheetT {
      */
     transition?: boolean
 
+    /** Slot-based class overrides. */
     classes?: Classes
+
+    /** Slot-based style overrides. */
     styles?: Styles
 
     /**

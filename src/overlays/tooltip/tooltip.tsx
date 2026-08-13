@@ -35,7 +35,19 @@ export namespace TooltipT {
     kbd?: T
   }
 
-  export type Variant = TooltipVariantProps
+  export interface Variant extends TooltipVariantProps {
+    /**
+     * Visual side styles applied after the positioned placement is resolved.
+     * @default 'top'
+     */
+    side?: TooltipVariantProps['side']
+
+    /**
+     * Whether to use the inverted foreground-on-background color treatment.
+     * @default false
+     */
+    invert?: TooltipVariantProps['invert']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -59,7 +71,10 @@ export namespace TooltipT {
      */
     closeDelay?: number
 
+    /** Slot-based class overrides. */
     classes?: Classes
+
+    /** Slot-based style overrides. */
     styles?: Styles
 
     /**

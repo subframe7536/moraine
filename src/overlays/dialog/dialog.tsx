@@ -45,7 +45,13 @@ export namespace DialogT {
     footer?: T
   }
 
-  export type Variant = DialogCardVariantProps
+  export interface Variant extends DialogCardVariantProps {
+    /**
+     * Layout mode for the dialog panel.
+     * @default 'default'
+     */
+    layout?: DialogCardVariantProps['layout']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}

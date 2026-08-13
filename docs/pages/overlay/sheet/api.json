@@ -146,7 +146,8 @@
       {
         "name": "classes",
         "required": false,
-        "type": "SheetT.Classes | undefined"
+        "type": "SheetT.Classes | undefined",
+        "description": "Slot-based class overrides."
       },
       {
         "name": "close",
@@ -159,7 +160,8 @@
         "name": "defaultOpen",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Initial open state when uncontrolled."
+        "description": "Initial open state when uncontrolled.",
+        "defaultValue": "false"
       },
       {
         "name": "description",
@@ -171,7 +173,8 @@
         "name": "dismissible",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether outside interaction and Escape should dismiss the shell."
+        "description": "Whether outside interaction and Escape should dismiss the shell.",
+        "defaultValue": "true"
       },
       {
         "name": "footer",
@@ -194,7 +197,9 @@
       {
         "name": "inset",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether to inset the sheet from the viewport on larger screens.",
+        "defaultValue": "false"
       },
       {
         "name": "onClosePrevent",
@@ -229,12 +234,15 @@
       {
         "name": "side",
         "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
+        "description": "Edge of the viewport from which the sheet enters.",
+        "defaultValue": "right"
       },
       {
         "name": "styles",
         "required": false,
-        "type": "SheetT.Styles | undefined"
+        "type": "SheetT.Styles | undefined",
+        "description": "Slot-based style overrides."
       },
       {
         "name": "title",

@@ -71,7 +71,8 @@
       {
         "name": "classes",
         "required": false,
-        "type": "PopoverT.Classes | undefined"
+        "type": "PopoverT.Classes | undefined",
+        "description": "Slot-based class overrides."
       },
       {
         "name": "closeDelay",
@@ -89,32 +90,43 @@
       {
         "name": "defaultOpen",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled.",
+        "defaultValue": "false"
       },
       {
         "name": "disabled",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether trigger interactions and content rendering are disabled.",
+        "defaultValue": "false"
       },
       {
         "name": "dismissible",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether outside interaction and Escape dismiss the content.",
+        "defaultValue": "true"
       },
       {
         "name": "forceMount",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether content remains mounted while closed.",
+        "defaultValue": "false"
       },
       {
         "name": "id",
         "required": false,
-        "type": "string | undefined"
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
       },
       {
         "name": "modal",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether the content traps focus and hides outside content from assistive technology.",
+        "defaultValue": "false"
       },
       {
         "name": "mode",
@@ -126,17 +138,20 @@
       {
         "name": "onClosePrevent",
         "required": false,
-        "type": "(() => void) | undefined"
+        "type": "(() => void) | undefined",
+        "description": "Called when a dismissal attempt is blocked."
       },
       {
         "name": "onOpenChange",
         "required": false,
-        "type": "((open: boolean) => void) | undefined"
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
       },
       {
         "name": "open",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
       },
       {
         "name": "openDelay",
@@ -148,22 +163,29 @@
       {
         "name": "placement",
         "required": false,
-        "type": "Placement | undefined"
+        "type": "Placement | undefined",
+        "description": "Preferred content placement relative to the trigger.",
+        "defaultValue": "bottom"
       },
       {
         "name": "preventScroll",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether body scroll should be locked while the content is present.",
+        "defaultValue": "false"
       },
       {
         "name": "side",
         "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
+        "description": "Visual side styles applied after the positioned placement is resolved.",
+        "defaultValue": "bottom"
       },
       {
         "name": "styles",
         "required": false,
-        "type": "PopoverT.Styles | undefined"
+        "type": "PopoverT.Styles | undefined",
+        "description": "Slot-based style overrides."
       }
     ],
     "inherited": []

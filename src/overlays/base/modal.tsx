@@ -22,6 +22,7 @@ import {
 } from './utils.ts'
 
 export interface ModalContentContext {
+  /** Closes the modal. */
   close: () => void
 }
 
@@ -30,40 +31,70 @@ export interface ModalProps {
   id?: string
   /** Controlled open state. */
   open?: boolean
-  /** Initial open state when uncontrolled. */
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
   /** Called whenever the open state changes. */
   onOpenChange?: (open: boolean) => void
   /** Called after the modal has fully finished its exit motion. */
   onExitComplete?: () => void
-  /** Whether outside interaction and Escape should dismiss the shell. */
+  /**
+   * Whether outside interaction and Escape should dismiss the shell.
+   * @default true
+   */
   dismissible?: boolean
   /** Called when a dismissal attempt is blocked. */
   onClosePrevent?: () => void
-  /** Whether body scroll should be locked while the shell is present. */
+  /**
+   * Whether body scroll should be locked while the shell is present.
+   * @default true
+   */
   preventScroll?: boolean
   /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
 
 export interface ModalTriggerProps {
+  /** Render the modal trigger as a single HTMLElement root. */
   children?: (props: OverlayTriggerProps) => JSX.Element
 }
 
 export interface ModalContentProps {
+  /** Receives the mounted content element and `undefined` when it unmounts. */
   ref?: (element: HTMLDivElement | undefined) => void
+
+  /** Component or element rendered inside the modal content surface. */
   contentRender: ComponentOrElement<ModalContentContext>
+
+  /** Additional attributes applied to the modal content element. */
   contentAttributes?: Record<string, string | number | boolean | undefined>
+
+  /** Accessible name used when no visible label is available. */
   ariaLabel?: string
+
+  /** Id of the element that labels the modal content. */
   ariaLabelledBy?: string
+
+  /** Id of the element that describes the modal content. */
   ariaDescribedBy?: string
+
+  /** Class applied to the modal content element. */
   class?: string
+
+  /** Style applied to the modal content element. */
   style?: JSX.CSSProperties
 }
 
 export interface ModalOverlayProps {
+  /** Receives the mounted overlay element and `undefined` when it unmounts. */
   ref?: (element: HTMLDivElement | undefined) => void
+
+  /** Class applied to the modal overlay element. */
   class?: string
+
+  /** Style applied to the modal overlay element. */
   style?: JSX.CSSProperties
 }
 
