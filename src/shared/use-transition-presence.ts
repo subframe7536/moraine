@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
-import { useEventListener } from './use-event-listener.ts'
+import { attachEventListener } from './use-event-listener.ts'
 
 export type TransitionPresenceMotion = 'animation' | 'transition' | 'both' | 'none'
 
@@ -16,6 +16,7 @@ export interface TransitionPresenceState {
     'data-expanded'?: string
   }>
   present: Accessor<boolean>
+  registerElement: (element: HTMLElement) => () => void
   setElement: (element: HTMLElement | undefined) => void
 }
 
@@ -117,6 +118,208 @@ function getMotionDurations(element: HTMLElement): MotionDurations {
   return { animation, transition }
 }
 
+interface MotionWait {
+  cancel: () => void
+}
+
+type WebAnimation = Animation & {
+  animationName?: string
+  transitionProperty?: string
+}
+
+function isRelevantWebAnimation(animation: Animation, mode: TransitionPresenceMotion): boolean {
+  if (mode === 'both') {
+    return true
+  }
+
+  const candidate = animation as WebAnimation
+  const isAnimation = typeof candidate.animationName === 'string'
+  const isTransition = typeof candidate.transitionProperty === 'string'
+
+  // Script-created animations do not identify themselves as CSS animations or
+  // transitions. Keep them relevant for either single-kind mode, matching the
+  // legacy Web Animations behavior.
+  if (!isAnimation && !isTransition) {
+    return true
+  }
+
+  return mode === 'animation' ? isAnimation : isTransition
+}
+
+function getWebAnimations(
+  element: HTMLElement,
+  mode: TransitionPresenceMotion,
+): Animation[] | undefined {
+  if (typeof element.getAnimations !== 'function') {
+    return undefined
+  }
+
+  return element
+    .getAnimations({ subtree: false })
+    .filter((animation) => isRelevantWebAnimation(animation, mode))
+}
+
+function waitForElementMotion(
+  element: HTMLElement,
+  mode: TransitionPresenceMotion,
+  onSettled: () => void,
+): MotionWait | null {
+  let cancelled = false
+  let settled = false
+  const cleanups: Array<() => void> = []
+
+  const cleanup = (): void => {
+    for (const remove of cleanups.splice(0)) {
+      remove()
+    }
+  }
+
+  const settle = (): void => {
+    if (settled) {
+      return
+    }
+
+    settled = true
+    cleanup()
+    onSettled()
+  }
+
+  const cancel = (): void => {
+    cancelled = true
+    settle()
+  }
+
+  const webAnimations = getWebAnimations(element, mode)
+  if (webAnimations && webAnimations.length > 0) {
+    const waitForAnimations = (animations: Animation[]): void => {
+      if (cancelled) {
+        return
+      }
+
+      Promise.all(animations.map((animation) => animation.finished)).then(
+        () => {
+          if (!cancelled) {
+            settle()
+          }
+        },
+        () => {
+          if (cancelled) {
+            return
+          }
+
+          queueMicrotask(() => {
+            if (cancelled) {
+              return
+            }
+
+            const replacementAnimations = getWebAnimations(element, mode)
+            if (replacementAnimations && replacementAnimations.length > 0) {
+              waitForAnimations(replacementAnimations)
+            } else {
+              settle()
+            }
+          })
+        },
+      )
+    }
+
+    waitForAnimations(webAnimations)
+    return { cancel }
+  }
+
+  const motionDurations = getMotionDurations(element)
+  const remainingAnimationNames = [...motionDurations.animation.names]
+  const remainingTransitionNames = [...motionDurations.transition.names]
+  let remainingAnimationEvents =
+    mode === 'animation' || mode === 'both' ? motionDurations.animation.eventCount : 0
+  let remainingTransitionEvents =
+    mode === 'transition' || mode === 'both' ? motionDurations.transition.eventCount : 0
+
+  if (remainingAnimationEvents === 0 && remainingTransitionEvents === 0) {
+    return null
+  }
+
+  const consumeMotionEvent = (remainingNames: Array<string>, eventName: string): boolean => {
+    const wildcardIndex = remainingNames.findIndex((name) => name === '*' || name === 'all')
+    const nameIndex = eventName
+      ? remainingNames.indexOf(eventName)
+      : remainingNames.length === 1
+        ? 0
+        : -1
+    const index = nameIndex >= 0 ? nameIndex : wildcardIndex
+
+    if (index < 0) {
+      return false
+    }
+
+    remainingNames.splice(index, 1)
+    return true
+  }
+
+  const finish = (): void => {
+    if (remainingAnimationEvents === 0 && remainingTransitionEvents === 0) {
+      settle()
+    }
+  }
+
+  const onAnimationEnd = (event: AnimationEvent): void => {
+    if (cancelled || event.target !== event.currentTarget) {
+      return
+    }
+
+    if (!consumeMotionEvent(remainingAnimationNames, event.animationName)) {
+      return
+    }
+
+    remainingAnimationEvents = Math.max(0, remainingAnimationEvents - 1)
+    finish()
+  }
+
+  const onTransitionEnd = (event: TransitionEvent): void => {
+    if (cancelled || event.target !== event.currentTarget) {
+      return
+    }
+
+    if (!consumeMotionEvent(remainingTransitionNames, event.propertyName)) {
+      return
+    }
+
+    remainingTransitionEvents = Math.max(0, remainingTransitionEvents - 1)
+    finish()
+  }
+
+  if (remainingAnimationEvents > 0) {
+    cleanups.push(attachEventListener(element, 'animationend', onAnimationEnd))
+    cleanups.push(attachEventListener(element, 'animationcancel', onAnimationEnd))
+  }
+
+  if (remainingTransitionEvents > 0) {
+    cleanups.push(attachEventListener(element, 'transitionend', onTransitionEnd))
+    cleanups.push(attachEventListener(element, 'transitioncancel', onTransitionEnd))
+  }
+
+  const timeoutDuration = Math.max(
+    remainingAnimationEvents > 0 ? (motionDurations.animation.duration ?? 0) : 0,
+    remainingTransitionEvents > 0 ? (motionDurations.transition.duration ?? 0) : 0,
+  )
+  const hasUnknownMotionDuration =
+    (remainingAnimationEvents > 0 && motionDurations.animation.duration === undefined) ||
+    (remainingTransitionEvents > 0 && motionDurations.transition.duration === undefined)
+  const timeout = hasUnknownMotionDuration
+    ? undefined
+    : setTimeout(() => {
+        remainingAnimationEvents = 0
+        remainingTransitionEvents = 0
+        finish()
+      }, timeoutDuration)
+
+  if (timeout !== undefined) {
+    cleanups.push(() => clearTimeout(timeout))
+  }
+
+  return { cancel }
+}
+
 /**
  * Keeps a disclosure element mounted until its exit motion fully settles.
  */
@@ -131,7 +334,22 @@ export function useTransitionPresence(
 
     return { 'data-closed': '' }
   })
-  const [element, setPresenceElement] = createSignal<HTMLElement>()
+  const [registrations, setRegistrations] = createSignal<Map<number, HTMLElement>>(new Map())
+  let nextRegistrationId = 0
+  let legacyRegistrationId: number | undefined
+
+  const updateRegistration = (update: (current: Map<number, HTMLElement>) => void): void => {
+    setRegistrations((current) => {
+      const next = new Map(current)
+      update(next)
+      return next
+    })
+  }
+
+  const clearRegistrations = (): void => {
+    legacyRegistrationId = undefined
+    setRegistrations(new Map())
+  }
 
   createEffect(() => {
     if (options.open()) {
@@ -143,14 +361,11 @@ export function useTransitionPresence(
       return
     }
 
-    const currentElement = element()
+    const currentElements = Array.from(registrations().values()).filter(
+      (element) => element.isConnected,
+    )
 
-    if (!currentElement) {
-      setPresent(false)
-      return
-    }
-
-    if (!currentElement.isConnected) {
+    if (currentElements.length === 0) {
       setPresent(false)
       return
     }
@@ -162,146 +377,33 @@ export function useTransitionPresence(
       return
     }
 
-    const waitForAnimation = mode === 'animation' || mode === 'both'
-    const waitForTransition = mode === 'transition' || mode === 'both'
-
     let cancelled = false
-    if (typeof currentElement.getAnimations === 'function') {
-      const animations = currentElement.getAnimations({ subtree: false })
-
-      if (animations.length > 0) {
-        const waitForAnimations = (currentAnimations: Animation[]): void => {
-          Promise.all(currentAnimations.map((animation) => animation.finished)).then(
-            () => {
-              if (!cancelled && !options.open()) {
-                setPresent(false)
-              }
-            },
-            () => {
-              if (cancelled || options.open()) {
-                return
-              }
-
-              const replacementAnimations = currentElement.getAnimations({ subtree: false })
-
-              if (
-                replacementAnimations.some(
-                  (animation) => animation.pending || animation.playState !== 'finished',
-                )
-              ) {
-                waitForAnimations(replacementAnimations)
-                return
-              }
-
-              setPresent(false)
-            },
-          )
-        }
-
-        waitForAnimations(animations)
-
-        onCleanup(() => {
-          cancelled = true
-        })
-
-        return
-      }
-    }
-
-    const motionDurations = getMotionDurations(currentElement)
-    const remainingAnimationNames = [...motionDurations.animation.names]
-    const remainingTransitionNames = [...motionDurations.transition.names]
-    let remainingAnimationEvents = waitForAnimation ? motionDurations.animation.eventCount : 0
-    let remainingTransitionEvents = waitForTransition ? motionDurations.transition.eventCount : 0
-
-    const consumeMotionEvent = (remainingNames: Array<string>, eventName: string): boolean => {
-      const wildcardIndex = remainingNames.findIndex((name) => name === '*' || name === 'all')
-      const nameIndex = eventName
-        ? remainingNames.indexOf(eventName)
-        : remainingNames.length === 1
-          ? 0
-          : -1
-      const index = nameIndex >= 0 ? nameIndex : wildcardIndex
-
-      if (index < 0) {
-        return false
-      }
-
-      remainingNames.splice(index, 1)
-      return true
-    }
-
-    const finish = () => {
-      if (
-        !cancelled &&
-        remainingAnimationEvents === 0 &&
-        remainingTransitionEvents === 0 &&
-        !options.open()
-      ) {
+    let remainingWaits = 0
+    const waits: MotionWait[] = []
+    const onElementSettled = (): void => {
+      remainingWaits = Math.max(0, remainingWaits - 1)
+      if (remainingWaits === 0 && !cancelled && !options.open()) {
         setPresent(false)
       }
     }
 
-    const onAnimationEnd = (event: Event) => {
-      if (cancelled || options.open() || event.target !== event.currentTarget) {
-        return
+    for (const element of currentElements) {
+      const wait = waitForElementMotion(element, mode, onElementSettled)
+      if (wait) {
+        waits.push(wait)
+        remainingWaits += 1
       }
-
-      if (!consumeMotionEvent(remainingAnimationNames, (event as AnimationEvent).animationName)) {
-        return
-      }
-
-      remainingAnimationEvents = Math.max(0, remainingAnimationEvents - 1)
-      finish()
     }
 
-    const onTransitionEnd = (event: Event) => {
-      if (cancelled || options.open() || event.target !== event.currentTarget) {
-        return
-      }
-
-      if (!consumeMotionEvent(remainingTransitionNames, (event as TransitionEvent).propertyName)) {
-        return
-      }
-
-      remainingTransitionEvents = Math.max(0, remainingTransitionEvents - 1)
-      finish()
-    }
-
-    if (remainingAnimationEvents === 0 && remainingTransitionEvents === 0) {
+    if (waits.length === 0) {
       setPresent(false)
       return
     }
 
-    if (waitForAnimation) {
-      useEventListener(currentElement, 'animationend', onAnimationEnd)
-      useEventListener(currentElement, 'animationcancel', onAnimationEnd)
-    }
-
-    if (waitForTransition) {
-      useEventListener(currentElement, 'transitionend', onTransitionEnd)
-      useEventListener(currentElement, 'transitioncancel', onTransitionEnd)
-    }
-
-    const timeoutDuration = Math.max(
-      waitForAnimation ? (motionDurations.animation.duration ?? 0) : 0,
-      waitForTransition ? (motionDurations.transition.duration ?? 0) : 0,
-    )
-    const hasUnknownMotionDuration =
-      (waitForAnimation && motionDurations.animation.duration === undefined) ||
-      (waitForTransition && motionDurations.transition.duration === undefined)
-    const timeout = hasUnknownMotionDuration
-      ? undefined
-      : setTimeout(() => {
-          remainingAnimationEvents = 0
-          remainingTransitionEvents = 0
-          finish()
-        }, timeoutDuration)
-
     onCleanup(() => {
       cancelled = true
-      if (timeout !== undefined) {
-        clearTimeout(timeout)
+      for (const wait of waits) {
+        wait.cancel()
       }
     })
   })
@@ -311,14 +413,42 @@ export function useTransitionPresence(
       return
     }
 
-    setPresenceElement(undefined)
+    clearRegistrations()
   })
 
   return {
     dataAttrs,
     present,
+    registerElement(element) {
+      const registrationId = nextRegistrationId++
+      let active = true
+      updateRegistration((current) => {
+        current.set(registrationId, element)
+      })
+
+      return () => {
+        if (!active) {
+          return
+        }
+
+        active = false
+        updateRegistration((current) => {
+          current.delete(registrationId)
+        })
+      }
+    },
     setElement(nextElement) {
-      setPresenceElement(() => nextElement)
+      updateRegistration((current) => {
+        if (legacyRegistrationId !== undefined) {
+          current.delete(legacyRegistrationId)
+        }
+
+        legacyRegistrationId = undefined
+        if (nextElement) {
+          legacyRegistrationId = nextRegistrationId++
+          current.set(legacyRegistrationId, nextElement)
+        }
+      })
     },
   }
 }

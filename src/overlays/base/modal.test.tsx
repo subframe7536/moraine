@@ -7,6 +7,15 @@ import { pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { getFocusableElements } from './utils.ts'
 
+function deferred(): { promise: Promise<void>; resolve: () => void } {
+  let resolve: (() => void) | undefined
+  const promise = new Promise<void>((nextResolve) => {
+    resolve = nextResolve
+  })
+
+  return { promise, resolve: () => resolve?.() }
+}
+
 describe('Modal primitives', () => {
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
@@ -70,6 +79,94 @@ describe('Modal primitives', () => {
     expect(overlay?.className).toContain('data-expanded:animate-overlay-in')
   })
 
+  test('applies the default popup transition classes to custom modal content', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]')
+    expect(content?.className).toContain('outline-none')
+    expect(content?.className).toContain('w-full')
+    expect(content?.className).toContain('z-50')
+    expect(content?.className).toContain('data-closed:animate-popup-out')
+    expect(content?.className).toContain('data-expanded:animate-popup-in')
+  })
+
+  test('replaces the default content classes when a custom class is provided', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content class="custom-content" contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]')
+    expect(content?.className).toBe('custom-content')
+  })
+
+  test('shares data attributes and waits for both surfaces before exiting', async () => {
+    const [open, setOpen] = createSignal(true)
+    const onExitComplete = vi.fn()
+    const screen = render(() => (
+      <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
+        <Modal.Content overlay contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const overlayAnimation = deferred()
+    const contentAnimation = deferred()
+
+    Object.defineProperty(overlay, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: overlayAnimation.promise }],
+    })
+    Object.defineProperty(content, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: contentAnimation.promise }],
+    })
+
+    expect(overlay.getAttribute('data-expanded')).toBe('')
+    expect(content.getAttribute('data-expanded')).toBe('')
+
+    setOpen(false)
+    expect(overlay.getAttribute('data-closed')).toBe('')
+    expect(content.getAttribute('data-closed')).toBe('')
+
+    contentAnimation.resolve()
+    await Promise.resolve()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(onExitComplete).not.toHaveBeenCalled()
+
+    overlayAnimation.resolve()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+      expect(onExitComplete).toHaveBeenCalledOnce()
+    })
+    screen.unmount()
+  })
+
+  test('does not call onExitComplete when Content is removed while open', async () => {
+    const [showContent, setShowContent] = createSignal(true)
+    const onExitComplete = vi.fn()
+    const screen = render(() => (
+      <Modal open onExitComplete={onExitComplete}>
+        <Show when={showContent()}>
+          <Modal.Content contentRender={<span>Content</span>} />
+        </Show>
+      </Modal>
+    ))
+
+    setShowContent(false)
+    await Promise.resolve()
+
+    expect(onExitComplete).not.toHaveBeenCalled()
+    screen.unmount()
+  })
+
   test('does not render an overlay by default', () => {
     render(() => (
       <Modal defaultOpen>
@@ -85,7 +182,7 @@ describe('Modal primitives', () => {
     const overlayRef = vi.fn()
     const contentRef = vi.fn()
 
-    render(() => (
+    const screen = render(() => (
       <Modal defaultOpen>
         <Modal.Content
           overlay
@@ -109,6 +206,10 @@ describe('Modal primitives', () => {
     expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
     expect(overlayRef).toHaveBeenCalledWith(overlay)
     expect(contentRef).toHaveBeenCalledWith(content)
+
+    screen.unmount()
+    expect(overlayRef).toHaveBeenLastCalledWith(undefined)
+    expect(contentRef).toHaveBeenLastCalledWith(undefined)
   })
 
   test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {

@@ -22,6 +22,10 @@ import { Modal } from 'moraine'
 `Modal.Trigger` connects a single trigger element. `Modal.Content` owns the portal and renders the
 overlay and content as sibling surfaces. Set `overlay` to render the optional backdrop.
 
+When `Modal.Content` does not receive a `class`, it uses the default popup transition classes
+(`data-expanded:animate-popup-in` and `data-closed:animate-popup-out`). Passing `class` replaces
+the default content classes completely, so custom surfaces can provide their own layout and motion.
+
 ```text
 Modal
 ├── Modal.Trigger

@@ -19,6 +19,7 @@ import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useOverlayInteraction } from './interaction.ts'
+import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from './modal.class.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
@@ -115,7 +116,10 @@ export namespace ModalT {
     /** Id of the element that describes the modal content. */
     ariaDescribedBy?: string
 
-    /** Class applied to the modal content element. */
+    /**
+     * Class applied to the modal content element.
+     * When omitted, the default popup transition class is applied.
+     */
     class?: string
 
     /** Style applied to the modal content element. */
@@ -126,10 +130,9 @@ export namespace ModalT {
 /** Props for the Modal component. */
 export type ModalProps = ModalT.Props
 
-type ModalSurface = 'content' | 'overlay'
-
 interface ModalContext {
   open: Accessor<boolean>
+  presence: ReturnType<typeof useTransitionPresence>
   contentId: Accessor<string>
   updateOpen: (open: boolean) => void
   dismissible: Accessor<boolean>
@@ -137,11 +140,8 @@ interface ModalContext {
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
+  registerContent: () => () => void
   contentPresent: Accessor<boolean>
-  registerSurface: (
-    surface: ModalSurface,
-    presence: ReturnType<typeof useTransitionPresence>,
-  ) => () => void
   isPresent: Accessor<boolean>
 }
 
@@ -157,18 +157,18 @@ export function Modal(props: ModalProps): JSX.Element {
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
-  const [surfaces, setSurfaces] = createSignal<
-    Array<{ surface: ModalSurface; presence: ReturnType<typeof useTransitionPresence> }>
-  >([])
+  const presence = useTransitionPresence({ open: () => Boolean(open()) })
+  const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
+  let nextContentRegistrationId = 0
   const dismissible = createMemo(() => props.dismissible ?? true)
-  const isPresent = createMemo(() => surfaces().some(({ presence }) => presence.present()))
-  const contentPresent = createMemo(() =>
-    surfaces().some(({ surface, presence }) => surface === 'content' && presence.present()),
-  )
+  const contentMounted = createMemo(() => contentRegistrations().size > 0)
+  const isPresent = createMemo(() => contentMounted() && presence.present())
+  const contentPresent = isPresent
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
-  let wasPresent = false
+  let hadOpenContent = false
+  let closeCycleActive = false
 
   const updateOpen = (nextOpen: boolean): void => {
     if (nextOpen === !!open()) {
@@ -180,13 +180,21 @@ export function Modal(props: ModalProps): JSX.Element {
   }
 
   createEffect(() => {
-    if (isPresent()) {
-      wasPresent = true
+    if (open()) {
+      if (contentMounted() && presence.present()) {
+        hadOpenContent = true
+      }
+      closeCycleActive = false
       return
     }
 
-    if (wasPresent) {
-      wasPresent = false
+    if (hadOpenContent) {
+      closeCycleActive = true
+    }
+
+    if (closeCycleActive && !presence.present()) {
+      closeCycleActive = false
+      hadOpenContent = false
       props.onExitComplete?.()
     }
   })
@@ -342,6 +350,7 @@ export function Modal(props: ModalProps): JSX.Element {
 
   const context: ModalContext = {
     open: () => Boolean(open()),
+    presence,
     contentId,
     updateOpen,
     dismissible,
@@ -349,15 +358,29 @@ export function Modal(props: ModalProps): JSX.Element {
     setTriggerElement,
     contentElement,
     setContentElement,
-    contentPresent,
-    registerSurface: (surface, presence) => {
-      const entry = { surface, presence }
-      setSurfaces((current) => [...current, entry])
+    registerContent: () => {
+      const registrationId = nextContentRegistrationId++
+      let active = true
+      setContentRegistrations((current) => {
+        const next = new Set(current)
+        next.add(registrationId)
+        return next
+      })
 
       return () => {
-        setSurfaces((current) => current.filter((candidate) => candidate !== entry))
+        if (!active) {
+          return
+        }
+
+        active = false
+        setContentRegistrations((current) => {
+          const next = new Set(current)
+          next.delete(registrationId)
+          return next
+        })
       }
     },
+    contentPresent,
     isPresent,
   }
 
@@ -417,84 +440,65 @@ function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
 function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const contentRender = createMemo(() => props.contentRender)
-  const overlayPresence = useTransitionPresence({
-    open: () => Boolean(context.open() && props.overlay),
-  })
-  const presence = useTransitionPresence({ open: context.open })
-  const unregisterOverlay = context.registerSurface('overlay', overlayPresence)
-  const unregister = context.registerSurface('content', presence)
-  onCleanup(unregisterOverlay)
-  onCleanup(unregister)
-
-  createEffect(() => {
-    if (presence.present()) {
-      return
-    }
-
-    context.setContentElement(undefined)
-    presence.setElement(undefined)
-  })
+  const presence = context.presence
+  const unregisterContent = context.registerContent()
+  onCleanup(unregisterContent)
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
     trapFocusInContainer(event, context.contentElement())
   }
 
   return (
-    <Show when={overlayPresence.present() || presence.present()}>
+    <Show when={presence.present()}>
       <Portal>
-        <Show when={overlayPresence.present()}>
+        <Show when={props.overlay}>
           <div
             data-slot="overlay"
-            {...overlayPresence.dataAttrs()}
+            {...presence.dataAttrs()}
             ref={(element) => {
-              overlayPresence.setElement(element)
+              const unregister = presence.registerElement(element)
               props.overlayRef?.(element)
               onCleanup(() => {
-                overlayPresence.setElement(undefined)
+                unregister()
                 props.overlayRef?.(undefined)
               })
             }}
             style={props.overlayStyle}
-            class={cn(
-              'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
-              props.overlayClass,
-            )}
+            class={cn(MODAL_OVERLAY_CLASS, props.overlayClass)}
           />
         </Show>
 
-        <Show when={presence.present()}>
-          <div
-            {...props.contentAttributes}
-            {...presence.dataAttrs()}
-            ref={(element) => {
-              context.setContentElement(element)
-              presence.setElement(element)
-              props.ref?.(element)
-              onCleanup(() => {
-                if (context.contentElement() === element) {
-                  context.setContentElement(undefined)
-                  presence.setElement(undefined)
-                  props.ref?.(undefined)
-                }
-              })
-            }}
-            id={context.contentId()}
-            role="dialog"
-            aria-modal="true"
-            aria-label={props.ariaLabel}
-            aria-labelledby={props.ariaLabelledBy}
-            aria-describedby={props.ariaDescribedBy}
-            tabIndex={-1}
-            data-slot="content"
-            style={props.style}
-            class={props.class}
-            onKeyDown={onContentKeyDown}
-          >
-            {renderComponentOrElement(contentRender(), {
-              close: () => context.updateOpen(false),
-            })}
-          </div>
-        </Show>
+        <div
+          {...props.contentAttributes}
+          {...presence.dataAttrs()}
+          ref={(element) => {
+            const unregister = presence.registerElement(element)
+            context.setContentElement(element)
+            props.ref?.(element)
+            onCleanup(() => {
+              unregister()
+              if (context.contentElement() === element) {
+                context.setContentElement(undefined)
+                props.ref?.(undefined)
+              }
+            })
+          }}
+          id={context.contentId()}
+          role="dialog"
+          aria-modal="true"
+          aria-label={props.ariaLabel}
+          aria-labelledby={props.ariaLabelledBy}
+          aria-describedby={props.ariaDescribedBy}
+          tabIndex={-1}
+          data-slot="content"
+          style={props.style}
+          class={props.class ?? MODAL_CONTENT_CLASS}
+          onKeyDown={onContentKeyDown}
+        >
+          {renderComponentOrElement(contentRender(), {
+            close: () => context.updateOpen(false),
+          })}
+        </div>
       </Portal>
     </Show>
   )

@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal, Show } from 'solid-js'
+import { createRoot, createSignal, onCleanup, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { useTransitionPresence } from './use-transition-presence.ts'
@@ -165,6 +165,177 @@ describe('useTransitionPresence', () => {
     await waitFor(() => {
       expect(fixture.presence.present()).toBe(false)
     })
+  })
+
+  test('waits for every registered element to settle', async () => {
+    let firstElement: HTMLElement | undefined
+    let secondElement: HTMLElement | undefined
+    let presence: TransitionPresenceState | undefined
+    let setOpen: ((open: boolean) => void) | undefined
+
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const currentPresence = useTransitionPresence({ open })
+      presence = currentPresence
+      setOpen = updateOpen
+
+      return (
+        <Show when={currentPresence.present()}>
+          <div
+            ref={(element) => {
+              firstElement = element
+              onCleanup(currentPresence.registerElement(element))
+            }}
+          />
+          <div
+            ref={(element) => {
+              secondElement = element
+              onCleanup(currentPresence.registerElement(element))
+            }}
+          />
+        </Show>
+      )
+    })
+
+    if (!firstElement || !secondElement || !presence || !setOpen) {
+      throw new Error('Multi-element presence fixture did not mount')
+    }
+
+    const firstAnimation = deferred()
+    const secondAnimation = deferred()
+    Object.defineProperty(firstElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: firstAnimation.promise }],
+    })
+    Object.defineProperty(secondElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: secondAnimation.promise }],
+    })
+
+    setOpen(false)
+    firstAnimation.resolve()
+    await Promise.resolve()
+
+    expect(presence.present()).toBe(true)
+
+    secondAnimation.resolve()
+    await waitFor(() => {
+      expect(presence?.present()).toBe(false)
+    })
+    screen.unmount()
+  })
+
+  test('waits for mixed Web Animation and CSS transition elements', async () => {
+    let animatedElement: HTMLElement | undefined
+    let transitionedElement: HTMLElement | undefined
+    let presence: TransitionPresenceState | undefined
+    let setOpen: ((open: boolean) => void) | undefined
+
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const currentPresence = useTransitionPresence({ open })
+      presence = currentPresence
+      setOpen = updateOpen
+
+      return (
+        <Show when={currentPresence.present()}>
+          <div
+            ref={(element) => {
+              animatedElement = element
+              onCleanup(currentPresence.registerElement(element))
+            }}
+          />
+          <div
+            ref={(element) => {
+              transitionedElement = element
+              onCleanup(currentPresence.registerElement(element))
+            }}
+          />
+        </Show>
+      )
+    })
+
+    if (!animatedElement || !transitionedElement || !presence || !setOpen) {
+      throw new Error('Mixed presence fixture did not mount')
+    }
+
+    const animation = deferred()
+    Object.defineProperty(animatedElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: animation.promise }],
+    })
+    disableWebAnimations(transitionedElement)
+    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
+
+    setOpen(false)
+    await fireEvent.transitionEnd(transitionedElement)
+    expect(presence.present()).toBe(true)
+
+    animation.resolve()
+    await waitFor(() => {
+      expect(presence?.present()).toBe(false)
+    })
+    screen.unmount()
+  })
+
+  test('cancels the old exit session when a registered element is removed', async () => {
+    let firstElement: HTMLElement | undefined
+    let secondElement: HTMLElement | undefined
+    let unregisterSecond: (() => void) | undefined
+    let presence: TransitionPresenceState | undefined
+    let setOpen: ((open: boolean) => void) | undefined
+
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const currentPresence = useTransitionPresence({ open })
+      presence = currentPresence
+      setOpen = updateOpen
+
+      return (
+        <Show when={currentPresence.present()}>
+          <div
+            ref={(element) => {
+              firstElement = element
+              onCleanup(currentPresence.registerElement(element))
+            }}
+          />
+          <div
+            ref={(element) => {
+              secondElement = element
+              unregisterSecond = currentPresence.registerElement(element)
+              onCleanup(unregisterSecond)
+            }}
+          />
+        </Show>
+      )
+    })
+
+    if (!firstElement || !secondElement || !presence || !setOpen || !unregisterSecond) {
+      throw new Error('Removable presence fixture did not mount')
+    }
+
+    const firstAnimation = deferred()
+    const secondAnimation = deferred()
+    Object.defineProperty(firstElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: firstAnimation.promise }],
+    })
+    Object.defineProperty(secondElement, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: secondAnimation.promise }],
+    })
+
+    setOpen(false)
+    unregisterSecond()
+    firstAnimation.resolve()
+
+    await waitFor(() => {
+      expect(presence?.present()).toBe(false)
+    })
+    expect(firstElement.isConnected).toBe(false)
+    expect(secondElement.isConnected).toBe(false)
+    secondAnimation.resolve()
+    screen.unmount()
   })
 
   test('settles animation fallback from its own end event', async () => {
