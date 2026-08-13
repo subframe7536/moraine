@@ -30,7 +30,6 @@ const fixtureModules = [
   '/src/overlays/context-menu/context-menu.ssr.fixture.tsx',
   '/src/overlays/dialog/dialog.ssr.fixture.tsx',
   '/src/overlays/dropdown-menu/dropdown-menu.ssr.fixture.tsx',
-  '/src/overlays/popup/popup.ssr.fixture.tsx',
   '/src/overlays/popover/popover.ssr.fixture.tsx',
   '/src/overlays/sheet/sheet.ssr.fixture.tsx',
   '/src/overlays/tooltip/tooltip.ssr.fixture.tsx',

@@ -6,11 +6,12 @@ import {
   Dialog,
   DropdownMenu,
   Icon,
+  Modal,
   Popover,
-  Popup,
   Sheet,
   Tooltip,
 } from 'moraine'
+import type { ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 declare module 'moraine' {
@@ -28,6 +29,8 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 const foo = () => undefined
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
+const modalContentContext: ModalT.ContentContext = { close: () => undefined }
+modalContentContext.close()
 
 ;<Badge
   id="badge"
@@ -49,37 +52,39 @@ const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 />
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as="input" type="checkbox" />
-;<Dialog>
+;<Modal defaultOpen>
+  <Modal.Content overlay ariaLabel="Type fixture" contentRender="Modal content" />
+</Modal>
+;<Dialog data-testid="dialog-trigger" hidden>
   {(props) => (
     <a {...props} href="/dialog">
       Open dialog
     </a>
   )}
 </Dialog>
-;<Popover>{(props) => <span {...props}>Open popover</span>}</Popover>
-;<Tooltip>
+;<Popover data-testid="popover-trigger" hidden>
+  {(props) => <span {...props}>Open popover</span>}
+</Popover>
+;<Tooltip data-testid="tooltip-trigger" hidden>
   {(props) => (
     <button {...props} type="button">
       Hover target
     </button>
   )}
 </Tooltip>
-;<DropdownMenu items={[]}>
+;<DropdownMenu items={[]} data-testid="dropdown-trigger" hidden>
   {(props) => (
     <button {...props} type="button">
       Open menu
     </button>
   )}
 </DropdownMenu>
-;<ContextMenu items={[]}>{(props) => <div {...props}>Open menu</div>}</ContextMenu>
-;<Popup>
-  {(props) => (
-    <a {...props} href="/popup">
-      Open popup
-    </a>
-  )}
-</Popup>
-;<Sheet>{(props) => <span {...props}>Open sheet</span>}</Sheet>
+;<ContextMenu items={[]} data-testid="context-trigger" hidden>
+  {(props) => <div {...props}>Open menu</div>}
+</ContextMenu>
+;<Sheet data-testid="sheet-trigger" hidden>
+  {(props) => <span {...props}>Open sheet</span>}
+</Sheet>
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />

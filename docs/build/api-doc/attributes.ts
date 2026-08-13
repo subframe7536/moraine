@@ -34,6 +34,7 @@ interface ModuleInfo {
   variables: Map<string, ESTree.VariableDeclarator>
   imports: Map<string, ImportBinding>
   localAliases: Map<string, string>
+  members: Map<string, string>
   reexports: Map<string, { importedName: string; specifier: string }>
   exportStars: string[]
 }
@@ -128,10 +129,14 @@ function getSlotCandidates(node: ESTree.JSXOpeningElement): string[] {
 }
 
 function getJsxComponentName(name: ESTree.JSXElementName): string | null {
-  if (name.type !== 'JSXIdentifier' || !/^[A-Z]/.test(name.name)) {
-    return null
+  if (name.type === 'JSXIdentifier') {
+    return /^[A-Z]/.test(name.name) ? name.name : null
   }
-  return name.name
+  if (name.type === 'JSXMemberExpression') {
+    const object = getJsxComponentName(name.object)
+    return object ? `${object}.${name.property.name}` : null
+  }
+  return null
 }
 
 function getBindingNames(node: ESTree.Node): string[] {
@@ -270,6 +275,22 @@ function indexModule(source: ModuleInfo): void {
   }
 
   for (const statement of body) {
+    if (
+      statement.type === 'ExpressionStatement' &&
+      statement.expression.type === 'AssignmentExpression' &&
+      statement.expression.operator === '=' &&
+      statement.expression.left.type === 'MemberExpression' &&
+      !statement.expression.left.computed &&
+      statement.expression.left.object.type === 'Identifier' &&
+      statement.expression.left.property.type === 'Identifier' &&
+      statement.expression.right.type === 'Identifier'
+    ) {
+      source.members.set(
+        `${statement.expression.left.object.name}.${statement.expression.left.property.name}`,
+        statement.expression.right.name,
+      )
+      continue
+    }
     if (statement.type === 'ExportNamedDeclaration') {
       if (statement.declaration) {
         addDeclaration(statement.declaration)
@@ -413,6 +434,7 @@ export class SourceSlotAnalyzer {
         variables: new Map(),
         imports: new Map(),
         localAliases: new Map(),
+        members: new Map(),
         reexports: new Map(),
         exportStars: [],
       }
@@ -434,6 +456,25 @@ export class SourceSlotAnalyzer {
     }
     const nextVisited = new Set(visited)
     nextVisited.add(visitKey)
+
+    const memberAlias = module.members.get(name)
+    if (memberAlias) {
+      return this.#resolveSymbol(module, memberAlias, nextVisited)
+    }
+    const memberSeparator = name.indexOf('.')
+    if (memberSeparator > 0) {
+      const objectName = name.slice(0, memberSeparator)
+      const memberPath = name.slice(memberSeparator + 1)
+      const objectReference = await this.#resolveSymbol(module, objectName, nextVisited)
+      if (objectReference) {
+        const objectModule = await this.#loadModule(objectReference.filePath)
+        return this.#resolveSymbol(
+          objectModule,
+          `${objectReference.name}.${memberPath}`,
+          nextVisited,
+        )
+      }
+    }
 
     if (module.declarations.has(name)) {
       return { filePath: module.filePath, name }

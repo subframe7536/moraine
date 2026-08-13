@@ -89,4 +89,40 @@ export const Demo = () => <section data-slot="root"><Alias slotName="child" />{r
     expect(result[2]?.dataAttributes.map((attribute) => attribute.name)).toEqual(['data-helper'])
     await rm(projectRoot, { recursive: true, force: true })
   })
+
+  test('follows namespace component members', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-namespace-'))
+    const sourceDirectory = path.join(projectRoot, 'src')
+    await mkdir(sourceDirectory, { recursive: true })
+    await writeFile(
+      path.join(sourceDirectory, 'modal.tsx'),
+      `
+export function Modal(props) { return props.children }
+function ModalContent() { return <div data-slot="content" role="dialog" aria-modal="true" /> }
+Modal.Content = ModalContent
+`,
+      'utf8',
+    )
+    await writeFile(path.join(sourceDirectory, 'index.ts'), `export * from './modal.tsx'`, 'utf8')
+    await writeFile(
+      path.join(sourceDirectory, 'dialog.tsx'),
+      `
+import { Modal } from './index.ts'
+export function Dialog() { return <Modal><Modal.Content /></Modal> }
+`,
+      'utf8',
+    )
+
+    const result = await new SourceSlotAnalyzer(projectRoot).enrichSlots(
+      'Dialog',
+      'src/dialog.tsx',
+      [{ name: 'content', runtimeSlots: ['content'] }],
+    )
+
+    expect(result[0]?.ariaAttributes.map((attribute) => attribute.name)).toEqual([
+      'aria-modal',
+      'role',
+    ])
+    await rm(projectRoot, { recursive: true, force: true })
+  })
 })

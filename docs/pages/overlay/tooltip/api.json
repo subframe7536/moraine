@@ -46,6 +46,12 @@
         "description": "Render the tooltip trigger as a single HTMLElement root."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
         "type": "TooltipT.Classes | undefined"
@@ -60,22 +66,29 @@
       {
         "name": "defaultOpen",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Initial open state when uncontrolled.",
+        "defaultValue": "false"
       },
       {
         "name": "disabled",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether trigger interactions and content rendering are disabled.",
+        "defaultValue": "false"
       },
       {
         "name": "forceMount",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether content remains mounted while closed.",
+        "defaultValue": "false"
       },
       {
         "name": "id",
         "required": false,
-        "type": "string | undefined"
+        "type": "string | undefined",
+        "description": "Unique identifier used to derive the content id."
       },
       {
         "name": "instantOpenDelay",
@@ -87,7 +100,9 @@
       {
         "name": "invert",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Whether to use the inverted foreground-on-background color treatment.",
+        "defaultValue": "false"
       },
       {
         "name": "kbds",
@@ -98,12 +113,14 @@
       {
         "name": "onOpenChange",
         "required": false,
-        "type": "((open: boolean) => void) | undefined"
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called whenever the open state changes."
       },
       {
         "name": "open",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Controlled open state."
       },
       {
         "name": "openDelay",
@@ -115,12 +132,26 @@
       {
         "name": "placement",
         "required": false,
-        "type": "Placement | undefined"
+        "type": "Placement | undefined",
+        "description": "Preferred content placement relative to the trigger.",
+        "defaultValue": "top"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "side",
         "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
+        "description": "Visual side styles applied after the positioned placement is resolved.",
+        "defaultValue": "top"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
       },
       {
         "name": "styles",

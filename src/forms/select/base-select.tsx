@@ -15,11 +15,9 @@ import { Portal } from 'solid-js/web'
 import type { IconT } from '../../elements/icon/index.ts'
 import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
-import {
-  overlayMenuContentVariants,
-  useOverlayMenuDismiss,
-  useOverlayMenuFloatingPosition,
-} from '../../overlays/base/menu/index.ts'
+import { useFloatingPosition } from '../../overlays/base/floating.ts'
+import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
+import { overlayMenuContentVariants } from '../../overlays/base/menu/index.ts'
 import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -457,7 +455,7 @@ function useBaseSelectOverlay(options: {
     disposed = true
   })
 
-  useOverlayMenuFloatingPosition({
+  useFloatingPosition({
     contentElement: options.contentElement,
     floatingElement: options.positionerElement,
     getReferenceElement: options.getControlElement,
@@ -495,19 +493,42 @@ function useBaseSelectOverlay(options: {
     })
   })
 
-  useOverlayMenuDismiss({
+  useOverlayInteraction({
     containsTarget: (node) => {
       const positioner = options.positionerElement()
       return Boolean(
         options.getControlElement()?.contains(node as Node) || positioner?.contains(node as Node),
       )
     },
-    onClose: () => {
+    onPointerOutside: (event) => {
+      if (event.defaultPrevented) {
+        return
+      }
+
       options.menuControl.onContentInteractOutside()
       options.closeMenu()
     },
+    onFocusOutside: (event) => {
+      if (event.defaultPrevented) {
+        return
+      }
+
+      options.menuControl.onContentInteractOutside()
+      options.closeMenu()
+    },
+    onEscape: (event, context) => {
+      const target = event.target
+      if ((target instanceof Node && context.isInside(target)) || event.defaultPrevented) {
+        return
+      }
+
+      event.preventDefault()
+      options.closeMenu()
+    },
     contentElement: options.contentElement,
-    open: options.isOpen,
+    enabled: options.isOpen,
+    outsidePressEvent: 'pointerdown',
+    requireContent: true,
     triggerElement: options.getControlElement,
   })
 }

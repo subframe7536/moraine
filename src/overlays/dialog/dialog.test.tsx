@@ -8,8 +8,8 @@ import { Button } from '../../elements/button/index.ts'
 import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/index.ts'
-import type { ModalContentContext } from '../base/modal.tsx'
+import { Modal } from '../base/index.ts'
+import type { ModalT } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { Dialog } from './dialog.tsx'
@@ -20,7 +20,7 @@ interface TestModalProps {
   overlay?: boolean
   onOpenChange?: (open: boolean) => void
   trigger?: (props: OverlayTriggerProps) => JSX.Element
-  content?: ComponentOrElement<ModalContentContext>
+  content?: ComponentOrElement<ModalT.ContentContext>
 }
 
 function TestModal(props: TestModalProps): JSX.Element {
@@ -28,18 +28,12 @@ function TestModal(props: TestModalProps): JSX.Element {
   const content = createMemo(() => props.content)
 
   return (
-    <ModalRoot
-      open={props.open}
-      defaultOpen={props.defaultOpen}
-      hasOverlay={Boolean(props.overlay)}
-      hasContent={Boolean(content())}
-      onOpenChange={props.onOpenChange}
-    >
-      <ModalTrigger children={trigger()} />
+    <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
+      <Modal.Trigger children={trigger()} />
       <Show when={content()}>
-        <ModalContent overlay={props.overlay} contentRender={content()!} />
+        <Modal.Content overlay={props.overlay} contentRender={content()!} />
       </Show>
-    </ModalRoot>
+    </Modal>
   )
 }
 
@@ -131,7 +125,7 @@ describe('Modal', () => {
     expect(content?.className).toContain('data-expanded:animate-popup-in')
   })
 
-  test('composes dialog as popup container + card shell', () => {
+  test('composes dialog content with a card shell', () => {
     render(() => (
       <Dialog open title="Composed" body="Body">
         {(props) => (
@@ -643,7 +637,10 @@ describe('Modal', () => {
     const content = contents[contents.length - 1]
 
     expect(overlay).not.toBeNull()
-    expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(overlay?.contains(content ?? null)).toBe(false)
+    expect(overlay?.parentElement).toBe(content?.parentElement)
+    expect(overlay?.parentElement?.parentElement).toBe(content?.parentElement?.parentElement)
+    expect(document.body.style.overflow).toBe('hidden')
   })
 
   test('supports custom close content', () => {

@@ -90,7 +90,7 @@ Forward public root props to these elements:
 - `button`: IconButtonInner.
 - `div`: Accordion, AvatarGroup, ButtonGroup, Card, Collapsible, Progress, Resizable, Separator, Checkbox, CheckboxGroup, Input, InputNumber, RadioGroup, Select, MultiSelect, BaseSelect, Slider, Switch, Textarea, SidebarFrame, Stepper, and Tabs.
 - Polymorphic root: Button, List, FormField, and FileUpload.
-- Trigger wrapper `span`: Dialog, Sheet, Popup, Popover, Tooltip, DropdownMenu, and ContextMenu.
+- Trigger wrapper `span`: Dialog, Sheet, Popover, Tooltip, DropdownMenu, and ContextMenu.
 - Portal content root `div`: CommandPalette. Do not forward these props to its trigger or positioner.
 
 Form control props such as `name`, `value`, `checked`, `required`, input events, and validation state remain component business props and continue targeting their existing internal controls. They must not leak to wrapper roots.
@@ -152,7 +152,7 @@ Execution policy:
 ### Overlay plumbing
 
 - Add an internal typed `triggerProps` channel to Modal and Popper for root rest props.
-- Modal and Popper compose trigger refs and handlers once, then Dialog, Sheet, Popup, Popover, and Tooltip pass their rest props through this channel.
+- Modal and Popper compose trigger refs and handlers once, then Dialog, Sheet, Popover, and Tooltip pass their rest props through this channel.
 - DropdownMenu and ContextMenu apply and compose rest props on their own trigger wrappers.
 - Do not copy public trigger props onto overlay, positioner, portal content, or menu items.
 - OverlayMenu remains responsible only for menu-layer behavior and explicit secondary-element prop APIs.

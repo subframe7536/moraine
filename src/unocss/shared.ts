@@ -55,6 +55,7 @@ const REGEXP_TEMPLATE_BODY = /(?:\\.|[^`\\])*/y
 const REGEXP_TEMPLATE_INTERPOLATION_OR_ESCAPE = /\\.|(\$\{)/g
 const REGEXP_CVA_CALL = /\bcva\s*\(/g
 const REGEXP_VARIANT_DECL = /\b(?:const|let|var)\s+[A-Za-z_$][A-Za-z0-9_$]*VARIANT\b/g
+const REGEXP_CLASS_DECL = /\b(?:const|let|var)\s+[A-Za-z_$][A-Za-z0-9_$]*CLASS\b/g
 const REGEXP_CLASS_ATTRIBUTE = /\bclass\s*=\s*/g
 const CLASS_HELPER_WITH_CLASS_ARGS_FROM_SECOND = new Set(['getItemClass'])
 
@@ -749,6 +750,72 @@ function collectVariantConstReplacements(
   }
 }
 
+function collectClassConstReplacements(
+  source: string,
+  replacements: Map<string, Replacement>,
+  factory: ReplacementFactory,
+  ignoredSpans: Span[],
+): void {
+  REGEXP_CLASS_DECL.lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = REGEXP_CLASS_DECL.exec(source))) {
+    if (isIgnoredIndex(ignoredSpans, match.index)) {
+      continue
+    }
+
+    let cursor = match.index + match[0].length
+    let equalIndex = -1
+
+    while (cursor < source.length) {
+      const skipped = skipStringOrComment(source, cursor, source.length)
+      if (skipped !== cursor) {
+        cursor = skipped
+        continue
+      }
+
+      const char = source[cursor]
+      if (char === '=') {
+        equalIndex = cursor
+        break
+      }
+      if (char === ';' || char === '\n') {
+        break
+      }
+      cursor += 1
+    }
+
+    if (equalIndex === -1) {
+      continue
+    }
+
+    const valueStart = skipWhitespace(source, equalIndex + 1)
+    const valueEnd = (() => {
+      const head = source[valueStart]
+      if (head === "'" || head === '"') {
+        const parsed = parseQuotedString(source, valueStart, head)
+        return parsed ? parsed.close + 1 : -1
+      }
+      if (head === '`') {
+        const parsed = parseTemplateLiteral(source, valueStart)
+        return parsed ? parsed.close + 1 : -1
+      }
+      return -1
+    })()
+
+    if (valueEnd === -1) {
+      continue
+    }
+
+    const stringSpan = parseStaticStringSpan(source, { start: valueStart, end: valueEnd })
+    if (stringSpan) {
+      queueReplacement(replacements, stringSpan, source, factory)
+    }
+
+    REGEXP_CLASS_DECL.lastIndex = valueEnd
+  }
+}
+
 function collectClassOperandReplacements(
   source: string,
   span: Span,
@@ -920,6 +987,7 @@ export function runTransform(code: MagicString, id: string, factory: Replacement
   if (isClassFile(normalizedId)) {
     collectCvaReplacements(source, replacements, factory, ignoredSpans)
     collectVariantConstReplacements(source, replacements, factory, ignoredSpans)
+    collectClassConstReplacements(source, replacements, factory, ignoredSpans)
     applyReplacements(code, source, replacements)
     return
   }

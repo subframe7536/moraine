@@ -1,14 +1,4 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  hide,
-  offset,
-  platform,
-  shift,
-  size,
-} from '@floating-ui/dom'
-import type { Middleware, Placement } from '@floating-ui/dom'
+import type { Placement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
@@ -27,25 +17,19 @@ import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListenerMap } from '../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
-import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
-import type { OverlayStackEntry } from './overlay-stack.ts'
+import { useFloatingPosition } from './floating.ts'
+import { useOverlayInteraction } from './interaction.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
-  createCompositionState,
-  createOutsidePressHandlers,
   focusContent,
   focusTrigger,
-  getTransformOrigin,
-  isComposingKeyEvent,
-  resolveDirection,
   trapFocusInContainer,
 } from './utils.ts'
 
@@ -85,70 +69,235 @@ interface PopperContentProps {
   tabIndex: number
 }
 
-export interface PopperRootProps {
+export interface PopperProps {
+  /** Id of the element that describes the positioned content. */
   ariaDescribedBy?: string
+
+  /** Id of the element that labels the positioned content. */
   ariaLabelledBy?: string
+
+  /**
+   * Whether focus moving outside should close the content.
+   * @default true
+   */
   closeOnOutsideFocus?: boolean
+
+  /**
+   * Initial open state when uncontrolled.
+   * @default false
+   */
   defaultOpen?: boolean
+
+  /**
+   * Whether the trigger should reference the content with `aria-describedby`.
+   * @default false
+   */
   describeTrigger?: boolean
+
+  /**
+   * Padding from the clipping boundary used to detect a detached trigger.
+   * @default 0
+   */
   detachedPadding?: number
+
+  /**
+   * Whether trigger interactions and content rendering are disabled.
+   * @default false
+   */
   disabled?: boolean
+
+  /**
+   * Whether outside interaction and Escape dismiss the content.
+   * @default true
+   */
   dismissible?: boolean
+
+  /**
+   * Whether content dimensions should be constrained to the available viewport.
+   * @default false
+   */
   fitViewport?: boolean
+
+  /**
+   * Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.
+   * @default true
+   */
   flip?: boolean | string
+
+  /**
+   * Whether content remains mounted while closed.
+   * @default false
+   */
   forceMount?: boolean
+
+  /**
+   * Gap in pixels between the trigger and positioned content.
+   * @default 0
+   */
   gutter?: number
+
+  /**
+   * Whether content should be hidden when its trigger is detached from the clipping boundary.
+   * @default false
+   */
   hideWhenDetached?: boolean
+
+  /** Unique identifier used to derive the content id. */
   id?: string
+
+  /**
+   * Whether the content traps focus and hides outside content from assistive technology.
+   * @default false
+   */
   modal?: boolean
+
+  /** Called when a dismissal attempt is blocked. */
   onClosePrevent?: () => void
+
+  /** Called when Escape is pressed while the content is active. */
   onEscapeKeyDown?: (event: KeyboardEvent) => void
+
+  /** Called when focus moves outside the content and trigger. */
   onInteractOutside?: (event: PopperInteractOutsideEvent) => void
+
+  /** Called whenever the open state changes. */
   onOpenChange?: (open: boolean) => void
+
+  /** Called when a pointer press starts outside the content and trigger. */
   onPointerDownOutside?: (event: PointerEvent) => void
+
+  /** Called when the trigger loses focus. */
   onTriggerBlur?: (controls: PopperControls) => void
+
+  /** Called when the trigger receives focus. */
   onTriggerFocus?: (controls: PopperControls) => void
+
+  /** Called when the pointer enters the trigger. */
   onTriggerPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the pointer leaves the trigger. */
   onTriggerPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the positioned content loses focus. */
   onContentBlur?: (controls: PopperControls) => void
+
+  /** Called when the positioned content receives focus. */
   onContentFocus?: (controls: PopperControls) => void
+
+  /** Called when the pointer enters the positioned content. */
   onContentPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Called when the pointer leaves the positioned content. */
   onContentPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
+
+  /** Controlled open state. */
   open?: boolean
+
+  /**
+   * Whether the content may overlap its trigger while remaining inside the viewport.
+   * @default false
+   */
   overlap?: boolean
+
+  /**
+   * Padding in pixels between positioned content and the viewport boundary.
+   * @default 4
+   */
   overflowPadding?: number
+
+  /**
+   * Preferred content placement relative to the trigger.
+   * @default 'bottom'
+   */
   placement?: PopperPlacement
+
+  /**
+   * Whether body scroll should be locked while the content is present.
+   * @default false
+   */
   preventScroll?: boolean
+
+  /**
+   * Whether focus returns to the trigger after the content closes.
+   * @default true
+   */
   restoreFocusOnClose?: boolean
+
+  /** Semantic role applied to the positioned content. */
   role?: JSX.HTMLAttributes<HTMLDivElement>['role']
+
+  /**
+   * Whether the content width should match the trigger width.
+   * @default false
+   */
   sameWidth?: boolean
+
+  /**
+   * Cross-axis offset in pixels from the resolved placement.
+   * @default 0
+   */
   shift?: number
+
+  /**
+   * Whether the content may slide along its main axis to remain visible.
+   * @default true
+   */
   slide?: boolean
+
+  /**
+   * Whether clicking the trigger toggles the open state.
+   * @default true
+   */
   toggleOnClick?: boolean
+
+  /**
+   * CSS motion types observed before unmounting closed content.
+   * @default 'both'
+   */
   transitionMode?: TransitionPresenceMotion
+
+  /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
 
 export interface PopperTriggerProps {
+  /** Render the popper trigger as a single HTMLElement root. */
   children?: (props: OverlayTriggerProps) => JSX.Element
+
+  /** Root props forwarded by a public popper wrapper. */
+  triggerProps?: Partial<OverlayTriggerProps>
+
+  /** Whether the trigger should reference the content with `aria-describedby`. */
   describeTrigger?: boolean
+
+  /** Whether clicking the trigger toggles the open state. */
   toggleOnClick?: boolean
 }
 
 export interface PopperContentComponentProps {
+  /** Component or element rendered inside the positioned content. */
   contentRender: ComponentOrElement<PopperContentContext>
+
+  /** Class applied to the positioning wrapper. */
   positionerClass?: string
+
+  /** Style applied to the positioning wrapper. */
   positionerStyle?: JSX.CSSProperties
 }
 
 export interface PopperContentContext {
+  /** Closes the positioned content. */
   close: () => void
+
+  /** Attributes and event handlers to forward to the content root. */
   contentProps: PopperContentProps
+
+  /** Current placement after collision handling. */
   currentPlacement: Accessor<string>
 }
 
 interface PopperContext {
-  options: PopperRootProps
+  options: PopperProps
   contentId: Accessor<string>
   isOpen: Accessor<boolean>
   getControls: () => PopperControls
@@ -171,7 +320,8 @@ export function setPopperTestPlacementAccessor(accessor: Accessor<string> | unde
   popperTestPlacementAccessor = accessor
 }
 
-export function PopperRoot(props: PopperRootProps): JSX.Element {
+/** Low-level positioned overlay primitives. */
+export function Popper(props: PopperProps): JSX.Element {
   const merged = mergeProps(
     {
       closeOnOutsideFocus: true,
@@ -221,24 +371,6 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     () => contentPresence.present() || Boolean(merged.forceMount && !merged.disabled),
   )
 
-  let enablePositionerTransitionFrame: number | undefined
-
-  function schedulePositionerTransition(): void {
-    if (positionerPositioned() || enablePositionerTransitionFrame !== undefined) {
-      return
-    }
-
-    if (typeof requestAnimationFrame !== 'function') {
-      setPositionerPositioned(true)
-      return
-    }
-
-    enablePositionerTransitionFrame = requestAnimationFrame(() => {
-      setPositionerPositioned(true)
-      enablePositionerTransitionFrame = undefined
-    })
-  }
-
   function setOpen(nextOpen: boolean): void {
     if (merged.disabled || nextOpen === isOpen()) {
       return
@@ -276,166 +408,24 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
     }
   })
 
-  createEffect(() => {
-    const trigger = triggerElement()
-    const positioner = positionerElement()
-
-    if (!contentPresence.present() || !trigger || !positioner) {
-      setPositionerPositioned(false)
-      if (positioner) {
-        positioner.style.visibility = 'hidden'
-      }
-      return
-    }
-
-    const direction = resolveDirection()
-    const fallbackPlacements = typeof merged.flip === 'string' ? merged.flip.split(' ') : undefined
-    if (
-      fallbackPlacements &&
-      !fallbackPlacements.every((placement) =>
-        /^(?:top|bottom|left|right)(?:-(?:start|end))?$/.test(placement),
-      )
-    ) {
-      throw new Error('`flip` expects a space-delimited list of placements')
-    }
-
-    const updatePosition = async () => {
-      const nextTrigger = triggerElement()
-      const nextPositioner = positionerElement()
-
-      if (
-        !nextTrigger ||
-        !nextPositioner ||
-        !nextTrigger.isConnected ||
-        !nextPositioner.isConnected
-      ) {
-        return
-      }
-
-      const middleware: Middleware[] = [
-        // oxlint-disable-next-line subf/solid-reactivity
-        offset((opt) => {
-          const hasAlignment = Boolean(opt.placement.split('-')[1])
-
-          return {
-            mainAxis: merged.gutter,
-            crossAxis: !hasAlignment ? merged.shift : undefined,
-            alignmentAxis: merged.shift,
-          }
-        }),
-      ]
-
-      if (merged.flip !== false) {
-        middleware.push(
-          flip({
-            padding: merged.overflowPadding,
-            fallbackPlacements: fallbackPlacements as PopperPlacement[] | undefined,
-          }),
-        )
-      }
-
-      if (merged.slide || merged.overlap) {
-        middleware.push(
-          shift({
-            mainAxis: merged.slide,
-            crossAxis: merged.overlap,
-            padding: merged.overflowPadding,
-          }),
-        )
-      }
-
-      middleware.push(
-        size({
-          padding: merged.overflowPadding,
-          apply({ availableHeight, availableWidth, rects }) {
-            const referenceWidth = Math.round(rects.reference.width)
-
-            nextPositioner.style.setProperty('--mo-popper-anchor-width', `${referenceWidth}px`)
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-available-width',
-              `${Math.floor(availableWidth)}px`,
-            )
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-available-height',
-              `${Math.floor(availableHeight)}px`,
-            )
-            nextPositioner.style.setProperty(
-              '--mo-popper-content-overflow-padding',
-              `${merged.overflowPadding}px`,
-            )
-
-            if (merged.sameWidth) {
-              nextPositioner.style.width = `${referenceWidth}px`
-            }
-
-            if (merged.fitViewport) {
-              nextPositioner.style.maxWidth = `${Math.floor(availableWidth)}px`
-              nextPositioner.style.maxHeight = `${Math.floor(availableHeight)}px`
-            }
-          },
-        }),
-      )
-
-      if (merged.hideWhenDetached) {
-        middleware.push(hide({ padding: merged.detachedPadding }))
-      }
-
-      const position = await computePosition(nextTrigger, nextPositioner, {
-        placement: merged.placement,
-        strategy: 'absolute',
-        middleware,
-        platform: {
-          ...platform,
-          isRTL: () => direction === 'rtl',
-        },
-      })
-
-      if (
-        triggerElement() !== nextTrigger ||
-        positionerElement() !== nextPositioner ||
-        !contentPresence.present() ||
-        !nextTrigger.isConnected ||
-        !nextPositioner.isConnected
-      ) {
-        return
-      }
-
-      setInternalCurrentPlacement(position.placement)
-      nextPositioner.style.setProperty(
-        '--mo-popper-content-transform-origin',
-        getTransformOrigin(position.placement, direction),
-      )
-
-      Object.assign(nextPositioner.style, {
-        left: '0',
-        top: '0',
-        transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
-        visibility:
-          merged.hideWhenDetached && position.middlewareData.hide?.referenceHidden
-            ? 'hidden'
-            : 'visible',
-      })
-      schedulePositionerTransition()
-    }
-
-    const cleanupAutoUpdate = autoUpdate(trigger, positioner, updatePosition, {
-      elementResize: typeof ResizeObserver === 'function',
-    })
-
-    onCleanup(() => {
-      cleanupAutoUpdate()
-      if (
-        enablePositionerTransitionFrame !== undefined &&
-        typeof cancelAnimationFrame === 'function'
-      ) {
-        cancelAnimationFrame(enablePositionerTransitionFrame)
-        enablePositionerTransitionFrame = undefined
-      }
-      if (positionerElement() === positioner) {
-        setPositionerPositioned(false)
-        positioner.style.visibility = 'hidden'
-      }
-    })
+  useFloatingPosition({
+    detachedPadding: () => merged.detachedPadding,
+    deferPositioned: true,
+    fitViewport: () => merged.fitViewport,
+    floatingElement: positionerElement,
+    flip: () => merged.flip,
+    getReferenceElement: triggerElement,
+    gutter: () => merged.gutter,
+    hideWhenDetached: () => merged.hideWhenDetached,
+    onPlacementChange: setInternalCurrentPlacement,
+    onPositionedChange: setPositionerPositioned,
+    open: contentPresence.present,
+    overlap: () => merged.overlap,
+    overflowPadding: () => merged.overflowPadding,
+    placement: () => merged.placement,
+    sameWidth: () => merged.sameWidth,
+    shift: () => merged.shift,
+    slide: () => merged.slide,
   })
 
   createEffect(() => {
@@ -486,52 +476,41 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
       })
     }
 
-    const stackEntry: OverlayStackEntry = {
-      contentElement,
-      triggerElement,
-    }
-    const releaseStack = pushOverlayLayer(stackEntry)
-
     if (merged.modal) {
       queueMicrotask(() => {
         focusContent(currentContent)
       })
     }
 
-    const isInside = (target: Node): boolean => isInsideOverlayLayer(stackEntry, target)
-
-    const composition = createCompositionState()
-    const outsidePress = createOutsidePressHandlers({
-      isInside,
-      isEnabled: () => isTopOverlay(stackEntry),
-      onPress: (event) => {
-        merged.onPointerDownOutside?.(event)
-
-        if (event.defaultPrevented) {
-          return
-        }
-
-        if (merged.dismissible) {
-          event.preventDefault()
-          setOpen(false)
-          return
-        }
-
-        event.preventDefault()
-        merged.onClosePrevent?.()
-      },
+    onCleanup(() => {
+      active = false
+      releaseAriaHide?.()
+      releaseScrollLock?.()
     })
-    const onDocumentFocusIn = (event: FocusEvent) => {
-      const target = event.target
+  })
 
-      if (!(target instanceof Node) || isInside(target)) {
+  useOverlayInteraction({
+    enabled: contentPresence.present,
+    contentElement,
+    triggerElement,
+    requireContent: true,
+    onPointerOutside: (event) => {
+      merged.onPointerDownOutside?.(event)
+
+      if (event.defaultPrevented) {
         return
       }
 
-      if (!isTopOverlay(stackEntry)) {
+      if (merged.dismissible) {
+        event.preventDefault()
+        setOpen(false)
         return
       }
 
+      event.preventDefault()
+      merged.onClosePrevent?.()
+    },
+    onFocusOutside: (event) => {
       const interactEvent: PopperInteractOutsideEvent = {
         defaultPrevented: false,
         originalEvent: event,
@@ -557,22 +536,13 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
         if (merged.modal) {
           const currentContent = contentElement()
-
           queueMicrotask(() => {
             focusContent(currentContent)
           })
         }
       }
-    }
-    const onDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || isComposingKeyEvent(event, composition)) {
-        return
-      }
-
-      if (!isTopOverlay(stackEntry)) {
-        return
-      }
-
+    },
+    onEscape: (event) => {
       merged.onEscapeKeyDown?.(event)
 
       if (event.defaultPrevented) {
@@ -587,35 +557,14 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
 
       event.preventDefault()
       merged.onClosePrevent?.()
-    }
-
-    useEventListenerMap(
-      document,
-      {
-        pointerdown: outsidePress.pointerdown,
-        pointermove: outsidePress.pointermove,
-        pointerup: outsidePress.pointerup,
-        pointercancel: outsidePress.pointercancel,
-        focusin: onDocumentFocusIn,
-        keydown: onDocumentKeyDown,
-        compositionstart: composition.onCompositionStart,
-        compositionend: composition.onCompositionEnd,
-      },
-      false,
-    )
-
-    onCleanup(() => {
-      active = false
-      releaseAriaHide?.()
+    },
+    onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (merged.restoreFocusOnClose && isTopOverlay(stackEntry)) {
+      if (merged.restoreFocusOnClose && context.isTop()) {
         focusTrigger(triggerElement())
       }
-
-      releaseStack()
-      releaseScrollLock?.()
-    })
+    },
   })
 
   const context: PopperContext = {
@@ -639,45 +588,72 @@ export function PopperRoot(props: PopperRootProps): JSX.Element {
   return <PopperProvider value={context}>{props.children}</PopperProvider>
 }
 
-export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
+function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
   const triggerRender = createMemo(() => props.children)
-  const triggerProps: OverlayTriggerProps = {
-    get 'aria-controls'() {
-      return context.contentPresence.present() ? context.contentId() : undefined
+  const userTriggerProps = (): Partial<OverlayTriggerProps> | undefined => props.triggerProps
+  const triggerProps = mergeProps(
+    {
+      get 'aria-controls'() {
+        return context.contentPresence.present() ? context.contentId() : undefined
+      },
+      get 'aria-describedby'() {
+        return options.describeTrigger && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
+      },
+      get 'aria-expanded'() {
+        return context.isOpen() ? 'true' : 'false'
+      },
+      'data-slot': 'trigger',
     },
-    get 'aria-describedby'() {
-      return options.describeTrigger && context.contentPresence.present()
-        ? context.contentId()
-        : undefined
-    },
-    get 'aria-expanded'() {
-      return context.isOpen() ? 'true' : 'false'
-    },
-    'data-slot': 'trigger',
-    ref: (element: HTMLElement | undefined) => {
-      if (!element) {
-        return
-      }
-
-      context.setTriggerElement(element)
-      onCleanup(() => {
-        if (context.triggerElement() === element) {
-          context.setTriggerElement(undefined)
+    untrack(userTriggerProps) ?? {},
+    {
+      ref: (element: HTMLElement | undefined) => {
+        context.setTriggerElement(element)
+        callRef(userTriggerProps()?.ref, element)
+        if (element) {
+          onCleanup(() => {
+            if (context.triggerElement() === element) {
+              context.setTriggerElement(undefined)
+            }
+            callRef(userTriggerProps()?.ref, undefined)
+          })
         }
-      })
+      },
+      onBlur: (event: FocusEvent) => {
+        callHandler<HTMLElement, FocusEvent>(event, userTriggerProps()?.onBlur)
+        if (!event.defaultPrevented) {
+          options.onTriggerBlur?.(context.getControls())
+        }
+      },
+      onClick: (event: MouseEvent) => {
+        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
+        if (!event.defaultPrevented && options.toggleOnClick) {
+          context.getControls().toggle()
+        }
+      },
+      onFocus: (event: FocusEvent) => {
+        callHandler<HTMLElement, FocusEvent>(event, userTriggerProps()?.onFocus)
+        if (!event.defaultPrevented) {
+          options.onTriggerFocus?.(context.getControls())
+        }
+      },
+      onPointerEnter: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerEnter)
+        if (!event.defaultPrevented) {
+          options.onTriggerPointerEnter?.(context.getControls(), event)
+        }
+      },
+      onPointerLeave: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerLeave)
+        if (!event.defaultPrevented) {
+          options.onTriggerPointerLeave?.(context.getControls(), event)
+        }
+      },
     },
-    onBlur: () => options.onTriggerBlur?.(context.getControls()),
-    onClick: (event: MouseEvent) => {
-      if (!event.defaultPrevented && options.toggleOnClick) {
-        context.getControls().toggle()
-      }
-    },
-    onFocus: () => options.onTriggerFocus?.(context.getControls()),
-    onPointerEnter: (event) => options.onTriggerPointerEnter?.(context.getControls(), event),
-    onPointerLeave: (event) => options.onTriggerPointerLeave?.(context.getControls(), event),
-  }
+  ) as OverlayTriggerProps
 
   onMount(() => {
     if (triggerRender()) {
@@ -692,7 +668,7 @@ export function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   )
 }
 
-export function PopperContent(props: PopperContentComponentProps): JSX.Element {
+function PopperContent(props: PopperContentComponentProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
   const contentRender = createMemo(() => props.contentRender)
@@ -764,3 +740,6 @@ export function PopperContent(props: PopperContentComponentProps): JSX.Element {
     </Show>
   )
 }
+
+Popper.Content = PopperContent
+Popper.Trigger = PopperTrigger

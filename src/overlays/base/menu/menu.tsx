@@ -29,6 +29,8 @@ import { useControllableValue } from '../../../shared/use-controllable-value.ts'
 import { useEventListener } from '../../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
 import { callHandler, cn, useId } from '../../../shared/utils.ts'
+import { useFloatingPosition } from '../floating.ts'
+import { useOverlayInteraction } from '../interaction.ts'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -50,8 +52,6 @@ import {
   hasOverlayMenuChildren,
   onLayerKeyDown,
   resolveMenuGroups,
-  useOverlayMenuDismiss,
-  useOverlayMenuFloatingPosition,
   useOverlayMenuLayerState,
 } from './menu.utils.ts'
 import type {
@@ -341,7 +341,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     })
   })
 
-  useOverlayMenuFloatingPosition({
+  useFloatingPosition({
     contentElement: layer.contentElement,
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
@@ -1492,14 +1492,32 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     merged.onClose()
   }
 
-  useOverlayMenuDismiss({
+  useOverlayInteraction({
     containsTarget,
     contentElement: () => rootLayerState()?.contentElement(),
     triggerElement: () => merged.triggerElement,
-    onClose: () => {
+    onPointerOutside: (event) => {
+      if (!event.defaultPrevented) {
+        closeRoot()
+      }
+    },
+    onFocusOutside: (event) => {
+      if (!event.defaultPrevented) {
+        closeRoot()
+      }
+    },
+    onEscape: (event, context) => {
+      const target = event.target
+      if ((target instanceof Node && context.isInside(target)) || event.defaultPrevented) {
+        return
+      }
+
+      event.preventDefault()
       closeRoot()
     },
-    open: () => merged.open,
+    enabled: () => merged.open,
+    outsidePressEvent: 'pointerdown',
+    requireContent: true,
   })
 
   const getReferenceElement = createMemo<ReferenceElement | undefined>(() => {

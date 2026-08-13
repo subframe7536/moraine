@@ -7,16 +7,19 @@ import {
   DropdownMenu,
   Icon,
   List,
+  Modal,
   Popover,
-  Popup,
   Sheet,
   Tooltip,
 } from 'moraine'
+import type { ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
   <section data-required={props.required}>{props.children}</section>
 )
+const modalContentContext: ModalT.ContentContext = { close: () => undefined }
+modalContentContext.close()
 
 ;<Badge aria-label="status" data-testid="badge">
   Ready
@@ -26,50 +29,46 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
+;<Modal defaultOpen>
+  <Modal.Content overlay ariaLabel="Type fixture" contentRender="Modal content" />
+</Modal>
 
-;<Dialog>
+;<Dialog data-testid="dialog-trigger">
   {(props) => (
     <CustomRoot {...props} required="dialog">
       Open dialog
     </CustomRoot>
   )}
 </Dialog>
-;<Popover>
+;<Popover data-testid="popover-trigger">
   {(props) => (
     <CustomRoot {...props} required="popover">
       Open popover
     </CustomRoot>
   )}
 </Popover>
-;<Tooltip>
+;<Tooltip data-testid="tooltip-trigger">
   {(props) => (
     <CustomRoot {...props} required="tooltip">
       Hover target
     </CustomRoot>
   )}
 </Tooltip>
-;<DropdownMenu items={[]}>
+;<DropdownMenu items={[]} data-testid="dropdown-trigger">
   {(props) => (
     <CustomRoot {...props} required="dropdown">
       Open menu
     </CustomRoot>
   )}
 </DropdownMenu>
-;<ContextMenu items={[]}>
+;<ContextMenu items={[]} data-testid="context-trigger">
   {(props) => (
     <CustomRoot {...props} required="context">
       Open menu
     </CustomRoot>
   )}
 </ContextMenu>
-;<Popup>
-  {(props) => (
-    <CustomRoot {...props} required="popup">
-      Open popup
-    </CustomRoot>
-  )}
-</Popup>
-;<Sheet>
+;<Sheet data-testid="sheet-trigger">
   {(props) => (
     <CustomRoot {...props} required="sheet">
       Open sheet

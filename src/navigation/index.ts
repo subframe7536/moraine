@@ -1,4 +1,5 @@
 export * from './breadcrumb/index.ts'
+export * from './command-palette/index.ts'
 export * from './sidebar-frame/index.ts'
 export * from './pagination/index.ts'
 export * from './stepper/index.ts'

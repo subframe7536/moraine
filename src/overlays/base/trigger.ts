@@ -8,10 +8,19 @@ export type OverlayTriggerProps = Omit<
   ElementProps<HTMLElement>,
   'children' | 'class' | 'disabled' | 'onContextMenu' | 'ref' | 'style'
 > & {
+  /** Class applied to the trigger root. */
   class?: string
+
+  /** Whether the trigger is disabled. */
   disabled?: boolean
+
+  /** Context menu handler forwarded to the trigger root. */
   onContextMenu?: (event: MouseEvent) => void
+
+  /** Registers the trigger root used for positioning and focus restoration. */
   ref: (element: HTMLElement | undefined) => void
+
+  /** Style applied to the trigger root. */
   style?: SlotStyleValue
 }
 

@@ -233,6 +233,14 @@
       "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx"
     },
     {
+      "key": "command-palette",
+      "name": "CommandPalette",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
+      "sourcePath": "src/navigation/command-palette/command-palette.tsx"
+    },
+    {
       "key": "sidebar-frame",
       "name": "SidebarFrame",
       "category": "navigation",
@@ -265,12 +273,12 @@
       "sourcePath": "src/navigation/tabs/tabs.tsx"
     },
     {
-      "key": "command-palette",
-      "name": "CommandPalette",
-      "category": "navigation",
+      "key": "modal",
+      "name": "Modal",
+      "category": "overlays",
       "polymorphic": false,
-      "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
-      "sourcePath": "src/navigation/command-palette/command-palette.tsx"
+      "description": "Low-level modal primitives for composing custom dialog surfaces.",
+      "sourcePath": "src/overlays/base/modal.tsx"
     },
     {
       "key": "context-menu",
@@ -303,14 +311,6 @@
       "polymorphic": false,
       "description": "Click-triggered floating content panel anchored to a trigger element.",
       "sourcePath": "src/overlays/popover/popover.tsx"
-    },
-    {
-      "key": "popup",
-      "name": "Popup",
-      "category": "overlays",
-      "polymorphic": false,
-      "description": "Low-level overlay primitive providing portal, overlay backdrop, and content positioning.",
-      "sourcePath": "src/overlays/popup/popup.tsx"
     },
     {
       "key": "sheet",

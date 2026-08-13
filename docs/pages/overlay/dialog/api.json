@@ -85,13 +85,56 @@
       "name": "close",
       "description": "Button that dismisses the dialog.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
+        },
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
       "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
         {
           "name": "aria-label",
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
     },
@@ -131,10 +174,15 @@
         "description": "Render the dialog trigger as a single HTMLElement root."
       },
       {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
         "name": "classes",
         "required": false,
-        "type": "DialogT.Classes | undefined",
-        "description": "Slot-based class overrides."
+        "type": "DialogT.Classes | undefined"
       },
       {
         "name": "close",
@@ -154,7 +202,8 @@
         "name": "defaultOpen",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Initial open state when uncontrolled."
+        "description": "Initial open state when uncontrolled.",
+        "defaultValue": "false"
       },
       {
         "name": "description",
@@ -166,7 +215,8 @@
         "name": "dismissible",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether outside interaction and Escape should dismiss the shell."
+        "description": "Whether outside interaction and Escape should dismiss the shell.",
+        "defaultValue": "true"
       },
       {
         "name": "footer",
@@ -196,7 +246,9 @@
       {
         "name": "layout",
         "required": false,
-        "type": "\"default\" | \"scrollable\" | \"fullscreen\" | undefined"
+        "type": "\"default\" | \"scrollable\" | \"fullscreen\" | undefined",
+        "description": "Layout mode for the dialog panel.",
+        "defaultValue": "default"
       },
       {
         "name": "onClosePrevent",
@@ -229,6 +281,11 @@
         "description": "Whether to render the overlay element."
       },
       {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
         "name": "scrollable",
         "required": false,
         "type": "boolean | undefined",
@@ -236,10 +293,14 @@
         "defaultValue": "false"
       },
       {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
         "name": "styles",
         "required": false,
-        "type": "DialogT.Styles | undefined",
-        "description": "Slot-based style overrides."
+        "type": "DialogT.Styles | undefined"
       },
       {
         "name": "title",

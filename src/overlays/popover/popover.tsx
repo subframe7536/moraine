@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps } from 'solid-js'
 
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
-import { PopperContent, PopperRoot, PopperTrigger, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperRootProps } from '../base/index.ts'
+import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { popoverContentVariants } from './popover.class.ts'
@@ -21,7 +21,13 @@ export namespace PopoverT {
     body?: T
   }
 
-  export type Variant = PopoverContentVariantProps
+  export interface Variant extends PopoverContentVariantProps {
+    /**
+     * Visual side styles applied after the positioned placement is resolved.
+     * @default 'bottom'
+     */
+    side?: PopoverContentVariantProps['side']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -30,7 +36,7 @@ export namespace PopoverT {
    * Base props for the Popover component.
    */
   export interface Base extends Pick<
-    PopperRootProps,
+    PopperProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -64,9 +70,6 @@ export namespace PopoverT {
      */
     closeDelay?: number
 
-    classes?: Classes
-    styles?: Styles
-
     /**
      * Content to render inside the popover body.
      */
@@ -80,24 +83,19 @@ export namespace PopoverT {
    * Props for the Popover component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Popover component.
  */
-export type PopoverProps = PopoverT.Props
-
-type PopoverRuntimeProps = PopoverT.Base & {
-  classes?: PopoverT.Classes
-  styles?: PopoverT.Styles
-}
+export interface PopoverProps extends PopoverT.Props {}
 
 type PopoverSide = OverlayMenuSide
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
-  const [local] = splitProps(props as PopoverRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -117,6 +115,8 @@ export function Popover(props: PopoverProps): JSX.Element {
     'children',
     'classes',
     'styles',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -128,6 +128,14 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
     local,
   )
+  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
+    get class() {
+      return cn(props.class)
+    },
+    get style() {
+      return props.style
+    },
+  }) as Partial<OverlayTriggerProps>
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
@@ -254,7 +262,7 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   return (
-    <PopperRoot
+    <Popper
       id={merged.id}
       placement={merged.placement}
       open={merged.open}
@@ -368,8 +376,13 @@ export function Popover(props: PopoverProps): JSX.Element {
         merged.onClosePrevent?.()
       }}
     >
-      <PopperTrigger children={merged.children} describeTrigger={false} toggleOnClick />
-      <PopperContent contentRender={Content} />
-    </PopperRoot>
+      <Popper.Trigger
+        children={merged.children}
+        describeTrigger={false}
+        toggleOnClick
+        triggerProps={triggerProps}
+      />
+      <Popper.Content contentRender={Content} />
+    </Popper>
   )
 }

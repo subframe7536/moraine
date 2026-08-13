@@ -2,12 +2,13 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
+import { Button } from '../../elements/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { ModalContent, ModalRoot, ModalTrigger } from '../base/modal.tsx'
-import type { ModalContentContext, ModalRootProps } from '../base/modal.tsx'
+import { Modal } from '../base/modal.tsx'
+import type { ModalProps, ModalT } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { sheetContentVariants } from './sheet.class.ts'
@@ -46,7 +47,19 @@ export namespace SheetT {
     footer?: T
   }
 
-  export type Variant = SheetVariantProps
+  export interface Variant extends SheetVariantProps {
+    /**
+     * Edge of the viewport from which the sheet enters.
+     * @default 'right'
+     */
+    side?: SheetVariantProps['side']
+
+    /**
+     * Whether to inset the sheet from the viewport on larger screens.
+     * @default false
+     */
+    inset?: SheetVariantProps['inset']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -55,7 +68,7 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends Pick<
-    ModalRootProps,
+    ModalProps,
     | 'id'
     | 'open'
     | 'defaultOpen'
@@ -85,9 +98,6 @@ export namespace SheetT {
      * @default true
      */
     transition?: boolean
-
-    classes?: Classes
-    styles?: Styles
 
     /**
      * Whether to show a close button, or a custom element to use as one.
@@ -123,23 +133,17 @@ export namespace SheetT {
    * Props for the Sheet component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = Base & Variant
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Sheet component.
  */
-export type SheetProps = SheetT.Props
-
-type SheetRuntimeProps = SheetT.Base &
-  SheetT.Variant & {
-    classes?: SheetT.Classes
-    styles?: SheetT.Styles
-  }
+export interface SheetProps extends SheetT.Props {}
 
 /** Slide-in panel overlay from any screen edge with header, body, and footer slots. */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [local] = splitProps(props as SheetRuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
@@ -162,6 +166,8 @@ export function Sheet(props: SheetProps): JSX.Element {
     'children',
     'classes',
     'styles',
+    'class',
+    'style',
   ])
   const merged = mergeProps(
     {
@@ -182,6 +188,14 @@ export function Sheet(props: SheetProps): JSX.Element {
   const body = createLazyMemo(() => merged.body)
   const footer = createLazyMemo(() => merged.footer)
   const triggerRender = createMemo(() => merged.children)
+  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
+    get class() {
+      return cn(props.class)
+    },
+    get style() {
+      return props.style
+    },
+  }) as Partial<OverlayTriggerProps>
   const rootId = useId(() => merged.id, 'sheet')
   const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
   const titleId = createLazyMemo(() =>
@@ -198,7 +212,7 @@ export function Sheet(props: SheetProps): JSX.Element {
     closeContent() !== false
 
   return (
-    <ModalRoot
+    <Modal
       id={merged.id}
       open={merged.open}
       defaultOpen={merged.defaultOpen}
@@ -206,16 +220,11 @@ export function Sheet(props: SheetProps): JSX.Element {
       onExitComplete={merged.onExitComplete}
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
-      hasOverlay={merged.overlay}
-      hasContent
     >
-      <ModalTrigger children={triggerRender()} />
-      <ModalContent
+      <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
+      <Modal.Content
         overlay={merged.overlay}
-        overlayClass={cn(
-          'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
-          merged.classes?.overlay,
-        )}
+        overlayClass={cn(merged.classes?.overlay)}
         overlayStyle={merged.styles?.overlay}
         contentAttributes={{ 'data-side': merged.side }}
         ariaLabel={merged.ariaLabel}
@@ -231,7 +240,7 @@ export function Sheet(props: SheetProps): JSX.Element {
           merged.classes?.content,
         )}
         style={merged.styles?.content}
-        contentRender={(props: ModalContentContext): JSX.Element => (
+        contentRender={(props: ModalT.ContentContext): JSX.Element => (
           <>
             <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div
@@ -288,23 +297,19 @@ export function Sheet(props: SheetProps): JSX.Element {
                       </Show>
 
                       <Show when={closeContent() !== false}>
-                        <button
-                          type="button"
+                        <Button
                           data-slot="close"
-                          style={merged.styles?.close}
-                          class={cn(
-                            'text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 size-8 transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) focus-visible:effect-fv-border active:bg-accent-active',
-                            merged.classes?.close,
-                          )}
                           aria-label="Close"
-                          onClick={() => {
-                            props.close()
-                          }}
+                          variant="ghost"
+                          size="icon-md"
+                          style={merged.styles?.close}
+                          class={['absolute top-3 right-3', merged.classes?.close]}
+                          onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>
                             <Icon name="icon-close" />
                           </Show>
-                        </button>
+                        </Button>
                       </Show>
                     </>
                   }
@@ -340,6 +345,6 @@ export function Sheet(props: SheetProps): JSX.Element {
           </>
         )}
       />
-    </ModalRoot>
+    </Modal>
   )
 }
