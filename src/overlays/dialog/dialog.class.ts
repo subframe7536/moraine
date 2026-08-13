@@ -1,7 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
-export { DIALOG_OVERLAY_CLASS } from '../../shared/cva-common.class.ts'
 
 export const dialogContentVariants = cva(
   'outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in',

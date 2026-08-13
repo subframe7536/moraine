@@ -12,7 +12,6 @@ import {
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { DIALOG_OVERLAY_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -89,6 +88,18 @@ export namespace ModalT {
     /** Receives the mounted content element and `undefined` when it unmounts. */
     ref?: (element: HTMLDivElement | undefined) => void
 
+    /** Whether to render the modal overlay element. */
+    overlay?: boolean
+
+    /** Receives the mounted overlay element and `undefined` when it unmounts. */
+    overlayRef?: (element: HTMLDivElement | undefined) => void
+
+    /** Class applied to the modal overlay element. */
+    overlayClass?: string
+
+    /** Style applied to the modal overlay element. */
+    overlayStyle?: JSX.CSSProperties
+
     /** Component or element rendered inside the modal content surface. */
     contentRender: ComponentOrElement<ContentContext>
 
@@ -108,17 +119,6 @@ export namespace ModalT {
     class?: string
 
     /** Style applied to the modal content element. */
-    style?: JSX.CSSProperties
-  }
-
-  export interface OverlayProps {
-    /** Receives the mounted overlay element and `undefined` when it unmounts. */
-    ref?: (element: HTMLDivElement | undefined) => void
-
-    /** Class applied to the modal overlay element. */
-    class?: string
-
-    /** Style applied to the modal overlay element. */
     style?: JSX.CSSProperties
   }
 }
@@ -417,8 +417,13 @@ function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
 function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const contentRender = createMemo(() => props.contentRender)
+  const overlayPresence = useTransitionPresence({
+    open: () => Boolean(context.open() && props.overlay),
+  })
   const presence = useTransitionPresence({ open: context.open })
+  const unregisterOverlay = context.registerSurface('overlay', overlayPresence)
   const unregister = context.registerSurface('content', presence)
+  onCleanup(unregisterOverlay)
   onCleanup(unregister)
 
   createEffect(() => {
@@ -435,72 +440,65 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
   }
 
   return (
-    <Show when={presence.present()}>
+    <Show when={overlayPresence.present() || presence.present()}>
       <Portal>
-        <div
-          {...props.contentAttributes}
-          {...presence.dataAttrs()}
-          ref={(element) => {
-            context.setContentElement(element)
-            presence.setElement(element)
-            props.ref?.(element)
-            onCleanup(() => {
-              if (context.contentElement() === element) {
-                context.setContentElement(undefined)
-                presence.setElement(undefined)
-                props.ref?.(undefined)
-              }
-            })
-          }}
-          id={context.contentId()}
-          role="dialog"
-          aria-modal="true"
-          aria-label={props.ariaLabel}
-          aria-labelledby={props.ariaLabelledBy}
-          aria-describedby={props.ariaDescribedBy}
-          tabIndex={-1}
-          data-slot="content"
-          style={props.style}
-          class={props.class}
-          onKeyDown={onContentKeyDown}
-        >
-          {renderComponentOrElement(contentRender(), {
-            close: () => context.updateOpen(false),
-          })}
-        </div>
-      </Portal>
-    </Show>
-  )
-}
+        <Show when={overlayPresence.present()}>
+          <div
+            data-slot="overlay"
+            {...overlayPresence.dataAttrs()}
+            ref={(element) => {
+              overlayPresence.setElement(element)
+              props.overlayRef?.(element)
+              onCleanup(() => {
+                overlayPresence.setElement(undefined)
+                props.overlayRef?.(undefined)
+              })
+            }}
+            style={props.overlayStyle}
+            class={cn(
+              'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
+              props.overlayClass,
+            )}
+          />
+        </Show>
 
-function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
-  const context = useModalContext()
-  const presence = useTransitionPresence({ open: context.open })
-  const unregister = context.registerSurface('overlay', presence)
-  onCleanup(unregister)
-
-  return (
-    <Show when={presence.present()}>
-      <Portal>
-        <div
-          data-slot="overlay"
-          {...presence.dataAttrs()}
-          ref={(element) => {
-            presence.setElement(element)
-            props.ref?.(element)
-            onCleanup(() => {
-              presence.setElement(undefined)
-              props.ref?.(undefined)
-            })
-          }}
-          style={props.style}
-          class={cn(DIALOG_OVERLAY_CLASS, props.class)}
-        />
+        <Show when={presence.present()}>
+          <div
+            {...props.contentAttributes}
+            {...presence.dataAttrs()}
+            ref={(element) => {
+              context.setContentElement(element)
+              presence.setElement(element)
+              props.ref?.(element)
+              onCleanup(() => {
+                if (context.contentElement() === element) {
+                  context.setContentElement(undefined)
+                  presence.setElement(undefined)
+                  props.ref?.(undefined)
+                }
+              })
+            }}
+            id={context.contentId()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={props.ariaLabel}
+            aria-labelledby={props.ariaLabelledBy}
+            aria-describedby={props.ariaDescribedBy}
+            tabIndex={-1}
+            data-slot="content"
+            style={props.style}
+            class={props.class}
+            onKeyDown={onContentKeyDown}
+          >
+            {renderComponentOrElement(contentRender(), {
+              close: () => context.updateOpen(false),
+            })}
+          </div>
+        </Show>
       </Portal>
     </Show>
   )
 }
 
 Modal.Content = ModalContent
-Modal.Overlay = ModalOverlay
 Modal.Trigger = ModalTrigger

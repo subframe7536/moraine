@@ -288,10 +288,10 @@ export function Dialog(props: DialogProps): JSX.Element {
       onClosePrevent={merged.onClosePrevent}
     >
       <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
-      <Show when={merged.overlay}>
-        <Modal.Overlay class={cn(merged.classes?.overlay)} style={merged.styles?.overlay} />
-      </Show>
       <Modal.Content
+        overlay={merged.overlay}
+        overlayClass={cn(merged.classes?.overlay)}
+        overlayStyle={merged.styles?.overlay}
         class={dialogContentVariants(
           {
             layout: dialogLayout(),

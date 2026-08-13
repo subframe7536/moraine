@@ -19,15 +19,16 @@ import { Modal } from 'moraine'
 ## Composition
 
 `Modal` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
-`Modal.Trigger` connects a single trigger element. `Modal.Overlay` and `Modal.Content` are
-independent portal surfaces; composing either one automatically activates the modal runtime.
+`Modal.Trigger` connects a single trigger element. `Modal.Content` owns the portal and renders the
+overlay and content as sibling surfaces. Set `overlay` to render the optional backdrop.
 
 ```text
 Modal
 ├── Modal.Trigger
-├── Modal.Overlay (optional portal)
 └── Modal.Content (portal)
-    └── custom content
+    ├── overlay (optional)
+    └── content
+        └── custom content
 ```
 
 Provide `ariaLabel`, `ariaLabelledBy`, or another accessible naming strategy for every modal.

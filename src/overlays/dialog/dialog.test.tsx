@@ -30,11 +30,8 @@ function TestModal(props: TestModalProps): JSX.Element {
   return (
     <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
       <Modal.Trigger children={trigger()} />
-      <Show when={props.overlay}>
-        <Modal.Overlay />
-      </Show>
       <Show when={content()}>
-        <Modal.Content contentRender={content()!} />
+        <Modal.Content overlay={props.overlay} contentRender={content()!} />
       </Show>
     </Modal>
   )
@@ -641,7 +638,7 @@ describe('Modal', () => {
 
     expect(overlay).not.toBeNull()
     expect(overlay?.contains(content ?? null)).toBe(false)
-    expect(overlay?.parentElement).not.toBe(content?.parentElement)
+    expect(overlay?.parentElement).toBe(content?.parentElement)
     expect(overlay?.parentElement?.parentElement).toBe(content?.parentElement?.parentElement)
     expect(document.body.style.overflow).toBe('hidden')
   })

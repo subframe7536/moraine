@@ -35,11 +35,11 @@ describe('Modal primitives', () => {
     document.body.style.overflow = ''
   })
 
-  test('lets a standalone overlay activate the modal runtime', async () => {
+  test('lets content overlay activate the modal runtime', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Overlay />
+        <Modal.Content overlay contentRender={<span>Content</span>} />
       </Modal>
     ))
     await Promise.resolve()
@@ -55,7 +55,7 @@ describe('Modal primitives', () => {
   test('applies the shared dialog overlay classes by default', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Overlay />
+        <Modal.Content overlay contentRender={<span>Content</span>} />
       </Modal>
     ))
 
@@ -68,6 +68,47 @@ describe('Modal primitives', () => {
     expect(overlay?.className).toContain('backdrop-blur-xs')
     expect(overlay?.className).toContain('data-closed:animate-overlay-out')
     expect(overlay?.className).toContain('data-expanded:animate-overlay-in')
+  })
+
+  test('does not render an overlay by default', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+
+    expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+  })
+
+  test('renders overlay and content as siblings in one portal and forwards refs', () => {
+    const overlayRef = vi.fn()
+    const contentRef = vi.fn()
+
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content
+          overlay
+          overlayRef={overlayRef}
+          overlayClass="custom-overlay"
+          overlayStyle={{ opacity: '0.4' }}
+          ref={contentRef}
+          contentRender={<span>Content</span>}
+        />
+      </Modal>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]')
+    const content = document.body.querySelector('[data-slot="content"]')
+
+    expect(overlay).not.toBeNull()
+    expect(content).not.toBeNull()
+    expect(overlay?.parentElement).toBe(content?.parentElement)
+    expect(overlay?.nextElementSibling).toBe(content)
+    expect(overlay?.className).toContain('custom-overlay')
+    expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
+    expect(overlayRef).toHaveBeenCalledWith(overlay)
+    expect(contentRef).toHaveBeenCalledWith(content)
   })
 
   test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
@@ -663,8 +704,8 @@ describe('Modal primitives', () => {
             </button>
           )}
         />
-        <Modal.Overlay />
         <Modal.Content
+          overlay
           contentRender={(context) => (
             <button type="button" data-testid="rapid-close" onClick={context.close}>
               Close
