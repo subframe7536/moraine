@@ -21,82 +21,97 @@ import {
   trapFocusInContainer,
 } from './utils.ts'
 
-export interface ModalContentContext {
-  /** Closes the modal. */
-  close: () => void
+export namespace ModalT {
+  export interface ContentContext {
+    /** Closes the modal. */
+    close: () => void
+  }
+
+  export interface Base {
+    /** Unique identifier used to derive the content id. */
+    id?: string
+
+    /** Controlled open state. */
+    open?: boolean
+
+    /**
+     * Initial open state when uncontrolled.
+     * @default false
+     */
+    defaultOpen?: boolean
+
+    /** Called whenever the open state changes. */
+    onOpenChange?: (open: boolean) => void
+
+    /** Called after the modal has fully finished its exit motion. */
+    onExitComplete?: () => void
+
+    /**
+     * Whether outside interaction and Escape should dismiss the shell.
+     * @default true
+     */
+    dismissible?: boolean
+
+    /** Called when a dismissal attempt is blocked. */
+    onClosePrevent?: () => void
+
+    /**
+     * Whether body scroll should be locked while the shell is present.
+     * @default true
+     */
+    preventScroll?: boolean
+
+    /** Composed trigger and content primitives. */
+    children?: JSX.Element
+  }
+
+  export type Props = Base
+
+  export interface TriggerProps {
+    /** Render the modal trigger as a single HTMLElement root. */
+    children?: (props: OverlayTriggerProps) => JSX.Element
+  }
+
+  export interface ContentProps {
+    /** Receives the mounted content element and `undefined` when it unmounts. */
+    ref?: (element: HTMLDivElement | undefined) => void
+
+    /** Component or element rendered inside the modal content surface. */
+    contentRender: ComponentOrElement<ContentContext>
+
+    /** Additional attributes applied to the modal content element. */
+    contentAttributes?: Record<string, string | number | boolean | undefined>
+
+    /** Accessible name used when no visible label is available. */
+    ariaLabel?: string
+
+    /** Id of the element that labels the modal content. */
+    ariaLabelledBy?: string
+
+    /** Id of the element that describes the modal content. */
+    ariaDescribedBy?: string
+
+    /** Class applied to the modal content element. */
+    class?: string
+
+    /** Style applied to the modal content element. */
+    style?: JSX.CSSProperties
+  }
+
+  export interface OverlayProps {
+    /** Receives the mounted overlay element and `undefined` when it unmounts. */
+    ref?: (element: HTMLDivElement | undefined) => void
+
+    /** Class applied to the modal overlay element. */
+    class?: string
+
+    /** Style applied to the modal overlay element. */
+    style?: JSX.CSSProperties
+  }
 }
 
-export interface ModalProps {
-  /** Unique identifier used to derive the content id. */
-  id?: string
-  /** Controlled open state. */
-  open?: boolean
-  /**
-   * Initial open state when uncontrolled.
-   * @default false
-   */
-  defaultOpen?: boolean
-  /** Called whenever the open state changes. */
-  onOpenChange?: (open: boolean) => void
-  /** Called after the modal has fully finished its exit motion. */
-  onExitComplete?: () => void
-  /**
-   * Whether outside interaction and Escape should dismiss the shell.
-   * @default true
-   */
-  dismissible?: boolean
-  /** Called when a dismissal attempt is blocked. */
-  onClosePrevent?: () => void
-  /**
-   * Whether body scroll should be locked while the shell is present.
-   * @default true
-   */
-  preventScroll?: boolean
-  /** Composed trigger and content primitives. */
-  children?: JSX.Element
-}
-
-export interface ModalTriggerProps {
-  /** Render the modal trigger as a single HTMLElement root. */
-  children?: (props: OverlayTriggerProps) => JSX.Element
-}
-
-export interface ModalContentProps {
-  /** Receives the mounted content element and `undefined` when it unmounts. */
-  ref?: (element: HTMLDivElement | undefined) => void
-
-  /** Component or element rendered inside the modal content surface. */
-  contentRender: ComponentOrElement<ModalContentContext>
-
-  /** Additional attributes applied to the modal content element. */
-  contentAttributes?: Record<string, string | number | boolean | undefined>
-
-  /** Accessible name used when no visible label is available. */
-  ariaLabel?: string
-
-  /** Id of the element that labels the modal content. */
-  ariaLabelledBy?: string
-
-  /** Id of the element that describes the modal content. */
-  ariaDescribedBy?: string
-
-  /** Class applied to the modal content element. */
-  class?: string
-
-  /** Style applied to the modal content element. */
-  style?: JSX.CSSProperties
-}
-
-export interface ModalOverlayProps {
-  /** Receives the mounted overlay element and `undefined` when it unmounts. */
-  ref?: (element: HTMLDivElement | undefined) => void
-
-  /** Class applied to the modal overlay element. */
-  class?: string
-
-  /** Style applied to the modal overlay element. */
-  style?: JSX.CSSProperties
-}
+/** Props for the Modal component. */
+export type ModalProps = ModalT.Props
 
 type ModalSurface = 'content' | 'overlay'
 
@@ -336,7 +351,7 @@ export function Modal(props: ModalProps): JSX.Element {
   return <ModalProvider value={context}>{props.children}</ModalProvider>
 }
 
-function ModalTrigger(props: ModalTriggerProps): JSX.Element {
+function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
   const context = useModalContext()
   const triggerRender = createMemo(() => props.children)
   const triggerProps: OverlayTriggerProps = {
@@ -370,7 +385,7 @@ function ModalTrigger(props: ModalTriggerProps): JSX.Element {
   )
 }
 
-function ModalContent(props: ModalContentProps): JSX.Element {
+function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const contentRender = createMemo(() => props.contentRender)
   const presence = useTransitionPresence({ open: context.open })
@@ -429,7 +444,7 @@ function ModalContent(props: ModalContentProps): JSX.Element {
   )
 }
 
-function ModalOverlay(props: ModalOverlayProps): JSX.Element {
+function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   const context = useModalContext()
   const presence = useTransitionPresence({ open: context.open })
   const unregister = context.registerSurface('overlay', presence)

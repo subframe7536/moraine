@@ -9,7 +9,7 @@ import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { Modal } from '../base/index.ts'
-import type { ModalContentContext } from '../base/modal.tsx'
+import type { ModalT } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { Dialog } from './dialog.tsx'
@@ -20,7 +20,7 @@ interface TestModalProps {
   overlay?: boolean
   onOpenChange?: (open: boolean) => void
   trigger?: (props: OverlayTriggerProps) => JSX.Element
-  content?: ComponentOrElement<ModalContentContext>
+  content?: ComponentOrElement<ModalT.ContentContext>
 }
 
 function TestModal(props: TestModalProps): JSX.Element {

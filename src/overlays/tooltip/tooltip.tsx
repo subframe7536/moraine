@@ -60,6 +60,12 @@ export namespace TooltipT {
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
   > {
     /**
+     * Preferred content placement relative to the trigger.
+     * @default 'top'
+     */
+    placement?: PopperProps['placement']
+
+    /**
      * Delay in milliseconds before opening on hover or focus.
      * @default 600
      */

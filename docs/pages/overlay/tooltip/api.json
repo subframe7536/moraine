@@ -129,7 +129,7 @@
         "required": false,
         "type": "Placement | undefined",
         "description": "Preferred content placement relative to the trigger.",
-        "defaultValue": "bottom"
+        "defaultValue": "top"
       },
       {
         "name": "side",

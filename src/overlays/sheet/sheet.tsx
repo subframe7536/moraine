@@ -7,7 +7,7 @@ import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import { Modal } from '../base/modal.tsx'
-import type { ModalContentContext, ModalProps } from '../base/modal.tsx'
+import type { ModalProps, ModalT } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { sheetContentVariants } from './sheet.class.ts'
@@ -247,7 +247,7 @@ export function Sheet(props: SheetProps): JSX.Element {
           merged.classes?.content,
         )}
         style={merged.styles?.content}
-        contentRender={(props: ModalContentContext): JSX.Element => (
+        contentRender={(props: ModalT.ContentContext): JSX.Element => (
           <>
             <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div

@@ -2,20 +2,8 @@ import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
 
-export const dialogOverlayVariants = cva(
-  'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in',
-  {
-    defaultVariants: {
-      scrollable: false,
-    },
-    variants: {
-      scrollable: {
-        true: 'block',
-        false: 'block',
-      },
-    },
-  },
-)
+export const DIALOG_OVERLAY_CLASS =
+  'bg-black/10 duration-150 inset-0 fixed z-50 backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in'
 
 export const dialogContentVariants = cva(
   'outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in',

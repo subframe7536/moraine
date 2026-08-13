@@ -12,7 +12,7 @@ import { Modal } from '../base/modal.tsx'
 import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { dialogCardVariants, dialogContentVariants, dialogOverlayVariants } from './dialog.class.ts'
+import { DIALOG_OVERLAY_CLASS, dialogCardVariants, dialogContentVariants } from './dialog.class.ts'
 import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
@@ -295,12 +295,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       <Modal.Trigger children={triggerRender()} />
       <Show when={merged.overlay}>
         <Modal.Overlay
-          class={dialogOverlayVariants(
-            {
-              scrollable: merged.scrollable,
-            },
-            merged.classes?.overlay,
-          )}
+          class={cn(DIALOG_OVERLAY_CLASS, merged.classes?.overlay)}
           style={merged.styles?.overlay}
         />
       </Show>

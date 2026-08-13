@@ -11,6 +11,7 @@ import {
   Sheet,
   Tooltip,
 } from 'moraine'
+import type { ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 declare module 'moraine' {
@@ -28,6 +29,8 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
 const foo = () => undefined
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
+const modalContentContext: ModalT.ContentContext = { close: () => undefined }
+modalContentContext.close()
 
 ;<Badge
   id="badge"

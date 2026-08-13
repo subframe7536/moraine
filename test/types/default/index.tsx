@@ -12,11 +12,14 @@ import {
   Sheet,
   Tooltip,
 } from 'moraine'
+import type { ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
   <section data-required={props.required}>{props.children}</section>
 )
+const modalContentContext: ModalT.ContentContext = { close: () => undefined }
+modalContentContext.close()
 
 ;<Badge aria-label="status" data-testid="badge">
   Ready
