@@ -64,7 +64,7 @@ Do not pull, reset, or edit the Zaidan checkout as part of this work.
 
 | Plan                                             | Title                                               | Priority | Effort | Depends on | Status |
 | ------------------------------------------------ | --------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [001](001-freeze-vega-style-baseline.md)         | Freeze the Vega baseline and map every surface      | P1       | L      | —          | TODO   |
+| [001](001-freeze-vega-style-baseline.md)         | Freeze the Vega baseline and map every surface      | P1       | L      | —          | DONE   |
 | [002](002-stateful-slot-overrides.md)            | Add typed, reactive stateful slot overrides         | P1       | L      | 001        | TODO   |
 | [003](003-align-element-styles.md)               | Align element spacing, sizing, surfaces, and motion | P1       | L      | 001, 002   | TODO   |
 | [004](004-align-form-styles.md)                  | Align form controls and form composition            | P1       | L      | 001–003    | TODO   |
