@@ -12,7 +12,6 @@
   - [x] cleanup button-group arbitrary class detector
 - [x] audit the explicitly scoped components with mature Base UI / Kobalte counterparts one-by-one, syncing compatible cross-platform, edge-case, keyboard, accessibility, and focus behavior; components without a plan are excluded rather than claimed as parity-complete
 - [ ] inspect all components' class compare to shadcn/ui one-by-one, to get a better understanding of the spacing, sizing, and transition design system, and then apply it to our components
-  - [ ] classes and styles should become stateful
   - [ ] breadcrumb should use `<a>` directly, only highlight text and icon color when hover / active, and use `aria-current` to indicate the current page
   - [ ] command-palette design refresh
     - [ ] docs/ example refresh, only "Real-World Example" should wrap with dialog, the rest should be inline

@@ -7,27 +7,27 @@
 >
 > **Drift check (run first)**:
 > `git diff --stat 620037aad7b5..HEAD -- src/overlays src/forms/select src/navigation/sidebar-frame src/elements/card src/elements/button src/elements/kbd src/shared/style src/unocss src/tailwind style-parity-matrix.md`.
-> Plans 001–005 are expected to change the matrix and consumers. Re-read the final Card,
-> Button, Kbd, BaseSelect, and SidebarFrame contracts. An unexplained overlay-source
-> change is a STOP condition.
+> Plans 001 and 003–005 are expected to change the matrix and consumers. Re-read the
+> final Card, Button, Kbd, BaseSelect, and SidebarFrame contracts. An unexplained
+> overlay-source change is a STOP condition.
 
 ## Status
 
 - **Priority**: P1
 - **Effort**: L
 - **Risk**: HIGH
-- **Depends on**: Plans 001–005
+- **Depends on**: Plans 001 and 003–005
 - **Category**: tech-debt
 - **Planned at**: commit `620037aad7b5`, 2026-08-13
 
 ## Why this matters
 
 Overlays are where inconsistent surfaces and timing are most visible, and their
-classes span public wrappers plus Modal, Popper, and OverlayMenu foundations. Resolving
-the same public override in both layers would duplicate callbacks and produce unclear
-precedence; styling only wrappers would leave submenus and portals inconsistent. This
-plan assigns final DOM ownership to the shared foundations, aligns Vega geometry and
-motion, and preserves all completed dismissal/focus/presence behavior.
+classes span public wrappers plus Modal, Popper, and OverlayMenu foundations. Applying
+the same public override in both layers would produce unclear precedence, while
+styling only wrappers would leave submenus and portals inconsistent. This plan assigns
+final DOM ownership to the shared foundations, aligns Vega geometry and motion, and
+preserves all completed dismissal/focus/presence behavior.
 
 ## Current state
 
@@ -66,8 +66,23 @@ motion, and preserves all completed dismissal/focus/presence behavior.
   evidence onto Moraine's foundation architecture.
 - Use `solid-js-1.x-best-practices-and-api` for open/presence/placement and item state.
 - Apply every gate in `build-ssr-safe-component`: closed content must remain lazy,
-  arbitrary JSX props stay cached, and callback resolution cannot add component
-  boundaries or alter hydration order.
+  arbitrary JSX props stay cached, and class moves cannot add component boundaries or
+  alter hydration order.
+
+## Selector ownership rule
+
+Zaidan `has-*`, `group-has-*`, `group-data-*`, and `in-data-*` selectors describe
+open-ended overlay primitives and remain evidence rather than a Moraine DOM contract.
+Modal, Popper, and OverlayMenu should apply classes at the final shared backdrop,
+positioner, panel, item, or content owner; public wrappers pass existing slot overrides
+to that owner once. Use existing placement, presence, highlighted, and semantic state
+attributes for runtime selectors, and keep direct-child/sibling relations only where
+menus accept arbitrary caller-owned children. Do not add `data-icon`, `data-size`,
+`data-placeholder`, destructive/inset markers, group names, slot renames, visual-only
+nodes, a Tooltip arrow slot, or styling-only ARIA to reproduce Vega selectors.
+Pass existing size/variant values through the current `cva` axes or direct slot classes,
+and keep runtime placement/presence/selection styling on Moraine's existing `data-*`,
+ARIA, and pseudo-class states.
 
 ## Scope
 
@@ -85,7 +100,6 @@ motion, and preserves all completed dismissal/focus/presence behavior.
 - `src/shared/style/**`, `src/unocss/theme.ts`, `src/tailwind/index.ts`, and their
   focused tests only if the completed matrix requires a missing reusable animation
   primitive shared by three or more overlay families.
-- `test/types/default/index.tsx`, `test/types/autocomplete/index.tsx`
 - overlay/foundation rows in `style-parity-matrix.md`
 - Plan 006 status in `plans/README.md`
 
@@ -100,9 +114,8 @@ motion, and preserves all completed dismissal/focus/presence behavior.
 - Dismissal, focus trap/restore, scroll lock, overlay stack, pointer/hover delays,
   long-press, submenu grace, selection, keyboard/typeahead, placement, collision,
   presence state machines, portal ownership, or DOM/ARIA changes.
-- Making low-level Modal `ContentProps.class/style/overlayClass/overlayStyle` stateful;
-  public wrapper slot maps are stateful, low-level imperative composition props remain
-  static.
+- Changing low-level Modal `ContentProps.class/style/overlayClass/overlayStyle` or
+  public wrapper slot APIs.
 - Changing completed consumer classes or adding a cross-library overlay dependency.
 - Zaidan translucent-menu variants, registry/theme support, docs pages, generated JSON,
   dependencies, or lockfiles.
@@ -114,27 +127,16 @@ motion, and preserves all completed dismissal/focus/presence behavior.
 - Use messages such as `refactor(overlays): align surfaces and motion`.
 - Do not push or open a pull request unless instructed.
 
-## Required state contexts and ownership
+## Slot override ownership
 
 - Public trigger top-level `class`/`style` stays static and is forwarded unchanged by
   wrappers.
-- Modal-backed wrapper slots: open, present, exiting, dismissible, overlay enabled,
-  layout/side/inset/transition, and optional region presence. Resolve public
-  overlay/content callbacks in the wrapper immediately before passing static results
-  to Modal. Modal does not resolve them again.
-- Popper-backed wrapper slots: open, present, positioned, disabled, mode/invert, desired
-  placement, runtime placement/side, and optional content/text/kbd presence. Resolve
-  public content callbacks in the wrapper's final visual node; Popper retains only
-  static positioner/content primitive props.
-- Menu slots: generic source item/group, group/item indices, depth, item type/color/
-  size, highlighted/selected/checked/disabled state, submenu open/hasChildren state,
-  root open/present/placement/side, and optional subslot presence. OverlayMenu is the
-  sole resolver for public menu panel/item slots.
-
-Callbacks receive readonly plain snapshots. Do not expose DOM nodes, accessors,
-placement controllers, close/open actions, focus strategy, private normalized groups,
-or item ids. A submenu item uses its original source item and depth. The same slot
-callback may run once per rendered instance; no hidden/closed slot callback runs.
+- Modal-backed wrapper overlay/content overrides are passed to Modal exactly once;
+  Modal does not apply them again.
+- Popper-backed wrapper content overrides are applied at the wrapper's final visual
+  node; Popper retains only its static positioner/content primitive props.
+- OverlayMenu applies public menu panel/item slot overrides at the final shared DOM
+  sites so DropdownMenu and ContextMenu do not duplicate them.
 
 ## Steps
 
@@ -150,7 +152,8 @@ removes transforms/animation without removing content.
 Do not change Modal/Popper state machines. Add or modify a shared keyframe/utility only
 if Dialog, Popover/Menu, and Tooltip all use it and UnoCSS/Tailwind tests assert the
 same generated CSS. Preserve transform-origin and computed position styles before
-public style overrides.
+public style overrides. For fixed backdrop/content branches, attach classes directly
+to the existing final nodes rather than introducing `has-*` or `group-has-*` hooks.
 
 Add foundation tests for data-state class mapping, reduced motion, computed/public
 style precedence, and no closed content instantiation.
@@ -174,17 +177,19 @@ destructive/disabled states, submenu panel motion, and logical side spacing.
 Keep only true size/color variants in `menu.class.ts`; state styles remain ordinary
 selectors. Translate Vega `focus` to Moraine's current `data-highlighted`/selected
 attributes and retain semantic active tokens where the matrix requires a pressed
-state. Do not duplicate a class in ContextMenu/DropdownMenu wrappers.
+state. Do not duplicate a class in ContextMenu/DropdownMenu wrappers. Resolve fixed
+item, group, indicator, and shortcut branches through existing render/accessor values;
+retain relationship selectors only for arbitrary child content and do not add
+`data-variant`, inset, destructive, or group marker attributes.
 
-Migrate shared menu slot types to the generic state map and resolve at final DOM sites
-in `menu.tsx`. Ensure default content, custom itemRender, checkbox/radio, submenus,
-groups, contentTop/contentBottom, and KbdGroup composition do not double-resolve or
-eagerly evaluate callbacks. The overlay backdrop callback runs only when that backdrop
-is rendered.
+Apply shared static menu slot overrides at final DOM sites in `menu.tsx`. Ensure default
+content, custom itemRender, checkbox/radio, submenus, groups,
+contentTop/contentBottom, and KbdGroup composition do not apply the same override in
+multiple layers.
 
-Add tests for exact item/group/depth/type states, highlight/select/check/submenu
-updates, root/submenu placement, absent icons/descriptions/indicators, static
-compatibility, custom renderer ownership, and SSR/hydration.
+Add tests for highlight/select/check/submenu class updates, root/submenu placement,
+absent icons/descriptions/indicators, static override precedence, custom renderer
+ownership, and SSR/hydration.
 
 **Verify**:
 
@@ -208,10 +213,11 @@ footer padding, title/description, and close placement. Preserve inset and trans
 variants even where Zaidan has no direct counterpart. Use logical positioning for
 start/end where the component already supports it.
 
-Resolve stateful public slots in the wrapper exactly once before Modal's static props
-or at the final nested DOM slot. Cached title/description/header/body/footer/action/
-close values cannot be reread or eagerly instantiated. Add tests for open/present/exit,
-layout/side/inset, optional slot presence, callback laziness, merge precedence, and
+Apply public slot overrides in the wrapper exactly once before Modal's static props or
+at the final nested DOM slot. Cached title/description/header/body/footer/action/close
+values cannot be reread or eagerly instantiated. Keep Dialog and Sheet optional regions
+on their existing branches without marker nodes. Add tests for open/present/exit,
+layout/side/inset, optional slot presence, static override precedence, and
 production-equivalent hydration fixtures.
 
 **Verify**:
@@ -229,14 +235,14 @@ For Popover, align the Vega surface to semantic popover colors, 16 px padding, 1
 gap, medium radius, ring/shadow, `text-sm`, transform origin, and side-aware
 fade/scale/displacement. Preserve hover/click modes and delays.
 
-For Tooltip, align gap, `px-3 py-1.5`, `text-xs`, medium radius, Kbd composition, arrow
-radius if Moraine renders one, and side-aware motion. Preserve Moraine invert variant,
+For Tooltip, align gap, `px-3 py-1.5`, `text-xs`, medium radius, Kbd composition, and
+side-aware motion. Preserve Moraine invert variant without adding an arrow slot,
 instant-open motion suppression, skip-delay coordination, and forceMount behavior.
 
-Resolve runtime side from `context.currentPlacement()` before callbacks. Do not use the
-desired placement when collision logic has selected another side. Hidden/closed content
-and absent text/kbd/body slots remain lazy. Keep Popper computed position/visibility/
-transform-origin styles ahead of final stateful content style overrides.
+Use `context.currentPlacement()` for runtime side selectors. Do not use the desired
+placement when collision logic has selected another side. Hidden/closed content and
+absent text/kbd/body slots remain lazy. Keep Popper computed position/visibility/
+transform-origin styles ahead of final static content style overrides.
 
 Add tests for desired versus runtime placement, open/present/positioned state, mode/
 invert/instant motion, absent content, Kbd item context handoff, static overrides, and
@@ -251,16 +257,13 @@ bun run typecheck
 
 Expected: all suites and types pass.
 
-### Step 5: Lock overlay types, consumer regressions, and matrix dispositions
+### Step 5: Run consumer regressions and complete matrix dispositions
 
-Add type fixtures for Dialog open/layout state, Sheet side state, Popover runtime side,
-Tooltip invert state, and generic menu item/depth/type state. Prove low-level Modal
-class/style fields and public trigger top-level props remain static, source item types
-remain exact, and cross-slot/private fields fail.
-
-Update every overlay, Modal, Popper, and OverlayMenu matrix row with final class/motion
-values, ownership, tests, and disposition. Run all consumers that share popup/motion
-infrastructure.
+Run the existing public type fixtures as a regression gate. Update every overlay,
+Modal, Popper, and OverlayMenu matrix row with final class/motion values, ownership,
+tests, and disposition. Review every Implementation plan entry for direct final-owner
+classes, the narrow arbitrary-child relationship boundary, and no parity-only structural
+proposal. Run all consumers that share popup/motion infrastructure.
 
 **Verify**:
 
@@ -280,20 +283,24 @@ Expected: all tests/types pass; diff check is clean; final `rg` exits 1 with no 
 - Foundation tests protect presence, transform origin, computed-style precedence, and
   closed-content laziness.
 - Menu tests cover root and submenu panels plus every item type and optional subslot.
-- Dialog/Sheet tests cover stateful callbacks without rereading arbitrary JSX.
+- Dialog/Sheet tests cover static slot precedence without rereading arbitrary JSX.
 - Popover/Tooltip tests use runtime placement after collision resolution.
-- Existing SSR fixtures remain required; state callbacks add hydration assertions but
-  do not create new node branches.
+- Existing SSR fixtures remain required and must retain their node branches.
 - Select/MultiSelect and SidebarFrame are mandatory downstream regressions.
+- Overlay tests assert fixed optional branches through direct owner classes and retain
+  only existing runtime state selectors; no presentational marker is needed.
 
 ## Done criteria
 
 - [ ] Every overlay/foundation matrix row is final with ownership and test evidence.
-- [ ] Shared Modal/Popper/Menu DOM resolves each public slot override exactly once.
+- [ ] Shared Modal/Popper/Menu DOM applies each public slot override exactly once.
 - [ ] Motion shape matches the matrix and fixed duration primitives; reduced motion is
       safe in UnoCSS and Tailwind.
-- [ ] Runtime placement, generic source item, and nested depth state are precise and
-      readonly without internal objects.
+- [ ] Fixed overlay/menu slots use direct final-owner classes, with relationship
+      selectors limited to arbitrary child content.
+- [ ] No parity-only marker (`data-icon`, `data-size`, `data-placeholder`, destructive,
+      inset, or group name), slot rename, visual-only node, Tooltip arrow, or
+      styling-only ARIA attribute was added.
 - [ ] Behavior, DOM/ARIA, focus/dismissal, placement, presence, and hydration remain
       unchanged.
 - [ ] All overlay/domain/consumer tests, typecheck, type fixtures, and diff check pass.
@@ -308,8 +315,9 @@ Stop and report if:
   require changing the public API.
 - Styling requires changing presence, focus/dismissal, scroll lock, placement,
   submenu, long-press, or pointer behavior.
-- Runtime placement or item state can only be exposed through DOM/accessor/private
-  normalized objects.
+- A Vega selector would require a new marker, group name, slot, wrapper, visual node,
+  Tooltip arrow, or ARIA attribute for a fixed overlay branch; record the visual
+  divergence and stop.
 - A shared animation change breaks either UnoCSS or Tailwind generation, or would
   alter unrelated non-overlay components.
 - Conditional JSX is evaluated early or production hydration changes.
@@ -317,7 +325,9 @@ Stop and report if:
 
 ## Maintenance notes
 
-Public wrappers own styling state definitions; Modal/Popper/Menu own final primitive
-DOM. Keep that boundary when adding slots. A future animation change must update both
+Public wrappers own their slot maps; Modal/Popper/Menu own final primitive DOM. Keep
+that boundary when adding slots. A future animation change must update both
 UnoCSS and Tailwind tests and rerun Select plus SidebarFrame consumers, because overlay
-regressions often appear outside `src/overlays`.
+regressions often appear outside `src/overlays`. Keep Zaidan selector topology in the
+evidence column only; the implementation owner in each matrix row is the existing final
+Moraine node.

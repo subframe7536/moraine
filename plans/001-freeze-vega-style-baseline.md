@@ -32,9 +32,8 @@ Moraine-only components receive an explicit analogue or documented divergence.
 
 ## Current state
 
-- `todo.md:9-10` contains the next unchecked item: compare every component's classes
-  with shadcn/ui, understand spacing/sizing/transitions, apply the system, and make
-  `classes` and `styles` stateful.
+- `todo.md` contains the next unchecked item: compare every component's classes with
+  shadcn/ui, understand spacing/sizing/transitions, and apply the system.
 - `zaidan/src/lib/config.ts:17-27` sets `style: "vega"`; its style metadata describes
   Vega as the classic shadcn/ui look.
 - `zaidan/src/registry/kobalte/ui/*.tsx` contains structure and `data-*` selectors.
@@ -51,6 +50,11 @@ Moraine-only components receive an explicit analogue or documented divergence.
   `src/elements/collapsible/collapsible.tsx`, `src/forms/form/form.tsx`, and
   `src/navigation/pagination/pagination.tsx`. Later domain plans create their required
   `.class.ts` files.
+- Zaidan's Vega CSS frequently uses `has-*`, `group-*`, and `in-data-*` selectors
+  because its primitives accept open-ended composition. Moraine's comprehensive
+  components usually know the same slot presence and variant through existing props
+  and accessors, so the matrix must record the visual relationship while assigning
+  the class directly to Moraine's final slot owner.
 - Baseline validation is green: `bun run typecheck` exits 0 and `bun run test` passes
   78 files / 1562 tests.
 
@@ -69,6 +73,9 @@ Moraine-only components receive an explicit analogue or documented divergence.
 
 - Use the `parity-port` skill to keep the comparison evidence-based and to distinguish
   compatible translation from intentional divergence.
+- Use `solid-js-1.x-best-practices-and-api` when a direct class depends on a reactive
+  prop/accessor: keep the read in JSX or another tracked scope and do not destructure
+  props to make the selector simpler.
 - This plan is an audit artifact only. Do not invoke a component implementation skill
   or edit production source.
 
@@ -189,9 +196,23 @@ matching Vega selectors. Record concrete current and target values for:
 
 Translate selector vocabulary rather than copying it. For example, a Vega
 `data-open` rule can map to Moraine's existing `data-expanded` attribute, but the
-matrix must state the translation. If a Vega selector depends on a DOM relationship
-Moraine does not have, record an intentional divergence rather than changing DOM in
-this styling sweep.
+matrix must state the translation. For a fixed Moraine tree, `has-data-[slot=…]`,
+`group-has-*`, `group-data-*`, and `in-data-*` are evidence of a visual relationship,
+not implementation requirements: use the existing prop/accessor and apply the class
+to the final slot. Keep relationship selectors only when children are arbitrary
+caller-owned nodes or the runtime state is genuinely exposed on another node. Do not
+add presentational marker attributes, rename existing slots, add visual-only nodes,
+split existing slots, or add ARIA solely to satisfy a Vega selector. Record an
+intentional divergence when the upstream subpart has no Moraine slot.
+
+For size and variant context, pass the existing value through Moraine's `cva` axis or
+compose the direct slot class with `cn`; do not introduce a `group-*` marker to carry a
+value through a fixed tree. Runtime state continues to use Moraine's existing
+`data-*`, ARIA, and pseudo-class selectors.
+
+Keep existing Button and Badge `data-size`/`data-variant` attributes unchanged, and
+retain real semantic states such as Switch `data-unchecked` and SidebarFrame
+`data-state`. These are state contracts, not permission to add presentational markers.
 
 End every row with `ready-for-implementation`, `intentional-divergence`, or
 `headless-no-visual-surface`. Link ready rows to Plan 003, 004, 005, or 006.
@@ -244,7 +265,9 @@ Stop and report if:
 - Zaidan is not at the pinned revision or lacks `style-vega.css`.
 - The live public component inventory differs from the 41 names above.
 - A Moraine component requires a behavior/DOM/API change to reproduce a visual rule.
-  Record the evidence, but do not redesign it in this plan.
+  Record the evidence, but do not redesign it in this plan. In particular, do not
+  add a slot, wrapper, marker attribute, or ARIA attribute just to make a selector
+  portable.
 - A direct Zaidan counterpart is absent and the required analogue table does not cover
   the component.
 - Baseline tests or typecheck fail before any source change.
@@ -253,4 +276,6 @@ Stop and report if:
 
 The matrix is a durable implementation and review ledger. When Zaidan is deliberately
 upgraded, update the fixed revision and re-audit only changed UI/style sections; do not
-silently reinterpret completed rows against a moving checkout.
+silently reinterpret completed rows against a moving checkout. Reviewers should check
+that every conditional style has a single Moraine owner and that a new data attribute
+describes semantic state rather than layout or child presence.

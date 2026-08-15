@@ -2,38 +2,35 @@
 
 > **Executor instructions**: Follow this plan step by step. Run every verification
 > command and confirm the expected result before moving on. This plan is the final
-> acceptance gate and the only plan that may check the two style-system TODO boxes. If
+> acceptance gate and the only plan that may check the style-system TODO item. If
 > a STOP condition occurs, stop and report; do not mark the TODO complete. Update this
 > plan's row in `plans/README.md` when finished unless a reviewer owns the index.
 >
 > **Drift check (run first)**:
-> `git diff --stat 620037aad7b5..HEAD -- todo.md src docs/pages docs/build src/unocss src/tailwind test/types style-parity-matrix.md`.
-> Plans 001–006 are expected to change source, tests, type fixtures, and the matrix. All
-> six status rows must be `DONE`; any `TODO`, `IN PROGRESS`, or `BLOCKED` dependency is
-> a STOP condition.
+> `git diff --stat 620037aad7b5..HEAD -- todo.md src docs/pages docs/build src/unocss src/tailwind style-parity-matrix.md`.
+> Plans 001 and 003–006 are expected to change source, tests, and the matrix. All five
+> dependency status rows must be `DONE`; any `TODO`, `IN PROGRESS`, or `BLOCKED`
+> dependency is a STOP condition.
 
 ## Status
 
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: MED
-- **Depends on**: Plans 001–006
+- **Depends on**: Plans 001 and 003–006
 - **Category**: docs
 - **Planned at**: commit `620037aad7b5`, 2026-08-13
 
 ## Why this matters
 
 Class assertions and jsdom cannot prove that an SSR-rendered component remains visible
-after hydration, that popup motion looks coherent, or that the new state callback
-contract is understandable to consumers. This plan publishes the contract, regenerates
-API data, runs the full production toolchain, and records real-browser evidence at
-mobile, tablet, and desktop widths. The TODO is complete only when the matrix has no
-gaps and those production checks pass.
+after hydration or that popup motion looks coherent. This plan regenerates API data,
+runs the full production toolchain, and records real-browser evidence at mobile,
+tablet, and desktop widths. The TODO is complete only when the matrix has no gaps and
+those production checks pass.
 
 ## Current state
 
-- `docs/pages/styling.mdx` documents static top-level and slot overrides but has no
-  stateful `classes`/`styles` examples or callback-state rules.
 - Component MDX pages already provide representative examples across every domain.
   Do not redesign the docs site in this task; the next TODO owns the production-level
   docs-site overhaul.
@@ -72,17 +69,10 @@ gaps and those production checks pass.
 
 **In scope:**
 
-- `docs/pages/styling.mdx`
-- One stateful example per behavior category, colocated with an existing page:
-  - `docs/pages/general/badge/stateful-styles.tsx` — leaf/resolved variants;
-  - `docs/pages/navigation/tabs/stateful-styles.tsx` — repeated selected item;
-  - `docs/pages/overlay/popover/stateful-styles.tsx` — open/runtime-side overlay.
-- The three matching MDX pages, only to register those examples.
 - Generated `docs/pages/**/api.json` and `docs/pages/_api-index.json` produced by the
   existing generator; never hand-edit them.
 - `style-parity-matrix.md` production-validation log and final dispositions.
-- `todo.md` — check only the parent style audit and nested stateful override items after
-  all gates pass.
+- `todo.md` — check only the parent style-audit item after all gates pass.
 - `plans/README.md` — update only Plan 007's status.
 - A narrowly scoped source/test/type correction if a final gate reveals a regression;
   update the owning matrix row and rerun its domain plan's focused commands first.
@@ -99,69 +89,42 @@ gaps and those production checks pass.
 ## Git workflow
 
 - Branch: `codex/007-style-system-acceptance`.
-- Commit documentation/generated API data together, then final acceptance/TODO status.
-- Use messages such as `docs: document stateful style overrides` and
-  `chore: complete Shadcn style parity sweep`.
+- Commit generated API data together, then final acceptance/TODO status.
+- Use a message such as `chore: complete Shadcn style parity sweep`.
 - Do not push or open a pull request unless instructed.
 
 ## Steps
 
 ### Step 1: Prove every implementation plan and matrix row is complete
 
-Read each plan's Done criteria and status. Run a script that fails unless Plans 001–006
-are `DONE`. Then scan the matrix for pending dispositions, missing tests, or incomplete
-production log entries. At this stage only the production visual-validation log may
-still say `pending`.
+Read each plan's Done criteria and status. Run a script that fails unless Plans 001 and
+003–006 are `DONE`. Then scan the matrix for pending dispositions, missing tests, or
+incomplete production log entries. At this stage only the production visual-validation
+log may still say `pending`. Also inspect every Implementation plan cell for the static
+composition rule: fixed branches name a direct final slot owner, relationship selectors
+are limited to arbitrary children or runtime state, and no selector-only slot, group
+name, presentational `data-*` attribute, or visual-only DOM node has been introduced.
+The scan must explicitly reject the withdrawn proposals: ButtonGroup `data-slot`
+renaming, Progress `status` splitting, Tooltip arrow, FormField `role="alert"`, and
+Pagination `data-current` to `data-active`.
 
 **Verify**:
 
 ```sh
-bun -e "const text=await Bun.file('plans/README.md').text(); for (const id of ['001','002','003','004','005','006']) { const row=text.split('\n').find(line=>line.includes('['+id+']')); if (!row?.endsWith('| DONE |')) throw new Error('Plan '+id+' is not DONE'); }"
+bun -e "const text=await Bun.file('plans/README.md').text(); for (const id of ['001','003','004','005','006']) { const row=text.split('\n').find(line=>line.includes('['+id+']')); if (!row?.endsWith('| DONE |')) throw new Error('Plan '+id+' is not DONE'); }"
+bun -e "const text=await Bun.file('style-parity-matrix.md').text(); const rows=text.split('\n').filter(line=>/^\| (elements|forms|navigation|overlays) \|/.test(line)); const foundations=rows.filter(line=>line.split(' | ')[1].includes('(foundation')); if(rows.length!==45 || foundations.length!==4) throw new Error('Expected 41 public + 4 foundation rows, got '+(rows.length-foundations.length)+' public + '+foundations.length+' foundation');"
 rg -n 'ready-for-implementation|unclassified|audit-pending|Disposition.*pending' style-parity-matrix.md
+bun -e "const text=await Bun.file('style-parity-matrix.md').text(); const rows=text.split('\n').filter(line=>/^\| (elements|forms|navigation|overlays) \|/.test(line)); const plans=rows.map(line=>line.match(/\| (Plan 00[3-6] — .*?) \|$/)?.[1] ?? '').join('\n').replaceAll(String.fromCharCode(96),''); const stale=['data-[size=sm] spacing','emit data-size (+','add data-size/group naming','rename group root data-slot to button-group','split status into label+value slots','add field-composition gap hooks','role=alert on error','group focus/invalid hooks','add data-unchecked + data-size','data-current→data-active','add arrow slot']; const hit=stale.filter(value=>plans.includes(value)); if (hit.length) throw new Error('Withdrawn implementation proposal: '+hit.join(', '));"
 ```
 
 Expected: the script exits 0; `rg` exits 1 with no output.
 
-### Step 2: Document the stateful override contract
-
-Extend `docs/pages/styling.mdx` in English. Keep the existing root/slot distinction and
-add:
-
-- static values remain valid;
-- each slot value can be `(state) => classValue` or `(state) => CSSProperties`;
-- callback state is readonly, component/slot-specific, contains resolved defaults,
-  and stays generic for source items;
-- top-level `class`/`style` and low-level Modal composition props remain static;
-- callbacks run only for rendered slot instances and must return deterministic styling
-  for SSR/hydration;
-- class literals must be statically discoverable; dynamically constructed utility
-  names require the consumer's normal UnoCSS/Tailwind safelist.
-
-Add the three examples listed in Scope. Each must use a live signal or component state
-to visibly update both a class and a style callback, show the inferred state without an
-explicit annotation, and avoid dynamic string construction. Tabs must distinguish the
-selected repeated item. Popover must style from the actual resolved runtime side/open
-state exposed by its public slot context. Register each with `<Example>` on its existing
-MDX page.
-
-Do not add a catch-all API table by hand; generated component API docs remain the
-source of truth.
-
-**Verify**:
-
-```sh
-rg -n 'state =>|readonly|top-level|safelist|SSR|hydration' docs/pages/styling.mdx
-bun run typecheck
-```
-
-Expected: all required concepts are present and TypeScript exits 0.
-
-### Step 3: Run formatting, full tests, public types, and production build
+### Step 2: Run formatting, full tests, public types, and production build
 
 Run `qa` first because it mutates formatting/lint fixes, inspect its diff, then run the
 full unit and docs build gates. `docs:build` may regenerate API JSON; accept only
-generator output. Confirm generated API docs still list every component slot and show
-the namespace Classes/Styles aliases without treating State map keys as slots.
+generator output. Confirm generated API docs still list every component slot and the
+namespace Classes/Styles aliases.
 
 **Verify**:
 
@@ -176,7 +139,7 @@ Expected: every command exits 0. No dependency/lockfile or handwritten build out
 introduced. If `qa` changed unrelated files, restore only its unrelated formatting
 edits with a targeted patch; never use a destructive repository reset.
 
-### Step 4: Start the production preview and establish browser instrumentation
+### Step 3: Start the production preview and establish browser instrumentation
 
 Start `bun run docs:preview` in a persistent command session and capture the local URL
 reported by Vite. Keep it running. Invoke the `browser:control-in-app-browser` skill,
@@ -192,7 +155,7 @@ present and neither error listener has captured an entry.
 
 Expected: the production preview, not the Vite dev server, renders successfully.
 
-### Step 5: Validate representative routes at three viewport widths
+### Step 4: Validate representative routes at three viewport widths
 
 Use widths 390x844 (mobile), 768x1024 (tablet), and 1440x900 (desktop). At each width,
 reload the production page rather than only resizing an already hydrated tree. Check
@@ -204,8 +167,7 @@ these routes or their generated route equivalents:
 - `/select`, `/command-palette` — collection popup/item scale;
 - `/dialog`, `/popover`, `/sheet`, `/tooltip`, `/dropdown-menu`, `/context-menu` —
   surface, placement, menu, and enter/exit motion;
-- `/sidebar-frame` — desktop layout plus mobile Sheet composition;
-- the Badge, Tabs, and Popover stateful examples from Step 2.
+- `/sidebar-frame` — desktop layout plus mobile Sheet composition.
 
 For each category, interact with the control to exercise hover/focus/active or
 selected/checked/expanded/drag/open/close state as applicable. Toggle the docs light
@@ -224,7 +186,7 @@ route categories, and a pass/fail result for every computed-style anchor.
 Expected: every entry is `pass`; any visual or computed-style mismatch is fixed in the
 owning domain and its focused/full gates rerun before continuing.
 
-### Step 6: Validate SSR hydration nodes, overlay cleanup, and state callbacks
+### Step 5: Validate SSR hydration nodes and overlay cleanup
 
 On a hard reload at each width:
 
@@ -233,8 +195,6 @@ On a hard reload at each width:
   panel, and the page shell;
 - after hydration, assert each element remains under the intended parent, has non-zero
   bounds, and retains a visible icon/background/border where applicable;
-- exercise the three stateful examples and assert callback-driven class/style updates
-  occur without replacing unrelated DOM nodes;
 - open and close Dialog, Popover, Sheet, Tooltip, DropdownMenu, and ContextMenu; after
   exit motion, assert their portal content/backdrop is removed unless the example uses
   forceMount;
@@ -250,17 +210,16 @@ hydrated DOM. Do not claim proof from a clean console alone.
 
 Expected: every row passes at all widths.
 
-### Step 7: Complete the matrix, final repository gate, and TODO
+### Step 6: Complete the matrix, final repository gate, and TODO
 
 Terminate the preview session. Mark the production log complete with date, URL,
 viewport/theme coverage, console result, and critical-node result. Re-run all
 repository gates after any browser-found correction.
 
-Only then change these lines in `todo.md`:
+Only then change this line in `todo.md`:
 
 ```md
 - [x] inspect all components' class compare to shadcn/ui one-by-one, to get a better understanding of the spacing, sizing, and transition design system, and then apply it to our components
-  - [x] classes and styles should become stateful
 ```
 
 Do not reword the TODO in this plan.
@@ -273,38 +232,39 @@ bun run test
 bun run docs:build
 git diff --check
 git status --short
-rg -n '^- \[x\] inspect all components|^  - \[x\] classes and styles should become stateful' todo.md
+rg -n '^- \[x\] inspect all components' todo.md
 rg -n 'pending|ready-for-implementation|unclassified|audit-pending' style-parity-matrix.md
 ```
 
 Expected: QA, tests, docs build, and diff check pass; only intentional source/docs/
-generated-plan/matrix/TODO changes are present; both TODO lines match; final matrix
-`rg` exits 1 with no output.
+generated-plan/matrix/TODO changes are present; the parent TODO line matches; final
+matrix `rg` exits 1 with no output.
 
 ## Test plan
 
 - Full unit/type/build/SSG coverage runs after formatter/linter mutation.
-- Three docs examples compile and demonstrate leaf, repeated-item, and overlay runtime
-  state.
 - Production browser coverage spans three widths, both themes, reduced motion where
   supported, every component domain, computed-style anchors, SSR node retention, and
   overlay cleanup.
 - Browser-found regressions return to their owning domain's focused tests before the
   full final gate is rerun.
+- The final matrix review checks all 41 public-component rows plus four foundation rows,
+  preserves their dispositions, and confirms direct slot ownership without adding
+  selector-only slots, group names, presentational attributes, or DOM nodes.
 
 ## Done criteria
 
-- [ ] Plans 001–006 are `DONE` and every matrix row is final.
-- [ ] Styling docs precisely describe static/stateful/root/SSR/scanning contracts.
-- [ ] Three stateful examples compile and work in production preview.
+- [ ] Plans 001 and 003–006 are `DONE` and every matrix row is final.
+- [ ] The Implementation plan scan rejects the withdrawn structural proposals and
+      records direct final-owner classes for fixed slots.
 - [ ] `bun run qa`, `bun run test`, and `bun run docs:build` pass.
-- [ ] Generated API docs retain slots and do not expose State keys as fake slots.
+- [ ] Generated API docs retain every component slot and Classes/Styles alias.
 - [ ] Production browser checks pass at mobile/tablet/desktop, light/dark, and reduced
       motion where supported.
 - [ ] No console/hydration error exists; critical SSR nodes remain nested and visible.
 - [ ] Overlay portals clean up after exit motion.
 - [ ] `git diff --check` passes and no dependency/lockfile/manual-dist change exists.
-- [ ] Both style-system TODO boxes are checked and no later TODO is modified.
+- [ ] The parent style-system TODO is checked and no later TODO is modified.
 - [ ] Plan 007 is marked `DONE` in `plans/README.md`.
 
 ## STOP conditions
@@ -312,8 +272,6 @@ generated-plan/matrix/TODO changes are present; both TODO lines match; final mat
 Stop and report if:
 
 - Any dependency plan is not `DONE` or any matrix row remains unclassified.
-- A docs example cannot be written from the public inferred API and appears to require
-  exporting shared/private helper types.
 - `qa`, full tests, public types, docs SSG, or API generation fails twice after a
   reasonable scoped correction.
 - Browser setup is unavailable; production visual/hydration proof is mandatory and
@@ -322,13 +280,15 @@ Stop and report if:
   a failed computed-style anchor, or overlay content that does not clean up.
 - Fixing a final regression requires a new API, dependency, component, behavior change,
   or docs-site redesign.
+- A final review finds a slot, group name, presentational `data-*` attribute, visual-only
+  DOM node, or ARIA change added only to reproduce a Zaidan selector; retain Moraine's
+  structure, record the visual divergence, and stop.
 - The working tree contains unexplained dependency, lockfile, configuration, or manual
   `dist` changes.
 
 ## Maintenance notes
 
-The matrix and `docs/pages/styling.mdx` are the contract for future components. New
-components should choose scale values from the matrix, implement a slot-keyed readonly
-State map, test static/reactive/lazy/SSR behavior, and add a production docs example
-before release. Re-run the same production routes whenever shared state types, class
-transforms, animation tokens, Modal, Popper, OverlayMenu, or BaseSelect changes.
+The matrix is the visual contract for future components. New components should choose
+scale values from it, test static overrides and SSR behavior, and add production docs
+coverage before release. Re-run the same production routes whenever class transforms,
+animation tokens, Modal, Popper, OverlayMenu, or BaseSelect changes.

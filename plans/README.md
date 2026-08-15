@@ -10,7 +10,8 @@ the corresponding status row when finished.
 - Local Zaidan reference: `b4855789c8a431575a4bc460d05f8f9b9024f06b`.
 - Canonical Zaidan style: `vega`, selected by
   `zaidan/src/lib/config.ts` and described there as the classic shadcn/ui look.
-- Zaidan component structure comes from `zaidan/src/registry/kobalte/ui/*.tsx`.
+- Zaidan component structure comes from `zaidan/src/registry/kobalte/ui/*.tsx`; it
+  explains Vega's composition relationships but is not a DOM contract for Moraine.
 - Zaidan spacing, sizing, radius, surface, and motion values come from
   `zaidan/src/registry/kobalte/styles/style-vega.css`.
 - Baseline validation at the Moraine revision above: `bun run typecheck` passed;
@@ -37,7 +38,20 @@ Do not pull, reset, or edit the Zaidan checkout as part of this work.
 - Preserve Moraine behavior, DOM semantics, data/ARIA attributes, focus behavior, and
   component composition. Translate Zaidan selectors onto Moraine's existing state
   attributes; styling work must not replace the recently completed behavior-parity
-  work.
+  work. Zaidan's selector topology is evidence, not a requirement to add wrappers,
+  slots, or marker attributes.
+- Moraine owns a mostly static render tree. When a component owns a slot or knows its
+  optional content from an existing prop/accessor, apply the built-in class directly
+  at the final DOM owner. Do not use `has-*`, `group-has-*`, or `in-data-*` to discover
+  fixed structure. Pass size/variant values into existing `cva` calls or compose a
+  direct class with `cn` instead.
+- Keep existing runtime state attributes, ARIA selectors, and pseudo-classes. A new
+  `data-*` attribute is allowed only when it represents a real semantic state; do not
+  add presentational markers such as `data-icon`, `data-size`, or `data-placeholder`.
+  Existing Button and Badge `data-size`/`data-variant` attributes remain unchanged;
+  semantic `data-unchecked` and SidebarFrame `data-state` remain when their current
+  contracts expose them. ButtonGroup may retain relationship selectors for arbitrary
+  caller-owned children, but it must keep Moraine's existing slot names.
 - Reuse Moraine's `surface-border`, `surface-overlay`, `effect-fv-border`,
   `effect-invalid`, and `effect-dis` shortcuts and semantic color tokens. Use semantic
   radius tiers rather than importing Zaidan's radius-variable implementation.
@@ -45,32 +59,25 @@ Do not pull, reset, or edit the Zaidan checkout as part of this work.
   enter defaults to 150 ms, exit to 100 ms, layout/indicator movement to 200 ms, and
   sheet movement to 200 ms. A component may deviate only when its matrix row records
   the exact Vega evidence and reason.
-- `classes` and `styles` retain their static forms and additionally accept a function
-  for each slot. The callback receives a precisely inferred, readonly, slot-specific
-  state snapshot containing resolved defaults and current item/interaction state.
-  Top-level `class` and `style` remain static because they are part of native or
-  polymorphic root props; callers use `classes.root` or the relevant slot for a
-  stateful root/trigger override.
-- A state callback is a styling function, never JSX, a component, or a render prop. It
-  runs lazily inside the rendered slot's reactive expression, is not called for an
-  absent slot, and must not change SSR/client node creation order.
 - Built-in classes live in `{component}.class.ts`: `cva` is only for real variants,
   static shared strings use `*_CLASS`, and state selectors remain ordinary classes.
+- Do not port a Zaidan-only structural proposal into Moraine: no slot renames, new
+  visual-only DOM nodes, Progress status splitting, Tooltip arrow, or styling-only
+  ARIA additions. Record missing upstream subparts as intentional divergences.
 - Every reviewed public component receives a row in `style-parity-matrix.md`. A row can
   end as `aligned`, `intentional-divergence`, or `headless-no-visual-surface`; it cannot
   remain unclassified when the TODO is checked.
 
 ## Execution order and status
 
-| Plan                                             | Title                                               | Priority | Effort | Depends on | Status |
-| ------------------------------------------------ | --------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [001](001-freeze-vega-style-baseline.md)         | Freeze the Vega baseline and map every surface      | P1       | L      | —          | DONE   |
-| [002](002-stateful-slot-overrides.md)            | Add typed, reactive stateful slot overrides         | P1       | L      | 001        | TODO   |
-| [003](003-align-element-styles.md)               | Align element spacing, sizing, surfaces, and motion | P1       | L      | 001, 002   | TODO   |
-| [004](004-align-form-styles.md)                  | Align form controls and form composition            | P1       | L      | 001–003    | TODO   |
-| [005](005-align-navigation-styles.md)            | Align navigation and application-shell components   | P1       | L      | 001–004    | TODO   |
-| [006](006-align-overlay-styles.md)               | Align overlay surfaces, menus, and transitions      | P1       | L      | 001–005    | TODO   |
-| [007](007-document-and-validate-style-system.md) | Document and validate the completed style system    | P1       | M      | 001–006    | TODO   |
+| Plan                                             | Title                                               | Priority | Effort | Depends on   | Status |
+| ------------------------------------------------ | --------------------------------------------------- | -------- | ------ | ------------ | ------ |
+| [001](001-freeze-vega-style-baseline.md)         | Freeze the Vega baseline and map every surface      | P1       | L      | —            | DONE   |
+| [003](003-align-element-styles.md)               | Align element spacing, sizing, surfaces, and motion | P1       | L      | 001          | TODO   |
+| [004](004-align-form-styles.md)                  | Align form controls and form composition            | P1       | L      | 001, 003     | TODO   |
+| [005](005-align-navigation-styles.md)            | Align navigation and application-shell components   | P1       | L      | 001, 003–004 | TODO   |
+| [006](006-align-overlay-styles.md)               | Align overlay surfaces, menus, and transitions      | P1       | L      | 001, 003–005 | TODO   |
+| [007](007-document-and-validate-style-system.md) | Document and validate the completed style system    | P1       | M      | 001, 003–006 | TODO   |
 
 Status values: `TODO`, `IN PROGRESS`, `DONE`, `BLOCKED: <reason>`, or
 `REJECTED: <reason>`.
@@ -79,16 +86,13 @@ Status values: `TODO`, `IN PROGRESS`, `DONE`, `BLOCKED: <reason>`, or
 
 - Plan 001 produces the evidence ledger. Later plans may not invent a value that is
   absent from the ledger without first amending the affected row.
-- Plan 002 fixes the public stateful override contract and runtime resolver before
-  component domains adopt it. Domain plans must not create local callback types or
-  resolver helpers.
 - Plan 003 owns shared leaf controls such as Button and Badge. Forms, navigation, and
   overlays compose these controls, so their plans run after it.
 - Plan 004 owns BaseSelect and form-field visual conventions. CommandPalette and menus
   reuse those conventions, so navigation and overlay work follows it.
 - Plan 006 runs after navigation because SidebarFrame composes Sheet and must be
   rechecked against the final overlay classes.
-- Plan 007 is the only plan allowed to mark the parent and nested items in `todo.md`
+- Plan 007 is the only plan allowed to mark the parent style-audit item in `todo.md`
   complete. It does so only after every matrix row and all production gates pass.
 
 ## Handoff protocol
@@ -101,6 +105,6 @@ Status values: `TODO`, `IN PROGRESS`, `DONE`, `BLOCKED: <reason>`, or
 4. Run the focused suite after each component, the domain suite before handing off, and
    `bun run typecheck` after every logical batch.
 5. Apply the `solid-js-1.x-best-practices-and-api` and
-   `build-ssr-safe-component` gates whenever a state callback or conditional slot is
-   wired into JSX. Do not destructure reactive props or eagerly evaluate callbacks.
+   `build-ssr-safe-component` gates whenever styling work changes reactive or
+   conditional JSX. Do not destructure reactive props or change evaluation order.
 6. Do not push or open a pull request unless the operator explicitly asks.

@@ -7,16 +7,16 @@
 >
 > **Drift check (run first)**:
 > `git diff --stat 620037aad7b5..HEAD -- src/navigation src/forms/select src/forms/input src/forms/form-field src/elements/button src/elements/progress src/elements/resizable style-parity-matrix.md`.
-> Plans 001–004 are expected to change the matrix and composed dependencies. Re-read
-> their final public state/class contracts. Any unexplained navigation-source change is
-> a STOP condition.
+> Plans 001 and 003–004 are expected to change the matrix and composed dependencies.
+> Re-read their final class contracts. Any unexplained navigation-source change is a
+> STOP condition.
 
 ## Status
 
 - **Priority**: P1
 - **Effort**: L
 - **Risk**: HIGH
-- **Depends on**: Plans 001–004
+- **Depends on**: Plans 001 and 003–004
 - **Category**: tech-debt
 - **Planned at**: commit `620037aad7b5`, 2026-08-13
 
@@ -27,7 +27,7 @@ items, current/highlighted states, indicators, virtual rows, and responsive shel
 Their current spacing is locally plausible but does not consistently compose the
 Button, Input, field, and popup scales established by earlier plans. This plan aligns
 those surfaces without changing navigation behavior or publishing internal accessors
-through styling callbacks.
+through styling APIs.
 
 ## Current state
 
@@ -40,9 +40,8 @@ through styling callbacks.
   exposes a link variant and vertical orientation that must remain.
 - CommandPalette is structurally analogous to Zaidan Command and shares field/option
   vocabulary with BaseSelect, but owns independent listbox behavior and virtualization.
-- SidebarFrame's public render context contains accessors and setters. Those remain
-  render-prop APIs; stateful class/style callbacks receive readonly plain snapshots,
-  never the current `BaseContext` object.
+- SidebarFrame's public render context contains accessors and setters. Styling changes
+  must leave those render-prop APIs and the current `BaseContext` object unchanged.
 - Stepper has no direct Zaidan component. Its completed matrix row must derive visual
   rhythm from Tabs, Progress, and Item while preserving step semantics.
 - SidebarFrame composes Sheet on mobile. Plan 005 aligns the frame and passes semantic
@@ -63,10 +62,22 @@ through styling callbacks.
 ## Suggested executor toolkit
 
 - Use `parity-port` for direct and analogue evidence.
-- Use `solid-js-1.x-best-practices-and-api` for per-item snapshots and measured
-  indicator reactivity.
+- Use `solid-js-1.x-best-practices-and-api` for measured indicator reactivity.
 - Apply `build-ssr-safe-component` to item/render props, conditional content, virtual
   rows, and SidebarFrame render boundaries. Styling must not eagerly mount them.
+
+## Selector ownership rule
+
+Zaidan `has-*`, `group-has-*`, `group-data-*`, and `in-data-*` selectors remain visual
+evidence only. Navigation's fixed wrappers and known item branches should receive
+classes directly from existing props/accessors at their final DOM owners: CommandPalette
+uses its existing highlighted state, Pagination keeps `data-current`, Tabs uses its
+orientation/variant/size values, and SidebarFrame uses its existing frame context.
+Keep only the smallest direct-child/sibling selectors needed for arbitrary caller-owned
+children. Do not add `data-icon`, `data-size`, `data-placeholder`, group names, slot
+renames, visual-only nodes, or styling-only ARIA to reproduce an upstream selector.
+Pass size/variant values through existing `cva` axes or direct slot classes, and keep
+runtime styling on the current `data-*`, ARIA, and pseudo-class states.
 
 ## Scope
 
@@ -78,7 +89,6 @@ through styling callbacks.
 - `src/navigation/sidebar-frame/**`
 - `src/navigation/stepper/**`
 - `src/navigation/tabs/**`
-- `test/types/default/index.tsx`, `test/types/autocomplete/index.tsx`
 - navigation rows in `style-parity-matrix.md`
 - Plan 005 status in `plans/README.md`
 
@@ -103,30 +113,6 @@ through styling callbacks.
 - Use messages such as `refactor(navigation): align collection style system`.
 - Do not push or open a pull request unless instructed.
 
-## Required state contexts
-
-- Breadcrumb: resolved size, item/source index, current/disabled/link/ellipsis state,
-  and separator position.
-- Pagination: resolved page/pageCount/size/variants/disabled state; item kind
-  (`prev`, `page`, `ellipsis`, `next`), item page/index, current and edge-disabled
-  state, and whether it renders a link.
-- Tabs: resolved size/variant/orientation/activation/disabled state; source item/index,
-  selected/highlighted/disabled state, content presence, and indicator geometry state
-  without exposing DOMRect or elements.
-- Stepper: size/orientation/linear/clickable/disabled state; source item/index/value,
-  active/completed/current/disabled/reachable state, and separator before/after
-  semantics.
-- CommandPalette: generic source item/group, group/item/visible indices, search term,
-  loading/empty state, focused/active/selected/disabled state, description position,
-  virtualization state, and optional slot presence. Do not expose internal flattened
-  entry wrappers.
-- SidebarFrame: resolved variant/side, booleans `isMobile`, `open`, and `scrolled`, plus
-  optional region presence. Do not put Accessor, Component, setOpen, or toggle into the
-  class/style State map.
-
-All contexts are readonly snapshots and generic item types remain precise. Repeated
-virtual and non-virtual items must receive the same semantic context.
-
 ## Steps
 
 ### Step 1: Align Breadcrumb and Pagination
@@ -141,9 +127,9 @@ sizes and variants rather than repeating height/padding. Align list gap, ellipsi
 and text-control padding for prev/next text while preserving icon-only controls and
 logical directions.
 
-Add per-item stateful callbacks, including distinct contexts for repeated `<li>`
-wrappers and control/page/ellipsis slots. Test reactive current page, page count,
-disabled edges, links, callback laziness, static precedence, and hydration.
+Test current-page classes, page count, disabled edges, links, static slot override
+precedence, and hydration. Assert that current-page styling stays on the existing
+`data-current` owner and does not introduce a `data-active` marker.
 
 **Verify**:
 
@@ -165,12 +151,13 @@ Zaidan more literally.
 For Stepper, implement the matrix's analogue using the final Tabs trigger scale,
 Progress line weight, and Item title/description spacing. Preserve active/completed
 semantics, linear reachability, and clickable/keyboard behavior. Any state selector
-must use existing data attributes or plain callbacks; do not add a behavior state only
-for CSS.
+must use existing data attributes; do not add behavior state only for CSS.
 
-Resolve item callbacks per source item/index. Do not expose measured elements or create
-duplicate item normalization. Add tests for size/orientation, selected/completed state,
-indicator/separator context, controlled updates, absent content, and SSR/hydration.
+Do not expose measured elements or create duplicate item normalization. Apply known
+trigger/item state classes directly from existing accessors and keep relationship
+selectors out of the fixed Tabs/Stepper tree. Add tests for size/orientation,
+selected/completed selectors, indicator/separator geometry, controlled updates, absent
+content, static overrides, and SSR/hydration.
 
 **Verify**:
 
@@ -194,9 +181,10 @@ shared constant only if Plan 004 already created one; otherwise apply the same m
 values in CommandPalette's class file. Preserve listbox semantics, search/filtering,
 description placement, close timing, and virtualization.
 
-Resolve slot callbacks in the final render owner. `itemProps` and `itemRender` continue
-to receive their existing richer render context; classes/styles receive the readonly
-style state. Virtual rows receive source item/group and semantic entry index.
+Apply static slot overrides at the final render owner. `itemProps` and `itemRender`
+continue to receive their existing render context, and virtual rows retain their
+source item/group and semantic entry index. Use the existing item/highlight accessors
+for fixed rows; do not add selected markers or group hooks just to mirror Command.
 
 Add tests for grouped and virtual rows, loading/search/empty changes, active/focused/
 disabled state, optional close/footer/description slots, static override compatibility,
@@ -219,17 +207,18 @@ header/body/footer gaps and padding, and 200 ms width/layout motion. Do not port
 menu/group/button classes because SidebarFrame does not render those primitives.
 
 Move remaining reusable root/body/main strings to `sidebar-frame.class.ts`. Keep
-computed responsive/side composition in existing variants. Resolve stateful slot
+computed responsive/side composition in existing variants. Apply static slot
 classes/styles at the final `root`, `sidebar`, region, and `main` DOM owners while
 preserving the extra `classes`/`styles` passed by `FrameRender`. The fixed precedence is
-built-in -> frame-render contribution -> public stateful slot override -> top-level
-root override. Do not spread the public `styles` map as a CSS object; only resolved slot
-styles belong on DOM.
+built-in -> frame-render contribution -> public slot override -> top-level root
+override. Do not spread the public `styles` map as a CSS object; only each slot's style
+belongs on its DOM node.
 
-Keep `FrameContext` unchanged for render props. Build separate plain state snapshots
-for styling and verify callbacks update on mobile/open/scroll/variant/side changes.
-Absent header/footer callbacks remain uncalled. Mobile Sheet and desktop Resizable
-trees must keep their creation order and behavior.
+Keep `FrameContext` unchanged for render props. Test mobile/open/scroll/variant/side
+class changes and static override precedence. Mobile Sheet and desktop Resizable trees
+must keep their creation order and behavior. Resolve side/variant/open classes from the
+existing frame context and preserve semantic `data-state`/`data-side` attributes; do not
+introduce group or content-presence markers for fixed frame regions.
 
 **Verify**:
 
@@ -240,15 +229,13 @@ bun run typecheck
 
 Expected: all suites and types pass with no responsive/render-prop regression.
 
-### Step 5: Lock navigation types and complete the matrix
+### Step 5: Complete the navigation matrix and run the domain gate
 
-Add type fixtures for Pagination item-kind narrowing, Tabs item state,
-CommandPalette generic item/group state, Stepper completion state, and SidebarFrame
-plain boolean state. Prove no Accessor/setter/component leaks into stateful class/style
-contexts, static forms compile, and top-level callbacks fail.
-
-Update every navigation matrix row with final values, test evidence, analogue
-decisions, and disposition.
+Run the existing public type fixtures as a regression gate. Update every navigation
+matrix row with final values, test evidence, analogue decisions, and disposition. Check
+that each Implementation plan entry names a direct final slot owner, documents the
+allowed arbitrary-child relationship-selector boundary, and contains no structural
+parity proposal.
 
 **Verify**:
 
@@ -265,10 +252,12 @@ Expected: all commands pass; final `rg` exits 1 with no output.
 ## Test plan
 
 - Direct components assert matrix anchors without full class snapshots.
-- Repeated items cover exact source item/index/kind state and reactive updates.
-- CommandPalette tests virtual and non-virtual callback parity.
+- Repeated items cover current/selected/disabled class changes.
+- CommandPalette tests matching virtual and non-virtual styling.
 - Tabs tests measured indicator style precedence; SidebarFrame tests frame-render/public
-  override precedence and plain-state inference.
+  override precedence.
+- Selector tests assert direct owners for fixed items and preserve only existing
+  `data-*`/ARIA runtime state; no presentational marker is required for composition.
 - Existing SSR fixtures remain the hydration gates for Breadcrumb, Pagination, Tabs,
   and SidebarFrame's responsive composition where applicable.
 
@@ -278,8 +267,12 @@ Expected: all commands pass; final `rg` exits 1 with no output.
 - [ ] Navigation composes completed Button/Input/field scales without compensating
       local dimensions.
 - [ ] Pagination built-ins live in a class file with no static-only `cva`.
-- [ ] Virtual and non-virtual rows receive identical semantic state.
-- [ ] SidebarFrame's style state contains no accessors, setters, components, or DOM.
+- [ ] Virtual and non-virtual rows share the same visual contract.
+- [ ] SidebarFrame's render context and public styling API remain unchanged.
+- [ ] Fixed navigation slots use direct final-owner classes; direct-child/sibling
+      selectors remain only for arbitrary caller-owned children.
+- [ ] No parity-only `data-icon`, `data-size`, `data-placeholder`, group name, slot
+      rename, visual-only node, or styling-only ARIA attribute was added.
 - [ ] Behavior, DOM, ARIA, keyboard/focus, selection, routing, responsiveness, and
       hydration remain unchanged.
 - [ ] Domain tests, typecheck, type fixtures, and diff check pass.
@@ -292,12 +285,13 @@ Stop and report if:
 - A matrix row is missing or an analogue decision is still pending.
 - Visual alignment requires changing measured indicator, selection, virtualization,
   scroll, breakpoint, or render-prop behavior.
-- A state context can only be implemented by publishing accessors, setters, DOM nodes,
-  private normalized entries, or components.
 - Public and frame-render style precedence cannot be made deterministic without an API
   change.
 - Mobile Sheet styling requires modifying Sheet before Plan 006; record the consumer
   requirement and defer it.
+- A Vega relationship selector would require a new marker, group name, slot, wrapper,
+  visual node, or ARIA attribute for a fixed navigation branch; record the divergence
+  and stop.
 - A verification fails twice after a reasonable correction.
 
 ## Maintenance notes
@@ -305,4 +299,6 @@ Stop and report if:
 CommandPalette and BaseSelect intentionally share scale, not state architecture.
 SidebarFrame owns only frame geometry; menu primitives rendered inside it remain caller
 content. Plan 006 must rerun SidebarFrame tests after final Sheet changes because the
-mobile composition is a required downstream consumer.
+mobile composition is a required downstream consumer. Keep the final class owner
+explicit in every future navigation row so selector topology cannot become an API
+contract by accident.
