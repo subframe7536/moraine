@@ -18,7 +18,7 @@ export const textareaRootVariants = cva(
 )
 
 export const textareaBaseVariants = cva(
-  'style-placeholder text-foreground outline-none bg-transparent flex-1 min-w-0 disabled:effect-dis',
+  'style-placeholder text-foreground outline-none bg-transparent flex-1 min-w-0 field-sizing-content disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',
@@ -26,11 +26,11 @@ export const textareaBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'px-2 py-1 min-h-17',
-        sm: 'px-2.5 py-1.5 min-h-18',
-        md: 'px-2.5 py-1.5 min-h-20',
-        lg: 'px-3 py-2 min-h-22',
-        xl: 'px-3 py-2 min-h-24',
+        xs: 'px-2 py-1 min-h-14',
+        sm: 'px-2.5 py-2 min-h-15',
+        md: 'px-2.5 py-2 min-h-16',
+        lg: 'px-3 py-2 min-h-18',
+        xl: 'px-3 py-2 min-h-20',
       },
       autoresize: {
         true: 'resize-none',

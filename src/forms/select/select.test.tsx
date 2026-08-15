@@ -69,13 +69,12 @@ test('single Select accepts arbitrary root props at type level', () => {
   expect(screen.getAllByRole('combobox')).toHaveLength(2)
 })
 
-test('uses css variable classes for input sizing in single mode', () => {
+test('uses input sizing classes in single mode', () => {
   const single = render(() => <Select options={FRUITS} size="xs" placeholder="XS" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
 
-  expect(singleInput?.className).toContain('mx-$s-p')
+  expect(singleInput?.className).toContain('min-w-0')
   expect(singleInput?.className).toContain('text-xs')
-  expect(singleInput?.className).toContain('var-select-0.5')
 })
 
 describe('Select - single mode', () => {
@@ -102,7 +101,7 @@ describe('Select - single mode', () => {
     ))
 
     const inputs = screen.container.querySelectorAll('[data-slot="input"]')
-    expect(inputs[0]?.className).toContain('var-select-0.5')
+    expect(inputs[0]?.className).toContain('text-xs')
     expect(inputs[1]?.className).toContain('text-base')
   })
 

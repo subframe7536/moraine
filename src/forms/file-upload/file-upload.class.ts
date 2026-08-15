@@ -19,7 +19,7 @@ export const fileUploadRootVariants = cva('flex flex-col relative data-disabled:
 })
 
 export const fileUploadBaseVariants = cva(
-  'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer transition-[color,box-shadow] items-center justify-center relative focus-visible:effect-fv-border data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid dark:bg-input/30',
+  'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[color,box-shadow] items-center justify-center relative focus-visible:effect-fv-border data-dragging:(border-primary bg-primary/8) data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',
@@ -108,7 +108,7 @@ export const fileUploadFilesVariants = cva('flex flex-col', {
 })
 
 export const fileUploadFileVariants = cva(
-  'surface-border rounded-md bg-background flex items-center relative',
+  'text-card-foreground surface-border rounded-xl bg-card flex transition-colors items-center relative',
   {
     defaultVariants: {
       size: 'md',
@@ -126,7 +126,7 @@ export const fileUploadFileVariants = cva(
 )
 
 export const fileUploadPreviewVariants = cva(
-  'text-muted-foreground rounded-md bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
+  'text-muted-foreground rounded-lg bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
   {
     defaultVariants: {
       size: 'md',
@@ -135,7 +135,7 @@ export const fileUploadPreviewVariants = cva(
       size: {
         xs: 'size-8',
         sm: 'size-8.5',
-        md: 'size-9',
+        md: 'size-10',
         lg: 'size-10',
         xl: 'size-11',
       },
@@ -167,7 +167,7 @@ export const fileUploadNameVariants = cva('text-foreground font-medium truncate'
   },
 })
 
-export const fileUploadSizeVariants = cva('text-muted-foreground truncate', {
+export const fileUploadSizeVariants = cva('text-muted-foreground mt-0.5 truncate', {
   defaultVariants: {
     size: 'md',
   },

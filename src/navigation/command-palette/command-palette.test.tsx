@@ -75,9 +75,7 @@ describe('CommandPalette', () => {
     render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain(
-        'max-h-36vh',
-      )
+      expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain('max-h-72')
     })
   })
 

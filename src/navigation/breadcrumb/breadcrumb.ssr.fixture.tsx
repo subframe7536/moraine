@@ -28,3 +28,14 @@ export function renderBreadcrumbFixture(): string {
     />
   ))
 }
+
+export function renderBreadcrumbDefaultFixture(): string {
+  return renderToString(() => (
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Current', href: '/current' },
+      ]}
+    />
+  ))
+}

@@ -12,8 +12,8 @@ export const inputRootVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs leading-7 h-7',
-        sm: 'text-xs leading-8 h-8',
+        xs: 'text-xs leading-6 h-6',
+        sm: 'text-sm leading-8 h-8',
         md: 'text-sm leading-9 h-9',
         lg: 'text-sm leading-10 h-10',
         xl: 'text-base leading-11 h-11',
@@ -36,11 +36,11 @@ export const inputInputVariants = cva(
         file: 'text-muted-foreground file:(font-medium me-1.5 outline-none)',
       },
       size: {
-        xs: 'var-input-1',
-        sm: 'var-input-1.5',
-        md: 'var-input-1.5',
-        lg: 'var-input-2',
-        xl: 'var-input-2',
+        xs: 'py-1 var-input-1',
+        sm: 'py-1 var-input-1.5',
+        md: 'py-1 var-input-1.5',
+        lg: 'py-1.5 var-input-2',
+        xl: 'py-1.5 var-input-2',
       },
       hasLeading: { true: 'ps-$i-sm', false: 'ps-$i-lg' },
       hasTrailing: { true: 'pe-$i-sm', false: 'pe-$i-lg' },

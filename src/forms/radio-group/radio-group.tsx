@@ -525,7 +525,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     data-slot="indicator"
                     style={merged.styles?.indicator}
                     class={cn(
-                      'rounded-full flex size-full ring-(4 primary ring inset) items-center justify-center',
+                      'rounded-full bg-primary-foreground flex size-2 items-center justify-center',
                       merged.classes?.indicator,
                     )}
                     data-checked={selected() ? '' : undefined}

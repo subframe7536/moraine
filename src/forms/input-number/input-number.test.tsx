@@ -3,7 +3,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
@@ -11,6 +11,7 @@ import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
 import { InputNumber } from './input-number.tsx'
+import type { InputNumberT } from './input-number.tsx'
 
 describe('InputNumber', () => {
   test('renders number input with increment and decrement controls', () => {
@@ -670,6 +671,7 @@ describe('InputNumber', () => {
         pointerId: 5,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBe('')
       await vi.advanceTimersByTimeAsync(620)
 
       const valueBeforeCancel = Number(spinbutton.value)
@@ -680,6 +682,7 @@ describe('InputNumber', () => {
         pointerId: 5,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBeNull()
 
       await vi.advanceTimersByTimeAsync(240)
 
@@ -702,6 +705,7 @@ describe('InputNumber', () => {
         pointerId: 51,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBe('')
       await vi.advanceTimersByTimeAsync(620)
 
       const valueBeforeCaptureLoss = Number(spinbutton.value)
@@ -709,6 +713,7 @@ describe('InputNumber', () => {
         pointerId: 51,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBeNull()
       await vi.advanceTimersByTimeAsync(240)
 
       expect(Number(spinbutton.value)).toBe(valueBeforeCaptureLoss)
@@ -735,11 +740,14 @@ describe('InputNumber', () => {
         pointerId: 61,
         pointerType: 'mouse',
       })
-      await fireEvent.pointerDown(screen.getByRole('button', { name: 'Decrement' }), {
+      const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+      await fireEvent.pointerDown(decrementButton, {
         button: 0,
         pointerId: 62,
         pointerType: 'mouse',
       })
+      expect(screen.getByRole('button', { name: 'Increment' }).getAttribute('data-active')).toBe('')
+      expect(decrementButton.getAttribute('data-active')).toBe('')
       expect(document.body.style.getPropertyValue('user-select')).toBe('none')
 
       screen.unmount()
@@ -768,6 +776,7 @@ describe('InputNumber', () => {
         pointerId: 6,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBe('')
       await vi.advanceTimersByTimeAsync(620)
 
       const valueBeforeLeave = Number(spinbutton.value)
@@ -778,6 +787,7 @@ describe('InputNumber', () => {
         pointerId: 6,
         pointerType: 'mouse',
       })
+      expect(incrementButton.getAttribute('data-active')).toBeNull()
 
       await vi.advanceTimersByTimeAsync(240)
 
@@ -998,14 +1008,17 @@ describe('InputNumber', () => {
     )
     expect(controls?.className).toContain('flex-col')
     expect(controls?.className).toContain('w-9')
-    expect(controls?.className).toContain('border-s')
+    expect(controls?.className).toContain('pe-1')
+    expect(controls?.className).not.toContain('border-s')
     expect(incrementButton.getAttribute('data-slot')).toBe('increment')
     expect(decrementButton.getAttribute('data-slot')).toBe('decrement')
     expect(incrementButton.className).toContain('flex-1')
     expect(decrementButton.className).toContain('flex-1')
-    expect(decrementButton.className).toContain('border-t')
-    expect(incrementButton.className).toContain('h-full')
-    expect(decrementButton.className).toContain('h-full')
+    expect(decrementButton.className).not.toContain('border-t')
+    expect(incrementButton.className).toContain('w-full')
+    expect(decrementButton.className).toContain('w-full')
+    expect(incrementButton.className).toContain('scale-80')
+    expect(decrementButton.className).toContain('scale-80')
 
     await fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
@@ -1032,7 +1045,7 @@ describe('InputNumber', () => {
     expect(spinbutton.value).toBe('1')
   })
 
-  test('lays out horizontal controls as sibling slots instead of overlaying the input', () => {
+  test('lays out horizontal link controls as sibling slots instead of overlaying the input', () => {
     const incrementOnly = render(() => <InputNumber size="lg" decrement={false} />)
     const incrementOnlyRoot = incrementOnly.container.querySelector(
       '[data-slot="root"]',
@@ -1045,7 +1058,9 @@ describe('InputNumber', () => {
     ) as HTMLElement | null
 
     expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
-    expect(incrementOnlyButton?.className).toContain('border-s')
+    expect(incrementOnlyButton?.getAttribute('data-variant')).toBe('link')
+    expect(incrementOnlyButton?.className).toContain('me-1')
+    expect(incrementOnlyButton?.className).not.toContain('border-s')
     expect(incrementOnlyButton?.className).not.toContain('absolute')
     expect(incrementOnlyBase?.className).not.toContain('pe-10')
     expect(incrementOnlyBase?.className).not.toContain('ps-10')
@@ -1061,7 +1076,9 @@ describe('InputNumber', () => {
       '[data-slot="decrement"]',
     ) as HTMLElement | null
 
-    expect(decrementOnlyButton?.className).toContain('border-e')
+    expect(decrementOnlyButton?.getAttribute('data-variant')).toBe('link')
+    expect(decrementOnlyButton?.className).toContain('ms-1')
+    expect(decrementOnlyButton?.className).not.toContain('border-e')
     expect(decrementOnlyButton?.className).not.toContain('absolute')
     expect(decrementOnlyBase?.className).not.toContain('pe-10')
     expect(decrementOnlyBase?.className).not.toContain('ps-10')
@@ -1080,7 +1097,8 @@ describe('InputNumber', () => {
     ) as HTMLElement | null
 
     expect(incrementOnlyControls?.className).toContain('w-8')
-    expect(incrementOnlyControls?.className).toContain('border-s')
+    expect(incrementOnlyControls?.className).toContain('pe-1')
+    expect(incrementOnlyControls?.className).not.toContain('border-s')
     expect(incrementOnlyBase?.className).not.toContain('ps-8')
     expect(incrementOnlyBase?.className).not.toContain('pe-8')
 
@@ -1097,7 +1115,8 @@ describe('InputNumber', () => {
     ) as HTMLElement | null
 
     expect(decrementOnlyControls?.className).toContain('w-8')
-    expect(decrementOnlyControls?.className).toContain('border-s')
+    expect(decrementOnlyControls?.className).toContain('pe-1')
+    expect(decrementOnlyControls?.className).not.toContain('border-s')
     expect(decrementOnlyBase?.className).not.toContain('ps-8')
     expect(decrementOnlyBase?.className).not.toContain('pe-8')
   })
@@ -1133,14 +1152,116 @@ describe('InputNumber', () => {
     expect(reads).toEqual({ decrement: 1, increment: 1, orientation: 1 })
   })
 
-  test('applies size and variant classes', () => {
-    const screen = render(() => <InputNumber size="xl" variant="subtle" />)
+  test('applies size classes', () => {
+    const screen = render(() => <InputNumber size="xl" />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="input"]')
 
     expect(root?.className).toContain('h-11')
-    expect(root?.className).toContain('bg-input/30')
     expect(base?.className).toContain('text-base')
+  })
+
+  test.each([
+    ['outline', ['text-foreground', 'border', 'border-input', 'bg-background', 'shadow-xs']],
+    ['subtle', ['text-foreground', 'border', 'border-input', 'bg-input/30', 'shadow-xs']],
+    [
+      'ghost',
+      [
+        'text-foreground',
+        'bg-transparent',
+        'hover:bg-muted-hover',
+        'focus-within:bg-muted-hover',
+        'data-disabled:bg-transparent',
+        'dark:data-disabled:bg-transparent',
+      ],
+    ],
+    ['none', ['text-foreground', 'bg-transparent', 'focus-within:ring-0']],
+  ] as const)('applies %s variant classes', (variant, expectedClasses) => {
+    const screen = render(() => <InputNumber variant={variant} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    for (const expectedClass of expectedClasses) {
+      expect(root?.className).toContain(expectedClass)
+    }
+  })
+
+  test('defaults to outline and exposes only the supported variants', () => {
+    const screen = render(() => <InputNumber />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+
+    expect(root?.className).toContain('bg-background')
+    expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
+      'outline' | 'subtle' | 'ghost' | 'none' | undefined
+    >()
+  })
+
+  test('renders native link controls outside the tab order without a press translation effect', () => {
+    const screen = render(() => <InputNumber />)
+    const incrementButton = screen.getByRole('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+
+    expect(incrementButton).toBeInstanceOf(HTMLButtonElement)
+    expect(decrementButton).toBeInstanceOf(HTMLButtonElement)
+    expect(incrementButton.getAttribute('type')).toBe('button')
+    expect(decrementButton.getAttribute('type')).toBe('button')
+    expect(incrementButton.tabIndex).toBe(-1)
+    expect(decrementButton.tabIndex).toBe(-1)
+    expect(incrementButton.getAttribute('data-variant')).toBe('link')
+    expect(decrementButton.getAttribute('data-variant')).toBe('link')
+    expect(incrementButton.className).toContain('text-primary')
+    expect(incrementButton.className).toContain('hover:text-primary/75')
+    expect(incrementButton.className).toContain('data-active:text-primary/75')
+    expect(incrementButton.className).not.toContain('bg-muted-active')
+    expect(incrementButton.className).not.toContain('translate-y-px')
+    expect(decrementButton.className).not.toContain('translate-y-px')
+  })
+
+  test.each([
+    ['xs', 'size-6', 'size-4'],
+    ['sm', 'size-7', 'size-4'],
+    ['md', 'size-8', 'size-5'],
+    ['lg', 'size-9', 'size-5'],
+    ['xl', 'size-10', 'size-6'],
+  ] as const)('applies Nuxt UI %s control and icon sizes', (size, buttonSize, iconSize) => {
+    const screen = render(() => <InputNumber size={size} />)
+    const incrementButton = screen.getByRole('button', { name: 'Increment' })
+    const incrementIcon = incrementButton.querySelector('[data-slot="leading"]')
+
+    expect(incrementButton.className).toContain(buttonSize)
+    expect(incrementIcon?.className).toContain(iconSize)
+    expect(incrementIcon?.getAttribute('style')).toBeNull()
+  })
+
+  test('keeps the active state throughout a held press', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const screen = render(() => <InputNumber defaultValue={0} />)
+      const incrementButton = screen.getByRole('button', { name: 'Increment' })
+      const decrementButton = screen.getByRole('button', { name: 'Decrement' })
+
+      await fireEvent.pointerDown(incrementButton, {
+        button: 0,
+        pointerId: 101,
+        pointerType: 'mouse',
+      })
+
+      expect(incrementButton.getAttribute('data-active')).toBe('')
+      expect(decrementButton.getAttribute('data-active')).toBeNull()
+
+      await vi.advanceTimersByTimeAsync(620)
+      expect(incrementButton.getAttribute('data-active')).toBe('')
+
+      await fireEvent.pointerUp(incrementButton, {
+        button: 0,
+        pointerId: 101,
+        pointerType: 'mouse',
+      })
+
+      expect(incrementButton.getAttribute('data-active')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   test('applies classes.root override', () => {

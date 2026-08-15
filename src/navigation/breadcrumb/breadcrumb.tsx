@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
-import { Button } from '../../elements/button/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
@@ -9,7 +9,18 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 
-import { breadcrumbListVariants } from './breadcrumb.class.ts'
+import {
+  BREADCRUMB_DISABLED_CLASS,
+  BREADCRUMB_ITEM_CLASS,
+  BREADCRUMB_LINK_CLASS,
+  BREADCRUMB_ICON_SIZES,
+  BREADCRUMB_PAGE_CLASS,
+  BREADCRUMB_ROOT_CLASS,
+  BREADCRUMB_SEPARATOR_CLASS,
+  BREADCRUMB_TRUNCATE_CLASS,
+  breadcrumbSizeVariants,
+  breadcrumbListVariants,
+} from './breadcrumb.class.ts'
 import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
 
 export namespace BreadcrumbT {
@@ -173,11 +184,13 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       separator: 'icon-chevron-right' as IconT.Name,
       wrap: true,
       size: 'md' as BreadcrumbT.Base['size'],
-      'aria-label': 'Breadcrumbs',
+      'aria-label': 'breadcrumb',
     },
     local,
   )
 
+  type BreadcrumbSize = NonNullable<BreadcrumbT.Base['size']>
+  const size = createMemo<BreadcrumbSize>(() => merged.size ?? 'md')
   const items = createMemo(() => merged.items ?? [])
   const itemRender = createMemo(() => merged.itemRender)
   const currentIndex = createMemo(() => {
@@ -193,7 +206,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       style={{ ...merged.styles?.root, ...merged.style }}
       aria-label={merged['aria-label']}
       {...rest}
-      class={cn('min-w-0 relative', merged.classes?.root, merged.class)}
+      class={cn(BREADCRUMB_ROOT_CLASS, merged.classes?.root, merged.class)}
     >
       <ol
         data-slot="list"
@@ -202,77 +215,105 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       >
         <For each={items()}>
           {(item, index) => {
-            const isLast = createMemo(() => index() === items().length - 1)
             const isCurrent = createMemo(() => index() === currentIndex())
             const isDisabled = createMemo(() => Boolean(item.disabled || isCurrent()))
-            const href = createMemo(() => {
-              const defaultHref = item.to ?? item.href
-              return isDisabled() ? undefined : defaultHref
+            const leading = createMemo(() => item.icon)
+            const label = createMemo(() => item.label)
+            const hasLabel = createMemo(() => {
+              const value = label()
+              return value === 0 || Boolean(value)
             })
+
+            const itemClass = createMemo(() =>
+              breadcrumbSizeVariants(
+                { size: size() },
+                isCurrent() ? BREADCRUMB_PAGE_CLASS : BREADCRUMB_LINK_CLASS,
+                !merged.wrap && BREADCRUMB_TRUNCATE_CLASS,
+                !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
+                merged.classes?.link,
+              ),
+            )
 
             return (
               <>
                 <li
                   data-slot="item"
                   style={merged.styles?.item}
-                  class={cn('flex min-w-0 items-center', merged.classes?.item)}
+                  class={cn(BREADCRUMB_ITEM_CLASS, merged.classes?.item)}
                 >
                   <Show
                     when={itemRender()}
                     fallback={
-                      <Button
-                        as="a"
-                        data-slot="link"
+                      <Dynamic
+                        component={isDisabled() ? 'span' : 'a'}
+                        data-slot={isCurrent() ? 'page' : 'link'}
                         style={merged.styles?.link}
-                        variant="ghost"
-                        size={merged.size}
-                        role="link"
-                        href={href()}
-                        target={item.target}
-                        rel={item.rel}
+                        role={isDisabled() ? 'link' : undefined}
+                        aria-disabled={isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
                         data-current={isCurrent() ? '' : undefined}
-                        disabled={isDisabled()}
-                        onClick={item.onClick}
-                        leading={item.icon}
-                        class={cn(!merged.wrap && 'truncate', merged.classes?.link)}
-                        classes={{
-                          leading: merged.classes?.leading,
-                          label: merged.classes?.label,
-                        }}
+                        data-disabled={isDisabled() ? '' : undefined}
+                        href={isDisabled() ? undefined : (item.to ?? item.href)}
+                        target={isDisabled() ? undefined : item.target}
+                        rel={isDisabled() ? undefined : item.rel}
+                        onClick={isDisabled() ? undefined : item.onClick}
+                        class={itemClass()}
                       >
-                        {item.label}
-                      </Button>
+                        <Show when={leading()}>
+                          {(icon) => (
+                            <Icon
+                              name={icon()}
+                              size={BREADCRUMB_ICON_SIZES[size()]}
+                              slotName="leading"
+                              style={merged.styles?.leading}
+                              class={merged.classes?.leading}
+                            />
+                          )}
+                        </Show>
+                        <Show when={hasLabel()}>
+                          <span
+                            data-slot="label"
+                            style={merged.styles?.label}
+                            class={cn(
+                              !merged.wrap && BREADCRUMB_TRUNCATE_CLASS,
+                              merged.classes?.label,
+                            )}
+                          >
+                            {label()}
+                          </span>
+                        </Show>
+                      </Dynamic>
                     }
                   >
                     {(renderer) =>
-                      renderComponentOrElement(renderer(), {
-                        item,
-                        get index() {
-                          return index()
+                      renderComponentOrElement(
+                        renderer() as ComponentOrElement<BreadcrumbT.ItemRenderProps>,
+                        {
+                          item,
+                          get index() {
+                            return index()
+                          },
+                          get current() {
+                            return isCurrent()
+                          },
+                          get disabled() {
+                            return isDisabled()
+                          },
                         },
-                        get current() {
-                          return isCurrent()
-                        },
-                        get disabled() {
-                          return isDisabled()
-                        },
-                      })
+                      )
                     }
                   </Show>
                 </li>
 
-                <Show when={!isLast()}>
+                <Show when={index() < items().length - 1}>
                   <li
                     data-slot="separator"
                     style={merged.styles?.separator}
+                    role="presentation"
                     aria-hidden="true"
-                    class={cn(
-                      'text-muted-foreground inline-flex shrink-0 items-center justify-center',
-                      merged.classes?.separator,
-                    )}
+                    class={cn(BREADCRUMB_SEPARATOR_CLASS, merged.classes?.separator)}
                   >
-                    <Icon name={merged.separator} size={merged.size} />
+                    <Icon name={merged.separator} size={BREADCRUMB_ICON_SIZES[size()]} />
                   </li>
                 </Show>
               </>

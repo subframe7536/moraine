@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const avatarRootVariants = cva(
-  'text-muted-foreground surface-border rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible',
+  'text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:(border border-border rounded-full pointer-events-none content-empty inset-0 absolute) dark:after:mix-blend-lighten',
   {
     defaultVariants: {
       size: 'md',
@@ -11,7 +11,7 @@ export const avatarRootVariants = cva(
     variants: {
       size: {
         xs: 'text-xs size-6',
-        sm: 'text-xs size-7',
+        sm: 'text-xs size-6',
         md: 'text-sm size-8',
         lg: 'text-base size-10',
         xl: 'text-lg size-11',
@@ -38,7 +38,7 @@ export const avatarImageVariants = cva(
 )
 
 export const avatarFallbackVariants = cva(
-  'font-medium rounded-full flex uppercase transition-opacity ease-out items-center inset-0 justify-center absolute',
+  'text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity ease-out items-center inset-0 justify-center absolute',
   {
     defaultVariants: {
       size: 'md',
@@ -115,10 +115,10 @@ export const avatarGroupItemVariants = cva('rounded-full ring-background relativ
   },
   variants: {
     size: {
-      xs: 'ring-2 -me-1',
-      sm: 'ring-2 -me-1.5',
-      md: 'ring-2 -me-1.5',
-      lg: 'ring-2 -me-1.5',
+      xs: 'ring-2 -me-2',
+      sm: 'ring-2 -me-2',
+      md: 'ring-2 -me-2',
+      lg: 'ring-2 -me-2',
       xl: 'ring-2 -me-2',
     },
   },
@@ -132,10 +132,10 @@ export const avatarGroupCountVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs size-6 ring-2 -me-1',
-        sm: 'text-xs size-7 ring-2 -me-1.5',
-        md: 'text-sm size-8 ring-2 -me-1.5',
-        lg: 'text-base size-10 ring-2 -me-1.5',
+        xs: 'text-xs size-6 ring-2 -me-2',
+        sm: 'text-xs size-6 ring-2 -me-2',
+        md: 'text-sm size-8 ring-2 -me-2',
+        lg: 'text-base size-10 ring-2 -me-2',
         xl: 'text-lg size-11 ring-2 -me-2',
       },
     },

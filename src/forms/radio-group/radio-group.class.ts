@@ -10,7 +10,7 @@ import {
 } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
-export const radioGroupRootVariants = cva('flex relative', {
+export const radioGroupRootVariants = cva('gap-3 grid relative', {
   defaultVariants: {
     orientation: 'vertical',
   },
@@ -27,7 +27,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
   variants: {
     size: TEXT_SIZE_VARIANT,
     variant: {
-      card: 'surface-border rounded-lg data-checked:border-primary',
+      card: 'surface-border rounded-md data-checked:border-primary',
       table: 'border border-muted relative data-checked:(border-primary/50 bg-primary/10 z-1)',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,
@@ -47,7 +47,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
     {
       variant: 'card',
       size: 'md',
-      class: 'p-3.5',
+      class: 'p-3',
     },
     {
       variant: 'card',
@@ -72,7 +72,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
     {
       variant: 'table',
       size: 'md',
-      class: 'p-3.5',
+      class: 'p-3',
     },
     {
       variant: 'table',
@@ -88,7 +88,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
 })
 
 export const radioGroupBaseVariants = cva(
-  'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center overflow-hidden bg-clip-padding peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/30',
+  'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) peer-focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',

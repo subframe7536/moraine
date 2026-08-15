@@ -408,7 +408,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                       onNavigationKeyDown(event, entry.value, merged.orientation)
                     }}
                   >
-                    <Icon name={entry.item.icon || (() => entry.index + 1)} />
+                    <Icon name={entry.item.icon || (() => entry.index + 1)} class="size-4" />
                   </button>
 
                   <Show when={entry.index < normalizedItems().length - 1}>

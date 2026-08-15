@@ -56,6 +56,31 @@ describe('Input', () => {
     expect(input.getAttribute('data-readonly')).toBe('')
   })
 
+  test('keeps the input padding variables for every size', () => {
+    const screen = render(() => (
+      <>
+        <Input size="xs" />
+        <Input size="sm" />
+        <Input size="md" />
+        <Input size="lg" />
+        <Input size="xl" />
+      </>
+    ))
+    const inputs = screen.getAllByRole('textbox')
+    const inputClasses = inputs.map((input) => input.className.split(/\s+/))
+    const expectedVariables = [
+      'var-input-1',
+      'var-input-1.5',
+      'var-input-1.5',
+      'var-input-2',
+      'var-input-2',
+    ]
+
+    expectedVariables.forEach((variable, index) => {
+      expect(inputClasses[index]).toContain(variable)
+    })
+  })
+
   test('renders leading and trailing slots through Icon', () => {
     const screen = render(() => (
       <>

@@ -19,6 +19,18 @@ import { callRef, cn, useId } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
+import {
+  ACCORDION_CONTENT_CLASS,
+  ACCORDION_CONTENT_INNER_CLASS,
+  ACCORDION_HEADER_CLASS,
+  ACCORDION_ITEM_CLASS,
+  ACCORDION_LABEL_CLASS,
+  ACCORDION_LEADING_CLASS,
+  ACCORDION_ROOT_CLASS,
+  ACCORDION_TRAILING_CLASS,
+  ACCORDION_TRIGGER_CLASS,
+} from './accordion.class.ts'
+
 export namespace AccordionT {
   export interface Slot<T = unknown> {
     /**
@@ -354,7 +366,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={cn(
-        'flex flex-col w-full',
+        ACCORDION_ROOT_CLASS,
         merged.disabled && 'effect-dis',
         merged.classes?.root,
         merged.class,
@@ -400,7 +412,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => <div class="style-accordion-content pb-2.5">{value()}</div>}
+                {(value) => <div class={ACCORDION_CONTENT_INNER_CLASS}>{value()}</div>}
               </Show>
             )
           }
@@ -489,16 +501,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
             <div
               data-slot="item"
               style={merged.styles?.item}
-              class={cn(
-                'not-last:border-(b b-border) data-disabled:effect-dis',
-                merged.classes?.item,
-              )}
+              class={cn(ACCORDION_ITEM_CLASS, merged.classes?.item)}
               {...itemDataAttrs()}
             >
               <h3
                 data-slot="header"
                 style={merged.styles?.header}
-                class={cn('flex', merged.classes?.header)}
+                class={cn(ACCORDION_HEADER_CLASS, merged.classes?.header)}
                 {...itemDataAttrs()}
               >
                 <button
@@ -509,10 +518,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   disabled={disabled()}
                   data-slot="trigger"
                   style={merged.styles?.trigger}
-                  class={cn(
-                    'group text-sm font-medium py-2.5 text-left outline-none border border-transparent rounded-lg flex flex-1 gap-1.5 min-w-0 w-full transition items-center justify-between relative focus-visible:effect-fv-border disabled:effect-dis hover:underline',
-                    merged.classes?.trigger,
-                  )}
+                  class={cn(ACCORDION_TRIGGER_CLASS, merged.classes?.trigger)}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -531,7 +537,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                         name={value()}
                         slotName="leading"
                         style={merged.styles?.leading}
-                        class={cn('shrink-0 size-5', merged.classes?.leading)}
+                        class={cn(ACCORDION_LEADING_CLASS, merged.classes?.leading)}
                       />
                     )}
                   </Show>
@@ -541,7 +547,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       <span
                         data-slot="label"
                         style={merged.styles?.label}
-                        class={cn('text-start break-words', merged.classes?.label)}
+                        class={cn(ACCORDION_LABEL_CLASS, merged.classes?.label)}
                       >
                         {value()}
                       </span>
@@ -553,10 +559,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       name={trailing()}
                       slotName="trailing"
                       style={merged.styles?.trailing}
-                      class={cn(
-                        'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none duration-150 group-aria-expanded:rotate-180',
-                        merged.classes?.trailing,
-                      )}
+                      class={cn(ACCORDION_TRAILING_CLASS, merged.classes?.trailing)}
                     />
                   </Show>
                 </button>
@@ -581,10 +584,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     '--mo-collapsible-content-height': `${contentHeight()}px`,
                     ...(merged.styles?.content as JSX.CSSProperties | undefined),
                   }}
-                  class={cn(
-                    'text-sm h-$mo-collapsible-content-height transition-[height] overflow-hidden data-closed:h-0',
-                    merged.classes?.content,
-                  )}
+                  class={cn(ACCORDION_CONTENT_CLASS, merged.classes?.content)}
                   {...contentDataAttrs()}
                 >
                   {renderContent()}

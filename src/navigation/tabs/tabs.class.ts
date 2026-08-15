@@ -18,11 +18,11 @@ export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
   variants: {
     variant: {
       pill: 'rounded-lg bg-muted',
-      link: 'bg-transparent',
+      link: 'rounded-none bg-transparent',
     },
     orientation: {
-      horizontal: 'w-full',
-      vertical: 'flex-col',
+      horizontal: 'h-9 w-full',
+      vertical: 'flex-col h-fit',
     },
   },
   defaultVariants: {
@@ -71,7 +71,7 @@ export const tabsIndicatorVariants = cva('rounded-md transition-all duration-200
 })
 
 export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border disabled:effect-dis',
+  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-all items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
   {
     variants: {
       orientation: {
@@ -79,13 +79,13 @@ export const tabsTriggerVariants = cva(
         vertical: 'w-full justify-start',
       },
       variant: {
-        pill: 'rounded-md data-selected:text-foreground hover:data-highlighted:not-disabled:text-foreground',
+        pill: '',
         link: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
       },
       size: {
         xs: 'text-xs px-1.5 py-0.5',
         sm: 'text-xs px-2 py-1',
-        md: 'text-sm px-2.5 py-1.5',
+        md: 'text-sm px-2 py-1',
         lg: 'text-sm px-3 py-2',
         xl: 'text-base px-3.5 py-2',
       },
@@ -101,11 +101,11 @@ export const tabsTriggerVariants = cva(
 export const tabsLeadingVariants = cva('inline-flex shrink-0 items-center justify-center', {
   variants: {
     size: {
-      xs: 'text-sm',
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-base',
-      xl: 'text-lg',
+      xs: 'size-4',
+      sm: 'size-4',
+      md: 'size-4',
+      lg: 'size-4',
+      xl: 'size-4',
     },
   },
   defaultVariants: {

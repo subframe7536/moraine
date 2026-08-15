@@ -74,6 +74,8 @@ describe('Modal primitives', () => {
     expect(overlay?.className).toContain('inset-0')
     expect(overlay?.className).toContain('fixed')
     expect(overlay?.className).toContain('z-50')
+    expect(overlay?.className).toContain('supports-[backdrop-filter]:backdrop-blur-xs')
+    expect(overlay?.className).not.toContain('supports-backdrop-filter:backdrop-blur-xs')
     expect(overlay?.className).toContain('backdrop-blur-xs')
     expect(overlay?.className).toContain('data-closed:animate-overlay-out')
     expect(overlay?.className).toContain('data-expanded:animate-overlay-in')

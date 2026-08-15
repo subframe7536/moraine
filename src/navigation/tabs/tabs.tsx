@@ -494,7 +494,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                     style={merged.styles?.leading}
                     class={tabsLeadingVariants({ size: merged.size }, merged.classes?.leading)}
                   >
-                    <Icon name={item.icon} />
+                    <Icon name={item.icon} class="size-4" />
                   </span>
                 </Show>
 
@@ -527,7 +527,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-selected=""
                 data-slot="content"
                 style={merged.styles?.content}
-                class={cn('outline-none w-full', merged.classes?.content)}
+                class={cn('text-sm outline-none w-full', merged.classes?.content)}
               >
                 {item.content}
               </div>

@@ -309,7 +309,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
-              { variant: props.variant, search: api.isSearchable() },
+              { variant: props.variant, size: api.field.size(), search: api.isSearchable() },
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -318,7 +318,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               {(icon) => (
                 <Icon
                   name={icon()}
-                  size={api.field.size()}
                   slotName="leading"
                   style={props.styles?.leading}
                   class={selectLeadingIconVariants(

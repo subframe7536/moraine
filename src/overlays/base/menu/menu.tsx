@@ -499,11 +499,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             data-slot="itemLeading"
             style={props.styles?.itemLeading}
             class={cn(
-              'inline-flex shrink-0 col-start-1 size-4 items-center justify-center',
+              'inline-flex shrink-0 size-4 items-center justify-center [&_svg]:size-4',
               props.classes?.itemLeading,
             )}
           >
-            <Icon name={contentProps.item.icon as IconT.Name} />
+            <Icon name={contentProps.item.icon as IconT.Name} class="size-4" />
           </span>
         </Show>
 
@@ -511,7 +511,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           <span
             data-slot="itemWrapper"
             style={props.styles?.itemWrapper}
-            class={cn('gap-0.5 grid col-start-2', props.classes?.itemWrapper)}
+            class={cn('flex flex-1 flex-col gap-0.5 min-w-0', props.classes?.itemWrapper)}
           >
             <Show when={contentProps.item.label}>
               <span
@@ -539,12 +539,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           data-slot="itemTrailing"
           style={props.styles?.itemTrailing}
           class={cn(
-            'inline-flex gap-1.5 col-start-3 items-center justify-end',
+            'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end',
             props.classes?.itemTrailing,
           )}
         >
           <Show when={contentProps.hasChildren}>
-            <Icon name={props.submenuIcon} class={cn('text-sm', props.classes?.itemSub)} />
+            <Icon name={props.submenuIcon} class={cn('size-4', props.classes?.itemSub)} />
           </Show>
 
           <Show when={!contentProps.hasChildren}>
@@ -568,11 +568,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               data-slot="itemIndicator"
               style={props.styles?.itemIndicator}
               class={cn(
-                'text-sm inline-flex items-center justify-center',
+                'flex size-4 pointer-events-none items-center end-2 justify-center absolute',
                 props.classes?.itemIndicator,
               )}
             >
-              <Icon name={props.checkedIcon} />
+              <Icon name={props.checkedIcon} class="size-4" />
             </span>
           </Show>
         </span>
@@ -1234,7 +1234,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             data-slot="label"
             style={props.styles?.label}
             class={cn(
-              'text-xs text-muted-foreground font-medium px-1.5 py-1 inline-flex',
+              'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
               props.classes?.label,
             )}
           >
@@ -1250,7 +1250,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
                   data-slot="separator"
                   role="separator"
                   style={props.styles?.separator}
-                  class={cn('mx--1 my-1 border-t border-foreground/15', props.classes?.separator)}
+                  class={cn('my-1 bg-border h-px -mx-1', props.classes?.separator)}
                 />
               </Match>
 

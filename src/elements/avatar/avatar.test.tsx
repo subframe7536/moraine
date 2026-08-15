@@ -440,7 +440,7 @@ describe('Avatar', () => {
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('justify-end')
     const item = screen.container.querySelector('[data-slot="item"]')
-    expect(item?.className).toContain('-me-1.5')
+    expect(item?.className).toContain('-me-2')
   })
 
   test('renders all group items when max is absent and reverses order', () => {
@@ -471,8 +471,8 @@ describe('Avatar', () => {
     const groupItems = Array.from(screen.container.querySelectorAll('[data-slot="item"]'))
 
     expect(groupCounts[0]?.className).toContain('size-6')
-    expect(groupCounts[0]?.className).toContain('-me-1')
-    expect(groupItems[0]?.className).toContain('-me-1')
+    expect(groupCounts[0]?.className).toContain('-me-2')
+    expect(groupItems[0]?.className).toContain('-me-2')
 
     expect(groupCounts[1]?.className).toContain('size-11')
     expect(groupCounts[1]?.className).toContain('-me-2')

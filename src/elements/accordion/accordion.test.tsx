@@ -572,8 +572,7 @@ describe('Accordion', () => {
       expect(screen.getByTestId('open-value').textContent).toBe('one')
       await waitFor(() => {
         expect(contentOne.getAttribute('data-expanded')).toBe('')
-        expect(contentOne.className).toContain('transition-[height]')
-        expect(contentOne.className).not.toContain('animate-accordion-down')
+        expect(contentOne.className).toContain('data-expanded:animate-accordion-down')
         expect(contentOne.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
       })
 

@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const popoverContentVariants = cva(
-  'text-sm text-popover-foreground p-2.5 outline-none surface-overlay rounded-lg bg-popover flex flex-col gap-2.5 max-w-90 w-fit origin-$mo-popper-content-transform-origin duration-150 relative z-50 data-closed:animate-popover-out data-expanded:animate-popover-in',
+  'text-sm text-popover-foreground p-4 outline-none surface-overlay rounded-md bg-popover flex flex-col gap-4 max-w-90 w-72 origin-$mo-popper-content-transform-origin duration-150 relative z-50 data-closed:animate-popover-out data-expanded:animate-popover-in motion-reduce:animate-none',
   {
     defaultVariants: {
       side: 'bottom',

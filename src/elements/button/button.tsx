@@ -194,9 +194,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
-  const iconSize = createMemo(() =>
-    size().startsWith('icon-') ? size().replace('icon-', '') : undefined,
-  )
+  const iconSize = createMemo(() => {
+    const currentSize = size()
+    if (currentSize.startsWith('icon-')) {
+      return currentSize.replace('icon-', '')
+    }
+
+    return currentSize === 'xs' ? '0.75rem' : '1rem'
+  })
 
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
 
@@ -225,6 +230,19 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     }
 
     return trailing()
+  })
+
+  const iconPadding = createMemo(() => {
+    if (size().startsWith('icon-')) {
+      return undefined
+    }
+
+    const paddingStart = size() === 'xs' || size() === 'sm' ? 'ps-1.5' : 'ps-2'
+    const paddingEnd = size() === 'xs' || size() === 'sm' ? 'pe-1.5' : 'pe-2'
+    return [
+      resolvedLeading() ? paddingStart : undefined,
+      resolvedTrailing() ? paddingEnd : undefined,
+    ]
   })
 
   let spaceKeyDownArmed = false
@@ -358,6 +376,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           variant: variant(),
           size: size(),
         }),
+        resolvedLeading() && iconPadding()?.[0],
+        resolvedTrailing() && iconPadding()?.[1],
         local.classes?.root,
         local.class,
       )}

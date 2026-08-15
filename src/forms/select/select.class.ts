@@ -4,13 +4,21 @@ import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
 export const selectControlVariants = cva(
-  'text-foreground outline-none rounded-md flex w-full transition items-center data-invalid:effect-invalid data-disabled:effect-dis',
+  'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[color,box-shadow] items-center data-invalid:effect-invalid data-disabled:effect-dis data-invalid:ring-3 focus-visible:ring-3',
   {
     defaultVariants: {
       variant: 'outline',
+      size: 'md',
     },
     variants: {
       variant: INPUT_VARIANT,
+      size: {
+        xs: 'text-xs px-1.5 h-6',
+        sm: 'text-xs py-1.5 pe-1.5 ps-2 h-8',
+        md: 'text-sm py-2 pe-2 ps-2.5 h-9',
+        lg: 'text-sm py-2.5 pe-2.5 ps-3 h-10',
+        xl: 'text-base py-3 pe-3 ps-3.5 h-11',
+      },
       search: {
         true: 'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid',
         false:
@@ -21,7 +29,7 @@ export const selectControlVariants = cva(
 )
 
 export const selectInputVariants = cva(
-  'outline-none bg-transparent flex-1 w-full disabled:effect-dis',
+  'outline-none bg-transparent flex-1 min-w-0 w-full disabled:effect-dis',
   {
     defaultVariants: {
       mode: 'single',
@@ -29,22 +37,22 @@ export const selectInputVariants = cva(
     },
     variants: {
       mode: {
-        single: 'mx-$s-p p-1.5',
-        multi: 'leading-$s-m ps-$s-p min-w-12',
+        single: 'flex flex-1 min-w-0',
+        multi: 'leading-$s-m min-w-12',
       },
       size: {
-        xs: 'text-xs var-select-0.5',
-        sm: 'text-xs var-select-1',
-        md: 'text-sm var-select-1',
-        lg: 'text-sm var-select-1.5',
-        xl: 'text-base var-select-1.5',
+        xs: 'text-xs',
+        sm: 'text-xs',
+        md: 'text-sm',
+        lg: 'text-sm',
+        xl: 'text-base',
       },
     },
   },
 )
 
 export const selectTriggerIconVariants = cva(
-  'text-muted-foreground me-2 outline-none opacity-80 cursor-pointer',
+  'text-muted-foreground outline-none opacity-80 shrink-0 pointer-events-none',
   {
     defaultVariants: {
       size: 'md',
@@ -52,7 +60,7 @@ export const selectTriggerIconVariants = cva(
     variants: {
       size: {
         xs: 'size-3',
-        sm: 'size-3.4',
+        sm: 'size-3.5',
         md: 'size-4',
         lg: 'size-4.5',
         xl: 'size-5',
@@ -67,17 +75,17 @@ export const selectLeadingIconVariants = cva('text-muted-foreground shrink-0', {
   },
   variants: {
     size: {
-      xs: 'text-sm ms-1.5',
-      sm: 'text-sm ms-2',
-      md: 'text-base ms-2.5',
-      lg: 'text-base ms-3',
-      xl: 'text-lg ms-3.5',
+      xs: 'size-3',
+      sm: 'size-3.5',
+      md: 'size-4',
+      lg: 'size-4.5',
+      xl: 'size-5',
     },
   },
 })
 
 export const selectItemVariants = cva(
-  'py-1 pe-2 ps-3 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between data-highlighted:(text-accent-foreground bg-accent-hover) data-selected:(text-accent-foreground bg-accent-active) data-disabled:effect-dis',
+  'py-1.5 pe-8 ps-2 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:(text-accent-foreground bg-accent) data-selected:(text-accent-foreground bg-accent-active) data-disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',
@@ -89,6 +97,23 @@ export const selectItemVariants = cva(
         md: 'text-sm min-h-8',
         lg: 'text-sm min-h-9',
         xl: 'text-base min-h-10',
+      },
+    },
+  },
+)
+
+export const selectContentVariants = cva(
+  'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-$mo-popper-content-transform-origin duration-100 z-50 data-closed:animate-menu-out data-expanded:animate-menu-in',
+  {
+    defaultVariants: {
+      side: 'right',
+    },
+    variants: {
+      side: {
+        top: 'mb-$mo-popper-content-overflow-padding animate-menu-side-top',
+        right: 'ml-$mo-popper-content-overflow-padding animate-menu-side-right',
+        bottom: 'mt-$mo-popper-content-overflow-padding animate-menu-side-bottom',
+        left: 'mr-$mo-popper-content-overflow-padding animate-menu-side-left',
       },
     },
   },

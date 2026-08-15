@@ -427,6 +427,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         )}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
+        data-unchecked={!checked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-readonly={readOnly() ? '' : undefined}
       >

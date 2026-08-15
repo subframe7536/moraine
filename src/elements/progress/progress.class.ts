@@ -16,7 +16,7 @@ export const progressRootVariants = cva('gap-2 relative', {
 })
 
 export const progressStatusVariants = cva(
-  'text-muted-foreground flex transition-[width,height] duration-200',
+  'text-sm text-muted-foreground font-medium flex transition-[width,height] duration-200 tabular-nums',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -33,7 +33,7 @@ export const progressStatusVariants = cva(
 )
 
 export const progressBaseVariants = cva(
-  'rounded-full bg-input translate-z-0 relative overflow-hidden',
+  'rounded-full bg-muted translate-z-0 relative overflow-hidden',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -47,7 +47,7 @@ export const progressBaseVariants = cva(
       size: {
         xs: 'var-progress-0.5',
         sm: 'var-progress-1',
-        md: 'var-progress-2',
+        md: 'h-1.5',
         lg: 'var-progress-3',
         xl: 'var-progress-4',
       },
@@ -56,7 +56,7 @@ export const progressBaseVariants = cva(
 )
 
 export const progressIndicatorVariants = cva(
-  'will-change-transform rounded-full bg-primary size-full transition-transform duration-200 ease-out inset-0 absolute data-indeterminate:(opacity-100 animate-duration-2s animate-ease-in-out animate-iteration-infinite)',
+  'will-change-transform bg-primary size-full transition-transform duration-200 ease-out inset-0 absolute data-indeterminate:(opacity-100 animate-duration-2s animate-ease-in-out animate-iteration-infinite)',
   {
     defaultVariants: {
       orientation: 'horizontal',

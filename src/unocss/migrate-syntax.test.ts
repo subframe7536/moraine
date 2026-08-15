@@ -22,7 +22,7 @@ describe('transformer-migrate-syntax', () => {
   test('normalizeClassList maps syntax compatibility tokens and keeps semantic tokens', () => {
     expect(
       normalizeClassList(
-        'b-1 b-b-2 b-border b-transparent font-500 content-empty supports-backdrop-filter:backdrop-blur-xs not-dark:bg-clip-padding not-last:border effect-fv var-input-1.5 icon-close transition-flex-basis',
+        'b-1 b-b-2 b-border b-transparent font-500 content-empty supports-[backdrop-filter]:backdrop-blur-xs not-dark:bg-clip-padding not-last:border effect-fv var-input-1.5 icon-close transition-flex-basis',
       ),
     ).toBe(
       "border border-b-2 border-border border-transparent font-medium content-[''] supports-[backdrop-filter]:backdrop-blur-xs [html:not(.dark)_&]:bg-clip-padding [&:not(:last-child)]:border effect-fv var-input-1.5 icon-close transition-flex-basis",
@@ -48,7 +48,7 @@ export const card = cva('b-1 font-500', {
       quiet: 'not-dark:bg-clip-padding',
     },
   },
-  compoundVariants: [{ tone: 'quiet', class: 'supports-backdrop-filter:backdrop-blur-xs b-b-2' }],
+  compoundVariants: [{ tone: 'quiet', class: 'supports-[backdrop-filter]:backdrop-blur-xs b-b-2' }],
 })
 `,
       'src/example.class.ts',
@@ -82,7 +82,7 @@ export const card = cva('b-1', { variants: { tone: { quiet: 'font-500' } } })
       `
 const view = (
   <div class={cn('b-1 content-empty effect-fv', cond && 'not-last:b-b', local.classes?.root)}>
-    <span class="font-500 supports-backdrop-filter:backdrop-blur-xs var-input-1.5 icon-close" />
+    <span class="font-500 supports-[backdrop-filter]:backdrop-blur-xs var-input-1.5 icon-close" />
   </div>
 )
 `,

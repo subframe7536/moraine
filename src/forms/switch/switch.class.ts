@@ -3,18 +3,18 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const switchTrackVariants = cva(
-  'p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer transition-[color,background-color,box-shadow] items-center focus-visible:effect-fv-border data-invalid:effect-invalid dark:bg-input/80 data-checked:bg-primary',
+  'p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-xs transition-[color,background-color,box-shadow] items-center focus-visible:effect-fv-border data-invalid:effect-invalid data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80',
   {
     defaultVariants: {
       size: 'md',
     },
     variants: {
       size: {
-        xs: 'h-4 w-7',
-        sm: 'h-4.5 w-8',
-        md: 'h-5 w-9',
-        lg: 'h-5.5 w-10',
-        xl: 'h-6 w-11',
+        xs: 'h-3.5 w-6',
+        sm: 'h-4 w-7',
+        md: 'h-4.5 w-8',
+        lg: 'h-5 w-9',
+        xl: 'h-5.5 w-10',
       },
     },
   },
@@ -28,11 +28,11 @@ export const switchThumbVariants = cva(
     },
     variants: {
       size: {
-        xs: 'size-3 data-checked:translate-x-3',
-        sm: 'size-3.5 data-checked:translate-x-3.5',
-        md: 'size-4 data-checked:translate-x-4',
-        lg: 'size-4.5 data-checked:translate-x-4.5',
-        xl: 'size-5 data-checked:translate-x-5',
+        xs: 'size-2.5 data-checked:translate-x-2.5',
+        sm: 'size-3 data-checked:translate-x-3',
+        md: 'size-3.5 data-checked:translate-x-3.5',
+        lg: 'size-4 data-checked:translate-x-4',
+        xl: 'size-4.5 data-checked:translate-x-4.5',
       },
     },
   },

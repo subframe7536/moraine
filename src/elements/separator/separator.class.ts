@@ -14,7 +14,7 @@ export const separatorRootVariants = cva('text-border text-center flex items-cen
   },
 })
 
-export const separatorBorderVariants = cva('border-current flex-1 shrink-0', {
+export const separatorBorderVariants = cva('border-current bg-border flex-1 shrink-0', {
   defaultVariants: {
     orientation: 'horizontal',
     size: 'xs',
@@ -22,8 +22,8 @@ export const separatorBorderVariants = cva('border-current flex-1 shrink-0', {
   },
   variants: {
     orientation: {
-      horizontal: 'b-t w-full',
-      vertical: 'b-s h-full',
+      horizontal: 'b-t h-px w-full',
+      vertical: 'b-s h-full w-px',
     },
     size: {
       xs: 'b-1',

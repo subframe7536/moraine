@@ -129,7 +129,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'Delete' })
     expect(button.className).toContain('bg-destructive')
-    expect(button.className).toContain('h-7')
+    expect(button.className).toContain('h-8')
   })
 
   test('applies press interaction classes', () => {

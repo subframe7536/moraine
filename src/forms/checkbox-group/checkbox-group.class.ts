@@ -9,7 +9,7 @@ import {
 } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
-export const checkboxGroupFieldsetVariants = cva('flex', {
+export const checkboxGroupFieldsetVariants = cva('flex gap-3', {
   defaultVariants: {
     orientation: 'vertical',
   },
@@ -18,7 +18,7 @@ export const checkboxGroupFieldsetVariants = cva('flex', {
   },
 })
 
-export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-1 block', {
+export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-3 block', {
   defaultVariants: {
     size: 'md',
   },

@@ -26,6 +26,7 @@ import type { FormFieldVariantProps } from './form-field.class.ts'
 import {
   formFieldContainerVariants,
   formFieldLabelVariants,
+  formFieldRootVariants,
   formFieldSizeVariants,
 } from './form-field.class.ts'
 
@@ -372,25 +373,21 @@ export function FormField<
         {...rest}
         component={merged.as as any}
         style={{ ...merged.styles?.root, ...merged.style }}
-        class={formFieldSizeVariants(
+        class={formFieldRootVariants(
           {
-            size: merged.size,
+            orientation: merged.orientation,
           },
-          merged.orientation === 'horizontal' && 'flex items-baseline justify-between gap-2',
+          formFieldSizeVariants({ size: merged.size }),
           merged.classes?.root,
           merged.class,
         )}
       >
-        <div
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={cn(merged.orientation === 'horizontal' && 'flex-1', merged.classes?.wrapper)}
-        >
+        <div data-slot="wrapper" style={merged.styles?.wrapper} class={cn(merged.classes?.wrapper)}>
           <Show when={showLabel()}>
             <div
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
-              class={cn('flex gap-1 items-center justify-between', merged.classes?.labelWrapper)}
+              class={cn('flex gap-2 items-center justify-between', merged.classes?.labelWrapper)}
             >
               <label
                 id={`${ariaId()}-label`}
@@ -412,7 +409,7 @@ export function FormField<
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
                   style={merged.styles?.hint}
-                  class={cn('text-muted-foreground ms-1', merged.classes?.hint)}
+                  class={cn('text-sm text-muted-foreground ms-1', merged.classes?.hint)}
                 >
                   {hint()}
                 </span>
@@ -425,7 +422,7 @@ export function FormField<
               id={`${ariaId()}-description`}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
+              class={cn('text-sm text-muted-foreground', merged.classes?.description)}
             >
               {description()}
             </p>
@@ -454,7 +451,7 @@ export function FormField<
                   id={`${ariaId()}-help`}
                   data-slot="help"
                   style={merged.styles?.help}
-                  class={cn('text-muted-foreground mt-2', merged.classes?.help)}
+                  class={cn('text-sm text-muted-foreground', merged.classes?.help)}
                 >
                   {help()}
                 </div>
@@ -465,7 +462,7 @@ export function FormField<
               id={`${ariaId()}-error`}
               data-slot="error"
               style={merged.styles?.error}
-              class={cn('text-destructive mt-2', merged.classes?.error)}
+              class={cn('text-sm text-destructive', merged.classes?.error)}
             >
               {resolvedError() as JSX.Element}
             </div>

@@ -73,11 +73,11 @@ Do not pull, reset, or edit the Zaidan checkout as part of this work.
 | Plan                                             | Title                                               | Priority | Effort | Depends on   | Status |
 | ------------------------------------------------ | --------------------------------------------------- | -------- | ------ | ------------ | ------ |
 | [001](001-freeze-vega-style-baseline.md)         | Freeze the Vega baseline and map every surface      | P1       | L      | —            | DONE   |
-| [003](003-align-element-styles.md)               | Align element spacing, sizing, surfaces, and motion | P1       | L      | 001          | TODO   |
-| [004](004-align-form-styles.md)                  | Align form controls and form composition            | P1       | L      | 001, 003     | TODO   |
-| [005](005-align-navigation-styles.md)            | Align navigation and application-shell components   | P1       | L      | 001, 003–004 | TODO   |
-| [006](006-align-overlay-styles.md)               | Align overlay surfaces, menus, and transitions      | P1       | L      | 001, 003–005 | TODO   |
-| [007](007-document-and-validate-style-system.md) | Document and validate the completed style system    | P1       | M      | 001, 003–006 | TODO   |
+| [003](003-align-element-styles.md)               | Align element spacing, sizing, surfaces, and motion | P1       | L      | 001          | DONE   |
+| [004](004-align-form-styles.md)                  | Align form controls and form composition            | P1       | L      | 001, 003     | DONE   |
+| [005](005-align-navigation-styles.md)            | Align navigation and application-shell components   | P1       | L      | 001, 003–004 | DONE   |
+| [006](006-align-overlay-styles.md)               | Align overlay surfaces, menus, and transitions      | P1       | L      | 001, 003–005 | DONE   |
+| [007](007-document-and-validate-style-system.md) | Document and validate the completed style system    | P1       | M      | 001, 003–006 | DONE   |
 
 Status values: `TODO`, `IN PROGRESS`, `DONE`, `BLOCKED: <reason>`, or
 `REJECTED: <reason>`.

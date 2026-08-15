@@ -729,7 +729,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
-              { variant: props.variant, search: api.isSearchable() },
+              { variant: props.variant, size: api.field.size(), search: api.isSearchable() },
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -738,7 +738,6 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               {(icon) => (
                 <Icon
                   name={icon()}
-                  size={api.field.size()}
                   slotName="leading"
                   style={props.styles?.leading}
                   class={selectLeadingIconVariants(
@@ -753,7 +752,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               data-slot="tagsContainer"
               style={props.styles?.tagsContainer}
               class={cn(
-                'p-1.5 flex flex-1 flex-wrap gap-1 max-w-full min-w-0 select-none items-center',
+                'text-sm px-2.5 py-1.5 border border-input rounded-md bg-transparent flex flex-1 flex-wrap gap-1.5 max-w-full min-h-9 min-w-0 select-none shadow-xs transition-[color,box-shadow] items-center focus-within:border-ring dark:bg-input/30 focus-within:ring-3 focus-within:ring-ring/50',
                 props.classes?.tagsContainer,
               )}
             >
@@ -774,10 +773,13 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                         title={option.key}
                         variant={props.tagVariant}
                         style={props.styles?.tag}
-                        class={cn('pe-0 max-w-50%', props.classes?.tag)}
+                        class={cn(
+                          'text-xs text-foreground font-medium px-1.5 pe-0 border-0 rounded-sm bg-muted flex gap-1 h-5.5 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+                          props.classes?.tag,
+                        )}
                         classes={{
                           trailing: [
-                            'rounded hover:bg-accent-hover active:bg-accent-active scale-85',
+                            '-ml-1 opacity-50 hover:opacity-100',
                             props.classes?.tagRemove,
                           ],
                         }}

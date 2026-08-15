@@ -72,11 +72,11 @@ describe('Kbd', () => {
 
   test('applies size classes on keycaps', () => {
     const sizes = [
-      ['xs', 'h-3'],
-      ['sm', 'h-4'],
-      ['md', 'h-4.5'],
-      ['lg', 'h-5'],
-      ['xl', 'h-5.5'],
+      ['xs', 'h-4'],
+      ['sm', 'h-4.5'],
+      ['md', 'h-5'],
+      ['lg', 'h-5.5'],
+      ['xl', 'h-6'],
     ] as const
 
     for (const [size, expectedClass] of sizes) {

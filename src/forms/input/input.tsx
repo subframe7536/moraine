@@ -422,8 +422,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
           >
             <Icon
               name={iconName()}
-              size={field.size()}
-              class={cn(isLeadingLoading() && 'effect-loading')}
+              class={cn(
+                field.size() === 'xs' ? 'size-3' : 'size-4',
+                isLeadingLoading() && 'effect-loading',
+              )}
             />
           </span>
         )}
@@ -479,8 +481,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
           >
             <Icon
               name={iconName()}
-              size={field.size()}
-              class={cn(isTrailingLoading() && 'effect-loading')}
+              class={cn(
+                field.size() === 'xs' ? 'size-3' : 'size-4',
+                isTrailingLoading() && 'effect-loading',
+              )}
             />
           </span>
         )}

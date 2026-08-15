@@ -151,10 +151,10 @@ interface SemanticAnimationConfig {
 
 const SEMANTIC_ANIMATION_CONFIGS: Record<SemanticAnimationTarget, SemanticAnimationConfig> = {
   overlay: { withSide: false },
-  popup: { scale: '0.9', withSide: false },
-  menu: { offsetRem: '0.5', scale: '0.9', oppositeSide: true },
-  popover: { offsetRem: '0.5', scale: '0.9', oppositeSide: true },
-  tooltip: { offsetRem: '0.25', scale: '0.9', oppositeSide: true },
+  popup: { scale: '0.95', withSide: false },
+  menu: { offsetRem: '0.5', scale: '0.95', oppositeSide: true },
+  popover: { offsetRem: '0.5', scale: '0.95', oppositeSide: true },
+  tooltip: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
   sheet: { offsetRem: '2.5' },
 }
 

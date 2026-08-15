@@ -207,7 +207,7 @@ describe('Stepper', () => {
     const item = screen.container.querySelector('[data-slot="item"]')
     const separator = screen.container.querySelector('[data-slot="separator"]')
 
-    expect(item?.className).toContain('var-stepper-9-8-3-1')
+    expect(item?.className).toContain('var-stepper-10-8-3-1')
     expect(separator?.className).toContain('bottom--3')
   })
 

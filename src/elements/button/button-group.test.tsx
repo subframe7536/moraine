@@ -193,10 +193,10 @@ describe('ButtonGroup', () => {
 
   test.each([
     ['xs', 'h-6'],
-    ['sm', 'h-7'],
-    ['md', 'h-8'],
-    ['lg', 'h-9'],
-    ['xl', 'h-10'],
+    ['sm', 'h-8'],
+    ['md', 'h-9'],
+    ['lg', 'h-10'],
+    ['xl', 'h-11'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
       <ButtonGroup size={size}>
@@ -309,7 +309,7 @@ describe('ButtonGroup', () => {
     setSize('xl')
     setVariant('secondary')
 
-    expect(button.className).toContain('h-10')
+    expect(button.className).toContain('h-11')
     expect(button.className).toContain('bg-secondary')
   })
 

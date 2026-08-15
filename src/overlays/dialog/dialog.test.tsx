@@ -120,9 +120,10 @@ describe('Modal', () => {
     const content = document.body.querySelector('[data-slot="content"]')
     const card = content?.querySelector('[data-slot="root"]')
 
-    expect(card?.className).toContain('bg-background')
+    expect(card?.className).toContain('bg-popover')
     expect(card?.className).toContain('surface-overlay')
     expect(content?.className).toContain('data-expanded:animate-popup-in')
+    expect(content?.className).toContain('motion-reduce:animate-none')
   })
 
   test('composes dialog content with a card shell', () => {

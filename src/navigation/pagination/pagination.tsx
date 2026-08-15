@@ -9,6 +9,15 @@ import type { FormFieldSize } from '../../forms/form-field/form-field-context.ts
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 
+import {
+  PAGINATION_ELLIPSIS_CLASS,
+  PAGINATION_ITEM_CLASS,
+  PAGINATION_LIST_CLASS,
+  PAGINATION_NEXT_CLASS,
+  PAGINATION_PREV_CLASS,
+  PAGINATION_ROOT_CLASS,
+} from './pagination.class.ts'
+
 type PaginationVariant = ButtonProps['variant']
 
 const MAX_SIBLING_COUNT = 100
@@ -349,23 +358,28 @@ export function Pagination(props: PaginationProps): JSX.Element {
       aria-label={merged['aria-label']}
       role={merged.role}
       style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('w-full', merged.classes?.root, merged.class)}
+      class={cn(PAGINATION_ROOT_CLASS, merged.classes?.root, merged.class)}
       {...rest}
     >
       <ul
         data-slot="list"
         style={merged.styles?.list}
-        class={cn('flex gap-1 items-center justify-center', merged.classes?.list)}
+        class={cn(PAGINATION_LIST_CLASS, merged.classes?.list)}
       >
         <Show when={merged.showControls}>
-          <li data-slot="item" style={merged.styles?.item} class={cn(merged.classes?.item)}>
+          <li
+            data-slot="item"
+            style={merged.styles?.item}
+            class={cn(PAGINATION_ITEM_CLASS, merged.classes?.item)}
+          >
             <Button
               data-slot="prev"
               style={merged.styles?.prev}
               variant={merged.controlVariant}
               size={getSize(merged.size, merged.prevText)}
               aria-label={getPrevLabel()}
-              class={merged.classes?.prev}
+              class={cn(PAGINATION_PREV_CLASS, merged.classes?.prev)}
+              classes={{ label: merged.prevText ? 'hidden sm:block' : undefined }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
               leading={<Icon name={merged.prevIcon} />}
@@ -383,7 +397,10 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 data-slot="item"
                 style={merged.styles?.item}
                 aria-hidden={item < 0 ? true : undefined}
-                class={cn(item < 0 && 'flex size-6 items-center', merged.classes?.item)}
+                class={cn(
+                  item < 0 ? PAGINATION_ELLIPSIS_CLASS : PAGINATION_ITEM_CLASS,
+                  merged.classes?.item,
+                )}
               >
                 <Show
                   when={item >= 0}
@@ -392,7 +409,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                       slotName="ellipsis"
                       style={merged.styles?.ellipsis}
                       name={merged.ellipsisIcon}
-                      class={cn(merged.classes?.ellipsis)}
+                      class={cn('size-4', merged.classes?.ellipsis)}
                     />
                   }
                 >
@@ -417,14 +434,19 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="item" style={merged.styles?.item} class={cn(merged.classes?.item)}>
+          <li
+            data-slot="item"
+            style={merged.styles?.item}
+            class={cn(PAGINATION_ITEM_CLASS, merged.classes?.item)}
+          >
             <Button
               data-slot="next"
               style={merged.styles?.next}
               variant={merged.controlVariant}
               size={getSize(merged.size, merged.nextText)}
               aria-label={getNextLabel()}
-              class={merged.classes?.next}
+              class={cn(PAGINATION_NEXT_CLASS, merged.classes?.next)}
+              classes={{ label: merged.nextText ? 'hidden sm:block' : undefined }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
               trailing={<Icon name={merged.nextIcon} />}

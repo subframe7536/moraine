@@ -41,6 +41,7 @@ import {
   resizableCrossTargetVariants,
   resizableHandleVariants,
   resizableRootVariants,
+  RESIZABLE_HANDLE_GRIP_CLASS,
 } from './resizable.class.ts'
 import type { ResizableVariantProps } from './resizable.class.ts'
 
@@ -919,10 +920,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       onPointerDown={onHandlePointerDown}
                       onClick={onHandleClick}
                       class={cn(
-                        'rounded flex cursor-inherit items-center justify-center z-10 focus-visible:effect-fv',
+                        RESIZABLE_HANDLE_GRIP_CLASS,
                         handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
                         !local.handleRender && [
-                          'bg-border/90 flex shrink-0',
+                          'bg-border flex shrink-0',
                           orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
                         ],
                         local.classes?.handle,

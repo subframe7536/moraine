@@ -235,10 +235,7 @@ export function Dialog(props: DialogProps): JSX.Element {
                 id={titleId()}
                 data-slot="title"
                 style={merged.styles?.title}
-                class={cn(
-                  'text-lg leading-none tracking-tight font-semibold',
-                  merged.classes?.title,
-                )}
+                class={cn('leading-none font-medium', merged.classes?.title)}
               >
                 {title()}
               </h2>
@@ -261,10 +258,10 @@ export function Dialog(props: DialogProps): JSX.Element {
           <Button
             data-slot="close"
             aria-label="Close"
-            size="icon-md"
+            size="icon-sm"
             variant="ghost"
             style={merged.styles?.close}
-            class={['absolute top-2 right-2', merged.classes?.close]}
+            class={['absolute top-4 right-4', merged.classes?.close]}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -305,7 +302,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             footer={footer()}
             classes={{
               root: dialogCardVariants({ layout: dialogLayout() }),
-              header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
+              header: ['p-6 flex gap-2 items-start', merged.classes?.header],
               body: ['text-sm', merged.classes?.body],
               footer: [
                 'px-6 pb-6 pt-0 flex flex-col-reverse gap-2 sm:(flex-row justify-end)',

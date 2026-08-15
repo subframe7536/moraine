@@ -2,6 +2,13 @@ import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
 
+export const SIDEBAR_FRAME_ROOT_CLASS = 'h-screen max-h-full min-h-0 overflow-hidden'
+export const SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS =
+  'min-h-0 overflow-hidden transition-[width,opacity,transform] duration-200 ease-linear motion-reduce:transition-none'
+export const SIDEBAR_FRAME_HEADER_CLASS = 'flex gap-2 p-2'
+export const SIDEBAR_FRAME_BODY_CLASS = 'flex-1 min-h-0 overflow-y-auto'
+export const SIDEBAR_FRAME_FOOTER_CLASS = 'flex gap-2 p-2'
+
 export const sidebarFrameDesktopLayoutVariants = cva('flex h-full min-h-0', {
   variants: {
     side: {
@@ -28,11 +35,11 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
     },
     isMobile: {
       true: '',
-      false: 'w-sidebar',
+      false: 'w-64',
     },
     variant: {
       default: '',
-      floating: 'surface-border rounded-2xl bg-background shadow-sm overflow-hidden',
+      floating: 'ring-sidebar-border bg-sidebar rounded-lg ring-1 shadow-sm overflow-hidden',
       inset: '',
     },
   },
@@ -55,5 +62,21 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
     variant: 'default',
   },
 })
+
+export const sidebarFrameMainVariants = cva(
+  'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
+  {
+    defaultVariants: {
+      variant: 'default',
+    },
+    variants: {
+      variant: {
+        default: '',
+        floating: '',
+        inset: 'rounded-xl bg-background shadow-sm',
+      },
+    },
+  },
+)
 
 export type SidebarFrameVariantProps = VariantProps<typeof sidebarFrameDesktopLayoutVariants>
