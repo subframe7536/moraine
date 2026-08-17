@@ -4,7 +4,7 @@ import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
 export const selectControlVariants = cva(
-  'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[color,box-shadow] items-center data-invalid:effect-invalid data-disabled:effect-dis data-invalid:ring-3 focus-visible:ring-3',
+  'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:effect-invalid data-disabled:effect-dis data-invalid:ring-3 focus-visible:ring-3',
   {
     defaultVariants: {
       variant: 'outline',

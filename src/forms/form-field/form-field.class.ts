@@ -12,13 +12,13 @@ export const formFieldSizeVariants = cva('text-sm', {
   },
 })
 
-export const formFieldRootVariants = cva('text-sm flex flex-col gap-3', {
+export const formFieldRootVariants = cva('text-sm flex gap-3', {
   defaultVariants: {
     orientation: 'vertical',
   },
   variants: {
     orientation: {
-      vertical: '',
+      vertical: 'flex-col',
       horizontal: 'flex-row items-baseline justify-between',
     },
   },

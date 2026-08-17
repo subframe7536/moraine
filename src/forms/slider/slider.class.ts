@@ -168,7 +168,7 @@ export const sliderThumbVariants = cva(
       },
       variant: {
         default:
-          'outline-none border border-primary bg-white cursor-pointer shadow-sm transition-[color,box-shadow] dark:bg-foreground focus-visible:ring-4 hover:ring-4 focus-visible:ring-ring/50 data-dragging:scale-120',
+          'outline-none border border-primary bg-white cursor-pointer shadow-sm transition-[colors,box-shadow] dark:bg-foreground focus-visible:ring-4 hover:ring-4 focus-visible:ring-ring/50 data-dragging:scale-120',
         bold: 'rounded-sm bg-primary-foreground ring-(3 primary) focus-visible:outline-(1 border primary-foreground)',
       },
     },

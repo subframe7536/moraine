@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const inputNumberRootVariants = cva(
-  'rounded-md inline-flex w-full transition-[color,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
+  'rounded-md inline-flex w-full transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
