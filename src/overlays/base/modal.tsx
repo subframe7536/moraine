@@ -464,7 +464,7 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
               })
             }}
             style={props.overlayStyle}
-            class={cn(MODAL_OVERLAY_CLASS, props.overlayClass)}
+            class={cn(props.overlayClass ?? MODAL_OVERLAY_CLASS)}
           />
         </Show>
 

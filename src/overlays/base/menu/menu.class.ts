@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../../shared/utils.ts'
 
 export const overlayMenuItemVariants = cva(
-  'text-sm text-foreground px-2 py-1.5 pe-8 outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-selected:(text-accent-foreground bg-accent-active) data-disabled:(opacity-50 pointer-events-none)',
+  'text-sm text-foreground px-2 py-1.5 outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-selected:(text-accent-foreground bg-accent-active) data-disabled:(opacity-50 pointer-events-none)',
   {
     defaultVariants: {
       color: 'default',
