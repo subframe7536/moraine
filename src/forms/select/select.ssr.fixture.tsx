@@ -12,8 +12,10 @@ export function renderSelectFixture(): string {
         { value: 'apple', label: 'Apple', description: 'Crisp' },
         { value: 'banana', label: 'Banana', description: 'Sweet' },
       ]}
+      allowClear
       leadingIcon="icon-search"
       trailingIcon="icon-chevron-down"
+      closeIcon="icon-close"
     />
   ))
 }

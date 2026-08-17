@@ -37,6 +37,7 @@ import {
   focusWithoutScrolling,
   getFocusableElements,
   getTransformOrigin,
+  resolveOverlayMenuMotionOrigin,
   resolveDirection,
   resolveOverlayMenuSide,
 } from '../utils.ts'
@@ -1028,7 +1029,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }}
           class={getItemClass(
             itemProps.item,
-            'data-expanded:(bg-accent-active text-accent-foreground)',
+            'data-expanded:bg-muted',
             props.classes?.item,
             itemAttributes()?.class,
           )}
@@ -1324,7 +1325,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           ...toStyleObject(props.contentProps?.style),
         }}
         class={overlayMenuContentVariants(
-          { side: side() },
+          {
+            side: side(),
+            origin: resolveOverlayMenuMotionOrigin(layer.currentPlacement(), resolveDirection()),
+          },
           props.classes?.content,
           props.contentProps?.class,
         )}

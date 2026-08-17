@@ -1,6 +1,5 @@
-import { Button, CommandPalette, Dialog, Icon, Kbd, KbdGroup } from '@src'
+import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
-import { createSignal } from 'solid-js'
 
 const GROUPS: CommandPaletteT.Group[] = [
   {
@@ -58,45 +57,31 @@ const GROUPS: CommandPaletteT.Group[] = [
 ]
 
 export function Usage() {
-  const [open, setOpen] = createSignal(false)
-
   return (
-    <Dialog
-      open={open()}
-      onOpenChange={setOpen}
-      close={false}
-      classes={{ body: 'p-0 mb-0' }}
-      body={
-        <CommandPalette
-          groups={GROUPS}
-          showClose
-          onClose={() => setOpen(false)}
-          footerRender={() => (
-            <div class="flex gap-4 items-center justify-between">
-              <div class="flex flex-wrap gap-3 items-center">
-                <div class="flex gap-2 items-center">
-                  <KbdGroup items={['↑', '↓']} />
-                  <span class="text-xs">Navigate</span>
-                </div>
-                <div class="flex gap-2 items-center">
-                  <Kbd value="↵" />
-                  <span class="text-xs">Open</span>
-                </div>
+    <div class="max-w-full w-lg">
+      <CommandPalette
+        groups={GROUPS}
+        autofocus={false}
+        showClose
+        footerRender={() => (
+          <div class="flex gap-4 items-center justify-between">
+            <div class="flex flex-wrap gap-3 items-center">
+              <div class="flex gap-2 items-center">
+                <KbdGroup items={['↑', '↓']} />
+                <span class="text-xs">Navigate</span>
               </div>
               <div class="flex gap-2 items-center">
-                <Kbd value="Esc" />
-                <span class="text-xs">Close</span>
+                <Kbd value="↵" />
+                <span class="text-xs">Open</span>
               </div>
             </div>
-          )}
-        />
-      }
-    >
-      {(props) => (
-        <Button {...props} variant="outline" trailing={<KbdGroup items={['⌘', 'K']} />}>
-          Search...
-        </Button>
-      )}
-    </Dialog>
+            <div class="flex gap-2 items-center">
+              <Kbd value="Esc" />
+              <span class="text-xs">Close</span>
+            </div>
+          </div>
+        )}
+      />
+    </div>
   )
 }

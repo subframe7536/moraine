@@ -419,6 +419,7 @@ describe('DropdownMenu', () => {
     expect(rootContent.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent.className).toContain('data-closed:animate-menu-out')
     expect(rootContent.className).toContain('animate-menu-side-bottom')
+    expect(rootContent.className).toContain('animate-menu-origin-top-left')
     expect(rootContent.className).not.toContain('animate-menu-side-top')
   })
 
@@ -499,6 +500,7 @@ describe('DropdownMenu', () => {
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
     expect(rootContent?.className).toContain('animate-menu-side-left')
+    expect(rootContent?.className).toContain('animate-menu-origin-top-right')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

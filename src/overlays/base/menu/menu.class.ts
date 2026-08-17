@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../../shared/utils.ts'
 
 export const overlayMenuItemVariants = cva(
-  'text-sm text-foreground px-2 py-1.5 outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:(text-accent-foreground bg-accent) data-selected:(text-accent-foreground bg-accent-active) data-disabled:(opacity-50 pointer-events-none)',
+  'text-sm text-foreground px-2 py-1.5 outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:(opacity-50 pointer-events-none)',
   {
     defaultVariants: {
       color: 'default',
@@ -12,8 +12,7 @@ export const overlayMenuItemVariants = cva(
     variants: {
       color: {
         default: 'text-foreground',
-        destructive:
-          'text-destructive data-highlighted:(text-destructive-foreground bg-destructive-hover) data-selected:(text-destructive-foreground bg-destructive-active)',
+        destructive: 'text-destructive data-highlighted:(text-destructive bg-muted)',
       },
       size: {
         sm: 'text-xs min-h-7',
@@ -38,6 +37,17 @@ export const overlayMenuContentVariants = cva(
         right: 'ml-$mo-popper-content-overflow-padding animate-menu-side-right',
         bottom: 'mt-$mo-popper-content-overflow-padding animate-menu-side-bottom',
         left: 'mr-$mo-popper-content-overflow-padding animate-menu-side-left',
+      },
+      origin: {
+        'top-left': 'animate-menu-origin-top-left',
+        'top-center': 'animate-menu-origin-top-center',
+        'top-right': 'animate-menu-origin-top-right',
+        'center-left': 'animate-menu-origin-center-left',
+        center: 'animate-menu-origin-center',
+        'center-right': 'animate-menu-origin-center-right',
+        'bottom-left': 'animate-menu-origin-bottom-left',
+        'bottom-center': 'animate-menu-origin-bottom-center',
+        'bottom-right': 'animate-menu-origin-bottom-right',
       },
     },
   },

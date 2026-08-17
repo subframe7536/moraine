@@ -19,6 +19,8 @@ Polymorphic right-click trigger root with a floating menu portal containing grou
 
 Use `contentProps` and `itemProps` to forward native attributes, refs, and event handlers. Item handlers run before built-in menu behavior and can call `preventDefault()` to cancel activation.
 
+The enter and exit motion follows the resolved `placement`, including its alignment corner. A `right-start` menu therefore travels from its top-left origin toward the bottom-right; override `classes.content` or `styles.content` when a custom motion is needed.
+
 ### Menu
 
 ```text

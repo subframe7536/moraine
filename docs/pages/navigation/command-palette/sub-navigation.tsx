@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Dialog, Icon } from '@src'
+import { Button, CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal } from 'solid-js'
 
@@ -70,7 +70,6 @@ export function SubNavigation() {
       ],
     },
   ]
-  const [open, setOpen] = createSignal(false)
   const [view, setView] = createSignal<'root' | 'create' | 'share'>('root')
 
   const groups = createMemo(() => {
@@ -107,19 +106,12 @@ export function SubNavigation() {
           Back
         </Button>
       </div>
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={<CommandPalette groups={groups()} closeOnSelect={false} onSelect={onSelect} />}
-      >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open palette
-          </Button>
-        )}
-      </Dialog>
+      <CommandPalette
+        groups={groups()}
+        autofocus={false}
+        closeOnSelect={false}
+        onSelect={onSelect}
+      />
     </div>
   )
 }

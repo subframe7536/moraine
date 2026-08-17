@@ -128,6 +128,7 @@ describe('MultiSelect', () => {
       'true',
       'false',
     ])
+    expect(items.map((item) => item.getAttribute('aria-current'))).toEqual(['true', 'true', null])
     expect(items[2]?.getAttribute('aria-disabled')).toBe('true')
     expect(new FormData(form).getAll('choices')).toEqual(['1', '1'])
   })
@@ -1134,6 +1135,25 @@ describe('MultiSelect', () => {
     expect(action?.getAttribute('aria-label')).toBe('Clear selection')
     expect(action?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
     expect(action?.querySelector('[data-slot="icon"]')?.className).not.toContain('icon-loading')
+    expect(action?.className).toContain('hover:bg-muted-hover')
+  })
+
+  test('keeps trigger spacing on the control and removes trigger hover background', () => {
+    const screen = render(() => (
+      <MultiSelect options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
+    ))
+    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const tagsContainer = screen.container.querySelector(
+      '[data-slot="tagsContainer"]',
+    ) as HTMLElement
+    const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+
+    expect(control.className).toContain('ps-2.5')
+    expect(control.className).toContain('pe-2')
+    expect(tagsContainer.className).not.toContain('px-2.5')
+    expect(leading.className).not.toContain('ms-')
+    expect(trigger.className).not.toContain('hover:bg-muted-hover')
   })
 
   test('clears a non-empty default selection instead of restoring it', async () => {

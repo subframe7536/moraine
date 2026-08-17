@@ -25,6 +25,7 @@ import {
   selectControlVariants,
   selectInputVariants,
   selectLeadingIconVariants,
+  SELECT_CLEAR_ACTION_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -752,7 +753,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               data-slot="tagsContainer"
               style={props.styles?.tagsContainer}
               class={cn(
-                'text-sm px-2.5 py-1.5 border border-input rounded-md bg-transparent flex flex-1 flex-wrap gap-1.5 max-w-full min-h-9 min-w-0 select-none shadow-xs transition-[color,box-shadow] items-center focus-within:border-ring dark:bg-input/30 focus-within:ring-3 focus-within:ring-ring/50',
+                'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1.5 max-w-full min-h-9 min-w-0 select-none',
                 props.classes?.tagsContainer,
               )}
             >
@@ -883,7 +884,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               tabIndex={-1}
               classes={{
                 root: [
-                  'me-2 transition-colors hover:bg-muted-hover active:bg-muted-active',
+                  isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
                   isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
                   props.classes?.trigger,
                   isClearAction() ? props.classes?.clear : undefined,

@@ -1,6 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 import { Show, createMemo, untrack } from 'solid-js'
 
+import { IconButtonInner } from '../../elements/icon/icon-button-inner.tsx'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
@@ -22,6 +23,7 @@ import {
   selectInputVariants,
   selectLeadingIconVariants,
   selectTriggerIconVariants,
+  SELECT_CLEAR_ACTION_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -48,6 +50,8 @@ export namespace SelectT {
     leading?: T
     /** Button region that toggles the select popup. */
     trigger?: T
+    /** Button used to clear the selected value. */
+    clear?: T
   }
   export interface OptionSlot<T = unknown> {
     /** Message shown when filtering leaves no selectable options. */
@@ -129,6 +133,10 @@ export namespace SelectT {
     placeholder?: string
     /** Whether the select is in a loading state. */
     loading?: boolean
+    /** Show a clear button when a value is selected. */
+    allowClear?: boolean
+    /** Called when clear is triggered. */
+    onClear?: () => void
     /**
      * Icon shown during loading state.
      * @default 'icon-loading'
@@ -141,7 +149,7 @@ export namespace SelectT {
      * @default 'icon-chevron-down'
      */
     trailingIcon?: IconT.Name
-    /** Icon kept for API compatibility; Select has no clear action. */
+    /** Icon used when the action button clears the selection. */
     closeIcon?: IconT.Name
   }
 
@@ -170,6 +178,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   const leadingIcon = createMemo(() => props.leadingIcon)
   const loadingIcon = createMemo(() => props.loadingIcon)
   const trailingIcon = createMemo(() => props.trailingIcon)
+  const closeIcon = createMemo(() => props.closeIcon)
   const [selectedValue, setSelectedValue] = useControllableValue<TItem | null>({
     value: () => props.value,
     defaultValue: () => initialDefaultValue,
@@ -255,6 +264,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     })
   }
 
+  function clearSelection(api: BaseSelectT.StateApi<Item>): void {
+    updateSelection(null, api)
+    api.close()
+    props.onClear?.()
+  }
+
   return (
     <BaseSelect<Item>
       {...props}
@@ -301,6 +316,11 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       )}
     >
       {(api) => {
+        const isClearAction = createMemo(() =>
+          Boolean(props.allowClear && getCurrentValue(api) !== null),
+        )
+        const isActionLoading = createMemo(() => Boolean(props.loading && !isClearAction()))
+
         return (
           <div
             data-slot="control"
@@ -367,21 +387,51 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               />
             </Show>
 
-            <Icon
-              name={
-                props.loading
-                  ? (loadingIcon() ?? 'icon-loading')
-                  : (trailingIcon() ?? 'icon-chevron-down')
+            <Show
+              when={isClearAction()}
+              fallback={
+                <Icon
+                  name={
+                    isActionLoading()
+                      ? (loadingIcon() ?? 'icon-loading')
+                      : (trailingIcon() ?? 'icon-chevron-down')
+                  }
+                  slotName="trigger"
+                  data-loading={isActionLoading() ? '' : undefined}
+                  class={selectTriggerIconVariants(
+                    { size: api.field.size() },
+                    isActionLoading() ? 'effect-loading' : undefined,
+                    props.classes?.trigger,
+                  )}
+                  style={props.styles?.trigger}
+                />
               }
-              slotName="trigger"
-              data-loading={props.loading ? '' : undefined}
-              class={selectTriggerIconVariants(
-                { size: api.field.size() },
-                props.loading ? 'effect-loading' : undefined,
-                props.classes?.trigger,
-              )}
-              style={props.styles?.trigger}
-            />
+            >
+              <IconButtonInner
+                name={closeIcon() ?? 'icon-close'}
+                data-slot="clear"
+                aria-label="Clear selection"
+                tabIndex={-1}
+                classes={{
+                  root: [SELECT_CLEAR_ACTION_CLASS, props.classes?.trigger, props.classes?.clear],
+                  icon: 'text-muted-foreground opacity-80',
+                }}
+                styles={{ root: props.styles?.clear }}
+                disabled={api.field.disabled()}
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  api.focusInput()
+                }}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  if (api.field.disabled()) {
+                    return
+                  }
+                  clearSelection(api)
+                }}
+              />
+            </Show>
           </div>
         )
       }}

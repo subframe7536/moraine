@@ -300,6 +300,7 @@ describe('presetTheme component layer', () => {
         'animate-popup-in',
         'animate-menu-in',
         'animate-menu-side-top',
+        'animate-menu-origin-top-left',
         'animate-sheet-out',
         'animate-sheet-side-right',
         'animate-popover-in',
@@ -315,6 +316,9 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-popup-in')
     expect(css).toContain('.animate-menu-in')
     expect(css).toContain('.animate-menu-side-top')
+    expect(css).toContain('.animate-menu-origin-top-left')
+    expect(css).toContain('--mo-enter-translate-x:-0.5rem')
+    expect(css).toContain('--mo-enter-translate-y:-0.5rem')
     expect(css).toContain('.animate-sheet-out')
     expect(css).toContain('.animate-sheet-side-right')
     expect(css).toContain('.animate-popover-in')

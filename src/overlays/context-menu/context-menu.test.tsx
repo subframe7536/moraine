@@ -497,6 +497,7 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('data-expanded:animate-menu-in')
     expect(content.className).toContain('data-closed:animate-menu-out')
     expect(content.className).toContain('animate-menu-side-right')
+    expect(content.className).toContain('animate-menu-origin-top-left')
   })
 
   test('opens after 700ms touch long press', async () => {

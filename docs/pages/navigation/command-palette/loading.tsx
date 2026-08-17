@@ -1,9 +1,7 @@
-import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '@src'
+import { CommandPalette, Icon, KbdGroup } from '@src'
 import type { CommandPaletteT } from '@src'
-import { createSignal } from 'solid-js'
 
 export function Loading() {
-  const [open, setOpen] = createSignal(false)
   const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
@@ -33,19 +31,7 @@ export function Loading() {
 
   return (
     <div class="max-w-full w-lg">
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={<CommandPalette groups={BASIC_GROUPS} loading onClose={() => setOpen(false)} />}
-      >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open palette
-          </Button>
-        )}
-      </Dialog>
+      <CommandPalette groups={BASIC_GROUPS} autofocus={false} loading />
     </div>
   )
 }

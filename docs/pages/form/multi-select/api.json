@@ -94,6 +94,12 @@
       ],
       "ariaAttributes": [
         {
+          "name": "aria-current",
+          "required": false,
+          "type": "string",
+          "description": "Marks the current item in a set or navigation trail."
+        },
+        {
           "name": "aria-disabled",
           "required": false,
           "type": "boolean | string | undefined",

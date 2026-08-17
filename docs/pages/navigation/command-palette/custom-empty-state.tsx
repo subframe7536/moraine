@@ -1,35 +1,19 @@
-import { Button, CommandPalette, Dialog, Icon } from '@src'
-import { createSignal } from 'solid-js'
+import { CommandPalette, Icon } from '@src'
 
 export function CustomEmptyState() {
-  const [open, setOpen] = createSignal(false)
-
   return (
     <div class="max-w-full w-lg">
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={
-          <CommandPalette
-            groups={[]}
-            emptyRender={() => (
-              <span class="flex flex-col gap-2 items-center">
-                <Icon name="i-lucide-search-x" class="text-muted-foreground size-6" />
-                <span class="text-foreground font-medium">No commands found</span>
-                <span class="text-xs">Try a different keyword or clear the search.</span>
-              </span>
-            )}
-          />
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open palette
-          </Button>
+      <CommandPalette
+        groups={[]}
+        autofocus={false}
+        emptyRender={() => (
+          <span class="flex flex-col gap-2 items-center">
+            <Icon name="i-lucide-search-x" class="text-muted-foreground size-6" />
+            <span class="text-foreground font-medium">No commands found</span>
+            <span class="text-xs">Try a different keyword or clear the search.</span>
+          </span>
         )}
-      </Dialog>
+      />
     </div>
   )
 }

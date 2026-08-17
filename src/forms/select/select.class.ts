@@ -13,11 +13,11 @@ export const selectControlVariants = cva(
     variants: {
       variant: INPUT_VARIANT,
       size: {
-        xs: 'text-xs px-1.5 h-6',
-        sm: 'text-xs py-1.5 pe-1.5 ps-2 h-8',
-        md: 'text-sm py-2 pe-2 ps-2.5 h-9',
-        lg: 'text-sm py-2.5 pe-2.5 ps-3 h-10',
-        xl: 'text-base py-3 pe-3 ps-3.5 h-11',
+        xs: 'text-xs pe-1.5 ps-1.5',
+        sm: 'text-xs pe-1.5 ps-2',
+        md: 'text-sm pe-2 ps-2.5',
+        lg: 'text-sm pe-2.5 ps-3',
+        xl: 'text-base pe-3 ps-3.5',
       },
       search: {
         true: 'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid',
@@ -37,15 +37,15 @@ export const selectInputVariants = cva(
     },
     variants: {
       mode: {
-        single: 'flex flex-1 min-w-0',
+        single: 'py-1.5',
         multi: 'leading-$s-m min-w-12',
       },
       size: {
-        xs: 'text-xs',
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-sm',
-        xl: 'text-base',
+        xs: 'text-xs var-select-0.5',
+        sm: 'text-xs var-select-1',
+        md: 'text-sm var-select-1',
+        lg: 'text-sm var-select-1.5',
+        xl: 'text-base var-select-1.5',
       },
     },
   },
@@ -84,8 +84,11 @@ export const selectLeadingIconVariants = cva('text-muted-foreground shrink-0', {
   },
 })
 
+export const SELECT_CLEAR_ACTION_CLASS =
+  'transition-colors hover:bg-muted-hover active:bg-muted-active'
+
 export const selectItemVariants = cva(
-  'py-1.5 pe-8 ps-2 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:(text-accent-foreground bg-accent) data-selected:(text-accent-foreground bg-accent-active) data-disabled:effect-dis',
+  'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',

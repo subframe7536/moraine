@@ -94,6 +94,12 @@
       ],
       "ariaAttributes": [
         {
+          "name": "aria-current",
+          "required": false,
+          "type": "string",
+          "description": "Marks the current item in a set or navigation trail."
+        },
+        {
           "name": "aria-disabled",
           "required": false,
           "type": "boolean | string | undefined",
@@ -227,6 +233,27 @@
       ]
     },
     {
+      "name": "clear",
+      "description": "Button used to clear the selected value.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
       "name": "empty",
       "description": "Message shown when filtering leaves no selectable options.",
       "cssVariables": [],
@@ -304,6 +331,12 @@
   "props": {
     "own": [
       {
+        "name": "allowClear",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Show a clear button when a value is selected."
+      },
+      {
         "name": "class",
         "required": false,
         "type": "SlotClassValue",
@@ -318,7 +351,7 @@
         "name": "closeIcon",
         "required": false,
         "type": "IconT.Name",
-        "description": "Icon kept for API compatibility; Select has no clear action."
+        "description": "Icon used when the action button clears the selection."
       },
       {
         "name": "defaultOpen",
@@ -421,6 +454,12 @@
         "required": false,
         "type": "((value: NoInfer<TItem | null>) => void) | undefined",
         "description": "Called when the selection changes."
+      },
+      {
+        "name": "onClear",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when clear is triggered."
       },
       {
         "name": "onOpenChange",
