@@ -17,7 +17,7 @@ export function Sizes() {
             description="Name used in URLs and workspace-level permissions."
             help="Use lowercase letters, numbers, and dashes."
           >
-            <Input size={size} placeholder={`acme-platform-${size}`} />
+            <Input placeholder={`acme-platform-${size}`} />
           </FormField>
         )}
       </For>

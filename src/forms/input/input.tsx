@@ -4,6 +4,8 @@ import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'so
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
@@ -21,10 +23,19 @@ import { useTextControlValue } from '../shared/use-text-control-value.ts'
 import type { InputVariantProps } from './input.class.ts'
 import {
   inputInputVariants,
+  inputIconVariants,
   inputLeadingVariants,
   inputRootVariants,
   inputTrailingVariants,
 } from './input.class.ts'
+
+function renderAdornment(value: IconT.Name, loading: boolean, size: InputT.Variant['size']) {
+  if (typeof value !== 'string') {
+    return renderComponentOrElement(value as ComponentOrElement, {})
+  }
+
+  return <Icon name={value} class={cn(inputIconVariants({ size }), loading && 'effect-loading')} />
+}
 
 export namespace InputT {
   export type Value = string | number | undefined
@@ -96,12 +107,12 @@ export namespace InputT {
     maxLength?: number | string
 
     /**
-     * Leading icon name.
+     * Leading icon name or custom content.
      */
     leading?: IconT.Name
 
     /**
-     * Trailing icon name.
+     * Trailing icon name or custom content.
      */
     trailing?: IconT.Name
 
@@ -409,7 +420,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       {...rest}
     >
       <Show when={resolvedLeading()}>
-        {(iconName) => (
+        {(adornment) => (
           <span
             data-slot="leading"
             style={merged.styles?.leading}
@@ -420,13 +431,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
               merged.classes?.leading,
             )}
           >
-            <Icon
-              name={iconName()}
-              class={cn(
-                field.size() === 'xs' ? 'size-3' : 'size-4',
-                isLeadingLoading() && 'effect-loading',
-              )}
-            />
+            {renderAdornment(adornment(), isLeadingLoading(), field.size())}
           </span>
         )}
       </Show>
@@ -452,7 +457,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
             type: merged.type === 'file' ? 'file' : undefined,
             hasLeading: Boolean(resolvedLeading()),
             hasTrailing: Boolean(resolvedTrailing()),
-            size: merged.size,
+            size: field.size(),
           },
           merged.classes?.input,
         )}
@@ -468,7 +473,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       {merged.children}
 
       <Show when={resolvedTrailing()}>
-        {(iconName) => (
+        {(adornment) => (
           <span
             data-slot="trailing"
             style={merged.styles?.trailing}
@@ -479,13 +484,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
               merged.classes?.trailing,
             )}
           >
-            <Icon
-              name={iconName()}
-              class={cn(
-                field.size() === 'xs' ? 'size-3' : 'size-4',
-                isTrailingLoading() && 'effect-loading',
-              )}
-            />
+            {renderAdornment(adornment(), isTrailingLoading(), field.size())}
           </span>
         )}
       </Show>

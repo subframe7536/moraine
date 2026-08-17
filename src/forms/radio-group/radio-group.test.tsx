@@ -31,7 +31,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain('description')
     expect(screen.container.querySelector('[data-slot="fieldset"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="legend"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="container"]')).not.toBeNull()
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {

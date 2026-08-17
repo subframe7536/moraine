@@ -23,7 +23,6 @@ export function Stateful() {
               aria-label="Toggle deploy details"
               size="icon-sm"
               variant="secondary"
-              // class="shrink-0"
               leading="i-lucide-chevron-down"
               classes={{
                 leading: `transition-transform ${context.isOpen ? 'rotate-180' : ''}`,

@@ -639,13 +639,6 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
     ],
     rules: [
       [
-        /var-input-([\d.]+)/,
-        ([, num], { theme }) => ({
-          '--i-sm': createLength(theme, num!),
-          '--i-lg': createLength(theme, Number(num) + 1),
-        }),
-      ],
-      [
         /var-progress-([\d.]+)/,
         ([, num], { theme }) => ({
           '--p-size': createLength(theme, num!),

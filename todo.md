@@ -19,7 +19,7 @@
   - [x] command-palette design refresh
     - [x] docs/ example refresh, only "Real-World Example" should wrap with dialog, the rest should be inline
 - [x] unify select/multi-select layout: inline padding on control (drop padding on leading/trailing icons), trailing trigger icon should not have hover bg color (unify `clear` action in both select and multi-select), and use `aria-current` to indicate the current selected item in the list
-- [ ] port horizontal layout and optimize form size/padding on form fields (like nuxt-ui)
+- [x] port horizontal layout and optimize form size/padding on form fields (like nuxt-ui)
 - [ ] add Collapsible.Trigger and Collapsible.Content
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
 

@@ -1157,8 +1157,10 @@ describe('InputNumber', () => {
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="input"]')
 
-    expect(root?.className).toContain('h-11')
+    expect(root?.className).toContain('h-10')
     expect(base?.className).toContain('text-base')
+    expect(base?.className).toContain('leading-6')
+    expect(base?.className).toContain('px-3')
   })
 
   test.each([

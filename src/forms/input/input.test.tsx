@@ -56,7 +56,7 @@ describe('Input', () => {
     expect(input.getAttribute('data-readonly')).toBe('')
   })
 
-  test('keeps the input padding variables for every size', () => {
+  test('uses the Nuxt UI input density scale for every size', () => {
     const screen = render(() => (
       <>
         <Input size="xs" />
@@ -68,17 +68,37 @@ describe('Input', () => {
     ))
     const inputs = screen.getAllByRole('textbox')
     const inputClasses = inputs.map((input) => input.className.split(/\s+/))
-    const expectedVariables = [
-      'var-input-1',
-      'var-input-1.5',
-      'var-input-1.5',
-      'var-input-2',
-      'var-input-2',
+    const expectedClasses = [
+      ['text-sm', 'leading-4', 'py-1', 'ps-2', 'pe-2'],
+      ['text-sm', 'leading-4', 'py-1.5', 'ps-2.5', 'pe-2.5'],
+      ['text-base', 'leading-5', 'py-1.5', 'ps-2.5', 'pe-2.5'],
+      ['text-base', 'leading-5', 'py-2', 'ps-3', 'pe-3'],
+      ['text-base', 'leading-6', 'py-2', 'ps-3', 'pe-3'],
     ]
 
-    expectedVariables.forEach((variable, index) => {
-      expect(inputClasses[index]).toContain(variable)
+    expectedClasses.forEach((classes, index) => {
+      classes.forEach((className) => {
+        expect(inputClasses[index]).toContain(className)
+      })
     })
+  })
+
+  test('scales icons with the input size', () => {
+    const screen = render(() => (
+      <>
+        <Input size="xs" leading="icon-search" />
+        <Input size="md" leading="icon-search" />
+        <Input size="xl" leading="icon-search" />
+      </>
+    ))
+
+    const icons = Array.from(
+      screen.container.querySelectorAll('[data-slot="leading"] [data-slot="icon"]'),
+    )
+
+    expect(icons[0]?.className).toContain('size-4')
+    expect(icons[1]?.className).toContain('size-5')
+    expect(icons[2]?.className).toContain('size-6')
   })
 
   test('renders leading and trailing slots through Icon', () => {
@@ -107,6 +127,22 @@ describe('Input', () => {
     expect(screen.getByTestId('trailing-node').textContent).toBe('T')
     expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
+  })
+
+  test('keeps interactive custom adornments accessible and clickable', () => {
+    const onClick = vi.fn()
+    const screen = render(() => (
+      <Input
+        leading={<button type="button" aria-label="Choose prefix" onClick={onClick} />}
+        trailing={<button type="button" aria-label="Toggle value" onClick={onClick} />}
+      />
+    ))
+
+    const button = screen.getByRole('button', { name: 'Toggle value' })
+
+    expect(button.getAttribute('aria-hidden')).toBeNull()
+    fireEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(1)
   })
 
   test('applies loading icon override rules for leading and trailing slots', () => {

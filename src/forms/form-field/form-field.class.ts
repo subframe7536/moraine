@@ -12,14 +12,14 @@ export const formFieldSizeVariants = cva('text-sm', {
   },
 })
 
-export const formFieldRootVariants = cva('text-sm flex gap-3', {
+export const formFieldRootVariants = cva('text-sm', {
   defaultVariants: {
     orientation: 'vertical',
   },
   variants: {
     orientation: {
-      vertical: 'flex-col',
-      horizontal: 'flex-row items-baseline justify-between',
+      vertical: '',
+      horizontal: 'gap-x-2 grid grid-cols-4 items-baseline',
     },
   },
 })
@@ -27,14 +27,25 @@ export const formFieldRootVariants = cva('text-sm flex gap-3', {
 export const formFieldLabelVariants = cva('text-foreground font-medium block', {
   variants: {
     required: REQUIRED_MARK_VARIANT,
+    orientation: {
+      vertical: '',
+      horizontal: '',
+    },
   },
+  compoundVariants: [
+    {
+      orientation: 'horizontal',
+      required: true,
+      class: "before:(text-destructive me-0.5 content-['*']) after:content-none",
+    },
+  ],
 })
 
 export const formFieldContainerVariants = cva('flex flex-col gap-1 relative', {
   variants: {
     orientation: {
-      vertical: '',
-      horizontal: 'flex-1',
+      vertical: 'mt-1',
+      horizontal: 'col-span-3 min-w-0',
     },
   },
 })

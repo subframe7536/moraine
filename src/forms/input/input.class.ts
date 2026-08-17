@@ -12,11 +12,11 @@ export const inputRootVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs leading-6 h-6',
-        sm: 'text-sm leading-8 h-8',
-        md: 'text-sm leading-9 h-9',
-        lg: 'text-sm leading-10 h-10',
-        xl: 'text-base leading-11 h-11',
+        xs: 'text-xs leading-4 h-6',
+        sm: 'text-xs leading-4 h-7',
+        md: 'text-sm leading-5 h-8',
+        lg: 'text-sm leading-5 h-9',
+        xl: 'text-base leading-6 h-10',
       },
       variant: INPUT_VARIANT,
     },
@@ -36,17 +36,54 @@ export const inputInputVariants = cva(
         file: 'text-muted-foreground file:(font-medium me-1.5 outline-none)',
       },
       size: {
-        xs: 'py-1 var-input-1',
-        sm: 'py-1 var-input-1.5',
-        md: 'py-1 var-input-1.5',
-        lg: 'py-1.5 var-input-2',
-        xl: 'py-1.5 var-input-2',
+        xs: 'leading-4 py-1',
+        sm: 'leading-4 py-1.5',
+        md: 'leading-5 py-1.5',
+        lg: 'leading-5 py-2',
+        xl: 'leading-6 py-2',
       },
-      hasLeading: { true: 'ps-$i-sm', false: 'ps-$i-lg' },
-      hasTrailing: { true: 'pe-$i-sm', false: 'pe-$i-lg' },
+      hasLeading: { true: '', false: '' },
+      hasTrailing: { true: '', false: '' },
     },
+    compoundVariants: [
+      { size: 'xs', hasLeading: true, class: 'ps-1' },
+      { size: 'sm', hasLeading: true, class: 'ps-1.5' },
+      { size: 'md', hasLeading: true, class: 'ps-1.5' },
+      { size: 'lg', hasLeading: true, class: 'ps-2' },
+      { size: 'xl', hasLeading: true, class: 'ps-2' },
+      { size: 'xs', hasLeading: false, class: 'ps-2' },
+      { size: 'sm', hasLeading: false, class: 'ps-2.5' },
+      { size: 'md', hasLeading: false, class: 'ps-2.5' },
+      { size: 'lg', hasLeading: false, class: 'ps-3' },
+      { size: 'xl', hasLeading: false, class: 'ps-3' },
+      { size: 'xs', hasTrailing: true, class: 'pe-1' },
+      { size: 'sm', hasTrailing: true, class: 'pe-1.5' },
+      { size: 'md', hasTrailing: true, class: 'pe-1.5' },
+      { size: 'lg', hasTrailing: true, class: 'pe-2' },
+      { size: 'xl', hasTrailing: true, class: 'pe-2' },
+      { size: 'xs', hasTrailing: false, class: 'pe-2' },
+      { size: 'sm', hasTrailing: false, class: 'pe-2.5' },
+      { size: 'md', hasTrailing: false, class: 'pe-2.5' },
+      { size: 'lg', hasTrailing: false, class: 'pe-3' },
+      { size: 'xl', hasTrailing: false, class: 'pe-3' },
+    ],
   },
 )
+
+export const inputIconVariants = cva('shrink-0', {
+  defaultVariants: {
+    size: 'md',
+  },
+  variants: {
+    size: {
+      xs: 'size-4',
+      sm: 'size-4',
+      md: 'size-5',
+      lg: 'size-5',
+      xl: 'size-6',
+    },
+  },
+})
 export const inputLeadingVariants = cva('text-muted-foreground flex shrink-0 items-center', {
   defaultVariants: {
     size: 'md',

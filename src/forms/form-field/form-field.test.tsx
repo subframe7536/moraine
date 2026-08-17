@@ -239,6 +239,95 @@ describe('FormField', () => {
     expect(root.style.width).toBe('200px')
   })
 
+  test('uses a fixed four-column horizontal layout with an aligned control column', () => {
+    const screen = render(() => (
+      <FormField
+        orientation="horizontal"
+        label="Display name"
+        description="Shown in activity feeds."
+        help="Use a short name."
+      >
+        <Input />
+      </FormField>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const wrapper = root.querySelector('[data-slot="wrapper"]')
+    const container = root.querySelector('[data-slot="container"]')
+
+    expect(root.className).toContain('grid')
+    expect(root.className).toContain('grid-cols-4')
+    expect(root.className).toContain('items-baseline')
+    expect(root.className).toContain('gap-x-2')
+    expect(root.className).not.toMatch(/(?:^|:)sm:/)
+    expect(wrapper?.className).toContain('col-span-1')
+    expect(wrapper?.className).toContain('text-end')
+    expect(container?.getAttribute('data-slot')).toBe('container')
+    expect(container?.className).toContain('col-span-3')
+    expect(container?.className).toContain('min-w-0')
+  })
+
+  test('reserves the label column for unlabelled horizontal fields', () => {
+    const screen = render(() => (
+      <FormField orientation="horizontal">
+        <Input placeholder="Aligned control" />
+      </FormField>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const wrapper = root.querySelector('[data-slot="wrapper"]')
+    const container = root.querySelector('[data-slot="container"]')
+
+    expect(wrapper?.textContent).toBe('')
+    expect(container?.className).toContain('col-span-3')
+    expect(container?.className).toContain('min-w-0')
+    expect(root.children[1]).toBe(container)
+  })
+
+  test('places the required marker before horizontal labels', () => {
+    const screen = render(() => (
+      <FormField orientation="horizontal" label="Email" required>
+        <Input />
+      </FormField>
+    ))
+
+    const label = screen.getByText('Email') as HTMLLabelElement
+
+    expect(label.className).toContain('before:')
+    expect(label.className).toContain('after:content-none')
+  })
+
+  test.each([
+    ['xs', 'text-xs', 'h-6', 'py-1'],
+    ['sm', 'text-sm', 'h-7', 'py-1.5'],
+    ['md', 'text-sm', 'h-8', 'py-1.5'],
+    ['lg', 'text-sm', 'h-9', 'py-2'],
+    ['xl', 'text-base', 'h-10', 'py-2'],
+  ] as const)(
+    'propagates %s size to field content and messages',
+    (size, fieldText, height, padding) => {
+      const screen = render(() => (
+        <FormField size={size} label="Name" description="Description" help="Help">
+          <Input />
+        </FormField>
+      ))
+
+      const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+      const inputRoot = screen.container.querySelector('[data-slot="root"] [data-slot="root"]')
+      const input = screen.container.querySelector('[data-slot="input"]')
+
+      expect(root.className).toContain(fieldText)
+      expect(inputRoot?.className).toContain(height)
+      expect(input?.className).toContain(padding)
+      expect(screen.container.querySelector('[data-slot="description"]')?.className).not.toContain(
+        'text-sm',
+      )
+      expect(screen.container.querySelector('[data-slot="help"]')?.className).not.toContain(
+        'text-sm',
+      )
+    },
+  )
+
   test('inherits required state while allowing an explicit control override', () => {
     const screen = render(() => (
       <>

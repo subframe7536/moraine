@@ -382,12 +382,23 @@ export function FormField<
           merged.class,
         )}
       >
-        <div data-slot="wrapper" style={merged.styles?.wrapper} class={cn(merged.classes?.wrapper)}>
+        <div
+          data-slot="wrapper"
+          style={merged.styles?.wrapper}
+          class={cn(
+            merged.orientation === 'horizontal' && 'text-end col-span-1',
+            merged.classes?.wrapper,
+          )}
+        >
           <Show when={showLabel()}>
             <div
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
-              class={cn('flex gap-2 items-center justify-between', merged.classes?.labelWrapper)}
+              class={cn(
+                'flex gap-1 items-center',
+                merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
+                merged.classes?.labelWrapper,
+              )}
             >
               <label
                 id={`${ariaId()}-label`}
@@ -397,6 +408,7 @@ export function FormField<
                 class={formFieldLabelVariants(
                   {
                     required: merged.required,
+                    orientation: merged.orientation,
                   },
                   merged.classes?.label,
                 )}
@@ -409,7 +421,7 @@ export function FormField<
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
                   style={merged.styles?.hint}
-                  class={cn('text-sm text-muted-foreground ms-1', merged.classes?.hint)}
+                  class={cn('text-muted-foreground ms-1', merged.classes?.hint)}
                 >
                   {hint()}
                 </span>
@@ -422,7 +434,7 @@ export function FormField<
               id={`${ariaId()}-description`}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-sm text-muted-foreground', merged.classes?.description)}
+              class={cn('text-muted-foreground', merged.classes?.description)}
             >
               {description()}
             </p>
@@ -430,8 +442,9 @@ export function FormField<
         </div>
 
         <div
+          data-slot="container"
           class={
-            showLabel() || showDescription()
+            showLabel() || showDescription() || merged.orientation === 'horizontal'
               ? formFieldContainerVariants(
                   {
                     orientation: merged.orientation,
@@ -451,7 +464,7 @@ export function FormField<
                   id={`${ariaId()}-help`}
                   data-slot="help"
                   style={merged.styles?.help}
-                  class={cn('text-sm text-muted-foreground', merged.classes?.help)}
+                  class={cn('text-muted-foreground', merged.classes?.help)}
                 >
                   {help()}
                 </div>
@@ -462,7 +475,7 @@ export function FormField<
               id={`${ariaId()}-error`}
               data-slot="error"
               style={merged.styles?.error}
-              class={cn('text-sm text-destructive', merged.classes?.error)}
+              class={cn('text-destructive', merged.classes?.error)}
             >
               {resolvedError() as JSX.Element}
             </div>
