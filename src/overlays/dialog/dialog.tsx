@@ -13,7 +13,17 @@ import { Modal } from '../base/modal.tsx'
 import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { dialogCardVariants, dialogContentVariants } from './dialog.class.ts'
+import {
+  DIALOG_BODY_CLASS,
+  DIALOG_CLOSE_CLASS,
+  DIALOG_DESCRIPTION_CLASS,
+  DIALOG_FOOTER_CLASS,
+  DIALOG_HEADER_CLASS,
+  DIALOG_TITLE_CLASS,
+  DIALOG_WRAPPER_CLASS,
+  dialogCardVariants,
+  dialogContentVariants,
+} from './dialog.class.ts'
 import type { DialogCardVariantProps } from './dialog.class.ts'
 
 export namespace DialogT {
@@ -228,14 +238,14 @@ export function Dialog(props: DialogProps): JSX.Element {
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
-            class={cn('flex-1 gap-1.5 grid min-w-0', merged.classes?.wrapper)}
+            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', merged.classes?.wrapper)}
           >
             <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
                 style={merged.styles?.title}
-                class={cn('leading-none font-medium', merged.classes?.title)}
+                class={cn(DIALOG_TITLE_CLASS, merged.classes?.title)}
               >
                 {title()}
               </h2>
@@ -246,7 +256,7 @@ export function Dialog(props: DialogProps): JSX.Element {
                 id={descriptionId()}
                 data-slot="description"
                 style={merged.styles?.description}
-                class={cn('text-sm text-muted-foreground', merged.classes?.description)}
+                class={cn(DIALOG_DESCRIPTION_CLASS, merged.classes?.description)}
               >
                 {description()}
               </p>
@@ -261,7 +271,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             size="icon-sm"
             variant="ghost"
             style={merged.styles?.close}
-            class={['absolute top-4 right-4', merged.classes?.close]}
+            class={[DIALOG_CLOSE_CLASS, merged.classes?.close]}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -296,23 +306,40 @@ export function Dialog(props: DialogProps): JSX.Element {
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
-        contentRender={(context) => (
-          <Card
-            header={headerContent(context.close)}
-            footer={footer()}
-            classes={{
-              root: dialogCardVariants({ layout: dialogLayout() }),
-              header: ['p-6 flex gap-2 items-start', merged.classes?.header],
-              body: ['text-sm', merged.classes?.body],
-              footer: [
-                'px-6 pb-6 pt-0 flex flex-col-reverse gap-2 sm:(flex-row justify-end)',
-                merged.classes?.footer,
-              ],
-            }}
-          >
-            {body()}
-          </Card>
-        )}
+        contentRender={(context) => {
+          const hasHeader = () =>
+            hasCustomHeader() ||
+            hasJsxContent(title()) ||
+            hasJsxContent(description()) ||
+            merged.close
+          const hasFooter = () => hasJsxContent(footer())
+
+          return (
+            <Card
+              header={headerContent(context.close)}
+              footer={footer()}
+              styles={{
+                header: merged.styles?.header,
+                body: merged.styles?.body,
+                footer: merged.styles?.footer,
+              }}
+              classes={{
+                root: dialogCardVariants({ layout: dialogLayout() }),
+                header: [DIALOG_HEADER_CLASS, merged.classes?.header],
+                body: [
+                  DIALOG_BODY_CLASS,
+                  !hasHeader() && 'pt-6',
+                  !hasFooter() && 'pb-6',
+                  hasFooter() && 'pb-2',
+                  merged.classes?.body,
+                ],
+                footer: [DIALOG_FOOTER_CLASS, merged.classes?.footer],
+              }}
+            >
+              {body()}
+            </Card>
+          )
+        }}
       />
     </Modal>
   )

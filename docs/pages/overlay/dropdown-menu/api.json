@@ -457,6 +457,13 @@
         "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
+        "name": "shift",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Cross-axis or alignment offset relative to the anchor.",
+        "defaultValue": "0"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined",

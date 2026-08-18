@@ -805,6 +805,84 @@ describe('Modal', () => {
     expect(content?.style.width).toBe('200px')
   })
 
+  test('forwards custom classes and styles to dialog slots', () => {
+    render(() => (
+      <Dialog
+        open
+        title="Custom Title"
+        description="Custom Description"
+        body="Custom Body"
+        footer="Custom Footer"
+        classes={{
+          header: 'custom-header-class',
+          wrapper: 'custom-wrapper-class',
+          title: 'custom-title-class',
+          description: 'custom-desc-class',
+          body: 'custom-body-class',
+          footer: 'custom-footer-class',
+          close: 'custom-close-class',
+        }}
+        styles={{
+          header: { 'padding-top': '20px' },
+          wrapper: { opacity: '0.9' },
+          title: { 'letter-spacing': '1px' },
+          description: { 'line-height': '1.5' },
+          body: { 'font-size': '15px' },
+          footer: { 'margin-top': '10px' },
+          close: { opacity: '0.8' },
+        }}
+      />
+    ))
+
+    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
+    const wrapper = document.body.querySelector('[data-slot="wrapper"]') as HTMLElement
+    const title = document.body.querySelector('[data-slot="title"]') as HTMLElement
+    const description = document.body.querySelector('[data-slot="description"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+    const close = document.body.querySelector('[data-slot="close"]') as HTMLElement
+
+    expect(header.className).toContain('custom-header-class')
+    expect(wrapper.className).toContain('custom-wrapper-class')
+    expect(title.className).toContain('custom-title-class')
+    expect(description.className).toContain('custom-desc-class')
+    expect(body.className).toContain('custom-body-class')
+    expect(footer.className).toContain('custom-footer-class')
+    expect(close.className).toContain('custom-close-class')
+
+    expect(header.style.paddingTop).toBe('20px')
+    expect(wrapper.style.opacity).toBe('0.9')
+    expect(title.style.letterSpacing).toBe('1px')
+    expect(description.style.lineHeight).toBe('1.5')
+    expect(body.style.fontSize).toBe('15px')
+    expect(footer.style.marginTop).toBe('10px')
+    expect(close.style.opacity).toBe('0.8')
+  })
+
+  test('adjusts body padding when header or footer is absent', () => {
+    const { unmount } = render(() => (
+      <Dialog open title={false} description={false} close={false} body="No header body" />
+    ))
+
+    const bodyNoHeader = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    expect(bodyNoHeader.className).toContain('pt-6')
+    expect(bodyNoHeader.className).toContain('pb-6')
+    unmount()
+
+    render(() => (
+      <Dialog
+        open
+        title="Title"
+        body="With header and footer"
+        footer={<button type="button">Action</button>}
+      />
+    ))
+
+    const bodyWithBoth = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    expect(bodyWithBoth.className).not.toContain('pt-6')
+    expect(bodyWithBoth.className).toContain('pb-2')
+  })
+
   test('escape only closes the topmost overlay when modals are nested', async () => {
     const onOuterChange = vi.fn()
     const onInnerChange = vi.fn()

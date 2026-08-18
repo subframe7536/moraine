@@ -448,35 +448,6 @@ export function getTransformOrigin(placement: Placement, direction: 'ltr' | 'rtl
   return `${reversePlacement} ${direction === 'rtl' ? 'left' : 'right'}`
 }
 
-/** Resolve the physical edge or corner where a positioned menu should begin its motion. */
-export function resolveOverlayMenuMotionOrigin(
-  placement: Placement,
-  direction: 'ltr' | 'rtl',
-):
-  | 'top-left'
-  | 'top-center'
-  | 'top-right'
-  | 'center-left'
-  | 'center'
-  | 'center-right'
-  | 'bottom-left'
-  | 'bottom-center'
-  | 'bottom-right' {
-  const [first, second] = getTransformOrigin(placement, direction).split(' ')
-  const horizontal = first === 'left' || first === 'right' || first === 'center' ? first : second
-  const vertical = first === 'top' || first === 'bottom' ? first : second
-  return `${vertical ?? 'center'}-${horizontal ?? 'center'}` as
-    | 'top-left'
-    | 'top-center'
-    | 'top-right'
-    | 'center-left'
-    | 'center'
-    | 'center-right'
-    | 'bottom-left'
-    | 'bottom-center'
-    | 'bottom-right'
-}
-
 export function trapFocusInContainer(
   event: KeyboardEvent,
   container: HTMLElement | undefined,

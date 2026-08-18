@@ -497,7 +497,7 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('data-expanded:animate-menu-in')
     expect(content.className).toContain('data-closed:animate-menu-out')
     expect(content.className).toContain('animate-menu-side-right')
-    expect(content.className).toContain('animate-menu-origin-top-left')
+    expect(content.className).toContain('origin-$mo-popper-content-transform-origin')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -1036,6 +1036,7 @@ describe('ContextMenu', () => {
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
     expect(rootContent?.className).toContain('animate-menu-side-bottom')
+    expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

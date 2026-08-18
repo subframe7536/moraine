@@ -114,6 +114,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     'contentBottom',
     'placement',
     'gutter',
+    'shift',
     'preventScroll',
     'overflowPadding',
     'checkedIcon',
@@ -132,6 +133,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       submenuIcon: 'icon-chevron-right' as IconT.Name,
       placement: 'right-start' as const,
       gutter: 0,
+      shift: 4,
     },
     local,
   )
@@ -623,6 +625,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         getAnchorRect={getAnchorRect}
         placement={merged.placement}
         gutter={merged.gutter}
+        shift={merged.shift}
         autoFocusStrategy={autoFocusStrategy()}
         onContentPointerDown={onContentPointerDown}
         onContentContextMenu={onContentContextMenu}

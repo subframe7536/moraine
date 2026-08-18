@@ -37,7 +37,6 @@ import {
   focusWithoutScrolling,
   getFocusableElements,
   getTransformOrigin,
-  resolveOverlayMenuMotionOrigin,
   resolveDirection,
   resolveOverlayMenuSide,
 } from '../utils.ts'
@@ -97,6 +96,12 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
    * @default 0
    */
   gutter?: number
+
+  /**
+   * Cross-axis or alignment offset relative to the anchor.
+   * @default 0
+   */
+  shift?: number
 
   /** Custom renderer for individual items. */
   itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
@@ -347,6 +352,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
     gutter: () => props.gutter ?? 0,
+    shift: () => props.shift ?? 0,
     onPositionedChange: setIsPositioned,
     onPlacementChange: layer.setCurrentPlacement,
     open: () => props.open,
@@ -1182,7 +1188,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
               placement={resolveDirection() === 'rtl' ? 'left-start' : 'right-start'}
-              gutter={0}
+              gutter={-4}
+              shift={-4}
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
               presenceDataAttrs={contentPresence.dataAttrs}
@@ -1327,7 +1334,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         class={overlayMenuContentVariants(
           {
             side: side(),
-            origin: resolveOverlayMenuMotionOrigin(layer.currentPlacement(), resolveDirection()),
           },
           props.classes?.content,
           props.contentProps?.class,
@@ -1566,6 +1572,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           getReferenceElement={getReferenceElement}
           placement={merged.placement}
           gutter={merged.gutter}
+          shift={merged.shift}
           overflowPadding={merged.overflowPadding}
           presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
