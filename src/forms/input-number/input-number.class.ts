@@ -11,10 +11,10 @@ export const inputNumberRootVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-sm leading-4 h-6',
-        sm: 'text-sm leading-4 h-7',
-        md: 'text-base leading-5 h-8',
-        lg: 'text-base leading-5 h-9',
+        xs: 'text-xs leading-4 h-6',
+        sm: 'text-xs leading-4 h-7',
+        md: 'text-sm leading-5 h-8',
+        lg: 'text-sm leading-5 h-9',
         xl: 'text-base leading-6 h-10',
       },
       variant: {
@@ -37,10 +37,10 @@ export const inputNumberBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-sm leading-4 px-2',
-        sm: 'text-sm leading-4 px-2.5',
-        md: 'text-base leading-5 px-2.5',
-        lg: 'text-base leading-5 px-3',
+        xs: 'text-xs leading-4 px-2',
+        sm: 'text-xs leading-4 px-2.5',
+        md: 'text-sm leading-5 px-2.5',
+        lg: 'text-sm leading-5 px-3',
         xl: 'text-base leading-6 px-3',
       },
       align: {

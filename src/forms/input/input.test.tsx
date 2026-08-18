@@ -66,17 +66,33 @@ describe('Input', () => {
         <Input size="xl" />
       </>
     ))
+    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const rootClasses = Array.from(roots).map((root) => root.className.split(/\s+/))
     const inputs = screen.getAllByRole('textbox')
     const inputClasses = inputs.map((input) => input.className.split(/\s+/))
-    const expectedClasses = [
-      ['text-sm', 'leading-4', 'py-1', 'ps-2', 'pe-2'],
-      ['text-sm', 'leading-4', 'py-1.5', 'ps-2.5', 'pe-2.5'],
-      ['text-base', 'leading-5', 'py-1.5', 'ps-2.5', 'pe-2.5'],
-      ['text-base', 'leading-5', 'py-2', 'ps-3', 'pe-3'],
-      ['text-base', 'leading-6', 'py-2', 'ps-3', 'pe-3'],
+
+    const expectedRootClasses = [
+      ['text-xs', 'leading-4', 'h-6'],
+      ['text-xs', 'leading-4', 'h-7'],
+      ['text-sm', 'leading-5', 'h-8'],
+      ['text-sm', 'leading-5', 'h-9'],
+      ['text-base', 'leading-6', 'h-10'],
+    ]
+    const expectedInputClasses = [
+      ['leading-4', 'py-1', 'ps-2', 'pe-2'],
+      ['leading-4', 'py-1.5', 'ps-2.5', 'pe-2.5'],
+      ['leading-5', 'py-1.5', 'ps-2.5', 'pe-2.5'],
+      ['leading-5', 'py-2', 'ps-3', 'pe-3'],
+      ['leading-6', 'py-2', 'ps-3', 'pe-3'],
     ]
 
-    expectedClasses.forEach((classes, index) => {
+    expectedRootClasses.forEach((classes, index) => {
+      classes.forEach((className) => {
+        expect(rootClasses[index]).toContain(className)
+      })
+    })
+
+    expectedInputClasses.forEach((classes, index) => {
       classes.forEach((className) => {
         expect(inputClasses[index]).toContain(className)
       })

@@ -51,10 +51,10 @@ describe('Textarea', () => {
   })
 
   test.each([
-    ['xs', 'text-sm', 'leading-4', 'px-2', 'py-1'],
-    ['sm', 'text-sm', 'leading-4', 'px-2.5', 'py-1.5'],
-    ['md', 'text-base', 'leading-5', 'px-2.5', 'py-1.5'],
-    ['lg', 'text-base', 'leading-5', 'px-3', 'py-2'],
+    ['xs', 'text-xs', 'leading-4', 'px-2', 'py-1'],
+    ['sm', 'text-xs', 'leading-4', 'px-2.5', 'py-1.5'],
+    ['md', 'text-sm', 'leading-5', 'px-2.5', 'py-1.5'],
+    ['lg', 'text-sm', 'leading-5', 'px-3', 'py-2'],
     ['xl', 'text-base', 'leading-6', 'px-3', 'py-2'],
   ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
     const screen = render(() => <Textarea size={size} />)

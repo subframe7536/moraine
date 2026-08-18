@@ -31,7 +31,7 @@ export function Default() {
           <Input placeholder="Name of your project" />
         </FormField>
         <FormField label="Framework">
-          <Select options={frameworkOptions} value="vite" />
+          <Select options={frameworkOptions} defaultValue="vite" />
         </FormField>
       </div>
     </Card>
