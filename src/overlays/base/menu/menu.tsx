@@ -36,7 +36,6 @@ import {
   focusTrigger,
   focusWithoutScrolling,
   getFocusableElements,
-  getTransformOrigin,
   resolveDirection,
   resolveOverlayMenuSide,
 } from '../utils.ts'
@@ -199,6 +198,7 @@ interface OverlayMenuLayerProps<
   refState?: (state: OverlayMenuLayerState | undefined) => void
   registerBranch: (element: HTMLElement) => () => void
   setPresenceElement: (element: HTMLElement | undefined) => void
+  usePlacementMotion: boolean
 }
 
 export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
@@ -229,6 +229,9 @@ export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
 
   /** Whether the overlay menu content is open. */
   open: boolean
+
+  /** Internal flag that enables placement-corner motion for every menu layer. */
+  usePlacementMotion?: boolean
 
   /** Trigger element used as the position reference. */
   triggerElement?: HTMLElement
@@ -349,6 +352,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
   useFloatingPosition({
     contentElement: layer.contentElement,
+    deferPositioned: true,
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
     gutter: () => props.gutter ?? 0,
@@ -1188,10 +1192,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
               placement={resolveDirection() === 'rtl' ? 'left-start' : 'right-start'}
-              gutter={-4}
+              gutter={-2}
               shift={-4}
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
+              usePlacementMotion={props.usePlacementMotion}
               presenceDataAttrs={contentPresence.dataAttrs}
               registerBranch={registerLayerBranch}
               setPresenceElement={contentPresence.setElement}
@@ -1210,6 +1215,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }
 
   const side = createMemo(() => resolveOverlayMenuSide(layer.currentPlacement()))
+  const presenceDataAttrs = createMemo(() => {
+    const dataAttrs = props.presenceDataAttrs()
+
+    return dataAttrs['data-expanded'] !== undefined && !isPositioned() ? {} : dataAttrs
+  })
   const closeParentKey = createMemo(() =>
     props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined,
   )
@@ -1305,29 +1315,23 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         as="div"
         items={listEntries()}
         itemRender={(context) => renderListEntry(context.item)}
-        {...props.presenceDataAttrs()}
         id={props.id}
         data-slot="content"
-        data-placement={layer.currentPlacement()}
         role="menu"
         aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
+        {...presenceDataAttrs()}
+        data-placement={layer.currentPlacement()}
+        data-side={side()}
+        data-motion={props.usePlacementMotion ? 'placement' : 'side'}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
-
-          if (!element) {
-            return
-          }
-
-          element.style.setProperty(
-            '--mo-popper-content-transform-origin',
-            getTransformOrigin(resolvedPlacement(), resolveDirection()),
-          )
         }}
         style={{
+          '--mo-popper-content-transform-origin': undefined,
           ...props.styles?.content,
           ...toStyleObject(props.contentProps?.style),
         }}
@@ -1574,6 +1578,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           gutter={merged.gutter}
           shift={merged.shift}
           overflowPadding={merged.overflowPadding}
+          usePlacementMotion={Boolean(merged.usePlacementMotion)}
           presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
             branches.add(element)

@@ -418,9 +418,12 @@ describe('DropdownMenu', () => {
     expect(rootContent.className).toContain('mt-$mo-popper-content-overflow-padding')
     expect(rootContent.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent.className).toContain('data-closed:animate-menu-out')
-    expect(rootContent.className).toContain('animate-menu-side-bottom')
+    expect(rootContent.getAttribute('data-side')).toBe('bottom')
+    expect(rootContent.getAttribute('data-motion')).toBe('side')
+    expect(rootContent.className).toContain(
+      'data-[motion=side]:data-[side=bottom]:animate-menu-side-bottom',
+    )
     expect(rootContent.className).toContain('origin-$mo-popper-content-transform-origin')
-    expect(rootContent.className).not.toContain('animate-menu-side-top')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -499,7 +502,11 @@ describe('DropdownMenu', () => {
     expect(rootContent?.className).toContain('surface-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
-    expect(rootContent?.className).toContain('animate-menu-side-left')
+    expect(rootContent?.getAttribute('data-side')).toBe('left')
+    expect(rootContent?.getAttribute('data-motion')).toBe('side')
+    expect(rootContent?.className).toContain(
+      'data-[motion=side]:data-[side=left]:animate-menu-side-left',
+    )
     expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
@@ -753,7 +760,9 @@ describe('DropdownMenu', () => {
       expect(onOpenChange).toHaveBeenCalledTimes(1)
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
 
     await Promise.resolve()
     expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -1280,7 +1289,9 @@ describe('DropdownMenu', () => {
     await fireEvent.click(item)
 
     expect(onSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {
@@ -1352,7 +1363,9 @@ describe('DropdownMenu', () => {
 
     await fireEvent.keyDown(document.activeElement!, { key: ' ' })
     expect(onOpenSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('does not activate checkbox or submenu items when Space continues typeahead', async () => {
@@ -1462,7 +1475,9 @@ describe('DropdownMenu', () => {
     await fireEvent.pointerDown(screen.getByTestId('outside'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('closes on Tab and moves focus in document order', async () => {

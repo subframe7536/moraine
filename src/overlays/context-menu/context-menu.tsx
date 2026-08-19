@@ -642,6 +642,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         contentBottom={merged.contentBottom}
         preventScroll={merged.preventScroll}
         overflowPadding={merged.overflowPadding}
+        usePlacementMotion
       />
     </>
   )

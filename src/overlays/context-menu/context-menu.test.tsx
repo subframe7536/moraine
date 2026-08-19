@@ -53,6 +53,43 @@ describe('ContextMenu', () => {
     expect(ids.some((id) => id.startsWith('custom-menu'))).toBe(true)
   })
 
+  test('changes root transition direction when placement flips to the left', async () => {
+    const [placement, setPlacement] = createSignal<'right-start' | 'left-start'>('right-start')
+
+    render(() => (
+      <ContextMenu placement={placement()} defaultOpen items={[{ label: 'Open item' }]}>
+        {(props) => <div {...props}>Row Item</div>}
+      </ContextMenu>
+    ))
+
+    await waitFor(() => {
+      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      expect(content).not.toBeNull()
+      expect(content?.getAttribute('data-placement')).toBe('right-start')
+      expect(content?.getAttribute('data-motion')).toBe('placement')
+      expect(content?.getAttribute('data-side')).toBe('right')
+      expect(content?.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
+      expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'left top',
+      )
+    })
+
+    setPlacement('left-start')
+
+    await waitFor(() => {
+      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      expect(content?.getAttribute('data-placement')).toBe('left-start')
+      expect(content?.getAttribute('data-motion')).toBe('placement')
+      expect(content?.getAttribute('data-side')).toBe('left')
+      expect(content?.className).toContain(
+        'data-[motion=placement]:data-[placement=left-start]:animate-menu-origin-top-right',
+      )
+      expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'right top',
+      )
+    })
+  })
+
   test('generates contextmenu-prefixed id when id prop is missing', async () => {
     const screen = render(() => (
       <ContextMenu items={[{ label: 'Open item' }]}>
@@ -181,6 +218,7 @@ describe('ContextMenu', () => {
         clientY: 40,
       })
       await vi.advanceTimersByTimeAsync(700)
+      await vi.advanceTimersByTimeAsync(16)
 
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
       content = document.body.querySelector('[data-slot="content"]') as HTMLElement
@@ -496,8 +534,15 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('ml-$mo-popper-content-overflow-padding')
     expect(content.className).toContain('data-expanded:animate-menu-in')
     expect(content.className).toContain('data-closed:animate-menu-out')
-    expect(content.className).toContain('animate-menu-side-right')
+    expect(content.getAttribute('data-motion')).toBe('placement')
+    expect(content.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
     expect(content.className).toContain('origin-$mo-popper-content-transform-origin')
+
+    await waitFor(() => {
+      expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'left top',
+      )
+    })
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -615,6 +660,7 @@ describe('ContextMenu', () => {
         clientY: 34,
       })
       await vi.advanceTimersByTimeAsync(700)
+      await vi.advanceTimersByTimeAsync(16)
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
 
       const completingEvent = new PointerEvent('pointerdown', {
@@ -658,6 +704,7 @@ describe('ContextMenu', () => {
       await vi.advanceTimersByTimeAsync(700)
       await fireEvent.contextMenu(row, { clientX: 21, clientY: 34 })
       await fireEvent.pointerUp(row, { pointerId: 9, pointerType: 'touch' })
+      await vi.advanceTimersByTimeAsync(16)
       expect(onOpenChange).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
 
@@ -1035,7 +1082,8 @@ describe('ContextMenu', () => {
     expect(rootContent?.className).toContain('surface-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
-    expect(rootContent?.className).toContain('animate-menu-side-bottom')
+    expect(rootContent?.getAttribute('data-motion')).toBe('placement')
+    expect(rootContent?.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
     expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
@@ -1048,6 +1096,208 @@ describe('ContextMenu', () => {
     expect(contentTop).toHaveBeenCalledWith({ sub: true })
     expect(contentBottom).toHaveBeenCalledWith({ sub: false })
     expect(contentBottom).toHaveBeenCalledWith({ sub: true })
+  })
+
+  test('applies enter transition classes to an opened submenu', async () => {
+    render(() => (
+      <ContextMenu
+        defaultOpen
+        items={[
+          {
+            label: 'More',
+            children: [{ label: 'Nested action' }],
+          },
+        ]}
+      >
+        {(props) => <div {...props}>Row Item</div>}
+      </ContextMenu>
+    ))
+
+    const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    await waitFor(() => {
+      expect(rootContent.querySelector('[data-slot="item"]')).not.toBeNull()
+    })
+
+    const subTrigger = rootContent.querySelector('[data-slot="item"]') as HTMLElement
+    await fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    const submenuContent = await waitFor(() => {
+      const content = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
+        (element) => element.textContent?.includes('Nested action'),
+      ) as HTMLElement | undefined
+
+      expect(content).toBeDefined()
+      return content!
+    })
+
+    await waitFor(() => {
+      expect(submenuContent.getAttribute('data-expanded')).toBe('')
+    })
+    expect(submenuContent.className).toContain('data-expanded:animate-menu-in')
+    expect(submenuContent.getAttribute('data-motion')).toBe('placement')
+    expect(submenuContent.getAttribute('data-side')).toBe('right')
+    expect(submenuContent.className).toContain(
+      'data-[motion=placement]:animate-menu-origin-top-left',
+    )
+    await waitFor(() => {
+      expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+        'left top',
+      )
+    })
+  })
+
+  test('applies enter transition classes to a mouse-opened submenu', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <ContextMenu
+          defaultOpen
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        >
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+
+      const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      const subTrigger = rootContent.querySelector('[data-slot="item"]') as HTMLElement
+      await fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      await vi.advanceTimersByTimeAsync(100)
+      await vi.advanceTimersByTimeAsync(16)
+
+      const submenuContent = await waitFor(() => {
+        const content = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
+          (element) => element.textContent?.includes('Nested action'),
+        ) as HTMLElement | undefined
+
+        expect(content).toBeDefined()
+        return content!
+      })
+
+      expect(submenuContent.getAttribute('data-expanded')).toBe('')
+      expect(submenuContent.getAttribute('data-motion')).toBe('placement')
+      expect(submenuContent.getAttribute('data-side')).toBe('right')
+      expect(submenuContent.className).toContain(
+        'data-[motion=placement]:animate-menu-origin-top-left',
+      )
+      await waitFor(() => {
+        expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
+          'left top',
+        )
+      })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('keeps nested submenus mounted through recursive exit motion', async () => {
+    const closeOrder: string[] = []
+    const originalSetAttribute = HTMLElement.prototype.setAttribute
+    const setAttributeSpy = vi
+      .spyOn(HTMLElement.prototype, 'setAttribute')
+      .mockImplementation(function (this: HTMLElement, name: string, value: string) {
+        if (name === 'data-closed' && value === '' && this.dataset.slot === 'content') {
+          closeOrder.push(this.id)
+        }
+
+        return originalSetAttribute.call(this, name, value)
+      })
+
+    try {
+      render(() => (
+        <ContextMenu
+          id="context-dismiss-order"
+          defaultOpen
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [
+                {
+                  label: 'Deep',
+                  defaultOpen: true,
+                  children: [{ label: 'Leaf action' }],
+                },
+              ],
+            },
+          ]}
+        >
+          {(props) => <div {...props}>Row Item</div>}
+        </ContextMenu>
+      ))
+
+      await waitFor(() => {
+        expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(3)
+      })
+
+      const contents = Array.from(
+        document.body.querySelectorAll('[data-slot="content"]'),
+      ) as HTMLElement[]
+      const [rootContent, middleContent, deepestContent] = contents as [
+        HTMLElement,
+        HTMLElement,
+        HTMLElement,
+      ]
+
+      await fireEvent.keyDown(rootContent, { key: 'Escape' })
+
+      await waitFor(() => {
+        expect(closeOrder).toEqual([deepestContent.id, middleContent.id, rootContent.id])
+        expect(document.body.querySelectorAll('[data-slot="content"][data-closed]')).toHaveLength(3)
+      })
+
+      await finishMenuExitMotion()
+
+      await waitFor(() => {
+        expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(0)
+      })
+    } finally {
+      setAttributeSpy.mockRestore()
+    }
+  })
+
+  test('cancels submenu exit motion when the context menu reopens', async () => {
+    const [open, setOpen] = createSignal(true)
+
+    render(() => (
+      <ContextMenu
+        open={open()}
+        onOpenChange={setOpen}
+        items={[
+          {
+            label: 'More',
+            defaultOpen: true,
+            children: [{ label: 'Nested action' }],
+          },
+        ]}
+      >
+        {(props) => <div {...props}>Row Item</div>}
+      </ContextMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(2)
+    })
+
+    setOpen(false)
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="content"][data-closed]')).toHaveLength(2)
+    })
+
+    setOpen(true)
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="content"][data-expanded]')).toHaveLength(1)
+      expect(document.body.querySelectorAll('[data-slot="content"][data-closed]')).toHaveLength(1)
+    })
+
+    expect(document.body.textContent).toContain('Nested action')
   })
 
   test('passes itemRender context for root and nested items', async () => {
