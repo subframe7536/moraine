@@ -28,13 +28,7 @@
       ],
       "dataAttributes": [
         {
-          "name": "data-motion",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        },
-        {
-          "name": "data-placement",
+          "name": "data-align",
           "required": false,
           "type": "string | undefined",
           "description": "State or slot attribute exposed for styling hooks and selectors."

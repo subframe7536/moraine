@@ -55,6 +55,7 @@ describe('ContextMenu', () => {
 
   test('changes root transition direction when placement flips to the left', async () => {
     const [placement, setPlacement] = createSignal<'right-start' | 'left-start'>('right-start')
+    let initialContent: HTMLElement | null = null
 
     render(() => (
       <ContextMenu placement={placement()} defaultOpen items={[{ label: 'Open item' }]}>
@@ -65,10 +66,12 @@ describe('ContextMenu', () => {
     await waitFor(() => {
       const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
       expect(content).not.toBeNull()
-      expect(content?.getAttribute('data-placement')).toBe('right-start')
-      expect(content?.getAttribute('data-motion')).toBe('placement')
+      initialContent = content
+      expect(content?.getAttribute('data-placement')).toBeNull()
+      expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content?.getAttribute('data-side')).toBe('right')
-      expect(content?.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
+      expect(content?.getAttribute('data-align')).toBe('start')
+      expect(content?.className).toContain('animate-menu-origin-top-left')
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
       )
@@ -78,12 +81,12 @@ describe('ContextMenu', () => {
 
     await waitFor(() => {
       const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
-      expect(content?.getAttribute('data-placement')).toBe('left-start')
-      expect(content?.getAttribute('data-motion')).toBe('placement')
+      expect(content?.getAttribute('data-placement')).toBeNull()
+      expect(content?.getAttribute('data-motion')).toBeNull()
+      expect(content).toBe(initialContent)
       expect(content?.getAttribute('data-side')).toBe('left')
-      expect(content?.className).toContain(
-        'data-[motion=placement]:data-[placement=left-start]:animate-menu-origin-top-right',
-      )
+      expect(content?.getAttribute('data-align')).toBe('start')
+      expect(content?.className).toContain('animate-menu-origin-top-right')
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'right top',
       )
@@ -534,8 +537,9 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('ml-$mo-popper-content-overflow-padding')
     expect(content.className).toContain('data-expanded:animate-menu-in')
     expect(content.className).toContain('data-closed:animate-menu-out')
-    expect(content.getAttribute('data-motion')).toBe('placement')
-    expect(content.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
+    expect(content.getAttribute('data-motion')).toBeNull()
+    expect(content.getAttribute('data-align')).toBe('start')
+    expect(content.className).toContain('animate-menu-origin-top-left')
     expect(content.className).toContain('origin-$mo-popper-content-transform-origin')
 
     await waitFor(() => {
@@ -543,6 +547,24 @@ describe('ContextMenu', () => {
         'left top',
       )
     })
+  })
+
+  test('uses a centered origin without a placement alignment', async () => {
+    render(() => (
+      <ContextMenu placement="bottom" defaultOpen items={[{ label: 'Centered item' }]}>
+        {(props) => <div {...props}>Row Item</div>}
+      </ContextMenu>
+    ))
+
+    const content = await waitFor(() => {
+      const element = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      expect(element).not.toBeNull()
+      return element!
+    })
+
+    expect(content.getAttribute('data-side')).toBe('bottom')
+    expect(content.getAttribute('data-align')).toBeNull()
+    expect(content.className).toContain('animate-menu-origin-top-center')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -1082,8 +1104,9 @@ describe('ContextMenu', () => {
     expect(rootContent?.className).toContain('surface-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
-    expect(rootContent?.getAttribute('data-motion')).toBe('placement')
-    expect(rootContent?.className).toContain('data-[motion=placement]:animate-menu-origin-top-left')
+    expect(rootContent?.getAttribute('data-motion')).toBeNull()
+    expect(rootContent?.getAttribute('data-align')).toBe('start')
+    expect(rootContent?.className).toContain('animate-menu-origin-top-left')
     expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
@@ -1134,11 +1157,10 @@ describe('ContextMenu', () => {
       expect(submenuContent.getAttribute('data-expanded')).toBe('')
     })
     expect(submenuContent.className).toContain('data-expanded:animate-menu-in')
-    expect(submenuContent.getAttribute('data-motion')).toBe('placement')
+    expect(submenuContent.getAttribute('data-motion')).toBeNull()
     expect(submenuContent.getAttribute('data-side')).toBe('right')
-    expect(submenuContent.className).toContain(
-      'data-[motion=placement]:animate-menu-origin-top-left',
-    )
+    expect(submenuContent.getAttribute('data-align')).toBe('start')
+    expect(submenuContent.className).toContain('animate-menu-origin-top-left')
     await waitFor(() => {
       expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -1180,11 +1202,10 @@ describe('ContextMenu', () => {
       })
 
       expect(submenuContent.getAttribute('data-expanded')).toBe('')
-      expect(submenuContent.getAttribute('data-motion')).toBe('placement')
+      expect(submenuContent.getAttribute('data-motion')).toBeNull()
       expect(submenuContent.getAttribute('data-side')).toBe('right')
-      expect(submenuContent.className).toContain(
-        'data-[motion=placement]:animate-menu-origin-top-left',
-      )
+      expect(submenuContent.getAttribute('data-align')).toBe('start')
+      expect(submenuContent.className).toContain('animate-menu-origin-top-left')
       await waitFor(() => {
         expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
           'left top',

@@ -419,10 +419,10 @@ describe('DropdownMenu', () => {
     expect(rootContent.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent.className).toContain('data-closed:animate-menu-out')
     expect(rootContent.getAttribute('data-side')).toBe('bottom')
-    expect(rootContent.getAttribute('data-motion')).toBe('side')
-    expect(rootContent.className).toContain(
-      'data-[motion=side]:data-[side=bottom]:animate-menu-side-bottom',
-    )
+    expect(rootContent.getAttribute('data-align')).toBe('start')
+    expect(rootContent.getAttribute('data-placement')).toBeNull()
+    expect(rootContent.getAttribute('data-motion')).toBeNull()
+    expect(rootContent.className).toContain('animate-menu-side-bottom')
     expect(rootContent.className).toContain('origin-$mo-popper-content-transform-origin')
   })
 
@@ -503,10 +503,10 @@ describe('DropdownMenu', () => {
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
     expect(rootContent?.getAttribute('data-side')).toBe('left')
-    expect(rootContent?.getAttribute('data-motion')).toBe('side')
-    expect(rootContent?.className).toContain(
-      'data-[motion=side]:data-[side=left]:animate-menu-side-left',
-    )
+    expect(rootContent?.getAttribute('data-align')).toBe('start')
+    expect(rootContent?.getAttribute('data-placement')).toBeNull()
+    expect(rootContent?.getAttribute('data-motion')).toBeNull()
+    expect(rootContent?.className).toContain('animate-menu-side-left')
     expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 

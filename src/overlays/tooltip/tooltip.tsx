@@ -117,6 +117,7 @@ interface TooltipTimers {
 interface ActiveTooltip {
   close: () => void
   id: string
+  skipsOpenDelay: boolean
 }
 
 interface TooltipSkipDelay {
@@ -167,7 +168,7 @@ function clearActiveTooltip(id: string): void {
 }
 
 function shouldOpenImmediately(): boolean {
-  return Boolean(activeTooltip || skipDelay)
+  return Boolean(activeTooltip?.skipsOpenDelay || skipDelay)
 }
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
@@ -220,6 +221,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let ownerAlive = true
   let timerVersion = 0
   let wasResolvedOpen = false
+  let wasOpenedByInteraction = false
   let disabledInitialized = false
   let wasDisabled = false
 
@@ -278,6 +280,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     if (isOpen) {
       return
     }
+
+    wasOpenedByInteraction = true
 
     if (shouldOpenImmediately()) {
       requestTooltipOpen(openTooltip, true)
@@ -352,6 +356,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         setActiveTooltip({
           id: tooltipId(),
           close: closeImmediately,
+          skipsOpenDelay: wasOpenedByInteraction,
         })
       }
 

@@ -1215,6 +1215,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }
 
   const side = createMemo(() => resolveOverlayMenuSide(layer.currentPlacement()))
+  const align = createMemo(() => {
+    const alignment = layer.currentPlacement().split('-')[1]
+    return alignment === 'start' || alignment === 'end' ? alignment : undefined
+  })
   const presenceDataAttrs = createMemo(() => {
     const dataAttrs = props.presenceDataAttrs()
 
@@ -1322,9 +1326,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
         {...presenceDataAttrs()}
-        data-placement={layer.currentPlacement()}
         data-side={side()}
-        data-motion={props.usePlacementMotion ? 'placement' : 'side'}
+        data-align={align()}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)
@@ -1338,6 +1341,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         class={overlayMenuContentVariants(
           {
             side: side(),
+            align: align() ?? 'none',
+            transitionMode: props.usePlacementMotion,
           },
           props.classes?.content,
           props.contentProps?.class,

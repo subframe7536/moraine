@@ -518,6 +518,44 @@ describe('Tooltip', () => {
     expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
   })
 
+  test('keeps the first hover delay when another tooltip starts open', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip open text="Always open">
+          {(props) => (
+            <button {...props} type="button">
+              Always
+            </button>
+          )}
+        </Tooltip>
+        <Tooltip openDelay={100} text="Delayed tooltip">
+          {(props) => (
+            <button {...props} type="button">
+              Delayed
+            </button>
+          )}
+        </Tooltip>
+      </div>
+    ))
+
+    const hasDelayedTooltip = (): boolean =>
+      Array.from(document.body.querySelectorAll('[role="tooltip"]')).some((element) =>
+        element.textContent?.includes('Delayed tooltip'),
+      )
+
+    await fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
+
+    expect(hasDelayedTooltip()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(99)
+    expect(hasDelayedTooltip()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(hasDelayedTooltip()).toBe(true)
+  })
+
   test('keeps instant motion during the next tooltip close delay', async () => {
     vi.useFakeTimers()
 
