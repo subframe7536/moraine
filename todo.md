@@ -21,7 +21,10 @@
 - [x] unify select/multi-select layout: inline padding on control (drop padding on leading/trailing icons), trailing trigger icon should not have hover bg color (unify `clear` action in both select and multi-select), and use `aria-current` to indicate the current selected item in the list
 - [x] port horizontal layout and optimize form size/padding on form fields (like nuxt-ui)
 - [x] refactor: simplify overlay menu transition state (use data-side, data-align, etc.) and classes in `cva` to reduce complexity and improve maintainability [plan](./refactor-overlay-side-state.md)
+- [ ] review all form components styles, drop xs and xl size
+  - [ ] radio group horizen not working, better label line height
 - [ ] add Collapsible.Trigger and Collapsible.Content
+  - [ ] content enter/exit should has opacity transition
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
 
 # V1

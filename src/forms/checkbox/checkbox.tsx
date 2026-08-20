@@ -595,7 +595,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
+              class={cn('text-muted-foreground leading-relaxed', merged.classes?.description)}
             >
               {description()}
             </p>

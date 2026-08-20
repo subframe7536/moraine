@@ -53,7 +53,7 @@ export interface ComponentLayerOptions extends Partial<
 
 export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 'beforeTransform'> {
   /**
-   * Controls whether to inject global styles for CSS variables and base styles.
+   * Controls whether to inject default global styles for CSS variables and base styles.
    */
   globalStyles?: boolean
   wind3?: boolean

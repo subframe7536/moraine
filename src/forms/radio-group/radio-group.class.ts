@@ -10,7 +10,7 @@ import {
 } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
-export const radioGroupRootVariants = cva('gap-3 grid relative', {
+export const radioGroupRootVariants = cva('grid relative', {
   defaultVariants: {
     orientation: 'vertical',
   },

@@ -64,7 +64,7 @@ export const checkboxIconVariants = cva('shrink-0', {
   },
 })
 
-export const checkboxWrapperVariants = cva('w-full', {
+export const checkboxWrapperVariants = cva('gap-1 w-full', {
   defaultVariants: {
     indicator: 'start',
     size: 'md',
@@ -75,11 +75,14 @@ export const checkboxWrapperVariants = cva('w-full', {
   },
 })
 
-export const checkboxLabelVariants = cva('text-foreground font-medium block select-none', {
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
+export const checkboxLabelVariants = cva(
+  'text-foreground leading-tight font-medium block select-none',
+  {
+    variants: {
+      required: REQUIRED_MARK_VARIANT,
+    },
   },
-})
+)
 
 type CheckboxRootVariantProps = Omit<
   VariantProps<typeof checkboxRootVariants>,

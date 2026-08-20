@@ -556,7 +556,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                           id={item.labelId}
                           data-slot="label"
                           style={merged.styles?.label}
-                          class={cn('text-foreground font-medium', merged.classes?.label)}
+                          class={cn(
+                            'text-foreground leading-tight font-medium',
+                            merged.classes?.label,
+                          )}
                         >
                           {item.label}
                         </p>
@@ -567,7 +570,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         for={item.inputId}
                         data-slot="label"
                         style={merged.styles?.label}
-                        class={cn('text-foreground font-medium', merged.classes?.label)}
+                        class={cn(
+                          'text-foreground leading-tight font-medium',
+                          merged.classes?.label,
+                        )}
                       >
                         {item.label}
                       </label>
@@ -579,7 +585,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       id={item.descriptionId}
                       data-slot="description"
                       style={merged.styles?.description}
-                      class={cn('text-muted-foreground', merged.classes?.description)}
+                      class={cn(
+                        'text-muted-foreground leading-relaxed',
+                        merged.classes?.description,
+                      )}
                     >
                       {item.description}
                     </p>
