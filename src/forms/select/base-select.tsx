@@ -1222,7 +1222,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         data-selected={isSelected() ? '' : undefined}
         aria-disabled={option.disabled || undefined}
         aria-selected={isSelected() ? 'true' : 'false'}
-        aria-current={isSelected() ? 'true' : undefined}
         aria-posinset={virtualRender() ? visibleOptionPositionByKey().get(option.id) : undefined}
         aria-setsize={virtualRender() ? visibleFlatOptions().length : undefined}
         {...itemAttributes()}

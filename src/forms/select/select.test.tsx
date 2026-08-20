@@ -285,8 +285,6 @@ describe('Select - single mode', () => {
     expect(options.length).toBe(3)
     expect(options[0]?.hasAttribute('data-selected')).toBe(true)
     expect(options[1]?.hasAttribute('data-selected')).toBe(false)
-    expect(options[0]?.getAttribute('aria-current')).toBe('true')
-    expect(options[1]?.getAttribute('aria-current')).toBeNull()
     expect(options[0]?.className).toContain('data-highlighted:bg-muted')
     expect(options[0]?.className).not.toContain('bg-accent-active')
   })

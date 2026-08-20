@@ -128,7 +128,6 @@ describe('MultiSelect', () => {
       'true',
       'false',
     ])
-    expect(items.map((item) => item.getAttribute('aria-current'))).toEqual(['true', 'true', null])
     expect(items[2]?.getAttribute('aria-disabled')).toBe('true')
     expect(new FormData(form).getAll('choices')).toEqual(['1', '1'])
   })
