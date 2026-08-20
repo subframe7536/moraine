@@ -5,7 +5,7 @@ import { For } from 'solid-js'
 type InputNumberSize = Exclude<InputNumberT.Variant['size'], undefined>
 
 export function Sizes() {
-  const SIZES: InputNumberSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: InputNumberSize[] = ['sm', 'md', 'lg']
 
   return (
     <div class="max-w-md space-y-3">

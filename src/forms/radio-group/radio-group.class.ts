@@ -10,12 +10,15 @@ import {
 } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
-export const radioGroupRootVariants = cva('grid relative', {
+export const radioGroupRootVariants = cva('flex relative', {
   defaultVariants: {
     orientation: 'vertical',
   },
   variants: {
-    orientation: FLEX_ORIENTATION_VARIANT,
+    orientation: {
+      ...FLEX_ORIENTATION_VARIANT,
+      horizontal: 'flex-row',
+    },
   },
 })
 
@@ -36,33 +39,18 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
   compoundVariants: [
     {
       variant: 'card',
-      size: 'xs',
-      class: 'p-2.5',
-    },
-    {
-      variant: 'card',
       size: 'sm',
       class: 'p-3',
     },
     {
       variant: 'card',
       size: 'md',
-      class: 'p-3',
+      class: 'p-3.5',
     },
     {
       variant: 'card',
       size: 'lg',
       class: 'p-4',
-    },
-    {
-      variant: 'card',
-      size: 'xl',
-      class: 'p-4.5',
-    },
-    {
-      variant: 'table',
-      size: 'xs',
-      class: 'p-2.5',
     },
     {
       variant: 'table',
@@ -72,17 +60,12 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
     {
       variant: 'table',
       size: 'md',
-      class: 'p-3',
+      class: 'p-3.5',
     },
     {
       variant: 'table',
       size: 'lg',
       class: 'p-4',
-    },
-    {
-      variant: 'table',
-      size: 'xl',
-      class: 'p-4.5',
     },
   ],
 })

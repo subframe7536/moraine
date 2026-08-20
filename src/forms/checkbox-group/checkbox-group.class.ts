@@ -14,7 +14,10 @@ export const checkboxGroupFieldsetVariants = cva('flex', {
     orientation: 'vertical',
   },
   variants: {
-    orientation: FLEX_ORIENTATION_VARIANT,
+    orientation: {
+      ...FLEX_ORIENTATION_VARIANT,
+      horizontal: 'flex-row flex-wrap',
+    },
   },
 })
 

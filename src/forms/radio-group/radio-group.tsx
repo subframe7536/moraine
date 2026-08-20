@@ -455,6 +455,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               id={item.id}
               data-slot="item"
               data-checked={variant() === 'list' ? undefined : selected() ? '' : undefined}
+              data-disabled={disabled() ? '' : undefined}
               style={merged.styles?.item}
               class={radioGroupItemVariants(
                 {
@@ -557,7 +558,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                           data-slot="label"
                           style={merged.styles?.label}
                           class={cn(
-                            'text-foreground leading-tight font-medium',
+                            'text-foreground leading-tight font-medium block',
                             merged.classes?.label,
                           )}
                         >
@@ -571,7 +572,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         data-slot="label"
                         style={merged.styles?.label}
                         class={cn(
-                          'text-foreground leading-tight font-medium',
+                          'text-foreground leading-tight font-medium block',
                           merged.classes?.label,
                         )}
                       >

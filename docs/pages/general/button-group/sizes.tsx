@@ -5,7 +5,7 @@ import { For } from 'solid-js'
 type ButtonGroupSize = Exclude<ButtonGroupT.Variant['size'], undefined | `icon-${string}`>
 
 export function Sizes() {
-  const SIZES: ButtonGroupSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: ButtonGroupSize[] = ['sm', 'md', 'lg']
 
   return (
     <div class="flex flex-wrap gap-3 items-end">

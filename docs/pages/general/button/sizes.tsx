@@ -3,7 +3,7 @@ import type { ButtonT } from '@src/elements/button/button.tsx'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: ButtonT.Variant['size'][] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: ButtonT.Variant['size'][] = ['sm', 'md', 'lg']
 
   return (
     <div class="flex flex-wrap gap-3 items-center">

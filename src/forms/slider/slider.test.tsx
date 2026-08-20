@@ -61,17 +61,17 @@ function mockTrackRect(target: HTMLElement): void {
 }
 
 describe('Slider', () => {
-  test('uses css variable classes for track thickness', () => {
-    const horizontal = render(() => <Slider orientation="horizontal" size="xs" />)
-    const vertical = render(() => <Slider orientation="vertical" size="xl" />)
+  test('uses the compact track thickness scale', () => {
+    const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
+    const vertical = render(() => <Slider orientation="vertical" size="lg" />)
 
     const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
     expect(horizontalTrack?.className).toContain('h-$s-size')
-    expect(horizontalTrack?.className).toContain('var-slider-3')
+    expect(horizontalTrack?.className).toContain('h-1')
     expect(verticalTrack?.className).toContain('w-$s-size')
-    expect(verticalTrack?.className).toContain('var-slider-7')
+    expect(verticalTrack?.className).toContain('h-2')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -718,7 +718,7 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('var-slider-18')
+    expect(track?.className).toContain('h-4')
     expect(range?.className).toContain('rounded')
     expect(range?.className).toContain('z-2')
     expect(divider?.className).toContain('w-px')

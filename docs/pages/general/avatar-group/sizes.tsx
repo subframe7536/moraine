@@ -5,7 +5,7 @@ import { For } from 'solid-js'
 type AvatarGroupSize = Exclude<AvatarGroupT.Variant['size'], undefined>
 
 export function Sizes() {
-  const SIZES: AvatarGroupSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: AvatarGroupSize[] = ['sm', 'md', 'lg']
 
   return (
     <div class="flex flex-wrap gap-4 items-end">

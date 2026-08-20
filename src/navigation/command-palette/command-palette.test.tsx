@@ -771,12 +771,12 @@ describe('CommandPalette', () => {
   })
 
   test('applies local command row size variants', async () => {
-    render(() => <CommandPalette groups={GROUPS} size="xl" />)
+    render(() => <CommandPalette groups={GROUPS} size="lg" />)
 
     await waitFor(() => {
       const option = document.body.querySelector('[role="option"]') as HTMLElement | null
-      expect(option?.className).toContain('text-base')
-      expect(option?.className).toContain('min-h-10')
+      expect(option?.className).toContain('text-sm')
+      expect(option?.className).toContain('min-h-9')
     })
   })
 

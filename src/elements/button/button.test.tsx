@@ -154,9 +154,9 @@ describe('Button', () => {
     },
   )
 
-  test('renders leading and trailing icon slots for xs size', () => {
+  test('renders leading and trailing icon slots for sm size', () => {
     const screen = render(() => (
-      <Button size="xs" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
+      <Button size="sm" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
         Label
       </Button>
     ))
@@ -171,9 +171,9 @@ describe('Button', () => {
     expect(trailing?.className).toContain('i-lucide-arrow-right')
   })
 
-  test('renders leading and trailing icon slots for xl size', () => {
+  test('renders leading and trailing icon slots for lg size', () => {
     const screen = render(() => (
-      <Button size="xl" leading="i-lucide-chevron-left" trailing="i-lucide-chevron-right">
+      <Button size="lg" leading="i-lucide-chevron-left" trailing="i-lucide-chevron-right">
         Label
       </Button>
     ))
@@ -188,12 +188,12 @@ describe('Button', () => {
     expect(trailing?.className).toContain('i-lucide-chevron-right')
   })
 
-  test('renders leading icon slot for icon-xl size', () => {
+  test('renders leading icon slot for icon-lg size', () => {
     const screen = render(() => (
-      <Button size="icon-xl" leading="i-lucide-star" aria-label="Icon XL" />
+      <Button size="icon-lg" leading="i-lucide-star" aria-label="Icon LG" />
     ))
 
-    const button = screen.getByRole('button', { name: 'Icon XL' })
+    const button = screen.getByRole('button', { name: 'Icon LG' })
     const leading = button.querySelector('[data-slot="leading"]')
 
     expect(leading).not.toBeNull()

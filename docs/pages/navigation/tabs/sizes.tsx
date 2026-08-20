@@ -2,7 +2,7 @@ import { Tabs } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZE_OPTIONS = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZE_OPTIONS = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="w-xl space-y-4">

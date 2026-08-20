@@ -25,11 +25,9 @@ export const sliderTrackVariants = cva('bg-muted select-none relative', {
   },
   variants: {
     size: {
-      xs: '',
       sm: '',
       md: '',
       lg: '',
-      xl: '',
     },
     variant: {
       default: 'rounded-full',
@@ -41,16 +39,12 @@ export const sliderTrackVariants = cva('bg-muted select-none relative', {
     },
   },
   compoundVariants: [
-    { size: 'xs', variant: 'default', class: 'var-slider-3' },
-    { size: 'sm', variant: 'default', class: 'var-slider-4' },
+    { size: 'sm', variant: 'default', class: 'h-1' },
     { size: 'md', variant: 'default', class: 'h-1.5' },
-    { size: 'lg', variant: 'default', class: 'var-slider-6' },
-    { size: 'xl', variant: 'default', class: 'var-slider-7' },
-    { size: 'xs', variant: 'bold', class: 'var-slider-14' },
-    { size: 'sm', variant: 'bold', class: 'var-slider-16' },
-    { size: 'md', variant: 'bold', class: 'var-slider-18' },
-    { size: 'lg', variant: 'bold', class: 'var-slider-20' },
-    { size: 'xl', variant: 'bold', class: 'var-slider-22' },
+    { size: 'lg', variant: 'default', class: 'h-2' },
+    { size: 'sm', variant: 'bold', class: 'h-3' },
+    { size: 'md', variant: 'bold', class: 'h-4' },
+    { size: 'lg', variant: 'bold', class: 'h-5' },
   ],
 })
 
@@ -160,11 +154,9 @@ export const sliderThumbVariants = cva(
         false: '',
       },
       size: {
-        xs: '',
         sm: '',
         md: '',
         lg: '',
-        xl: '',
       },
       variant: {
         default:
@@ -173,16 +165,12 @@ export const sliderThumbVariants = cva(
       },
     },
     compoundVariants: [
-      { size: 'xs', variant: 'default', class: 'size-3' },
       { size: 'sm', variant: 'default', class: 'size-3.5' },
       { size: 'md', variant: 'default', class: 'size-4' },
-      { size: 'lg', variant: 'default', class: 'size-4' },
-      { size: 'xl', variant: 'default', class: 'size-4.5' },
-      { size: 'xs', variant: 'bold', class: 'h-2 w-1' },
+      { size: 'lg', variant: 'default', class: 'size-4.5' },
       { size: 'sm', variant: 'bold', class: 'h-2.5 w-1' },
       { size: 'md', variant: 'bold', class: 'h-3 w-1' },
       { size: 'lg', variant: 'bold', class: 'h-3.5 w-1' },
-      { size: 'xl', variant: 'bold', class: 'h-4 w-1' },
       {
         orientation: 'horizontal',
         inverted: false,

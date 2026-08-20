@@ -5,11 +5,9 @@ import { For } from 'solid-js'
 
 export function IconButtons() {
   const ICON_SIZES: NonNullable<ButtonT.Variant['size']>[] = [
-    'icon-xs',
     'icon-sm',
     'icon-md',
     'icon-lg',
-    'icon-xl',
   ]
 
   return (

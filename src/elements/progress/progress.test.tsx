@@ -18,16 +18,16 @@ describe('Progress', () => {
   })
 
   test('uses css variable classes for base thickness', () => {
-    const horizontal = render(() => <Progress value={20} size="xs" />)
-    const vertical = render(() => <Progress value={20} size="xl" orientation="vertical" />)
+    const horizontal = render(() => <Progress value={20} size="sm" />)
+    const vertical = render(() => <Progress value={20} size="lg" orientation="vertical" />)
 
     const horizontalBase = horizontal.container.querySelector('[data-slot="track"]')
     const verticalBase = vertical.container.querySelector('[data-slot="track"]')
 
     expect(horizontalBase?.className).toContain('h-$p-size')
-    expect(horizontalBase?.className).toContain('var-progress-0.5')
+    expect(horizontalBase?.className).toContain('var-progress-1')
     expect(verticalBase?.className).toContain('w-$p-size')
-    expect(verticalBase?.className).toContain('var-progress-4')
+    expect(verticalBase?.className).toContain('var-progress-3')
   })
 
   test('renders determinate progress with default aria values', () => {

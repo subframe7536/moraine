@@ -216,7 +216,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Size of the breadcrumb items and icons.",
         "defaultValue": "md"
       },

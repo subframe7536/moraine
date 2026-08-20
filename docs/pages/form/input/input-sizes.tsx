@@ -2,7 +2,7 @@ import { Input } from '@src'
 import { For } from 'solid-js'
 
 export function InputSizes() {
-  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">

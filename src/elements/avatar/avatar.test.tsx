@@ -183,11 +183,11 @@ describe('Avatar', () => {
     expect(root?.className).not.toContain('overflow-hidden')
   })
 
-  test('supports xs and xl size variants for single avatars', () => {
+  test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
       <>
-        <Avatar size="xs" fallback="i-lucide-user" badge="i-lucide-check" />
-        <Avatar size="xl" fallback="i-lucide-user" badge="i-lucide-check" />
+        <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
+        <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
       </>
     ))
 
@@ -198,12 +198,12 @@ describe('Avatar', () => {
     const badges = Array.from(screen.container.querySelectorAll('[data-slot="badge"]'))
 
     expect(roots[0]?.className).toContain('size-6')
-    expect(fallbackIcons[0]?.className).toContain('text-xs')
-    expect(badges[0]?.className).toContain('size-2.5')
+    expect(fallbackIcons[0]?.className).toContain('text-sm')
+    expect(badges[0]?.className).toContain('size-3')
 
-    expect(roots[1]?.className).toContain('size-11')
-    expect(fallbackIcons[1]?.className).toContain('text-xl')
-    expect(badges[1]?.className).toContain('size-4.5')
+    expect(roots[1]?.className).toContain('size-10')
+    expect(fallbackIcons[1]?.className).toContain('text-lg')
+    expect(badges[1]?.className).toContain('size-4')
   })
 
   test('generates initials from alt when text is not provided', () => {
@@ -459,11 +459,11 @@ describe('Avatar', () => {
     expect(fallbacks[2]?.textContent).toBe('A')
   })
 
-  test('supports xs and xl size variants for avatar groups', () => {
+  test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
       <>
-        <AvatarGroup size="xs" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
-        <AvatarGroup size="xl" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </>
     ))
 
@@ -474,7 +474,7 @@ describe('Avatar', () => {
     expect(groupCounts[0]?.className).toContain('-me-2')
     expect(groupItems[0]?.className).toContain('-me-2')
 
-    expect(groupCounts[1]?.className).toContain('size-11')
+    expect(groupCounts[1]?.className).toContain('size-10')
     expect(groupCounts[1]?.className).toContain('-me-2')
     expect(groupItems[1]?.className).toContain('-me-2')
   })

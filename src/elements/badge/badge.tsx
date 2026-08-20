@@ -113,8 +113,8 @@ export function Badge(props: BadgeProps): JSX.Element {
       typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
     return childText ? `Remove ${childText}` : 'Remove badge'
   })
-  const iconClass = createMemo(() => cn('size-3', size() === 'xs' ? 'me-0' : undefined))
-  const iconPadding = createMemo(() => (size() === 'xs' || size() === 'sm' ? '1.5' : '2'))
+  const iconClass = createMemo(() => cn('size-3'))
+  const iconPadding = createMemo(() => (size() === 'sm' ? '1.5' : '2'))
 
   return (
     <span

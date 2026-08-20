@@ -3,7 +3,7 @@ import type { CheckboxT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: CheckboxSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: CheckboxSizeName[] = ['sm', 'md', 'lg']
 
   type CheckboxSizeName = Exclude<CheckboxT.Variant['size'], undefined>
 
@@ -15,7 +15,7 @@ export function Sizes() {
             size={size}
             label={`Size ${size}`}
             description={`Checkbox size: ${size}`}
-            defaultChecked={size === 'md' || size === 'xl'}
+            defaultChecked={size === 'md' || size === 'lg'}
           />
         )}
       </For>

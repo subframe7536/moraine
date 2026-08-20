@@ -147,7 +147,7 @@ export namespace BreadcrumbT {
      * Size of the breadcrumb items and icons.
      * @default 'md'
      */
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+    size?: 'sm' | 'md' | 'lg'
 
     /**
      * Custom renderer for individual breadcrumb items.

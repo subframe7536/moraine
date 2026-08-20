@@ -70,7 +70,7 @@ test('single Select accepts arbitrary root props at type level', () => {
 })
 
 test('uses input sizing classes in single mode', () => {
-  const single = render(() => <Select options={FRUITS} size="xs" placeholder="XS" />)
+  const single = render(() => <Select options={FRUITS} size="sm" placeholder="SM" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
 
   expect(singleInput?.className).toContain('min-w-0')
@@ -109,17 +109,17 @@ describe('Select - single mode', () => {
     )
   })
 
-  test('supports xs and xl size classes', () => {
+  test('supports the compact form size scale', () => {
     const screen = render(() => (
       <>
-        <Select options={FRUITS} size="xs" placeholder="XS" />
-        <Select options={FRUITS} size="xl" placeholder="XL" />
+        <Select options={FRUITS} size="sm" placeholder="SM" />
+        <Select options={FRUITS} size="lg" placeholder="LG" />
       </>
     ))
 
     const inputs = screen.container.querySelectorAll('[data-slot="input"]')
     expect(inputs[0]?.className).toContain('text-xs')
-    expect(inputs[1]?.className).toContain('text-base')
+    expect(inputs[1]?.className).toContain('text-sm')
   })
 
   test('applies classes.root override', () => {

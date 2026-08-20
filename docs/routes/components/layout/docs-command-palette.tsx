@@ -150,18 +150,18 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                 <span class="flex gap-1.5 items-center">
                   <KbdGroup
                     items={['arrowup', 'arrowdown']}
-                    size="xs"
+                    size="sm"
                     variant="outline"
                     dividerRender={() => '/'}
                   />
                   Navigate
                 </span>
                 <span class="flex gap-1.5 items-center">
-                  <KbdGroup items={['enter']} size="xs" variant="outline" />
+                  <KbdGroup items={['enter']} size="sm" variant="outline" />
                   Open
                 </span>
                 <span class="flex gap-1.5 items-center">
-                  <KbdGroup items={['escape']} size="xs" variant="outline" />
+                  <KbdGroup items={['escape']} size="sm" variant="outline" />
                   Close
                 </span>
               </div>

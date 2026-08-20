@@ -45,11 +45,9 @@ export const progressBaseVariants = cva(
         vertical: 'h-full min-h-36 w-$p-size',
       },
       size: {
-        xs: 'var-progress-0.5',
         sm: 'var-progress-1',
         md: 'h-1.5',
         lg: 'var-progress-3',
-        xl: 'var-progress-4',
       },
     },
   },

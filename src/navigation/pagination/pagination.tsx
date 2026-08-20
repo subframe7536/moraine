@@ -5,7 +5,6 @@ import { Button } from '../../elements/button/index.ts'
 import type { ButtonProps } from '../../elements/button/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
-import type { FormFieldSize } from '../../forms/form-field/form-field-context.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 
@@ -108,7 +107,7 @@ export namespace PaginationT {
      * Size of the pagination buttons.
      * @default 'md'
      */
-    size?: FormFieldSize
+    size?: 'sm' | 'md' | 'lg'
 
     /**
      * Visual variant for the page buttons.

@@ -26,11 +26,9 @@ export const textareaBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs leading-4 px-2 py-1 min-h-14',
         sm: 'text-xs leading-4 px-2.5 py-1.5 min-h-15',
         md: 'text-sm leading-5 px-2.5 py-1.5 min-h-16',
         lg: 'text-sm leading-5 px-3 py-2 min-h-18',
-        xl: 'text-base leading-6 px-3 py-2 min-h-20',
       },
       autoresize: {
         true: 'resize-none',
@@ -48,11 +46,9 @@ export const textareaHeaderVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs px-2 pb-1 pt-1.5',
         sm: 'text-xs px-2.5 pb-1 pt-2',
         md: 'text-sm px-2.5 pb-1.5 pt-2',
         lg: 'text-sm px-3 pb-1.5 pt-2.5',
-        xl: 'text-base px-3 pb-2 pt-2.5',
       },
     },
   },
@@ -66,11 +62,9 @@ export const textareaFooterVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs p-1',
         sm: 'text-xs p-1.5',
         md: 'text-sm p-1.5',
         lg: 'text-sm p-2',
-        xl: 'text-base p-2',
       },
     },
   },

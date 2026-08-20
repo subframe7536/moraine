@@ -200,7 +200,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       return currentSize.replace('icon-', '')
     }
 
-    return currentSize === 'xs' ? '0.75rem' : '1rem'
+    return currentSize === 'sm' ? '0.875rem' : '1rem'
   })
 
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
@@ -237,8 +237,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       return undefined
     }
 
-    const paddingStart = size() === 'xs' || size() === 'sm' ? 'ps-1.5' : 'ps-2'
-    const paddingEnd = size() === 'xs' || size() === 'sm' ? 'pe-1.5' : 'pe-2'
+    const paddingStart = size() === 'sm' ? 'ps-1.5' : 'ps-2'
+    const paddingEnd = size() === 'sm' ? 'pe-1.5' : 'pe-2'
     return [
       resolvedLeading() ? paddingStart : undefined,
       resolvedTrailing() ? paddingEnd : undefined,

@@ -1059,7 +1059,8 @@ describe('InputNumber', () => {
 
     expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
     expect(incrementOnlyButton?.getAttribute('data-variant')).toBe('link')
-    expect(incrementOnlyButton?.className).toContain('me-1')
+    expect(incrementOnlyButton?.className).toContain('w-9')
+    expect(incrementOnlyButton?.className).toContain('rounded-e-none')
     expect(incrementOnlyButton?.className).not.toContain('border-s')
     expect(incrementOnlyButton?.className).not.toContain('absolute')
     expect(incrementOnlyBase?.className).not.toContain('pe-10')
@@ -1077,7 +1078,8 @@ describe('InputNumber', () => {
     ) as HTMLElement | null
 
     expect(decrementOnlyButton?.getAttribute('data-variant')).toBe('link')
-    expect(decrementOnlyButton?.className).toContain('ms-1')
+    expect(decrementOnlyButton?.className).toContain('w-9')
+    expect(decrementOnlyButton?.className).toContain('rounded-s-none')
     expect(decrementOnlyButton?.className).not.toContain('border-e')
     expect(decrementOnlyButton?.className).not.toContain('absolute')
     expect(decrementOnlyBase?.className).not.toContain('pe-10')
@@ -1153,31 +1155,27 @@ describe('InputNumber', () => {
   })
 
   test('applies size classes', () => {
-    const screen = render(() => <InputNumber size="xl" />)
+    const screen = render(() => <InputNumber size="lg" />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="input"]')
 
-    expect(root?.className).toContain('h-10')
-    expect(base?.className).toContain('text-base')
-    expect(base?.className).toContain('leading-6')
+    expect(root?.className).toContain('h-9')
+    expect(base?.className).toContain('text-sm')
+    expect(base?.className).toContain('leading-5')
     expect(base?.className).toContain('px-3')
   })
 
   test.each([
-    ['outline', ['text-foreground', 'border', 'border-input', 'bg-background', 'shadow-xs']],
-    ['subtle', ['text-foreground', 'border', 'border-input', 'bg-input/30', 'shadow-xs']],
+    ['outline', ['border', 'border-input', 'bg-transparent', 'shadow-xs']],
+    ['subtle', ['border', 'border-input', 'bg-input/30', 'shadow-xs']],
     [
       'ghost',
       [
-        'text-foreground',
-        'bg-transparent',
         'hover:bg-muted-hover',
         'focus-within:bg-muted-hover',
-        'data-disabled:bg-transparent',
-        'dark:data-disabled:bg-transparent',
       ],
     ],
-    ['none', ['text-foreground', 'bg-transparent', 'focus-within:ring-0']],
+    ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {
     const screen = render(() => <InputNumber variant={variant} />)
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -1191,7 +1189,7 @@ describe('InputNumber', () => {
     const screen = render(() => <InputNumber />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('bg-background')
+    expect(root?.className).toContain('bg-transparent')
     expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
       'outline' | 'subtle' | 'ghost' | 'none' | undefined
     >()
@@ -1219,11 +1217,9 @@ describe('InputNumber', () => {
   })
 
   test.each([
-    ['xs', 'size-6', 'size-4'],
-    ['sm', 'size-7', 'size-4'],
-    ['md', 'size-8', 'size-5'],
-    ['lg', 'size-9', 'size-5'],
-    ['xl', 'size-10', 'size-6'],
+    ['sm', 'w-7', 'size-4'],
+    ['md', 'w-8', 'size-5'],
+    ['lg', 'w-9', 'size-5'],
   ] as const)('applies Nuxt UI %s control and icon sizes', (size, buttonSize, iconSize) => {
     const screen = render(() => <InputNumber size={size} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })

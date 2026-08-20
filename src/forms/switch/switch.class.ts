@@ -10,11 +10,9 @@ export const switchTrackVariants = cva(
     },
     variants: {
       size: {
-        xs: 'h-3.5 w-6',
-        sm: 'h-4 w-7',
-        md: 'h-4.5 w-8',
-        lg: 'h-5 w-9',
-        xl: 'h-5.5 w-10',
+      sm: 'h-4 w-7',
+      md: 'h-4.5 w-8',
+      lg: 'h-5 w-9',
       },
     },
   },
@@ -28,11 +26,9 @@ export const switchThumbVariants = cva(
     },
     variants: {
       size: {
-        xs: 'size-2.5 data-checked:translate-x-2.5',
-        sm: 'size-3 data-checked:translate-x-3',
-        md: 'size-3.5 data-checked:translate-x-3.5',
-        lg: 'size-4 data-checked:translate-x-4',
-        xl: 'size-4.5 data-checked:translate-x-4.5',
+      sm: 'size-3 data-checked:translate-x-3',
+      md: 'size-3.5 data-checked:translate-x-3.5',
+      lg: 'size-4 data-checked:translate-x-4',
       },
     },
   },
@@ -44,11 +40,9 @@ export const switchWrapperVariants = cva('', {
   },
   variants: {
     size: {
-      xs: 'text-xs ms-1.5',
       sm: 'text-xs ms-2',
       md: 'text-sm ms-2',
       lg: 'text-sm ms-2.5',
-      xl: 'text-base ms-3',
     },
   },
 })

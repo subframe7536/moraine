@@ -28,11 +28,9 @@ export const checkboxCardPaddingVariants = cva('p-3', {
   },
   variants: {
     size: {
-      xs: 'p-2.5',
       sm: 'p-3',
-      md: 'p-3',
+      md: 'p-3.5',
       lg: 'p-4',
-      xl: 'p-4.5',
     },
   },
 })
@@ -55,11 +53,9 @@ export const checkboxIconVariants = cva('shrink-0', {
   },
   variants: {
     size: {
-      xs: 'size-2.5',
       sm: 'size-3',
       md: 'size-3.5',
       lg: 'size-4',
-      xl: 'size-4.5',
     },
   },
 })

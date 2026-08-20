@@ -91,22 +91,16 @@ describe('Separator', () => {
   })
 
   test('applies size variants', () => {
-    const xs = render(() => <Separator size="xs" />)
     const sm = render(() => <Separator size="sm" />)
     const md = render(() => <Separator size="md" />)
     const lg = render(() => <Separator size="lg" />)
-    const xl = render(() => <Separator size="xl" />)
 
-    expect(xs.container.querySelector('[data-slot="border"]')?.className).toContain('b-t')
     expect(sm.container.querySelector('[data-slot="border"]')?.className).toContain('b-t')
     expect(md.container.querySelector('[data-slot="border"]')?.className).toContain('b-t')
     expect(lg.container.querySelector('[data-slot="border"]')?.className).toContain('b-t')
-    expect(xl.container.querySelector('[data-slot="border"]')?.className).toContain('b-t')
-    expect(xs.container.querySelector('[data-slot="border"]')?.className).toContain('b-1')
     expect(sm.container.querySelector('[data-slot="border"]')?.className).toContain('b-2')
     expect(md.container.querySelector('[data-slot="border"]')?.className).toContain('b-3')
     expect(lg.container.querySelector('[data-slot="border"]')?.className).toContain('b-4')
-    expect(xl.container.querySelector('[data-slot="border"]')?.className).toContain('b-5')
   })
 
   test('uses root color inheritance for border color', () => {

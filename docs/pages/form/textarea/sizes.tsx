@@ -3,7 +3,7 @@ import type { TextareaT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: TextareaSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: TextareaSizeName[] = ['sm', 'md', 'lg']
 
   type TextareaSizeName = Exclude<TextareaT.Variant['size'], undefined>
 

@@ -30,11 +30,9 @@ export const breadcrumbListVariants = cva(
 export const breadcrumbSizeVariants = cva('', {
   variants: {
     size: {
-      xs: 'text-xs',
       sm: 'text-sm',
       md: '',
       lg: 'text-base',
-      xl: 'text-lg',
     },
   },
   defaultVariants: {
@@ -42,14 +40,12 @@ export const breadcrumbSizeVariants = cva('', {
   },
 })
 
-type BreadcrumbSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type BreadcrumbSize = 'sm' | 'md' | 'lg'
 
 export const BREADCRUMB_ICON_SIZES: Record<BreadcrumbSize, number> = {
-  xs: 12,
   sm: 14,
   md: 16,
   lg: 18,
-  xl: 20,
 }
 
 export type BreadcrumbVariantProps = VariantProps<typeof breadcrumbListVariants>

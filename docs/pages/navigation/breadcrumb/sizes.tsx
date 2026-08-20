@@ -9,7 +9,7 @@ export function Sizes() {
   ]
   return (
     <div class="flex flex-col gap-4">
-      <For each={['xs', 'sm', 'md', 'lg', 'xl'] as const}>
+      <For each={['sm', 'md', 'lg'] as const}>
         {(size) => <Breadcrumb size={size} items={items} />}
       </For>
     </div>

@@ -11,11 +11,9 @@ export const kbdRootVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-[10px] px-1 h-4 min-w-4',
         sm: 'text-[11px] px-1 h-4.5 min-w-4.5',
         md: 'text-xs px-1 h-5 min-w-5',
         lg: 'text-xs px-1 h-5.5 min-w-5.5',
-        xl: 'text-sm px-1.5 h-6 min-w-6',
       },
       variant: {
         default: 'text-muted-foreground bg-muted',
@@ -32,11 +30,9 @@ export const kbdGroupVariants = cva('inline-flex gap-1 items-center', {
   },
   variants: {
     size: {
-      xs: 'text-[10px]',
       sm: 'text-[11px]',
       md: 'text-xs',
       lg: 'text-xs',
-      xl: 'text-sm',
     },
   },
 })

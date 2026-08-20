@@ -78,7 +78,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
     {
       decorative: false,
       orientation: 'horizontal' as const,
-      size: 'xs' as const,
+      size: 'sm' as const,
       type: 'solid' as const,
     },
     local,

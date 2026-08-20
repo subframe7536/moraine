@@ -303,23 +303,24 @@ describe('CheckboxGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="xl" />
+      <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
     ))
 
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
 
     expect(fieldset?.className).toContain('flex-row')
+    expect(fieldset?.className).toContain('flex-wrap')
     expect(item?.className).toContain('border')
     expect(item?.className).toContain('rounded-none')
-    expect(item?.className).toContain('p-4.5')
+    expect(item?.className).toContain('p-4')
     expect(item?.className).toContain('first-of-type:rounded-s-lg')
     expect(item?.className).toContain('last-of-type:rounded-e-lg')
     expect(item?.className).toContain('not-first-of-type:-ms-px')
   })
 
   test('applies vertical table layout classes', () => {
-    const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" size="xl" />)
+    const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />)
 
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')

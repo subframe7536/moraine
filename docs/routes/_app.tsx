@@ -80,7 +80,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       <Show when={navigationLoading()}>
         <Progress
           aria-label="Loading page"
-          size="xs"
+          size="sm"
           class="pointer-events-none inset-x-0 top-0 fixed z-50"
           classes={{
             track: 'rounded-none bg-transparent',

@@ -113,7 +113,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | undefined"
       },
       {
         "name": "style",

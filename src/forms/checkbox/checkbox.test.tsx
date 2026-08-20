@@ -382,7 +382,7 @@ describe('Checkbox', () => {
       <Checkbox
         variant="card"
         indicator="end"
-        size="xl"
+        size="lg"
         label="Classes"
         classes={{ root: 'root-override' }}
       />
@@ -397,7 +397,7 @@ describe('Checkbox', () => {
     expect(root?.className).toContain('root-override')
     expect(input?.className).toContain('peer')
     expect(base?.className).toContain('focus-visible:effect-fv-border')
-    expect(base?.className).toContain('size-5')
+    expect(base?.className).toContain('size-4.5')
     expect(screen.getByText('Classes').className).toContain('select-none')
   })
 

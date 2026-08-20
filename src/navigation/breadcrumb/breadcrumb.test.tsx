@@ -287,11 +287,9 @@ describe('Breadcrumb', () => {
   })
 
   test.each([
-    ['xs', 'text-xs', 12, 12],
     ['sm', 'text-sm', 14, 14],
     ['md', undefined, 16, 16],
     ['lg', 'text-base', 18, 18],
-    ['xl', 'text-lg', 20, 20],
   ] as const)(
     'applies %s typography and icon scales',
     (size, textClass, leadingSize, separatorSize) => {

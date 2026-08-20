@@ -1078,6 +1078,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           size: field.size(),
           variant: merged.variant,
         },
+        'items-stretch',
         merged.classes?.root,
         merged.class,
       )}

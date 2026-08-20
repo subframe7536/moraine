@@ -16,11 +16,9 @@ export const badgeVariants = cva(
         solid: 'text-primary-foreground bg-primary shadow-xs',
       },
       size: {
-        xs: 'text-[10px] px-1.5 rounded-sm h-4',
         sm: 'text-xs px-2 rounded-md h-4.5',
         md: 'text-xs px-2 rounded-md h-5',
         lg: 'text-xs px-2 rounded-md h-5.5',
-        xl: 'text-sm px-2.5 rounded-lg h-6',
       },
     },
   },

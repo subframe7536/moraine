@@ -36,11 +36,9 @@ export const stepperItemVariants = cva('min-w-0 relative data-disabled:effect-di
       vertical: 'text-start flex gap-$st-gap items-start',
     },
     size: {
-      xs: 'var-stepper-6-4-1.5-0.5',
       sm: 'var-stepper-8-6-2-0.5',
       md: 'var-stepper-9-7-2.5-1',
       lg: 'var-stepper-10-8-3-1',
-      xl: 'var-stepper-11-9-3.5-1',
     },
   },
 })
@@ -66,11 +64,9 @@ export const stepperTriggerVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs',
         sm: 'text-sm',
         md: 'text-base',
         lg: 'text-lg',
-        xl: 'text-xl',
       },
       state: {
         inactive: 'text-muted-foreground border-input bg-background shadow-xs',
@@ -115,11 +111,9 @@ export const stepperTitleVariants = cva('text-foreground leading-snug font-mediu
   },
   variants: {
     size: {
-      xs: 'text-xs',
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
-      xl: 'text-lg',
     },
   },
 })
@@ -130,11 +124,9 @@ export const stepperDescriptionVariants = cva('text-muted-foreground leading-nor
   },
   variants: {
     size: {
-      xs: 'text-xs',
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
-      xl: 'text-lg',
     },
   },
 })

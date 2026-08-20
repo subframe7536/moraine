@@ -362,7 +362,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "FormFieldSize | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Size of the pagination buttons.",
         "defaultValue": "md"
       },

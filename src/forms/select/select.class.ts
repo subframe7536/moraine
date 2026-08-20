@@ -13,11 +13,9 @@ export const selectControlVariants = cva(
     variants: {
       variant: INPUT_VARIANT,
       size: {
-        xs: 'text-xs pe-1.5 ps-1.5',
         sm: 'text-xs pe-1.5 ps-2',
         md: 'text-sm pe-2 ps-2.5',
         lg: 'text-sm pe-2.5 ps-3',
-        xl: 'text-base pe-3 ps-3.5',
       },
       search: {
         true: 'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid',
@@ -41,11 +39,9 @@ export const selectInputVariants = cva(
         multi: 'leading-$s-m min-w-12',
       },
       size: {
-        xs: 'text-xs var-select-0.5',
         sm: 'text-xs var-select-1',
         md: 'text-sm var-select-1',
         lg: 'text-sm var-select-1.5',
-        xl: 'text-base var-select-1.5',
       },
     },
   },
@@ -59,11 +55,9 @@ export const selectTriggerIconVariants = cva(
     },
     variants: {
       size: {
-        xs: 'size-3',
         sm: 'size-3.5',
         md: 'size-4',
         lg: 'size-4.5',
-        xl: 'size-5',
       },
     },
   },
@@ -75,11 +69,9 @@ export const selectLeadingIconVariants = cva('text-muted-foreground shrink-0', {
   },
   variants: {
     size: {
-      xs: 'size-3',
       sm: 'size-3.5',
       md: 'size-4',
       lg: 'size-4.5',
-      xl: 'size-5',
     },
   },
 })
@@ -95,11 +87,9 @@ export const selectItemVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs min-h-6',
         sm: 'text-xs min-h-7',
         md: 'text-sm min-h-8',
         lg: 'text-sm min-h-9',
-        xl: 'text-base min-h-10',
       },
     },
   },

@@ -298,11 +298,9 @@ describe('FormField', () => {
   })
 
   test.each([
-    ['xs', 'text-xs', 'h-6', 'py-1'],
-    ['sm', 'text-sm', 'h-7', 'py-1.5'],
+    ['sm', 'text-xs', 'h-7', 'py-1.5'],
     ['md', 'text-sm', 'h-8', 'py-1.5'],
     ['lg', 'text-sm', 'h-9', 'py-2'],
-    ['xl', 'text-base', 'h-10', 'py-2'],
   ] as const)(
     'propagates %s size to field content and messages',
     (size, fieldText, height, padding) => {

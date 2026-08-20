@@ -1,32 +1,9 @@
 import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
+import { inputRootVariants } from '../input/input.class.ts'
 
-export const inputNumberRootVariants = cva(
-  'rounded-md inline-flex w-full transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
-  {
-    defaultVariants: {
-      size: 'md',
-      variant: 'outline',
-    },
-    variants: {
-      size: {
-        xs: 'text-xs leading-4 h-6',
-        sm: 'text-xs leading-4 h-7',
-        md: 'text-sm leading-5 h-8',
-        lg: 'text-sm leading-5 h-9',
-        xl: 'text-base leading-6 h-10',
-      },
-      variant: {
-        outline: 'text-foreground border border-input bg-background shadow-xs',
-        subtle: 'text-foreground border border-input bg-input/30 shadow-xs',
-        ghost:
-          'text-foreground bg-transparent data-disabled:bg-transparent focus-within:bg-muted-hover hover:bg-muted-hover dark:data-disabled:bg-transparent',
-        none: 'text-foreground bg-transparent focus-within:ring-0',
-      },
-    },
-  },
-)
+export const inputNumberRootVariants = inputRootVariants
 
 export const inputNumberBaseVariants = cva(
   'style-placeholder text-foreground style-input-number outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
@@ -37,11 +14,9 @@ export const inputNumberBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs leading-4 px-2',
         sm: 'text-xs leading-4 px-2.5',
         md: 'text-sm leading-5 px-2.5',
         lg: 'text-sm leading-5 px-3',
-        xl: 'text-base leading-6 px-3',
       },
       align: {
         center: 'text-center',
@@ -75,52 +50,40 @@ export const inputNumberControlButtonVariants = cva(INPUT_NUMBER_CONTROL_BUTTON_
       decrement: '',
     },
     orientation: {
-      horizontal: 'self-center',
-      vertical: 'px-0 flex-1 min-h-0 w-full scale-80',
+      horizontal: 'self-stretch rounded-none',
+      vertical: 'px-0 flex-1 min-h-0 w-full scale-80 rounded-none',
     },
     size: {
-      xs: 'text-xs',
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-sm',
-      xl: 'text-base',
     },
   },
   compoundVariants: [
     {
       control: 'increment',
       orientation: 'horizontal',
-      class: 'me-1',
+      class: 'rounded-e-none',
     },
     {
       control: 'decrement',
       orientation: 'horizontal',
-      class: 'ms-1',
-    },
-    {
-      orientation: 'horizontal',
-      size: 'xs',
-      class: 'size-6',
+      class: 'rounded-s-none',
     },
     {
       orientation: 'horizontal',
       size: 'sm',
-      class: 'size-7',
+      class: 'w-7',
     },
     {
       orientation: 'horizontal',
       size: 'md',
-      class: 'size-8',
+      class: 'w-8',
     },
     {
       orientation: 'horizontal',
       size: 'lg',
-      class: 'size-9',
-    },
-    {
-      orientation: 'horizontal',
-      size: 'xl',
-      class: 'size-10',
+      class: 'w-9',
     },
   ],
 })
@@ -131,11 +94,9 @@ export const inputNumberControlIconVariants = cva('shrink-0', {
   },
   variants: {
     size: {
-      xs: 'size-4',
       sm: 'size-4',
       md: 'size-5',
       lg: 'size-5',
-      xl: 'size-6',
     },
   },
 })
@@ -146,11 +107,9 @@ export const inputNumberControlColumnVariants = cva('pe-1 flex shrink-0 flex-col
   },
   variants: {
     size: {
-      xs: 'w-7',
       sm: 'w-8',
       md: 'w-9',
       lg: 'w-10',
-      xl: 'w-11',
     },
   },
 })

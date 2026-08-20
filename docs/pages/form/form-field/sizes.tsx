@@ -3,7 +3,7 @@ import type { FormFieldT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: FormFieldSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: FormFieldSizeName[] = ['sm', 'md', 'lg']
 
   type FormFieldSizeName = Exclude<FormFieldT.Variant['size'], undefined>
 
