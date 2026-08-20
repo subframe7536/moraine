@@ -310,7 +310,7 @@ describe('CheckboxGroup', () => {
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
 
     expect(fieldset?.className).toContain('flex-row')
-    expect(fieldset?.className).toContain('flex-wrap')
+    expect(fieldset?.className).not.toContain('flex-wrap')
     expect(item?.className).toContain('border')
     expect(item?.className).toContain('rounded-none')
     expect(item?.className).toContain('p-4')

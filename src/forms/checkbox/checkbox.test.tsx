@@ -390,12 +390,14 @@ describe('Checkbox', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="input"]')
+    const container = screen.container.querySelector('[data-slot="container"]')
     const base = screen.container.querySelector('[data-slot="control"]')
 
     expect(root?.className).toContain('rounded-md')
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('root-override')
     expect(input?.className).toContain('peer')
+    expect(container?.className).toContain('h-5')
     expect(base?.className).toContain('focus-visible:effect-fv-border')
     expect(base?.className).toContain('size-4.5')
     expect(screen.getByText('Classes').className).toContain('select-none')
@@ -550,8 +552,7 @@ describe('Checkbox', () => {
     expect(control.getAttribute('aria-checked')).toBe('false')
     expect(container.querySelector('[data-slot="indicator"]')).toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input',
-      'control',
+      'container',
       'wrapper',
     ])
 

@@ -11,13 +11,13 @@ export const sliderRootVariants = cva(
     variants: {
       orientation: {
         horizontal: 'w-full',
-        vertical: 'flex-col h-full min-h-40',
+        vertical: 'flex-col h-full',
       },
     },
   },
 )
 
-export const sliderTrackVariants = cva('bg-muted select-none relative', {
+export const sliderTrackVariants = cva('bg-input select-none relative', {
   defaultVariants: {
     size: 'md',
     orientation: 'horizontal',
@@ -39,12 +39,12 @@ export const sliderTrackVariants = cva('bg-muted select-none relative', {
     },
   },
   compoundVariants: [
-    { size: 'sm', variant: 'default', class: 'h-1' },
-    { size: 'md', variant: 'default', class: 'h-1.5' },
-    { size: 'lg', variant: 'default', class: 'h-2' },
-    { size: 'sm', variant: 'bold', class: 'h-3' },
-    { size: 'md', variant: 'bold', class: 'h-4' },
-    { size: 'lg', variant: 'bold', class: 'h-5' },
+    { size: 'sm', variant: 'default', class: 'var-slider-4' },
+    { size: 'md', variant: 'default', class: 'var-slider-5' },
+    { size: 'lg', variant: 'default', class: 'var-slider-6' },
+    { size: 'sm', variant: 'bold', class: 'var-slider-16' },
+    { size: 'md', variant: 'bold', class: 'var-slider-18' },
+    { size: 'lg', variant: 'bold', class: 'var-slider-20' },
   ],
 })
 
@@ -160,14 +160,14 @@ export const sliderThumbVariants = cva(
       },
       variant: {
         default:
-          'outline-none border border-primary bg-white cursor-pointer shadow-sm transition-[colors,box-shadow] dark:bg-foreground focus-visible:ring-4 hover:ring-4 focus-visible:ring-ring/50 data-dragging:scale-120',
+          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:scale-120',
         bold: 'rounded-sm bg-primary-foreground ring-(3 primary) focus-visible:outline-(1 border primary-foreground)',
       },
     },
     compoundVariants: [
-      { size: 'sm', variant: 'default', class: 'size-3.5' },
-      { size: 'md', variant: 'default', class: 'size-4' },
-      { size: 'lg', variant: 'default', class: 'size-4.5' },
+      { size: 'sm', variant: 'default', class: 'size-3' },
+      { size: 'md', variant: 'default', class: 'size-3.5' },
+      { size: 'lg', variant: 'default', class: 'size-4' },
       { size: 'sm', variant: 'bold', class: 'h-2.5 w-1' },
       { size: 'md', variant: 'bold', class: 'h-3 w-1' },
       { size: 'lg', variant: 'bold', class: 'h-3.5 w-1' },

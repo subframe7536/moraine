@@ -30,6 +30,8 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 import type { RadioGroupVariantProps } from './radio-group.class.ts'
 import {
   radioGroupBaseVariants,
+  radioGroupContainerVariants,
+  radioGroupIndicatorVariants,
   radioGroupItemVariants,
   radioGroupRootVariants,
   radioGroupWrapperVariants,
@@ -47,6 +49,9 @@ export namespace RadioGroupT {
 
     /** Visible radio control for an individual option. */
     control?: T
+
+    /** Vertical alignment wrapper for the radio control. */
+    container?: T
 
     /** Selected-state layer inside an option control. */
     indicator?: T
@@ -467,75 +472,84 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 merged.classes?.item,
               )}
             >
-              <HiddenInput
-                ref={(element) => {
-                  inputRefs.set(item.id, element)
-                }}
-                id={item.inputId}
-                type="radio"
-                name={field.name()}
-                value={item.value}
-                checked={selected()}
-                required={field.required()}
-                disabled={disabled()}
-                readOnly={readOnly()}
-                aria-required={field.required() || undefined}
-                aria-disabled={disabled() || undefined}
-                aria-readonly={readOnly() || undefined}
-                aria-labelledby={item.label ? item.labelId : undefined}
-                aria-describedby={
-                  [item.descriptionId, groupAriaAttrs()['aria-describedby']]
-                    .filter(Boolean)
-                    .join(' ') || undefined
-                }
-                tabIndex={item.id === tabbableItemId() ? 0 : -1}
-                class="peer"
-                data-slot="input"
-                onChange={(event) => {
-                  event.stopPropagation()
-                  onChange(item.value)
-                  syncInputCheckedState()
-                }}
-                onKeyDown={(event) => {
-                  onItemKeyDown(event, item)
-                }}
-                onKeyUp={(event) => onItemKeyUp(event, item)}
-                onBlur={() => {
-                  if (pressedSpaceItemId === item.id) {
-                    pressedSpaceItemId = undefined
-                  }
-                }}
-              />
-
               <div
-                data-slot="control"
-                style={merged.styles?.control}
-                class={radioGroupBaseVariants(
+                data-slot="container"
+                style={merged.styles?.container}
+                class={radioGroupContainerVariants(
                   { size: field.size() },
-                  indicator() === 'hidden' && 'sr-only',
-                  merged.classes?.control,
+                  merged.classes?.container,
                 )}
-                data-checked={selected() ? '' : undefined}
-                data-invalid={field.invalid() ? '' : undefined}
-                data-disabled={disabled() ? '' : undefined}
-                data-readonly={readOnly() ? '' : undefined}
-                data-required={field.required() ? '' : undefined}
               >
-                <Show when={selected()}>
-                  <div
-                    data-slot="indicator"
-                    style={merged.styles?.indicator}
-                    class={cn(
-                      'rounded-full bg-primary-foreground flex size-2 items-center justify-center',
-                      merged.classes?.indicator,
-                    )}
-                    data-checked={selected() ? '' : undefined}
-                    data-invalid={field.invalid() ? '' : undefined}
-                    data-disabled={disabled() ? '' : undefined}
-                    data-readonly={readOnly() ? '' : undefined}
-                    data-required={field.required() ? '' : undefined}
-                  />
-                </Show>
+                <HiddenInput
+                  ref={(element) => {
+                    inputRefs.set(item.id, element)
+                  }}
+                  id={item.inputId}
+                  type="radio"
+                  name={field.name()}
+                  value={item.value}
+                  checked={selected()}
+                  required={field.required()}
+                  disabled={disabled()}
+                  readOnly={readOnly()}
+                  aria-required={field.required() || undefined}
+                  aria-disabled={disabled() || undefined}
+                  aria-readonly={readOnly() || undefined}
+                  aria-labelledby={item.label ? item.labelId : undefined}
+                  aria-describedby={
+                    [item.descriptionId, groupAriaAttrs()['aria-describedby']]
+                      .filter(Boolean)
+                      .join(' ') || undefined
+                  }
+                  tabIndex={item.id === tabbableItemId() ? 0 : -1}
+                  class="peer"
+                  data-slot="input"
+                  onChange={(event) => {
+                    event.stopPropagation()
+                    onChange(item.value)
+                    syncInputCheckedState()
+                  }}
+                  onKeyDown={(event) => {
+                    onItemKeyDown(event, item)
+                  }}
+                  onKeyUp={(event) => onItemKeyUp(event, item)}
+                  onBlur={() => {
+                    if (pressedSpaceItemId === item.id) {
+                      pressedSpaceItemId = undefined
+                    }
+                  }}
+                />
+
+                <div
+                  data-slot="control"
+                  style={merged.styles?.control}
+                  class={radioGroupBaseVariants(
+                    { size: field.size() },
+                    indicator() === 'hidden' && 'sr-only',
+                    merged.classes?.control,
+                  )}
+                  data-checked={selected() ? '' : undefined}
+                  data-invalid={field.invalid() ? '' : undefined}
+                  data-disabled={disabled() ? '' : undefined}
+                  data-readonly={readOnly() ? '' : undefined}
+                  data-required={field.required() ? '' : undefined}
+                >
+                  <Show when={selected()}>
+                    <div
+                      data-slot="indicator"
+                      style={merged.styles?.indicator}
+                      class={cn(
+                        radioGroupIndicatorVariants({ size: field.size() }),
+                        merged.classes?.indicator,
+                      )}
+                      data-checked={selected() ? '' : undefined}
+                      data-invalid={field.invalid() ? '' : undefined}
+                      data-disabled={disabled() ? '' : undefined}
+                      data-readonly={readOnly() ? '' : undefined}
+                      data-required={field.required() ? '' : undefined}
+                    />
+                  </Show>
+                </div>
               </div>
 
               <Show when={item.label || item.description}>
@@ -557,10 +571,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                           id={item.labelId}
                           data-slot="label"
                           style={merged.styles?.label}
-                          class={cn(
-                            'text-foreground leading-tight font-medium block',
-                            merged.classes?.label,
-                          )}
+                          class={cn('text-foreground font-medium block', merged.classes?.label)}
                         >
                           {item.label}
                         </p>
@@ -571,10 +582,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         for={item.inputId}
                         data-slot="label"
                         style={merged.styles?.label}
-                        class={cn(
-                          'text-foreground leading-tight font-medium block',
-                          merged.classes?.label,
-                        )}
+                        class={cn('text-foreground font-medium block', merged.classes?.label)}
                       >
                         {item.label}
                       </label>
@@ -586,10 +594,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       id={item.descriptionId}
                       data-slot="description"
                       style={merged.styles?.description}
-                      class={cn(
-                        'text-muted-foreground leading-relaxed',
-                        merged.classes?.description,
-                      )}
+                      class={cn('text-muted-foreground', merged.classes?.description)}
                     >
                       {item.description}
                     </p>

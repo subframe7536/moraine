@@ -370,6 +370,7 @@ describe('RadioGroup', () => {
     const group = screen.getByRole('radiogroup')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
     const firstInput = screen.container.querySelector('[data-slot="input"]')
+    const firstContainer = screen.container.querySelector('[data-slot="container"]')
     const firstBase = screen.container.querySelector('[data-slot="control"]')
 
     expect(group.className).toContain('flex-row')
@@ -379,6 +380,7 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
     expect(firstItem?.className).toContain('not-first-of-type:-ms-px')
     expect(firstInput?.className).toContain('peer')
+    expect(firstContainer?.className).toContain('h-5')
     expect(firstBase?.className).toContain('peer-focus-visible:effect-fv-border')
   })
 
@@ -428,12 +430,14 @@ describe('RadioGroup', () => {
   )
 
   test('prevents the default radio control from shrinking into an oval', () => {
-    const screen = render(() => <RadioGroup items={['A']} />)
+    const screen = render(() => <RadioGroup items={['A']} defaultValue="A" />)
     const control = screen.container.querySelector('[data-slot="control"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
 
     expect(control?.className).toContain('rounded-full')
     expect(control?.className).toContain('size-4')
     expect(control?.className).toContain('shrink-0')
+    expect(indicator?.className).toContain('size-1.5')
   })
 
   test('selects option when clicking table item container', async () => {

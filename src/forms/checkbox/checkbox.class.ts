@@ -2,6 +2,7 @@ import type { VariantProps } from 'cls-variant'
 
 import {
   CHECKABLE_BASE_SIZE_VARIANT,
+  CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
   REQUIRED_MARK_VARIANT,
@@ -47,20 +48,16 @@ export const checkboxBaseVariants = cva(
   },
 )
 
-export const checkboxIconVariants = cva('shrink-0', {
+export const checkboxContainerVariants = cva('flex items-center', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
-    size: {
-      sm: 'size-3',
-      md: 'size-3.5',
-      lg: 'size-4',
-    },
+    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
   },
 })
 
-export const checkboxWrapperVariants = cva('gap-1 w-full', {
+export const checkboxWrapperVariants = cva('w-full', {
   defaultVariants: {
     indicator: 'start',
     size: 'md',
@@ -71,14 +68,11 @@ export const checkboxWrapperVariants = cva('gap-1 w-full', {
   },
 })
 
-export const checkboxLabelVariants = cva(
-  'text-foreground leading-tight font-medium block select-none',
-  {
-    variants: {
-      required: REQUIRED_MARK_VARIANT,
-    },
+export const checkboxLabelVariants = cva('text-foreground font-medium block select-none', {
+  variants: {
+    required: REQUIRED_MARK_VARIANT,
   },
-)
+})
 
 type CheckboxRootVariantProps = Omit<
   VariantProps<typeof checkboxRootVariants>,

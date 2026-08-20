@@ -69,9 +69,9 @@ describe('Slider', () => {
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
     expect(horizontalTrack?.className).toContain('h-$s-size')
-    expect(horizontalTrack?.className).toContain('h-1')
+    expect(horizontalTrack?.className).toContain('var-slider-4')
     expect(verticalTrack?.className).toContain('w-$s-size')
-    expect(verticalTrack?.className).toContain('h-2')
+    expect(verticalTrack?.className).toContain('var-slider-6')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -114,14 +114,14 @@ describe('Slider', () => {
     expect(thumb?.getAttribute('aria-required')).toBe('true')
     expect(thumb?.getAttribute('aria-disabled')).toBe('true')
     expect(thumb?.getAttribute('aria-readonly')).toBe('true')
-    expect(track?.className).toContain('bg-muted')
+    expect(track?.className).toContain('bg-input')
     expect(thumb?.className).toContain('absolute')
     expect(thumb?.style.translate).toBe('')
     expect(thumb?.className).toContain('-translate-y-1/2')
     expect(thumb?.className).toContain('scale-120')
     expect(thumb?.className).toContain('cursor-pointer')
-    expect(thumb?.className).toContain('hover:ring-4')
-    expect(thumb?.className).toContain('focus-visible:ring-4')
+    expect(thumb?.className).toContain('hover:effect-fv')
+    expect(thumb?.className).toContain('focus-visible:effect-fv')
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
@@ -398,8 +398,8 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
-    expect(thumbs[0]?.className).toContain('hover:ring-4')
-    expect(thumbs[1]?.className).toContain('hover:ring-4')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -434,8 +434,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:ring-4')
-    expect(thumbs[1]?.className).toContain('hover:ring-4')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
     await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
@@ -448,8 +448,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('40')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:ring-4')
-    expect(thumbs[1]?.className).toContain('hover:ring-4')
+    expect(thumbs[0]?.className).toContain('hover:effect-fv')
+    expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[0])
 
     await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -718,7 +718,8 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('h-4')
+    expect(track?.className).toContain('h-$s-size')
+    expect(track?.className).toContain('var-slider-18')
     expect(range?.className).toContain('rounded')
     expect(range?.className).toContain('z-2')
     expect(divider?.className).toContain('w-px')

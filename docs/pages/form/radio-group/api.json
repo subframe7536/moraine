@@ -105,6 +105,13 @@
       "ariaAttributes": []
     },
     {
+      "name": "container",
+      "description": "Vertical alignment wrapper for the radio control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "indicator",
       "description": "Selected-state layer inside an option control.",
       "cssVariables": [],

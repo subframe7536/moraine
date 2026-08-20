@@ -156,6 +156,13 @@
       "ariaAttributes": []
     },
     {
+      "name": "container",
+      "description": "Vertical alignment wrapper for the checkbox control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "label",
       "description": "Primary checkbox label text.",
       "cssVariables": [],

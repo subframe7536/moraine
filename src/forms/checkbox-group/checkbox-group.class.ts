@@ -14,14 +14,11 @@ export const checkboxGroupFieldsetVariants = cva('flex', {
     orientation: 'vertical',
   },
   variants: {
-    orientation: {
-      ...FLEX_ORIENTATION_VARIANT,
-      horizontal: 'flex-row flex-wrap',
-    },
+    orientation: FLEX_ORIENTATION_VARIANT,
   },
 })
 
-export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-3 block', {
+export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-1 block', {
   defaultVariants: {
     size: 'md',
   },

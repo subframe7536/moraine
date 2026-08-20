@@ -2,6 +2,7 @@ import type { VariantProps } from 'cls-variant'
 
 import {
   CHECKABLE_BASE_SIZE_VARIANT,
+  CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
   FLEX_ORIENTATION_VARIANT,
@@ -15,10 +16,16 @@ export const radioGroupRootVariants = cva('flex relative', {
     orientation: 'vertical',
   },
   variants: {
-    orientation: {
-      ...FLEX_ORIENTATION_VARIANT,
-      horizontal: 'flex-row',
-    },
+    orientation: FLEX_ORIENTATION_VARIANT,
+  },
+})
+
+export const radioGroupContainerVariants = cva('flex items-center', {
+  defaultVariants: {
+    size: 'md',
+  },
+  variants: {
+    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
   },
 })
 
@@ -88,6 +95,19 @@ export const radioGroupWrapperVariants = cva('w-full', {
   },
   variants: {
     indicator: CHECKABLE_WRAPPER_ALIGN_VARIANT,
+  },
+})
+
+export const radioGroupIndicatorVariants = cva('rounded-full bg-primary-foreground', {
+  defaultVariants: {
+    size: 'md',
+  },
+  variants: {
+    size: {
+      sm: 'size-1',
+      md: 'size-1.5',
+      lg: 'size-1.5',
+    },
   },
 })
 
