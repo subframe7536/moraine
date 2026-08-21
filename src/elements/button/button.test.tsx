@@ -182,6 +182,9 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(trailing).not.toBeNull()
+    expect(button.className).toContain('gap-1.5')
+    expect(leading?.getAttribute('style')).toBeNull()
+    expect(trailing?.getAttribute('style')).toBeNull()
     expect(leading?.className).toContain('i-lucide-chevron-left')
     expect(trailing?.className).toContain('i-lucide-chevron-right')
   })

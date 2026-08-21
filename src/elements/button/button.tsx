@@ -194,15 +194,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
-  const iconSize = createMemo(() => {
-    const currentSize = size()
-    if (currentSize.startsWith('icon-')) {
-      return currentSize.replace('icon-', '')
-    }
-
-    return currentSize === 'sm' ? '0.875rem' : '1rem'
-  })
-
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
 
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
@@ -230,19 +221,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     }
 
     return trailing()
-  })
-
-  const iconPadding = createMemo(() => {
-    if (size().startsWith('icon-')) {
-      return undefined
-    }
-
-    const paddingStart = size() === 'sm' ? 'ps-1.5' : 'ps-2'
-    const paddingEnd = size() === 'sm' ? 'pe-1.5' : 'pe-2'
-    return [
-      resolvedLeading() ? paddingStart : undefined,
-      resolvedTrailing() ? paddingEnd : undefined,
-    ]
   })
 
   let spaceKeyDownArmed = false
@@ -371,13 +349,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       {...rest}
       component={tag()}
       style={{ ...local.styles?.root, ...local.style }}
-      class={cn(
-        buttonVariants({
+      class={buttonVariants(
+        {
           variant: variant(),
           size: size(),
-        }),
-        resolvedLeading() && iconPadding()?.[0],
-        resolvedTrailing() && iconPadding()?.[1],
+        },
         local.classes?.root,
         local.class,
       )}
@@ -408,7 +384,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(leading) => (
           <Icon
             name={leading()}
-            size={iconSize()}
             slotName="leading"
             style={local.styles?.leading}
             class={cn(
@@ -434,7 +409,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(trailing) => (
           <Icon
             name={trailing()}
-            size={iconSize()}
             slotName="trailing"
             style={local.styles?.trailing}
             class={cn(

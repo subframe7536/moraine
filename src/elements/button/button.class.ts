@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const buttonVariants = cva(
-  'border inline-flex cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:effect-fv-border aria-invalid:effect-invalid aria-disabled:effect-dis disabled:effect-dis [&:active:not([aria-haspopup])]:translate-y-px',
+  'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:effect-fv-border aria-invalid:effect-invalid aria-disabled:effect-dis disabled:effect-dis [&:active:not([aria-haspopup])]:translate-y-px',
   {
     defaultVariants: {
       size: 'md',
@@ -24,9 +24,9 @@ export const buttonVariants = cva(
           'text-destructive-foreground border-transparent bg-destructive focus-visible:border-destructive/40 active:bg-destructive-active hover:bg-destructive-hover focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
       },
       size: {
-        sm: 'text-sm px-2.5 rounded-md gap-1 h-7',
-        md: 'text-sm px-2.5 rounded-lg gap-1.5 h-8',
-        lg: 'text-sm px-2.5 rounded-lg gap-1.5 h-9',
+        sm: 'text-sm px-2.5 rounded-md h-7',
+        md: 'text-sm px-2.5 rounded-lg h-8',
+        lg: 'text-sm px-2.5 rounded-lg h-9',
         'icon-sm': 'text-sm rounded-md size-7',
         'icon-md': 'text-sm rounded-lg size-8',
         'icon-lg': 'text-sm rounded-lg size-9',

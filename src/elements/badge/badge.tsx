@@ -113,8 +113,6 @@ export function Badge(props: BadgeProps): JSX.Element {
       typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
     return childText ? `Remove ${childText}` : 'Remove badge'
   })
-  const iconClass = createMemo(() => cn('size-3'))
-  const iconPadding = createMemo(() => (size() === 'sm' ? '1.5' : '2'))
 
   return (
     <span
@@ -129,8 +127,6 @@ export function Badge(props: BadgeProps): JSX.Element {
           size: size(),
           variant: variant(),
         },
-        leading() && `ps-${iconPadding()}`,
-        trailing() && `pe-${iconPadding()}`,
         local.classes?.root,
         local.class,
       )}
@@ -141,7 +137,7 @@ export function Badge(props: BadgeProps): JSX.Element {
             name={leading()}
             slotName="leading"
             style={local.styles?.leading}
-            class={cn(iconClass(), local.classes?.leading)}
+            class={cn(local.classes?.leading)}
           />
         )}
       </Show>
@@ -165,7 +161,7 @@ export function Badge(props: BadgeProps): JSX.Element {
                 name={trailing()}
                 slotName="trailing"
                 style={local.styles?.trailing}
-                class={cn(iconClass(), local.classes?.trailing)}
+                class={cn(local.classes?.trailing)}
               />
             }
           >
