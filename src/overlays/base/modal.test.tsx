@@ -214,6 +214,21 @@ describe('Modal primitives', () => {
     expect(contentRef).toHaveBeenLastCalledWith(undefined)
   })
 
+  test('can contain the content inside a scrolling overlay', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content overlay overlayScroll contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]')
+    const content = document.body.querySelector('[data-slot="content"]')
+
+    expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(overlay?.className).toContain('overflow-y-auto')
+    expect(overlay?.className).toContain('p-4')
+  })
+
   test('aria-hides background siblings while modal content is present and restores them on cleanup', async () => {
     const background = document.createElement('main')
     background.textContent = 'Application'

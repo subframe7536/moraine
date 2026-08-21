@@ -1,4 +1,4 @@
-import { Button, CommandPalette, Dialog, Icon, Kbd, KbdGroup } from '@src'
+import { Button, CommandPalette, Icon, Kbd, KbdGroup, Modal } from '@src'
 import type { CommandPaletteT } from '@src'
 import { createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
@@ -153,40 +153,41 @@ export function RealWorldExample() {
         <p class="text-sm text-muted-foreground mt-1">{lastAction()}</p>
       </div>
 
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={
-          <CommandPalette<AppCommand>
-            groups={groups()}
-            showClose
-            onSelect={onSelect}
-            onClose={() => setOpen(false)}
-            footerRender={() => (
-              <div class="flex flex-wrap gap-3 items-center justify-between">
-                <div class="flex flex-wrap gap-3 items-center">
-                  <span class="flex gap-2 items-center">
-                    <KbdGroup items={['↑', '↓']} size="sm" />
-                    <span class="text-xs">Navigate</span>
-                  </span>
-                  <span class="flex gap-2 items-center">
-                    <Kbd value="↵" size="sm" />
-                    <span class="text-xs">Run command</span>
-                  </span>
+      <Modal open={open()} onOpenChange={setOpen}>
+        <Modal.Trigger>
+          {(props) => (
+            <Button {...props} variant="outline">
+              Search projects, issues, and actions
+            </Button>
+          )}
+        </Modal.Trigger>
+        <Modal.Content
+          overlay
+          ariaLabel="Search projects, issues, and actions"
+          contentRender={(context) => (
+            <CommandPalette<AppCommand>
+              groups={groups()}
+              showClose
+              onSelect={onSelect}
+              onClose={context.close}
+              footerRender={() => (
+                <div class="flex flex-wrap gap-3 items-center justify-between">
+                  <div class="flex flex-wrap gap-3 items-center">
+                    <span class="flex gap-2 items-center">
+                      <KbdGroup items={['↑', '↓']} size="sm" />
+                      <span class="text-xs">Navigate</span>
+                    </span>
+                    <span class="flex gap-2 items-center">
+                      <Kbd value="↵" size="sm" />
+                      <span class="text-xs">Run command</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
-          />
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Search projects, issues, and actions
-          </Button>
-        )}
-      </Dialog>
+              )}
+            />
+          )}
+        />
+      </Modal>
     </div>
   )
 }
