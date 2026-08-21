@@ -45,7 +45,7 @@ From the fixed decisions in `plans/README.md`:
    attributes; styling work must not replace the completed behavior-parity work. When
    a Vega selector depends on a DOM relationship Moraine does not have, record an
    intentional divergence instead of changing DOM.
-4. Reuse Moraine's `surface-border`, `surface-overlay`, `effect-fv-border`,
+4. Reuse Moraine's `surface-overlay`, `effect-fv-border`,
    `effect-invalid`, and `effect-dis` shortcuts plus semantic color tokens. Use
    Moraine's semantic radius tiers (`rounded-xs`…`rounded-4xl`) rather than importing
    Zaidan's radius-variable implementation.

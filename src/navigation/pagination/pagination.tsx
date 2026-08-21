@@ -351,6 +351,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
     return `Go to next page, page ${current + 1}`
   }
 
+  const hasPrevText = createMemo(() => Boolean(merged.prevText))
+  const hasNextText = createMemo(() => Boolean(merged.nextText))
+
   return (
     <nav
       data-slot="root"
@@ -375,15 +378,17 @@ export function Pagination(props: PaginationProps): JSX.Element {
               data-slot="prev"
               style={merged.styles?.prev}
               variant={merged.controlVariant}
-              size={getSize(merged.size, merged.prevText)}
+              size={getSize(merged.size, hasPrevText() ? merged.prevText : undefined)}
               aria-label={getPrevLabel()}
-              class={cn(PAGINATION_PREV_CLASS, merged.classes?.prev)}
-              classes={{ label: merged.prevText && 'hidden sm:block' }}
+              class={cn(hasPrevText() && PAGINATION_PREV_CLASS, merged.classes?.prev)}
+              classes={{ label: hasPrevText() && 'hidden sm:block' }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
-              leading={<Icon name={merged.prevIcon} />}
+              leading={hasPrevText() ? merged.prevIcon : undefined}
             >
-              {merged.prevText}
+              <Show when={hasPrevText()} fallback={<Icon name={merged.prevIcon} />}>
+                {merged.prevText}
+              </Show>
             </Button>
           </li>
         </Show>
@@ -442,15 +447,17 @@ export function Pagination(props: PaginationProps): JSX.Element {
               data-slot="next"
               style={merged.styles?.next}
               variant={merged.controlVariant}
-              size={getSize(merged.size, merged.nextText)}
+              size={getSize(merged.size, hasNextText() ? merged.nextText : undefined)}
               aria-label={getNextLabel()}
-              class={cn(PAGINATION_NEXT_CLASS, merged.classes?.next)}
-              classes={{ label: merged.nextText ? 'hidden sm:block' : undefined }}
+              class={cn(hasNextText() && PAGINATION_NEXT_CLASS, merged.classes?.next)}
+              classes={{ label: hasNextText() ? 'hidden sm:block' : undefined }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
-              trailing={<Icon name={merged.nextIcon} />}
+              trailing={hasNextText() ? merged.nextIcon : undefined}
             >
-              {merged.nextText}
+              <Show when={hasNextText()} fallback={<Icon name={merged.nextIcon} />}>
+                {merged.nextText}
+              </Show>
             </Button>
           </li>
         </Show>

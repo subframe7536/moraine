@@ -38,7 +38,7 @@ export const tabsIndicatorVariants = cva('rounded-md transition-all duration-200
       vertical: 'top-0',
     },
     variant: {
-      pill: 'surface-border bg-background shadow-xs',
+      pill: 'border border-border bg-background shadow-xs',
       link: 'bg-primary',
     },
   },

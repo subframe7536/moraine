@@ -190,7 +190,7 @@ describe('Modal', () => {
 
     const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLButtonElement
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.className).toContain('surface-border')
+    expect(trigger.className).toContain('border-border')
     expect(trigger.querySelector('button')).toBeNull()
   })
 

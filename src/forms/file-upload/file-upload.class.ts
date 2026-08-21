@@ -98,7 +98,7 @@ export const fileUploadFilesVariants = cva('flex flex-col', {
 })
 
 export const fileUploadFileVariants = cva(
-  'text-card-foreground surface-border rounded-xl bg-card flex transition-colors items-center relative',
+  'text-card-foreground border border-border rounded-xl bg-card flex transition-colors items-center relative',
   {
     defaultVariants: {
       size: 'md',

@@ -192,9 +192,9 @@ describe('ButtonGroup', () => {
   })
 
   test.each([
-    ['sm', 'h-8'],
-    ['md', 'h-9'],
-    ['lg', 'h-10'],
+    ['sm', 'h-7'],
+    ['md', 'h-8'],
+    ['lg', 'h-9'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
       <ButtonGroup size={size}>
@@ -211,7 +211,7 @@ describe('ButtonGroup', () => {
   test.each([
     ['default', 'bg-primary'],
     ['secondary', 'bg-secondary'],
-    ['outline', 'surface-border'],
+    ['outline', 'border-border'],
     ['ghost', 'hover:(text-foreground bg-muted-hover)'],
     ['link', 'hover:underline'],
     ['destructive', 'bg-destructive'],
@@ -238,7 +238,7 @@ describe('ButtonGroup', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Remove' })
-    expect(button.className).toContain('h-8')
+    expect(button.className).toContain('h-7')
     expect(button.className).toContain('bg-destructive')
   })
 
@@ -301,13 +301,13 @@ describe('ButtonGroup', () => {
     ))
     const button = screen.getByRole('button', { name: 'Action' })
 
-    expect(button.className).toContain('h-8')
-    expect(button.className).toContain('surface-border')
+    expect(button.className).toContain('h-7')
+    expect(button.className).toContain('border-border')
 
     setSize('lg')
     setVariant('secondary')
 
-    expect(button.className).toContain('h-10')
+    expect(button.className).toContain('h-9')
     expect(button.className).toContain('bg-secondary')
   })
 

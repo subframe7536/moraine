@@ -16,7 +16,7 @@ export const checkboxRootVariants = cva('flex items-start relative', {
   },
   variants: {
     variant: {
-      card: 'surface-border rounded-md',
+      card: 'border border-border rounded-md',
       list: '',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,

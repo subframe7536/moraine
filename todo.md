@@ -34,13 +34,14 @@
   - [x] FileUpload: consolidate dropzone, trigger, preview, file-row, metadata, and remove-action metrics, then align drag, invalid, disabled, focus, single/multiple, and non-dropzone layouts with Nuxt FileUpload
 - [x] replace Card in Dialog component by raw jsx components, sync styles
   - [x] command-palette example should use modal instead of dialog
-- [ ] refactor pagination component style
+- [x] pagination controls if no text, should set Icon compoent in children; if has text, use leading/trailing to set icon
 - [ ] named z-index class name
 - [ ] simplify separator structure, same to kobalte: remove children, only one element
 - [ ] add Collapsible.Trigger and Collapsible.Content
   - [ ] content enter/exit should has opacity transition
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
   - [ ] fix broken auto scroll to anchor
+- [ ] production barrel import optimize
 
 # V1
 

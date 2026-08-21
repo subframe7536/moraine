@@ -625,7 +625,6 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         'style-accordion-content',
         '[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
       ],
-      ['surface-border', 'border border-border'],
       ['surface-overlay', 'border border-border shadow-md'],
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
       ['rm-side-b', '[&>[data-slot=sidebar]]:border-0!'],

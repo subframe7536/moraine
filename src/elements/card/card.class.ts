@@ -1,5 +1,5 @@
 export const CARD_ROOT_CLASS =
-  'text-card-foreground surface-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding'
+  'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding'
 
 export const CARD_HEADER_CLASS = 'grid auto-rows-min items-start'
 export const CARD_HEADER_DEFAULT_CLASS = 'p-6 gap-1'

@@ -52,7 +52,7 @@ Do not pull, reset, or edit the Zaidan checkout as part of this work.
   semantic `data-unchecked` and SidebarFrame `data-state` remain when their current
   contracts expose them. ButtonGroup may retain relationship selectors for arbitrary
   caller-owned children, but it must keep Moraine's existing slot names.
-- Reuse Moraine's `surface-border`, `surface-overlay`, `effect-fv-border`,
+- Reuse Moraine's `surface-overlay`, `effect-fv-border`,
   `effect-invalid`, and `effect-dis` shortcuts and semantic color tokens. Use semantic
   radius tiers rather than importing Zaidan's radius-variable implementation.
 - Use the existing Moraine motion primitives when they represent the same motion:
