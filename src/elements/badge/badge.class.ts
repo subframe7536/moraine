@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const badgeVariants = cva(
-  'leading-normal font-medium border border-transparent inline-flex shrink-0 max-w-full select-none whitespace-nowrap transition-all items-center',
+  'leading-normal font-medium border border-transparent inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
   {
     defaultVariants: {
       size: 'md',

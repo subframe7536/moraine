@@ -56,7 +56,7 @@ export const stepperContainerVariants = cva('flex items-center relative', {
 })
 
 export const stepperTriggerVariants = cva(
-  'rounded-full inline-flex size-$st-size transition-all items-center justify-center focus-visible:effect-fv data-clickable:cursor-pointer',
+  'rounded-full inline-flex size-$st-size transition-colors items-center justify-center focus-visible:effect-fv data-clickable:cursor-pointer',
   {
     defaultVariants: {
       size: 'md',

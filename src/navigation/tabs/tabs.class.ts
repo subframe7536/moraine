@@ -31,47 +31,50 @@ export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
   },
 })
 
-export const tabsIndicatorVariants = cva('rounded-md transition-all duration-200 absolute', {
-  variants: {
-    orientation: {
-      horizontal: 'left-0',
-      vertical: 'top-0',
+export const tabsIndicatorVariants = cva(
+  'rounded-md transition-[transform,width,height] absolute',
+  {
+    variants: {
+      orientation: {
+        horizontal: 'left-0',
+        vertical: 'top-0',
+      },
+      variant: {
+        pill: 'border border-border bg-background shadow-xs',
+        link: 'bg-primary',
+      },
     },
-    variant: {
-      pill: 'border border-border bg-background shadow-xs',
-      link: 'bg-primary',
-    },
-  },
-  compoundVariants: [
-    {
+    compoundVariants: [
+      {
+        orientation: 'horizontal',
+        variant: 'pill',
+        class: 'inset-y-1',
+      },
+      {
+        orientation: 'vertical',
+        variant: 'pill',
+        class: 'inset-x-1',
+      },
+      {
+        orientation: 'horizontal',
+        variant: 'link',
+        class: 'bottom-0 h-px rounded-full',
+      },
+      {
+        orientation: 'vertical',
+        variant: 'link',
+        class: 'right-0 w-px rounded-full',
+      },
+    ],
+    defaultVariants: {
       orientation: 'horizontal',
       variant: 'pill',
-      class: 'inset-y-1',
     },
-    {
-      orientation: 'vertical',
-      variant: 'pill',
-      class: 'inset-x-1',
-    },
-    {
-      orientation: 'horizontal',
-      variant: 'link',
-      class: 'bottom-0 h-px rounded-full',
-    },
-    {
-      orientation: 'vertical',
-      variant: 'link',
-      class: 'right-0 w-px rounded-full',
-    },
-  ],
-  defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'pill',
   },
-})
+)
 
 export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-all items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
+  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
   {
     variants: {
       orientation: {

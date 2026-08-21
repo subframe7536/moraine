@@ -135,8 +135,6 @@ describe('Button', () => {
   test('applies press interaction classes', () => {
     const screen = render(() => <Button>Press</Button>)
     const button = screen.getByRole('button', { name: 'Press' })
-
-    expect(button.className).toContain('transition-all')
     expect(button.className).toContain('hover:bg-primary-hover')
     expect(button.className).toContain('active:bg-primary-active')
     expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
