@@ -17,6 +17,7 @@ import {
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   MORAINE_WIDTH,
+  MORAINE_Z_INDEX,
 } from '../shared/style/theme.ts'
 
 import { transformerInjectCompileClass } from './inject-compile-class.ts'
@@ -585,8 +586,15 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         boxShadow: MORAINE_SHADOW,
         fontFamily: MORAINE_FONT,
         width: MORAINE_WIDTH,
+        zIndex: MORAINE_Z_INDEX,
       }
-    : { radius: MORAINE_RADIUS, shadow: MORAINE_SHADOW, font: MORAINE_FONT, spacing: MORAINE_WIDTH }
+    : {
+        radius: MORAINE_RADIUS,
+        shadow: MORAINE_SHADOW,
+        font: MORAINE_FONT,
+        spacing: MORAINE_WIDTH,
+        zIndex: MORAINE_Z_INDEX,
+      }
 
   return {
     name: 'preset-theme-moraine',
@@ -633,6 +641,9 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       ),
       ...Object.entries(TRANSITION_ANIMATION_SHORTCUTS).map(
         ([name, value]) => [name, value] as [string, string],
+      ),
+      ...Object.entries(MORAINE_Z_INDEX).map(
+        ([name, value]) => [`z-${name}`, `z-${value}`] as [string, string],
       ),
       ...DEFAULT_ICON_SHORTCUTS,
     ],

@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const sheetContentVariants = cva(
-  'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg transition duration-200 ease-in-out fixed z-50 bg-clip-padding data-closed:animate-sheet-out data-expanded:animate-sheet-in motion-reduce:animate-none',
+  'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg transition duration-200 ease-in-out fixed z-floating bg-clip-padding data-closed:animate-sheet-out data-expanded:animate-sheet-in motion-reduce:animate-none',
   {
     defaultVariants: {
       side: 'right',

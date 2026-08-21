@@ -1556,7 +1556,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           <div
             data-slot="overlay"
             style={merged.styles?.overlay}
-            class={cn('inset-0 fixed z-40', merged.classes?.overlay)}
+            class={cn('inset-0 fixed z-overlay', merged.classes?.overlay)}
           />
         </Show>
         <OverlayMenuLayer<TItem>

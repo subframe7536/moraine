@@ -29,7 +29,7 @@ export const radioGroupContainerVariants = cva('flex items-center', {
   },
 })
 
-export const radioGroupItemVariants = cva('border flex items-start data-disabled:effect-dis', {
+export const radioGroupItemVariants = cva('flex items-start data-disabled:effect-dis', {
   defaultVariants: {
     size: 'md',
     indicator: 'start',
@@ -37,8 +37,9 @@ export const radioGroupItemVariants = cva('border flex items-start data-disabled
   variants: {
     size: TEXT_SIZE_VARIANT,
     variant: {
-      card: 'border-border rounded-md data-checked:border-primary',
-      table: 'border-muted relative data-checked:(border-primary/50 bg-primary/10 z-1)',
+      card: 'border border-border rounded-md data-checked:border-primary',
+      table:
+        'data-checked:z-base border border-muted relative data-checked:(border-primary/50 bg-primary/10)',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,
     tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,
@@ -104,9 +105,9 @@ export const radioGroupIndicatorVariants = cva('rounded-full bg-primary-foregrou
   },
   variants: {
     size: {
-      sm: 'size-1',
-      md: 'size-1.5',
-      lg: 'size-1.5',
+      sm: 'size-1.5',
+      md: 'size-2',
+      lg: 'size-2.5',
     },
   },
 })

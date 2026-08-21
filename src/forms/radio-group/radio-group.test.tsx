@@ -429,6 +429,13 @@ describe('RadioGroup', () => {
     },
   )
 
+  test('raises the selected table item above adjacent rows', () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
+    const selectedItem = screen.container.querySelector('[data-slot="item"]')
+
+    expect(selectedItem?.className).toContain('z-base')
+  })
+
   test('prevents the default radio control from shrinking into an oval', () => {
     const screen = render(() => <RadioGroup items={['A']} defaultValue="A" />)
     const control = screen.container.querySelector('[data-slot="control"]')
@@ -437,7 +444,7 @@ describe('RadioGroup', () => {
     expect(control?.className).toContain('rounded-full')
     expect(control?.className).toContain('size-4')
     expect(control?.className).toContain('shrink-0')
-    expect(indicator?.className).toContain('size-1.5')
+    expect(indicator?.className).toContain('size-2')
   })
 
   test('selects option when clicking table item container', async () => {

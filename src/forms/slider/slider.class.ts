@@ -48,7 +48,7 @@ export const sliderTrackVariants = cva('bg-input select-none relative', {
   ],
 })
 
-export const sliderRangeVariants = cva('bg-primary select-none absolute z-2', {
+export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised', {
   defaultVariants: {
     orientation: 'horizontal',
     variant: 'default',
@@ -136,7 +136,7 @@ export const sliderDividerVariants = cva('bg-background pointer-events-none abso
 })
 
 export const sliderThumbVariants = cva(
-  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-3 touch-none not-dark:bg-clip-padding',
+  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-control touch-none not-dark:bg-clip-padding',
   {
     defaultVariants: {
       orientation: 'horizontal',

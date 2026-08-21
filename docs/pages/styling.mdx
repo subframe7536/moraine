@@ -88,6 +88,20 @@ presetMoraine({
 
 Exact state colors override the global adjustments. Numeric state values generate an opaque `color-mix()` against the group's foreground color; missing state variables continue to fall back through Moraine's existing utility tokens.
 
+## Semantic z-index utilities
+
+Moraine provides the same semantic z-index utilities through UnoCSS and Tailwind. They keep stacking intent readable while preserving the framework's numeric z-index utilities:
+
+| Utility      | Value | Typical use                                   |
+| ------------ | ----: | --------------------------------------------- |
+| `z-base`     |   `1` | Base elevated content                         |
+| `z-raised`   |   `2` | Raised content and ranges                     |
+| `z-control`  |   `3` | Interactive controls above ranges             |
+| `z-sticky`   |  `10` | Sticky and locally elevated content           |
+| `z-resize`   |  `20` | Resize affordances                            |
+| `z-overlay`  |  `40` | Modal or menu overlays                        |
+| `z-floating` |  `50` | Floating content such as dialogs and popovers |
+
 ## Tailwind CSS
 
 Moraine ships a first-class Tailwind plugin that injects CSS variable tokens, theme extensions (colors, font families, radius, shadows, keyframes, animations, animation metadata), and `icon-*` utility stubs. It also provides `data-*` and `aria-*` variants for attribute-based styling.

@@ -35,7 +35,7 @@
 - [x] replace Card in Dialog component by raw jsx components, sync styles
   - [x] command-palette example should use modal instead of dialog
 - [x] pagination controls if no text, should set Icon compoent in children; if has text, use leading/trailing to set icon
-- [ ] named z-index class name
+- [x] named z-index class name
 - [ ] simplify separator structure, same to kobalte: remove children, only one element
 - [ ] add Collapsible.Trigger and Collapsible.Content
   - [ ] content enter/exit should has opacity transition

@@ -728,7 +728,7 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
           data-slot="positioner"
           data-positioned={context.positionerPositioned() ? '' : undefined}
           style={{ visibility: 'hidden', ...props.positionerStyle }}
-          class={cn(OVERLAY_POSITIONER_CLASS, 'z-50', props.positionerClass)}
+          class={cn(OVERLAY_POSITIONER_CLASS, 'z-floating', props.positionerClass)}
         >
           {renderComponentOrElement(contentRender(), {
             close: () => context.setOpen(false),

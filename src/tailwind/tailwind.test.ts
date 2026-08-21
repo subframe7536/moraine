@@ -232,6 +232,30 @@ describe('shadows', () => {
   })
 })
 
+// ─── Z-index ─────────────────────────────────────────────────────────
+
+describe('z-index', () => {
+  test('semantic z-index utilities resolve', async () => {
+    const css = await compileCSS([
+      'z-base',
+      'z-raised',
+      'z-control',
+      'z-sticky',
+      'z-resize',
+      'z-overlay',
+      'z-floating',
+    ])
+
+    expect(css).toContain('z-index: 1')
+    expect(css).toContain('z-index: 2')
+    expect(css).toContain('z-index: 3')
+    expect(css).toContain('z-index: 10')
+    expect(css).toContain('z-index: 20')
+    expect(css).toContain('z-index: 40')
+    expect(css).toContain('z-index: 50')
+  })
+})
+
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {

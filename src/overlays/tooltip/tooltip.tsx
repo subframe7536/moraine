@@ -416,7 +416,10 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              class={cn(text() && 'pe-1.5 rounded-sm relative z-50 isolate', merged.classes?.kbds)}
+              class={cn(
+                text() && 'pe-1.5 rounded-sm relative z-floating isolate',
+                merged.classes?.kbds,
+              )}
               classes={{ item: merged.classes?.kbd }}
             />
           )}

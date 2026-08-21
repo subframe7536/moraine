@@ -81,7 +81,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         <Progress
           aria-label="Loading page"
           size="sm"
-          class="pointer-events-none inset-x-0 top-0 fixed z-50"
+          class="pointer-events-none inset-x-0 top-0 fixed z-floating"
           classes={{
             track: 'rounded-none bg-transparent',
             indicator: 'rounded-none motion-reduce:animate-none',
@@ -115,7 +115,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             <header
               data-scrolled={ctx.scrolled() ? '' : undefined}
               class={cn(
-                'px-4 b-(b transparent) bg-transparent flex h-13 transition-([border-color,box-shadow,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-10 backdrop-blur-md sm:px-8',
+                'px-4 b-(b transparent) bg-transparent flex h-13 transition-([border-color,box-shadow,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
                 'data-scrolled:(border-border/80 bg-background/90 shadow-xs)',
               )}
             >

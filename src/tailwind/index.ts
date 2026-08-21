@@ -18,6 +18,7 @@ import {
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   MORAINE_WIDTH,
+  MORAINE_Z_INDEX,
 } from '../shared/style/theme.ts'
 
 export interface MorainePluginOptions {
@@ -105,6 +106,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           fontFamily: MORAINE_FONT,
           colors: MORAINE_COLORS,
           spacing: MORAINE_WIDTH,
+          zIndex: MORAINE_Z_INDEX,
           keyframes: MORAINE_KEYFRAMES,
           animation: buildTailwindAnimations(),
           transitionDuration: getMoraineAnimDurations(),

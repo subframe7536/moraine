@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const buttonGroupVariants = cva(
-  'inline-flex w-fit items-stretch *:focus-visible:(relative z-10)',
+  'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
   {
     defaultVariants: {
       orientation: 'horizontal',

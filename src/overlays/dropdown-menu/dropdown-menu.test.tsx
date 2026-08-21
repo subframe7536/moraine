@@ -1310,7 +1310,7 @@ describe('DropdownMenu', () => {
     })
 
     const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
-    expect(positioner.className).not.toContain('z-50')
+    expect(positioner.className).not.toContain('z-floating')
     expect(positioner.classList.contains('absolute')).toBe(true)
     expect(positioner.classList.contains('fixed')).toBe(false)
     expect(document.body.style.overflow).toBe('hidden')

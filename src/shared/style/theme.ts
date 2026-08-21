@@ -10,6 +10,17 @@ export const MORAINE_RADIUS = {
   '4xl': 'calc(var(--radius) * 2.6)',
 } as const
 
+/** Semantic z-index scale shared by UnoCSS and Tailwind. */
+export const MORAINE_Z_INDEX = {
+  base: 1,
+  raised: 2,
+  control: 3,
+  sticky: 10,
+  resize: 20,
+  overlay: 40,
+  floating: 50,
+} as const
+
 /** Box shadow scale mapped to `var(--shadow-*)` tokens. */
 export const MORAINE_SHADOW = {
   '2xs': 'var(--shadow-2xs)',

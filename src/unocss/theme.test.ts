@@ -251,6 +251,40 @@ describe('presetTheme component layer', () => {
     expect(css).not.toContain('-focus')
   })
 
+  test('provides semantic z-index utilities', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(
+      new Set([
+        'z-base',
+        'z-raised',
+        'z-control',
+        'z-sticky',
+        'z-resize',
+        'z-overlay',
+        'z-floating',
+      ]),
+      { preflights: false },
+    )
+
+    expect(css).toContain('.z-base')
+    expect(css).toContain('z-index:1')
+    expect(css).toContain('.z-raised')
+    expect(css).toContain('z-index:2')
+    expect(css).toContain('.z-control')
+    expect(css).toContain('z-index:3')
+    expect(css).toContain('.z-sticky')
+    expect(css).toContain('z-index:10')
+    expect(css).toContain('.z-resize')
+    expect(css).toContain('z-index:20')
+    expect(css).toContain('.z-overlay')
+    expect(css).toContain('z-index:40')
+    expect(css).toContain('.z-floating')
+    expect(css).toContain('z-index:50')
+  })
+
   test('defaults enableComponentLayer to prefix strategy with mo- utility prefix', () => {
     expect(resolvePresetThemeOptions({ enableComponentLayer: true })).toMatchObject({
       enableComponentLayer: true,
