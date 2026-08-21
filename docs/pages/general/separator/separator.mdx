@@ -1,6 +1,6 @@
 ---
 title: Separator
-description: Visual divider with configurable orientation, style, and optional label content.
+description: Visual divider with configurable orientation, style, and border type.
 sidebar:
   order: 9
 search:
@@ -13,24 +13,12 @@ search:
 import { Separator } from 'moraine'
 ```
 
-## Slot Structure
+## Structure
 
-Horizontal or vertical rule with an optional content label in the center.
-
-### Without content
+The separator renders one root element that acts as the horizontal or vertical rule.
 
 ```text
 root
-└── border
-```
-
-### With content
-
-```text
-root
-├── border
-├── container
-└── border
 ```
 
 ## Examples
@@ -47,8 +35,8 @@ Solid, dashed, and dotted divider styles.
 
 <Example path="./types" />
 
-### With Content + Vertical
+### Vertical
 
-Inline content and vertical separators in flexible layouts.
+Vertical separators in flexible layouts.
 
-<Example path="./with-content-vertical" />
+<Example path="./orientation" />

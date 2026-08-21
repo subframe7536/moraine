@@ -4,13 +4,13 @@
     "name": "Separator",
     "category": "elements",
     "polymorphic": false,
-    "description": "Visual divider with configurable orientation, style, and optional label content.",
+    "description": "Visual divider with configurable orientation, style, and border type.",
     "sourcePath": "src/elements/separator/separator.tsx"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Separator line container, including optional label content.",
+      "description": "Separator line.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -40,30 +40,10 @@
           "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
-    },
-    {
-      "name": "border",
-      "description": "Visual line segment rendered around optional separator content.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Optional label or custom content rendered within the separator line.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
     }
   ],
   "props": {
     "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Additional content to render inside the separator (usually between two borders)."
-      },
       {
         "name": "class",
         "required": false,

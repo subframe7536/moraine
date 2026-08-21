@@ -38,8 +38,7 @@ export const radioGroupItemVariants = cva('flex items-start data-disabled:effect
     size: TEXT_SIZE_VARIANT,
     variant: {
       card: 'border border-border rounded-md data-checked:border-primary',
-      table:
-        'data-checked:z-base border border-muted relative data-checked:(border-primary/50 bg-primary/10)',
+      table: 'border border-muted relative data-checked:(border-primary/50 bg-primary/10 z-base)',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,
     tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,
