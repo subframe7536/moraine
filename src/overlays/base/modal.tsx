@@ -19,7 +19,11 @@ import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useOverlayInteraction } from './interaction.ts'
-import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from './modal.class.ts'
+import {
+  MODAL_CONTENT_CLASS,
+  MODAL_CONTENT_DEFAULT_CLASS,
+  MODAL_OVERLAY_CLASS,
+} from './modal.class.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
@@ -492,7 +496,7 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
           tabIndex={-1}
           data-slot="content"
           style={props.style}
-          class={props.class ?? MODAL_CONTENT_CLASS}
+          class={props.class ?? `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`}
           onKeyDown={onContentKeyDown}
         >
           {renderComponentOrElement(contentRender(), {

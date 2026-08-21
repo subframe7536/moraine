@@ -4,7 +4,7 @@ import { cva } from '../../shared/utils.ts'
 
 export const SIDEBAR_FRAME_ROOT_CLASS = 'h-screen max-h-full min-h-0 overflow-hidden'
 export const SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS =
-  'min-h-0 overflow-hidden transition-[width,opacity,transform] duration-200 ease-linear motion-reduce:transition-none'
+  'min-h-0 overflow-hidden transition-[width,opacity,transform] duration-200 ease-out motion-reduce:transition-none'
 export const SIDEBAR_FRAME_HEADER_CLASS = 'flex gap-2 p-2'
 export const SIDEBAR_FRAME_BODY_CLASS = 'flex-1 min-h-0 overflow-y-auto'
 export const SIDEBAR_FRAME_FOOTER_CLASS = 'flex gap-2 p-2'

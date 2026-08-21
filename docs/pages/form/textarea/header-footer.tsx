@@ -28,7 +28,7 @@ export function HeaderFooter() {
         footer={
           <>
             <span>{composerValue().length}/280 characters</span>
-          <Button size="sm" class="ms-auto">
+            <Button size="sm" class="ms-auto">
               Send
             </Button>
           </>

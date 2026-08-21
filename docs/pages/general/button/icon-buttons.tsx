@@ -4,11 +4,7 @@ import type { ButtonT } from '@src/elements/button/button.tsx'
 import { For } from 'solid-js'
 
 export function IconButtons() {
-  const ICON_SIZES: NonNullable<ButtonT.Variant['size']>[] = [
-    'icon-sm',
-    'icon-md',
-    'icon-lg',
-  ]
+  const ICON_SIZES: NonNullable<ButtonT.Variant['size']>[] = ['icon-sm', 'icon-md', 'icon-lg']
 
   return (
     <div class="flex flex-wrap gap-4 items-center">

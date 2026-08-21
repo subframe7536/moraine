@@ -549,10 +549,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon
-                name={activeIcon()}
-                class={cn('shrink-0 size-full', merged.classes?.icon)}
-              />
+              <Icon name={activeIcon()} class={cn('shrink-0 size-full', merged.classes?.icon)} />
             </span>
           </Show>
         </button>

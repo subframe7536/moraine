@@ -32,9 +32,15 @@
   - [x] Slider: reduce default and bold track/thumb geometry, align horizontal and vertical dimensions and disabled/focus/drag states with Nuxt Slider and Zaidan Slider, and preserve multi-thumb hit targets
   - [x] Switch: align track/thumb sizes and checked translation, normalize label/description line-height and spacing, and match checked, unchecked, disabled, invalid, focus, and transition states with Nuxt Switch and Zaidan Switch
   - [x] FileUpload: consolidate dropzone, trigger, preview, file-row, metadata, and remove-action metrics, then align drag, invalid, disabled, focus, single/multiple, and non-dropzone layouts with Nuxt FileUpload
+- [ ] replace Card in Dialog component by raw jsx components, sync styles
+  - [ ] command-palette example should use modal instead of dialog
+- [ ] refactor pagination component style
+- [ ] named z-index class name
 - [ ] add Collapsible.Trigger and Collapsible.Content
   - [ ] content enter/exit should has opacity transition
+- [ ] simplify separator structure, same to base-ui: remove children, only one element
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
+  - [ ] fix broken auto scroll to anchor
 
 # V1
 

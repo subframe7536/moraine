@@ -50,8 +50,8 @@ export const inputNumberControlButtonVariants = cva(INPUT_NUMBER_CONTROL_BUTTON_
       decrement: '',
     },
     orientation: {
-      horizontal: 'self-stretch rounded-none',
-      vertical: 'px-0 flex-1 min-h-0 w-full scale-80 rounded-none',
+      horizontal: 'rounded-none self-stretch',
+      vertical: 'px-0 rounded-none flex-1 min-h-0 w-full scale-80',
     },
     size: {
       sm: 'text-xs',

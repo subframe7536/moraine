@@ -1168,13 +1168,7 @@ describe('InputNumber', () => {
   test.each([
     ['outline', ['border', 'border-input', 'bg-transparent', 'shadow-xs']],
     ['subtle', ['border', 'border-input', 'bg-input/30', 'shadow-xs']],
-    [
-      'ghost',
-      [
-        'hover:bg-muted-hover',
-        'focus-within:bg-muted-hover',
-      ],
-    ],
+    ['ghost', ['hover:bg-muted-hover', 'focus-within:bg-muted-hover']],
     ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {
     const screen = render(() => <InputNumber variant={variant} />)

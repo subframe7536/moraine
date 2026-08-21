@@ -378,7 +378,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               size={getSize(merged.size, merged.prevText)}
               aria-label={getPrevLabel()}
               class={cn(PAGINATION_PREV_CLASS, merged.classes?.prev)}
-              classes={{ label: merged.prevText ? 'hidden sm:block' : undefined }}
+              classes={{ label: merged.prevText && 'hidden sm:block' }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
               leading={<Icon name={merged.prevIcon} />}

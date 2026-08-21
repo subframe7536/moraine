@@ -4,4 +4,7 @@ export const MODAL_OVERLAY_CLASS =
 
 /** Default transition classes for custom modal content. */
 export const MODAL_CONTENT_CLASS =
-  'outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in motion-reduce:animate-none'
+  'bg-popover rounded-xl shadow-xs outline-none w-full z-50 data-closed:animate-popup-out data-expanded:animate-popup-in motion-reduce:animate-none'
+
+export const MODAL_CONTENT_DEFAULT_CLASS =
+  'max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2'

@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const COMMAND_PALETTE_ROOT_CLASS =
-  'bg-popover text-popover-foreground border border-border rounded-lg p-1 flex flex-col min-h-0 shadow-md overflow-hidden'
+  'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-md overflow-hidden'
 export const COMMAND_PALETTE_INPUT_WRAPPER_CLASS =
   'px-2.5 gap-2 h-11 border-b border-border/60 flex items-center'
 export const COMMAND_PALETTE_INPUT_CLASS = 'text-sm h-10 w-full'

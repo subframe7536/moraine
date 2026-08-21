@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
-import { MODAL_CONTENT_CLASS } from '../base/modal.class.ts'
+import { MODAL_CONTENT_CLASS, MODAL_CONTENT_DEFAULT_CLASS } from '../base/modal.class.ts'
 
 export const DIALOG_HEADER_CLASS = 'p-6 flex gap-2 items-start'
 export const DIALOG_WRAPPER_CLASS = 'flex-1 grid gap-1.5 min-w-0'
@@ -18,10 +18,9 @@ export const dialogContentVariants = cva(MODAL_CONTENT_CLASS, {
   },
   variants: {
     layout: {
-      default:
-        'grid max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2',
+      default: MODAL_CONTENT_DEFAULT_CLASS,
       scrollable:
-        'p-4 grid size-full pointer-events-none inset-0 place-items-center fixed overflow-y-auto sm:py-8',
+        'p-4 size-full pointer-events-none inset-0 place-items-center fixed overflow-y-auto sm:py-8',
       fullscreen: 'flex flex-col size-full max-w-none inset-0 fixed',
     },
   },
