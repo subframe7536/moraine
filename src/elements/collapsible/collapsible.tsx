@@ -11,7 +11,7 @@ import { cn, useId } from '../../shared/utils.ts'
 
 import {
   COLLAPSIBLE_CONTENT_CLASS,
-  COLLAPSIBLE_CONTENT_TRANSITION_CLASS,
+  COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
   COLLAPSIBLE_ROOT_CLASS,
   COLLAPSIBLE_TRIGGER_CLASS,
 } from './collapsible.class.ts'
@@ -188,7 +188,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   })
   const contentPresence = useTransitionPresence({
     open: resolvedOpen,
-    mode: 'transition',
+    mode: 'animation',
   })
   const shouldRenderContent = createMemo(
     () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
@@ -298,7 +298,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
               }}
               class={cn(
                 COLLAPSIBLE_CONTENT_CLASS,
-                props.transition && ['transition-[height]', COLLAPSIBLE_CONTENT_TRANSITION_CLASS],
+                props.transition && COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
               )}
               {...dataAttrs()}
             >

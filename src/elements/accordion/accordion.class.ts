@@ -1,3 +1,5 @@
+import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS } from '../collapsible/collapsible.class.ts'
+
 export const ACCORDION_ROOT_CLASS = 'flex flex-col w-full'
 
 export const ACCORDION_ITEM_CLASS = 'not-last:border-(b b-border) data-disabled:effect-dis'
@@ -15,6 +17,6 @@ export const ACCORDION_TRAILING_CLASS =
   'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none duration-300 group-aria-expanded:rotate-180'
 
 export const ACCORDION_CONTENT_CLASS =
-  'text-sm h-$mo-collapsible-content-height overflow-hidden data-closed:h-0 data-expanded:animate-accordion-down data-closed:animate-accordion-up motion-reduce:animate-none'
+  `text-sm h-$mo-collapsible-content-height overflow-hidden data-closed:h-0 ${COLLAPSIBLE_CONTENT_ANIMATION_CLASS}`
 
 export const ACCORDION_CONTENT_INNER_CLASS = 'pt-0 pb-4'

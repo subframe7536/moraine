@@ -701,17 +701,13 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
     },
     role: options.role,
     tabIndex: -1,
+    get 'data-closed'() {
+      return context.contentPresence.dataAttrs()['data-closed']
+    },
+    get 'data-expanded'() {
+      return context.contentPresence.dataAttrs()['data-expanded']
+    },
   }
-  Object.defineProperties(contentProps, {
-    'data-closed': {
-      enumerable: true,
-      get: () => context.contentPresence.dataAttrs()['data-closed'],
-    },
-    'data-expanded': {
-      enumerable: true,
-      get: () => context.contentPresence.dataAttrs()['data-expanded'],
-    },
-  })
 
   return (
     <Show when={context.contentMounted()}>

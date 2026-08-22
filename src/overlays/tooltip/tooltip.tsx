@@ -479,7 +479,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       <Popper.Content
         positionerClass={
           shouldUseInstantMotion()
-            ? 'data-positioned:transition-transform data-positioned:duration-150 data-positioned:ease-out'
+            ? 'data-positioned:(transition-transform duration-150 ease-out)'
             : undefined
         }
         contentRender={Content}

@@ -399,7 +399,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           })
           const contentPresence = useTransitionPresence({
             open: expanded,
-            mode: 'transition',
+            mode: 'animation',
           })
           const triggerId = createMemo(() => `${rootId()}-${itemIdSegment}-trigger`)
           const contentId = createMemo(() => `${rootId()}-${itemIdSegment}-content`)

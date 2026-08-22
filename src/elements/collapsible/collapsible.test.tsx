@@ -393,7 +393,7 @@ describe('Collapsible', () => {
     setOpen(false)
     expect(wrapper.getAttribute('data-closed')).toBe('')
     setOpen(true)
-    await fireEvent.transitionEnd(wrapper, { propertyName: 'height' })
+    await fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
 
     expect(screen.getByTestId('content')).not.toBeNull()
     expect(wrapper.getAttribute('data-expanded')).toBe('')
@@ -452,6 +452,7 @@ describe('Collapsible', () => {
     ) as HTMLElement
 
     expect(contentWrapper.className).not.toContain('transition-[height]')
+    expect(contentWrapper.className).not.toContain('duration-200')
 
     await fireEvent.click(trigger)
     await Promise.resolve()
@@ -466,7 +467,8 @@ describe('Collapsible', () => {
       '[data-slot="content-wrapper"]',
     ) as HTMLElement
 
-    expect(contentWrapper.className).toContain('transition-[height]')
+    expect(contentWrapper.className).toContain('data-expanded:animate-accordion-down')
+    expect(contentWrapper.className).toContain('data-closed:animate-accordion-up')
 
     await fireEvent.click(trigger)
     await Promise.resolve()
@@ -475,7 +477,7 @@ describe('Collapsible', () => {
     expect(contentWrapper.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
-    await fireEvent.transitionEnd(contentWrapper, { propertyName: 'height' })
+    await fireEvent.animationEnd(contentWrapper, { animationName: 'accordion-up' })
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
