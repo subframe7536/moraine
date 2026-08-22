@@ -189,6 +189,24 @@ describe('Button', () => {
     expect(trailing?.className).toContain('i-lucide-chevron-right')
   })
 
+  test.each([
+    ['xs', 'text-xs', 'h-6'],
+    ['xl', 'text-lg', 'h-11'],
+    ['icon-xs', 'text-xs', 'size-6'],
+    ['icon-xl', 'text-lg', 'size-11'],
+  ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
+    const screen = render(() => (
+      <Button size={size} aria-label={`${size} button`}>
+        Label
+      </Button>
+    ))
+
+    const button = screen.getByRole('button', { name: `${size} button` })
+
+    expect(button.className).toContain(textClass)
+    expect(button.className).toContain(dimensionClass)
+  })
+
   test('renders leading icon slot for icon-lg size', () => {
     const screen = render(() => (
       <Button size="icon-lg" leading="i-lucide-star" aria-label="Icon LG" />
