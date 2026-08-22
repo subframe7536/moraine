@@ -268,22 +268,9 @@
     },
     {
       "name": "tag",
-      "description": "Badge representing one selected value.",
+      "description": "Selected value tag.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -291,7 +278,20 @@
       "description": "Button used to remove one selected value.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
     },
     {
       "name": "tagOverflow",
@@ -510,6 +510,11 @@
         "description": "Maximum visible tags before showing +N (visual only)."
       },
       {
+        "name": "mode",
+        "required": false,
+        "type": "\"single\" | \"multi\" | undefined"
+      },
+      {
         "name": "name",
         "required": false,
         "type": "string | undefined",
@@ -624,7 +629,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
       },
       {
         "name": "style",
@@ -641,12 +646,6 @@
         "required": false,
         "type": "ComponentOrElement<MultiSelectT.TagRenderProps<TItem>> | undefined",
         "description": "Custom renderer for each selected tag (multiple/tags)."
-      },
-      {
-        "name": "tagVariant",
-        "required": false,
-        "type": "\"default\" | \"outline\" | \"solid\" | undefined",
-        "description": "Variant for the selected tags."
       },
       {
         "name": "tokenSeparators",

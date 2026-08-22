@@ -1,6 +1,6 @@
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component } from 'solid-js'
-import { createResource, Show } from 'solid-js'
+import { createResource, onMount, Show } from 'solid-js'
 
 import { Tabs } from '../../../../src/index.ts'
 
@@ -18,7 +18,7 @@ const DOCS_INSTALL_TABS_LIST_CLASS =
   'p-1.5 w-full justify-start rounded-none border-b border-border bg-muted/60 overflow-x-auto'
 const DOCS_INSTALL_TABS_INDICATOR_CLASS = 'border border-border bg-background shadow-xs'
 const DOCS_INSTALL_TABS_TRIGGER_CLASS =
-  'text-sm px-2.5 py-1 flex-none z-1 rounded-md text-muted-foreground data-selected:text-foreground hover:not-disabled:text-foreground active:not-disabled:scale-[0.97] transition-[color,transform] duration-150'
+  'text-sm px-2.5 py-1 flex-none z-base rounded-md text-muted-foreground data-selected:text-foreground hover:not-disabled:text-foreground active:not-disabled:scale-[0.97] transition-[color,transform] duration-150'
 const DOCS_INSTALL_TABS_CONTENT_CLASS = 'p-0'
 
 interface MdxProps {
@@ -38,7 +38,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Markdown,
 
   Example(props: MdxProps) {
-    const [descriptor] = createResource(() => {
+    const [descriptor, { refetch }] = createResource(() => {
       const loader = props.load
       if (typeof loader !== 'function') {
         throw new TypeError('[docs-mdx] compiled example is missing its loader')
@@ -48,6 +48,13 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
         return import.meta.env.SSR ? { source: descriptor.source } : descriptor
       })
     })
+
+    // Component functions cannot be serialized into the SSR resource payload. The
+    // client must refetch after hydration to replace the source-only descriptor.
+    onMount(() => {
+      refetch()
+    })
+
     return (
       <Show when={descriptor()}>
         {(value) => <DocsDemoBlock component={value().component} source={value().source} />}

@@ -13,7 +13,7 @@ export function Stateful() {
           <div class="px-3 py-2 flex gap-3 items-center justify-between">
             <div class="">
               <div class="flex gap-2 items-center">
-                <Icon name="i-lucide-rocket" class="text-muted-foreground shrink-0 size-4" />
+                <Icon name="i-lucide-rocket" class="text-muted-foreground shrink-0" />
                 <span class="font-medium truncate">Production deploy #4812</span>
               </div>
               <p class="text-xs text-muted-foreground mt-0.5">Completed 6 minutes ago</p>
@@ -23,7 +23,6 @@ export function Stateful() {
               aria-label="Toggle deploy details"
               size="icon-sm"
               variant="secondary"
-              // class="shrink-0"
               leading="i-lucide-chevron-down"
               classes={{
                 leading: `transition-transform ${context.isOpen ? 'rotate-180' : ''}`,

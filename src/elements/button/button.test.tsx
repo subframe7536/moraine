@@ -135,8 +135,6 @@ describe('Button', () => {
   test('applies press interaction classes', () => {
     const screen = render(() => <Button>Press</Button>)
     const button = screen.getByRole('button', { name: 'Press' })
-
-    expect(button.className).toContain('transition-all')
     expect(button.className).toContain('hover:bg-primary-hover')
     expect(button.className).toContain('active:bg-primary-active')
     expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
@@ -154,9 +152,9 @@ describe('Button', () => {
     },
   )
 
-  test('renders leading and trailing icon slots for xs size', () => {
+  test('renders leading and trailing icon slots for sm size', () => {
     const screen = render(() => (
-      <Button size="xs" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
+      <Button size="sm" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
         Label
       </Button>
     ))
@@ -171,9 +169,9 @@ describe('Button', () => {
     expect(trailing?.className).toContain('i-lucide-arrow-right')
   })
 
-  test('renders leading and trailing icon slots for xl size', () => {
+  test('renders leading and trailing icon slots for lg size', () => {
     const screen = render(() => (
-      <Button size="xl" leading="i-lucide-chevron-left" trailing="i-lucide-chevron-right">
+      <Button size="lg" leading="i-lucide-chevron-left" trailing="i-lucide-chevron-right">
         Label
       </Button>
     ))
@@ -184,16 +182,37 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(trailing).not.toBeNull()
+    expect(button.className).toContain('gap-1.5')
+    expect(leading?.getAttribute('style')).toBeNull()
+    expect(trailing?.getAttribute('style')).toBeNull()
     expect(leading?.className).toContain('i-lucide-chevron-left')
     expect(trailing?.className).toContain('i-lucide-chevron-right')
   })
 
-  test('renders leading icon slot for icon-xl size', () => {
+  test.each([
+    ['xs', 'text-xs', 'h-6'],
+    ['xl', 'text-lg', 'h-11'],
+    ['icon-xs', 'text-xs', 'size-6'],
+    ['icon-xl', 'text-lg', 'size-11'],
+  ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
-      <Button size="icon-xl" leading="i-lucide-star" aria-label="Icon XL" />
+      <Button size={size} aria-label={`${size} button`}>
+        Label
+      </Button>
     ))
 
-    const button = screen.getByRole('button', { name: 'Icon XL' })
+    const button = screen.getByRole('button', { name: `${size} button` })
+
+    expect(button.className).toContain(textClass)
+    expect(button.className).toContain(dimensionClass)
+  })
+
+  test('renders leading icon slot for icon-lg size', () => {
+    const screen = render(() => (
+      <Button size="icon-lg" leading="i-lucide-star" aria-label="Icon LG" />
+    ))
+
+    const button = screen.getByRole('button', { name: 'Icon LG' })
     const leading = button.querySelector('[data-slot="leading"]')
 
     expect(leading).not.toBeNull()

@@ -11,15 +11,16 @@ import {
 } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 import type { IconT } from '../icon/index.ts'
 import { Icon } from '../icon/index.ts'
 
 import type { AvatarVariantProps } from './avatar.class.ts'
 import {
+  AVATAR_IMAGE_CLASS,
   avatarBadgeVariants,
   avatarFallbackIconVariants,
   avatarFallbackVariants,
-  avatarImageVariants,
   avatarRootVariants,
 } from './avatar.class.ts'
 
@@ -46,7 +47,10 @@ export namespace AvatarT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {
+  export interface Item {}
+
+  /** Base props for the Avatar component. */
+  export interface Base {
     /** Source URL for the avatar image. */
     src?: string
 
@@ -71,9 +75,6 @@ export namespace AvatarT {
     /** Callback when the loading status of the avatar changes. */
     onStatusChange?: (status: AvatarStatus) => void
   }
-
-  /** Base props for the Avatar component. */
-  export interface Base extends Item {}
 
   /** Props for the Avatar component. */
   export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
@@ -100,13 +101,12 @@ export function resolveFallbackText(text: string | undefined, alt: string | unde
   return resolvedInitials || '\u00A0'
 }
 
-export interface AvatarFaceProps extends AvatarT.Item {
+interface AvatarFaceProps extends AvatarT.Base {
   class?: SlotClassValue
   style?: JSX.CSSProperties
   classes?: AvatarT.Classes
   styles?: AvatarT.Styles
   size?: AvatarT.Variant['size']
-  transition?: AvatarT.Variant['transition']
   rootSlot?: 'root' | 'item'
 }
 
@@ -124,13 +124,11 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'classes',
     'styles',
     'size',
-    'transition',
     'rootSlot',
   ])
   const merged = mergeProps(
     {
       size: 'md' as const,
-      transition: 'normal' as const,
     },
     local,
   )
@@ -225,8 +223,8 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        class={avatarImageVariants(
-          { transition: merged.transition },
+        class={cn(
+          AVATAR_IMAGE_CLASS,
           status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
           merged.classes?.image,
         )}
@@ -250,7 +248,6 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
           {
             size: merged.size,
             status: status(),
-            transition: merged.transition,
           },
           merged.classes?.fallback,
         )}

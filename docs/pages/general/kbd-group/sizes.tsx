@@ -2,7 +2,7 @@ import { KbdGroup } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="flex flex-col gap-3 items-start">

@@ -3,8 +3,9 @@ import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { AvatarGroup } from './avatar-group.tsx'
+import type { AvatarGroupT } from './avatar-group.tsx'
 import { Avatar } from './avatar.tsx'
-import type { AvatarProps } from './avatar.tsx'
+import type { AvatarT, AvatarProps } from './avatar.tsx'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
@@ -183,11 +184,11 @@ describe('Avatar', () => {
     expect(root?.className).not.toContain('overflow-hidden')
   })
 
-  test('supports xs and xl size variants for single avatars', () => {
+  test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
       <>
-        <Avatar size="xs" fallback="i-lucide-user" badge="i-lucide-check" />
-        <Avatar size="xl" fallback="i-lucide-user" badge="i-lucide-check" />
+        <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
+        <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
       </>
     ))
 
@@ -198,12 +199,12 @@ describe('Avatar', () => {
     const badges = Array.from(screen.container.querySelectorAll('[data-slot="badge"]'))
 
     expect(roots[0]?.className).toContain('size-6')
-    expect(fallbackIcons[0]?.className).toContain('text-xs')
-    expect(badges[0]?.className).toContain('size-2.5')
+    expect(fallbackIcons[0]?.className).toContain('text-sm')
+    expect(badges[0]?.className).toContain('size-3')
 
-    expect(roots[1]?.className).toContain('size-11')
-    expect(fallbackIcons[1]?.className).toContain('text-xl')
-    expect(badges[1]?.className).toContain('size-4.5')
+    expect(roots[1]?.className).toContain('size-10')
+    expect(fallbackIcons[1]?.className).toContain('text-lg')
+    expect(badges[1]?.className).toContain('size-4')
   })
 
   test('generates initials from alt when text is not provided', () => {
@@ -440,7 +441,7 @@ describe('Avatar', () => {
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('justify-end')
     const item = screen.container.querySelector('[data-slot="item"]')
-    expect(item?.className).toContain('-me-1.5')
+    expect(item?.className).toContain('-me-2')
   })
 
   test('renders all group items when max is absent and reverses order', () => {
@@ -459,11 +460,11 @@ describe('Avatar', () => {
     expect(fallbacks[2]?.textContent).toBe('A')
   })
 
-  test('supports xs and xl size variants for avatar groups', () => {
+  test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
       <>
-        <AvatarGroup size="xs" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
-        <AvatarGroup size="xl" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </>
     ))
 
@@ -471,10 +472,10 @@ describe('Avatar', () => {
     const groupItems = Array.from(screen.container.querySelectorAll('[data-slot="item"]'))
 
     expect(groupCounts[0]?.className).toContain('size-6')
-    expect(groupCounts[0]?.className).toContain('-me-1')
-    expect(groupItems[0]?.className).toContain('-me-1')
+    expect(groupCounts[0]?.className).toContain('-me-2')
+    expect(groupItems[0]?.className).toContain('-me-2')
 
-    expect(groupCounts[1]?.className).toContain('size-11')
+    expect(groupCounts[1]?.className).toContain('size-10')
     expect(groupCounts[1]?.className).toContain('-me-2')
     expect(groupItems[1]?.className).toContain('-me-2')
   })
@@ -546,10 +547,16 @@ describe('Avatar', () => {
     const validClassProp: AvatarProps = { class: 'avatar-class' }
     const invalidItemsProp: AvatarProps = { items: [{ badge: 'i-lucide-user' }] }
     const validSingleProp: AvatarProps = { badge: 'i-lucide-user' }
+    const item: AvatarT.Item = {}
+    const base: AvatarT.Base = { badge: 'i-lucide-user' }
+    const groupItem: AvatarGroupT.Item = { badge: 'i-lucide-user' }
 
     expect(invalidHtmlProps).toBeDefined()
     expect(validClassProp).toBeDefined()
     expect(invalidItemsProp).toBeDefined()
     expect(validSingleProp).toBeDefined()
+    expect(item).toBeDefined()
+    expect(base).toBeDefined()
+    expect(groupItem).toBeDefined()
   })
 })

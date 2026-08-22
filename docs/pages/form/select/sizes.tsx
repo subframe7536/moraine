@@ -12,10 +12,10 @@ export function Sizes() {
     { label: 'Forest', value: 'forest', icon: 'i-lucide:braces' },
   ]
 
-  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
-    <div class="gap-3 grid w-[42rem] md:grid-cols-5 sm:grid-cols-3">
+    <div class="gap-3 grid w-[42rem] sm:grid-cols-3">
       <For each={SIZES}>
         {(size) => <Select options={FRUIT_OPTIONS} size={size} placeholder={`Size: ${size}`} />}
       </For>

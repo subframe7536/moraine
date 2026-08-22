@@ -53,6 +53,22 @@ export default defineConfig({
 })
 ```
 
+### Motion duration variables
+
+Moraine components use shared duration tokens for transitions and animations. `--mo-anim-duration` overrides every Moraine motion effect; use a semantic variable when only one category should change.
+
+```css
+:root {
+  --mo-anim-duration: 180ms;
+  --mo-anim-duration-enter: 150ms;
+  --mo-anim-duration-exit: 100ms;
+  --mo-anim-duration-loop: 2s;
+  --mo-anim-duration-spin: 1s;
+}
+```
+
+Standard UnoCSS and Tailwind transition utilities use the enter token. Enter animations use the enter token, exit animations use the exit token, indeterminate progress animations use the loop token, and loading indicators use the spin token.
+
 ### Color variables
 
 The preset can generate light and dark semantic variables from the same grouped shape used by Moraine's color utilities. Nothing is generated unless `colorVariables` is configured. Light and dark selectors default to `:root` and `.dark`.
@@ -87,6 +103,20 @@ presetMoraine({
 ```
 
 Exact state colors override the global adjustments. Numeric state values generate an opaque `color-mix()` against the group's foreground color; missing state variables continue to fall back through Moraine's existing utility tokens.
+
+## Semantic z-index utilities
+
+Moraine provides the same semantic z-index utilities through UnoCSS and Tailwind. They keep stacking intent readable while preserving the framework's numeric z-index utilities:
+
+| Utility      | Value | Typical use                                   |
+| ------------ | ----: | --------------------------------------------- |
+| `z-base`     |   `1` | Base elevated content                         |
+| `z-raised`   |   `2` | Raised content and ranges                     |
+| `z-control`  |   `3` | Interactive controls above ranges             |
+| `z-sticky`   |  `10` | Sticky and locally elevated content           |
+| `z-resize`   |  `20` | Resize affordances                            |
+| `z-overlay`  |  `40` | Modal or menu overlays                        |
+| `z-floating` |  `50` | Floating content such as dialogs and popovers |
 
 ## Tailwind CSS
 

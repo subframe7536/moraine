@@ -2,7 +2,7 @@ import { Separator } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="w-xl space-y-4">

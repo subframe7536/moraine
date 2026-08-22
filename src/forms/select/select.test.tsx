@@ -69,13 +69,31 @@ test('single Select accepts arbitrary root props at type level', () => {
   expect(screen.getAllByRole('combobox')).toHaveLength(2)
 })
 
-test('uses css variable classes for input sizing in single mode', () => {
-  const single = render(() => <Select options={FRUITS} size="xs" placeholder="XS" />)
+test('uses input sizing classes in single mode', () => {
+  const single = render(() => <Select options={FRUITS} size="sm" placeholder="SM" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
 
-  expect(singleInput?.className).toContain('mx-$s-p')
+  expect(singleInput?.className).toContain('min-w-0')
   expect(singleInput?.className).toContain('text-xs')
-  expect(singleInput?.className).toContain('var-select-0.5')
+})
+
+test('keeps control spacing on the control instead of its icons and input', () => {
+  const screen = render(() => (
+    <Select options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
+  ))
+  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+  const input = screen.container.querySelector('[data-slot="input"]') as HTMLElement
+  const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement
+  const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+
+  expect(control.className).toContain('ps-2.5')
+  expect(control.className).toContain('pe-2')
+  expect(input.className).toContain('min-w-0')
+  expect(input.className).not.toContain('mx-$s-p')
+  expect(leading.className).not.toContain('ms-')
+  expect(trigger.className).not.toContain('me-')
+  expect(leading.className).not.toMatch(/(?:^|\s)size-/)
+  expect(trigger.className).not.toMatch(/(?:^|\s)size-/)
 })
 
 describe('Select - single mode', () => {
@@ -93,16 +111,16 @@ describe('Select - single mode', () => {
     )
   })
 
-  test('supports xs and xl size classes', () => {
+  test('supports the compact form size scale', () => {
     const screen = render(() => (
       <>
-        <Select options={FRUITS} size="xs" placeholder="XS" />
-        <Select options={FRUITS} size="xl" placeholder="XL" />
+        <Select options={FRUITS} size="sm" placeholder="SM" />
+        <Select options={FRUITS} size="lg" placeholder="LG" />
       </>
     ))
 
     const inputs = screen.container.querySelectorAll('[data-slot="input"]')
-    expect(inputs[0]?.className).toContain('var-select-0.5')
+    expect(inputs[0]?.className).toContain('text-xs')
     expect(inputs[1]?.className).toContain('text-base')
   })
 
@@ -269,7 +287,8 @@ describe('Select - single mode', () => {
     expect(options.length).toBe(3)
     expect(options[0]?.hasAttribute('data-selected')).toBe(true)
     expect(options[1]?.hasAttribute('data-selected')).toBe(false)
-    expect(options[0]?.className).toContain('bg-accent-active')
+    expect(options[0]?.className).toContain('data-highlighted:bg-muted')
+    expect(options[0]?.className).not.toContain('bg-accent-active')
   })
 
   test('selects an option and calls onChange', async () => {
@@ -365,6 +384,75 @@ describe('Select - single mode', () => {
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
 
     expect(trigger?.className).toContain('icon-chevron-down')
+  })
+
+  test('renders and clears a selected value through the clear action', async () => {
+    const onChange = vi.fn()
+    const onClear = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Select
+          name="fruit"
+          options={FRUITS}
+          search
+          defaultOpen
+          defaultValue="apple"
+          allowClear
+          loading
+          closeIcon="icon-x"
+          onChange={onChange}
+          onClear={onClear}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    const action = screen.getByRole('button', { name: 'Clear selection' })
+    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    expect(action.querySelector('[data-slot="icon"]')?.className).toContain('icon-x')
+    expect(action.querySelector('[data-slot="icon"]')?.className).not.toContain('icon-loading')
+    expect(action.className).toContain('hover:bg-muted-hover')
+
+    input.focus()
+    action.dispatchEvent(pointerDown)
+    await fireEvent.click(action)
+
+    expect(pointerDown.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(input)
+    expect(input.value).toBe('')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(new FormData(form).getAll('fruit')).toEqual([''])
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(null)
+    expect(onClear).toHaveBeenCalledOnce()
+  })
+
+  test('keeps a controlled value until the parent accepts clear', async () => {
+    const [value, setValue] = createSignal<SelectT.Value | null>('apple')
+    const onChange = vi.fn((nextValue: SelectT.Value | null) => setValue(nextValue))
+    const screen = render(() => (
+      <Select options={FRUITS} value={value()} allowClear onChange={onChange} placeholder="Pick" />
+    ))
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(screen.getByRole('combobox').textContent).toBe('Pick')
+    expect(onChange).toHaveBeenCalledWith(null)
+  })
+
+  test('does not clear a disabled Select', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select options={FRUITS} value="apple" allowClear disabled onChange={onChange} />
+    ))
+    const action = screen.getByRole('button', { name: 'Clear selection' }) as HTMLButtonElement
+
+    expect(action.disabled).toBe(true)
+    await fireEvent.click(action)
+
+    expect(screen.getByRole('combobox').textContent).toBe('Apple')
+    expect(onChange).not.toHaveBeenCalled()
   })
 })
 
@@ -799,6 +887,7 @@ describe('Select - render hooks', () => {
     document.body.append(container)
     const serverRoot = container.querySelector('[data-slot="root"]')
     const serverControl = container.querySelector('[data-slot="control"]')
+    const serverClear = container.querySelector('[data-slot="clear"]')
     const serverNativeSelect = container.querySelector('select[name="fruit"]')
     const reads = {
       options: 0,
@@ -807,6 +896,7 @@ describe('Select - render hooks', () => {
       optionRender: 0,
       leadingIcon: 0,
       trailingIcon: 0,
+      closeIcon: 0,
     }
     const restoreHydrationState = installHydrationState()
 
@@ -816,6 +906,7 @@ describe('Select - render hooks', () => {
           id: 'fruit',
           name: 'fruit',
           value: 'banana',
+          allowClear: true,
           get options() {
             reads.options += 1
             return [
@@ -855,16 +946,22 @@ describe('Select - render hooks', () => {
             reads.trailingIcon += 1
             return 'icon-chevron-down' as const
           },
+          get closeIcon() {
+            reads.closeIcon += 1
+            return 'icon-close' as const
+          },
         }),
       container,
     )
     const root = container.querySelector('[data-slot="root"]')
     const control = container.querySelector('[data-slot="control"]')
+    const clear = container.querySelector('[data-slot="clear"]')
     const nativeSelect = container.querySelector('select[name="fruit"]')
     const combobox = container.querySelector('[role="combobox"]') as HTMLElement
 
     expect(root).toBe(serverRoot)
     expect(control).toBe(serverControl)
+    expect(clear).toBe(serverClear)
     expect(nativeSelect).toBe(serverNativeSelect)
     expect(combobox.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
@@ -874,6 +971,7 @@ describe('Select - render hooks', () => {
       optionRender: 1,
       leadingIcon: 1,
       trailingIcon: 1,
+      closeIcon: 1,
     })
 
     await fireEvent.keyDown(combobox, { key: 'ArrowDown' })

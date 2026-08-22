@@ -21,7 +21,7 @@ import type { CheckboxVariantProps } from './checkbox.class.ts'
 import {
   checkboxBaseVariants,
   checkboxCardPaddingVariants,
-  checkboxIconVariants,
+  checkboxContainerVariants,
   checkboxLabelVariants,
   checkboxRootVariants,
   checkboxWrapperVariants,
@@ -45,6 +45,9 @@ export namespace CheckboxT {
 
     /** Inner layout wrapper used by card and list checkbox variants. */
     wrapper?: T
+
+    /** Vertical alignment wrapper for the checkbox control. */
+    container?: T
 
     /** Primary checkbox label text. */
     label?: T
@@ -463,91 +466,94 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       )}
       onClick={onRootClick}
     >
-      <HiddenInput
-        ref={(element) => {
-          inputEl = element
-        }}
-        id={`${field.id()}-input`}
-        type="checkbox"
-        name={field.name()}
-        value={merged.value}
-        checked={Boolean(resolvedChecked())}
-        required={field.required()}
-        disabled={field.disabled()}
-        readOnly={readOnly()}
-        tabIndex={-1}
-        aria-hidden="true"
-        class="peer"
-        data-slot="input"
-        onChange={(event) => {
-          event.stopPropagation()
+      <div
+        data-slot="container"
+        style={merged.styles?.container}
+        class={checkboxContainerVariants({ size: field.size() }, merged.classes?.container)}
+      >
+        <HiddenInput
+          ref={(element) => {
+            inputEl = element
+          }}
+          id={`${field.id()}-input`}
+          type="checkbox"
+          name={field.name()}
+          value={merged.value}
+          checked={Boolean(resolvedChecked())}
+          required={field.required()}
+          disabled={field.disabled()}
+          readOnly={readOnly()}
+          tabIndex={-1}
+          aria-hidden="true"
+          class="peer"
+          data-slot="input"
+          onChange={(event) => {
+            event.stopPropagation()
 
-          if (field.disabled() || readOnly()) {
+            if (field.disabled() || readOnly()) {
+              event.currentTarget.checked = Boolean(resolvedChecked())
+              event.currentTarget.indeterminate = indeterminate()
+              return
+            }
+
+            onChange(event.currentTarget.checked)
             event.currentTarget.checked = Boolean(resolvedChecked())
             event.currentTarget.indeterminate = indeterminate()
-            return
-          }
+          }}
+        />
 
-          onChange(event.currentTarget.checked)
-          event.currentTarget.checked = Boolean(resolvedChecked())
-          event.currentTarget.indeterminate = indeterminate()
-        }}
-      />
-
-      <button
-        id={field.id()}
-        type="button"
-        role="checkbox"
-        disabled={field.disabled()}
-        data-slot="control"
-        data-invalid={field.invalid() ? '' : undefined}
-        aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-        aria-required={field.required() || undefined}
-        aria-disabled={field.disabled() || undefined}
-        aria-readonly={readOnly() || undefined}
-        aria-labelledby={label() ? labelId() : undefined}
-        style={merged.styles?.control}
-        class={checkboxBaseVariants(
-          { size: field.size() },
-          merged.indicator === 'hidden' && 'sr-only',
-          merged.classes?.control,
-          field.disabled() && 'effect-dis',
-        )}
-        onPointerDown={onPointerDown}
-        onClick={onControlClick}
-        onKeyDown={onControlKeyDown}
-        onKeyUp={onControlKeyUp}
-        onBlur={() => {
-          enterPressed = false
-        }}
-        {...checkboxAriaAttrs()}
-        data-checked={resolvedChecked() ? '' : undefined}
-        data-disabled={field.disabled() ? '' : undefined}
-        data-indeterminate={indeterminate() ? '' : undefined}
-        data-readonly={readOnly() ? '' : undefined}
-        data-required={field.required() ? '' : undefined}
-      >
-        <Show when={resolvedChecked() || indeterminate()}>
-          <span
-            data-slot="indicator"
-            style={merged.styles?.indicator}
-            class={cn(
-              'text-primary-foreground bg-primary flex size-full items-center justify-center',
-              merged.classes?.indicator,
-            )}
-            data-checked={resolvedChecked() ? '' : undefined}
-            data-disabled={field.disabled() ? '' : undefined}
-            data-indeterminate={indeterminate() ? '' : undefined}
-            data-readonly={readOnly() ? '' : undefined}
-            data-required={field.required() ? '' : undefined}
-          >
-            <Icon
-              name={activeIcon()}
-              class={checkboxIconVariants({ size: field.size() }, merged.classes?.icon)}
-            />
-          </span>
-        </Show>
-      </button>
+        <button
+          id={field.id()}
+          type="button"
+          role="checkbox"
+          disabled={field.disabled()}
+          data-slot="control"
+          data-invalid={field.invalid() ? '' : undefined}
+          aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
+          aria-required={field.required() || undefined}
+          aria-disabled={field.disabled() || undefined}
+          aria-readonly={readOnly() || undefined}
+          aria-labelledby={label() ? labelId() : undefined}
+          style={merged.styles?.control}
+          class={checkboxBaseVariants(
+            { size: field.size() },
+            merged.indicator === 'hidden' && 'sr-only',
+            merged.classes?.control,
+            field.disabled() && 'effect-dis',
+          )}
+          onPointerDown={onPointerDown}
+          onClick={onControlClick}
+          onKeyDown={onControlKeyDown}
+          onKeyUp={onControlKeyUp}
+          onBlur={() => {
+            enterPressed = false
+          }}
+          {...checkboxAriaAttrs()}
+          data-checked={resolvedChecked() ? '' : undefined}
+          data-disabled={field.disabled() ? '' : undefined}
+          data-indeterminate={indeterminate() ? '' : undefined}
+          data-readonly={readOnly() ? '' : undefined}
+          data-required={field.required() ? '' : undefined}
+        >
+          <Show when={resolvedChecked() || indeterminate()}>
+            <span
+              data-slot="indicator"
+              style={merged.styles?.indicator}
+              class={cn(
+                'text-primary-foreground bg-primary flex size-full items-center justify-center',
+                merged.classes?.indicator,
+              )}
+              data-checked={resolvedChecked() ? '' : undefined}
+              data-disabled={field.disabled() ? '' : undefined}
+              data-indeterminate={indeterminate() ? '' : undefined}
+              data-readonly={readOnly() ? '' : undefined}
+              data-required={field.required() ? '' : undefined}
+            >
+              <Icon name={activeIcon()} class={cn('shrink-0 size-full', merged.classes?.icon)} />
+            </span>
+          </Show>
+        </button>
+      </div>
 
       <Show when={label() || description()}>
         <div

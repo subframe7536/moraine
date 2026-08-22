@@ -36,7 +36,7 @@
         "name": "size",
         "required": false,
         "type": "string | number | undefined",
-        "description": "Icon size. Numbers are interpreted as px."
+        "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px."
       },
       {
         "name": "slotName",

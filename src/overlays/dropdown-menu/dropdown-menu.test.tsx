@@ -9,6 +9,8 @@ import { DropdownMenu } from './dropdown-menu.tsx'
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
+  await Promise.resolve()
+
   const contents = Array.from(
     document.body.querySelectorAll('[data-slot="content"]'),
   ) as HTMLElement[]
@@ -389,12 +391,18 @@ describe('DropdownMenu', () => {
       const exitingContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
       expect(exitingContent).not.toBeNull()
       expect(exitingContent.getAttribute('data-closed')).toBe('')
+      expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
+      expect(exitingContent.className).toContain('data-closed:animate-menu-out')
     })
+
+    const positioner = content.closest('[data-slot="positioner"]') as HTMLElement
+    expect(positioner.style.visibility).toBe('visible')
 
     await finishMenuExitMotion()
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(positioner.isConnected).toBe(false)
     })
   })
 
@@ -418,8 +426,12 @@ describe('DropdownMenu', () => {
     expect(rootContent.className).toContain('mt-$mo-popper-content-overflow-padding')
     expect(rootContent.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent.getAttribute('data-side')).toBe('bottom')
+    expect(rootContent.getAttribute('data-align')).toBe('start')
+    expect(rootContent.getAttribute('data-placement')).toBeNull()
+    expect(rootContent.getAttribute('data-motion')).toBeNull()
     expect(rootContent.className).toContain('animate-menu-side-bottom')
-    expect(rootContent.className).not.toContain('animate-menu-side-top')
+    expect(rootContent.className).toContain('origin-$mo-popper-content-transform-origin')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -498,7 +510,12 @@ describe('DropdownMenu', () => {
     expect(rootContent?.className).toContain('surface-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent?.getAttribute('data-side')).toBe('left')
+    expect(rootContent?.getAttribute('data-align')).toBe('start')
+    expect(rootContent?.getAttribute('data-placement')).toBeNull()
+    expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.className).toContain('animate-menu-side-left')
+    expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
@@ -751,7 +768,9 @@ describe('DropdownMenu', () => {
       expect(onOpenChange).toHaveBeenCalledTimes(1)
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
 
     await Promise.resolve()
     expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -1278,7 +1297,9 @@ describe('DropdownMenu', () => {
     await fireEvent.click(item)
 
     expect(onSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {
@@ -1297,7 +1318,7 @@ describe('DropdownMenu', () => {
     })
 
     const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
-    expect(positioner.className).not.toContain('z-50')
+    expect(positioner.className).not.toContain('z-floating')
     expect(positioner.classList.contains('absolute')).toBe(true)
     expect(positioner.classList.contains('fixed')).toBe(false)
     expect(document.body.style.overflow).toBe('hidden')
@@ -1350,7 +1371,9 @@ describe('DropdownMenu', () => {
 
     await fireEvent.keyDown(document.activeElement!, { key: ' ' })
     expect(onOpenSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('does not activate checkbox or submenu items when Space continues typeahead', async () => {
@@ -1460,7 +1483,9 @@ describe('DropdownMenu', () => {
     await fireEvent.pointerDown(screen.getByTestId('outside'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+    })
   })
 
   test('closes on Tab and moves focus in document order', async () => {

@@ -391,7 +391,7 @@ describe('Accordion', () => {
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
     expect(contentOne.getAttribute('data-closed')).toBe('')
 
-    await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })
+    await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
   })
@@ -572,8 +572,10 @@ describe('Accordion', () => {
       expect(screen.getByTestId('open-value').textContent).toBe('one')
       await waitFor(() => {
         expect(contentOne.getAttribute('data-expanded')).toBe('')
-        expect(contentOne.className).toContain('transition-[height]')
-        expect(contentOne.className).not.toContain('animate-accordion-down')
+        expect(contentOne.className).not.toContain('transition-[height]')
+        expect(contentOne.className).not.toContain('duration-200')
+        expect(contentOne.className).toContain('data-expanded:animate-accordion-down')
+        expect(contentOne.className).toContain('data-closed:animate-accordion-up')
         expect(contentOne.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
       })
 
@@ -584,7 +586,7 @@ describe('Accordion', () => {
       expect(contentOne.getAttribute('data-closed')).toBe('')
       expect(contentOne.hasAttribute('data-collapsed')).toBe(false)
 
-      await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })
+      await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
       expect(screen.queryByRole('region', { name: 'One' })).toBeNull()
     } finally {
@@ -638,7 +640,7 @@ describe('Accordion', () => {
     expect(screen.container.querySelector('[data-collapsed]')).toBeNull()
     expect(screen.getByText('Content one')).not.toBeNull()
 
-    await fireEvent.transitionEnd(contentOne, { propertyName: 'height' })
+    await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
     expect(screen.queryByText('Content one')).toBeNull()

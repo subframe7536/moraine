@@ -291,7 +291,11 @@ describe('Tabs', () => {
       />
     ))
 
-    expect(screen.container.querySelector('[data-slot="leading"]')).not.toBeNull()
+    const leading = screen.container.querySelector('[data-slot="leading"]')
+    const icon = leading?.querySelector('[data-slot="icon"]')
+
+    expect(leading).not.toBeNull()
+    expect(icon?.className).not.toMatch(/(?:^|\s)size-/)
   })
 
   test('applies style overrides', () => {

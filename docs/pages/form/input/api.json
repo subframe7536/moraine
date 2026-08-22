@@ -119,7 +119,7 @@
         "name": "leading",
         "required": false,
         "type": "IconT.Name",
-        "description": "Leading icon name."
+        "description": "Leading icon name or custom content."
       },
       {
         "name": "loading",
@@ -211,7 +211,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
       },
       {
         "name": "style",
@@ -227,7 +227,7 @@
         "name": "trailing",
         "required": false,
         "type": "IconT.Name",
-        "description": "Trailing icon name."
+        "description": "Trailing icon name or custom content."
       },
       {
         "name": "type",

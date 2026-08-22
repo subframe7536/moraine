@@ -192,11 +192,9 @@ describe('ButtonGroup', () => {
   })
 
   test.each([
-    ['xs', 'h-6'],
     ['sm', 'h-7'],
     ['md', 'h-8'],
     ['lg', 'h-9'],
-    ['xl', 'h-10'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
       <ButtonGroup size={size}>
@@ -213,7 +211,7 @@ describe('ButtonGroup', () => {
   test.each([
     ['default', 'bg-primary'],
     ['secondary', 'bg-secondary'],
-    ['outline', 'surface-border'],
+    ['outline', 'border-border'],
     ['ghost', 'hover:(text-foreground bg-muted-hover)'],
     ['link', 'hover:underline'],
     ['destructive', 'bg-destructive'],
@@ -232,15 +230,15 @@ describe('ButtonGroup', () => {
 
   test('allows a nested button to override group size and variant defaults', () => {
     const screen = render(() => (
-      <ButtonGroup size="xl" variant="secondary">
-        <Button size="xs" variant="destructive">
+      <ButtonGroup size="lg" variant="secondary">
+        <Button size="sm" variant="destructive">
           Remove
         </Button>
       </ButtonGroup>
     ))
 
     const button = screen.getByRole('button', { name: 'Remove' })
-    expect(button.className).toContain('h-6')
+    expect(button.className).toContain('h-7')
     expect(button.className).toContain('bg-destructive')
   })
 
@@ -294,7 +292,7 @@ describe('ButtonGroup', () => {
   })
 
   test('keeps inherited button defaults reactive', () => {
-    const [size, setSize] = createSignal<'xs' | 'xl'>('xs')
+    const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
     const [variant, setVariant] = createSignal<'outline' | 'secondary'>('outline')
     const screen = render(() => (
       <ButtonGroup size={size()} variant={variant()}>
@@ -303,13 +301,13 @@ describe('ButtonGroup', () => {
     ))
     const button = screen.getByRole('button', { name: 'Action' })
 
-    expect(button.className).toContain('h-6')
-    expect(button.className).toContain('surface-border')
+    expect(button.className).toContain('h-7')
+    expect(button.className).toContain('border-border')
 
-    setSize('xl')
+    setSize('lg')
     setVariant('secondary')
 
-    expect(button.className).toContain('h-10')
+    expect(button.className).toContain('h-9')
     expect(button.className).toContain('bg-secondary')
   })
 

@@ -12,6 +12,40 @@ import type { TooltipProps, TooltipT } from './tooltip.tsx'
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
 
+function mockInstantTooltipExit(): void {
+  const readComputedStyle = window.getComputedStyle.bind(window)
+
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
+    const style = readComputedStyle(element)
+    const isInstantExit =
+      element instanceof HTMLElement &&
+      element.hasAttribute('data-closed') &&
+      element.className.includes('data-closed:animate-none')
+
+    if (!isInstantExit) {
+      return style
+    }
+
+    return new Proxy(style, {
+      get(target, property, receiver) {
+        if (property === 'animationDelay') {
+          return '0s'
+        }
+        if (property === 'animationDuration') {
+          return '0s'
+        }
+        if (property === 'animationName') {
+          return 'none'
+        }
+        if (property === 'display') {
+          return 'block'
+        }
+        return Reflect.get(target, property, receiver)
+      },
+    })
+  })
+}
+
 describe('Tooltip', () => {
   beforeEach(() => {
     const [placement, setPlacement] = createSignal('top')
@@ -22,6 +56,7 @@ describe('Tooltip', () => {
 
   afterEach(() => {
     setPopperTestPlacementAccessor(undefined)
+    vi.restoreAllMocks()
     vi.useRealTimers()
   })
 
@@ -282,6 +317,7 @@ describe('Tooltip', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(false)
     const closingTooltip = document.body.querySelector('[role="tooltip"]')
     expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)
+    await Promise.resolve()
     await fireEvent.animationEnd(closingTooltip!)
     await fireEvent.transitionEnd(closingTooltip!)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
@@ -426,6 +462,7 @@ describe('Tooltip', () => {
 
   test('opens the next tooltip immediately and closes the previous tooltip', async () => {
     vi.useFakeTimers()
+    mockInstantTooltipExit()
 
     const screen = render(() => (
       <div>
@@ -457,6 +494,7 @@ describe('Tooltip', () => {
 
     await fireEvent.pointerLeave(firstTrigger)
     await fireEvent.pointerEnter(secondTrigger)
+    await Promise.resolve()
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')
 
@@ -518,8 +556,47 @@ describe('Tooltip', () => {
     expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
   })
 
+  test('keeps the first hover delay when another tooltip starts open', async () => {
+    vi.useFakeTimers()
+
+    const screen = render(() => (
+      <div>
+        <Tooltip open text="Always open">
+          {(props) => (
+            <button {...props} type="button">
+              Always
+            </button>
+          )}
+        </Tooltip>
+        <Tooltip openDelay={100} text="Delayed tooltip">
+          {(props) => (
+            <button {...props} type="button">
+              Delayed
+            </button>
+          )}
+        </Tooltip>
+      </div>
+    ))
+
+    const hasDelayedTooltip = (): boolean =>
+      Array.from(document.body.querySelectorAll('[role="tooltip"]')).some((element) =>
+        element.textContent?.includes('Delayed tooltip'),
+      )
+
+    await fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
+
+    expect(hasDelayedTooltip()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(99)
+    expect(hasDelayedTooltip()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(hasDelayedTooltip()).toBe(true)
+  })
+
   test('keeps instant motion during the next tooltip close delay', async () => {
     vi.useFakeTimers()
+    mockInstantTooltipExit()
 
     const screen = render(() => (
       <div>
@@ -547,6 +624,7 @@ describe('Tooltip', () => {
     await vi.advanceTimersByTimeAsync(600)
     await fireEvent.pointerLeave(firstTrigger)
     await fireEvent.pointerEnter(secondTrigger)
+    await Promise.resolve()
     await fireEvent.pointerLeave(secondTrigger)
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')

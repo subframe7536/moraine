@@ -2,8 +2,6 @@ import type { Preset, SourceCodeTransformer } from '@subf/unocss'
 
 import {
   MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_ANIM_DUR_VAR_EXIT,
-  MORAINE_EASE_IN,
   MORAINE_EASE_OUT,
   getMoraineAnimCounts,
   getMoraineAnimDurations,
@@ -17,6 +15,7 @@ import {
   MORAINE_RADIUS,
   MORAINE_SHADOW,
   MORAINE_WIDTH,
+  MORAINE_Z_INDEX,
 } from '../shared/style/theme.ts'
 
 import { transformerInjectCompileClass } from './inject-compile-class.ts'
@@ -53,7 +52,7 @@ export interface ComponentLayerOptions extends Partial<
 
 export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 'beforeTransform'> {
   /**
-   * Controls whether to inject global styles for CSS variables and base styles.
+   * Controls whether to inject default global styles for CSS variables and base styles.
    */
   globalStyles?: boolean
   wind3?: boolean
@@ -151,10 +150,10 @@ interface SemanticAnimationConfig {
 
 const SEMANTIC_ANIMATION_CONFIGS: Record<SemanticAnimationTarget, SemanticAnimationConfig> = {
   overlay: { withSide: false },
-  popup: { scale: '0.9', withSide: false },
-  menu: { offsetRem: '0.5', scale: '0.9', oppositeSide: true },
-  popover: { offsetRem: '0.5', scale: '0.9', oppositeSide: true },
-  tooltip: { offsetRem: '0.25', scale: '0.9', oppositeSide: true },
+  popup: { scale: '0.95', withSide: false },
+  menu: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
+  popover: { offsetRem: '0.5', scale: '0.95', oppositeSide: true },
+  tooltip: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
   sheet: { offsetRem: '2.5' },
 }
 
@@ -194,17 +193,6 @@ const SEMANTIC_ANIMATION_SHORTCUTS: Record<string, string> = {
   ...createSemanticAnimationShortcuts('popover', SEMANTIC_ANIMATION_CONFIGS.popover),
   ...createSemanticAnimationShortcuts('tooltip', SEMANTIC_ANIMATION_CONFIGS.tooltip),
   ...createSemanticAnimationShortcuts('sheet', SEMANTIC_ANIMATION_CONFIGS.sheet),
-}
-
-const TRANSITION_ANIMATION_SHORTCUTS: Record<string, string> = {
-  'transition-mo-enter': [
-    `[transition-duration:${MORAINE_ANIM_DUR_VAR_ENTER}]`,
-    `[transition-timing-function:${MORAINE_EASE_OUT.replaceAll(' ', '')}]`,
-  ].join(' '),
-  'transition-mo-exit': [
-    `[transition-duration:${MORAINE_ANIM_DUR_VAR_EXIT}]`,
-    `[transition-timing-function:${MORAINE_EASE_IN.replaceAll(' ', '')}]`,
-  ].join(' '),
 }
 
 interface ResolvedPresetThemeOptions {
@@ -557,13 +545,35 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         boxShadow: MORAINE_SHADOW,
         fontFamily: MORAINE_FONT,
         width: MORAINE_WIDTH,
+        zIndex: MORAINE_Z_INDEX,
       }
-    : { radius: MORAINE_RADIUS, shadow: MORAINE_SHADOW, font: MORAINE_FONT, spacing: MORAINE_WIDTH }
+    : {
+        radius: MORAINE_RADIUS,
+        shadow: MORAINE_SHADOW,
+        font: MORAINE_FONT,
+        spacing: MORAINE_WIDTH,
+        zIndex: MORAINE_Z_INDEX,
+      }
+
+  const themeTransition = normalized.wind3
+    ? {
+        duration: { DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER },
+        easing: { DEFAULT: MORAINE_EASE_OUT },
+      }
+    : {
+        default: {
+          transition: {
+            duration: MORAINE_ANIM_DUR_VAR_ENTER,
+            timingFunction: MORAINE_EASE_OUT,
+          },
+        },
+      }
 
   return {
     name: 'preset-theme-moraine',
     theme: {
       ...themeSpacing,
+      ...themeTransition,
       colors: MORAINE_COLORS,
       animation: {
         keyframes: toUnocssKeyframes(),
@@ -597,37 +607,22 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         'style-accordion-content',
         '[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
       ],
-      ['surface-border', 'border border-border'],
       ['surface-overlay', 'border border-border shadow-md'],
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
       ['rm-side-b', '[&>[data-slot=sidebar]]:border-0!'],
       ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
         ([name, value]) => [name, value] as [string, string],
       ),
-      ...Object.entries(TRANSITION_ANIMATION_SHORTCUTS).map(
-        ([name, value]) => [name, value] as [string, string],
+      ...Object.entries(MORAINE_Z_INDEX).map(
+        ([name, value]) => [`z-${name}`, `z-${value}`] as [string, string],
       ),
       ...DEFAULT_ICON_SHORTCUTS,
     ],
     rules: [
       [
-        /var-input-([\d.]+)/,
-        ([, num], { theme }) => ({
-          '--i-sm': createLength(theme, num!),
-          '--i-lg': createLength(theme, Number(num) + 1),
-        }),
-      ],
-      [
         /var-progress-([\d.]+)/,
         ([, num], { theme }) => ({
           '--p-size': createLength(theme, num!),
-        }),
-      ],
-      [
-        /var-select-([\d.]+)/,
-        ([, num], { theme }) => ({
-          '--s-p': createLength(theme, num!),
-          '--s-m': createLength(theme, Number(num) + 3.5),
         }),
       ],
       [

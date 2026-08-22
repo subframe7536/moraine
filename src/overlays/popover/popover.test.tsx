@@ -15,6 +15,8 @@ let setMockPlacement: (value: string) => void = () => undefined
 async function finishExitMotion(
   content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null,
 ): Promise<void> {
+  await Promise.resolve()
+
   if (content) {
     await fireEvent.animationEnd(content)
     await fireEvent.transitionEnd(content)

@@ -278,7 +278,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onAutoFocusHandled={() => {
           setAutoFocusStrategy('none')
         }}
-        classes={merged.classes}
+        classes={{
+          ...merged.classes,
+          content: cn('min-w-32', merged.classes?.content),
+        }}
         styles={merged.styles}
         size={merged.size}
         items={merged.items}

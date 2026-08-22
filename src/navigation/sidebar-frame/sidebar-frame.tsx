@@ -21,7 +21,13 @@ import { createMediaQuery } from '../../shared/use-media-query.ts'
 import { cn } from '../../shared/utils.ts'
 
 import {
+  SIDEBAR_FRAME_BODY_CLASS,
+  SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
+  SIDEBAR_FRAME_FOOTER_CLASS,
+  SIDEBAR_FRAME_HEADER_CLASS,
+  SIDEBAR_FRAME_ROOT_CLASS,
   sidebarFrameDesktopLayoutVariants,
+  sidebarFrameMainVariants,
   sidebarFrameSidebarVariants,
 } from './sidebar-frame.class.ts'
 import type { SidebarFrameVariantProps } from './sidebar-frame.class.ts'
@@ -178,7 +184,7 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
         >
           <ctx.sidebar
             classes={[
-              'transition-mo-enter min-h-0 transition-[width,opacity,transform] overflow-hidden motion-reduce:transition-none',
+              SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
               ctx.isOpen()
                 ? 'opacity-100 translate-x-0'
                 : [
@@ -325,7 +331,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     <div
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('h-screen max-h-full min-h-0 overflow-hidden', merged.classes?.root, merged.class)}
+      class={cn(SIDEBAR_FRAME_ROOT_CLASS, merged.classes?.root, merged.class)}
       {...rest}
     >
       {renderComponentOrElement(merged.frameRender, {
@@ -361,7 +367,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               <div
                 data-slot="sidebarHeader"
                 style={merged.styles?.sidebarHeader}
-                class={cn(merged.classes?.sidebarHeader)}
+                class={cn(SIDEBAR_FRAME_HEADER_CLASS, merged.classes?.sidebarHeader)}
               >
                 {renderComponentOrElement(merged.sidebarHeaderRender, context)}
               </div>
@@ -370,7 +376,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             <div
               data-slot="sidebarBody"
               style={merged.styles?.sidebarBody}
-              class={cn('flex-1 min-h-0 overflow-y-auto', merged.classes?.sidebarBody)}
+              class={cn(SIDEBAR_FRAME_BODY_CLASS, merged.classes?.sidebarBody)}
             >
               {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
@@ -379,7 +385,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               <div
                 data-slot="sidebarFooter"
                 style={merged.styles?.sidebarFooter}
-                class={cn(merged.classes?.sidebarFooter)}
+                class={cn(SIDEBAR_FRAME_FOOTER_CLASS, merged.classes?.sidebarFooter)}
               >
                 {renderComponentOrElement(merged.sidebarFooterRender, context)}
               </div>
@@ -395,8 +401,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               ...merged.styles?.main,
             }}
             class={cn(
-              'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
-              merged.variant === 'inset' && 'surface-border rounded-2xl bg-background shadow-xs',
+              sidebarFrameMainVariants({ variant: merged.variant }),
               props.classes,
               merged.classes?.main,
             )}

@@ -1,8 +1,8 @@
 import type { VariantProps } from 'cls-variant'
 
 import {
-  CARD_PADDING_SIZE_VARIANT,
   CHECKABLE_BASE_SIZE_VARIANT,
+  CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
   REQUIRED_MARK_VARIANT,
@@ -16,24 +16,28 @@ export const checkboxRootVariants = cva('flex items-start relative', {
   },
   variants: {
     variant: {
-      card: 'surface-border rounded-lg',
+      card: 'border border-border rounded-md',
       list: '',
     },
     indicator: CHECKABLE_INDICATOR_VARIANT,
   },
 })
 
-export const checkboxCardPaddingVariants = cva('p-3.5', {
+export const checkboxCardPaddingVariants = cva('p-3', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
-    size: CARD_PADDING_SIZE_VARIANT,
+    size: {
+      sm: 'p-3',
+      md: 'p-3.5',
+      lg: 'p-4',
+    },
   },
 })
 
 export const checkboxBaseVariants = cva(
-  'outline-none border border-input rounded-sm bg-background inline-flex shrink-0 cursor-pointer transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:effect-fv-border data-checked:border-primary data-invalid:effect-invalid dark:bg-input/30',
+  'outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:effect-fv-border data-checked:(border-primary bg-primary) data-invalid:effect-invalid dark:bg-input/30',
   {
     defaultVariants: {
       size: 'md',
@@ -44,18 +48,12 @@ export const checkboxBaseVariants = cva(
   },
 )
 
-export const checkboxIconVariants = cva('shrink-0', {
+export const checkboxContainerVariants = cva('flex items-center', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
-    size: {
-      xs: 'size-2',
-      sm: 'size-2.5',
-      md: 'size-3',
-      lg: 'size-3.5',
-      xl: 'size-4',
-    },
+    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
   },
 })
 

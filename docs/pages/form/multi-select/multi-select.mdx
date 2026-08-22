@@ -22,7 +22,9 @@ Tag container with inline input and a floating listbox with grouped options.
 ```text
 control
 ├── tagsContainer
-│   ├── tag (×n, Badge)
+│   ├── tag (×n)
+│   │   ├── label
+│   │   └── tagRemove (button, enabled only)
 │   ├── tagOverflow (optional)
 │   └── input
 ├── clear (IconButton, optional)
@@ -50,6 +52,12 @@ content (portal)
 Multiple selection with tags and `allowClear`.
 
 <Example path="./multiple-select" />
+
+### Sizes
+
+From sm to lg, with tags and input text scaled for each control size.
+
+<Example path="./sizes" />
 
 ### Token Separators
 

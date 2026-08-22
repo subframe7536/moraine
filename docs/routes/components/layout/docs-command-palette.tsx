@@ -133,7 +133,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
           onClose={onClose}
           emptyRender={(ctx) => (
             <div class="flex flex-col gap-2 items-center">
-              <Icon name="i-lucide-search-x" class="size-5" />
+              <Icon name="i-lucide-search-x" class="text-base" />
               <span>
                 No pages found for{' '}
                 <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.
@@ -150,18 +150,18 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                 <span class="flex gap-1.5 items-center">
                   <KbdGroup
                     items={['arrowup', 'arrowdown']}
-                    size="xs"
+                    size="sm"
                     variant="outline"
                     dividerRender={() => '/'}
                   />
                   Navigate
                 </span>
                 <span class="flex gap-1.5 items-center">
-                  <KbdGroup items={['enter']} size="xs" variant="outline" />
+                  <KbdGroup items={['enter']} size="sm" variant="outline" />
                   Open
                 </span>
                 <span class="flex gap-1.5 items-center">
-                  <KbdGroup items={['escape']} size="xs" variant="outline" />
+                  <KbdGroup items={['escape']} size="sm" variant="outline" />
                   Close
                 </span>
               </div>

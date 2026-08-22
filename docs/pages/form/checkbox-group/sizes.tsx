@@ -8,7 +8,7 @@ export function Sizes() {
     { value: 'stable', label: 'Stable', description: 'Production channel' },
   ]
 
-  const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">
@@ -20,7 +20,7 @@ export function Sizes() {
               items={ITEMS}
               variant="card"
               size={size}
-              defaultValue={size === 'xs' ? ['alpha'] : ['stable']}
+              defaultValue={size === 'sm' ? ['alpha'] : ['stable']}
             />
           </div>
         )}

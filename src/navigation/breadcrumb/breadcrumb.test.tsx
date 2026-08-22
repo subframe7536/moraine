@@ -15,7 +15,7 @@ describe('Breadcrumb', () => {
     const screen = render(() => <Breadcrumb items={[{ label: 'Home', href: '/' }]} />)
     const root = screen.getByRole('navigation')
 
-    expect(root.getAttribute('aria-label')).toBe('Breadcrumbs')
+    expect(root.getAttribute('aria-label')).toBe('breadcrumb')
   })
 
   test('allows explicit aria-label override', () => {
@@ -33,7 +33,7 @@ describe('Breadcrumb', () => {
     expect(explicitRoot.getAttribute('aria-label')).toBe('Custom label')
   })
 
-  test('renders breadcrumb items and separators', () => {
+  test('renders the shadcn breadcrumb structure', () => {
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -44,10 +44,21 @@ describe('Breadcrumb', () => {
       />
     ))
 
+    const root = screen.container.querySelector('nav[data-slot="root"]')
+    const list = screen.container.querySelector('ol[data-slot="list"]')
+
+    expect(root).not.toBeNull()
+    expect(list?.parentElement).toBe(root)
+    expect(
+      Array.from(list?.children ?? []).map((child) => child.getAttribute('data-slot')),
+    ).toEqual(['item', 'separator', 'item', 'separator', 'item'])
+    expect(list?.querySelectorAll('li[data-slot="item"]')).toHaveLength(3)
+    expect(list?.querySelectorAll('a[data-slot="link"]')).toHaveLength(2)
+    expect(list?.querySelector('span[data-slot="page"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot^="breadcrumb-"]')).toBeNull()
     expect(screen.getByText('Home')).not.toBeNull()
     expect(screen.getByText('Docs')).not.toBeNull()
     expect(screen.getByText('API')).not.toBeNull()
-    expect(screen.container.querySelectorAll('[data-slot="separator"]').length).toBe(2)
   })
 
   test('renders default separator icon and keeps separators aria-hidden', () => {
@@ -71,8 +82,13 @@ describe('Breadcrumb', () => {
     expect(separatorIcons[0]?.className).toContain('icon-chevron-right')
 
     for (const separator of separators) {
+      expect(separator.tagName).toBe('LI')
+      expect(separator.getAttribute('role')).toBe('presentation')
       expect(separator.getAttribute('aria-hidden')).toBe('true')
+      expect(separator.parentElement?.tagName).toBe('OL')
     }
+
+    expect((separatorIcons[0] as HTMLElement).style.fontSize).toBe('')
   })
 
   test('supports custom separator icon', () => {
@@ -94,7 +110,7 @@ describe('Breadcrumb', () => {
     expect(separatorIcons[0]?.className).toContain('icon-dot')
   })
 
-  test('marks current item with full link semantics', () => {
+  test('renders ordinary items as anchors without Button styles', () => {
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -104,13 +120,46 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const current = screen.getByText('Current').closest('[data-slot="link"]')
+    const home = screen.getByText('Home').closest('[data-slot="link"]')
 
+    expect(home?.tagName).toBe('A')
+    expect(home?.getAttribute('href')).toBe('/')
+    expect(home?.getAttribute('role')).toBeNull()
+    expect(home?.className).toContain('transition-colors')
+    expect(home?.className).toContain('hover:text-foreground')
+    expect(home?.className).toContain('inline-flex')
+    expect(home?.className).toContain('items-center')
+    expect(home?.className).toContain('gap-1')
+    expect(home?.className).not.toContain('h-9')
+    expect(home?.className).not.toContain('px-2.5')
+    expect(home?.className).not.toContain('rounded-md')
+    expect(screen.container.querySelector('nav[data-slot="root"] button')).toBeNull()
+  })
+
+  test('marks current item with page semantics', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Current', href: '/current' },
+        ]}
+      />
+    ))
+
+    const current = screen.getByText('Current').closest('[data-slot="page"]')
+
+    expect(current?.tagName).toBe('SPAN')
+    expect(current?.getAttribute('role')).toBe('link')
     expect(current?.getAttribute('aria-current')).toBe('page')
     expect(current?.hasAttribute('data-current')).toBe(true)
     expect(current?.getAttribute('aria-disabled')).toBe('true')
     expect(current?.hasAttribute('data-disabled')).toBe(true)
     expect(current?.getAttribute('href')).toBeNull()
+    expect(current?.getAttribute('target')).toBeNull()
+    expect(current?.getAttribute('rel')).toBeNull()
+    expect(current?.className).toContain('inline-flex')
+    expect(current?.className).toContain('items-center')
+    expect(current?.className).toContain('gap-1')
   })
 
   test('supports explicit active item', () => {
@@ -123,12 +172,12 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const explicit = screen.getByText('Home').closest('[data-slot="link"]')
+    const explicit = screen.getByText('Home').closest('[data-slot="page"]')
     expect(explicit?.getAttribute('aria-current')).toBe('page')
     expect(explicit?.getAttribute('href')).toBeNull()
   })
 
-  test('renders icon slot and direct label text via button composition', () => {
+  test('renders icon and label slots without Button composition', () => {
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -143,6 +192,7 @@ describe('Breadcrumb', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-house')
+    expect((leading as HTMLElement).style.fontSize).toBe('')
     expect(homeLink?.textContent).toContain('Home')
     expect(homeLink?.querySelector('[data-slot="label"]')).not.toBeNull()
   })
@@ -159,6 +209,7 @@ describe('Breadcrumb', () => {
         items={[
           { label: 'Home', href: '/', icon: 'i-lucide-house' },
           { label: 'Disabled', href: '/disabled', disabled: true },
+          { label: 'Current', href: '/current' },
         ]}
       />
     ))
@@ -174,6 +225,7 @@ describe('Breadcrumb', () => {
     expect(disabled?.className).toContain('link-override')
     expect(disabled?.getAttribute('aria-disabled')).toBe('true')
     expect(disabled?.getAttribute('href')).toBeNull()
+    expect(disabled?.className).toContain('aria-disabled:effect-dis')
     expect(separator?.className).toContain('separator-override')
   })
 
@@ -201,6 +253,64 @@ describe('Breadcrumb', () => {
     expect(root?.style.width).toBe('200px')
     expect(link?.style.width).toBe('200px')
     expect(separator?.style.width).toBe('200px')
+  })
+
+  test('does not activate a disabled non-current item', async () => {
+    const onClick = vi.fn()
+    const screen = render(() => (
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/', onClick },
+          {
+            label: 'Disabled',
+            href: '/disabled',
+            target: '_blank',
+            rel: 'nofollow',
+            disabled: true,
+            onClick,
+          },
+          { label: 'Current', href: '/current' },
+        ]}
+      />
+    ))
+
+    const disabled = screen.getByText('Disabled').closest('[data-slot="link"]')
+    await fireEvent.click(disabled!)
+
+    expect(disabled?.tagName).toBe('SPAN')
+    expect(disabled?.getAttribute('role')).toBe('link')
+    expect(disabled?.getAttribute('aria-disabled')).toBe('true')
+    expect(disabled?.getAttribute('href')).toBeNull()
+    expect(disabled?.getAttribute('target')).toBeNull()
+    expect(disabled?.getAttribute('rel')).toBeNull()
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    ['sm', 'text-xs'],
+    ['md', 'text-sm'],
+    ['lg', 'text-base'],
+  ] as const)('applies %s typography and inherited icon scale', (size, textClass) => {
+    const screen = render(() => (
+      <Breadcrumb
+        size={size}
+        items={[{ label: 'Home', href: '/', icon: 'i-lucide-house' }, { label: 'Current' }]}
+      />
+    ))
+
+    const list = screen.container.querySelector('[data-slot="list"]')
+    const link = screen.getByText('Home').closest('[data-slot="link"]')
+    const leading = link?.querySelector('[data-slot="leading"]') as HTMLElement | null
+    const separator = screen.container.querySelector(
+      '[data-slot="separator"] [data-slot="icon"]',
+    ) as HTMLElement | null
+
+    expect(list?.className).toContain('text-sm')
+    if (textClass) {
+      expect(link?.className).toContain(textClass)
+    }
+    expect(leading?.style.fontSize).toBe('')
+    expect(separator?.style.fontSize).toBe('')
   })
 
   test('supports itemRender with @solidjs/router A component', () => {
@@ -233,6 +343,9 @@ describe('Breadcrumb', () => {
     expect(screen.getByText('Home')).not.toBeNull()
     expect(links.length).toBe(2)
     expect(homeLink.getAttribute('href')).toBe('/')
+    expect(homeLink.parentElement?.getAttribute('data-slot')).toBe('item')
+    expect(homeLink.parentElement?.children).toHaveLength(1)
+    expect(homeLink.querySelector('[data-slot="leading"]')).toBeNull()
     expect(itemRender).toHaveBeenCalled()
 
     const contexts = itemRender.mock.calls
@@ -309,6 +422,41 @@ describe('Breadcrumb', () => {
     expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
   })
 
+  test('keeps item and separator nodes stable while native item state changes', () => {
+    const [activeIndex, setActiveIndex] = createSignal(1)
+    const items: BreadcrumbT.Item[] = [
+      {
+        label: 'Home',
+        href: '/',
+        get active() {
+          return activeIndex() === 0
+        },
+      },
+      {
+        label: 'Current',
+        href: '/current',
+        get active() {
+          return activeIndex() === 1
+        },
+      },
+    ]
+    const screen = render(() => <Breadcrumb items={items} />)
+    const list = screen.container.querySelector('[data-slot="list"]')!
+    const firstItem = list.children[0]!
+    const separator = list.children[1]!
+
+    expect(firstItem.querySelector('[data-slot="link"]')?.tagName).toBe('A')
+    expect(firstItem.querySelector('[data-slot="page"]')).toBeNull()
+
+    setActiveIndex(0)
+
+    expect(list.children[0]).toBe(firstItem)
+    expect(list.children[1]).toBe(separator)
+    expect(firstItem.querySelector('[data-slot="page"]')?.tagName).toBe('SPAN')
+    expect(firstItem.querySelector('[data-slot="link"]')).toBeNull()
+    expect(list.children[2]?.querySelector('[data-slot="link"]')?.tagName).toBe('A')
+  })
+
   test('renders numeric zero but omits empty and boolean label wrappers', () => {
     const screen = render(() => (
       <Breadcrumb
@@ -323,6 +471,66 @@ describe('Breadcrumb', () => {
     expect(screen.getByRole('link', { name: '0' })).not.toBeNull()
     expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(1)
   })
+
+  test('reads item icon and label once while rendering default content', () => {
+    let iconReads = 0
+    let labelReads = 0
+    const item = {
+      href: '/zero',
+      get icon() {
+        iconReads += 1
+        return 'i-lucide-house'
+      },
+      get label() {
+        labelReads += 1
+        return 0
+      },
+    } as BreadcrumbT.Item
+
+    const screen = render(() => <Breadcrumb items={[item, { label: 'Current' }]} />)
+
+    expect(iconReads).toBe(1)
+    expect(labelReads).toBe(1)
+    expect(screen.container.querySelector('[data-slot="leading"]')).not.toBeNull()
+    expect(screen.getByText('0')).not.toBeNull()
+    expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(2)
+  })
+
+  test('hydrates the default page branch without replacing the trail', async () => {
+    const markup = renderSsrFixture(
+      '/src/navigation/breadcrumb/breadcrumb.ssr.fixture.tsx',
+      'renderBreadcrumbDefaultFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverRoot = container.querySelector('[data-slot="root"]')
+    const serverList = container.querySelector('[data-slot="list"]')
+    const serverPage = container.querySelector('[data-slot="page"]')
+    const serverSeparator = container.querySelector('[data-slot="separator"]')
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Breadcrumb
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Current', href: '/current' },
+          ]}
+        />
+      ),
+      container,
+    )
+
+    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
+    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
+    expect(container.querySelector('[data-slot="page"]')).toBe(serverPage)
+    expect(container.querySelector('[data-slot="separator"]')).toBe(serverSeparator)
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  }, 15_000)
 
   test('hydrates a custom renderer without replacing the trail and preserves activation', async () => {
     const markup = renderSsrFixture(

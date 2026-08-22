@@ -7,7 +7,7 @@ import {
   presetCompletion,
 } from '@subf/unocss'
 
-import { presetMoraine } from './src/unocss'
+import { presetMoraine } from './src/unocss/index.ts'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [

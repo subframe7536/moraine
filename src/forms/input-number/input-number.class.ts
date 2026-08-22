@@ -1,30 +1,12 @@
 import type { VariantProps } from 'cls-variant'
 
-import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
+import { inputRootVariants } from '../input/input.class.ts'
 
-export const inputNumberRootVariants = cva(
-  'rounded-md inline-flex w-full transition-[color,box-shadow] items-stretch overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
-  {
-    defaultVariants: {
-      size: 'md',
-      variant: 'outline',
-    },
-    variants: {
-      size: {
-        xs: 'h-7',
-        sm: 'h-8',
-        md: 'h-9',
-        lg: 'h-10',
-        xl: 'h-11',
-      },
-      variant: INPUT_VARIANT,
-    },
-  },
-)
+export const inputNumberRootVariants = inputRootVariants
 
 export const inputNumberBaseVariants = cva(
-  'style-placeholder text-foreground style-input-number outline-none bg-transparent flex-1 min-w-0 disabled:bg-transparent',
+  'style-placeholder text-foreground style-input-number outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
   {
     defaultVariants: {
       size: 'md',
@@ -32,11 +14,9 @@ export const inputNumberBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs px-2',
-        sm: 'text-xs px-2.5',
-        md: 'text-sm px-2.5',
-        lg: 'text-sm px-3',
-        xl: 'text-base px-3',
+        sm: 'text-xs leading-4 px-2.5',
+        md: 'text-sm leading-5 px-2.5',
+        lg: 'text-sm leading-5 px-3',
       },
       align: {
         center: 'text-center',
@@ -45,6 +25,9 @@ export const inputNumberBaseVariants = cva(
     },
   },
 )
+
+const INPUT_NUMBER_CONTROL_BUTTON_CLASS =
+  'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center focus-visible:effect-fv disabled:effect-dis hover:text-primary/75 active:text-primary/75 data-active:text-primary/75'
 
 export type InputNumberOrientation = 'horizontal' | 'vertical'
 
@@ -55,54 +38,65 @@ export function resolveInputNumberAlign(
   return orientation === 'horizontal' && !decrement ? 'start' : 'center'
 }
 
-export const inputNumberControlButtonVariants = cva('border-input', {
+export const inputNumberControlButtonVariants = cva(INPUT_NUMBER_CONTROL_BUTTON_CLASS, {
   defaultVariants: {
     control: 'increment',
-    divided: false,
     orientation: 'horizontal',
+    size: 'md',
   },
   variants: {
     control: {
       increment: '',
       decrement: '',
     },
-    divided: {
-      true: 'border-t',
-    },
     orientation: {
-      horizontal: 'border-0 rounded-none shrink-0 h-full shadow-none',
-      vertical: 'px-0 border-0 rounded-none flex-1 h-full min-h-0 w-full shadow-none',
+      horizontal: 'rounded-none self-stretch',
+      vertical: 'px-0 rounded-none flex-1 min-h-0 w-full scale-80',
+    },
+    size: {
+      sm: 'text-xs',
+      md: 'text-sm',
+      lg: 'text-base',
     },
   },
   compoundVariants: [
     {
       control: 'increment',
       orientation: 'horizontal',
-      class: 'border-s',
+      class: 'rounded-e-none',
     },
     {
       control: 'decrement',
       orientation: 'horizontal',
-      class: 'border-e',
+      class: 'rounded-s-none',
+    },
+    {
+      orientation: 'horizontal',
+      size: 'sm',
+      class: 'w-7',
+    },
+    {
+      orientation: 'horizontal',
+      size: 'md',
+      class: 'w-8',
+    },
+    {
+      orientation: 'horizontal',
+      size: 'lg',
+      class: 'w-9',
     },
   ],
 })
 
-export const inputNumberControlColumnVariants = cva('flex shrink-0 flex-col h-full', {
+export const inputNumberControlColumnVariants = cva('pe-1 flex shrink-0 flex-col h-full', {
   defaultVariants: {
     size: 'md',
-    borderless: false,
   },
   variants: {
     size: {
-      xs: 'w-7',
       sm: 'w-8',
       md: 'w-9',
       lg: 'w-10',
-      xl: 'w-11',
-    },
-    borderless: {
-      false: 'border-s border-input',
     },
   },
 })

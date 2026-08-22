@@ -36,7 +36,7 @@ export namespace AvatarGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Item = AvatarT.Item
+  export type Item = AvatarT.Base
 
   /** Base props for the AvatarGroup component. */
   export interface Base {
@@ -81,7 +81,6 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'items',
     'max',
     'size',
-    'transition',
     'classes',
     'styles',
     'class',
@@ -90,7 +89,6 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const merged = mergeProps(
     {
       size: 'md' as const,
-      transition: 'normal' as const,
       items: [] as AvatarGroupT.Item[],
       max: undefined as number | string | undefined,
     },
@@ -137,7 +135,6 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
             <AvatarFace
               {...item}
               size={merged.size}
-              transition={merged.transition}
               rootSlot="item"
               style={merged.styles?.item as JSX.CSSProperties | undefined}
               class={avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)}

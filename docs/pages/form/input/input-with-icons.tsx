@@ -6,7 +6,7 @@ export function InputWithIcons() {
       <Input
         leading="i-lucide-search"
         placeholder="Search..."
-        classes={{ leading: 'bg-muted p-3' }}
+        classes={{ leading: 'bg-muted p-2' }}
       />
       <Input leading="i-lucide-mail" trailing="i-lucide-check" placeholder="Email" />
       <Input
@@ -15,7 +15,7 @@ export function InputWithIcons() {
       />
       <Input
         leading={
-          <div class="text-muted-foreground flex gap-1 items-center">
+          <div class="flex gap-1 items-center">
             <Icon name="i-lucide-globe" />
             https://
           </div>

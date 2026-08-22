@@ -427,6 +427,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         )}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
+        data-unchecked={!checked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-readonly={readOnly() ? '' : undefined}
       >
@@ -451,7 +452,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
                 class={cn(
-                  'text-primary size-10/12 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
+                  'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
                   merged.classes?.icon,
                 )}
               />
@@ -478,7 +479,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               data-slot="label"
               style={merged.styles?.label}
               class={cn(
-                'text-foreground font-medium block cursor-pointer select-none',
+                'text-foreground leading-tight font-medium block cursor-pointer select-none',
                 field.required() && "after:(text-destructive ms-0.5 content-['*'])",
                 merged.classes?.label,
               )}
@@ -492,7 +493,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground block', merged.classes?.description)}
+              class={cn('text-muted-foreground', merged.classes?.description)}
             >
               {description()}
             </span>

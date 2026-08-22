@@ -1,12 +1,9 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createRoot, createSignal, onCleanup, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { useTransitionPresence } from './use-transition-presence.ts'
-import type {
-  TransitionPresenceMotion,
-  TransitionPresenceState,
-} from './use-transition-presence.ts'
+import type { TransitionPresenceState } from './use-transition-presence.ts'
 
 interface PresenceFixture {
   element: HTMLElement
@@ -14,16 +11,17 @@ interface PresenceFixture {
   setOpen: (open: boolean) => void
 }
 
-function renderPresence(mode: TransitionPresenceMotion): PresenceFixture {
+function renderPresence(): PresenceFixture {
   let fixture: PresenceFixture | undefined
 
   render(() => {
     const [open, setOpen] = createSignal(true)
-    const presence = useTransitionPresence({ open, mode })
+    const presence = useTransitionPresence({ open })
 
     return (
       <Show when={presence.present()}>
         <div
+          {...presence.dataAttrs()}
           ref={(element) => {
             fixture = { element, presence, setOpen }
             presence.setElement(element)
@@ -40,49 +38,33 @@ function renderPresence(mode: TransitionPresenceMotion): PresenceFixture {
   return fixture
 }
 
-function installComputedStyle(values: Partial<CSSStyleDeclaration> = {}): void {
+function installComputedStyle(
+  values: (element: Element) => Partial<CSSStyleDeclaration> = () => ({}),
+): void {
   vi.spyOn(window, 'getComputedStyle').mockImplementation(
-    () =>
+    (element) =>
       ({
         animationDelay: '0s',
         animationDuration: '0s',
         animationName: 'none',
-        transitionDelay: '0s',
-        transitionDuration: '0s',
-        transitionProperty: 'none',
-        ...values,
+        display: 'block',
+        ...values(element),
       }) as CSSStyleDeclaration,
   )
 }
 
-function disableWebAnimations(element: HTMLElement): void {
-  Object.defineProperty(element, 'getAnimations', {
-    configurable: true,
-    value: undefined,
-  })
-}
-
-function dispatchMotionEvent(
+function dispatchAnimationEvent(
   element: HTMLElement,
-  type: 'animationend' | 'transitionend',
-  name: string,
+  type: 'animationcancel' | 'animationend' | 'animationstart',
+  animationName: string,
 ): void {
   const event = new Event(type, { bubbles: true })
-  Object.defineProperty(event, type === 'animationend' ? 'animationName' : 'propertyName', {
-    value: name,
-  })
+  Object.defineProperty(event, 'animationName', { value: animationName })
   fireEvent(element, event)
 }
 
-function deferred(): { promise: Promise<void>; reject: () => void; resolve: () => void } {
-  let reject: (() => void) | undefined
-  let resolve: (() => void) | undefined
-  const promise = new Promise<void>((nextResolve, nextReject) => {
-    resolve = nextResolve
-    reject = nextReject
-  })
-
-  return { promise, reject: () => reject?.(), resolve: () => resolve?.() }
+async function flushExitDetection(): Promise<void> {
+  await Promise.resolve()
 }
 
 afterEach(() => {
@@ -91,7 +73,7 @@ afterEach(() => {
 })
 
 describe('useTransitionPresence', () => {
-  test('keeps closed construction browser-independent and reacts to opening', async () => {
+  test('is browser-independent while initially closed and reacts to opening', async () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
       const presence = useTransitionPresence({ open })
@@ -108,70 +90,122 @@ describe('useTransitionPresence', () => {
     expect(lifecycle.presence.present()).toBe(true)
     expect(lifecycle.presence.dataAttrs()).toEqual({ 'data-expanded': '' })
 
-    lifecycle.setOpen(false)
-
-    expect(lifecycle.presence.present()).toBe(false)
-    expect(lifecycle.presence.dataAttrs()).toEqual({ 'data-closed': '' })
     lifecycle.dispose()
   })
 
-  test('settles immediately when mode is none', () => {
-    const fixture = renderPresence('none')
+  test('settles synchronously when no elements are registered', () => {
+    const lifecycle = createRoot((dispose) => {
+      const [open, setOpen] = createSignal(true)
+      const presence = useTransitionPresence({ open })
 
-    fixture.setOpen(false)
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('settles immediately when Web Animations reports no exit motion', () => {
-    const fixture = renderPresence('both')
-    installComputedStyle()
-    Object.defineProperty(fixture.element, 'getAnimations', {
-      configurable: true,
-      value: () => [],
+      return { dispose, presence, setOpen }
     })
 
-    fixture.setOpen(false)
+    lifecycle.setOpen(false)
 
+    expect(lifecycle.presence.present()).toBe(false)
+    lifecycle.dispose()
+  })
+
+  test('settles when the closed state has no exit animation', async () => {
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'none' : 'mo-enter',
+    }))
+
+    fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
+
+    expect(fixture.element.getAttribute('data-closed')).toBe('')
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('settles immediately when computed styles report no exit motion', () => {
-    const fixture = renderPresence('both')
-    disableWebAnimations(fixture.element)
-    installComputedStyle()
+  test('waits for an animation event when the environment cannot resolve animation styles', async () => {
+    const fixture = renderPresence()
+    installComputedStyle(() => ({
+      animationDuration: 'auto',
+      animationName: 'none',
+    }))
 
     fixture.setOpen(false)
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('waits for every active Web Animation to settle', async () => {
-    const fixture = renderPresence('both')
-    const first = deferred()
-    const second = deferred()
-    Object.defineProperty(fixture.element, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: first.promise }, { finished: second.promise }],
-    })
-
-    fixture.setOpen(false)
-    first.resolve()
-    await Promise.resolve()
+    await flushExitDetection()
 
     expect(fixture.presence.present()).toBe(true)
 
-    second.resolve()
-    await waitFor(() => {
-      expect(fixture.presence.present()).toBe(false)
-    })
+    dispatchAnimationEvent(fixture.element, 'animationend', 'mo-exit')
+    expect(fixture.presence.present()).toBe(false)
   })
 
-  test('waits for every registered element to settle', async () => {
-    let firstElement: HTMLElement | undefined
-    let secondElement: HTMLElement | undefined
+  test('keeps content mounted until its current exit animation settles', async () => {
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'mo-enter',
+    }))
+
+    fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
+
+    expect(fixture.element.getAttribute('data-closed')).toBe('')
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchAnimationEvent(fixture.element, 'animationend', 'mo-enter')
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchAnimationEvent(fixture.element, 'animationend', 'mo-exit')
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('settles an exit animation when it is cancelled', async () => {
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'mo-enter',
+    }))
+
+    fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
+    dispatchAnimationEvent(fixture.element, 'animationcancel', 'mo-exit')
+
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('waits for every changed animation name', async () => {
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '50ms, 100ms',
+      animationName: closed ? 'fade, slide' : 'mo-enter',
+    }))
+
+    fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
+
+    dispatchAnimationEvent(fixture.element, 'animationend', 'fade')
+    expect(fixture.presence.present()).toBe(true)
+
+    dispatchAnimationEvent(fixture.element, 'animationend', 'slide')
+    expect(fixture.presence.present()).toBe(false)
+  })
+
+  test('waits for every registered element', async () => {
+    let first: HTMLElement | undefined
+    let second: HTMLElement | undefined
     let presence: TransitionPresenceState | undefined
     let setOpen: ((open: boolean) => void) | undefined
+    let closed = false
+    installComputedStyle((element) => ({
+      animationDuration: '100ms',
+      animationName: closed ? (element === first ? 'first-exit' : 'second-exit') : 'mo-enter',
+    }))
 
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
@@ -183,13 +217,13 @@ describe('useTransitionPresence', () => {
         <Show when={currentPresence.present()}>
           <div
             ref={(element) => {
-              firstElement = element
+              first = element
               onCleanup(currentPresence.registerElement(element))
             }}
           />
           <div
             ref={(element) => {
-              secondElement = element
+              second = element
               onCleanup(currentPresence.registerElement(element))
             }}
           />
@@ -197,93 +231,33 @@ describe('useTransitionPresence', () => {
       )
     })
 
-    if (!firstElement || !secondElement || !presence || !setOpen) {
-      throw new Error('Multi-element presence fixture did not mount')
+    if (!first || !second || !presence || !setOpen) {
+      throw new Error('Multi-element fixture did not mount')
     }
 
-    const firstAnimation = deferred()
-    const secondAnimation = deferred()
-    Object.defineProperty(firstElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: firstAnimation.promise }],
-    })
-    Object.defineProperty(secondElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: secondAnimation.promise }],
-    })
-
     setOpen(false)
-    firstAnimation.resolve()
-    await Promise.resolve()
+    closed = true
+    await flushExitDetection()
+    dispatchAnimationEvent(first, 'animationend', 'first-exit')
 
     expect(presence.present()).toBe(true)
 
-    secondAnimation.resolve()
-    await waitFor(() => {
-      expect(presence?.present()).toBe(false)
-    })
+    dispatchAnimationEvent(second, 'animationend', 'second-exit')
+    expect(presence.present()).toBe(false)
     screen.unmount()
   })
 
-  test('waits for mixed Web Animation and CSS transition elements', async () => {
-    let animatedElement: HTMLElement | undefined
-    let transitionedElement: HTMLElement | undefined
-    let presence: TransitionPresenceState | undefined
-    let setOpen: ((open: boolean) => void) | undefined
-
-    const screen = render(() => {
-      const [open, updateOpen] = createSignal(true)
-      const currentPresence = useTransitionPresence({ open })
-      presence = currentPresence
-      setOpen = updateOpen
-
-      return (
-        <Show when={currentPresence.present()}>
-          <div
-            ref={(element) => {
-              animatedElement = element
-              onCleanup(currentPresence.registerElement(element))
-            }}
-          />
-          <div
-            ref={(element) => {
-              transitionedElement = element
-              onCleanup(currentPresence.registerElement(element))
-            }}
-          />
-        </Show>
-      )
-    })
-
-    if (!animatedElement || !transitionedElement || !presence || !setOpen) {
-      throw new Error('Mixed presence fixture did not mount')
-    }
-
-    const animation = deferred()
-    Object.defineProperty(animatedElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: animation.promise }],
-    })
-    disableWebAnimations(transitionedElement)
-    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
-
-    setOpen(false)
-    await fireEvent.transitionEnd(transitionedElement)
-    expect(presence.present()).toBe(true)
-
-    animation.resolve()
-    await waitFor(() => {
-      expect(presence?.present()).toBe(false)
-    })
-    screen.unmount()
-  })
-
-  test('cancels the old exit session when a registered element is removed', async () => {
-    let firstElement: HTMLElement | undefined
-    let secondElement: HTMLElement | undefined
+  test('does not wait for an element removed while hiding', async () => {
+    let first: HTMLElement | undefined
+    let second: HTMLElement | undefined
     let unregisterSecond: (() => void) | undefined
     let presence: TransitionPresenceState | undefined
     let setOpen: ((open: boolean) => void) | undefined
+    let closed = false
+    installComputedStyle((element) => ({
+      animationDuration: '100ms',
+      animationName: closed ? (element === first ? 'first-exit' : 'second-exit') : 'mo-enter',
+    }))
 
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
@@ -295,13 +269,13 @@ describe('useTransitionPresence', () => {
         <Show when={currentPresence.present()}>
           <div
             ref={(element) => {
-              firstElement = element
+              first = element
               onCleanup(currentPresence.registerElement(element))
             }}
           />
           <div
             ref={(element) => {
-              secondElement = element
+              second = element
               unregisterSecond = currentPresence.registerElement(element)
               onCleanup(unregisterSecond)
             }}
@@ -310,312 +284,104 @@ describe('useTransitionPresence', () => {
       )
     })
 
-    if (!firstElement || !secondElement || !presence || !setOpen || !unregisterSecond) {
-      throw new Error('Removable presence fixture did not mount')
+    if (!first || !second || !presence || !setOpen || !unregisterSecond) {
+      throw new Error('Removable fixture did not mount')
     }
 
-    const firstAnimation = deferred()
-    const secondAnimation = deferred()
-    Object.defineProperty(firstElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: firstAnimation.promise }],
-    })
-    Object.defineProperty(secondElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: secondAnimation.promise }],
-    })
-
     setOpen(false)
+    closed = true
+    await flushExitDetection()
     unregisterSecond()
-    firstAnimation.resolve()
+    dispatchAnimationEvent(first, 'animationend', 'first-exit')
 
-    await waitFor(() => {
-      expect(presence?.present()).toBe(false)
-    })
-    expect(firstElement.isConnected).toBe(false)
-    expect(secondElement.isConnected).toBe(false)
-    secondAnimation.resolve()
+    expect(presence.present()).toBe(false)
     screen.unmount()
   })
 
-  test('settles animation fallback from its own end event', async () => {
-    const fixture = renderPresence('animation')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
+  test('tracks a replacement element registered while hiding', async () => {
+    const fixture = renderPresence()
+    const replacement = document.createElement('div')
+    document.body.append(replacement)
+    let closed = false
+    installComputedStyle((element) => ({
       animationDuration: '100ms',
-      animationName: 'exit',
-      transitionDuration: '1s',
-      transitionProperty: 'opacity',
-    })
+      animationName: closed
+        ? element === replacement
+          ? 'replacement-exit'
+          : 'initial-exit'
+        : 'mo-enter',
+    }))
 
     fixture.setOpen(false)
-    await fireEvent.animationEnd(fixture.element)
+    closed = true
+    await flushExitDetection()
 
+    fixture.presence.setElement(replacement)
+    await flushExitDetection()
+
+    dispatchAnimationEvent(replacement, 'animationend', 'replacement-exit')
     expect(fixture.presence.present()).toBe(false)
+    replacement.remove()
   })
 
-  test('settles transition fallback from its own end event', async () => {
-    const fixture = renderPresence('transition')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
-
-    fixture.setOpen(false)
-    await fireEvent.transitionEnd(fixture.element)
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('waits for every active transition property', async () => {
-    const fixture = renderPresence('transition')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
-      transitionDelay: '0s, 0s',
-      transitionDuration: '50ms, 100ms',
-      transitionProperty: 'opacity, transform',
-    })
-
-    fixture.setOpen(false)
-    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
-
-    expect(fixture.presence.present()).toBe(true)
-
-    dispatchMotionEvent(fixture.element, 'transitionend', 'transform')
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('ignores unrelated and duplicate transition property events', async () => {
-    const fixture = renderPresence('transition')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
-      transitionDelay: '0s, 0s',
-      transitionDuration: '50ms, 100ms',
-      transitionProperty: 'opacity, transform',
-    })
-
-    fixture.setOpen(false)
-    dispatchMotionEvent(fixture.element, 'transitionend', 'color')
-    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
-    dispatchMotionEvent(fixture.element, 'transitionend', 'opacity')
-
-    expect(fixture.presence.present()).toBe(true)
-
-    dispatchMotionEvent(fixture.element, 'transitionend', 'transform')
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('waits for every active CSS animation', async () => {
-    const fixture = renderPresence('animation')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
-      animationDelay: '0s, 0s',
-      animationDuration: '50ms, 100ms',
-      animationName: 'fade, slide',
-    })
-
-    fixture.setOpen(false)
-    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
-
-    expect(fixture.presence.present()).toBe(true)
-
-    dispatchMotionEvent(fixture.element, 'animationend', 'slide')
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('ignores unrelated and duplicate animation-name events', async () => {
-    const fixture = renderPresence('animation')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
-      animationDelay: '0s, 0s',
-      animationDuration: '50ms, 100ms',
-      animationName: 'fade, slide',
-    })
-
-    fixture.setOpen(false)
-    dispatchMotionEvent(fixture.element, 'animationend', 'pulse')
-    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
-    dispatchMotionEvent(fixture.element, 'animationend', 'fade')
-
-    expect(fixture.presence.present()).toBe(true)
-
-    dispatchMotionEvent(fixture.element, 'animationend', 'slide')
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('treats animation and transition cancellation events as settled motion', () => {
-    const fixture = renderPresence('both')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
-      animationDuration: '100ms',
-      animationName: 'fade',
-      transitionDuration: '100ms',
-      transitionProperty: 'opacity',
-    })
-
-    fixture.setOpen(false)
-    fireEvent(fixture.element, new Event('animationcancel', { bubbles: true }))
-
-    expect(fixture.presence.present()).toBe(true)
-
-    fireEvent(fixture.element, new Event('transitioncancel', { bubbles: true }))
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('does not wait for an absent motion kind in both mode', async () => {
-    const fixture = renderPresence('both')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({ animationDuration: '100ms', animationName: 'exit' })
-
-    fixture.setOpen(false)
-    await fireEvent.animationEnd(fixture.element)
-
-    expect(fixture.presence.present()).toBe(false)
-  })
-
-  test('uses the computed motion duration as a fallback when an event is missing', () => {
+  test('uses the computed exit duration as a fallback when an event is missing', async () => {
     vi.useFakeTimers()
-    const fixture = renderPresence('animation')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDelay: '25ms',
       animationDuration: '100ms',
-      animationName: 'exit',
-      transitionDuration: '1s',
-      transitionProperty: 'opacity',
-    })
+      animationName: closed ? 'mo-exit' : 'mo-enter',
+    }))
 
     fixture.setOpen(false)
-    vi.advanceTimersByTime(99)
+    closed = true
+    await flushExitDetection()
+    vi.advanceTimersByTime(124)
     expect(fixture.presence.present()).toBe(true)
 
     vi.advanceTimersByTime(1)
     expect(fixture.presence.present()).toBe(false)
   })
 
-  test('settles immediately when the exit element is already detached', () => {
+  test('cancels a pending exit when reopened', async () => {
     vi.useFakeTimers()
-    const fixture = renderPresence('transition')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
-
-    fixture.element.remove()
-    fixture.setOpen(false)
-
-    expect(fixture.presence.present()).toBe(false)
-    expect(vi.getTimerCount()).toBe(0)
-  })
-
-  test('cancels a pending close when reopened', async () => {
-    const fixture = renderPresence('animation')
-    const animation = deferred()
-    Object.defineProperty(fixture.element, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: animation.promise }],
-    })
+    const fixture = renderPresence()
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'mo-enter',
+    }))
 
     fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
     fixture.setOpen(true)
-    animation.resolve()
-    await Promise.resolve()
-
-    expect(fixture.presence.present()).toBe(true)
-  })
-
-  test('clears a fallback timer when reopened', () => {
-    vi.useFakeTimers()
-    const fixture = renderPresence('transition')
-    disableWebAnimations(fixture.element)
-    installComputedStyle({ transitionDuration: '100ms', transitionProperty: 'opacity' })
-
-    fixture.setOpen(false)
-    fixture.setOpen(true)
+    closed = false
     vi.runAllTimers()
 
     expect(fixture.presence.present()).toBe(true)
     expect(vi.getTimerCount()).toBe(0)
   })
 
-  test('ignores completion from an element that was replaced during exit', async () => {
-    const fixture = renderPresence('animation')
-    const initialAnimation = deferred()
-    const replacementAnimation = deferred()
-    const replacementElement = document.createElement('div')
-    document.body.append(replacementElement)
-    Object.defineProperty(fixture.element, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: initialAnimation.promise }],
-    })
-    Object.defineProperty(replacementElement, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: replacementAnimation.promise }],
-    })
-
-    fixture.setOpen(false)
-    fixture.presence.setElement(replacementElement)
-    initialAnimation.resolve()
-    await initialAnimation.promise
-    await Promise.resolve()
-    await Promise.resolve()
-
-    expect(fixture.presence.present()).toBe(true)
-
-    replacementAnimation.resolve()
-    await waitFor(() => {
-      expect(fixture.presence.present()).toBe(false)
-    })
-    replacementElement.remove()
-  })
-
-  test('waits for a replacement Web Animation after cancellation', async () => {
-    const fixture = renderPresence('both')
-    const initialAnimation = deferred()
-    const replacementAnimation = deferred()
-    let animations = [
-      {
-        finished: initialAnimation.promise,
-        pending: false,
-        playState: 'running',
-      } as unknown as Animation,
-    ]
-    Object.defineProperty(fixture.element, 'getAnimations', {
-      configurable: true,
-      value: () => animations,
-    })
-
-    fixture.setOpen(false)
-    animations = [
-      {
-        finished: replacementAnimation.promise,
-        pending: false,
-        playState: 'running',
-      } as unknown as Animation,
-    ]
-    initialAnimation.reject()
-    await Promise.resolve()
-    await Promise.resolve()
-
-    expect(fixture.presence.present()).toBe(true)
-
-    animations = []
-    replacementAnimation.resolve()
-    await waitFor(() => {
-      expect(fixture.presence.present()).toBe(false)
-    })
-  })
-
-  test('ignores exit events from descendants', async () => {
-    const fixture = renderPresence('animation')
+  test('ignores animation events from descendants', async () => {
+    const fixture = renderPresence()
     const child = document.createElement('span')
     fixture.element.append(child)
-    disableWebAnimations(fixture.element)
-    installComputedStyle({ animationDuration: '100ms', animationName: 'exit' })
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'mo-enter',
+    }))
 
     fixture.setOpen(false)
-    await fireEvent.animationEnd(child)
+    closed = true
+    await flushExitDetection()
+    dispatchAnimationEvent(child, 'animationend', 'mo-exit')
+
     expect(fixture.presence.present()).toBe(true)
 
-    await fireEvent.animationEnd(fixture.element)
+    dispatchAnimationEvent(fixture.element, 'animationend', 'mo-exit')
     expect(fixture.presence.present()).toBe(false)
   })
 })

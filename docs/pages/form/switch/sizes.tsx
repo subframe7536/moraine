@@ -3,7 +3,7 @@ import type { SwitchT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: SwitchSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: SwitchSizeName[] = ['sm', 'md', 'lg']
 
   type SwitchSizeName = Exclude<SwitchT.Variant['size'], undefined>
 
@@ -15,7 +15,7 @@ export function Sizes() {
             size={size}
             label={`Size ${size}`}
             description="Size preview"
-            defaultChecked={size === 'lg' || size === 'xl'}
+            defaultChecked={size === 'lg'}
           />
         )}
       </For>

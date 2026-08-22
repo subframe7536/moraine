@@ -19,7 +19,11 @@ import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useOverlayInteraction } from './interaction.ts'
-import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from './modal.class.ts'
+import {
+  MODAL_CONTENT_CLASS,
+  MODAL_CONTENT_DEFAULT_CLASS,
+  MODAL_OVERLAY_CLASS,
+} from './modal.class.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { validateOverlayTrigger } from './trigger.ts'
 import {
@@ -91,6 +95,9 @@ export namespace ModalT {
 
     /** Whether to render the modal overlay element. */
     overlay?: boolean
+
+    /** Whether the overlay should contain and scroll the modal content. */
+    overlayScroll?: boolean
 
     /** Receives the mounted overlay element and `undefined` when it unmounts. */
     overlayRef?: (element: HTMLDivElement | undefined) => void
@@ -440,6 +447,9 @@ function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
 function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const contentRender = createMemo(() => props.contentRender)
+  const overlayScroll = createMemo(() => Boolean(props.overlayScroll && props.overlay))
+  const renderOutsideOverlay = createMemo(() => !overlayScroll())
+  const hasOverlay = createMemo(() => Boolean(props.overlay))
   const presence = context.presence
   const unregisterContent = context.registerContent()
   onCleanup(unregisterContent)
@@ -448,57 +458,74 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
     trapFocusInContainer(event, context.contentElement())
   }
 
+  const renderOverlay = (content?: JSX.Element): JSX.Element => (
+    <div
+      data-slot="overlay"
+      {...presence.dataAttrs()}
+      ref={(element) => {
+        const unregister = presence.registerElement(element)
+        props.overlayRef?.(element)
+        onCleanup(() => {
+          unregister()
+          props.overlayRef?.(undefined)
+        })
+      }}
+      style={props.overlayStyle}
+      class={cn(
+        props.overlayClass ?? MODAL_OVERLAY_CLASS,
+        props.overlayScroll && 'p-4 overflow-y-auto',
+      )}
+    >
+      {content}
+    </div>
+  )
+
+  const renderContent = (): JSX.Element => (
+    <div
+      {...props.contentAttributes}
+      {...presence.dataAttrs()}
+      ref={(element) => {
+        const unregister = presence.registerElement(element)
+        context.setContentElement(element)
+        props.ref?.(element)
+        onCleanup(() => {
+          unregister()
+          if (context.contentElement() === element) {
+            context.setContentElement(undefined)
+            props.ref?.(undefined)
+          }
+        })
+      }}
+      id={context.contentId()}
+      role="dialog"
+      aria-modal="true"
+      aria-label={props.ariaLabel}
+      aria-labelledby={props.ariaLabelledBy}
+      aria-describedby={props.ariaDescribedBy}
+      tabIndex={-1}
+      data-slot="content"
+      style={props.style}
+      class={props.class ?? `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`}
+      onKeyDown={onContentKeyDown}
+    >
+      {renderComponentOrElement(contentRender(), {
+        close: () => context.updateOpen(false),
+      })}
+    </div>
+  )
+
   return (
     <Show when={presence.present()}>
       <Portal>
-        <Show when={props.overlay}>
-          <div
-            data-slot="overlay"
-            {...presence.dataAttrs()}
-            ref={(element) => {
-              const unregister = presence.registerElement(element)
-              props.overlayRef?.(element)
-              onCleanup(() => {
-                unregister()
-                props.overlayRef?.(undefined)
-              })
-            }}
-            style={props.overlayStyle}
-            class={cn(MODAL_OVERLAY_CLASS, props.overlayClass)}
-          />
+        <Show when={overlayScroll()}>{(_value) => renderOverlay(renderContent())}</Show>
+        <Show when={renderOutsideOverlay()}>
+          {(_value) => (
+            <>
+              <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
+              {renderContent()}
+            </>
+          )}
         </Show>
-
-        <div
-          {...props.contentAttributes}
-          {...presence.dataAttrs()}
-          ref={(element) => {
-            const unregister = presence.registerElement(element)
-            context.setContentElement(element)
-            props.ref?.(element)
-            onCleanup(() => {
-              unregister()
-              if (context.contentElement() === element) {
-                context.setContentElement(undefined)
-                props.ref?.(undefined)
-              }
-            })
-          }}
-          id={context.contentId()}
-          role="dialog"
-          aria-modal="true"
-          aria-label={props.ariaLabel}
-          aria-labelledby={props.ariaLabelledBy}
-          aria-describedby={props.ariaDescribedBy}
-          tabIndex={-1}
-          data-slot="content"
-          style={props.style}
-          class={props.class ?? MODAL_CONTENT_CLASS}
-          onKeyDown={onContentKeyDown}
-        >
-          {renderComponentOrElement(contentRender(), {
-            close: () => context.updateOpen(false),
-          })}
-        </div>
       </Portal>
     </Show>
   )

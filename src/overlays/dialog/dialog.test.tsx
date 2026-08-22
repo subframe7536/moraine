@@ -118,14 +118,14 @@ describe('Modal', () => {
     expect(document.body.querySelector('[data-slot="close"]')).not.toBeNull()
 
     const content = document.body.querySelector('[data-slot="content"]')
-    const card = content?.querySelector('[data-slot="root"]')
-
-    expect(card?.className).toContain('bg-background')
-    expect(card?.className).toContain('surface-overlay')
+    expect(content?.tagName).toBe('DIV')
+    expect(content?.className).toContain('bg-popover')
+    expect(content?.className).toContain('surface-overlay')
     expect(content?.className).toContain('data-expanded:animate-popup-in')
+    expect(content?.className).toContain('motion-reduce:animate-none')
   })
 
-  test('composes dialog content with a card shell', () => {
+  test('renders the dialog shell with native slot containers', () => {
     render(() => (
       <Dialog open title="Composed" body="Body">
         {(props) => (
@@ -137,10 +137,9 @@ describe('Modal', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')
-    const card = content?.querySelector('[data-slot="root"]')
-
     expect(content).not.toBeNull()
-    expect(card).not.toBeNull()
+    expect(content?.querySelector('[data-slot="header"]')).not.toBeNull()
+    expect(content?.querySelector('[data-slot="body"]')).not.toBeNull()
   })
 
   test('renders the trigger content as a native button root', () => {
@@ -191,7 +190,7 @@ describe('Modal', () => {
 
     const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLButtonElement
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.className).toContain('surface-border')
+    expect(trigger.className).toContain('border-border')
     expect(trigger.querySelector('button')).toBeNull()
   })
 
@@ -620,9 +619,14 @@ describe('Modal', () => {
     expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
   })
 
-  test('supports scrollable overlay mode', () => {
+  test('keeps long dialog content scrolling inside the body', () => {
     render(() => (
-      <Dialog open scrollable body="Scrollable body">
+      <Dialog
+        open
+        title="Long content"
+        body={<div style={{ height: '2000px' }}>Long body</div>}
+        footer="Actions"
+      >
         {(props) => (
           <button {...props} type="button">
             Trigger
@@ -640,7 +644,44 @@ describe('Modal', () => {
     expect(overlay?.contains(content ?? null)).toBe(false)
     expect(overlay?.parentElement).toBe(content?.parentElement)
     expect(overlay?.parentElement?.parentElement).toBe(content?.parentElement?.parentElement)
+    expect(content?.className).toContain('fixed')
+    expect(content?.className).toContain('flex-col')
+    expect(content?.className).toContain('max-h-[calc(100dvh-2rem)]')
+    expect(content?.className).toContain('overflow-hidden')
+    expect(content?.querySelector('[data-slot="body"]')?.className).toContain('overflow-y-auto')
+    expect(content?.querySelector('[data-slot="header"]')?.className).toContain('shrink-0')
+    expect(content?.querySelector('[data-slot="footer"]')?.className).toContain('shrink-0')
     expect(document.body.style.overflow).toBe('hidden')
+  })
+
+  test('moves long dialog scrolling to the overlay when scrollable is true', () => {
+    render(() => (
+      <Dialog open scrollable title="Overlay scroll" body="Long body" footer="Actions" />
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]')
+    const content = document.body.querySelector('[data-slot="content"]')
+    const body = content?.querySelector('[data-slot="body"]')
+
+    expect(overlay?.contains(content ?? null)).toBe(true)
+    expect(overlay?.getAttribute('aria-hidden')).toBeNull()
+    expect(overlay?.className).toContain('overflow-y-auto')
+    expect(overlay?.className).toContain('p-4')
+    expect(content?.className).toContain('relative')
+    expect(content?.className).not.toContain('fixed')
+    expect(body?.className).not.toContain('overflow-y-auto')
+  })
+
+  test('uses a full viewport flex panel for fullscreen dialogs', () => {
+    render(() => <Dialog open fullscreen body="Fullscreen body" />)
+
+    const content = document.body.querySelector('[data-slot="content"]')
+
+    expect(content?.className).toContain('inset-0')
+    expect(content?.className).toContain('size-full')
+    expect(content?.className).toContain('flex-col')
+    expect(content?.className).toContain('overflow-hidden')
+    expect(content?.querySelector('[data-slot="body"]')?.className).toContain('overflow-y-auto')
   })
 
   test('supports custom close content', () => {
@@ -802,6 +843,90 @@ describe('Modal', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
+  })
+
+  test('forwards custom classes and styles to dialog slots', () => {
+    render(() => (
+      <Dialog
+        open
+        title="Custom Title"
+        description="Custom Description"
+        body="Custom Body"
+        footer="Custom Footer"
+        classes={{
+          content: 'custom-content-class',
+          header: 'custom-header-class',
+          wrapper: 'custom-wrapper-class',
+          title: 'custom-title-class',
+          description: 'custom-desc-class',
+          body: 'custom-body-class',
+          footer: 'custom-footer-class',
+          close: 'custom-close-class',
+        }}
+        styles={{
+          content: { 'border-width': '3px' },
+          header: { 'padding-top': '20px' },
+          wrapper: { opacity: '0.9' },
+          title: { 'letter-spacing': '1px' },
+          description: { 'line-height': '1.5' },
+          body: { 'font-size': '15px' },
+          footer: { 'margin-top': '10px' },
+          close: { opacity: '0.8' },
+        }}
+      />
+    ))
+
+    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
+    const wrapper = document.body.querySelector('[data-slot="wrapper"]') as HTMLElement
+    const title = document.body.querySelector('[data-slot="title"]') as HTMLElement
+    const description = document.body.querySelector('[data-slot="description"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+    const close = document.body.querySelector('[data-slot="close"]') as HTMLElement
+
+    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+
+    expect(content.className).toContain('custom-content-class')
+    expect(header.className).toContain('custom-header-class')
+    expect(wrapper.className).toContain('custom-wrapper-class')
+    expect(title.className).toContain('custom-title-class')
+    expect(description.className).toContain('custom-desc-class')
+    expect(body.className).toContain('custom-body-class')
+    expect(footer.className).toContain('custom-footer-class')
+    expect(close.className).toContain('custom-close-class')
+
+    expect(content.style.borderWidth).toBe('3px')
+    expect(header.style.paddingTop).toBe('20px')
+    expect(wrapper.style.opacity).toBe('0.9')
+    expect(title.style.letterSpacing).toBe('1px')
+    expect(description.style.lineHeight).toBe('1.5')
+    expect(body.style.fontSize).toBe('15px')
+    expect(footer.style.marginTop).toBe('10px')
+    expect(close.style.opacity).toBe('0.8')
+  })
+
+  test('adjusts body padding when header or footer is absent', () => {
+    const { unmount } = render(() => (
+      <Dialog open title={false} description={false} close={false} body="No header body" />
+    ))
+
+    const bodyNoHeader = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    expect(bodyNoHeader.className).toContain('pt-6')
+    expect(bodyNoHeader.className).toContain('pb-6')
+    unmount()
+
+    render(() => (
+      <Dialog
+        open
+        title="Title"
+        body="With header and footer"
+        footer={<button type="button">Action</button>}
+      />
+    ))
+
+    const bodyWithBoth = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    expect(bodyWithBoth.className).not.toContain('pt-6')
+    expect(bodyWithBoth.className).toContain('pb-2')
   })
 
   test('escape only closes the topmost overlay when modals are nested', async () => {

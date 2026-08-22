@@ -5,8 +5,8 @@ import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-import { presetMoraine, DEFAULT_ICON_SHORTCUTS } from './src/unocss'
-import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax'
+import { presetMoraine, DEFAULT_ICON_SHORTCUTS } from './src/unocss/index.ts'
+import { createMigrateSyntaxTransformer } from './src/unocss/migrate-syntax.ts'
 
 function hasShortcutSuffix(token: string, shortcuts: Iterable<string>): boolean {
   for (const shortcut of shortcuts) {

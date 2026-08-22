@@ -1,5 +1,5 @@
-import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { render } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -53,7 +53,7 @@ describe('Badge', () => {
 
     expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')
     expect(outline.container.querySelector('[data-slot="root"]')?.className).toContain(
-      'surface-border',
+      'border-border',
     )
   })
 
@@ -69,34 +69,6 @@ describe('Badge', () => {
 
     expect(leading?.className).toContain('i-lucide-sparkles')
     expect(trailing?.className).toContain('i-lucide-arrow-right')
-  })
-
-  test('renders clickable trailing button and calls onTrailingClick', async () => {
-    const onTrailingClick = vi.fn()
-    const screen = render(() => (
-      <Badge trailing="i-lucide-x" onTrailingClick={onTrailingClick}>
-        Removable
-      </Badge>
-    ))
-
-    const trailingButton = screen.container.querySelector('[data-slot="trailing"]')
-    expect(trailingButton?.tagName).toBe('BUTTON')
-    expect(trailingButton?.getAttribute('aria-label')).toBe('Remove Removable')
-
-    await fireEvent.click(trailingButton!)
-    expect(onTrailingClick).toHaveBeenCalledTimes(1)
-  })
-
-  test('uses the title for the trailing button accessible name', () => {
-    const screen = render(() => (
-      <Badge title="Stable label" trailing="i-lucide-x" onTrailingClick={() => undefined}>
-        <span>Rich label</span>
-      </Badge>
-    ))
-
-    expect(
-      screen.container.querySelector('[data-slot="trailing"]')?.getAttribute('aria-label'),
-    ).toBe('Remove Stable label')
   })
 
   test('keeps standalone pointer events native and composes the caller handler', () => {
@@ -134,34 +106,11 @@ describe('Badge', () => {
     expect(screen.container.querySelector('[data-slot="label"]')?.textContent).toBe('0')
   })
 
-  test('reactively adds and removes the trailing action without duplicate callbacks', async () => {
-    const [interactive, setInteractive] = createSignal(false)
-    const onTrailingClick = vi.fn()
-    const screen = render(() => (
-      <Badge trailing="i-lucide-x" onTrailingClick={interactive() ? onTrailingClick : undefined}>
-        Reactive
-      </Badge>
-    ))
-
-    expect(screen.container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
-
-    setInteractive(true)
-    const button = screen.container.querySelector('[data-slot="trailing"]')!
-    expect(button.tagName).toBe('BUTTON')
-    await fireEvent.click(button)
-    expect(onTrailingClick).toHaveBeenCalledTimes(1)
-
-    setInteractive(false)
-    expect(screen.container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
-  })
-
   test('evaluates getter-backed conditional JSX inputs once', () => {
     const reads = {
       children: 0,
       leading: 0,
       trailing: 0,
-      onTrailingClick: 0,
-      title: 0,
     }
     const screen = render(() =>
       createComponent(Badge, {
@@ -177,14 +126,6 @@ describe('Badge', () => {
           reads.trailing += 1
           return 'i-lucide-x'
         },
-        get onTrailingClick() {
-          reads.onTrailingClick += 1
-          return () => undefined
-        },
-        get title() {
-          reads.title += 1
-          return 'Cached'
-        },
       }),
     )
 
@@ -193,12 +134,10 @@ describe('Badge', () => {
       children: 1,
       leading: 1,
       trailing: 1,
-      onTrailingClick: 1,
-      title: 1,
     })
   })
 
-  test('hydrates stable slot order before reactively adding and removing the action', async () => {
+  test('hydrates stable slot order', () => {
     const markup = renderSsrFixture(
       '/src/elements/badge/badge.ssr.fixture.tsx',
       'renderBadgeFixture',
@@ -208,17 +147,11 @@ describe('Badge', () => {
     document.body.append(container)
     const serverRoot = container.querySelector('[data-slot="root"]')
     expect(serverRoot?.getAttribute('data-hk')).toBe('00')
-    const [interactive, setInteractive] = createSignal(false)
-    const onTrailingClick = vi.fn()
     const restoreHydrationState = installHydrationState()
 
     const dispose = hydrate(
       () => (
-        <Badge
-          leading="i-lucide-check"
-          trailing="i-lucide-x"
-          onTrailingClick={interactive() ? onTrailingClick : undefined}
-        >
+        <Badge leading="i-lucide-check" trailing="i-lucide-x">
           Server label
         </Badge>
       ),
@@ -230,16 +163,6 @@ describe('Badge', () => {
       Array.from(serverRoot?.children ?? []).map((element) => element.getAttribute('data-slot')),
     ).toEqual(['leading', 'label', 'trailing'])
 
-    setInteractive(true)
-    const button = container.querySelector('[data-slot="trailing"]')!
-    expect(button.tagName).toBe('BUTTON')
-    expect(typeof (button as Element & { $$click?: (event: MouseEvent) => void }).$$click).toBe(
-      'function',
-    )
-    await fireEvent.click(button)
-    expect(onTrailingClick).toHaveBeenCalledTimes(1)
-
-    setInteractive(false)
     expect(container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
     dispose()
     container.remove()
@@ -251,7 +174,6 @@ describe('Badge', () => {
       <Badge
         data-slot="tag"
         trailing="i-lucide-x"
-        onTrailingClick={() => undefined}
         classes={{
           root: 'root-override',
           label: 'label-override',
@@ -276,7 +198,6 @@ describe('Badge', () => {
       <Badge
         data-slot="tag"
         trailing="i-lucide-x"
-        onTrailingClick={() => undefined}
         styles={{
           root: { width: '200px' },
           label: { width: '200px' },

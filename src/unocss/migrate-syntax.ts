@@ -128,9 +128,6 @@ function normalizeUtility(utility: string): string {
 }
 
 function normalizeVariant(variant: string): string {
-  if (variant === 'supports-backdrop-filter') {
-    return 'supports-[backdrop-filter]'
-  }
   if (variant === 'not-dark') {
     return '[html:not(.dark)_&]'
   }

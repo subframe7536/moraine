@@ -17,7 +17,6 @@ import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
 import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
-import { overlayMenuContentVariants } from '../../overlays/base/menu/index.ts'
 import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -36,7 +35,7 @@ import type {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SelectControlVariantProps } from './select.class.ts'
-import { selectItemVariants } from './select.class.ts'
+import { selectContentVariants, selectItemVariants } from './select.class.ts'
 import {
   flattenOptions,
   normalizeOptions,
@@ -589,7 +588,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'tagRender',
     'allowClear',
     'onClear',
-    'tagVariant',
     'tokenSeparators',
     'allowCreate',
     'maxCount',
@@ -1474,7 +1472,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                 ...merged.styles?.content,
                 '--mo-popper-content-transform-origin': resolveSelectContentOrigin(contentSide()),
               }}
-              class={overlayMenuContentVariants(
+              class={selectContentVariants(
                 { side: contentSide() },
                 'w-$mo-popper-anchor-width min-w-$mo-popper-anchor-width max-w-$mo-popper-content-available-width',
                 merged.classes?.content,
@@ -1515,7 +1513,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     ...toStyleObject(merged.listboxProps?.style),
                   }}
                   class={cn(
-                    'outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
+                    'm-0 p-1 outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
                     merged.classes?.listbox,
                     merged.listboxProps?.class,
                   )}

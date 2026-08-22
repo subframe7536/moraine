@@ -11,8 +11,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Button } from '../../elements/button/index.ts'
-import type { ButtonT } from '../../elements/button/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -37,6 +36,9 @@ import {
 
 type ControlKind = 'increment' | 'decrement'
 type PointerType = 'mouse' | 'touch' | 'pen'
+type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
+  [key: `data-${string}`]: string | undefined
+}
 
 interface PressRepeatState {
   activePointerId: number | null
@@ -575,8 +577,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
 
-  const isBorderless = createMemo(() => merged.variant === 'ghost' || merged.variant === 'none')
-
   function commitValue(nextValue: number): boolean {
     if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
       return false
@@ -677,6 +677,20 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       targetEl: null,
     },
   }
+  const [pressedControls, setPressedControls] = createSignal<Record<ControlKind, boolean>>({
+    increment: false,
+    decrement: false,
+  })
+
+  function setControlPressed(kind: ControlKind, pressed: boolean): void {
+    setPressedControls((current) => {
+      if (current[kind] === pressed) {
+        return current
+      }
+
+      return { ...current, [kind]: pressed }
+    })
+  }
 
   function lockSelection(): void {
     if (typeof document === 'undefined') {
@@ -718,12 +732,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
   }
 
-  function finishPress(state: PressRepeatState, suppressClick: boolean): void {
+  function finishPress(kind: ControlKind, state: PressRepeatState, suppressClick: boolean): void {
     state.activePointerId = null
     state.targetEl = null
     state.suppressNextClick = suppressClick
     state.repeatStarted = false
     clearRepeatTimers(state)
+    setControlPressed(kind, false)
     unlockSelection()
   }
 
@@ -766,6 +781,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     state.lastPointerType = event.pointerType
     state.repeatStarted = false
     state.lastTriggeredAt = 0
+    setControlPressed(kind, true)
 
     if (event.pointerType !== 'mouse' && event.cancelable) {
       event.preventDefault()
@@ -808,7 +824,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       state.targetEl?.click()
     }
 
-    finishPress(state, state.repeatStarted || shouldSynthesizeClick)
+    finishPress(kind, state, state.repeatStarted || shouldSynthesizeClick)
   }
 
   function onControlPointerCancel(kind: ControlKind, event: PointerEvent): void {
@@ -818,7 +834,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return
     }
 
-    finishPress(state, false)
+    finishPress(kind, state, false)
   }
 
   function onControlPointerLeave(kind: ControlKind): void {
@@ -828,7 +844,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return
     }
 
-    finishPress(state, false)
+    finishPress(kind, state, false)
   }
 
   const onControlContextMenu: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = (event) => {
@@ -893,35 +909,41 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     while (selectionState.count > 0) {
       unlockSelection()
     }
+    setPressedControls({ increment: false, decrement: false })
   })
 
-  function resolveControlProps(kind: ControlKind): ButtonT.Props {
+  function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
+    const isControlDisabled = (): boolean =>
+      field.disabled() ||
+      readOnly() ||
+      (isIncrement
+        ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
+        : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
 
     return {
-      slotName: kind,
-      variant: 'ghost',
+      'data-slot': kind,
+      'data-variant': 'link',
+      type: 'button',
+      tabIndex: -1,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
-      get styles() {
-        return { root: merged.styles?.[kind] }
-      },
-      get disabled() {
-        return (
-          field.disabled() ||
-          readOnly() ||
-          (isIncrement
-            ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
-            : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
-        )
-      },
-      get size() {
-        return `icon-${field.size()}` as ButtonT.Variant['size']
+      get 'data-size'() {
+        return `icon-${field.size()}`
       },
       get 'aria-controls'() {
         return field.id()
       },
-      get leading() {
-        return isIncrement ? incrementIcon() : decrementIcon()
+      get disabled() {
+        return isControlDisabled()
+      },
+      get 'data-disabled'() {
+        return isControlDisabled() ? '' : undefined
+      },
+      get 'data-active'() {
+        return pressedControls()[kind] ? '' : undefined
+      },
+      get style() {
+        return merged.styles?.[kind]
       },
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
@@ -930,22 +952,18 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
       onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
-      get classes() {
-        return {
-          root: inputNumberControlButtonVariants(
-            {
-              control: kind,
-              divided: !isIncrement && isVertical() && showIncrement(),
-              orientation: resolvedOrientation(),
-            },
-            'select-none touch-none',
-            isBorderless() && 'border-transparent',
-            merged.variant === 'none' && 'hover:bg-transparent',
-            merged.classes?.[kind],
-          ),
-        }
+      get class() {
+        return inputNumberControlButtonVariants(
+          {
+            control: kind,
+            orientation: resolvedOrientation(),
+            size: field.size(),
+          },
+          'select-none touch-none',
+          merged.classes?.[kind],
+        )
       },
-    } as const
+    }
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
@@ -1059,6 +1077,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           size: field.size(),
           variant: merged.variant,
         },
+        'items-stretch',
         merged.classes?.root,
         merged.class,
       )}
@@ -1066,7 +1085,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       {...rest}
     >
       <Show when={!isVertical() && showDecrement()}>
-        <Button as="button" {...resolveControlProps('decrement')} />
+        <button {...resolveControlProps('decrement')}>
+          <Icon name={decrementIcon()} slotName="leading" />
+        </button>
       </Show>
 
       <input
@@ -1207,20 +1228,25 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           data-slot="controls"
           class={inputNumberControlColumnVariants({
             size: field.size(),
-            borderless: isBorderless(),
           })}
         >
           <Show when={showIncrement()}>
-            <Button as="button" {...resolveControlProps('increment')} />
+            <button {...resolveControlProps('increment')}>
+              <Icon name={incrementIcon()} slotName="leading" />
+            </button>
           </Show>
           <Show when={showDecrement()}>
-            <Button as="button" {...resolveControlProps('decrement')} />
+            <button {...resolveControlProps('decrement')}>
+              <Icon name={decrementIcon()} slotName="leading" />
+            </button>
           </Show>
         </div>
       </Show>
 
       <Show when={!isVertical() && showIncrement()}>
-        <Button as="button" {...resolveControlProps('increment')} />
+        <button {...resolveControlProps('increment')}>
+          <Icon name={incrementIcon()} slotName="leading" />
+        </button>
       </Show>
     </div>
   )

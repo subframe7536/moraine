@@ -2,7 +2,7 @@ import type { VariantProps } from 'cls-variant'
 
 import { cva } from '../../shared/utils.ts'
 
-export const stepperRootVariants = cva('flex gap-4', {
+export const stepperRootVariants = cva('flex gap-2', {
   defaultVariants: {
     orientation: 'horizontal',
   },
@@ -36,11 +36,9 @@ export const stepperItemVariants = cva('min-w-0 relative data-disabled:effect-di
       vertical: 'text-start flex gap-$st-gap items-start',
     },
     size: {
-      xs: 'var-stepper-6-4-1.5-0.5',
-      sm: 'var-stepper-7-5-2-0.5',
-      md: 'var-stepper-8-7-2.5-1',
-      lg: 'var-stepper-9-8-3-1',
-      xl: 'var-stepper-10-9-3.5-1',
+      sm: 'var-stepper-8-6-2-0.5',
+      md: 'var-stepper-9-7-2.5-1',
+      lg: 'var-stepper-10-8-3-1',
     },
   },
 })
@@ -58,7 +56,7 @@ export const stepperContainerVariants = cva('flex items-center relative', {
 })
 
 export const stepperTriggerVariants = cva(
-  'rounded-full inline-flex size-$st-size transition-bg items-center justify-center data-clickable:cursor-pointer',
+  'rounded-full inline-flex size-$st-size transition-colors items-center justify-center focus-visible:effect-fv data-clickable:cursor-pointer',
   {
     defaultVariants: {
       size: 'md',
@@ -66,11 +64,9 @@ export const stepperTriggerVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs',
-        sm: 'text-sm',
-        md: 'text-base',
-        lg: 'text-lg',
-        xl: 'text-xl',
+        sm: 'text-xs',
+        md: 'text-sm',
+        lg: 'text-base',
       },
       state: {
         inactive: 'text-muted-foreground border-input bg-background shadow-xs',
@@ -90,8 +86,8 @@ export const stepperSeparatorVariants = cva(
     variants: {
       orientation: {
         horizontal:
-          'h-0.5 end-[calc(-50%+var(--st-sep-x))] start-[calc(50%+var(--st-sep-x))] top-1/2 -translate-y-1/2',
-        vertical: 'w-0.5 bottom--3 left-1/2 top-$st-sep-top -translate-x-1/2',
+          'h-1.5 end-[calc(-50%+var(--st-sep-x))] start-[calc(50%+var(--st-sep-x))] top-1/2 -translate-y-1/2',
+        vertical: 'w-1.5 bottom--3 left-1/2 top-$st-sep-top -translate-x-1/2',
       },
     },
   },
@@ -109,32 +105,28 @@ export const stepperWrapperVariants = cva('min-w-0', {
   },
 })
 
-export const stepperTitleVariants = cva('text-foreground font-medium', {
+export const stepperTitleVariants = cva('text-foreground leading-snug font-medium', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
     size: {
-      xs: 'text-xs',
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
-      xl: 'text-lg',
     },
   },
 })
 
-export const stepperDescriptionVariants = cva('text-muted-foreground text-wrap', {
+export const stepperDescriptionVariants = cva('text-muted-foreground leading-normal text-wrap', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
     size: {
-      xs: 'text-xs',
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
-      xl: 'text-lg',
     },
   },
 })

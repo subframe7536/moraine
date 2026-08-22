@@ -10,12 +10,12 @@ search:
 ## Import
 
 ```tsx
-import { CommandPalette, Dialog } from 'moraine'
+import { CommandPalette } from 'moraine'
 ```
 
 ## Slot Structure
 
-CommandPalette renders a searchable grouped list with keyboard navigation, active-descendant semantics, and optional footer content. Compose it with `Dialog` when it should appear in an overlay; the caller owns the trigger, open state, positioning, and closing behavior.
+CommandPalette renders a searchable grouped list with keyboard navigation, active-descendant semantics, and optional footer content. It is inline by default, so it can sit directly in a page, panel, or popover. Compose it with `Dialog` only when the command surface should be modal.
 
 ### Input area
 
@@ -48,13 +48,13 @@ root
 
 ### Basic
 
-Compose `Dialog` around CommandPalette and put the trigger in Dialog's children. Handle the selected item with CommandPalette's `onSelect` callback; enabled selections request closing by default through `onClose`.
+The base example is inline so the search field and result hierarchy are visible without an extra trigger. Handle the selected item with CommandPalette's `onSelect` callback; enabled selections request closing by default through `onClose` when the palette is hosted in an overlay.
 
 <Example path="./usage" />
 
 ### Real-World Example
 
-Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned.
+Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned. This real-world example intentionally wraps the palette in a dialog to demonstrate the modal composition.
 
 <Example path="./real-world-example" />
 
@@ -96,4 +96,4 @@ Compose multi-step flows outside the component by swapping the `groups` prop in 
 
 ## Sizes and Virtual Rendering
 
-Use `size="xs" | "sm" | "md" | "lg" | "xl"` to size command rows. For large collections, pass `virtualRender` and `scrollToItem`; CommandPalette exposes type-safe flattened entries and its mounted scroll element, while `scrollToItem` receives the source command plus its flattened entry index.
+Use `size="sm" | "md" | "lg"` to size command rows. For large collections, pass `virtualRender` and `scrollToItem`; CommandPalette exposes type-safe flattened entries and its mounted scroll element, while `scrollToItem` receives the source command plus its flattened entry index.

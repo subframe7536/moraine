@@ -293,7 +293,7 @@ export function renderDefaultSelectOption<TItem>(
           data-slot="itemTrailing"
           style={options.styles?.itemTrailing}
           class={cn(
-            'text-sm ms-auto inline-flex shrink-0 items-center justify-center',
+            'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
             options.classes?.itemTrailing,
           )}
         >

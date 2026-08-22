@@ -27,8 +27,11 @@ export const resizableHandleVariants = cva(
   },
 )
 
+export const RESIZABLE_HANDLE_GRIP_CLASS =
+  'rounded-lg flex cursor-inherit items-center justify-center z-sticky focus-visible:effect-fv'
+
 export const resizableCrossTargetVariants = cva(
-  'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-1',
+  'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-base',
   {
     defaultVariants: {
       orientation: 'horizontal',

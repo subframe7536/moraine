@@ -1,9 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, splitProps, untrack } from 'solid-js'
 
-import { Badge } from '../../elements/badge/index.ts'
-import type { BadgeProps } from '../../elements/badge/index.ts'
-import { IconButtonInner } from '../../elements/icon/icon-button-inner.tsx'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
@@ -24,7 +21,10 @@ import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
-  selectLeadingIconVariants,
+  multiSelectTagOverflowVariants,
+  multiSelectTagVariants,
+  SELECT_CLEAR_ACTION_CLASS,
+  SELECT_LEADING_ICON_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -57,7 +57,7 @@ export namespace MultiSelectT {
     clear?: T
     /** Wrapper that lays out selected value tags inside the control. */
     tagsContainer?: T
-    /** Badge representing one selected value. */
+    /** Selected value tag. */
     tag?: T
     /** Button used to remove one selected value. */
     tagRemove?: T
@@ -150,8 +150,6 @@ export namespace MultiSelectT {
     allowClear?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
-    /** Variant for the selected tags. */
-    tagVariant?: BadgeProps['variant']
     /** Characters that split input into tokens and immediately select them. */
     tokenSeparators?: string[]
     /** Allow creating new tags on Enter when no match is found. */
@@ -281,7 +279,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   const leadingIcon = createMemo(() => jsxProps.leadingIcon)
   const loadingIcon = createMemo(() => jsxProps.loadingIcon)
   const trailingIcon = createMemo(() => jsxProps.trailingIcon)
-  const closeIcon = createMemo(() => jsxProps.closeIcon)
+  const closeIcon = createMemo(() => jsxProps.closeIcon || 'icon-close')
   const rawOptions = createMemo(() => props.options ?? [])
   const [rawSelectedValues, setSelectedValues] = useControllableValue<TItem[]>({
     value: () => props.value,
@@ -729,7 +727,12 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
-              { variant: props.variant, search: api.isSearchable() },
+              {
+                variant: props.variant,
+                size: api.field.size(),
+                mode: 'multi',
+                search: api.isSearchable(),
+              },
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -738,13 +741,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               {(icon) => (
                 <Icon
                   name={icon()}
-                  size={api.field.size()}
                   slotName="leading"
                   style={props.styles?.leading}
-                  class={selectLeadingIconVariants(
-                    { size: api.field.size() },
-                    props.classes?.leading,
-                  )}
+                  class={cn(SELECT_LEADING_ICON_CLASS, props.classes?.leading)}
                 />
               )}
             </Show>
@@ -753,7 +752,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               data-slot="tagsContainer"
               style={props.styles?.tagsContainer}
               class={cn(
-                'p-1.5 flex flex-1 flex-wrap gap-1 max-w-full min-w-0 select-none items-center',
+                'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
                 props.classes?.tagsContainer,
               )}
             >
@@ -768,43 +767,60 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                         onClose,
                       })}
                     >
-                      <Badge
+                      <span
                         data-slot="tag"
-                        size={api.field.size()}
                         title={option.key}
-                        variant={props.tagVariant}
                         style={props.styles?.tag}
-                        class={cn('pe-0 max-w-50%', props.classes?.tag)}
-                        classes={{
-                          trailing: [
-                            'rounded hover:bg-accent-hover active:bg-accent-active scale-85',
-                            props.classes?.tagRemove,
-                          ],
-                        }}
-                        trailing={closeIcon() ?? 'icon-close'}
+                        class={multiSelectTagVariants(
+                          { size: api.field.size() },
+                          props.classes?.tag,
+                        )}
                         onPointerDown={(event: PointerEvent) => {
-                          if (!(event.target instanceof Element)) {
-                            return
-                          }
-                          if (!event.target.closest('[data-slot="trailing"]')) {
-                            return
-                          }
-
                           event.preventDefault()
-                          event.stopPropagation()
                           api.focusInput()
                         }}
-                        onTrailingClick={
-                          api.field.disabled()
-                            ? undefined
-                            : (event: MouseEvent) => {
+                      >
+                        <span data-slot="label" class="min-w-0 truncate">
+                          {option.label}
+                        </span>
+
+                        <Show
+                          when={api.field.disabled()}
+                          fallback={
+                            <button
+                              type="button"
+                              data-slot="tagRemove"
+                              aria-label={`Remove ${option.label}`}
+                              style={props.styles?.tagRemove}
+                              class={cn(
+                                'p-0.5 outline-none border-0 bg-transparent flex shrink-0 cursor-pointer items-center justify-center -ms-1',
+                                props.classes?.tagRemove,
+                              )}
+                              onPointerDown={(event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                api.focusInput()
+                              }}
+                              onClick={(event) => {
                                 event.stopPropagation()
                                 onClose()
-                              }
-                        }
-                      >
-                        {option.label}
-                      </Badge>
+                              }}
+                            >
+                              <Icon
+                                name={closeIcon()}
+                                class="opacity-50 size-[1.25em] hover:opacity-100"
+                              />
+                            </button>
+                          }
+                        >
+                          <Icon
+                            name={closeIcon()}
+                            slotName="tagRemove"
+                            style={props.styles?.tagRemove}
+                            class={cn('opacity-50 size-[1.25em]', props.classes?.tagRemove)}
+                          />
+                        </Show>
+                      </span>
                     </Show>
                   )
                 }}
@@ -814,8 +830,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 <span
                   data-slot="tagOverflow"
                   style={props.styles?.tagOverflow}
-                  class={cn(
-                    'text-xs text-muted-foreground px-1 flex items-center',
+                  class={multiSelectTagOverflowVariants(
+                    { size: api.field.size() },
                     props.classes?.tagOverflow,
                   )}
                 >
@@ -866,31 +882,21 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               />
             </div>
 
-            <IconButtonInner
-              name={
-                isActionLoading()
-                  ? (loadingIcon() ?? 'icon-loading')
-                  : isClearAction()
-                    ? (closeIcon() ?? 'icon-close')
-                    : (trailingIcon() ?? 'icon-chevron-down')
-              }
+            <button
+              type="button"
               data-slot={isClearAction() ? 'clear' : 'trigger'}
               aria-label={isClearAction() ? 'Clear selection' : 'Open dropdown menu'}
               aria-busy={isActionLoading() || undefined}
               data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
-              classes={{
-                root: [
-                  'me-2 transition-colors hover:bg-muted-hover active:bg-muted-active',
-                  isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
-                  props.classes?.trigger,
-                  isClearAction() ? props.classes?.clear : undefined,
-                ],
-                icon: 'text-muted-foreground opacity-80',
-              }}
-              styles={{
-                root: isClearAction() ? props.styles?.clear : props.styles?.trigger,
-              }}
+              class={cn(
+                'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
+                isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
+                props.classes?.trigger,
+                isClearAction() ? props.classes?.clear : undefined,
+              )}
+              style={isClearAction() ? props.styles?.clear : props.styles?.trigger}
               disabled={api.field.disabled()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -911,7 +917,19 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
 
                 api.toggle()
               }}
-            />
+            >
+              <Icon
+                name={
+                  isActionLoading()
+                    ? (loadingIcon() ?? 'icon-loading')
+                    : isClearAction()
+                      ? (closeIcon() ?? 'icon-close')
+                      : (trailingIcon() ?? 'icon-chevron-down')
+                }
+                class="text-muted-foreground opacity-80 data-loading:effect-loading"
+                data-loading={isActionLoading() ? '' : undefined}
+              />
+            </button>
           </div>
         )
       }}

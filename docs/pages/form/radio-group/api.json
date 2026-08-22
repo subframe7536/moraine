@@ -56,6 +56,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the item is checked or selected."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or item is disabled."
         }
       ],
       "ariaAttributes": []
@@ -96,6 +102,13 @@
           "description": "Present when the field is required."
         }
       ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "container",
+      "description": "Vertical alignment wrapper for the radio control.",
+      "cssVariables": [],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -271,7 +284,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
       },
       {
         "name": "style",

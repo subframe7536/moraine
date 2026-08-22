@@ -5,7 +5,7 @@ export function Autoresize() {
   const [value, setValue] = createSignal('Type here to see autoresize...')
 
   return (
-    <div class="max-w-xl space-y-3">
+    <div class="max-w-2xl space-y-3">
       <Textarea
         autoResize
         maxRows={6}

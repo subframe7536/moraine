@@ -12,6 +12,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { callHandler, cn } from '../../shared/utils.ts'
 
 import { FormProvider } from './form-context.ts'
+import { FORM_ROOT_CLASS } from './form.class.ts'
 
 export namespace FormT {
   export interface Slot<T = unknown> {
@@ -74,7 +75,7 @@ export function Form<TSchema extends FormSchema>(props: FormProps<TSchema>): JSX
         onSubmit={local.onSubmit ?? (() => {})}
         onReset={onReset}
         style={{ ...local.styles?.root, ...local.style }}
-        class={cn('w-full data-submitting:opacity-80', local.classes?.root, local.class)}
+        class={cn(FORM_ROOT_CLASS, local.classes?.root, local.class)}
         data-slot="root"
         data-submitting={local.of.isSubmitting ? '' : undefined}
       />

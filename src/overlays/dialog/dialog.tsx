@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Card } from '../../elements/card/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import { Button } from '../../elements/index.ts'
@@ -13,8 +12,18 @@ import { Modal } from '../base/modal.tsx'
 import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { dialogCardVariants, dialogContentVariants } from './dialog.class.ts'
-import type { DialogCardVariantProps } from './dialog.class.ts'
+import {
+  DIALOG_BODY_CLASS,
+  DIALOG_CLOSE_CLASS,
+  DIALOG_CONTENT_CLASS,
+  DIALOG_CONTENT_FULLSCREEN_CLASS,
+  DIALOG_CONTENT_SCROLLABLE_CLASS,
+  DIALOG_DESCRIPTION_CLASS,
+  DIALOG_FOOTER_CLASS,
+  DIALOG_HEADER_CLASS,
+  DIALOG_TITLE_CLASS,
+  DIALOG_WRAPPER_CLASS,
+} from './dialog.class.ts'
 
 export namespace DialogT {
   export interface Slot<T = unknown> {
@@ -46,13 +55,6 @@ export namespace DialogT {
     footer?: T
   }
 
-  export interface Variant extends DialogCardVariantProps {
-    /**
-     * Layout mode for the dialog panel.
-     * @default 'default'
-     */
-    layout?: DialogCardVariantProps['layout']
-  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -87,16 +89,13 @@ export namespace DialogT {
     description?: JSX.Element
 
     /**
-     * Whether the dialog content body should be scrollable.
-     * @default false
-     */
-    scrollable?: boolean
-
-    /**
      * Whether the dialog should take up the full viewport.
      * @default false
      */
     fullscreen?: boolean
+
+    /** Whether the overlay should scroll the complete dialog panel. */
+    scrollable?: boolean
 
     /**
      * Whether to show a close button.
@@ -133,7 +132,7 @@ export namespace DialogT {
    * Props for the Dialog component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'span', Base, never, Classes, Styles>
 }
 
 /**
@@ -155,8 +154,8 @@ export function Dialog(props: DialogProps): JSX.Element {
     'onClosePrevent',
     'title',
     'description',
-    'scrollable',
     'fullscreen',
+    'scrollable',
     'close',
     'closeIcon',
     'header',
@@ -200,18 +199,7 @@ export function Dialog(props: DialogProps): JSX.Element {
   const descriptionId = createLazyMemo(() =>
     !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
   )
-
-  const dialogLayout = () => {
-    if (merged.fullscreen) {
-      return 'fullscreen'
-    }
-
-    if (merged.scrollable) {
-      return 'scrollable'
-    }
-
-    return 'default'
-  }
+  const overlayScroll = () => Boolean(merged.scrollable && merged.overlay && !merged.fullscreen)
 
   const headerContent = (close: () => void) => {
     if (hasCustomHeader()) {
@@ -228,17 +216,14 @@ export function Dialog(props: DialogProps): JSX.Element {
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
-            class={cn('flex-1 gap-1.5 grid min-w-0', merged.classes?.wrapper)}
+            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', merged.classes?.wrapper)}
           >
             <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
                 style={merged.styles?.title}
-                class={cn(
-                  'text-lg leading-none tracking-tight font-semibold',
-                  merged.classes?.title,
-                )}
+                class={cn(DIALOG_TITLE_CLASS, merged.classes?.title)}
               >
                 {title()}
               </h2>
@@ -249,7 +234,7 @@ export function Dialog(props: DialogProps): JSX.Element {
                 id={descriptionId()}
                 data-slot="description"
                 style={merged.styles?.description}
-                class={cn('text-sm text-muted-foreground', merged.classes?.description)}
+                class={cn(DIALOG_DESCRIPTION_CLASS, merged.classes?.description)}
               >
                 {description()}
               </p>
@@ -261,10 +246,10 @@ export function Dialog(props: DialogProps): JSX.Element {
           <Button
             data-slot="close"
             aria-label="Close"
-            size="icon-md"
+            size="icon-sm"
             variant="ghost"
             style={merged.styles?.close}
-            class={['absolute top-2 right-2', merged.classes?.close]}
+            class={[DIALOG_CLOSE_CLASS, merged.classes?.close]}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -287,35 +272,74 @@ export function Dialog(props: DialogProps): JSX.Element {
       <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
       <Modal.Content
         overlay={merged.overlay}
+        overlayScroll={overlayScroll()}
         overlayClass={cn(merged.classes?.overlay)}
         overlayStyle={merged.styles?.overlay}
-        class={dialogContentVariants(
-          {
-            layout: dialogLayout(),
-          },
+        class={cn(
+          merged.fullscreen
+            ? DIALOG_CONTENT_FULLSCREEN_CLASS
+            : overlayScroll()
+              ? DIALOG_CONTENT_SCROLLABLE_CLASS
+              : DIALOG_CONTENT_CLASS,
           merged.classes?.content,
         )}
         style={merged.styles?.content}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
-        contentRender={(context) => (
-          <Card
-            header={headerContent(context.close)}
-            footer={footer()}
-            classes={{
-              root: dialogCardVariants({ layout: dialogLayout() }),
-              header: ['p-6 flex gap-1.5 items-start', merged.classes?.header],
-              body: ['text-sm', merged.classes?.body],
-              footer: [
-                'px-6 pb-6 pt-0 flex flex-col-reverse gap-2 sm:(flex-row justify-end)',
-                merged.classes?.footer,
-              ],
-            }}
-          >
-            {body()}
-          </Card>
-        )}
+        contentRender={(context) => {
+          const hasHeader = () =>
+            hasCustomHeader() ||
+            hasJsxContent(title()) ||
+            hasJsxContent(description()) ||
+            merged.close
+
+          return (
+            <>
+              <Show when={headerContent(context.close)}>
+                {(h) => (
+                  <div
+                    data-slot="header"
+                    style={merged.styles?.header}
+                    class={cn(DIALOG_HEADER_CLASS, merged.classes?.header)}
+                  >
+                    {h()}
+                  </div>
+                )}
+              </Show>
+
+              <Show when={body()}>
+                {(content) => (
+                  <div
+                    data-slot="body"
+                    style={merged.styles?.body}
+                    class={cn(
+                      DIALOG_BODY_CLASS,
+                      !overlayScroll() && 'overflow-y-auto',
+                      !hasHeader() && 'pt-6',
+                      hasJsxContent(footer()) ? 'pb-2' : 'pb-6',
+                      merged.classes?.body,
+                    )}
+                  >
+                    {content()}
+                  </div>
+                )}
+              </Show>
+
+              <Show when={footer()}>
+                {(f) => (
+                  <div
+                    data-slot="footer"
+                    style={merged.styles?.footer}
+                    class={cn(DIALOG_FOOTER_CLASS, merged.classes?.footer)}
+                  >
+                    {f()}
+                  </div>
+                )}
+              </Show>
+            </>
+          )
+        }}
       />
     </Modal>
   )

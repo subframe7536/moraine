@@ -41,6 +41,7 @@ import {
   resizableCrossTargetVariants,
   resizableHandleVariants,
   resizableRootVariants,
+  RESIZABLE_HANDLE_GRIP_CLASS,
 } from './resizable.class.ts'
 import type { ResizableVariantProps } from './resizable.class.ts'
 
@@ -850,7 +851,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
                 class={cn(
-                  'min-h-0 min-w-0 ease-out overflow-auto data-transitioning:(transition-flex-grow duration-200) motion-reduce:transition-none',
+                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
                   local.classes?.panel,
                   panelItem().class,
                 )}
@@ -919,10 +920,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       onPointerDown={onHandlePointerDown}
                       onClick={onHandleClick}
                       class={cn(
-                        'rounded flex cursor-inherit items-center justify-center z-10 focus-visible:effect-fv',
+                        RESIZABLE_HANDLE_GRIP_CLASS,
                         handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
                         !local.handleRender && [
-                          'bg-border/90 flex shrink-0',
+                          'bg-border flex shrink-0',
                           orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
                         ],
                         local.classes?.handle,

@@ -18,7 +18,7 @@ export function Default() {
             Deploy
           </Button>
           <div class="text-xs text-muted-foreground m-a flex gap-1 items-center">
-            <Icon name="i-lucide-circle-alert" class="h-lh shrink-0 size-3" />
+            <Icon name="i-lucide-circle-alert" class="h-lh shrink-0" />
             <p>This will take a few seconds to complete.</p>
           </div>
         </>
@@ -31,7 +31,7 @@ export function Default() {
           <Input placeholder="Name of your project" />
         </FormField>
         <FormField label="Framework">
-          <Select options={frameworkOptions} value="vite" />
+          <Select options={frameworkOptions} defaultValue="vite" />
         </FormField>
       </div>
     </Card>

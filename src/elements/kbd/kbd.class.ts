@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const kbdRootVariants = cva(
-  'leading-none font-medium font-mono rounded inline-flex select-none uppercase items-center justify-center',
+  'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   {
     defaultVariants: {
       size: 'md',
@@ -11,14 +11,12 @@ export const kbdRootVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-2 px-0.7 rounded-0.7 h-3',
-        sm: 'text-2.5 px-1 rounded-1 h-4',
-        md: 'text-3 px-1 rounded-1 h-4.5',
-        lg: 'text-xs px-1 rounded-1.5 h-5',
-        xl: 'text-sm px-1.5 rounded-1.5 h-5.5',
+        sm: 'text-[10px] h-4.5 min-w-4.5',
+        md: 'text-xs h-5 min-w-5',
+        lg: 'text-sm h-5.5 min-w-5.5',
       },
       variant: {
-        default: 'text-foreground bg-muted/80 ring ring-border ring-inset',
+        default: 'text-muted-foreground bg-muted',
         outline: 'text-muted-foreground border border-b-2 border-border',
         invert: 'text-muted bg-muted-foreground',
       },
@@ -26,17 +24,15 @@ export const kbdRootVariants = cva(
   },
 )
 
-export const kbdGroupVariants = cva('inline-flex items-center', {
+export const kbdGroupVariants = cva('inline-flex gap-1 items-center', {
   defaultVariants: {
     size: 'md',
   },
   variants: {
     size: {
-      xs: 'text-2 gap-1',
-      sm: 'text-2.5 gap-1',
-      md: 'text-3 gap-1',
-      lg: 'text-xs gap-1.5',
-      xl: 'text-sm gap-1.5',
+      sm: 'text-[11px]',
+      md: 'text-xs',
+      lg: 'text-xs',
     },
   },
 })

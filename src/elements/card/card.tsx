@@ -4,6 +4,23 @@ import { Show, children as resolveChildren, createMemo, splitProps } from 'solid
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 
+import {
+  CARD_ACTION_CLASS,
+  CARD_BODY_CLASS,
+  CARD_BODY_COMPACT_CLASS,
+  CARD_BODY_DEFAULT_CLASS,
+  CARD_BODY_MARGIN_COMPACT_CLASS,
+  CARD_BODY_MARGIN_DEFAULT_CLASS,
+  CARD_DESCRIPTION_CLASS,
+  CARD_FOOTER_COMPACT_CLASS,
+  CARD_FOOTER_DEFAULT_CLASS,
+  CARD_HEADER_CLASS,
+  CARD_HEADER_COMPACT_CLASS,
+  CARD_HEADER_DEFAULT_CLASS,
+  CARD_ROOT_CLASS,
+  CARD_TITLE_CLASS,
+} from './card.class.ts'
+
 export namespace CardT {
   export interface Slot<T = unknown> {
     /**
@@ -113,19 +130,15 @@ export function Card(props: CardProps): JSX.Element {
       data-slot="root"
       {...rest}
       style={{ ...props.styles?.root, ...props.style }}
-      class={cn(
-        'text-card-foreground surface-border rounded-2xl bg-card flex flex-col shadow-xs/5 relative not-dark:bg-clip-padding',
-        props.classes?.root,
-        props.class,
-      )}
+      class={cn(CARD_ROOT_CLASS, props.classes?.root, props.class)}
     >
       <Show when={header() || title() || description()}>
         <div
           data-slot="header"
           style={props.styles?.header}
           class={cn(
-            'grid auto-rows-min items-start',
-            !header() && (props.compact ? 'p-4 gap-1' : 'p-6 gap-2'),
+            CARD_HEADER_CLASS,
+            !header() && (props.compact ? CARD_HEADER_COMPACT_CLASS : CARD_HEADER_DEFAULT_CLASS),
             action() && 'grid-cols-[1fr_auto]',
             props.classes?.header,
           )}
@@ -135,7 +148,7 @@ export function Card(props: CardProps): JSX.Element {
               <div
                 data-slot="title"
                 style={props.styles?.title}
-                class={cn('text-lg leading-none font-semibold', props.classes?.title)}
+                class={cn(CARD_TITLE_CLASS, props.classes?.title)}
               >
                 {title()}
               </div>
@@ -144,7 +157,7 @@ export function Card(props: CardProps): JSX.Element {
               <p
                 data-slot="description"
                 style={props.styles?.description}
-                class={cn('text-sm text-muted-foreground', props.classes?.description)}
+                class={cn(CARD_DESCRIPTION_CLASS, props.classes?.description)}
               >
                 {description()}
               </p>
@@ -153,10 +166,7 @@ export function Card(props: CardProps): JSX.Element {
               <div
                 data-slot="action"
                 style={props.styles?.action}
-                class={cn(
-                  'inline-flex row-span-2 col-start-2 row-start-1 self-start justify-self-end',
-                  props.classes?.action,
-                )}
+                class={cn(CARD_ACTION_CLASS, props.classes?.action)}
               >
                 {action()}
               </div>
@@ -171,9 +181,10 @@ export function Card(props: CardProps): JSX.Element {
             data-slot="body"
             style={props.styles?.body}
             class={cn(
-              'flex-1',
-              props.compact ? 'px-4' : 'px-6',
-              !footer() && (props.compact ? 'mb-4' : 'mb-6'),
+              CARD_BODY_CLASS,
+              props.compact ? CARD_BODY_COMPACT_CLASS : CARD_BODY_DEFAULT_CLASS,
+              !footer() &&
+                (props.compact ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
               props.classes?.body,
             )}
           >
@@ -186,7 +197,10 @@ export function Card(props: CardProps): JSX.Element {
         <div
           data-slot="footer"
           style={props.styles?.footer}
-          class={cn(props.compact ? 'p-4' : 'p-6', props.classes?.footer)}
+          class={cn(
+            props.compact ? CARD_FOOTER_COMPACT_CLASS : CARD_FOOTER_DEFAULT_CLASS,
+            props.classes?.footer,
+          )}
         >
           {footer()}
         </div>

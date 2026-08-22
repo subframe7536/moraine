@@ -162,6 +162,38 @@ describe('Pagination', () => {
     expect(withoutControls.container.querySelector('[data-slot="next"]')).toBeNull()
   })
 
+  test('renders icon-only controls with icons in Button children', () => {
+    const screen = render(() => <Pagination total={30} itemsPerPage={10} showControls />)
+    const prev = screen.container.querySelector('[data-slot="prev"]')
+    const next = screen.container.querySelector('[data-slot="next"]')
+
+    expect(prev?.getAttribute('data-size')).toBe('icon-md')
+    expect(next?.getAttribute('data-size')).toBe('icon-md')
+    expect(prev?.className).not.toContain('ps-2!')
+    expect(next?.className).not.toContain('pe-2!')
+    expect(prev?.querySelector('[data-slot="leading"]')).toBeNull()
+    expect(next?.querySelector('[data-slot="trailing"]')).toBeNull()
+    expect(prev?.querySelector('[data-slot="label"] > [data-slot="icon"]')).not.toBeNull()
+    expect(next?.querySelector('[data-slot="label"] > [data-slot="icon"]')).not.toBeNull()
+  })
+
+  test('renders text controls with icons in their leading and trailing slots', () => {
+    const screen = render(() => (
+      <Pagination total={30} itemsPerPage={10} prevText="Previous" nextText="Next" showControls />
+    ))
+    const prev = screen.container.querySelector('[data-slot="prev"]')
+    const next = screen.container.querySelector('[data-slot="next"]')
+
+    expect(prev?.getAttribute('data-size')).toBe('md')
+    expect(next?.getAttribute('data-size')).toBe('md')
+    expect(prev?.className).toContain('ps-2!')
+    expect(next?.className).toContain('pe-2!')
+    expect(prev?.querySelector('[data-slot="leading"]')).not.toBeNull()
+    expect(next?.querySelector('[data-slot="trailing"]')).not.toBeNull()
+    expect(prev?.querySelector('[data-slot="label"]')?.textContent).toBe('Previous')
+    expect(next?.querySelector('[data-slot="label"]')?.textContent).toBe('Next')
+  })
+
   test('renders page items and controls as links when `to` is provided', () => {
     const screen = render(() => (
       <Pagination page={2} total={30} itemsPerPage={10} to={(page) => `/page/${page}`} />
@@ -268,6 +300,9 @@ describe('Pagination', () => {
     )
 
     expect(ellipsisNodes.length).toBe(2)
+    for (const ellipsis of ellipsisNodes) {
+      expect(ellipsis.className).not.toMatch(/(?:^|\s)size-/)
+    }
   })
 
   test('does not expose pagination-specific icon/label slots', () => {

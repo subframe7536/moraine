@@ -5,7 +5,7 @@ export function HeaderFooter() {
   const [composerValue, setComposerValue] = createSignal('Hello Moraine!')
 
   return (
-    <div class="gap-6 grid lg:grid-cols-3">
+    <div class="gap-6 grid w-full lg:grid-cols-3">
       <Textarea
         placeholder="Ask, search or chat..."
         header={
@@ -28,7 +28,7 @@ export function HeaderFooter() {
         footer={
           <>
             <span>{composerValue().length}/280 characters</span>
-            <Button size="xs" class="ms-auto">
+            <Button size="sm" class="ms-auto">
               Send
             </Button>
           </>

@@ -36,7 +36,8 @@ root
 │   │   ├── label
 │   │   └── hint (optional)
 │   └── description (optional)
-└── {children}
+└── container
+    ├── {children}
     ├── help (optional)
     └── error (optional)
 ```
@@ -57,13 +58,19 @@ Bind to a Formisch store and show validation feedback without a render prop.
 
 ### Horizontal Layout
 
-Use `orientation="horizontal"` for form-like row layouts.
+Use `orientation="horizontal"` for a fixed one-row layout with a right-aligned label column occupying one quarter of the field and controls occupying the remaining three quarters. The layout stays horizontal at every width; use existing class overrides when an application needs stacking.
 
 <Example path="./horizontal-layout" />
 
+### Registration Form
+
+Combine horizontal fields into a complete registration form with consistent control alignment.
+
+<Example path="./registration-form" />
+
 ### Sizes
 
-Preview the field typography scale from xs to xl.
+Preview the field typography scale from sm to lg.
 
 <Example path="./sizes" />
 

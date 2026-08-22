@@ -194,10 +194,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
-  const iconSize = createMemo(() =>
-    size().startsWith('icon-') ? size().replace('icon-', '') : undefined,
-  )
-
   const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
 
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
@@ -353,11 +349,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       {...rest}
       component={tag()}
       style={{ ...local.styles?.root, ...local.style }}
-      class={cn(
-        buttonVariants({
+      class={buttonVariants(
+        {
           variant: variant(),
           size: size(),
-        }),
+        },
         local.classes?.root,
         local.class,
       )}
@@ -388,7 +384,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(leading) => (
           <Icon
             name={leading()}
-            size={iconSize()}
             slotName="leading"
             style={local.styles?.leading}
             class={cn(
@@ -414,7 +409,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(trailing) => (
           <Icon
             name={trailing()}
-            size={iconSize()}
             slotName="trailing"
             style={local.styles?.trailing}
             class={cn(

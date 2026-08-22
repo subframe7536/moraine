@@ -7,6 +7,7 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { cn } from '../../shared/utils.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -20,8 +21,9 @@ import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
-  selectLeadingIconVariants,
-  selectTriggerIconVariants,
+  SELECT_CLEAR_ACTION_CLASS,
+  SELECT_LEADING_ICON_CLASS,
+  SELECT_TRIGGER_ICON_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -48,6 +50,8 @@ export namespace SelectT {
     leading?: T
     /** Button region that toggles the select popup. */
     trigger?: T
+    /** Button used to clear the selected value. */
+    clear?: T
   }
   export interface OptionSlot<T = unknown> {
     /** Message shown when filtering leaves no selectable options. */
@@ -129,6 +133,10 @@ export namespace SelectT {
     placeholder?: string
     /** Whether the select is in a loading state. */
     loading?: boolean
+    /** Show a clear button when a value is selected. */
+    allowClear?: boolean
+    /** Called when clear is triggered. */
+    onClear?: () => void
     /**
      * Icon shown during loading state.
      * @default 'icon-loading'
@@ -141,7 +149,7 @@ export namespace SelectT {
      * @default 'icon-chevron-down'
      */
     trailingIcon?: IconT.Name
-    /** Icon kept for API compatibility; Select has no clear action. */
+    /** Icon used when the action button clears the selection. */
     closeIcon?: IconT.Name
   }
 
@@ -170,6 +178,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   const leadingIcon = createMemo(() => props.leadingIcon)
   const loadingIcon = createMemo(() => props.loadingIcon)
   const trailingIcon = createMemo(() => props.trailingIcon)
+  const closeIcon = createMemo(() => props.closeIcon)
   const [selectedValue, setSelectedValue] = useControllableValue<TItem | null>({
     value: () => props.value,
     defaultValue: () => initialDefaultValue,
@@ -255,6 +264,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     })
   }
 
+  function clearSelection(api: BaseSelectT.StateApi<Item>): void {
+    updateSelection(null, api)
+    api.close()
+    props.onClear?.()
+  }
+
   return (
     <BaseSelect<Item>
       {...props}
@@ -301,6 +316,11 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       )}
     >
       {(api) => {
+        const isClearAction = createMemo(() =>
+          Boolean(props.allowClear && getCurrentValue(api) !== null),
+        )
+        const isActionLoading = createMemo(() => Boolean(props.loading && !isClearAction()))
+
         return (
           <div
             data-slot="control"
@@ -309,7 +329,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
-              { variant: props.variant, search: api.isSearchable() },
+              {
+                variant: props.variant,
+                size: api.field.size(),
+                mode: 'single',
+                search: api.isSearchable(),
+              },
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -318,13 +343,9 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               {(icon) => (
                 <Icon
                   name={icon()}
-                  size={api.field.size()}
                   slotName="leading"
                   style={props.styles?.leading}
-                  class={selectLeadingIconVariants(
-                    { size: api.field.size() },
-                    props.classes?.leading,
-                  )}
+                  class={cn(SELECT_LEADING_ICON_CLASS, props.classes?.leading)}
                 />
               )}
             </Show>
@@ -368,21 +389,55 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               />
             </Show>
 
-            <Icon
-              name={
-                props.loading
-                  ? (loadingIcon() ?? 'icon-loading')
-                  : (trailingIcon() ?? 'icon-chevron-down')
+            <Show
+              when={isClearAction()}
+              fallback={
+                <Icon
+                  name={
+                    isActionLoading()
+                      ? (loadingIcon() ?? 'icon-loading')
+                      : (trailingIcon() ?? 'icon-chevron-down')
+                  }
+                  slotName="trigger"
+                  data-loading={isActionLoading() ? '' : undefined}
+                  class={cn(
+                    SELECT_TRIGGER_ICON_CLASS,
+                    isActionLoading() ? 'effect-loading' : undefined,
+                    props.classes?.trigger,
+                  )}
+                  style={props.styles?.trigger}
+                />
               }
-              slotName="trigger"
-              data-loading={props.loading ? '' : undefined}
-              class={selectTriggerIconVariants(
-                { size: api.field.size() },
-                props.loading ? 'effect-loading' : undefined,
-                props.classes?.trigger,
-              )}
-              style={props.styles?.trigger}
-            />
+            >
+              <button
+                type="button"
+                data-slot="clear"
+                aria-label="Clear selection"
+                tabIndex={-1}
+                class={cn(
+                  'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                  SELECT_CLEAR_ACTION_CLASS,
+                  props.classes?.trigger,
+                  props.classes?.clear,
+                )}
+                style={props.styles?.clear}
+                disabled={api.field.disabled()}
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  api.focusInput()
+                }}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  if (api.field.disabled()) {
+                    return
+                  }
+                  clearSelection(api)
+                }}
+              >
+                <Icon name={closeIcon() ?? 'icon-close'} class="text-muted-foreground opacity-80" />
+              </button>
+            </Show>
           </div>
         )
       }}

@@ -3,7 +3,7 @@ import type { FormFieldT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: FormFieldSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: FormFieldSizeName[] = ['sm', 'md', 'lg']
 
   type FormFieldSizeName = Exclude<FormFieldT.Variant['size'], undefined>
 
@@ -17,7 +17,7 @@ export function Sizes() {
             description="Name used in URLs and workspace-level permissions."
             help="Use lowercase letters, numbers, and dashes."
           >
-            <Input size={size} placeholder={`acme-platform-${size}`} />
+            <Input placeholder={`acme-platform-${size}`} />
           </FormField>
         )}
       </For>

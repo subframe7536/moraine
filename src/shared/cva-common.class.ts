@@ -1,16 +1,14 @@
 export const INPUT_VARIANT = {
-  outline: 'border border-input bg-transparent',
-  subtle: 'border border-input bg-input/30',
+  outline: 'border border-input bg-transparent shadow-xs dark:bg-input/30',
+  subtle: 'border border-input bg-input/30 shadow-xs',
   ghost: 'hover:bg-muted-hover focus-within:bg-muted-hover',
   none: 'focus-within:ring-0',
 } as const
 
 export const TEXT_SIZE_VARIANT = {
-  xs: 'text-xs',
   sm: 'text-xs',
   md: 'text-sm',
   lg: 'text-sm',
-  xl: 'text-base',
 } as const
 
 export const REQUIRED_MARK_VARIANT = {
@@ -23,19 +21,15 @@ export const FLEX_ORIENTATION_VARIANT = {
 } as const
 
 export const CHECKABLE_CONTAINER_SIZE_VARIANT = {
-  xs: 'h-4',
   sm: 'h-4',
   md: 'h-5',
   lg: 'h-5',
-  xl: 'h-6',
 } as const
 
 export const CHECKABLE_BASE_SIZE_VARIANT = {
-  xs: 'size-3',
   sm: 'size-3.5',
   md: 'size-4',
   lg: 'size-4.5',
-  xl: 'size-5',
 } as const
 
 export const CHECKABLE_INDICATOR_VARIANT = {
@@ -55,10 +49,8 @@ export const TABLE_EDGE_ORIENTATION_VARIANT = {
 } as const
 
 export const CARD_PADDING_SIZE_VARIANT = {
-  xs: 'p-2.5',
   sm: 'p-3',
   md: 'p-3.5',
   lg: 'p-4',
-  xl: 'p-4.5',
 } as const
 export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'

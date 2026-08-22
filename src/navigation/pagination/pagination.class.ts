@@ -1,0 +1,7 @@
+export const PAGINATION_ROOT_CLASS = 'mx-auto flex w-full justify-center'
+export const PAGINATION_LIST_CLASS = 'flex gap-1 items-center justify-center'
+export const PAGINATION_ITEM_CLASS = 'flex items-center justify-center'
+export const PAGINATION_ELLIPSIS_CLASS = 'flex size-9 items-center justify-center'
+export const PAGINATION_PREV_CLASS = 'ps-2!'
+export const PAGINATION_NEXT_CLASS = 'pe-2!'
+export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'

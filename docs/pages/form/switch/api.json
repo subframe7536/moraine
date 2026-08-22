@@ -43,6 +43,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field is read-only."
+        },
+        {
+          "name": "data-unchecked",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": [
@@ -263,7 +269,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
       },
       {
         "name": "style",

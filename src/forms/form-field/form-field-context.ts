@@ -59,7 +59,7 @@ export interface UseFormFieldReturn {
   emit: (type: 'blur' | 'change' | 'focus' | 'input', event?: Event) => void
 }
 
-export type FormFieldSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+export type FormFieldSize = 'sm' | 'md' | 'lg'
 
 export const [FormFieldProvider, useFormFieldContext] =
   createContextProvider<FormFieldContextOptions | null>('FormField', null)

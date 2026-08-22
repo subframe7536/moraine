@@ -63,17 +63,31 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       throw new Error('`flip` expects a space-delimited list of placements')
     }
     let positionedFrame: number | undefined
+    let positionedTimeout: ReturnType<typeof setTimeout> | undefined
 
     const setPositioned = (): void => {
-      if (!options.deferPositioned || typeof requestAnimationFrame !== 'function') {
+      if (!options.deferPositioned) {
         options.onPositionedChange(true)
         return
       }
 
-      positionedFrame ??= requestAnimationFrame(() => {
+      const markPositioned = (): void => {
+        if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
+          cancelAnimationFrame(positionedFrame)
+        }
         positionedFrame = undefined
+        if (positionedTimeout !== undefined) {
+          clearTimeout(positionedTimeout)
+          positionedTimeout = undefined
+        }
         options.onPositionedChange(true)
-      })
+      }
+
+      if (typeof requestAnimationFrame === 'function') {
+        positionedFrame ??= requestAnimationFrame(markPositioned)
+      }
+
+      positionedTimeout ??= setTimeout(markPositioned, 16)
     }
 
     const updatePosition = async (): Promise<void> => {
@@ -204,6 +218,9 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       cleanupAutoUpdate()
       if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(positionedFrame)
+      }
+      if (positionedTimeout !== undefined) {
+        clearTimeout(positionedTimeout)
       }
       if (options.floatingElement() === floatingElement) {
         options.onPositionedChange(false)

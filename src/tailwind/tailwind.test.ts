@@ -232,20 +232,44 @@ describe('shadows', () => {
   })
 })
 
+// ─── Z-index ─────────────────────────────────────────────────────────
+
+describe('z-index', () => {
+  test('semantic z-index utilities resolve', async () => {
+    const css = await compileCSS([
+      'z-base',
+      'z-raised',
+      'z-control',
+      'z-sticky',
+      'z-resize',
+      'z-overlay',
+      'z-floating',
+    ])
+
+    expect(css).toContain('z-index: 1')
+    expect(css).toContain('z-index: 2')
+    expect(css).toContain('z-index: 3')
+    expect(css).toContain('z-index: 10')
+    expect(css).toContain('z-index: 20')
+    expect(css).toContain('z-index: 40')
+    expect(css).toContain('z-index: 50')
+  })
+})
+
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toContain(
-      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
+      'animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
   })
 
   test('animate-mo-exit uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-exit'])
     expect(css).toContain(
-      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
+      'animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
   })
 
@@ -267,38 +291,48 @@ describe('animations', () => {
     expect(css).toContain('var(--mo-exit-scale, 1)')
   })
 
-  test('accordion-down animation resolves', async () => {
-    const css = await compileCSS(['animate-accordion-down'])
-    expect(css).toContain('@keyframes accordion-down')
-    expect(css).toContain('var(--mo-collapsible-content-height)')
-    expect(css).toContain('animation: accordion-down 200ms cubic-bezier(0.16, 1, 0.3, 1) 1')
-  })
-
-  test('accordion-up animation resolves', async () => {
-    const css = await compileCSS(['animate-accordion-up'])
-    expect(css).toContain('@keyframes accordion-up')
-    expect(css).toContain('animation: accordion-up 200ms cubic-bezier(0.7, 0, 0.84, 0) 1')
-  })
-
-  test('looping animations use infinite count and 2s duration', async () => {
+  test('looping animations use shared duration and easing', async () => {
     const css = await compileCSS(['animate-carousel', 'animate-swing', 'animate-elastic'])
-    expect(css).toContain('animation: carousel 2s ease-in-out infinite')
-    expect(css).toContain('animation: swing 2s ease-in-out infinite')
-    expect(css).toContain('animation: elastic 2s ease-in-out infinite')
+    expect(css).toContain(
+      'animation: carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    )
+    expect(css).toContain(
+      'animation: swing var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    )
+    expect(css).toContain(
+      'animation: elastic var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    )
   })
 
-  test('transition utilities use shared animation tokens', async () => {
-    const css = await compileCSS(['transition-mo-enter', 'transition-mo-exit'])
-    expect(css).toContain('.transition-mo-enter')
+  test('spin animation uses shared duration and linear easing', async () => {
+    const css = await compileCSS(['animate-spin'])
     expect(css).toContain(
-      'transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))',
+      'animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite',
     )
-    expect(css).toContain('transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1)')
-    expect(css).toContain('.transition-mo-exit')
+    expect(css).toContain('@keyframes spin')
+  })
+
+  test('standard transition utilities use shared enter tokens', async () => {
+    const css = await compileCSS([
+      'transition',
+      'transition-all',
+      'transition-colors',
+      'transition-opacity',
+      'transition-transform',
+      'transition-mo-enter',
+      'transition-mo-exit',
+    ])
+    expect(css).toContain('.transition {')
+    expect(css).toContain('.transition-all {')
+    expect(css).toContain('.transition-colors {')
+    expect(css).toContain('.transition-opacity {')
+    expect(css).toContain('.transition-transform {')
     expect(css).toContain(
-      'transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))',
+      '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
     )
-    expect(css).toContain('transition-timing-function: cubic-bezier(0.7, 0, 0.84, 0)')
+    expect(css).toContain('--default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1)')
+    expect(css).not.toContain('.transition-mo-enter')
+    expect(css).not.toContain('.transition-mo-exit')
   })
 })
 

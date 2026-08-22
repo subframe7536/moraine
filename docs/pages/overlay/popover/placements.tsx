@@ -11,7 +11,7 @@ export function Placements() {
           <Popover
             placement={placement}
             content={
-              <div class="space-y-1">
+              <div class="p-3 space-y-1">
                 <p class="text-sm font-medium capitalize">{placement}</p>
                 <p class="text-xs text-muted-foreground">Popover content aligned to {placement}.</p>
               </div>

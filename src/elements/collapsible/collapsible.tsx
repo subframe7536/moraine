@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -8,6 +8,13 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { cn, useId } from '../../shared/utils.ts'
+
+import {
+  COLLAPSIBLE_CONTENT_CLASS,
+  COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
+  COLLAPSIBLE_ROOT_CLASS,
+  COLLAPSIBLE_TRIGGER_CLASS,
+} from './collapsible.class.ts'
 
 export namespace CollapsibleT {
   export interface TriggerProps {
@@ -179,10 +186,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     open: resolvedOpen,
     disabled: () => Boolean(props.disabled),
   })
-  const contentPresence = useTransitionPresence({
-    open: resolvedOpen,
-    mode: 'transition',
-  })
+  const contentPresence = useTransitionPresence({ open: resolvedOpen })
   const shouldRenderContent = createMemo(
     () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
   )
@@ -214,7 +218,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     type: 'button',
     'data-slot': 'trigger',
     get class() {
-      return cn('cursor-pointer', props.classes?.trigger)
+      return cn(COLLAPSIBLE_TRIGGER_CLASS, props.classes?.trigger)
     },
     get style() {
       return props.styles?.trigger
@@ -260,7 +264,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       {...dataAttrs()}
       {...rest}
       style={{ ...props.styles?.root, ...props.style }}
-      class={cn(props.classes?.root, props.class)}
+      class={cn(COLLAPSIBLE_ROOT_CLASS, props.classes?.root, props.class)}
     >
       <Show
         when={typeof triggerRender() === 'function'}
@@ -270,27 +274,41 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       </Show>
 
       <Show when={shouldRenderContent()}>
-        <div
-          ref={(element) => {
-            setContentElement(element)
-            contentPresence.setElement(element)
-          }}
-          id={contentId()}
-          aria-labelledby={triggerId()}
-          data-slot="content-wrapper"
-          style={{
-            '--mo-collapsible-content-height': `${contentHeight()}px`,
-          }}
-          class={cn(
-            'h-$mo-collapsible-content-height overflow-hidden data-closed:h-0',
-            props.transition && 'transition-[height]',
-          )}
-          {...dataAttrs()}
-        >
-          <div data-slot="content" style={props.styles?.content} class={cn(props.classes?.content)}>
-            {props.children}
-          </div>
-        </div>
+        {(visible) => {
+          if (!visible()) {
+            return null
+          }
+
+          const children = resolveChildren(() => props.children)
+
+          return (
+            <div
+              ref={(element) => {
+                setContentElement(element)
+                contentPresence.setElement(element)
+              }}
+              id={contentId()}
+              aria-labelledby={triggerId()}
+              data-slot="content-wrapper"
+              style={{
+                '--mo-collapsible-content-height': `${contentHeight()}px`,
+              }}
+              class={cn(
+                COLLAPSIBLE_CONTENT_CLASS,
+                props.transition && COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
+              )}
+              {...dataAttrs()}
+            >
+              <div
+                data-slot="content"
+                style={props.styles?.content}
+                class={cn(props.classes?.content)}
+              >
+                {children()}
+              </div>
+            </div>
+          )
+        }}
       </Show>
     </div>
   )

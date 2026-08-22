@@ -244,13 +244,6 @@
         "description": "Unique identifier used to derive the content id."
       },
       {
-        "name": "layout",
-        "required": false,
-        "type": "\"default\" | \"scrollable\" | \"fullscreen\" | undefined",
-        "description": "Layout mode for the dialog panel.",
-        "defaultValue": "default"
-      },
-      {
         "name": "onClosePrevent",
         "required": false,
         "type": "(() => void) | undefined",
@@ -289,8 +282,7 @@
         "name": "scrollable",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether the dialog content body should be scrollable.",
-        "defaultValue": "false"
+        "description": "Whether the overlay should scroll the complete dialog panel."
       },
       {
         "name": "style",

@@ -24,7 +24,7 @@ export function SheetResizableRender() {
               handleAction: 'collapse',
               classes: {
                 divider:
-                  'after:(transition duration-200 ease-out z-20) hover:after:(bg-accent w-1.5)',
+                  'after:(transition duration-200 ease-out z-resize) hover:after:(bg-accent w-1.5)',
               },
             }}
           />

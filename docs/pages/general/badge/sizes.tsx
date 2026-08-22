@@ -3,7 +3,7 @@ import type { BadgeT } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: BadgeSizeName[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: BadgeSizeName[] = ['sm', 'md', 'lg']
 
   type BadgeSizeName = Exclude<BadgeT.Variant['size'], undefined>
 

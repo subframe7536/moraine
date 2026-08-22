@@ -5,7 +5,7 @@ import { For } from 'solid-js'
 type ProgressSize = Exclude<ProgressT.Variant['size'], undefined>
 
 export function Sizes() {
-  const SIZES: ProgressSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: ProgressSize[] = ['sm', 'md', 'lg']
 
   return (
     <div class="w-xl space-y-3">

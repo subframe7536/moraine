@@ -31,7 +31,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain('description')
     expect(screen.container.querySelector('[data-slot="fieldset"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="legend"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="container"]')).not.toBeNull()
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
@@ -39,6 +39,7 @@ describe('RadioGroup', () => {
     const disabledGroup = disabledScreen.getByRole('radiogroup')
     const disabledRadio = disabledScreen.getByRole('radio', { name: 'Basic' }) as HTMLInputElement
     const disabledControl = disabledScreen.container.querySelector('[data-slot="control"]')
+    const disabledItem = disabledScreen.container.querySelector('[data-slot="item"]')
 
     expect(disabledGroup.getAttribute('aria-required')).toBe('true')
     expect(disabledGroup.getAttribute('aria-disabled')).toBe('true')
@@ -50,6 +51,8 @@ describe('RadioGroup', () => {
     expect(disabledRadio.getAttribute('aria-disabled')).toBe('true')
     expect(disabledControl?.getAttribute('data-required')).toBe('')
     expect(disabledControl?.getAttribute('data-disabled')).toBe('')
+    expect(disabledItem?.getAttribute('data-disabled')).toBe('')
+    expect(disabledItem?.className).toContain('data-disabled:effect-dis')
 
     disabledScreen.unmount()
 
@@ -361,25 +364,38 @@ describe('RadioGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <RadioGroup items={['A', 'B']} orientation="horizontal" variant="table" size="xl" />
+      <RadioGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
     ))
 
     const group = screen.getByRole('radiogroup')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
     const firstInput = screen.container.querySelector('[data-slot="input"]')
+    const firstContainer = screen.container.querySelector('[data-slot="container"]')
     const firstBase = screen.container.querySelector('[data-slot="control"]')
 
     expect(group.className).toContain('flex-row')
-    expect(firstItem?.className).toContain('p-4.5')
+    expect(group.className).not.toContain('flex-wrap')
+    expect(firstItem?.className).toContain('p-4')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
     expect(firstItem?.className).toContain('not-first-of-type:-ms-px')
     expect(firstInput?.className).toContain('peer')
+    expect(firstContainer?.className).toContain('h-5')
     expect(firstBase?.className).toContain('peer-focus-visible:effect-fv-border')
   })
 
+  test('uses block labels for balanced list alignment', () => {
+    const screen = render(() => (
+      <RadioGroup
+        items={[{ value: 'starter', label: 'Starter', description: 'For personal projects' }]}
+      />
+    ))
+
+    expect(screen.getByText('Starter').className).toContain('block')
+  })
+
   test('applies vertical table layout classes', () => {
-    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" size="xl" />)
+    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" size="lg" />)
 
     const group = screen.getByRole('radiogroup')
     const firstItem = screen.container.querySelector('[data-slot="item"]')
@@ -413,13 +429,22 @@ describe('RadioGroup', () => {
     },
   )
 
+  test('raises the selected table item above adjacent rows', () => {
+    const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
+    const selectedItem = screen.container.querySelector('[data-slot="item"]')
+
+    expect(selectedItem?.className).toContain('z-base')
+  })
+
   test('prevents the default radio control from shrinking into an oval', () => {
-    const screen = render(() => <RadioGroup items={['A']} />)
+    const screen = render(() => <RadioGroup items={['A']} defaultValue="A" />)
     const control = screen.container.querySelector('[data-slot="control"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
 
     expect(control?.className).toContain('rounded-full')
     expect(control?.className).toContain('size-4')
     expect(control?.className).toContain('shrink-0')
+    expect(indicator?.className).toContain('size-2')
   })
 
   test('selects option when clicking table item container', async () => {

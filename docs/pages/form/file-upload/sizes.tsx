@@ -5,7 +5,7 @@ import { For } from 'solid-js'
 type FileUploadSize = Exclude<FileUploadT.Variant['size'], undefined>
 
 export function Sizes() {
-  const SIZES: FileUploadSize[] = ['xs', 'sm', 'md', 'lg', 'xl']
+  const SIZES: FileUploadSize[] = ['sm', 'md', 'lg']
 
   return (
     <div class="max-w-xl space-y-3">

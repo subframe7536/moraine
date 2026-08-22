@@ -246,7 +246,7 @@ export function Sheet(props: SheetProps): JSX.Element {
               <div
                 data-slot="header"
                 style={merged.styles?.header}
-                class={cn('p-4 flex gap-2 items-start', merged.classes?.header)}
+                class={cn('p-4 flex gap-1.5 items-start', merged.classes?.header)}
               >
                 <Show
                   when={hasCustomHeader()}
@@ -262,10 +262,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                             id={titleId()}
                             data-slot="title"
                             style={merged.styles?.title}
-                            class={cn(
-                              'text-base text-foreground font-medium',
-                              merged.classes?.title,
-                            )}
+                            class={cn('text-foreground font-medium', merged.classes?.title)}
                           >
                             {title()}
                           </h2>
@@ -301,9 +298,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                           data-slot="close"
                           aria-label="Close"
                           variant="ghost"
-                          size="icon-md"
+                          size="icon-sm"
                           style={merged.styles?.close}
-                          class={['absolute top-3 right-3', merged.classes?.close]}
+                          class={['absolute top-4 right-4', merged.classes?.close]}
                           onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>

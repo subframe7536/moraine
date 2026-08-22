@@ -28,10 +28,16 @@
       ],
       "dataAttributes": [
         {
-          "name": "data-placement",
+          "name": "data-align",
           "required": false,
           "type": "string | undefined",
           "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-side",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the resolved floating content side."
         }
       ],
       "ariaAttributes": [
@@ -455,6 +461,13 @@
         "name": "ref",
         "required": false,
         "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "shift",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Cross-axis or alignment offset relative to the anchor.",
+        "defaultValue": "0"
       },
       {
         "name": "size",

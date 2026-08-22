@@ -26,7 +26,7 @@ export function Sizes() {
     },
   ]
 
-  const STEPPER_SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+  const STEPPER_SIZES = ['sm', 'md', 'lg'] as const
 
   return (
     <div class="space-y-6">

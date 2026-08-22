@@ -15,21 +15,23 @@ import { Breadcrumb } from 'moraine'
 
 ## Slot Structure
 
-Ordered navigation list with links and separators between items.
+Ordered navigation list with links, separators, and a non-clickable current page.
 
 ```text
 root
 └── list
-    └── item (×n)
-        ├── link
-        └── separator (optional, between items)
+    ├── item
+    │   └── link
+    ├── separator
+    └── item
+        └── page
 ```
 
 ## Examples
 
 ### Default
 
-Simple breadcrumb trail with active last item.
+Simple breadcrumb trail with an active last item.
 
 <Example path="./default" />
 

@@ -77,12 +77,10 @@ describe('SidebarFrame', () => {
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
       'transition-[width,opacity,transform]',
     )
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
       'transition-mo-enter',
     )
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'w-sidebar',
-    )
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('w-64')
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
 
@@ -100,7 +98,7 @@ describe('SidebarFrame', () => {
     const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
 
     expect(sidebar.className).toContain('opacity-100')
-    expect(sidebar.className).toContain('w-sidebar')
+    expect(sidebar.className).toContain('w-64')
 
     await fireEvent.click(screen.getByText('toggle desktop'))
 
@@ -148,20 +146,20 @@ describe('SidebarFrame', () => {
     const insetScreen = render(() => <SidebarFrame {...createBaseProps()} variant="inset" />)
 
     expect(defaultScreen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
-      'rounded-2xl',
+      'rounded-lg',
     )
     expect(floatingScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'rounded-2xl',
+      'rounded-lg',
     )
     expect(floatingScreen.container.querySelector('[data-slot="layout"]')?.className).toContain(
       'p-2',
     )
     expect(insetScreen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
-      'rounded-2xl',
+      'rounded-lg',
     )
     expect(insetScreen.container.querySelector('[data-slot="layout"]')?.className).toContain('p-2')
     expect(insetScreen.container.querySelector('[data-slot="main"]')?.className).toContain(
-      'rounded-2xl',
+      'rounded-xl',
     )
   })
 

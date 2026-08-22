@@ -25,11 +25,9 @@ export const sliderTrackVariants = cva('bg-input select-none relative', {
   },
   variants: {
     size: {
-      xs: '',
       sm: '',
       md: '',
       lg: '',
-      xl: '',
     },
     variant: {
       default: 'rounded-full',
@@ -41,20 +39,16 @@ export const sliderTrackVariants = cva('bg-input select-none relative', {
     },
   },
   compoundVariants: [
-    { size: 'xs', variant: 'default', class: 'var-slider-3' },
     { size: 'sm', variant: 'default', class: 'var-slider-4' },
     { size: 'md', variant: 'default', class: 'var-slider-5' },
     { size: 'lg', variant: 'default', class: 'var-slider-6' },
-    { size: 'xl', variant: 'default', class: 'var-slider-7' },
-    { size: 'xs', variant: 'bold', class: 'var-slider-14' },
     { size: 'sm', variant: 'bold', class: 'var-slider-16' },
     { size: 'md', variant: 'bold', class: 'var-slider-18' },
     { size: 'lg', variant: 'bold', class: 'var-slider-20' },
-    { size: 'xl', variant: 'bold', class: 'var-slider-22' },
   ],
 })
 
-export const sliderRangeVariants = cva('bg-primary select-none absolute z-2', {
+export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised', {
   defaultVariants: {
     orientation: 'horizontal',
     variant: 'default',
@@ -142,7 +136,7 @@ export const sliderDividerVariants = cva('bg-background pointer-events-none abso
 })
 
 export const sliderThumbVariants = cva(
-  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-3 touch-none not-dark:bg-clip-padding',
+  'rounded-full shrink-0 block select-none transition-[box-shadow,transform] absolute z-control touch-none not-dark:bg-clip-padding',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -160,29 +154,23 @@ export const sliderThumbVariants = cva(
         false: '',
       },
       size: {
-        xs: '',
         sm: '',
         md: '',
         lg: '',
-        xl: '',
       },
       variant: {
         default:
-          'outline-none surface-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:scale-120',
+          'outline-none border border-border bg-background cursor-pointer shadow-xs/5 focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:scale-120',
         bold: 'rounded-sm bg-primary-foreground ring-(3 primary) focus-visible:outline-(1 border primary-foreground)',
       },
     },
     compoundVariants: [
-      { size: 'xs', variant: 'default', class: 'size-3' },
       { size: 'sm', variant: 'default', class: 'size-3' },
       { size: 'md', variant: 'default', class: 'size-3.5' },
-      { size: 'lg', variant: 'default', class: 'size-3.5' },
-      { size: 'xl', variant: 'default', class: 'size-4' },
-      { size: 'xs', variant: 'bold', class: 'h-2 w-1' },
+      { size: 'lg', variant: 'default', class: 'size-4' },
       { size: 'sm', variant: 'bold', class: 'h-2.5 w-1' },
       { size: 'md', variant: 'bold', class: 'h-3 w-1' },
       { size: 'lg', variant: 'bold', class: 'h-3.5 w-1' },
-      { size: 'xl', variant: 'bold', class: 'h-4 w-1' },
       {
         orientation: 'horizontal',
         inverted: false,

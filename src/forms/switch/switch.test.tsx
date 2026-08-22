@@ -253,8 +253,8 @@ describe('Switch', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  test('applies xl size classes on base and wrapper', () => {
-    const screen = render(() => <Switch label="Classes" size="xl" />)
+  test('applies lg size classes on base and wrapper', () => {
+    const screen = render(() => <Switch label="Classes" size="lg" />)
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="input"]')
@@ -266,14 +266,14 @@ describe('Switch', () => {
     expect(input?.className).toContain('peer')
     expect(track?.className).toContain('focus-visible:effect-fv-border')
     expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
-    expect(track?.className).toContain('w-11')
-    expect(wrapper?.className).toContain('ms-3')
+    expect(track?.className).toContain('w-9')
+    expect(wrapper?.className).toContain('ms-2.5')
     expect(wrapper?.className).toContain('text-base')
     expect(screen.getByText('Classes').className).toContain('select-none')
   })
 
-  test('applies compact wrapper spacing on xs size', () => {
-    const screen = render(() => <Switch label="Compact" size="xs" />)
+  test('applies compact wrapper spacing on sm size', () => {
+    const screen = render(() => <Switch label="Compact" size="sm" />)
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
     expect(wrapper?.className).toContain('ms-1.5')

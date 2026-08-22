@@ -1,9 +1,7 @@
-import { Button, CommandPalette, Dialog, Icon } from '@src'
+import { CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
-import { createSignal } from 'solid-js'
 
 export function WithCloseButton() {
-  const [open, setOpen] = createSignal(false)
   const BASIC_GROUPS: CommandPaletteT.Group[] = [
     {
       id: 'workspace',
@@ -61,19 +59,7 @@ export function WithCloseButton() {
 
   return (
     <div class="max-w-full w-lg">
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={<CommandPalette groups={BASIC_GROUPS} showClose onClose={() => setOpen(false)} />}
-      >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open palette
-          </Button>
-        )}
-      </Dialog>
+      <CommandPalette groups={BASIC_GROUPS} autofocus={false} showClose />
     </div>
   )
 }

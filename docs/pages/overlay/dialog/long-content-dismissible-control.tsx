@@ -1,9 +1,9 @@
 import { Button, Dialog } from '@src'
 import { For, createSignal } from 'solid-js'
 
-export function ScrollableDismissibleControl() {
+export function LongContentDismissibleControl() {
   const SCROLLABLE_LINES = Array.from(
-    { length: 16 },
+    { length: 100 },
     (_, index) => `Release note line ${index + 1}`,
   )
 
@@ -14,7 +14,7 @@ export function ScrollableDismissibleControl() {
       <Dialog
         scrollable
         title="Release Notes"
-        description="Scrollable dialog content."
+        description="Long content scrolls with the overlay."
         body={
           <div class="space-y-1">
             <For each={SCROLLABLE_LINES}>
@@ -25,13 +25,30 @@ export function ScrollableDismissibleControl() {
       >
         {(props) => (
           <Button {...props} variant="secondary">
-            Scrollable dialog
+            Overlay scroll dialog
+          </Button>
+        )}
+      </Dialog>
+      <Dialog
+        fullscreen
+        title="Release Notes"
+        description="Full screen dialog content."
+        body={
+          <div class="space-y-1">
+            <For each={SCROLLABLE_LINES}>
+              {(line) => <p class="text-sm text-foreground">{line}</p>}
+            </For>
+          </div>
+        }
+      >
+        {(props) => (
+          <Button {...props} variant="secondary">
+            Full screen dialog
           </Button>
         )}
       </Dialog>
 
       <Dialog
-        defaultOpen
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
         title="Persistent dialog"

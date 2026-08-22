@@ -4,7 +4,7 @@ import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.
 import { cva } from '../../shared/utils.ts'
 
 export const textareaRootVariants = cva(
-  'data-focused:data-invalid:effect-invalid rounded-md inline-flex flex-col w-full transition-[color,box-shadow] overflow-hidden data-focused:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis',
+  'data-focused:data-invalid:effect-invalid rounded-md inline-flex flex-col w-full transition-[colors,box-shadow] overflow-hidden data-focused:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',
@@ -18,7 +18,7 @@ export const textareaRootVariants = cva(
 )
 
 export const textareaBaseVariants = cva(
-  'style-placeholder text-foreground outline-none bg-transparent flex-1 min-w-0 disabled:effect-dis',
+  'style-placeholder text-foreground outline-none bg-transparent flex-1 min-w-0 field-sizing-content disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',
@@ -26,11 +26,9 @@ export const textareaBaseVariants = cva(
     },
     variants: {
       size: {
-        xs: 'px-2 py-1 min-h-17',
-        sm: 'px-2.5 py-1.5 min-h-18',
-        md: 'px-2.5 py-1.5 min-h-20',
-        lg: 'px-3 py-2 min-h-22',
-        xl: 'px-3 py-2 min-h-24',
+        sm: 'text-xs leading-4 px-2 py-1 min-h-14',
+        md: 'text-sm leading-5 px-2.5 py-1.5 min-h-16',
+        lg: 'text-base leading-6 px-3 py-2 min-h-18',
       },
       autoresize: {
         true: 'resize-none',
@@ -48,11 +46,9 @@ export const textareaHeaderVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs px-2 pb-1 pt-1.5',
         sm: 'text-xs px-2.5 pb-1 pt-2',
         md: 'text-sm px-2.5 pb-1.5 pt-2',
         lg: 'text-sm px-3 pb-1.5 pt-2.5',
-        xl: 'text-base px-3 pb-2 pt-2.5',
       },
     },
   },
@@ -66,11 +62,9 @@ export const textareaFooterVariants = cva(
     },
     variants: {
       size: {
-        xs: 'text-xs p-1',
         sm: 'text-xs p-1.5',
         md: 'text-sm p-1.5',
         lg: 'text-sm p-2',
-        xl: 'text-base p-2',
       },
     },
   },

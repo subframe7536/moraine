@@ -36,7 +36,6 @@ import {
   focusTrigger,
   focusWithoutScrolling,
   getFocusableElements,
-  getTransformOrigin,
   resolveDirection,
   resolveOverlayMenuSide,
 } from '../utils.ts'
@@ -96,6 +95,12 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
    * @default 0
    */
   gutter?: number
+
+  /**
+   * Cross-axis or alignment offset relative to the anchor.
+   * @default 0
+   */
+  shift?: number
 
   /** Custom renderer for individual items. */
   itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
@@ -186,6 +191,7 @@ interface OverlayMenuLayerProps<
   onContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
   open: boolean
   parentLayer?: OverlayMenuLayerState
+  present: Accessor<boolean>
   presenceDataAttrs: Accessor<{
     'data-closed'?: string
     'data-expanded'?: string
@@ -343,14 +349,26 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
   useFloatingPosition({
     contentElement: layer.contentElement,
+    deferPositioned: true,
     floatingElement: positionerElement,
     getReferenceElement: () => props.getReferenceElement(),
     gutter: () => props.gutter ?? 0,
+    shift: () => props.shift ?? 0,
     onPositionedChange: setIsPositioned,
     onPlacementChange: layer.setCurrentPlacement,
-    open: () => props.open,
+    open: () => props.present(),
     overflowPadding: () => props.overflowPadding ?? 4,
     placement: resolvedPlacement,
+  })
+
+  createEffect(() => {
+    const positioner = positionerElement()
+
+    if (!positioner || props.open || !props.present()) {
+      return
+    }
+
+    positioner.style.visibility = 'visible'
   })
 
   onMount(() => {
@@ -499,7 +517,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             data-slot="itemLeading"
             style={props.styles?.itemLeading}
             class={cn(
-              'inline-flex shrink-0 col-start-1 size-4 items-center justify-center',
+              'inline-flex shrink-0 size-4 items-center justify-center [&_svg]:size-4',
               props.classes?.itemLeading,
             )}
           >
@@ -511,7 +529,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           <span
             data-slot="itemWrapper"
             style={props.styles?.itemWrapper}
-            class={cn('gap-0.5 grid col-start-2', props.classes?.itemWrapper)}
+            class={cn('flex flex-1 flex-col gap-0.5 min-w-0', props.classes?.itemWrapper)}
           >
             <Show when={contentProps.item.label}>
               <span
@@ -539,12 +557,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           data-slot="itemTrailing"
           style={props.styles?.itemTrailing}
           class={cn(
-            'inline-flex gap-1.5 col-start-3 items-center justify-end',
+            'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end',
             props.classes?.itemTrailing,
           )}
         >
           <Show when={contentProps.hasChildren}>
-            <Icon name={props.submenuIcon} class={cn('text-sm', props.classes?.itemSub)} />
+            <Icon name={props.submenuIcon} class={props.classes?.itemSub} />
           </Show>
 
           <Show when={!contentProps.hasChildren}>
@@ -568,7 +586,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               data-slot="itemIndicator"
               style={props.styles?.itemIndicator}
               class={cn(
-                'text-sm inline-flex items-center justify-center',
+                'flex size-4 pointer-events-none items-center end-2 justify-center absolute',
                 props.classes?.itemIndicator,
               )}
             >
@@ -1028,7 +1046,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }}
           class={getItemClass(
             itemProps.item,
-            'data-expanded:(bg-accent-active text-accent-foreground)',
+            'data-expanded:bg-muted',
             props.classes?.item,
             itemAttributes()?.class,
           )}
@@ -1181,9 +1199,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
               placement={resolveDirection() === 'rtl' ? 'left-start' : 'right-start'}
-              gutter={0}
+              gutter={-2}
+              shift={-4}
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
+              present={contentPresence.present}
               presenceDataAttrs={contentPresence.dataAttrs}
               registerBranch={registerLayerBranch}
               setPresenceElement={contentPresence.setElement}
@@ -1202,6 +1222,15 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }
 
   const side = createMemo(() => resolveOverlayMenuSide(layer.currentPlacement()))
+  const align = createMemo(() => {
+    const alignment = layer.currentPlacement().split('-')[1]
+    return alignment === 'start' || alignment === 'end' ? alignment : undefined
+  })
+  const presenceDataAttrs = createMemo(() => {
+    const dataAttrs = props.presenceDataAttrs()
+
+    return dataAttrs['data-expanded'] !== undefined && !isPositioned() ? {} : dataAttrs
+  })
   const closeParentKey = createMemo(() =>
     props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined,
   )
@@ -1234,7 +1263,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             data-slot="label"
             style={props.styles?.label}
             class={cn(
-              'text-xs text-muted-foreground font-medium px-1.5 py-1 inline-flex',
+              'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
               props.classes?.label,
             )}
           >
@@ -1250,7 +1279,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
                   data-slot="separator"
                   role="separator"
                   style={props.styles?.separator}
-                  class={cn('mx--1 my-1 border-t border-foreground/15', props.classes?.separator)}
+                  class={cn('my-1 bg-border h-px -mx-1', props.classes?.separator)}
                 />
               </Match>
 
@@ -1297,29 +1326,22 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         as="div"
         items={listEntries()}
         itemRender={(context) => renderListEntry(context.item)}
-        {...props.presenceDataAttrs()}
         id={props.id}
         data-slot="content"
-        data-placement={layer.currentPlacement()}
         role="menu"
         aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
+        {...presenceDataAttrs()}
+        data-side={side()}
+        data-align={align()}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
-
-          if (!element) {
-            return
-          }
-
-          element.style.setProperty(
-            '--mo-popper-content-transform-origin',
-            getTransformOrigin(resolvedPlacement(), resolveDirection()),
-          )
         }}
         style={{
+          '--mo-popper-content-transform-origin': undefined,
           ...props.styles?.content,
           ...toStyleObject(props.contentProps?.style),
         }}
@@ -1537,7 +1559,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           <div
             data-slot="overlay"
             style={merged.styles?.overlay}
-            class={cn('inset-0 fixed z-40', merged.classes?.overlay)}
+            class={cn('inset-0 fixed z-overlay', merged.classes?.overlay)}
           />
         </Show>
         <OverlayMenuLayer<TItem>
@@ -1562,7 +1584,9 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           getReferenceElement={getReferenceElement}
           placement={merged.placement}
           gutter={merged.gutter}
+          shift={merged.shift}
           overflowPadding={merged.overflowPadding}
+          present={contentPresence.present}
           presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
             branches.add(element)

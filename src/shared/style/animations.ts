@@ -3,21 +3,46 @@ type KeyframeFrames = Record<string, KeyframeStop>
 
 const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
 export const MORAINE_ANIM_DUR_VAR_ENTER =
-  'var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))'
+  'var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))'
 export const MORAINE_ANIM_DUR_VAR_EXIT =
-  'var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))'
+  'var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms))'
+export const MORAINE_ANIM_DUR_VAR_LOOP = 'var(--mo-anim-duration,var(--mo-anim-duration-loop,2s))'
+export const MORAINE_ANIM_DUR_VAR_SPIN = 'var(--mo-anim-duration,var(--mo-anim-duration-spin,1s))'
 export const MORAINE_EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)'
 export const MORAINE_EASE_IN = 'cubic-bezier(0.7, 0, 0.84, 0)'
+export const MORAINE_EASE_IN_OUT = 'ease-in-out'
+export const MORAINE_EASE_LINEAR = 'linear'
 
-function getAnimType(name: string): 'moraine-enter' | 'moraine-exit' | 'looping' | 'default' {
+type AnimationType = 'default' | 'enter' | 'exit' | 'loop' | 'spin'
+
+const ANIMATION_DURATIONS: Record<AnimationType, string> = {
+  default: MORAINE_ANIM_DUR_VAR_ENTER,
+  enter: MORAINE_ANIM_DUR_VAR_ENTER,
+  exit: MORAINE_ANIM_DUR_VAR_EXIT,
+  loop: MORAINE_ANIM_DUR_VAR_LOOP,
+  spin: MORAINE_ANIM_DUR_VAR_SPIN,
+}
+
+const ANIMATION_TIMING_FUNCTIONS: Record<AnimationType, string> = {
+  default: MORAINE_EASE_OUT,
+  enter: MORAINE_EASE_OUT,
+  exit: MORAINE_EASE_IN,
+  loop: MORAINE_EASE_IN_OUT,
+  spin: MORAINE_EASE_LINEAR,
+}
+
+function getAnimType(name: string): AnimationType {
   if (name === 'mo-enter') {
-    return 'moraine-enter'
+    return 'enter'
   }
   if (name === 'mo-exit') {
-    return 'moraine-exit'
+    return 'exit'
   }
   if (LOOPING_PREFIXES.some((p) => name.startsWith(p))) {
-    return 'looping'
+    return 'loop'
+  }
+  if (name === 'spin') {
+    return 'spin'
   }
   return 'default'
 }
@@ -48,6 +73,9 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
   'accordion-up': {
     from: { height: 'var(--mo-collapsible-content-height)' },
     to: { height: '0' },
+  },
+  spin: {
+    to: { transform: 'rotate(360deg)' },
   },
   carousel: {
     '0%': { transform: 'translateX(-100%)' },
@@ -85,20 +113,7 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
 export function getMoraineAnimDurations(): Record<string, string> {
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => {
-      const type = getAnimType(name)
-      let duration = '200ms'
-      switch (type) {
-        case 'moraine-enter':
-          duration = MORAINE_ANIM_DUR_VAR_ENTER
-          break
-        case 'moraine-exit':
-          duration = MORAINE_ANIM_DUR_VAR_EXIT
-          break
-        case 'looping':
-          duration = '2s'
-          break
-      }
-      return [name, duration]
+      return [name, ANIMATION_DURATIONS[getAnimType(name)]]
     }),
   )
 }
@@ -107,21 +122,7 @@ export function getMoraineAnimDurations(): Record<string, string> {
 export function getMoraineAnimTimingFns(): Record<string, string> {
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => {
-      const type = getAnimType(name)
-      let timing = MORAINE_EASE_OUT
-      switch (type) {
-        case 'moraine-exit':
-          timing = MORAINE_EASE_IN
-          break
-        case 'looping':
-          timing = 'ease-in-out'
-          break
-        default:
-          if (name.endsWith('-up')) {
-            timing = MORAINE_EASE_IN
-          }
-      }
-      return [name, timing]
+      return [name, ANIMATION_TIMING_FUNCTIONS[getAnimType(name)]]
     }),
   )
 }
@@ -131,7 +132,7 @@ export function getMoraineAnimCounts(): Record<string, string> {
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => [
       name,
-      getAnimType(name) === 'looping' ? 'infinite' : '1',
+      ['loop', 'spin'].includes(getAnimType(name)) ? 'infinite' : '1',
     ]),
   )
 }

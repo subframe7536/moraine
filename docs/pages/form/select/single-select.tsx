@@ -21,6 +21,7 @@ export function SingleSelect() {
         value={singleValue()}
         onChange={setSingleValue}
         placeholder="Pick a fruit..."
+        allowClear
       />
       <p class="text-xs text-muted-foreground">Selected: {singleValue() ?? 'none'}</p>
     </div>

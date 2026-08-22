@@ -26,7 +26,8 @@ export namespace IconT {
     name: Name
 
     /**
-     * Icon size. Numbers are interpreted as px.
+     * Explicit icon size override. Omit to inherit the surrounding font size.
+     * Numbers are interpreted as px.
      */
     size?: string | number
 

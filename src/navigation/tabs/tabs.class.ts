@@ -18,11 +18,11 @@ export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
   variants: {
     variant: {
       pill: 'rounded-lg bg-muted',
-      link: 'bg-transparent',
+      link: 'rounded-none bg-transparent',
     },
     orientation: {
       horizontal: 'w-full',
-      vertical: 'flex-col',
+      vertical: 'flex-col h-fit',
     },
   },
   defaultVariants: {
@@ -31,47 +31,50 @@ export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
   },
 })
 
-export const tabsIndicatorVariants = cva('rounded-md transition-all duration-200 absolute', {
-  variants: {
-    orientation: {
-      horizontal: 'left-0',
-      vertical: 'top-0',
+export const tabsIndicatorVariants = cva(
+  'rounded-md transition-[transform,width,height] absolute',
+  {
+    variants: {
+      orientation: {
+        horizontal: 'left-0',
+        vertical: 'top-0',
+      },
+      variant: {
+        pill: 'border border-border bg-background shadow-xs',
+        link: 'bg-primary',
+      },
     },
-    variant: {
-      pill: 'surface-border bg-background shadow-xs',
-      link: 'bg-primary',
-    },
-  },
-  compoundVariants: [
-    {
+    compoundVariants: [
+      {
+        orientation: 'horizontal',
+        variant: 'pill',
+        class: 'inset-y-1',
+      },
+      {
+        orientation: 'vertical',
+        variant: 'pill',
+        class: 'inset-x-1',
+      },
+      {
+        orientation: 'horizontal',
+        variant: 'link',
+        class: 'bottom-0 h-px rounded-full',
+      },
+      {
+        orientation: 'vertical',
+        variant: 'link',
+        class: 'right-0 w-px rounded-full',
+      },
+    ],
+    defaultVariants: {
       orientation: 'horizontal',
       variant: 'pill',
-      class: 'inset-y-1',
     },
-    {
-      orientation: 'vertical',
-      variant: 'pill',
-      class: 'inset-x-1',
-    },
-    {
-      orientation: 'horizontal',
-      variant: 'link',
-      class: 'bottom-0 h-px rounded-full',
-    },
-    {
-      orientation: 'vertical',
-      variant: 'link',
-      class: 'right-0 w-px rounded-full',
-    },
-  ],
-  defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'pill',
   },
-})
+)
 
 export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border disabled:effect-dis',
+  'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
   {
     variants: {
       orientation: {
@@ -79,15 +82,13 @@ export const tabsTriggerVariants = cva(
         vertical: 'w-full justify-start',
       },
       variant: {
-        pill: 'rounded-md data-selected:text-foreground hover:data-highlighted:not-disabled:text-foreground',
+        pill: '',
         link: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
       },
       size: {
-        xs: 'text-xs px-1.5 py-0.5',
-        sm: 'text-xs px-2 py-1',
-        md: 'text-sm px-2.5 py-1.5',
-        lg: 'text-sm px-3 py-2',
-        xl: 'text-base px-3.5 py-2',
+        sm: 'text-xs',
+        md: 'text-sm',
+        lg: 'text-base',
       },
     },
     defaultVariants: {
@@ -98,19 +99,6 @@ export const tabsTriggerVariants = cva(
   },
 )
 
-export const tabsLeadingVariants = cva('inline-flex shrink-0 items-center justify-center', {
-  variants: {
-    size: {
-      xs: 'text-sm',
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-base',
-      xl: 'text-lg',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-})
+export const TABS_LEADING_CLASS = 'inline-flex shrink-0 items-center justify-center'
 
 export type TabsVariantProps = VariantProps<typeof tabsTriggerVariants>

@@ -117,6 +117,7 @@ interface TooltipTimers {
 interface ActiveTooltip {
   close: () => void
   id: string
+  skipsOpenDelay: boolean
 }
 
 interface TooltipSkipDelay {
@@ -167,7 +168,7 @@ function clearActiveTooltip(id: string): void {
 }
 
 function shouldOpenImmediately(): boolean {
-  return Boolean(activeTooltip || skipDelay)
+  return Boolean(activeTooltip?.skipsOpenDelay || skipDelay)
 }
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
@@ -220,6 +221,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let ownerAlive = true
   let timerVersion = 0
   let wasResolvedOpen = false
+  let wasOpenedByInteraction = false
   let disabledInitialized = false
   let wasDisabled = false
 
@@ -278,6 +280,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     if (isOpen) {
       return
     }
+
+    wasOpenedByInteraction = true
 
     if (shouldOpenImmediately()) {
       requestTooltipOpen(openTooltip, true)
@@ -352,6 +356,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         setActiveTooltip({
           id: tooltipId(),
           close: closeImmediately,
+          skipsOpenDelay: wasOpenedByInteraction,
         })
       }
 
@@ -411,7 +416,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              class={cn(text() && 'ms-1', merged.classes?.kbds)}
+              class={cn(text() && 'rounded-sm relative z-floating isolate', merged.classes?.kbds)}
               classes={{ item: merged.classes?.kbd }}
             />
           )}
@@ -433,7 +438,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       restoreFocusOnClose={false}
       describeTrigger
-      transitionMode={shouldUseInstantMotion() ? 'none' : 'both'}
       onTriggerFocus={(props) => {
         scheduleOpen(props.open, props.isOpen)
       }}
@@ -470,9 +474,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       />
       <Popper.Content
         positionerClass={
-          shouldUseInstantMotion()
-            ? 'data-positioned:transition-transform data-positioned:duration-150 data-positioned:ease-out'
-            : undefined
+          shouldUseInstantMotion() ? 'data-positioned:transition-transform' : undefined
         }
         contentRender={Content}
       />
