@@ -78,34 +78,9 @@ export const multiSelectTagOverflowVariants = cva(
   },
 )
 
-export const selectTriggerIconVariants = cva(
-  'text-muted-foreground outline-none opacity-80 shrink-0 pointer-events-none',
-  {
-    defaultVariants: {
-      size: 'md',
-    },
-    variants: {
-      size: {
-        sm: 'size-3.5',
-        md: 'size-4',
-        lg: 'size-4.5',
-      },
-    },
-  },
-)
-
-export const selectLeadingIconVariants = cva('text-muted-foreground shrink-0', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'size-3.5',
-      md: 'size-4',
-      lg: 'size-4.5',
-    },
-  },
-})
+export const SELECT_TRIGGER_ICON_CLASS =
+  'text-muted-foreground outline-none opacity-80 shrink-0 pointer-events-none'
+export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 
 export const SELECT_CLEAR_ACTION_CLASS =
   'transition-colors hover:bg-muted-hover active:bg-muted-active'
@@ -143,5 +118,4 @@ export const selectContentVariants = cva(
   },
 )
 
-export type SelectControlVariantProps = VariantProps<typeof selectControlVariants> &
-  VariantProps<typeof selectTriggerIconVariants>
+export type SelectControlVariantProps = VariantProps<typeof selectControlVariants>

@@ -8,7 +8,7 @@ export function CustomEmptyState() {
         autofocus={false}
         emptyRender={() => (
           <span class="flex flex-col gap-2 items-center">
-            <Icon name="i-lucide-search-x" class="text-muted-foreground size-6" />
+            <Icon name="i-lucide-search-x" class="text-xl text-muted-foreground" />
             <span class="text-foreground font-medium">No commands found</span>
             <span class="text-xs">Try a different keyword or clear the search.</span>
           </span>

@@ -858,7 +858,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
           class={cn(
-            'text-muted-foreground opacity-50 shrink-0 size-4 pointer-events-none data-loading:effect-loading',
+            'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:effect-loading',
             merged.classes?.search,
           )}
         />
@@ -913,7 +913,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             }}
             aria-label="Close"
           >
-            <Icon name={merged.closeIcon} class="size-4" />
+            <Icon name={merged.closeIcon} />
           </button>
         </Show>
       </div>

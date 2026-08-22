@@ -28,6 +28,28 @@ describe('Icon', () => {
     expect(icon?.style.fontSize).toBe('18px')
   })
 
+  test('inherits font size when size is omitted', () => {
+    const screen = render(() => (
+      <div style={{ 'font-size': '18px' }}>
+        <Icon name="i-lucide-search" />
+      </div>
+    ))
+    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLElement | null
+
+    expect(icon).not.toBeNull()
+    expect(icon?.style.fontSize).toBe('')
+    expect(getComputedStyle(icon!).fontSize).toBe('18px')
+  })
+
+  test('allows style to override an explicit size', () => {
+    const screen = render(() => (
+      <Icon name="i-lucide-search" size={18} style={{ 'font-size': '20px' }} />
+    ))
+    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLElement | null
+
+    expect(icon?.style.fontSize).toBe('20px')
+  })
+
   test('renders element icons without coupling to svg selectors', () => {
     const screen = render(() => <Icon name={<span data-testid="custom-icon">X</span>} />)
 

@@ -92,6 +92,8 @@ test('keeps control spacing on the control instead of its icons and input', () =
   expect(input.className).not.toContain('mx-$s-p')
   expect(leading.className).not.toContain('ms-')
   expect(trigger.className).not.toContain('me-')
+  expect(leading.className).not.toMatch(/(?:^|\s)size-/)
+  expect(trigger.className).not.toMatch(/(?:^|\s)size-/)
 })
 
 describe('Select - single mode', () => {

@@ -88,7 +88,7 @@ describe('Breadcrumb', () => {
       expect(separator.parentElement?.tagName).toBe('OL')
     }
 
-    expect((separatorIcons[0] as HTMLElement).style.fontSize).toBe('16px')
+    expect((separatorIcons[0] as HTMLElement).style.fontSize).toBe('')
   })
 
   test('supports custom separator icon', () => {
@@ -287,10 +287,10 @@ describe('Breadcrumb', () => {
   })
 
   test.each([
-    ['sm', 'text-xs', 14],
-    ['md', 'text-sm', 16],
-    ['lg', 'text-base', 18],
-  ] as const)('applies %s typography and icon scales', (size, textClass, separatorSize) => {
+    ['sm', 'text-xs'],
+    ['md', 'text-sm'],
+    ['lg', 'text-base'],
+  ] as const)('applies %s typography and inherited icon scale', (size, textClass) => {
     const screen = render(() => (
       <Breadcrumb
         size={size}
@@ -310,7 +310,7 @@ describe('Breadcrumb', () => {
       expect(link?.className).toContain(textClass)
     }
     expect(leading?.style.fontSize).toBe('')
-    expect(separator?.style.fontSize).toBe(`${separatorSize}px`)
+    expect(separator?.style.fontSize).toBe('')
   })
 
   test('supports itemRender with @solidjs/router A component', () => {

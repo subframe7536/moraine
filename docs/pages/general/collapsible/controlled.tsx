@@ -54,7 +54,7 @@ export function Controlled() {
             <span>18 active</span>
           </div>
           <div class="text-muted-foreground flex gap-2 items-center">
-            <Icon name="i-lucide-info" class="size-4" />
+            <Icon name="i-lucide-info" />
             <span>Locked invoices cannot be expanded from the row trigger.</span>
           </div>
         </div>

@@ -20,7 +20,7 @@ import { cn, useId } from '../../shared/utils.ts'
 
 import {
   tabsIndicatorVariants,
-  tabsLeadingVariants,
+  TABS_LEADING_CLASS,
   tabsListVariants,
   tabsRootVariants,
   tabsTriggerVariants,
@@ -492,9 +492,9 @@ export function Tabs(props: TabsProps): JSX.Element {
                   <span
                     data-slot="leading"
                     style={merged.styles?.leading}
-                    class={tabsLeadingVariants({ size: merged.size }, merged.classes?.leading)}
+                    class={cn(TABS_LEADING_CLASS, merged.classes?.leading)}
                   >
-                    <Icon name={item.icon} class="size-4" />
+                    <Icon name={item.icon} />
                   </span>
                 </Show>
 

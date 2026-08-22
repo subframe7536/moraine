@@ -21,9 +21,9 @@ import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
-  selectLeadingIconVariants,
-  selectTriggerIconVariants,
   SELECT_CLEAR_ACTION_CLASS,
+  SELECT_LEADING_ICON_CLASS,
+  SELECT_TRIGGER_ICON_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -345,10 +345,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   name={icon()}
                   slotName="leading"
                   style={props.styles?.leading}
-                  class={selectLeadingIconVariants(
-                    { size: api.field.size() },
-                    props.classes?.leading,
-                  )}
+                  class={cn(SELECT_LEADING_ICON_CLASS, props.classes?.leading)}
                 />
               )}
             </Show>
@@ -403,8 +400,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   slotName="trigger"
                   data-loading={isActionLoading() ? '' : undefined}
-                  class={selectTriggerIconVariants(
-                    { size: api.field.size() },
+                  class={cn(
+                    SELECT_TRIGGER_ICON_CLASS,
                     isActionLoading() ? 'effect-loading' : undefined,
                     props.classes?.trigger,
                   )}
@@ -438,10 +435,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   clearSelection(api)
                 }}
               >
-                <Icon
-                  name={closeIcon() ?? 'icon-close'}
-                  class="text-muted-foreground opacity-80 size-4"
-                />
+                <Icon name={closeIcon() ?? 'icon-close'} class="text-muted-foreground opacity-80" />
               </button>
             </Show>
           </div>

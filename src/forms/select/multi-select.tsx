@@ -21,10 +21,10 @@ import type { SelectControlVariantProps } from './select.class.ts'
 import {
   selectControlVariants,
   selectInputVariants,
-  selectLeadingIconVariants,
   multiSelectTagOverflowVariants,
   multiSelectTagVariants,
   SELECT_CLEAR_ACTION_CLASS,
+  SELECT_LEADING_ICON_CLASS,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -743,10 +743,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                   name={icon()}
                   slotName="leading"
                   style={props.styles?.leading}
-                  class={selectLeadingIconVariants(
-                    { size: api.field.size() },
-                    props.classes?.leading,
-                  )}
+                  class={cn(SELECT_LEADING_ICON_CLASS, props.classes?.leading)}
                 />
               )}
             </Show>

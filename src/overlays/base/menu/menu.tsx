@@ -521,7 +521,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               props.classes?.itemLeading,
             )}
           >
-            <Icon name={contentProps.item.icon as IconT.Name} class="size-4" />
+            <Icon name={contentProps.item.icon as IconT.Name} />
           </span>
         </Show>
 
@@ -562,7 +562,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           )}
         >
           <Show when={contentProps.hasChildren}>
-            <Icon name={props.submenuIcon} class={cn('size-4', props.classes?.itemSub)} />
+            <Icon name={props.submenuIcon} class={props.classes?.itemSub} />
           </Show>
 
           <Show when={!contentProps.hasChildren}>
@@ -590,7 +590,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
                 props.classes?.itemIndicator,
               )}
             >
-              <Icon name={props.checkedIcon} class="size-4" />
+              <Icon name={props.checkedIcon} />
             </span>
           </Show>
         </span>

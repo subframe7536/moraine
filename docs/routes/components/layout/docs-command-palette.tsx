@@ -133,7 +133,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
           onClose={onClose}
           emptyRender={(ctx) => (
             <div class="flex flex-col gap-2 items-center">
-              <Icon name="i-lucide-search-x" class="size-5" />
+              <Icon name="i-lucide-search-x" class="text-base" />
               <span>
                 No pages found for{' '}
                 <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.

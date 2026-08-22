@@ -1153,6 +1153,8 @@ describe('MultiSelect', () => {
     expect(tagsContainer.className).not.toContain('px-2.5')
     expect(leading.className).not.toContain('ms-')
     expect(trigger.className).not.toContain('hover:bg-muted-hover')
+    expect(leading.className).not.toMatch(/(?:^|\s)size-/)
+    expect(trigger.className).not.toMatch(/(?:^|\s)size-/)
   })
 
   test('sizes tag and input rows from their content', () => {

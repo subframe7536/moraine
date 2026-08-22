@@ -414,7 +414,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                       slotName="ellipsis"
                       style={merged.styles?.ellipsis}
                       name={merged.ellipsisIcon}
-                      class={cn('size-4', merged.classes?.ellipsis)}
+                      class={merged.classes?.ellipsis}
                     />
                   }
                 >

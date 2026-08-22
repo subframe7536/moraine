@@ -13,7 +13,6 @@ import {
   BREADCRUMB_DISABLED_CLASS,
   BREADCRUMB_ITEM_CLASS,
   BREADCRUMB_LINK_CLASS,
-  BREADCRUMB_ICON_SIZES,
   BREADCRUMB_PAGE_CLASS,
   BREADCRUMB_ROOT_CLASS,
   BREADCRUMB_SEPARATOR_CLASS,
@@ -312,7 +311,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     aria-hidden="true"
                     class={cn(BREADCRUMB_SEPARATOR_CLASS, merged.classes?.separator)}
                   >
-                    <Icon name={merged.separator} size={BREADCRUMB_ICON_SIZES[size()]} />
+                    <Icon name={merged.separator} />
                   </li>
                 </Show>
               </>

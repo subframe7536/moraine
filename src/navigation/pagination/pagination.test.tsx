@@ -300,6 +300,9 @@ describe('Pagination', () => {
     )
 
     expect(ellipsisNodes.length).toBe(2)
+    for (const ellipsis of ellipsisNodes) {
+      expect(ellipsis.className).not.toMatch(/(?:^|\s)size-/)
+    }
   })
 
   test('does not expose pagination-specific icon/label slots', () => {

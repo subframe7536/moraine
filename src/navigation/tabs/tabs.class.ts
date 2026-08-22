@@ -74,7 +74,7 @@ export const tabsIndicatorVariants = cva(
 )
 
 export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium py-1 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
+  'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
   {
     variants: {
       orientation: {
@@ -86,9 +86,9 @@ export const tabsTriggerVariants = cva(
         link: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
       },
       size: {
-        sm: 'text-xs px-1',
-        md: 'text-sm px-2',
-        lg: 'text-base px-3',
+        sm: 'text-xs',
+        md: 'text-sm',
+        lg: 'text-base',
       },
     },
     defaultVariants: {
@@ -99,17 +99,6 @@ export const tabsTriggerVariants = cva(
   },
 )
 
-export const tabsLeadingVariants = cva('inline-flex shrink-0 items-center justify-center', {
-  variants: {
-    size: {
-      sm: 'size-3',
-      md: 'size-4',
-      lg: 'size-5',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-})
+export const TABS_LEADING_CLASS = 'inline-flex shrink-0 items-center justify-center'
 
 export type TabsVariantProps = VariantProps<typeof tabsTriggerVariants>

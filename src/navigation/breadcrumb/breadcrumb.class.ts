@@ -40,12 +40,4 @@ export const breadcrumbSizeVariants = cva('', {
   },
 })
 
-type BreadcrumbSize = 'sm' | 'md' | 'lg'
-
-export const BREADCRUMB_ICON_SIZES: Record<BreadcrumbSize, number> = {
-  sm: 14,
-  md: 16,
-  lg: 18,
-}
-
 export type BreadcrumbVariantProps = VariantProps<typeof breadcrumbListVariants>
