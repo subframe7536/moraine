@@ -1,5 +1,5 @@
 import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
-import { createGenerator, presetIcons, presetWind4 } from '@subf/unocss'
+import { createGenerator, presetIcons, presetWind3, presetWind4 } from '@subf/unocss'
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -350,22 +350,20 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-popup-in')
     expect(css).toContain('.animate-menu-in')
     expect(css).toContain('.animate-menu-side-top')
-    expect(css).toContain('.animate-menu-origin-top-left')
-    expect(css).toContain('--mo-enter-translate-x:-0.5rem')
-    expect(css).toContain('--mo-enter-translate-y:-0.5rem')
+    expect(css).not.toContain('.animate-menu-origin-top-left')
     expect(css).toContain('.animate-sheet-out')
     expect(css).toContain('.animate-sheet-side-right')
     expect(css).toContain('.animate-popover-in')
     expect(css).toContain('.animate-popover-side-left')
     expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
+      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
     expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
+      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
     expect(css).toContain('--mo-enter-opacity:0')
     expect(css).toContain('--mo-enter-scale:0.9')
-    expect(css).toContain('--mo-enter-translate-y:0.5rem')
+    expect(css).toContain('--mo-enter-translate-y:0.25rem')
     expect(css).toContain('--mo-exit-translate-x:2.5rem')
     expect(css).toContain('--mo-exit-scale:0.9')
     expect(css).not.toContain('animation:mo-enter;}')
@@ -403,9 +401,8 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-menu-out')
     expect(css).toContain('.animate-menu-side-left')
     expect(css).toContain('--mo-enter-scale:0.9')
-    expect(css).toContain('--mo-enter-translate-x:0.5rem')
+    expect(css).toContain('--mo-enter-translate-x:0.25rem')
     expect(css).toContain('--mo-exit-scale:0.9')
-    expect(css).toContain('--mo-exit-translate-x:0.5rem')
     expect(css).toContain('.animate-popover-in')
     expect(css).toContain('.animate-popover-out')
     expect(css).toContain('.animate-popover-side-top')
@@ -417,10 +414,10 @@ describe('presetTheme component layer', () => {
     expect(css).toContain('.animate-sheet-out')
     expect(css).toContain('.animate-sheet-side-right')
     expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
+      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
     )
     expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
+      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
     )
     expect(css).toContain('--mo-enter-translate-x:2.5rem')
     expect(css).toContain('--mo-exit-translate-x:2.5rem')
@@ -432,26 +429,87 @@ describe('presetTheme component layer', () => {
     expect(css).not.toContain('.animate-sheet-out-to-right{')
   })
 
-  test('provides transition utilities backed by shared animation tokens', async () => {
+  test('uses Nova-style four-direction menu motion for entry and exit', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine()],
     })
 
     const { css } = await generator.generate(
-      new Set(['transition-mo-enter', 'transition-mo-exit']),
+      new Set([
+        'animate-menu-in',
+        'animate-menu-out',
+        'animate-menu-side-top',
+        'animate-menu-side-right',
+        'animate-menu-side-bottom',
+        'animate-menu-side-left',
+      ]),
+      { preflights: true },
+    )
+
+    expect(css).toContain(
+      '.animate-menu-side-top{--mo-enter-translate-y:0.25rem;--mo-exit-translate-y:0.25rem;}',
+    )
+    expect(css).toContain(
+      '.animate-menu-side-right{--mo-enter-translate-x:-0.25rem;--mo-exit-translate-x:-0.25rem;}',
+    )
+    expect(css).toContain(
+      '.animate-menu-side-bottom{--mo-enter-translate-y:-0.25rem;--mo-exit-translate-y:-0.25rem;}',
+    )
+    expect(css).toContain(
+      '.animate-menu-side-left{--mo-enter-translate-x:0.25rem;--mo-exit-translate-x:0.25rem;}',
+    )
+    expect(css).toContain('--mo-exit-opacity:0')
+    expect(css).toContain('--mo-exit-scale:0.95')
+  })
+
+  test('uses shared enter tokens for standard transition utilities', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(
+      new Set([
+        'transition',
+        'transition-all',
+        'transition-colors',
+        'transition-opacity',
+        'transition-transform',
+        'transition-mo-enter',
+        'transition-mo-exit',
+      ]),
+      { preflights: true },
+    )
+
+    expect(css).toContain('.transition{')
+    expect(css).toContain('.transition-all{')
+    expect(css).toContain('.transition-colors{')
+    expect(css).toContain('.transition-opacity{')
+    expect(css).toContain('.transition-transform{')
+    expect(css).toContain(
+      '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
+    )
+    expect(css).toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
+    expect(css).not.toContain('.transition-mo-enter')
+    expect(css).not.toContain('.transition-mo-exit')
+  })
+
+  test('uses shared enter tokens for Wind3 transition utilities', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind3(), presetMoraine({ wind3: true })],
+    })
+
+    const { css } = await generator.generate(
+      new Set(['transition', 'transition-colors', 'transition-transform']),
       { preflights: false },
     )
 
-    expect(css).toContain('.transition-mo-enter')
+    expect(css).toContain('.transition{')
+    expect(css).toContain('.transition-colors{')
+    expect(css).toContain('.transition-transform{')
     expect(css).toContain(
-      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,150ms))',
+      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
     )
-    expect(css).toContain('transition-timing-function:cubic-bezier(0.16,1,0.3,1)')
-    expect(css).toContain('.transition-mo-exit')
-    expect(css).toContain(
-      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-exit,100ms))',
-    )
-    expect(css).toContain('transition-timing-function:cubic-bezier(0.7,0,0.84,0)')
+    expect(css).toContain('transition-timing-function:cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
   test('compiles the button press interaction selector', async () => {
@@ -498,6 +556,24 @@ describe('presetTheme component layer', () => {
     expect(css).not.toContain('@keyframes carousel-inverse')
     expect(css).not.toContain('@keyframes carousel-inverse-rtl')
     expect(css).not.toContain('@keyframes carousel-inverse-vertical')
+  })
+
+  test('uses shared loop and spin animation metadata', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+    })
+
+    const { css } = await generator.generate(new Set(['animate-carousel', 'animate-spin']), {
+      preflights: true,
+    })
+
+    expect(css).toContain(
+      'animation:carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
+    )
+    expect(css).toContain(
+      'animation:spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite',
+    )
+    expect(css).toContain('@keyframes spin')
   })
 
   test('uses semantic side classes with expected horizontal direction signs', async () => {

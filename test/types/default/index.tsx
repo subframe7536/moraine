@@ -1,4 +1,6 @@
 import {
+  Avatar,
+  AvatarGroup,
   Badge,
   Button,
   Card,
@@ -12,7 +14,7 @@ import {
   Sheet,
   Tooltip,
 } from 'moraine'
-import type { ModalT } from 'moraine'
+import type { AvatarGroupT, AvatarT, ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
@@ -24,6 +26,8 @@ modalContentContext.close()
 ;<Badge aria-label="status" data-testid="badge">
   Ready
 </Badge>
+;<Avatar text="MR" />
+;<AvatarGroup items={[{ text: 'MR' }]} />
 ;<Button onClick={() => undefined}>Save</Button>
 ;<Card aria-describedby="details" />
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
@@ -90,3 +94,10 @@ const divRef = (element: HTMLDivElement) => element.focus()
 // @ts-expect-error Required custom component props must be supplied in the callback.
 ;<Dialog>{(props) => <CustomRoot {...props} />}</Dialog>
 ;<List id="items" items={[1]} itemRender={(context) => context.item} />
+
+const avatarItem: AvatarT.Item = {}
+const avatarBase: AvatarT.Base = { text: 'MR' }
+const avatarGroupItem: AvatarGroupT.Item = { text: 'MR' }
+void avatarItem
+void avatarBase
+void avatarGroupItem

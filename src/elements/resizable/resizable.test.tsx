@@ -1096,7 +1096,7 @@ describe('Resizable', () => {
     const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
     const panel = screen.container.querySelectorAll('[data-slot="panel"]')[0] as HTMLDivElement
 
-    expect(panel.className).toContain('data-transitioning:(transition-flex-grow duration-200)')
+    expect(panel.className).toContain('data-transitioning:transition-flex-grow')
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
     await fireEvent.click(handle)

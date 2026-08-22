@@ -7,15 +7,6 @@ import { pushOverlayLayer } from './overlay-stack.ts'
 import type { OverlayTriggerProps } from './trigger.ts'
 import { getFocusableElements } from './utils.ts'
 
-function deferred(): { promise: Promise<void>; resolve: () => void } {
-  let resolve: (() => void) | undefined
-  const promise = new Promise<void>((nextResolve) => {
-    resolve = nextResolve
-  })
-
-  return { promise, resolve: () => resolve?.() }
-}
-
 describe('Modal primitives', () => {
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
@@ -70,7 +61,7 @@ describe('Modal primitives', () => {
 
     const overlay = document.body.querySelector('[data-slot="overlay"]')
     expect(overlay?.className).toContain('bg-black/10')
-    expect(overlay?.className).toContain('duration-150')
+    expect(overlay?.className).not.toContain('duration-150')
     expect(overlay?.className).toContain('inset-0')
     expect(overlay?.className).toContain('fixed')
     expect(overlay?.className).toContain('z-floating')
@@ -118,18 +109,6 @@ describe('Modal primitives', () => {
 
     const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-    const overlayAnimation = deferred()
-    const contentAnimation = deferred()
-
-    Object.defineProperty(overlay, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: overlayAnimation.promise }],
-    })
-    Object.defineProperty(content, 'getAnimations', {
-      configurable: true,
-      value: () => [{ finished: contentAnimation.promise }],
-    })
-
     expect(overlay.getAttribute('data-expanded')).toBe('')
     expect(content.getAttribute('data-expanded')).toBe('')
 
@@ -137,12 +116,12 @@ describe('Modal primitives', () => {
     expect(overlay.getAttribute('data-closed')).toBe('')
     expect(content.getAttribute('data-closed')).toBe('')
 
-    contentAnimation.resolve()
     await Promise.resolve()
+    await fireEvent.animationEnd(content)
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     expect(onExitComplete).not.toHaveBeenCalled()
 
-    overlayAnimation.resolve()
+    await fireEvent.animationEnd(overlay)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
@@ -846,6 +825,7 @@ describe('Modal primitives', () => {
     expect(document.activeElement).not.toBe(trigger)
 
     setOpen(false)
+    await Promise.resolve()
     await fireEvent.animationEnd(reopenedContent)
     await fireEvent.transitionEnd(reopenedContent)
     expect(onExitComplete).not.toHaveBeenCalled()

@@ -164,11 +164,6 @@
         "name": "styles",
         "required": false,
         "type": "AvatarGroupT.Styles | undefined"
-      },
-      {
-        "name": "transition",
-        "required": false,
-        "type": "\"none\" | \"fast\" | \"normal\" | \"slow\" | undefined"
       }
     ],
     "inherited": []

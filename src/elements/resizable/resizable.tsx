@@ -851,7 +851,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
                 class={cn(
-                  'min-h-0 min-w-0 ease-out overflow-auto data-transitioning:(transition-flex-grow duration-200) motion-reduce:transition-none',
+                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
                   local.classes?.panel,
                   panelItem().class,
                 )}

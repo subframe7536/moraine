@@ -3,8 +3,9 @@ import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { AvatarGroup } from './avatar-group.tsx'
+import type { AvatarGroupT } from './avatar-group.tsx'
 import { Avatar } from './avatar.tsx'
-import type { AvatarProps } from './avatar.tsx'
+import type { AvatarT, AvatarProps } from './avatar.tsx'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
@@ -546,10 +547,16 @@ describe('Avatar', () => {
     const validClassProp: AvatarProps = { class: 'avatar-class' }
     const invalidItemsProp: AvatarProps = { items: [{ badge: 'i-lucide-user' }] }
     const validSingleProp: AvatarProps = { badge: 'i-lucide-user' }
+    const item: AvatarT.Item = {}
+    const base: AvatarT.Base = { badge: 'i-lucide-user' }
+    const groupItem: AvatarGroupT.Item = { badge: 'i-lucide-user' }
 
     expect(invalidHtmlProps).toBeDefined()
     expect(validClassProp).toBeDefined()
     expect(invalidItemsProp).toBeDefined()
     expect(validSingleProp).toBeDefined()
+    expect(item).toBeDefined()
+    expect(base).toBeDefined()
+    expect(groupItem).toBeDefined()
   })
 })

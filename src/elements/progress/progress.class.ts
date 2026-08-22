@@ -16,7 +16,7 @@ export const progressRootVariants = cva('gap-2 relative', {
 })
 
 export const progressStatusVariants = cva(
-  'text-sm text-muted-foreground font-medium flex transition-[width,height] duration-200 tabular-nums',
+  'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -54,7 +54,7 @@ export const progressBaseVariants = cva(
 )
 
 export const progressIndicatorVariants = cva(
-  'will-change-transform bg-primary size-full transition-transform duration-200 ease-out inset-0 absolute data-indeterminate:(opacity-100 animate-duration-2s animate-ease-in-out animate-iteration-infinite)',
+  'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
   {
     defaultVariants: {
       orientation: 'horizontal',
@@ -133,7 +133,7 @@ export const progressStepsVariants = cva('grid items-end', {
 })
 
 export const progressStepVariants = cva(
-  'text-end col-start-1 row-start-1 truncate transition-opacity duration-200',
+  'text-end col-start-1 row-start-1 truncate transition-opacity',
   {
     defaultVariants: {
       state: 'other',

@@ -191,6 +191,7 @@ interface OverlayMenuLayerProps<
   onContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
   open: boolean
   parentLayer?: OverlayMenuLayerState
+  present: Accessor<boolean>
   presenceDataAttrs: Accessor<{
     'data-closed'?: string
     'data-expanded'?: string
@@ -198,7 +199,6 @@ interface OverlayMenuLayerProps<
   refState?: (state: OverlayMenuLayerState | undefined) => void
   registerBranch: (element: HTMLElement) => () => void
   setPresenceElement: (element: HTMLElement | undefined) => void
-  usePlacementMotion: boolean
 }
 
 export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
@@ -229,9 +229,6 @@ export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
 
   /** Whether the overlay menu content is open. */
   open: boolean
-
-  /** Internal flag that enables placement-corner motion for every menu layer. */
-  usePlacementMotion?: boolean
 
   /** Trigger element used as the position reference. */
   triggerElement?: HTMLElement
@@ -359,9 +356,19 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     shift: () => props.shift ?? 0,
     onPositionedChange: setIsPositioned,
     onPlacementChange: layer.setCurrentPlacement,
-    open: () => props.open,
+    open: () => props.present(),
     overflowPadding: () => props.overflowPadding ?? 4,
     placement: resolvedPlacement,
+  })
+
+  createEffect(() => {
+    const positioner = positionerElement()
+
+    if (!positioner || props.open || !props.present()) {
+      return
+    }
+
+    positioner.style.visibility = 'visible'
   })
 
   onMount(() => {
@@ -1196,7 +1203,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               shift={-4}
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
-              usePlacementMotion={props.usePlacementMotion}
+              present={contentPresence.present}
               presenceDataAttrs={contentPresence.dataAttrs}
               registerBranch={registerLayerBranch}
               setPresenceElement={contentPresence.setElement}
@@ -1339,11 +1346,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           ...toStyleObject(props.contentProps?.style),
         }}
         class={overlayMenuContentVariants(
-          {
-            side: side(),
-            align: align() ?? 'none',
-            transitionMode: props.usePlacementMotion,
-          },
+          { side: side() },
           props.classes?.content,
           props.contentProps?.class,
         )}
@@ -1583,7 +1586,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           gutter={merged.gutter}
           shift={merged.shift}
           overflowPadding={merged.overflowPadding}
-          usePlacementMotion={Boolean(merged.usePlacementMotion)}
+          present={contentPresence.present}
           presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
             branches.add(element)

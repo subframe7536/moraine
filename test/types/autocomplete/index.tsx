@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Badge,
   Button,
   Card,
@@ -40,6 +41,7 @@ modalContentContext.close()
   onClick={() => undefined}
   ref={(element) => acceptSpan(element)}
 />
+;<Avatar text="MR" />
 ;<Card id="card" title="details" onClick={() => undefined} />
 ;<Icon name="i-lucide-search" aria-label="Search" hidden onClick={() => undefined} />
 ;<Button
@@ -90,6 +92,8 @@ modalContentContext.close()
 ;<Button as="a" formAction="/submit" />
 // @ts-expect-error A span root rejects anchor-only attributes.
 ;<Badge href="/docs" />
+// @ts-expect-error Avatar transition speed is no longer public.
+;<Avatar transition="fast" />
 // @ts-expect-error Lowercase event aliases are intentionally stripped.
 ;<Card onclick={() => undefined} />
 // @ts-expect-error Solid directive prefixes are intentionally stripped.

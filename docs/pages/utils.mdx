@@ -53,12 +53,11 @@ const disclosure = useDisclosureState({
 
 ## `useTransitionPresence`
 
-Keep an element mounted until its exit animation or transition finishes.
+Keep an element mounted until its exit animation finishes.
 
 ```tsx
 const presence = useTransitionPresence({
   open: () => open(),
-  mode: 'both',
 })
 ```
 

@@ -91,53 +91,6 @@
       "ariaAttributes": []
     }
   ],
-  "item": {
-    "props": [
-      {
-        "name": "alt",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible alt text for the avatar."
-      },
-      {
-        "name": "badge",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name for the badge."
-      },
-      {
-        "name": "badgePosition",
-        "required": false,
-        "type": "NonNullable<\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined> | undefined",
-        "description": "Position of the badge.",
-        "defaultValue": "bottom-right"
-      },
-      {
-        "name": "fallback",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon name to show as fallback."
-      },
-      {
-        "name": "onStatusChange",
-        "required": false,
-        "type": "((status: AvatarStatus) => void) | undefined",
-        "description": "Callback when the loading status of the avatar changes."
-      },
-      {
-        "name": "src",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Source URL for the avatar image."
-      },
-      {
-        "name": "text",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Initial text to show if image fails or is missing."
-      }
-    ]
-  },
   "props": {
     "own": [
       {
@@ -213,11 +166,6 @@
         "required": false,
         "type": "string | undefined",
         "description": "Initial text to show if image fails or is missing."
-      },
-      {
-        "name": "transition",
-        "required": false,
-        "type": "\"none\" | \"fast\" | \"normal\" | \"slow\" | undefined"
       }
     ],
     "inherited": []

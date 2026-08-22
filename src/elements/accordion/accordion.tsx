@@ -397,10 +397,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
             open: contentExpanded,
             disabled,
           })
-          const contentPresence = useTransitionPresence({
-            open: expanded,
-            mode: 'animation',
-          })
+          const contentPresence = useTransitionPresence({ open: expanded })
           const triggerId = createMemo(() => `${rootId()}-${itemIdSegment}-trigger`)
           const contentId = createMemo(() => `${rootId()}-${itemIdSegment}-content`)
           let contentElement: HTMLDivElement | undefined

@@ -1,6 +1,6 @@
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =
-  'bg-black/10 duration-150 inset-0 fixed z-floating supports-[backdrop-filter]:backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in motion-reduce:animate-none'
+  'bg-black/10 inset-0 fixed z-floating supports-[backdrop-filter]:backdrop-blur-xs data-closed:animate-overlay-out data-expanded:animate-overlay-in motion-reduce:animate-none'
 
 /** Default transition classes for custom modal content. */
 export const MODAL_CONTENT_CLASS =

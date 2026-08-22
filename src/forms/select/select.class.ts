@@ -96,7 +96,7 @@ export const selectItemVariants = cva(
 )
 
 export const selectContentVariants = cva(
-  'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-$mo-popper-content-transform-origin duration-100 z-floating data-closed:animate-menu-out data-expanded:animate-menu-in',
+  'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-$mo-popper-content-transform-origin z-floating data-closed:animate-menu-out data-expanded:animate-menu-in',
   {
     defaultVariants: {
       side: 'right',

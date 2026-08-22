@@ -441,7 +441,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       restoreFocusOnClose={false}
       describeTrigger
-      transitionMode={shouldUseInstantMotion() ? 'none' : 'both'}
       onTriggerFocus={(props) => {
         scheduleOpen(props.open, props.isOpen)
       }}
@@ -478,9 +477,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       />
       <Popper.Content
         positionerClass={
-          shouldUseInstantMotion()
-            ? 'data-positioned:(transition-transform duration-150 ease-out)'
-            : undefined
+          shouldUseInstantMotion() ? 'data-positioned:transition-transform' : undefined
         }
         contentRender={Content}
       />

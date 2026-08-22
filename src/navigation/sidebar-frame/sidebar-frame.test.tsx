@@ -77,8 +77,8 @@ describe('SidebarFrame', () => {
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
       'transition-[width,opacity,transform]',
     )
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'duration-200',
+    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
+      'transition-mo-enter',
     )
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('w-64')
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')

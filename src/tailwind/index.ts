@@ -2,8 +2,6 @@ import plugin from 'tailwindcss/plugin'
 
 import {
   MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_ANIM_DUR_VAR_EXIT,
-  MORAINE_EASE_IN,
   MORAINE_EASE_OUT,
   MORAINE_KEYFRAMES,
   buildTailwindAnimations,
@@ -40,25 +38,17 @@ function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
 }
 
-function buildTransitionAnimationUtilities(): Record<string, Record<string, string>> {
-  return {
-    '.transition-mo-enter': {
-      'transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
-      'transition-timing-function': MORAINE_EASE_OUT,
-    },
-    '.transition-mo-exit': {
-      'transition-duration': MORAINE_ANIM_DUR_VAR_EXIT,
-      'transition-timing-function': MORAINE_EASE_IN,
-    },
-  }
-}
-
 type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plugin>
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
-    ({ addUtilities, matchVariant }) => {
-      addUtilities(buildTransitionAnimationUtilities())
+    ({ addBase, addUtilities, matchVariant }) => {
+      addBase({
+        ':root, :host': {
+          '--default-transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
+          '--default-transition-timing-function': MORAINE_EASE_OUT,
+        },
+      })
 
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
@@ -109,8 +99,14 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           zIndex: MORAINE_Z_INDEX,
           keyframes: MORAINE_KEYFRAMES,
           animation: buildTailwindAnimations(),
-          transitionDuration: getMoraineAnimDurations(),
-          transitionTimingFunction: getMoraineAnimTimingFns(),
+          transitionDuration: {
+            DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER,
+            ...getMoraineAnimDurations(),
+          },
+          transitionTimingFunction: {
+            DEFAULT: MORAINE_EASE_OUT,
+            ...getMoraineAnimTimingFns(),
+          },
           animationIterationCount: getMoraineAnimCounts(),
         },
       },

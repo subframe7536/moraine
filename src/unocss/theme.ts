@@ -2,8 +2,6 @@ import type { Preset, SourceCodeTransformer } from '@subf/unocss'
 
 import {
   MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_ANIM_DUR_VAR_EXIT,
-  MORAINE_EASE_IN,
   MORAINE_EASE_OUT,
   getMoraineAnimCounts,
   getMoraineAnimDurations,
@@ -143,30 +141,17 @@ const ANIMATION_SIDE_OPPOSITES: Record<AnimationSide, AnimationSide> = {
   left: 'right',
 }
 
-const ANIMATION_ORIGINS = [
-  ['top-left', '-', '-'],
-  ['top-center', '0', '-'],
-  ['top-right', '', '-'],
-  ['center-left', '-', '0'],
-  ['center', '0', '0'],
-  ['center-right', '', '0'],
-  ['bottom-left', '-', ''],
-  ['bottom-center', '0', ''],
-  ['bottom-right', '', ''],
-] as const
-
 interface SemanticAnimationConfig {
   offsetRem?: string
   scale?: string
   oppositeSide?: boolean
   withSide?: boolean
-  withOrigin?: boolean
 }
 
 const SEMANTIC_ANIMATION_CONFIGS: Record<SemanticAnimationTarget, SemanticAnimationConfig> = {
   overlay: { withSide: false },
   popup: { scale: '0.95', withSide: false },
-  menu: { offsetRem: '0.5', scale: '0.95', oppositeSide: true, withOrigin: true },
+  menu: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
   popover: { offsetRem: '0.5', scale: '0.95', oppositeSide: true },
   tooltip: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
   sheet: { offsetRem: '2.5' },
@@ -194,25 +179,10 @@ function createSemanticAnimationShortcuts(
           }),
         )
 
-  const originShortcuts =
-    config.withOrigin && config.offsetRem
-      ? Object.fromEntries(
-          ANIMATION_ORIGINS.map(([origin, xSign, ySign]) => {
-            const xValue = xSign === '0' ? '0' : `${xSign}${config.offsetRem}rem`
-            const yValue = ySign === '0' ? '0' : `${ySign}${config.offsetRem}rem`
-            return [
-              `animate-${name}-origin-${origin}`,
-              `[--mo-enter-translate-x:${xValue}] [--mo-enter-translate-y:${yValue}] [--mo-exit-translate-x:${xValue}] [--mo-exit-translate-y:${yValue}]`,
-            ] as const
-          }),
-        )
-      : {}
-
   return {
     [`animate-${name}-in`]: `animate-${MORAINE_ENTER_ANIMATION_NAME} [--mo-enter-opacity:0]${inScale}`,
     [`animate-${name}-out`]: `animate-${MORAINE_EXIT_ANIMATION_NAME} [--mo-exit-opacity:0]${outScale}`,
     ...sideShortcuts,
-    ...originShortcuts,
   }
 }
 
@@ -223,17 +193,6 @@ const SEMANTIC_ANIMATION_SHORTCUTS: Record<string, string> = {
   ...createSemanticAnimationShortcuts('popover', SEMANTIC_ANIMATION_CONFIGS.popover),
   ...createSemanticAnimationShortcuts('tooltip', SEMANTIC_ANIMATION_CONFIGS.tooltip),
   ...createSemanticAnimationShortcuts('sheet', SEMANTIC_ANIMATION_CONFIGS.sheet),
-}
-
-const TRANSITION_ANIMATION_SHORTCUTS: Record<string, string> = {
-  'transition-mo-enter': [
-    `[transition-duration:${MORAINE_ANIM_DUR_VAR_ENTER}]`,
-    `[transition-timing-function:${MORAINE_EASE_OUT.replaceAll(' ', '')}]`,
-  ].join(' '),
-  'transition-mo-exit': [
-    `[transition-duration:${MORAINE_ANIM_DUR_VAR_EXIT}]`,
-    `[transition-timing-function:${MORAINE_EASE_IN.replaceAll(' ', '')}]`,
-  ].join(' '),
 }
 
 interface ResolvedPresetThemeOptions {
@@ -596,10 +555,25 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         zIndex: MORAINE_Z_INDEX,
       }
 
+  const themeTransition = normalized.wind3
+    ? {
+        duration: { DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER },
+        easing: { DEFAULT: MORAINE_EASE_OUT },
+      }
+    : {
+        default: {
+          transition: {
+            duration: MORAINE_ANIM_DUR_VAR_ENTER,
+            timingFunction: MORAINE_EASE_OUT,
+          },
+        },
+      }
+
   return {
     name: 'preset-theme-moraine',
     theme: {
       ...themeSpacing,
+      ...themeTransition,
       colors: MORAINE_COLORS,
       animation: {
         keyframes: toUnocssKeyframes(),
@@ -637,9 +611,6 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       ['hidden-hitless', 'opacity-0 pointer-events-none'],
       ['rm-side-b', '[&>[data-slot=sidebar]]:border-0!'],
       ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
-        ([name, value]) => [name, value] as [string, string],
-      ),
-      ...Object.entries(TRANSITION_ANIMATION_SHORTCUTS).map(
         ([name, value]) => [name, value] as [string, string],
       ),
       ...Object.entries(MORAINE_Z_INDEX).map(

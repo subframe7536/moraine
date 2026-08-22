@@ -18,7 +18,6 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import type { TransitionPresenceMotion } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
 
 import { useFloatingPosition } from './floating.ts'
@@ -250,12 +249,6 @@ export interface PopperProps {
    */
   toggleOnClick?: boolean
 
-  /**
-   * CSS motion types observed before unmounting closed content.
-   * @default 'both'
-   */
-  transitionMode?: TransitionPresenceMotion
-
   /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
@@ -342,7 +335,6 @@ export function Popper(props: PopperProps): JSX.Element {
       shift: 0,
       slide: true,
       toggleOnClick: true,
-      transitionMode: 'both' as const,
     },
     props,
   )
@@ -361,12 +353,7 @@ export function Popper(props: PopperProps): JSX.Element {
   const currentPlacement = createMemo(
     () => popperTestPlacementAccessor?.() ?? internalCurrentPlacement(),
   )
-  const contentPresence = useTransitionPresence({
-    open: isOpen,
-    get mode() {
-      return merged.transitionMode
-    },
-  })
+  const contentPresence = useTransitionPresence({ open: isOpen })
   const contentMounted = createMemo(
     () => contentPresence.present() || Boolean(merged.forceMount && !merged.disabled),
   )

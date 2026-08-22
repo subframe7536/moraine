@@ -18,30 +18,15 @@ export const avatarRootVariants = cva(
   },
 )
 
-export const avatarImageVariants = cva(
-  'rounded-full size-full transition-opacity ease-out inset-0 absolute object-cover',
-  {
-    defaultVariants: {
-      transition: 'normal',
-    },
-    variants: {
-      transition: {
-        none: 'duration-0',
-        fast: 'duration-150',
-        normal: 'duration-300',
-        slow: 'duration-500',
-      },
-    },
-  },
-)
+export const AVATAR_IMAGE_CLASS =
+  'rounded-full size-full transition-opacity inset-0 absolute object-cover'
 
 export const avatarFallbackVariants = cva(
-  'text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity ease-out items-center inset-0 justify-center absolute',
+  'text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
   {
     defaultVariants: {
       size: 'md',
       status: 'idle',
-      transition: 'normal',
     },
     variants: {
       size: {
@@ -54,12 +39,6 @@ export const avatarFallbackVariants = cva(
         loading: 'opacity-100',
         loaded: 'hidden-hitless opacity-0',
         error: 'opacity-100',
-      },
-      transition: {
-        none: 'duration-0',
-        fast: 'duration-150',
-        normal: 'duration-300',
-        slow: 'duration-500',
       },
     },
   },
@@ -131,7 +110,5 @@ export const avatarGroupCountVariants = cva(
 )
 
 export type AvatarVariantProps = VariantProps<typeof avatarRootVariants> &
-  VariantProps<typeof avatarImageVariants> &
   VariantProps<typeof avatarBadgeVariants>
-export type AvatarGroupVariantProps = VariantProps<typeof avatarRootVariants> &
-  VariantProps<typeof avatarImageVariants>
+export type AvatarGroupVariantProps = VariantProps<typeof avatarRootVariants>

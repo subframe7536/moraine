@@ -10,6 +10,8 @@ import { ContextMenu } from './context-menu.tsx'
 import type { ContextMenuProps, ContextMenuT } from './context-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
+  await Promise.resolve()
+
   const contents = Array.from(
     document.body.querySelectorAll('[data-slot="content"]'),
   ) as HTMLElement[]
@@ -20,6 +22,13 @@ async function finishMenuExitMotion(): Promise<void> {
       await fireEvent.transitionEnd(content)
     }),
   )
+}
+
+function expectNoPlacementMotion(element: HTMLElement | null | undefined): void {
+  expect(element?.style.getPropertyValue('--mo-enter-translate-x')).toBe('')
+  expect(element?.style.getPropertyValue('--mo-enter-translate-y')).toBe('')
+  expect(element?.style.getPropertyValue('--mo-exit-translate-x')).toBe('')
+  expect(element?.style.getPropertyValue('--mo-exit-translate-y')).toBe('')
 }
 
 describe('ContextMenu', () => {
@@ -71,7 +80,8 @@ describe('ContextMenu', () => {
       expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content?.getAttribute('data-side')).toBe('right')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('animate-menu-origin-top-left')
+      expect(content?.className).toContain('animate-menu-side-right')
+      expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
       )
@@ -86,7 +96,8 @@ describe('ContextMenu', () => {
       expect(content).toBe(initialContent)
       expect(content?.getAttribute('data-side')).toBe('left')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('animate-menu-origin-top-right')
+      expect(content?.className).toContain('animate-menu-side-left')
+      expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'right top',
       )
@@ -539,7 +550,7 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('data-closed:animate-menu-out')
     expect(content.getAttribute('data-motion')).toBeNull()
     expect(content.getAttribute('data-align')).toBe('start')
-    expect(content.className).toContain('animate-menu-origin-top-left')
+    expect(content.className).toContain('animate-menu-side-right')
     expect(content.className).toContain('origin-$mo-popper-content-transform-origin')
 
     await waitFor(() => {
@@ -564,7 +575,7 @@ describe('ContextMenu', () => {
 
     expect(content.getAttribute('data-side')).toBe('bottom')
     expect(content.getAttribute('data-align')).toBeNull()
-    expect(content.className).toContain('animate-menu-origin-top-center')
+    expect(content.className).toContain('animate-menu-side-bottom')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -941,11 +952,17 @@ describe('ContextMenu', () => {
       screen.getByText('Row Item').closest('[data-slot="trigger"]')?.getAttribute('aria-expanded'),
     ).toBe('false')
     expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+    const exitingContent = document.body.querySelector('[data-slot="content"][data-closed]')
+    expect(exitingContent).not.toBeNull()
+    expect(exitingContent?.className).toContain('data-closed:animate-menu-out')
+
+    const positioner = exitingContent?.closest('[data-slot="positioner"]') as HTMLElement
+    expect(positioner.style.visibility).toBe('visible')
 
     await finishMenuExitMotion()
 
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(positioner.isConnected).toBe(false)
   })
 
   test('dismisses menu when right-clicking trigger again while open', async () => {
@@ -1091,7 +1108,7 @@ describe('ContextMenu', () => {
       expect(document.body.textContent).toContain('Nested action')
     })
 
-    const rootContent = document.body.querySelector('[data-slot="content"]')
+    const rootContent = document.body.querySelector<HTMLElement>('[data-slot="content"]')
 
     expect(document.body.textContent).toContain('Account')
     expect(document.body.querySelector('[data-slot="separator"]')).not.toBeNull()
@@ -1106,7 +1123,7 @@ describe('ContextMenu', () => {
     expect(rootContent?.className).toContain('data-closed:animate-menu-out')
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.getAttribute('data-align')).toBe('start')
-    expect(rootContent?.className).toContain('animate-menu-origin-top-left')
+    expect(rootContent?.className).toContain('animate-menu-side-bottom')
     expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
     expect(rootContent?.className).toContain('content-class')
 
@@ -1160,7 +1177,7 @@ describe('ContextMenu', () => {
     expect(submenuContent.getAttribute('data-motion')).toBeNull()
     expect(submenuContent.getAttribute('data-side')).toBe('right')
     expect(submenuContent.getAttribute('data-align')).toBe('start')
-    expect(submenuContent.className).toContain('animate-menu-origin-top-left')
+    expect(submenuContent.className).toContain('animate-menu-side-right')
     await waitFor(() => {
       expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -1205,7 +1222,7 @@ describe('ContextMenu', () => {
       expect(submenuContent.getAttribute('data-motion')).toBeNull()
       expect(submenuContent.getAttribute('data-side')).toBe('right')
       expect(submenuContent.getAttribute('data-align')).toBe('start')
-      expect(submenuContent.className).toContain('animate-menu-origin-top-left')
+      expect(submenuContent.className).toContain('animate-menu-side-right')
       await waitFor(() => {
         expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
           'left top',
@@ -1318,6 +1335,9 @@ describe('ContextMenu', () => {
       expect(document.body.querySelectorAll('[data-slot="content"][data-closed]')).toHaveLength(1)
     })
 
+    const rootContent = document.body.querySelector('[data-slot="content"][data-expanded]')
+    const rootPositioner = rootContent?.closest('[data-slot="positioner"]') as HTMLElement
+    expect(rootPositioner.style.visibility).toBe('visible')
     expect(document.body.textContent).toContain('Nested action')
   })
 
@@ -1662,7 +1682,18 @@ describe('ContextMenu', () => {
 
   test('applies styles override to content', async () => {
     const screen = render(() => (
-      <ContextMenu styles={{ content: { width: '200px' } }} items={[{ label: 'Open item' }]}>
+      <ContextMenu
+        styles={{
+          content: {
+            '--mo-enter-translate-x': '1rem',
+            '--mo-enter-translate-y': '2rem',
+            '--mo-exit-translate-x': '3rem',
+            '--mo-exit-translate-y': '4rem',
+            width: '200px',
+          },
+        }}
+        items={[{ label: 'Open item' }]}
+      >
         {(props) => <div {...props}>Row Item</div>}
       </ContextMenu>
     ))
@@ -1675,5 +1706,9 @@ describe('ContextMenu', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
+    expect(content?.style.getPropertyValue('--mo-enter-translate-x')).toBe('1rem')
+    expect(content?.style.getPropertyValue('--mo-enter-translate-y')).toBe('2rem')
+    expect(content?.style.getPropertyValue('--mo-exit-translate-x')).toBe('3rem')
+    expect(content?.style.getPropertyValue('--mo-exit-translate-y')).toBe('4rem')
   })
 })

@@ -186,10 +186,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     open: resolvedOpen,
     disabled: () => Boolean(props.disabled),
   })
-  const contentPresence = useTransitionPresence({
-    open: resolvedOpen,
-    mode: 'animation',
-  })
+  const contentPresence = useTransitionPresence({ open: resolvedOpen })
   const shouldRenderContent = createMemo(
     () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
   )

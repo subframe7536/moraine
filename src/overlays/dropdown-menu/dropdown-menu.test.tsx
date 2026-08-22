@@ -9,6 +9,8 @@ import { DropdownMenu } from './dropdown-menu.tsx'
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.tsx'
 
 async function finishMenuExitMotion(): Promise<void> {
+  await Promise.resolve()
+
   const contents = Array.from(
     document.body.querySelectorAll('[data-slot="content"]'),
   ) as HTMLElement[]
@@ -389,12 +391,18 @@ describe('DropdownMenu', () => {
       const exitingContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
       expect(exitingContent).not.toBeNull()
       expect(exitingContent.getAttribute('data-closed')).toBe('')
+      expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
+      expect(exitingContent.className).toContain('data-closed:animate-menu-out')
     })
+
+    const positioner = content.closest('[data-slot="positioner"]') as HTMLElement
+    expect(positioner.style.visibility).toBe('visible')
 
     await finishMenuExitMotion()
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(positioner.isConnected).toBe(false)
     })
   })
 
