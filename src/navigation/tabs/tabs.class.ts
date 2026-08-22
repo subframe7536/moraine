@@ -21,7 +21,7 @@ export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
       link: 'rounded-none bg-transparent',
     },
     orientation: {
-      horizontal: 'h-9 w-full',
+      horizontal: 'w-full',
       vertical: 'flex-col h-fit',
     },
   },
@@ -74,7 +74,7 @@ export const tabsIndicatorVariants = cva(
 )
 
 export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
+  'text-muted-foreground font-medium py-1 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
   {
     variants: {
       orientation: {
@@ -86,9 +86,9 @@ export const tabsTriggerVariants = cva(
         link: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
       },
       size: {
-        sm: 'text-xs px-2 py-1',
-        md: 'text-sm px-2 py-1',
-        lg: 'text-sm px-3 py-2',
+        sm: 'text-xs px-1',
+        md: 'text-sm px-2',
+        lg: 'text-base px-3',
       },
     },
     defaultVariants: {
@@ -102,9 +102,9 @@ export const tabsTriggerVariants = cva(
 export const tabsLeadingVariants = cva('inline-flex shrink-0 items-center justify-center', {
   variants: {
     size: {
-      sm: 'size-4',
+      sm: 'size-3',
       md: 'size-4',
-      lg: 'size-4',
+      lg: 'size-5',
     },
   },
   defaultVariants: {

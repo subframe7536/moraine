@@ -159,7 +159,7 @@ describe('MultiSelect', () => {
     const tag = screen.container.querySelector('[data-slot="tag"]')!
 
     expect(tag.querySelector('button')).toBeNull()
-    await fireEvent.click(tag.querySelector('[data-slot="trailing"]')!)
+    await fireEvent.click(tag.querySelector('[data-slot="tagRemove"]')!)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -1137,7 +1137,7 @@ describe('MultiSelect', () => {
     expect(action?.className).toContain('hover:bg-muted-hover')
   })
 
-  test('keeps trigger spacing on the control and removes trigger hover background', () => {
+  test('aligns control padding with the tag gap and removes trigger hover background', () => {
     const screen = render(() => (
       <MultiSelect options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
     ))
@@ -1148,11 +1148,48 @@ describe('MultiSelect', () => {
     const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
-    expect(control.className).toContain('ps-2.5')
-    expect(control.className).toContain('pe-2')
+    expect(control.className).toContain('px-1.5')
+    expect(control.className).toContain('gap-1.5')
     expect(tagsContainer.className).not.toContain('px-2.5')
     expect(leading.className).not.toContain('ms-')
     expect(trigger.className).not.toContain('hover:bg-muted-hover')
+  })
+
+  test('sizes tag and input rows from their content', () => {
+    const screen = render(() => <MultiSelect options={FRUITS} value={['apple', 'banana']} />)
+    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement
+    const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
+    const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
+
+    expect(tag.className).not.toContain('h-5.5')
+    expect(tag.className).toContain('text-sm')
+    expect(tag.className).toContain('leading-tight')
+    expect(tagRemove.className).toContain('p-0.5')
+    expect(tagRemove.querySelector('[data-slot="icon"]')?.className).toContain('size-[1.25em]')
+    expect(input.className).not.toContain('h-6')
+    expect(input.className).not.toContain('leading-$s-m')
+    expect(input.className).toContain('text-sm')
+    expect(input.className).toContain('leading-tight')
+    expect(input.className).toContain('py-0.5')
+  })
+
+  test('scales tags and inputs by size', () => {
+    const screen = render(() => (
+      <>
+        <MultiSelect options={FRUITS} size="sm" value={['apple']} />
+        <MultiSelect options={FRUITS} size="md" value={['apple']} />
+        <MultiSelect options={FRUITS} size="lg" value={['apple']} />
+      </>
+    ))
+    const tags = Array.from(screen.container.querySelectorAll('[data-slot="tag"]'))
+    const inputs = Array.from(screen.container.querySelectorAll('[data-slot="input"]'))
+
+    expect(tags[0]?.className).toContain('text-xs')
+    expect(tags[1]?.className).toContain('text-sm')
+    expect(tags[2]?.className).toContain('text-base')
+    expect(inputs[0]?.className).toContain('text-xs')
+    expect(inputs[1]?.className).toContain('text-sm')
+    expect(inputs[2]?.className).toContain('text-base')
   })
 
   test('clears a non-empty default selection instead of restoring it', async () => {

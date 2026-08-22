@@ -263,7 +263,6 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                           {(icon) => (
                             <Icon
                               name={icon()}
-                              size={BREADCRUMB_ICON_SIZES[size()]}
                               slotName="leading"
                               style={merged.styles?.leading}
                               class={merged.classes?.leading}

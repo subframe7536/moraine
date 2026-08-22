@@ -51,28 +51,15 @@
     },
     {
       "name": "trailing",
-      "description": "Optional trailing icon or dismiss button displayed after the label.",
+      "description": "Optional trailing icon displayed after the label.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component is loading."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-hidden",
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Hides decorative content from assistive technology."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
         }
       ]
     }
@@ -101,12 +88,6 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Leading icon name."
-      },
-      {
-        "name": "onTrailingClick",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined",
-        "description": "Callback when the trailing icon/button is clicked."
       },
       {
         "name": "ref",

@@ -51,9 +51,9 @@ describe('Textarea', () => {
   })
 
   test.each([
-    ['sm', 'text-xs', 'leading-4', 'px-2.5', 'py-1.5'],
+    ['sm', 'text-xs', 'leading-4', 'px-2', 'py-1'],
     ['md', 'text-sm', 'leading-5', 'px-2.5', 'py-1.5'],
-    ['lg', 'text-sm', 'leading-5', 'px-3', 'py-2'],
+    ['lg', 'text-base', 'leading-6', 'px-3', 'py-2'],
   ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
     const screen = render(() => <Textarea size={size} />)
     const textarea = screen.container.querySelector('[data-slot="input"]') as HTMLElement

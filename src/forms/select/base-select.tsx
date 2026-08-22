@@ -588,7 +588,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'tagRender',
     'allowClear',
     'onClear',
-    'tagVariant',
     'tokenSeparators',
     'allowCreate',
     'maxCount',

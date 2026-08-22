@@ -64,9 +64,9 @@ export const stepperTriggerVariants = cva(
     },
     variants: {
       size: {
-        sm: 'text-sm',
-        md: 'text-base',
-        lg: 'text-lg',
+        sm: 'text-xs',
+        md: 'text-sm',
+        lg: 'text-base',
       },
       state: {
         inactive: 'text-muted-foreground border-input bg-background shadow-xs',

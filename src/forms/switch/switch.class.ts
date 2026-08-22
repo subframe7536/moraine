@@ -40,9 +40,9 @@ export const switchWrapperVariants = cva('', {
   },
   variants: {
     size: {
-      sm: 'text-xs ms-2',
+      sm: 'text-xs ms-1.5',
       md: 'text-sm ms-2',
-      lg: 'text-sm ms-2.5',
+      lg: 'text-base ms-2.5',
     },
   },
 })

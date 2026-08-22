@@ -3,6 +3,12 @@ import type { VariantProps } from 'cls-variant'
 import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
+const SELECT_TEXT_SIZE = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+} as const
+
 export const selectControlVariants = cva(
   'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:effect-invalid data-disabled:effect-dis data-invalid:ring-3 focus-visible:ring-3',
   {
@@ -12,10 +18,10 @@ export const selectControlVariants = cva(
     },
     variants: {
       variant: INPUT_VARIANT,
-      size: {
-        sm: 'text-xs pe-1.5 ps-2',
-        md: 'text-sm pe-2 ps-2.5',
-        lg: 'text-sm pe-2.5 ps-3',
+      size: SELECT_TEXT_SIZE,
+      mode: {
+        single: '',
+        multi: 'px-1.5',
       },
       search: {
         true: 'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid',
@@ -23,6 +29,11 @@ export const selectControlVariants = cva(
           'cursor-pointer focus-visible:effect-fv-border focus-visible:data-invalid:effect-invalid',
       },
     },
+    compoundVariants: [
+      { size: 'sm', mode: 'single', class: 'pe-1.5 ps-2' },
+      { size: 'md', mode: 'single', class: 'pe-2 ps-2.5' },
+      { size: 'lg', mode: 'single', class: 'pe-2.5 ps-3' },
+    ],
   },
 )
 
@@ -36,13 +47,33 @@ export const selectInputVariants = cva(
     variants: {
       mode: {
         single: 'py-1.5',
-        multi: 'leading-$s-m min-w-12',
+        multi: 'leading-tight px-0.5 py-0.5 min-w-12',
       },
-      size: {
-        sm: 'text-xs var-select-1',
-        md: 'text-sm var-select-1',
-        lg: 'text-sm var-select-1.5',
-      },
+      size: SELECT_TEXT_SIZE,
+    },
+  },
+)
+
+export const multiSelectTagVariants = cva(
+  'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+  {
+    defaultVariants: {
+      size: 'md',
+    },
+    variants: {
+      size: SELECT_TEXT_SIZE,
+    },
+  },
+)
+
+export const multiSelectTagOverflowVariants = cva(
+  'text-muted-foreground leading-tight px-1 flex items-center',
+  {
+    defaultVariants: {
+      size: 'md',
+    },
+    variants: {
+      size: SELECT_TEXT_SIZE,
     },
   },
 )
@@ -89,7 +120,7 @@ export const selectItemVariants = cva(
       size: {
         sm: 'text-xs min-h-7',
         md: 'text-sm min-h-8',
-        lg: 'text-sm min-h-9',
+        lg: 'text-base min-h-9',
       },
     },
   },

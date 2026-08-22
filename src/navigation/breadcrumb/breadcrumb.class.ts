@@ -30,8 +30,8 @@ export const breadcrumbListVariants = cva(
 export const breadcrumbSizeVariants = cva('', {
   variants: {
     size: {
-      sm: 'text-sm',
-      md: '',
+      sm: 'text-xs',
+      md: 'text-sm',
       lg: 'text-base',
     },
   },

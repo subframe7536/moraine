@@ -8,7 +8,7 @@ export function Sizes() {
   type TextareaSizeName = Exclude<TextareaT.Variant['size'], undefined>
 
   return (
-    <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">
+    <div class="gap-3 grid w-full lg:grid-cols-3 sm:grid-cols-2">
       <For each={SIZES}>
         {(size) => <Textarea size={size} placeholder={`Size: ${size}`} rows={2} />}
       </For>

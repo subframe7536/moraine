@@ -626,13 +626,6 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         }),
       ],
       [
-        /var-select-([\d.]+)/,
-        ([, num], { theme }) => ({
-          '--s-p': createLength(theme, num!),
-          '--s-m': createLength(theme, Number(num) + 3.5),
-        }),
-      ],
-      [
         /var-stepper-([\d.]+)-([\d.]+)-([\d.]+)-([\d.]+)/,
         ([, triggerSize, separatorOffset, gap, verticalPt], { theme }) => ({
           '--st-size': createLength(theme, triggerSize!),

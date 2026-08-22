@@ -7,7 +7,7 @@ import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form-field/form-field-context.ts'
 import type {
   FormDisableOption,
@@ -23,19 +23,10 @@ import { useTextControlValue } from '../shared/use-text-control-value.ts'
 import type { InputVariantProps } from './input.class.ts'
 import {
   inputInputVariants,
-  inputIconVariants,
   inputLeadingVariants,
   inputRootVariants,
   inputTrailingVariants,
 } from './input.class.ts'
-
-function renderAdornment(value: IconT.Name, loading: boolean, size: InputT.Variant['size']) {
-  if (typeof value !== 'string') {
-    return renderComponentOrElement(value as ComponentOrElement, {})
-  }
-
-  return <Icon name={value} class={cn(inputIconVariants({ size }), loading && 'effect-loading')} />
-}
 
 export namespace InputT {
   export type Value = string | number | undefined
@@ -403,6 +394,17 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }, merged.autofocusDelay ?? 0)
   })
 
+  function RenderAdornment(props: { value: IconT.Name; loading: boolean }) {
+    return (
+      <Show
+        when={typeof props.value !== 'string'}
+        fallback={<Icon name={props.value} class={props.loading && 'effect-loading'} />}
+      >
+        {renderComponentOrElement(props.value as ComponentOrElement, {})}
+      </Show>
+    )
+  }
+
   return (
     <div
       data-slot="root"
@@ -431,7 +433,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
               merged.classes?.leading,
             )}
           >
-            {renderAdornment(adornment(), isLeadingLoading(), field.size())}
+            <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
           </span>
         )}
       </Show>
@@ -455,8 +457,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         class={inputInputVariants(
           {
             type: merged.type === 'file' ? 'file' : undefined,
-            hasLeading: Boolean(resolvedLeading()),
-            hasTrailing: Boolean(resolvedTrailing()),
             size: field.size(),
           },
           merged.classes?.input,
@@ -484,7 +484,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
               merged.classes?.trailing,
             )}
           >
-            {renderAdornment(adornment(), isTrailingLoading(), field.size())}
+            <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
           </span>
         )}
       </Show>

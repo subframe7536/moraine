@@ -192,7 +192,7 @@ describe('Breadcrumb', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-house')
-    expect((leading as HTMLElement).style.fontSize).toBe('16px')
+    expect((leading as HTMLElement).style.fontSize).toBe('')
     expect(homeLink?.textContent).toContain('Home')
     expect(homeLink?.querySelector('[data-slot="label"]')).not.toBeNull()
   })
@@ -287,34 +287,31 @@ describe('Breadcrumb', () => {
   })
 
   test.each([
-    ['sm', 'text-sm', 14, 14],
-    ['md', undefined, 16, 16],
-    ['lg', 'text-base', 18, 18],
-  ] as const)(
-    'applies %s typography and icon scales',
-    (size, textClass, leadingSize, separatorSize) => {
-      const screen = render(() => (
-        <Breadcrumb
-          size={size}
-          items={[{ label: 'Home', href: '/', icon: 'i-lucide-house' }, { label: 'Current' }]}
-        />
-      ))
+    ['sm', 'text-xs', 14],
+    ['md', 'text-sm', 16],
+    ['lg', 'text-base', 18],
+  ] as const)('applies %s typography and icon scales', (size, textClass, separatorSize) => {
+    const screen = render(() => (
+      <Breadcrumb
+        size={size}
+        items={[{ label: 'Home', href: '/', icon: 'i-lucide-house' }, { label: 'Current' }]}
+      />
+    ))
 
-      const list = screen.container.querySelector('[data-slot="list"]')
-      const link = screen.getByText('Home').closest('[data-slot="link"]')
-      const leading = link?.querySelector('[data-slot="leading"]') as HTMLElement | null
-      const separator = screen.container.querySelector(
-        '[data-slot="separator"] [data-slot="icon"]',
-      ) as HTMLElement | null
+    const list = screen.container.querySelector('[data-slot="list"]')
+    const link = screen.getByText('Home').closest('[data-slot="link"]')
+    const leading = link?.querySelector('[data-slot="leading"]') as HTMLElement | null
+    const separator = screen.container.querySelector(
+      '[data-slot="separator"] [data-slot="icon"]',
+    ) as HTMLElement | null
 
-      expect(list?.className).toContain('text-sm')
-      if (textClass) {
-        expect(link?.className).toContain(textClass)
-      }
-      expect(leading?.style.fontSize).toBe(`${leadingSize}px`)
-      expect(separator?.style.fontSize).toBe(`${separatorSize}px`)
-    },
-  )
+    expect(list?.className).toContain('text-sm')
+    if (textClass) {
+      expect(link?.className).toContain(textClass)
+    }
+    expect(leading?.style.fontSize).toBe('')
+    expect(separator?.style.fontSize).toBe(`${separatorSize}px`)
+  })
 
   test('supports itemRender with @solidjs/router A component', () => {
     const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (

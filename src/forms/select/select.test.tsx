@@ -119,7 +119,7 @@ describe('Select - single mode', () => {
 
     const inputs = screen.container.querySelectorAll('[data-slot="input"]')
     expect(inputs[0]?.className).toContain('text-xs')
-    expect(inputs[1]?.className).toContain('text-sm')
+    expect(inputs[1]?.className).toContain('text-base')
   })
 
   test('applies classes.root override', () => {

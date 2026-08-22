@@ -298,7 +298,7 @@ describe('FormField', () => {
   })
 
   test.each([
-    ['sm', 'text-xs', 'h-7', 'py-1.5'],
+    ['sm', 'text-xs', 'h-7', 'py-1'],
     ['md', 'text-sm', 'h-8', 'py-1.5'],
     ['lg', 'text-sm', 'h-9', 'py-2'],
   ] as const)(

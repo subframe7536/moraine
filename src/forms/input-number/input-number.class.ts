@@ -27,7 +27,7 @@ export const inputNumberBaseVariants = cva(
 )
 
 const INPUT_NUMBER_CONTROL_BUTTON_CLASS =
-  'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center focus-visible:effect-fv disabled:(text-primary cursor-not-allowed opacity-75) hover:text-primary/75 active:text-primary/75 data-active:text-primary/75'
+  'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center focus-visible:effect-fv disabled:effect-dis hover:text-primary/75 active:text-primary/75 data-active:text-primary/75'
 
 export type InputNumberOrientation = 'horizontal' | 'vertical'
 
@@ -56,7 +56,7 @@ export const inputNumberControlButtonVariants = cva(INPUT_NUMBER_CONTROL_BUTTON_
     size: {
       sm: 'text-xs',
       md: 'text-sm',
-      lg: 'text-sm',
+      lg: 'text-base',
     },
   },
   compoundVariants: [
@@ -86,19 +86,6 @@ export const inputNumberControlButtonVariants = cva(INPUT_NUMBER_CONTROL_BUTTON_
       class: 'w-9',
     },
   ],
-})
-
-export const inputNumberControlIconVariants = cva('shrink-0', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'size-4',
-      md: 'size-5',
-      lg: 'size-5',
-    },
-  },
 })
 
 export const inputNumberControlColumnVariants = cva('pe-1 flex shrink-0 flex-col h-full', {

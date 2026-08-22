@@ -230,14 +230,7 @@
       "name": "clear",
       "description": "Button used to clear the selected value.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component is loading."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-label",
@@ -436,6 +429,11 @@
         "type": "IconT.Name",
         "description": "Icon shown during loading state.",
         "defaultValue": "icon-loading"
+      },
+      {
+        "name": "mode",
+        "required": false,
+        "type": "\"single\" | \"multi\" | undefined"
       },
       {
         "name": "name",

@@ -11,7 +11,7 @@ export function DismissControl() {
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
         content={
-          <div class="space-y-1">
+          <div class="p-3 space-y-1">
             <p class="text-sm font-medium">Persistent popover</p>
             <p class="text-xs text-muted-foreground">
               Prevented close attempts: {preventedCloseCount()}

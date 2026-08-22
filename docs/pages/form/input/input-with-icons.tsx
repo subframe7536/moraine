@@ -15,7 +15,7 @@ export function InputWithIcons() {
       />
       <Input
         leading={
-          <div class="text-muted-foreground flex gap-1 items-center">
+          <div class="flex gap-1 items-center">
             <Icon name="i-lucide-globe" />
             https://
           </div>

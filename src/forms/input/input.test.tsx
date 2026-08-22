@@ -70,14 +70,14 @@ describe('Input', () => {
     const inputClasses = inputs.map((input) => input.className.split(/\s+/))
 
     const expectedRootClasses = [
-      ['text-xs', 'leading-4', 'h-7'],
-      ['text-sm', 'leading-5', 'h-8'],
-      ['text-sm', 'leading-5', 'h-9'],
+      ['text-xs', 'h-7'],
+      ['text-sm', 'h-8'],
+      ['text-base', 'h-9'],
     ]
     const expectedInputClasses = [
-      ['leading-4', 'py-1.5', 'ps-2.5', 'pe-2.5'],
-      ['leading-5', 'py-1.5', 'ps-2.5', 'pe-2.5'],
-      ['leading-5', 'py-2', 'ps-3', 'pe-3'],
+      ['leading-4', 'px-1.5', 'py-1'],
+      ['leading-5', 'px-2', 'py-1.5'],
+      ['leading-6', 'px-2.5', 'py-2'],
     ]
 
     expectedRootClasses.forEach((classes, index) => {
@@ -93,7 +93,7 @@ describe('Input', () => {
     })
   })
 
-  test('scales icons with the input size', () => {
+  test('lets icons inherit the input font size', () => {
     const screen = render(() => (
       <>
         <Input size="sm" leading="icon-search" />
@@ -106,9 +106,10 @@ describe('Input', () => {
       screen.container.querySelectorAll('[data-slot="leading"] [data-slot="icon"]'),
     )
 
-    expect(icons[0]?.className).toContain('size-4')
-    expect(icons[1]?.className).toContain('size-5')
-    expect(icons[2]?.className).toContain('size-5')
+    icons.forEach((icon) => {
+      expect(icon.className).not.toMatch(/(?:^|\s)size-/)
+      expect(icon.getAttribute('style')).toBeNull()
+    })
   })
 
   test('renders leading and trailing slots through Icon', () => {

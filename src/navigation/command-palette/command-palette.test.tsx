@@ -295,9 +295,7 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const search = document.body.querySelector(
-        '[data-slot="search"] [data-slot="icon"]',
-      ) as HTMLElement
+      const search = document.body.querySelector('[data-slot="search"]') as HTMLElement
       const close = document.body.querySelector(
         '[data-slot="close"] [data-slot="icon"]',
       ) as HTMLElement
@@ -770,13 +768,13 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('applies local command row size variants', async () => {
+  test('keeps command row metrics stable when a native size attribute is supplied', async () => {
     render(() => <CommandPalette groups={GROUPS} size="lg" />)
 
     await waitFor(() => {
       const option = document.body.querySelector('[role="option"]') as HTMLElement | null
       expect(option?.className).toContain('text-sm')
-      expect(option?.className).toContain('min-h-9')
+      expect(option?.className).toContain('min-h-8')
     })
   })
 

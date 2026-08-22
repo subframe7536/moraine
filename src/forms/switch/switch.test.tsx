@@ -268,7 +268,7 @@ describe('Switch', () => {
     expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
     expect(track?.className).toContain('w-9')
     expect(wrapper?.className).toContain('ms-2.5')
-    expect(wrapper?.className).toContain('text-sm')
+    expect(wrapper?.className).toContain('text-base')
     expect(screen.getByText('Classes').className).toContain('select-none')
   })
 
@@ -276,7 +276,7 @@ describe('Switch', () => {
     const screen = render(() => <Switch label="Compact" size="sm" />)
     const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
 
-    expect(wrapper?.className).toContain('ms-2')
+    expect(wrapper?.className).toContain('ms-1.5')
     expect(wrapper?.className).toContain('text-xs')
   })
 

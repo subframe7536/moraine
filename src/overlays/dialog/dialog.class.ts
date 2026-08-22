@@ -10,4 +10,4 @@ export const DIALOG_DESCRIPTION_CLASS = 'text-sm text-muted-foreground'
 export const DIALOG_CLOSE_CLASS = 'absolute top-4 right-4'
 export const DIALOG_BODY_CLASS = 'flex-1 min-h-0 px-6 text-sm text-foreground'
 export const DIALOG_FOOTER_CLASS =
-  'shrink-0 px-6 pb-6 pt-2 flex flex-col-reverse gap-2 sm:(flex-row justify-end items-center)'
+  'shrink-0 p-6 pt-2 flex flex-col-reverse gap-2 sm:(flex-row justify-end items-center)'

@@ -1,13 +1,13 @@
 import type { Component, JSX } from 'solid-js'
 import { Show, createMemo, untrack } from 'solid-js'
 
-import { IconButtonInner } from '../../elements/icon/icon-button-inner.tsx'
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { cn } from '../../shared/utils.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -329,7 +329,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-required={api.field.required() ? '' : undefined}
             style={props.styles?.control}
             class={selectControlVariants(
-              { variant: props.variant, size: api.field.size(), search: api.isSearchable() },
+              {
+                variant: props.variant,
+                size: api.field.size(),
+                mode: 'single',
+                search: api.isSearchable(),
+              },
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -407,16 +412,18 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 />
               }
             >
-              <IconButtonInner
-                name={closeIcon() ?? 'icon-close'}
+              <button
+                type="button"
                 data-slot="clear"
                 aria-label="Clear selection"
                 tabIndex={-1}
-                classes={{
-                  root: [SELECT_CLEAR_ACTION_CLASS, props.classes?.trigger, props.classes?.clear],
-                  icon: 'text-muted-foreground opacity-80',
-                }}
-                styles={{ root: props.styles?.clear }}
+                class={cn(
+                  'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                  SELECT_CLEAR_ACTION_CLASS,
+                  props.classes?.trigger,
+                  props.classes?.clear,
+                )}
+                style={props.styles?.clear}
                 disabled={api.field.disabled()}
                 onPointerDown={(event) => {
                   event.preventDefault()
@@ -430,7 +437,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   clearSelection(api)
                 }}
-              />
+              >
+                <Icon
+                  name={closeIcon() ?? 'icon-close'}
+                  class="text-muted-foreground opacity-80 size-4"
+                />
+              </button>
             </Show>
           </div>
         )

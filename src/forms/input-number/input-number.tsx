@@ -30,7 +30,6 @@ import {
   inputNumberBaseVariants,
   inputNumberControlButtonVariants,
   inputNumberControlColumnVariants,
-  inputNumberControlIconVariants,
   inputNumberRootVariants,
   resolveInputNumberAlign,
 } from './input-number.class.ts'
@@ -1087,11 +1086,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
-          <Icon
-            name={decrementIcon()}
-            slotName="leading"
-            class={inputNumberControlIconVariants({ size: field.size() })}
-          />
+          <Icon name={decrementIcon()} slotName="leading" />
         </button>
       </Show>
 
@@ -1237,20 +1232,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         >
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
-              <Icon
-                name={incrementIcon()}
-                slotName="leading"
-                class={inputNumberControlIconVariants({ size: field.size() })}
-              />
+              <Icon name={incrementIcon()} slotName="leading" />
             </button>
           </Show>
           <Show when={showDecrement()}>
             <button {...resolveControlProps('decrement')}>
-              <Icon
-                name={decrementIcon()}
-                slotName="leading"
-                class={inputNumberControlIconVariants({ size: field.size() })}
-              />
+              <Icon name={decrementIcon()} slotName="leading" />
             </button>
           </Show>
         </div>
@@ -1258,11 +1245,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
       <Show when={!isVertical() && showIncrement()}>
         <button {...resolveControlProps('increment')}>
-          <Icon
-            name={incrementIcon()}
-            slotName="leading"
-            class={inputNumberControlIconVariants({ size: field.size() })}
-          />
+          <Icon name={incrementIcon()} slotName="leading" />
         </button>
       </Show>
     </div>

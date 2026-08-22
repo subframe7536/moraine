@@ -8,7 +8,7 @@ export function Variants() {
   type TextareaVariantName = Exclude<TextareaT.Variant['variant'], undefined>
 
   return (
-    <div class="gap-3 grid lg:grid-cols-4 sm:grid-cols-2">
+    <div class="gap-3 grid w-full lg:grid-cols-4 sm:grid-cols-2">
       <For each={VARIANTS}>
         {(variant) => <Textarea variant={variant} placeholder={`Variant: ${variant}`} rows={2} />}
       </For>

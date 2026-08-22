@@ -1,7 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { IconButtonInner } from '../../elements/icon/icon-button-inner.tsx'
+import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
@@ -11,7 +11,6 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 
-import type { CommandPaletteItemVariantProps } from './command-palette.class.ts'
 import {
   COMMAND_PALETTE_EMPTY_CLASS,
   COMMAND_PALETTE_GROUP_CLASS,
@@ -21,7 +20,7 @@ import {
   COMMAND_PALETTE_LIST_CLASS,
   COMMAND_PALETTE_ROOT_CLASS,
   COMMAND_PALETTE_TRAILING_CLASS,
-  commandPaletteItemVariants,
+  COMMAND_PALETTE_ITEM_CLASS,
 } from './command-palette.class.ts'
 
 export namespace CommandPaletteT {
@@ -79,7 +78,7 @@ export namespace CommandPaletteT {
     empty?: T
   }
 
-  export type Variant = CommandPaletteItemVariantProps
+  export type Variant = {}
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -792,8 +791,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           ...toStyleObject(itemAttributes()?.style),
           ...toStyleObject(virtualProps?.style),
         }}
-        class={commandPaletteItemVariants(
-          { size: merged.size },
+        class={cn(
+          COMMAND_PALETTE_ITEM_CLASS,
           merged.classes?.item,
           itemAttributes()?.class,
           virtualProps?.class,
@@ -852,16 +851,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         style={merged.styles?.inputWrapper}
         class={cn(COMMAND_PALETTE_INPUT_WRAPPER_CLASS, merged.classes?.inputWrapper)}
       >
-        <IconButtonInner
+        <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
-          data-slot="search"
-          tabIndex={-1}
+          slotName="search"
           style={merged.styles?.search}
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
-          disabled={merged.loading || undefined}
           class={cn(
-            'text-muted-foreground opacity-50 shrink-0 size-4 pointer-events-none',
+            'text-muted-foreground opacity-50 shrink-0 size-4 pointer-events-none data-loading:effect-loading',
             merged.classes?.search,
           )}
         />
@@ -903,19 +900,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         />
 
         <Show when={merged.showClose}>
-          <IconButtonInner
-            name={merged.closeIcon}
+          <button
+            type="button"
             data-slot="close"
             style={merged.styles?.close}
             class={cn(
-              'text-muted-foreground outline-none shrink-0 cursor-pointer hover:text-foreground',
+              'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:text-foreground',
               merged.classes?.close,
             )}
             onClick={() => {
               merged.onClose?.()
             }}
             aria-label="Close"
-          />
+          >
+            <Icon name={merged.closeIcon} class="size-4" />
+          </button>
         </Show>
       </div>
 

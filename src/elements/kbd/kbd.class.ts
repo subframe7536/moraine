@@ -3,7 +3,7 @@ import type { VariantProps } from 'cls-variant'
 import { cva } from '../../shared/utils.ts'
 
 export const kbdRootVariants = cva(
-  'leading-none font-medium font-mono rounded-sm inline-flex select-none uppercase items-center justify-center',
+  'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   {
     defaultVariants: {
       size: 'md',
@@ -11,9 +11,9 @@ export const kbdRootVariants = cva(
     },
     variants: {
       size: {
-        sm: 'text-[11px] px-1 h-4.5 min-w-4.5',
-        md: 'text-xs px-1 h-5 min-w-5',
-        lg: 'text-xs px-1 h-5.5 min-w-5.5',
+        sm: 'text-[10px] h-4.5 min-w-4.5',
+        md: 'text-xs h-5 min-w-5',
+        lg: 'text-sm h-5.5 min-w-5.5',
       },
       variant: {
         default: 'text-muted-foreground bg-muted',

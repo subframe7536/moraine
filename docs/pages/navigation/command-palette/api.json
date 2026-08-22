@@ -212,6 +212,12 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
         }
       ]
     },
@@ -219,14 +225,7 @@
       "name": "close",
       "description": "Button that dismisses the command palette.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component is loading."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-label",
@@ -486,11 +485,6 @@
         "type": "boolean | undefined",
         "description": "Whether to show a close button in the header.",
         "defaultValue": "false"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
       },
       {
         "name": "style",

@@ -1211,16 +1211,16 @@ describe('InputNumber', () => {
   })
 
   test.each([
-    ['sm', 'w-7', 'size-4'],
-    ['md', 'w-8', 'size-5'],
-    ['lg', 'w-9', 'size-5'],
-  ] as const)('applies Nuxt UI %s control and icon sizes', (size, buttonSize, iconSize) => {
+    ['sm', 'w-7'],
+    ['md', 'w-8'],
+    ['lg', 'w-9'],
+  ] as const)('applies Nuxt UI %s control sizes with inherited icons', (size, buttonSize) => {
     const screen = render(() => <InputNumber size={size} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const incrementIcon = incrementButton.querySelector('[data-slot="leading"]')
 
     expect(incrementButton.className).toContain(buttonSize)
-    expect(incrementIcon?.className).toContain(iconSize)
+    expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-/)
     expect(incrementIcon?.getAttribute('style')).toBeNull()
   })
 

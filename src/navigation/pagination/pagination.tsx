@@ -9,6 +9,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn } from '../../shared/utils.ts'
 
 import {
+  PAGINATION_CONTROL_LABEL_CLASS,
   PAGINATION_ELLIPSIS_CLASS,
   PAGINATION_ITEM_CLASS,
   PAGINATION_LIST_CLASS,
@@ -380,8 +381,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={merged.controlVariant}
               size={getSize(merged.size, hasPrevText() ? merged.prevText : undefined)}
               aria-label={getPrevLabel()}
-              class={cn(hasPrevText() && PAGINATION_PREV_CLASS, merged.classes?.prev)}
-              classes={{ label: hasPrevText() && 'hidden sm:block' }}
+              class={[hasPrevText() && PAGINATION_PREV_CLASS, merged.classes?.prev]}
+              classes={{ label: hasPrevText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
               leading={hasPrevText() ? merged.prevIcon : undefined}
@@ -449,8 +450,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={merged.controlVariant}
               size={getSize(merged.size, hasNextText() ? merged.nextText : undefined)}
               aria-label={getNextLabel()}
-              class={cn(hasNextText() && PAGINATION_NEXT_CLASS, merged.classes?.next)}
-              classes={{ label: hasNextText() ? 'hidden sm:block' : undefined }}
+              class={[hasNextText() && PAGINATION_NEXT_CLASS, merged.classes?.next]}
+              classes={{ label: hasNextText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
               trailing={hasNextText() ? merged.nextIcon : undefined}
