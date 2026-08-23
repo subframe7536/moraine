@@ -44,7 +44,7 @@ describe('Introduction landing content', () => {
     ).toEqual(['Icon', 'Accordion', 'Avatar'])
     expect(componentSource).toContain('for (const component of apiIndex.components)')
     expect(componentSource).toContain('.filter(([, components]) => components.length > 0)')
-    expect(componentSource).toContain('href={`/${component.key}`}')
+    expect(componentSource).toContain(['href={`/', '$', '{component.key}', '`}'].join(''))
     expect(componentSource).toContain('{component.description}')
     expect(componentSource).toContain('{component.sourcePath}')
   })
