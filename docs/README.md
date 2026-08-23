@@ -36,6 +36,12 @@ The app layout is defined in `docs/routes/_app.tsx`; its route-local implementat
 
 Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed by the sidebar and command palette.
 
+`docs/DESIGN.md` is the visual and interaction contract. Keep it aligned with the shared shell instead
+of introducing page-local visual systems. Route headings, including generated API sections, flow from the
+MDX build into the section-search index, so every search result is a semantic destination with a stable
+route and hash. The sidebar uses the same route metadata and path-derived group ordering as search, which
+keeps its navigation order and search destinations consistent.
+
 Every MDX page owns its navigation and discovery metadata:
 
 ```yaml
@@ -73,6 +79,28 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 - During SSR, example descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the example container and source.
 - Previous/next cards use the flattened sidebar order and continue across group boundaries.
 
+Example controls are deliberately author-selected rather than inferred from every public prop. An example
+module provides the preview and source; its MDX `<Example>` selects a compact Input, Switch, or Select
+control schema when a primitive prop makes the interaction clearer. JSX, callbacks, object values, render
+props, and other complex state stay in dedicated examples. This primitive-only boundary keeps playgrounds
+predictable, while `docs/EXAMPLES.md` records coverage for every component page.
+
+## Shell, Scrolling, And Theme
+
+`docs/routes/_app.tsx` owns route and hash scrolling. The table of contents only observes heading visibility
+and exposes the active section; it never competes to scroll the document. The shared shell provides the
+skip link, navigation, responsive inline/rail table of contents, search, pagination, code-block controls,
+and heading permalinks.
+
+Theme preference is persisted and applied before paint, then reconciled by the theme runtime. Keep this
+pre-paint behavior intact so a saved dark theme does not flash light during navigation or reload.
+
+## Introduction
+
+The landing page derives package and component values from generated data rather than hand-maintained totals.
+Its component directory uses the same route metadata and destinations as the rest of the documentation, so
+new component pages become discoverable without a second directory to maintain.
+
 ## SSG
 
 `docs/vite.config.ts` configures:
@@ -81,6 +109,31 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 - `fileRouter({ pagesDir: 'routes', mdx: createDocsMdxOptions(projectRoot), ssg: { id: 'app' } })`
 
 `bun run docs:build` emits the prerendered site under `docs/dist/client`.
+
+## Verification
+
+Run focused checks while changing the relevant area, then run the complete production gates before release:
+
+```bash
+# Focused checks, selected for the area being changed.
+bun run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
+bun run test sidebar.test.tsx docs-command-palette.test.tsx
+bun run test docs/build/examples/coverage.test.ts docs/build/examples/source.test.ts
+
+# Repository and SSG gates.
+bun run test
+bun run qa
+bun run docs:build
+git diff --check
+
+# Production browser verification after the SSG build.
+bun run docs:preview
+```
+
+Use the preview to verify the route, responsive, keyboard, theme, reduced-motion, example-control, and
+anchor/history matrix documented in `plans/008-docs-production-verification.md`. Check browser console
+errors and uncaught exceptions for every route in that matrix; generated output under `docs/dist` must never
+be edited to make a check pass.
 
 ## LLM-Friendly Documentation
 

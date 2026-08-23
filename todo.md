@@ -42,9 +42,9 @@
 - [x] refactor Modal.Trigger as a polymorphic Button-compatible primitive
 - [x] add Collapsible.Trigger and Collapsible.Content
   - [x] content enter/exit should has opacity transition
-- [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/index.mdx) more useful.
+- [x] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/index.mdx) more useful.
   - [x] follow solid-file-router's default fs router path name resolution
-  - [ ] fix broken auto scroll to anchor
+  - [x] fix broken auto scroll to anchor
 - [ ] production barrel import optimize
 
 # V1
