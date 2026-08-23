@@ -22,6 +22,16 @@ const CONTROLS = [
       { label: 'Secondary', value: 'secondary' },
     ],
   },
+  {
+    kind: 'select',
+    prop: 'size',
+    label: 'Size',
+    defaultValue: 'md',
+    options: [
+      { label: 'Small', value: 'sm' },
+      { label: 'Medium', value: 'md' },
+    ],
+  },
   { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
 ] as const satisfies readonly DocsExampleControl[]
 
@@ -39,6 +49,7 @@ describe('normalizeDocsExampleControls', () => {
       label: 'Save',
       count: 2,
       variant: 'default',
+      size: 'md',
       disabled: false,
     })
   })
@@ -110,6 +121,9 @@ describe('DocsExampleControls', () => {
     const label = screen.getByLabelText('Label') as HTMLInputElement
     const count = screen.getByLabelText('Count') as HTMLInputElement
     const disabled = screen.getByRole('switch', { name: 'Disabled' })
+
+    expect(screen.getByRole('combobox', { name: 'Variant' })).not.toBeNull()
+    expect(screen.getByRole('combobox', { name: 'Size' })).not.toBeNull()
 
     await fireEvent.input(label, { target: { value: 'Publish' } })
     await fireEvent.input(count, { target: { value: '' } })

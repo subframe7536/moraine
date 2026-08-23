@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
-import { Input, Select, Switch, useId } from '../../../../src/index.ts'
+import { FormField, Input, Select, Switch, useId } from '../../../../src/index.ts'
 
 const DOCS_EXAMPLE_CONTROLS_CLASS =
   'flex flex-wrap items-end gap-3 border-b border-border bg-muted/35 px-4 py-3'
@@ -252,13 +252,18 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
 
   function renderSelectControl(control: DocsExampleSelectControl, controlId: string): JSX.Element {
     return (
-      <>
-        <label class={DOCS_EXAMPLE_CONTROL_LABEL_CLASS} for={controlId}>
-          {control.label}
-        </label>
+      <FormField
+        id={controlId}
+        label={control.label}
+        size="sm"
+        classes={{
+          root: 'w-full',
+          label: DOCS_EXAMPLE_CONTROL_LABEL_CLASS,
+          container: 'mt-1.5',
+        }}
+      >
         <Select
           id={controlId}
-          aria-label={control.label}
           options={[...control.options]}
           search={false}
           size="sm"
@@ -269,7 +274,7 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
             }
           }}
         />
-      </>
+      </FormField>
     )
   }
 
