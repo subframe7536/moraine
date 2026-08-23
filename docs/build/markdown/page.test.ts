@@ -1,7 +1,5 @@
 // @vitest-environment node
 
-import path from 'node:path'
-
 import { describe, expect, test } from 'vitest'
 
 import { createDocsMdxOptions } from './page.ts'
@@ -14,16 +12,11 @@ const FRONTMATTER = {
 }
 
 describe('createDocsMdxOptions', () => {
-  test('maps docs pages to short pathless-group route paths', () => {
+  test('uses the default MDX route path resolver', () => {
     const projectRoot = '/tmp/moraine-project'
     const options = createDocsMdxOptions(projectRoot)
 
-    expect(
-      options.transformPath?.('pages/general/button/button.mdx', { path: 'button.tsx' }),
-    ).toEqual({ path: path.join('(general)', 'button.tsx') })
-    expect(options.transformPath?.('pages/introduction.mdx', { path: 'introduction.tsx' })).toEqual(
-      { path: 'index.tsx' },
-    )
+    expect(options.transformPath).toBeUndefined()
   })
 
   test('extends the built-in MDX route with docs metadata and layout content', async () => {
@@ -39,9 +32,9 @@ describe('createDocsMdxOptions', () => {
         data: { __moraineOnThisPageEntries: [{ id: 'button', label: 'Button', level: 1 }] },
       },
       {
-        path: '(general)/button.tsx',
+        path: '(general)/button/index.tsx',
         routeId: '/button',
-        sourcePath: 'pages/general/button/button.mdx',
+        sourcePath: 'pages/(general)/button/index.mdx',
         moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )

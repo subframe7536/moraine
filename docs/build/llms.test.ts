@@ -41,17 +41,17 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, 'Welcome.'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 1, 'Buttons.'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/form/input/input.mdx',
+        'docs/pages/(form)/input/index.mdx',
         pageSource('Input', 1, 'Inputs.'),
       )
 
@@ -94,22 +94,22 @@ describe('llms.txt generation', () => {
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, '<IntroComponents />\n\n<CodeTabs package="moraine" />'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 1, 'Use [`Button`](/general/button).\n\n<Example path="./basic" />'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/basic.tsx',
+        'docs/pages/(general)/button/basic.tsx',
         'export default function Basic() {\n  return <button>Basic</button>\n}\n',
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/api.json',
+        'docs/pages/(general)/button/api.json',
         JSON.stringify({
           component: {
             key: 'button',
@@ -180,7 +180,7 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, '<UnknownComponent />'),
       )
 

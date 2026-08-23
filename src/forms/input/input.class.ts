@@ -22,7 +22,7 @@ export const inputRootVariants = cva(
 )
 
 export const inputInputVariants = cva(
-  'style-placeholder text-foreground outline-none bg-transparent flex-1 h-full min-w-0 disabled:effect-dis',
+  'style-placeholder text-foreground outline-none flex-1 h-full min-w-0 disabled:effect-dis',
   {
     defaultVariants: {
       size: 'md',

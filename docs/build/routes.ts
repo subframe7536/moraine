@@ -23,13 +23,8 @@ export interface DocsRouteEntry {
   routePath: string
 }
 
-const ROOT_ROUTE_KEY = 'introduction'
-
-export function docsRoutePath(page: ReturnType<typeof resolveDocsPageContext>): string {
-  const isRoot = page.pageKey === ROOT_ROUTE_KEY && !page.group
-  return isRoot
-    ? 'index.tsx'
-    : path.join(page.group ? `(${page.group})` : '', `${page.pageKey}.tsx`)
+function docsProviderPath(page: ReturnType<typeof resolveDocsPageContext>): string {
+  return page.relativePath.replace(/\.mdx$/i, '.tsx')
 }
 
 const FRONTMATTER_READ_BYTES = 4096
@@ -95,7 +90,7 @@ export function scanDocsRoutes(projectRoot: string): DocsRouteEntry[] {
       return {
         info,
         sourcePath,
-        routePath: docsRoutePath(page),
+        routePath: docsProviderPath(page),
       }
     })
     .sort(compareRoutes)

@@ -22,7 +22,6 @@ export interface DocsPageEntry {
   path: string
 }
 
-const ROOT_PAGE_KEY = 'introduction'
 const GROUP_ORDER = new Map<string, number>([
   ['', 0],
   ['form', 1],
@@ -59,7 +58,7 @@ export function getDocsPages(): DocsPageEntry[] {
         description: info.description,
         order: info.order,
         tags: info.tags,
-        path: info.key === ROOT_PAGE_KEY ? '/' : path,
+        path,
       }
       if (info.group) {
         page.group = info.group

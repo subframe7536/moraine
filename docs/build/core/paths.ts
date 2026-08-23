@@ -4,6 +4,7 @@ import path from 'node:path'
 import { toPosixPath } from './strings.ts'
 
 export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
+export const ROOT_DOCS_PAGE_KEY = 'introduction'
 
 export interface DocsPageContext {
   absolutePath: string
@@ -18,7 +19,20 @@ export interface DocsPageContext {
 function derivePageKey(relativePath: string): string {
   const fileBaseName = path.basename(relativePath, '.mdx')
   const parentDirectory = path.basename(path.dirname(relativePath))
+  if (fileBaseName === 'index') {
+    return parentDirectory === '.' ? ROOT_DOCS_PAGE_KEY : parentDirectory
+  }
   return parentDirectory === fileBaseName ? parentDirectory : fileBaseName
+}
+
+function deriveGroup(relativePath: string): string | undefined {
+  const firstDirectory = toPosixPath(path.dirname(relativePath)).split('/')[0]
+  if (!firstDirectory || firstDirectory === '.') {
+    return undefined
+  }
+
+  const pathlessGroup = firstDirectory.match(/^\(([^()]+)\)$/)
+  return pathlessGroup?.[1] ?? firstDirectory
 }
 
 export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
@@ -32,15 +46,13 @@ export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
   const docsRoot = path.normalize(normalized.slice(0, markerIndex + '/docs'.length))
   const pagesRoot = path.join(docsRoot, 'pages')
   const relativePath = normalized.slice(markerIndex + marker.length)
-  const group = toPosixPath(path.dirname(relativePath)).split('/')[0]
-
   return {
     absolutePath: path.normalize(absolutePath),
     docsRoot,
     pagesRoot,
     relativePath,
     pageKey: derivePageKey(relativePath),
-    group: group === '.' ? undefined : group,
+    group: deriveGroup(relativePath),
     runtimeImportPath: `./pages/${relativePath}`,
   }
 }

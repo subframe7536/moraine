@@ -9,24 +9,26 @@ The docs app is a Vite + SolidJS application using `solid-file-router` for file-
 - `docs/build/markdown/page.ts` configures the built-in `mdxRouteProvider` with docs metadata, examples, code tabs, and rendered Markdown layout.
 - `solid-file-router` discovers `docs/routes` through its built-in `fsRouteProvider`, discovers `docs/pages/**/*.mdx` through its built-in `mdxRouteProvider`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 
-Generated route types are ignored by git and should not be edited by hand.
+Generated route types are ignored by git and should not be edited by hand. MDX routes use the
+same file-name resolution as the default file router: `index.mdx` removes the final segment and
+directories wrapped in parentheses are pathless groups.
 
 ## Routing
 
 Source content stays colocated:
 
 ```text
-docs/pages/<group>/<page>/<page>.mdx
-docs/pages/<group>/<page>/*.tsx
-docs/pages/<group>/<page>/api.json
+docs/pages/(<group>)/<page>/index.mdx
+docs/pages/(<group>)/<page>/*.tsx
+docs/pages/(<group>)/<page>/api.json
 ```
 
 Generated routes use pathless groups to keep short URLs:
 
 ```text
-docs/pages/general/button/button.mdx -> /button
-docs/pages/form/input/input.mdx -> /input
-docs/pages/introduction.mdx -> /
+docs/pages/(general)/button/index.mdx -> /button
+docs/pages/(form)/input/index.mdx -> /input
+docs/pages/index.mdx -> /
 ```
 
 The app layout is defined in `docs/routes/_app.tsx`; its route-local implementation components live in

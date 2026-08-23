@@ -4,7 +4,7 @@ import type { MdxOptions } from 'solid-file-router/plugin'
 
 import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
 import { resolveDocsPageContext } from '../core/paths.ts'
-import { createDocsRouteInfo, docsRoutePath } from '../routes.ts'
+import { createDocsRouteInfo } from '../routes.ts'
 
 import { createMdxCodeTabsPlugin } from './code-tabs.ts'
 import { createMdxExamplesPlugin } from './examples.ts'
@@ -79,13 +79,6 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       () => createDocsCodePlugin(),
     ],
     hastPlugins: [() => createDocsHastPlugin()],
-    transformPath(sourcePath, defaultEntry) {
-      const page = resolveDocsPageContext(getDocsSourcePath(projectRoot, sourcePath))
-      return {
-        ...defaultEntry,
-        path: docsRoutePath(page),
-      }
-    },
     extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)

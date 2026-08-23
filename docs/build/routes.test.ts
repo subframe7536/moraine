@@ -6,8 +6,8 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import type { DocsPageContext } from './core/paths.ts'
-import { createDocsRouteInfo, docsRoutePath, scanDocsRoutes } from './routes.ts'
+import { resolveDocsPageContext } from './core/paths.ts'
+import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
@@ -41,10 +41,10 @@ describe('docs route metadata', () => {
         'docs/pages/_api-index.json',
         JSON.stringify({ components: [{ key: 'button', name: 'Button' }] }),
       )
-      await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', pageSource('Intro', 10))
+      await writeProjectFile(projectRoot, 'docs/pages/index.mdx', pageSource('Intro', 10))
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 20, 'New'),
       )
 
@@ -52,7 +52,7 @@ describe('docs route metadata', () => {
         { info: { key: 'introduction', title: 'Intro' }, routePath: 'index.tsx' },
         {
           info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
-          routePath: path.join('(general)', 'button.tsx'),
+          routePath: path.join('(general)', 'button', 'index.tsx'),
         },
       ])
     } finally {
@@ -67,12 +67,12 @@ describe('docs route metadata', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 10),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/input/input.mdx',
+        'docs/pages/(general)/input/index.mdx',
         pageSource('Input', 10),
       )
 
@@ -82,7 +82,20 @@ describe('docs route metadata', () => {
     }
   })
 
-  test('builds route metadata and path independently for provider callbacks', () => {
+  test('resolves root index pages and pathless groups like the file router', () => {
+    expect(resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toMatchObject({
+      pageKey: 'introduction',
+      group: undefined,
+      relativePath: 'index.mdx',
+    })
+    expect(resolveDocsPageContext('/tmp/docs/pages/(general)/button/index.mdx')).toMatchObject({
+      pageKey: 'button',
+      group: 'general',
+      relativePath: '(general)/button/index.mdx',
+    })
+  })
+
+  test('builds route metadata independently from provider paths', () => {
     expect(
       createDocsRouteInfo(
         'button',
@@ -104,14 +117,5 @@ describe('docs route metadata', () => {
       group: 'general',
       api: 'button',
     })
-    const page: DocsPageContext = {
-      absolutePath: '/tmp/docs/pages/introduction.mdx',
-      docsRoot: '/tmp/docs',
-      pagesRoot: '/tmp/docs/pages',
-      relativePath: 'introduction.mdx',
-      pageKey: 'introduction',
-      runtimeImportPath: './pages/introduction.mdx',
-    }
-    expect(docsRoutePath(page)).toBe('index.tsx')
   })
 })
