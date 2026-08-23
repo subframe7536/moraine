@@ -20,17 +20,17 @@ when it is known rather than implying support that the source does not demonstra
 Use the semantic variables configured in `docs/unocss.config.ts`; no raw documentation color
 palette is allowed.
 
-| Role | Variables | Use |
-| --- | --- | --- |
-| Background | `--background`, `--foreground` | Page canvas and default readable text. |
-| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground` | Examples, transient surfaces, and grouped content. |
-| Border | `--border`, `--input` | Rules, field boundaries, and quiet structural separation. |
-| Muted text | `--muted-foreground` | Metadata and secondary explanation; never the sole signal for state. |
-| Action | `--primary` / `--primary-foreground`, with `--primary-hover` and `--primary-active` | Primary links, selected navigation, and deliberate calls to action. |
-| Focus | `--ring` with `--background` offset | Keyboard focus treatment through `docs-focus-visible`. |
-| Success | `--primary` / `--primary-foreground` | A confirmed non-destructive completion when no dedicated success token exists. |
-| Warning | `--accent` / `--accent-foreground` | A caution paired with explicit text or an icon; do not imply a dedicated warning palette. |
-| Destructive | `--destructive` / `--destructive-foreground`, with state variants | Failures, destructive actions, and irreversible consequences. |
+| Role           | Variables                                                                           | Use                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Background     | `--background`, `--foreground`                                                      | Page canvas and default readable text.                                                    |
+| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground`              | Examples, transient surfaces, and grouped content.                                        |
+| Border         | `--border`, `--input`                                                               | Rules, field boundaries, and quiet structural separation.                                 |
+| Muted text     | `--muted-foreground`                                                                | Metadata and secondary explanation; never the sole signal for state.                      |
+| Action         | `--primary` / `--primary-foreground`, with `--primary-hover` and `--primary-active` | Primary links, selected navigation, and deliberate calls to action.                       |
+| Focus          | `--ring` with `--background` offset                                                 | Keyboard focus treatment through `docs-focus-visible`.                                    |
+| Success        | `--primary` / `--primary-foreground`                                                | A confirmed non-destructive completion when no dedicated success token exists.            |
+| Warning        | `--accent` / `--accent-foreground`                                                  | A caution paired with explicit text or an icon; do not imply a dedicated warning palette. |
+| Destructive    | `--destructive` / `--destructive-foreground`, with state variants                   | Failures, destructive actions, and irreversible consequences.                             |
 
 ## Typography
 
@@ -48,15 +48,15 @@ titles follow the existing `docs-h2` through `docs-h5` hierarchy; body copy is `
 The docs use the existing 4-point rhythm (`--spacing: 0.25rem`). Prefer spacing values that are
 multiples of four pixels, and use a rule or surface change when sections need stronger separation.
 
-| Token or area | Contract |
-| --- | --- |
-| `docs-shell-header` | 52 px (`h-13`) sticky header height. |
-| `docs-anchor-offset` | 52 px (`scroll-mt-13`) anchor margin below the sticky header. |
-| `docs-content-gutter` | 20 px on narrow screens and 32 px from `sm` upward. |
-| `docs-article-measure` | Maximum article width of 896 px (`max-w-4xl`). |
-| `docs-navigation-width` | Desktop navigation rail width of 256 px (`w-64`). |
-| `docs-toc-width` | Desktop contextual TOC width of 240 px (`w-60`). |
-| TOC sticky boundary | Align below the 52 px header; its scrollable height accounts for the header. |
+| Token or area           | Contract                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `docs-shell-header`     | 52 px (`h-13`) sticky header height.                                         |
+| `docs-anchor-offset`    | 52 px (`scroll-mt-13`) anchor margin below the sticky header.                |
+| `docs-content-gutter`   | 20 px on narrow screens and 32 px from `sm` upward.                          |
+| `docs-article-measure`  | Maximum article width of 896 px (`max-w-4xl`).                               |
+| `docs-navigation-width` | Desktop navigation rail width of 256 px (`w-64`).                            |
+| `docs-toc-width`        | Desktop contextual TOC width of 240 px (`w-60`).                             |
+| TOC sticky boundary     | Align below the 52 px header; its scrollable height accounts for the header. |
 
 At 320, 375, and 414 CSS pixels, content remains in one column with the navigation in its mobile
 sheet and the contextual TOC hidden. At 768 pixels, retain the gutters and avoid overflow before

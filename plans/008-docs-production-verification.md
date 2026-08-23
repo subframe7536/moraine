@@ -124,4 +124,3 @@ Stop and reopen the owning plan if any focused/full test, QA, SSG build, product
 hydration node, console, keyboard, popup, theme, anchor/history, or overflow check fails. Do not mark
 TODOs complete while a gate is failing, and do not broaden fixes into public components or unrelated
 work without maintainer approval.
-

@@ -31,10 +31,27 @@ trigger
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./placements" playground controls={[
-{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-{ kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'text', label: 'Tooltip text', defaultValue: 'Create new document' },
+    {
+      kind: 'select',
+      prop: 'placement',
+      label: 'Placement',
+      defaultValue: 'top',
+      options: [
+        { label: 'Top', value: 'top' },
+        { label: 'Bottom', value: 'bottom' },
+        { label: 'Left', value: 'left' },
+        { label: 'Right', value: 'right' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
+  ]}
+/>
 
 ### Placements
 

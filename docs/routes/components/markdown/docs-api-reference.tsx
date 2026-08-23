@@ -136,51 +136,58 @@ function PropRows(tableProps: {
   class?: string
 }): JSX.Element {
   return (
-    <div class={cn('mb-6 mt-4 b-1 b-border rounded-lg overflow-x-auto', tableProps.class)}>
+    <div
+      class={cn(
+        'mb-6 mt-4 border border-border/60 rounded-xl bg-card/30 overflow-x-auto',
+        tableProps.class,
+      )}
+    >
       <table class="text-sm m-0 w-full border-collapse">
         <thead>
-          <tr class="text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase">
-            <th class={cn('font-medium px-3 py-2', tableProps.nameColumnClass)}>
+          <tr class="text-[0.7rem] text-muted-foreground/80 tracking-wider text-left bg-muted/40 uppercase">
+            <th class={cn('font-semibold px-3.5 py-2.5', tableProps.nameColumnClass)}>
               {tableProps.nameColumn ?? 'Prop'}
             </th>
             <Show when={!tableProps.minimal}>
-              <th class="font-medium px-3 py-2">Type</th>
+              <th class="font-semibold px-3.5 py-2.5">Type</th>
             </Show>
             <Show when={!tableProps.minimal}>
-              <th class="font-medium px-3 py-2">Default</th>
+              <th class="font-semibold px-3.5 py-2.5">Default</th>
             </Show>
-            <th class="font-medium px-3 py-2">Description</th>
+            <th class="font-semibold px-3.5 py-2.5">Description</th>
           </tr>
         </thead>
         <tbody>
           <For each={tableProps.props}>
             {(prop) => (
-              <tr class="b-t b-border hover:bg-muted/50">
-                <td class="text-xs text-primary font-mono px-3 py-2 whitespace-nowrap">
+              <tr class="border-t border-border/40 transition-colors hover:bg-muted/30">
+                <td class="text-xs text-primary font-medium font-mono px-3.5 py-2.5 whitespace-nowrap">
                   {prop.name}
                   {prop.required ? '*' : ''}
                 </td>
                 <Show when={!tableProps.minimal}>
-                  <td class="px-3 py-2">
-                    <code class="text-xs text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
+                  <td class="px-3.5 py-2.5">
+                    <code class="text-xs text-muted-foreground font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
                       {normalizeType(prop.type)}
                     </code>
                   </td>
                 </Show>
                 <Show when={!tableProps.minimal}>
-                  <td class="text-xs text-muted-foreground px-3 py-2">
+                  <td class="text-xs text-muted-foreground px-3.5 py-2.5">
                     <Show
                       when={prop.defaultValue}
-                      fallback={<span class="text-muted-foreground/80">—</span>}
+                      fallback={<span class="text-muted-foreground/60">—</span>}
                     >
-                      <code class="px-1.5 py-0.5 rounded bg-muted">{prop.defaultValue}</code>
+                      <code class="font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
+                        {prop.defaultValue}
+                      </code>
                     </Show>
                   </td>
                 </Show>
-                <td class="text-muted-foreground px-3 py-2">
+                <td class="text-xs text-muted-foreground leading-relaxed px-3.5 py-2.5">
                   <Show
                     when={prop.description}
-                    fallback={<span class="text-muted-foreground/80">—</span>}
+                    fallback={<span class="text-muted-foreground/60">—</span>}
                   >
                     {(description) => (
                       <div
@@ -206,40 +213,40 @@ function AttributeRows(props: {
   props: PropDoc[]
 }): JSX.Element {
   return (
-    <section class="b-1 b-border rounded-lg bg-background overflow-hidden">
-      <div class="px-3 py-2 b-b b-border bg-muted/80 flex gap-3 items-center justify-between">
+    <section class="border border-border/60 rounded-xl bg-card/30 overflow-hidden">
+      <div class="px-3.5 py-2.5 border-b border-border/50 bg-muted/40 flex gap-3 items-center justify-between">
         <div class="flex gap-2 min-w-0 items-center">
           <span
             aria-hidden="true"
-            class={cn('b-1 rounded-full shrink-0 size-1.75', getAttributeGroupTone(props.kind))}
+            class={cn('border rounded-full shrink-0 size-2', getAttributeGroupTone(props.kind))}
           />
-          <h4 class="text-xs text-foreground tracking-wider font-semibold truncate uppercase">
+          <h4 class="text-[0.7rem] text-foreground tracking-wider font-semibold truncate uppercase">
             {props.title}
           </h4>
         </div>
-        <span class="text-[0.68rem] text-muted-foreground font-medium px-1.5 py-0.5 b-1 b-border rounded bg-background shrink-0">
+        <span class="text-[0.68rem] text-muted-foreground font-medium px-1.5 py-0.5 border border-border/50 rounded-md bg-background shrink-0">
           {props.props.length}
         </span>
       </div>
       <div class="overflow-x-auto">
         <table class="text-sm m-0 w-full border-collapse">
           <thead>
-            <tr class="text-[0.68rem] text-muted-foreground tracking-wider text-left uppercase">
-              <th class="font-medium px-3 py-2">{props.nameColumn}</th>
-              <th class="font-medium px-3 py-2">Description</th>
+            <tr class="text-[0.68rem] text-muted-foreground/80 tracking-wider text-left bg-muted/20 uppercase">
+              <th class="font-semibold px-3.5 py-2">{props.nameColumn}</th>
+              <th class="font-semibold px-3.5 py-2">Description</th>
             </tr>
           </thead>
           <tbody>
             <For each={props.props}>
               {(prop) => (
-                <tr class="b-t b-border hover:bg-muted/35">
-                  <td class="text-xs text-primary font-mono px-3 py-2 whitespace-nowrap">
+                <tr class="border-t border-border/40 transition-colors hover:bg-muted/30">
+                  <td class="text-xs text-primary font-medium font-mono px-3.5 py-2 whitespace-nowrap">
                     {prop.name}
                   </td>
-                  <td class="text-muted-foreground px-3 py-2 min-w-72">
+                  <td class="text-xs text-muted-foreground leading-relaxed px-3.5 py-2 min-w-72">
                     <Show
                       when={prop.description}
-                      fallback={<span class="text-muted-foreground/80">—</span>}
+                      fallback={<span class="text-muted-foreground/60">—</span>}
                     >
                       {(description) => (
                         <div
@@ -270,13 +277,13 @@ function SlotReferencePanel(props: { sectionId: string; slot: SlotReferenceDoc }
 
   return (
     <section class="min-w-0">
-      <header class="mb-5 pb-4 b-b b-border/70">
+      <header class="mb-5 pb-4 border-b border-border/60">
         <div class="flex flex-wrap gap-x-2.5 gap-y-1 items-baseline">
-          <span class="text-[0.68rem] text-muted-foreground tracking-wider font-semibold uppercase">
+          <span class="text-[0.68rem] text-muted-foreground/80 tracking-wider font-semibold uppercase">
             Slot
           </span>
-          <code class="text-lg text-foreground leading-none font-mono">{props.slot.name}</code>
-          <span class="text-xs text-muted-foreground font-medium px-1.5 py-0.5 b-1 b-border rounded-md bg-muted/80">
+          <code class="text-base text-foreground font-mono font-semibold">{props.slot.name}</code>
+          <span class="text-xs text-muted-foreground font-medium px-1.5 py-0.5 border border-border/50 rounded-md bg-muted/60">
             {formatAttributeCount(metadataCount())}
           </span>
         </div>
@@ -284,7 +291,7 @@ function SlotReferencePanel(props: { sectionId: string; slot: SlotReferenceDoc }
         <Show when={props.slot.description}>
           {(description) => (
             <div
-              class="text-sm text-muted-foreground leading-6 mt-2.5 max-w-2xl [&_code]:(text-xs text-foreground px-1 py-0.5 rounded bg-muted) [&_a]:text-primary [&_p]:m-0"
+              class="text-sm text-muted-foreground leading-relaxed mt-2.5 max-w-2xl [&_code]:(text-xs text-foreground font-mono px-1 py-0.5 border border-border/40 rounded-md bg-muted/70) [&_a]:text-primary [&_p]:m-0"
               // oxlint-disable-next-line subf/solid-no-innerhtml
               innerHTML={description()}
             />
@@ -295,7 +302,7 @@ function SlotReferencePanel(props: { sectionId: string; slot: SlotReferenceDoc }
       <Show
         when={hasMetadata()}
         fallback={
-          <div class="text-sm text-muted-foreground px-4 py-8 text-center b-1 b-border rounded-lg b-dashed bg-muted/25">
+          <div class="text-sm text-muted-foreground px-4 py-8 text-center border border-border/60 rounded-xl border-dashed bg-muted/15">
             No attribute metadata for this slot.
           </div>
         }

@@ -33,10 +33,20 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./default" playground controls={[
-{ kind: 'switch', prop: 'compact', label: 'Compact', defaultValue: false },
-{ kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Project overview' },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Team Subscription' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Manage billing and team seat limits.',
+    },
+    { kind: 'switch', prop: 'compact', label: 'Compact', defaultValue: false },
+  ]}
+/>
 
 ### Default
 

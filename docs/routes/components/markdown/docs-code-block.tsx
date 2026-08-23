@@ -5,7 +5,8 @@ import { Button, cn } from '../../../../src/index.ts'
 
 const DOCS_CODE_BLOCK_ROOT_CLASS =
   '[&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code_.copy_button]:focus-visible:(outline-none! ring-2! ring-ring! ring-offset-2! ring-offset-background!) [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:-translate-y-1/2!'
-const DOCS_CODE_BLOCK_SOURCE_CLASS = 'group relative my-0 border-t border-border/80 overflow-hidden'
+const DOCS_CODE_BLOCK_SOURCE_CLASS =
+  'group relative my-0 border-t border-border/60 overflow-hidden bg-muted/20'
 const DOCS_CODE_BLOCK_INSTALL_CLASS =
   '[&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.expressive-code_pre]:border-0 [&_.expressive-code_pre]:rounded-none [&_.expressive-code_pre>code]:py-2!'
 const DOCS_CODE_BLOCK_VIEWPORT_CLASS =
@@ -109,12 +110,13 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
           />
 
           <Show when={isExpandable() && !isExpanded()}>
-            <div class="pointer-events-none inset-0 top-2 absolute from-background to-transparent bg-gradient-to-t" />
+            <div class="pointer-events-none inset-0 top-2 absolute from-background/90 to-transparent via-background/40 bg-gradient-to-t" />
             <Button
               variant="outline"
+              size="sm"
               aria-label="Expand code"
               onClick={() => setIsExpanded(true)}
-              class="docs-focus-visible bottom-2 left-1/2 absolute !translate--1/2"
+              class="docs-focus-visible rounded-lg shadow-xs bottom-3 left-1/2 absolute !translate-x--1/2"
             >
               Expand code
             </Button>

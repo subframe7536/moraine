@@ -65,8 +65,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }),
     isRouting,
     committedPath: () => pages.find((page) => page.key === committedPage())?.path ?? '',
-    getScrollRoot: () =>
-      rootElement?.querySelector<HTMLElement>('[data-slot="main"]') ?? undefined,
+    getScrollRoot: () => rootElement?.querySelector<HTMLElement>('[data-slot="main"]') ?? undefined,
   })
 
   const navigateToPage = (key: string) => {
@@ -115,15 +114,15 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <>
             <a
               href="#main-content"
-              class="docs-focus-visible bg-background text-foreground px-4 py-2 rounded-md -translate-x-1/2 -translate-y-full left-1/2 fixed z-toast transition-transform top-2 focus-visible:translate-y-0"
+              class="z-toast text-foreground px-4 py-2 docs-focus-visible rounded-md bg-background transition-transform left-1/2 top-2 fixed -translate-x-1/2 -translate-y-full focus-visible:translate-y-0"
             >
               Skip to main content
             </a>
             <header
               data-scrolled={ctx.scrolled() ? '' : undefined}
               class={cn(
-                'px-4 b-(b transparent) bg-transparent flex h-13 transition-([border-color,box-shadow,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
-                'data-scrolled:(border-border/80 bg-background/90 shadow-xs)',
+                'px-4 border-b border-transparent bg-transparent flex h-13 transition-([border-color,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
+                'data-scrolled:(border-border/60 bg-background/80)',
               )}
             >
               <div class="flex gap-1 min-w-0 items-center">

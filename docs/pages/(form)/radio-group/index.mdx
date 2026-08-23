@@ -34,10 +34,45 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./variants" playground controls={[
-{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-{ kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'card',
+      options: [
+        { label: 'Card', value: 'card' },
+        { label: 'List', value: 'list' },
+        { label: 'Table', value: 'table' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+/>
 
 ### Variants
 

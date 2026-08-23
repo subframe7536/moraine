@@ -33,10 +33,19 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./default" playground controls={[
-{ kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
-{ kind: 'input', prop: 'separator', label: 'Separator', defaultValue: '/' },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'separator',
+      label: 'Separator',
+      defaultValue: 'i-lucide:chevron-right',
+    },
+    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
+  ]}
+/>
 
 ### Default
 

@@ -36,10 +36,25 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./sizes" playground controls={[
-{ kind: 'switch', prop: 'clickable', label: 'Clickable', defaultValue: true },
-{ kind: 'switch', prop: 'linear', label: 'Linear flow', defaultValue: true },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'clickable', label: 'Clickable', defaultValue: true },
+    { kind: 'switch', prop: 'linear', label: 'Linear flow', defaultValue: false },
+  ]}
+/>
 
 ### Sizes
 

@@ -42,16 +42,16 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
   return (
     <nav
       aria-label="On This Page"
-      class="bg-muted/35 border-border/80 my-6 p-4 rounded-lg xl:(docs-toc-width bg-transparent border-0 my-0 p-0 max-h-[calc(100vh-4rem)] self-start top-13 sticky overflow-y-auto col-start-2 row-start-1)"
+      class="my-6 p-4 border border-border/60 rounded-xl bg-muted/40 xl:(my-0 p-0 border-0 bg-transparent col-start-2 row-start-1 docs-toc-width max-h-[calc(100vh-4rem)] self-start top-16 sticky overflow-y-auto)"
     >
-      <p class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
+      <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold uppercase">
         On This Page
       </p>
       <Show
         when={props.entries.length > 0}
         fallback={<p class="text-xs text-muted-foreground mt-3">No sections</p>}
       >
-        <div class="mt-3 flex flex-col gap-1">
+        <div class="mt-2.5 flex flex-col gap-0.5">
           <For each={props.entries}>
             {(entry) => (
               <a
@@ -59,7 +59,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
                 onClick={handleAnchorClick}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="docs-focus-visible text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 data-active:(border-primary/20 bg-accent/35 text-primary) hover:text-foreground"
+                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 docs-focus-visible rounded-md transition-colors data-active:(text-primary font-medium bg-primary/10 dark:bg-primary/15) hover:text-foreground"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

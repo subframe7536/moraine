@@ -33,10 +33,25 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./single-avatar" playground controls={[
-{ kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Ada Lovelace' },
-{ kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'AL' },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
+    { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+/>
 
 ### Single Avatar
 

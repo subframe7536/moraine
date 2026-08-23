@@ -6,16 +6,16 @@ fully, confirm every dependency is DONE, honor its STOP conditions, and update t
 
 ## Execution order and status
 
-| Plan | Title | Priority | Effort | Depends on | Status |
-|---|---|---|---|---|---|
-| 001 | Establish the docs design foundation | P1 | S | — | DONE — verified at `8868370` |
-| 002 | Add semantic navigation and section search | P1 | M | 001 | DONE — remediations verified at `d45db17`, `e46ae58` |
-| 003 | Make route and anchor scrolling deterministic | P1 | M | 002 | DONE — late-layout remediation verified at `9947a28` |
-| 004 | Refactor the shared docs shell and theme | P1 | M | 001, 003 | DONE — remediation verified at `0f06606` |
-| 005 | Add configurable example headers | P1 | M | 001, 004 | DONE — remediation verified at `38ce910` |
-| 006 | Expand common-prop examples across component docs | P1 | L | 005 | DONE — verified at `9e80c68` |
-| 007 | Rebuild the introduction page | P1 | M | 001, 004, 005 | DONE — remediation verified at `c6e7725` |
-| 008 | Verify and close the production docs refactor | P1 | S | 002–007 | DONE — verified at `3d46161` |
+| Plan | Title                                             | Priority | Effort | Depends on    | Status                                               |
+| ---- | ------------------------------------------------- | -------- | ------ | ------------- | ---------------------------------------------------- |
+| 001  | Establish the docs design foundation              | P1       | S      | —             | DONE — verified at `8868370`                         |
+| 002  | Add semantic navigation and section search        | P1       | M      | 001           | DONE — remediations verified at `d45db17`, `e46ae58` |
+| 003  | Make route and anchor scrolling deterministic     | P1       | M      | 002           | DONE — late-layout remediation verified at `9947a28` |
+| 004  | Refactor the shared docs shell and theme          | P1       | M      | 001, 003      | DONE — remediation verified at `0f06606`             |
+| 005  | Add configurable example headers                  | P1       | M      | 001, 004      | DONE — remediation verified at `38ce910`             |
+| 006  | Expand common-prop examples across component docs | P1       | L      | 005           | DONE — verified at `9e80c68`                         |
+| 007  | Rebuild the introduction page                     | P1       | M      | 001, 004, 005 | DONE — remediation verified at `c6e7725`             |
+| 008  | Verify and close the production docs refactor     | P1       | S      | 002–007       | DONE — verified at `3d46161`                         |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line
 rationale — finding fixed independently or approach abandoned)

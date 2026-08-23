@@ -12,12 +12,13 @@ import type { DocsMdxCodeTabItem } from './markdown.tsx'
 import { ToastHosts } from './toast-hosts.tsx'
 
 const DOCS_INSTALL_TABS_ROOT_CLASS =
-  'my-3 gap-0 border border-border rounded-lg bg-card overflow-hidden'
+  'my-3 gap-0 border border-border/60 rounded-xl bg-card/40 overflow-hidden'
 const DOCS_INSTALL_TABS_LIST_CLASS =
-  'p-1.5 w-full justify-start rounded-none border-b border-border bg-muted/60 overflow-x-auto'
-const DOCS_INSTALL_TABS_INDICATOR_CLASS = 'border border-border bg-background shadow-xs'
+  'p-1.5 w-full justify-start rounded-none border-b border-border/60 bg-muted/40 overflow-x-auto'
+const DOCS_INSTALL_TABS_INDICATOR_CLASS =
+  'border border-border/60 bg-background shadow-none rounded-lg'
 const DOCS_INSTALL_TABS_TRIGGER_CLASS =
-  'text-sm px-2.5 py-1 flex-none z-base rounded-md text-muted-foreground data-selected:text-foreground hover:not-disabled:text-foreground active:not-disabled:scale-[0.97] transition-[color,transform] duration-150'
+  'text-xs px-3 py-1 flex-none z-base rounded-lg text-muted-foreground data-selected:text-foreground data-selected:font-medium hover:not-disabled:text-foreground active:not-disabled:scale-[0.98] transition-[color,transform] duration-150'
 const DOCS_INSTALL_TABS_CONTENT_CLASS = 'p-0'
 
 interface MdxProps {

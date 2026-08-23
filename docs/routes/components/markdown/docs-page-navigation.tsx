@@ -45,7 +45,7 @@ function DocsPageNavigationCard(props: {
           'text-muted-foreground shrink-0 size-4 transition-transform duration-180 ease-out group-hover:translate-x-0.5',
       }}
       class={cn(
-        'docs-focus-visible group px-4 py-3.5 rounded-lg bg-background gap-3 h-auto min-h-20 w-full transition-([background-color,border-color,transform] duration-180 ease-out) hover:(border-primary/40 bg-accent/35) active:translate-y-px motion-reduce:transition-none',
+        'group px-4 py-3.5 docs-focus-visible rounded-lg bg-background gap-3 h-auto min-h-20 w-full transition-([background-color,border-color,transform] duration-180 ease-out) hover:(border-primary/40 bg-accent/35) active:translate-y-px motion-reduce:transition-none',
         isNext() ? 'justify-end' : 'justify-start',
         props.class,
       )}

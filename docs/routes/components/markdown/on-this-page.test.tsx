@@ -52,7 +52,9 @@ describe('OnThisPage', () => {
       </MemoryRouter>
     ))
 
-    expect(screen.getByRole('link', { name: 'Usage' }).getAttribute('aria-current')).toBe('location')
+    expect(screen.getByRole('link', { name: 'Usage' }).getAttribute('aria-current')).toBe(
+      'location',
+    )
     expect(scrollIntoView).not.toHaveBeenCalled()
   })
 })

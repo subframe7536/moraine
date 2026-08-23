@@ -42,10 +42,30 @@ export default function App() {
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./playground" playground controls={[
-{ kind: 'input', prop: 'message', label: 'Message', defaultValue: 'Changes saved' },
-{ kind: 'select', prop: 'tone', label: 'Tone', defaultValue: 'success', options: [{ label: 'Success', value: 'success' }, { label: 'Warning', value: 'warning' }, { label: 'Error', value: 'error' }] },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'message',
+      label: 'Message',
+      defaultValue: 'Changes saved successfully',
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'success',
+      options: [
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+        { label: 'Error', value: 'error' },
+        { label: 'Info', value: 'info' },
+      ],
+    },
+  ]}
+/>
 
 ### Basic Toasts
 

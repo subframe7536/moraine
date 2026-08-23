@@ -9,8 +9,10 @@ export function NoOverlay() {
       <Modal.Content
         ariaLabel="Modal without a backdrop"
         contentRender={(context) => (
-          <div class="grid gap-4 p-4">
-            <p class="text-sm text-foreground">Set overlay to false when the host surface provides context.</p>
+          <div class="p-4 gap-4 grid">
+            <p class="text-sm text-foreground">
+              Set overlay to false when the host surface provides context.
+            </p>
             <Button class="justify-self-end" onClick={context.close}>
               Close
             </Button>

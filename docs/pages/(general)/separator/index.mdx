@@ -27,10 +27,34 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./sizes" playground controls={[
-{ kind: 'switch', prop: 'decorative', label: 'Decorative', defaultValue: true },
-{ kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'horizontal', options: [{ label: 'Horizontal', value: 'horizontal' }, { label: 'Vertical', value: 'vertical' }] },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'sm',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'type',
+      label: 'Border Style',
+      defaultValue: 'solid',
+      options: [
+        { label: 'Solid', value: 'solid' },
+        { label: 'Dashed', value: 'dashed' },
+        { label: 'Dotted', value: 'dotted' },
+      ],
+    },
+  ]}
+/>
 
 ### Sizes
 

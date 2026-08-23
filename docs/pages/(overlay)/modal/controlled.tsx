@@ -14,8 +14,10 @@ export function Controlled() {
           overlay
           ariaLabel="Controlled modal"
           contentRender={(context) => (
-            <div class="grid gap-4 p-4">
-              <p class="text-sm text-foreground">The parent owns the open state through onOpenChange.</p>
+            <div class="p-4 gap-4 grid">
+              <p class="text-sm text-foreground">
+                The parent owns the open state through onOpenChange.
+              </p>
               <Button class="justify-self-end" onClick={context.close}>
                 Close
               </Button>

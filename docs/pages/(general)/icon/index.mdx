@@ -23,10 +23,14 @@ Icon element with no slot.
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./icon-sizes" playground controls={[
-{ kind: 'input', prop: 'size', label: 'Size', defaultValue: 20, inputType: 'number' },
-{ kind: 'input', prop: 'name', label: 'Icon', defaultValue: 'i-lucide-star' },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
+    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide:sparkles' },
+  ]}
+/>
 
 ### Icon Sizes
 

@@ -31,10 +31,35 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./controlled-single" playground controls={[
-{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-{ kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Bold', value: 'bold' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+  ]}
+/>
 
 ### Controlled Single
 

@@ -140,95 +140,99 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
   ])
 
   return (
-    <article class="docs-content-gutter text-foreground min-h-screen w-full">
+    <article class="text-foreground docs-content-gutter min-h-screen w-full">
       <div class="mx-auto max-w-7xl">
-        <header class="docs-article-measure text-foreground mt-3">
-            <div class="flex flex-wrap gap-2 items-center">
-              <Show when={category()}>
-                {(nextCategory) => (
-                  <span class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
-                    {nextCategory()}
-                  </span>
-                )}
-              </Show>
-              <Show when={componentKey()}>
-                {(nextComponentKey) => (
-                  <span class="text-xs text-muted-foreground font-mono">{nextComponentKey()}</span>
-                )}
-              </Show>
-            </div>
+        <header class="text-foreground mt-3 docs-article-measure">
+          <div class="flex flex-wrap gap-2 items-center">
+            <Show when={category()}>
+              {(nextCategory) => (
+                <span class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
+                  {nextCategory()}
+                </span>
+              )}
+            </Show>
+            <Show when={componentKey()}>
+              {(nextComponentKey) => (
+                <span class="text-xs text-muted-foreground font-mono">{nextComponentKey()}</span>
+              )}
+            </Show>
+          </div>
 
-            <h1 class="text-2xl font-bold mt-3 sm:text-3xl">{input.frontmatter.title}</h1>
+          <h1 class="text-2xl font-bold mt-3 sm:text-3xl">{input.frontmatter.title}</h1>
 
-            <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
-              {input.frontmatter.description}
-            </p>
+          <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
+            {input.frontmatter.description}
+          </p>
 
-            <div class="text-xs mt-4 flex flex-wrap gap-2 items-center">
-              <Show when={input.pageKey !== 'introduction' && input.markdownSource}>
+          <div class="text-xs mt-4 flex flex-wrap gap-2 items-center">
+            <Show when={input.pageKey !== 'introduction' && input.markdownSource}>
+              <Button
+                as="a"
+                href={`/${input.pageKey}.md`}
+                aria-label="View markdown source"
+                rel="alternate external"
+                type="text/markdown"
+                variant="ghost"
+                size="sm"
+                leading="i-lucide:file-text"
+                class="docs-focus-visible docs-compact-control"
+              >
+                View as Markdown
+              </Button>
+              <Button
+                aria-label="Copy markdown source"
+                variant="ghost"
+                size="sm"
+                leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
+                disabled={!input.markdownSource}
+                onClick={copyMarkdownSource}
+                class="docs-focus-visible docs-compact-control"
+              >
+                {copyState() === 'copied'
+                  ? 'Copied Markdown'
+                  : copyState() === 'failed'
+                    ? 'Copy Failed'
+                    : 'Copy as Markdown'}
+              </Button>
+            </Show>
+            <Show when={githubSourceHref()}>
+              {(href) => (
                 <Button
                   as="a"
-                  href={`/${input.pageKey}.md`}
-                  aria-label="View markdown source"
-                  rel="alternate external"
-                  type="text/markdown"
-                  variant="outline"
-                  leading="i-lucide:file-text"
-                  class="docs-compact-control docs-focus-visible"
+                  href={href()}
+                  target="_blank"
+                  rel="noreferrer"
+                  variant="ghost"
+                  size="sm"
+                  leading="i-lucide:github"
+                  class="docs-focus-visible docs-compact-control"
                 >
-                  View as Markdown
+                  Source Code
                 </Button>
-                <Button
-                  aria-label="Copy markdown source"
-                  variant="outline"
-                  leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
-                  disabled={!input.markdownSource}
-                  onClick={copyMarkdownSource}
-                  class="docs-compact-control docs-focus-visible"
-                >
-                  {copyState() === 'copied'
-                    ? 'Copied Markdown'
-                    : copyState() === 'failed'
-                      ? 'Copy Failed'
-                      : 'Copy as Markdown'}
-                </Button>
-              </Show>
-              <Show when={githubSourceHref()}>
-                {(href) => (
-                  <Button
-                    as="a"
-                    href={href()}
-                    target="_blank"
-                    rel="noreferrer"
-                    variant="outline"
-                    leading="i-lucide:github"
-                    class="docs-compact-control docs-focus-visible"
-                  >
-                    Source Code
-                  </Button>
-                )}
-              </Show>
+              )}
+            </Show>
 
-              <Show when={input.frontmatter.upstreamHref}>
-                {(href) => (
-                  <Button
-                    as="a"
-                    href={href()}
-                    target="_blank"
-                    rel="noreferrer"
-                    variant="outline"
-                    leading="icon-external"
-                    class="docs-compact-control docs-focus-visible"
-                  >
-                    Upstream
-                  </Button>
-                )}
-              </Show>
-            </div>
+            <Show when={input.frontmatter.upstreamHref}>
+              {(href) => (
+                <Button
+                  as="a"
+                  href={href()}
+                  target="_blank"
+                  rel="noreferrer"
+                  variant="ghost"
+                  size="sm"
+                  leading="icon-external"
+                  class="docs-focus-visible docs-compact-control"
+                >
+                  Upstream
+                </Button>
+              )}
+            </Show>
+          </div>
         </header>
         <div class="gap-8 grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start">
           <OnThisPage entries={onThisPageEntries()} />
-          <div class="docs-article-measure docs-content-enter mb-24 min-w-0 w-full xl:col-start-1 xl:row-start-1">
+          <div class="mb-24 docs-article-measure min-w-0 w-full docs-content-enter xl:col-start-1 xl:row-start-1">
             {input.children}
             <DocsApiReference apiDoc={input.apiDoc} />
             <DocsPageNavigation currentPageKey={input.pageKey} />

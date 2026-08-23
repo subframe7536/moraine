@@ -131,4 +131,3 @@ Expected: every contract area is present, typecheck exits 0, and diff check prin
 Stop and report if the required design contract needs a new package, a second runtime token system,
 or changes to public library components. Stop if project sources force an unsupported lifecycle,
 browser, performance, or accessibility claim.
-

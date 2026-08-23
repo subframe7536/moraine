@@ -2,11 +2,10 @@ import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
-import { FormField, Input, Select, Switch, useId } from '../../../../src/index.ts'
+import { Button, FormField, Input, Select, Switch, useId } from '../../../../src/index.ts'
 
 const DOCS_EXAMPLE_CONTROLS_CLASS =
-  'flex flex-wrap items-end gap-3 border-b border-border bg-muted/35 px-4 py-3'
-const DOCS_EXAMPLE_CONTROL_CLASS = 'flex min-w-32 flex-1 basis-36 flex-col gap-1.5'
+  'w-full md:w-64 lg:w-72 border-t md:border-t-0 md:border-l border-border/60 bg-muted/20 p-4 flex flex-col gap-3.5 shrink-0'
 const DOCS_EXAMPLE_CONTROL_LABEL_CLASS = 'text-xs text-muted-foreground font-medium'
 
 export type DocsExampleControlValue = string | number | boolean
@@ -231,10 +230,16 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
 
   function renderInputControl(control: DocsExampleInputControl, controlId: string): JSX.Element {
     return (
-      <>
-        <label class={DOCS_EXAMPLE_CONTROL_LABEL_CLASS} for={controlId}>
-          {control.label}
-        </label>
+      <FormField
+        id={controlId}
+        label={control.label}
+        size="sm"
+        classes={{
+          root: 'w-full',
+          label: DOCS_EXAMPLE_CONTROL_LABEL_CLASS,
+          container: 'mt-1',
+        }}
+      >
         <Input
           id={controlId}
           size="sm"
@@ -246,7 +251,7 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
           }
           onValueChange={(value) => updateInput(control, String(value))}
         />
-      </>
+      </FormField>
     )
   }
 
@@ -259,7 +264,7 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
         classes={{
           root: 'w-full',
           label: DOCS_EXAMPLE_CONTROL_LABEL_CLASS,
-          container: 'mt-1.5',
+          container: 'mt-1',
         }}
       >
         <Select
@@ -287,18 +292,31 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
     event.currentTarget.querySelector<HTMLButtonElement>('[role="switch"]')?.click()
   }
 
+  function renderSwitchControl(control: DocsExampleSwitchControl, controlId: string): JSX.Element {
+    return (
+      <div class="py-0.5 flex items-center justify-between">
+        <label
+          class="text-xs text-muted-foreground font-medium cursor-pointer select-none"
+          for={controlId}
+        >
+          {control.label}
+        </label>
+        <div onKeyDown={onSwitchKeyDown}>
+          <Switch
+            id={controlId}
+            trackProps={{ 'aria-label': control.label }}
+            size="sm"
+            checked={Boolean(props.values[control.prop])}
+            onChange={(value) => props.onChange(control.prop, value)}
+          />
+        </div>
+      </div>
+    )
+  }
+
   function renderControl(control: DocsExampleControl, controlId: string): JSX.Element {
     if (control.kind === 'switch') {
-      return (
-        <Switch
-          id={controlId}
-          size="sm"
-          checked={Boolean(props.values[control.prop])}
-          label={control.label}
-          onKeyDown={onSwitchKeyDown}
-          onChange={(value) => props.onChange(control.prop, value)}
-        />
-      )
+      return renderSwitchControl(control, controlId)
     }
 
     if (control.kind === 'input') {
@@ -310,22 +328,30 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
 
   return (
     <div class={DOCS_EXAMPLE_CONTROLS_CLASS} role="group" aria-label="Example controls">
-      <For each={props.controls}>
-        {(control, index) => {
-          const controlId = getControlId(index())
+      <div class="h-8 shrink-0 pb-2 border-b border-border/50 flex items-center justify-between">
+        <span class="text-xs text-foreground/90 tracking-tight font-semibold">Props</span>
+        <Show when={hasChanges()}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            leading="i-lucide:rotate-ccw"
+            class="text-[0.7rem] text-muted-foreground px-1.5 h-6 hover:text-foreground"
+            onClick={props.onReset}
+          >
+            Reset
+          </Button>
+        </Show>
+      </div>
+      <div class="flex flex-col gap-3">
+        <For each={props.controls}>
+          {(control, index) => {
+            const controlId = getControlId(index())
 
-          return <div class={DOCS_EXAMPLE_CONTROL_CLASS}>{renderControl(control, controlId)}</div>
-        }}
-      </For>
-      <Show when={hasChanges()}>
-        <button
-          type="button"
-          class="h-8 text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
-          onClick={props.onReset}
-        >
-          Reset
-        </button>
-      </Show>
+            return renderControl(control, controlId)
+          }}
+        </For>
+      </div>
     </div>
   )
 }

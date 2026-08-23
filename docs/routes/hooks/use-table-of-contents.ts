@@ -91,7 +91,7 @@ export function useTableOfContents(
     activeIds,
     primaryActiveId: () => {
       const hash = decodeHashAnchor(getHash() || initialHash())
-      return entryIds().has(hash) ? hash : activeIds()[0] ?? ''
+      return entryIds().has(hash) ? hash : (activeIds()[0] ?? '')
     },
   }
 }

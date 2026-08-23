@@ -33,10 +33,33 @@ root
 
 Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
 
-<Example path="./basic" playground controls={[
-{ kind: 'switch', prop: 'isMobile', label: 'Mobile layout', defaultValue: false },
-{ kind: 'input', prop: 'scrollThreshold', label: 'Scroll threshold', defaultValue: 0, inputType: 'number' },
-]}/>
+<Example
+  path="./playground"
+  playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Floating', value: 'floating' },
+        { label: 'Inset', value: 'inset' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'side',
+      label: 'Side',
+      defaultValue: 'left',
+      options: [
+        { label: 'Left', value: 'left' },
+        { label: 'Right', value: 'right' },
+      ],
+    },
+  ]}
+/>
 
 ### Basic
 
