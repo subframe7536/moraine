@@ -5,6 +5,13 @@ import { afterAll, afterEach, beforeEach, describe, expect, test, vi } from 'vit
 
 import { DocsCommandPalette, buildDocsCommandItems } from './docs-command-palette.tsx'
 
+const { routerNavigate } = vi.hoisted(() => ({ routerNavigate: vi.fn() }))
+
+vi.mock('@solidjs/router', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@solidjs/router')>()),
+  useNavigate: () => routerNavigate,
+}))
+
 const pages = [
   {
     key: 'button',
@@ -61,6 +68,7 @@ describe('buildDocsCommandItems', () => {
 
 describe('DocsCommandPalette', () => {
   beforeEach(() => {
+    routerNavigate.mockClear()
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
   })
 
@@ -99,7 +107,8 @@ describe('DocsCommandPalette', () => {
     expect(untrack(open)).toBe(true)
   })
 
-  test('renders the generated Props section as a Button: Props destination', () => {
+  test('navigates an ordinary generated Props link without router hash scrolling', () => {
+    const navigate = vi.fn()
     const [open, setOpen] = createSignal(true)
 
     render(() => (
@@ -107,12 +116,7 @@ describe('DocsCommandPalette', () => {
         <Route
           path="/*"
           component={() => (
-            <DocsCommandPalette
-              pages={pages}
-              onNavigate={() => undefined}
-              open={open}
-              setOpen={setOpen}
-            />
+            <DocsCommandPalette pages={pages} onNavigate={navigate} open={open} setOpen={setOpen} />
           )}
         />
       </MemoryRouter>
@@ -120,9 +124,13 @@ describe('DocsCommandPalette', () => {
 
     const props = screen.getByRole('link', { name: 'Button: Props' })
     expect(props.getAttribute('href')).toBe('/button#api-props')
+
+    fireEvent.click(props)
+    expect(navigate).toHaveBeenCalledWith('/button#api-props')
+    expect(routerNavigate).toHaveBeenCalledWith('/button#api-props', { scroll: false })
   })
 
-  test('navigates the highlighted section when activated with Enter', () => {
+  test('navigates the highlighted section with Enter without router hash scrolling', () => {
     const navigate = vi.fn()
     const [open, setOpen] = createSignal(true)
 
@@ -138,10 +146,11 @@ describe('DocsCommandPalette', () => {
     ))
 
     const input = screen.getByRole('combobox')
-    fireEvent.input(input, { target: { value: 'usage' } })
+    fireEvent.input(input, { target: { value: 'props' } })
     fireEvent.keyDown(input, { key: 'Enter' })
 
-    expect(navigate).toHaveBeenCalledWith('/button#usage')
+    expect(navigate).toHaveBeenCalledWith('/button#api-props')
+    expect(routerNavigate).toHaveBeenCalledWith('/button#api-props', { scroll: false })
     expect(untrack(open)).toBe(false)
   })
 

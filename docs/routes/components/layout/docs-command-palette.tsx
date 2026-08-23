@@ -135,7 +135,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
   const navigate = useNavigate()
 
   const onSelect = (item: DocsCommandItem) => {
-    navigate(item.href)
+    navigate(item.href, { scroll: false })
     props.onNavigate(item.href)
   }
 
@@ -189,7 +189,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
             createDocsCommandItem(
               context,
               (href) => {
-                navigate(href)
+                navigate(href, { scroll: false })
                 props.onNavigate(href)
               },
               onClose,
