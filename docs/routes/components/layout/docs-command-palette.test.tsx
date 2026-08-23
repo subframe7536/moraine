@@ -16,6 +16,7 @@ const pages = [
     sections: [
       { id: 'usage', label: 'Usage', level: 2 },
       { id: 'usage-1', label: 'Usage', level: 2 },
+      { id: 'api-props', label: 'Props', level: 2 },
     ],
   },
 ]
@@ -34,6 +35,7 @@ describe('buildDocsCommandItems', () => {
         items: [
           expect.objectContaining({ value: '/button#usage', label: 'Usage' }),
           expect.objectContaining({ value: '/button#usage-1', label: 'Usage' }),
+          expect.objectContaining({ value: '/button#api-props', label: 'Props' }),
         ],
       },
     ])
@@ -95,6 +97,29 @@ describe('DocsCommandPalette', () => {
     fireEvent.click(usage as HTMLAnchorElement, { ctrlKey: true })
     expect(navigate).not.toHaveBeenCalled()
     expect(untrack(open)).toBe(true)
+  })
+
+  test('renders the generated Props section as a Button: Props destination', () => {
+    const [open, setOpen] = createSignal(true)
+
+    render(() => (
+      <MemoryRouter>
+        <Route
+          path="/*"
+          component={() => (
+            <DocsCommandPalette
+              pages={pages}
+              onNavigate={() => undefined}
+              open={open}
+              setOpen={setOpen}
+            />
+          )}
+        />
+      </MemoryRouter>
+    ))
+
+    const props = screen.getByRole('link', { name: 'Button: Props' })
+    expect(props.getAttribute('href')).toBe('/button#api-props')
   })
 
   test('navigates the highlighted section when activated with Enter', () => {

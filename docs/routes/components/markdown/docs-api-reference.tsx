@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Badge, Select, Tabs, cn } from '../../../../src/index.ts'
 import { createMediaQuery } from '../../../../src/shared/use-media-query.ts'
+import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections.ts'
 import type { ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types.ts'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
@@ -124,18 +125,7 @@ export function createDocsApiReferenceModel(
 }
 
 export function getDocsApiReferenceTocEntries(apiDoc: ComponentDoc | undefined) {
-  const sections = createDocsApiReferenceModel(apiDoc).sections
-  if (sections.length === 0) {
-    return []
-  }
-  return [
-    { id: 'api-reference', label: 'API Reference', level: 1 },
-    ...sections.map((section) => ({
-      id: section.id,
-      label: section.heading,
-      level: 2,
-    })),
-  ]
+  return getApiReferenceTocEntries(apiDoc)
 }
 
 function PropRows(tableProps: {

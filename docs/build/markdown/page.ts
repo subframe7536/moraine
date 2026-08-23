@@ -3,6 +3,7 @@ import path from 'node:path'
 import type { MdxOptions } from 'solid-file-router/plugin'
 
 import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
+import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
 import { resolveDocsPageContext } from '../core/paths.ts'
 import { createDocsRouteInfo } from '../routes.ts'
 
@@ -87,14 +88,11 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
-      const info = createDocsRouteInfo(
-        page.pageKey,
-        page.group,
-        frontmatter,
-        componentKeys,
-        onThisPageEntries,
-      )
       const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
+      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys, [
+        ...onThisPageEntries,
+        ...getApiReferenceTocEntries(apiDoc),
+      ])
       const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
 
       return {
