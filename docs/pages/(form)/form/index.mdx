@@ -40,6 +40,15 @@ methods directly from `@formisch/solid` and use the same store.
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./workspace-provisioning" playground controls={[
+{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+{ kind: 'switch', prop: 'required', label: 'Required', defaultValue: false },
+]}/>
+
 ### Workspace Provisioning
 
 Create a new workspace with owner identity, default role, and rollout target.

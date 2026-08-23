@@ -18,6 +18,15 @@ import { useListVirtualizer } from 'moraine/utils'
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./basic" playground controls={[
+{ kind: 'input', prop: 'label', label: 'List label', defaultValue: 'Recent projects' },
+{ kind: 'switch', prop: 'virtualized', label: 'Virtualized', defaultValue: false },
+]}/>
+
 ### Object List
 
 Render arbitrary objects with a semantic `ul` root, `role="list"`, and `data-slot="root"` by default. Use `as` and native root attributes when another element or role is required; explicit attributes override the defaults.

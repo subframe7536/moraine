@@ -23,6 +23,15 @@ root
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./sizes" playground controls={[
+{ kind: 'switch', prop: 'decorative', label: 'Decorative', defaultValue: true },
+{ kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'horizontal', options: [{ label: 'Horizontal', value: 'horizontal' }, { label: 'Vertical', value: 'vertical' }] },
+]}/>
+
 ### Sizes
 
 Border thickness variants.

@@ -32,6 +32,16 @@ trigger
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./playground" playground controls={[
+{ kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Delete project' },
+{ kind: 'switch', prop: 'fullscreen', label: 'Fullscreen', defaultValue: false },
+{ kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+]}/>
+
 ### Default Shell
 
 Header, description, actions, body, and footer slots.

@@ -29,6 +29,15 @@ root
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./basic" playground controls={[
+{ kind: 'switch', prop: 'isMobile', label: 'Mobile layout', defaultValue: false },
+{ kind: 'input', prop: 'scrollThreshold', label: 'Scroll threshold', defaultValue: 0, inputType: 'number' },
+]}/>
+
 ### Basic
 
 Desktop fixed layout with a simple header/body/main composition. Use `--sidebar-width` to control sidebar width

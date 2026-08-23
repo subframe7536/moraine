@@ -43,6 +43,16 @@ content (portal)
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./playground" playground controls={[
+{ kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select a fruit' },
+{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+{ kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
+]}/>
+
 ### Single Select
 
 Basic single selection with controlled value and an optional clear action.

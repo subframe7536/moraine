@@ -38,6 +38,37 @@ Modal
 
 Provide `ariaLabel`, `ariaLabelledBy`, or another accessible naming strategy for every modal.
 
-## Example
+## Examples
+
+### Playground
+
+Use primitive controls for the accessible name, backdrop, and dismissal behavior; use the following
+examples for state ownership and composition.
+
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'ariaLabel', label: 'Accessible name', defaultValue: 'Project details' },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+  ]}
+/>
+
+### Basic Composition
+
+Compose a custom modal surface with the default uncontrolled state.
 
 <Example path="./basic" />
+
+### Controlled State
+
+Own the open state when another part of the interface must coordinate the modal.
+
+<Example path="./controlled" />
+
+### Without Backdrop
+
+Omit the optional backdrop when the surrounding surface already provides context.
+
+<Example path="./no-overlay" />

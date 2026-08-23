@@ -38,6 +38,15 @@ export default function App() {
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./playground" playground controls={[
+{ kind: 'input', prop: 'message', label: 'Message', defaultValue: 'Changes saved' },
+{ kind: 'select', prop: 'tone', label: 'Tone', defaultValue: 'success', options: [{ label: 'Success', value: 'success' }, { label: 'Warning', value: 'warning' }, { label: 'Error', value: 'error' }] },
+]}/>
+
 ### Basic Toasts
 
 Send status toasts to the global toaster instance, including loading to success update.
@@ -49,3 +58,9 @@ Send status toasts to the global toaster instance, including loading to success 
 Use toast.promise for async lifecycle and route toasts by toasterId.
 
 <Example path="./promise-scoped-instances" />
+
+### Duration and Dismissal
+
+Control how long an individual toast stays visible, or dismiss the current notifications together.
+
+<Example path="./duration" />

@@ -27,6 +27,15 @@ root
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./controlled-single" playground controls={[
+{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+{ kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+]}/>
+
 ### Controlled Single
 
 Input phase updates with onValueChange and commit phase updates with `onChange`.

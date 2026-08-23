@@ -30,6 +30,15 @@ root
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./variants" playground controls={[
+{ kind: 'input', prop: 'itemsPerPage', label: 'Items per page', defaultValue: 10, inputType: 'number' },
+{ kind: 'switch', prop: 'showControls', label: 'Show controls', defaultValue: true },
+]}/>
+
 ### Variants
 
 Render controls as links and override variant pairing when needed.

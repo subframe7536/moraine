@@ -40,6 +40,15 @@ root
 
 ## Examples
 
+### Playground
+
+Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
+
+<Example path="./basic" playground controls={[
+{ kind: 'switch', prop: 'separator', label: 'Separators', defaultValue: false },
+{ kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'horizontal', options: [{ label: 'Horizontal', value: 'horizontal' }, { label: 'Vertical', value: 'vertical' }] },
+]}/>
+
 ### Basic
 
 <Example path="./basic" />
