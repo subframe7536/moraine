@@ -2,6 +2,9 @@ import { createEffect, onCleanup } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 export const DOCS_SCROLL_TARGET_RETRY_FRAMES = 8
+export const DOCS_SCROLL_TARGET_POSITION_RETRY_ATTEMPTS = 5
+export const DOCS_SCROLL_TARGET_POSITION_RETRY_DELAY = 200
+export const DOCS_STICKY_HEADER_OFFSET = 52
 
 export interface DocsScrollLocation {
   pathname: string
@@ -63,16 +66,42 @@ export function useDocsScroll(options: UseDocsScrollOptions) {
     }
 
     lastHandledPath = location.pathname
-    let frame = 0
+    let frame: number | undefined
+    let retryTimeout: number | undefined
     let attempts = 0
+    let positionAttempts = 0
+
+    const scrollToTarget = (target: HTMLElement) => {
+      target.scrollIntoView({
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    }
+
+    const schedulePositionReconciliation = () => {
+      frame = requestAnimationFrame(() => {
+        frame = undefined
+        const target = document.getElementById(anchor)
+        if (target && target.getBoundingClientRect().top < DOCS_STICKY_HEADER_OFFSET) {
+          scrollToTarget(target)
+        }
+
+        positionAttempts += 1
+        if (positionAttempts < DOCS_SCROLL_TARGET_POSITION_RETRY_ATTEMPTS) {
+          retryTimeout = window.setTimeout(() => {
+            retryTimeout = undefined
+            schedulePositionReconciliation()
+          }, DOCS_SCROLL_TARGET_POSITION_RETRY_DELAY)
+        }
+      })
+    }
 
     const scrollToAnchor = () => {
+      frame = undefined
       const target = document.getElementById(anchor)
       if (target) {
-        target.scrollIntoView({
-          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-          block: 'start',
-        })
+        scrollToTarget(target)
+        schedulePositionReconciliation()
         return
       }
 
@@ -84,8 +113,11 @@ export function useDocsScroll(options: UseDocsScrollOptions) {
 
     frame = requestAnimationFrame(scrollToAnchor)
     onCleanup(() => {
-      if (frame) {
+      if (frame !== undefined) {
         cancelAnimationFrame(frame)
+      }
+      if (retryTimeout !== undefined) {
+        window.clearTimeout(retryTimeout)
       }
     })
   })

@@ -2,7 +2,13 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { DOCS_SCROLL_TARGET_RETRY_FRAMES, useDocsScroll } from './use-docs-scroll.ts'
+import {
+  DOCS_SCROLL_TARGET_POSITION_RETRY_ATTEMPTS,
+  DOCS_SCROLL_TARGET_POSITION_RETRY_DELAY,
+  DOCS_SCROLL_TARGET_RETRY_FRAMES,
+  DOCS_STICKY_HEADER_OFFSET,
+  useDocsScroll,
+} from './use-docs-scroll.ts'
 
 interface ScrollState {
   pathname: string
@@ -23,15 +29,17 @@ function flushAnimationFrames() {
   }
 }
 
-function createTarget(id: string) {
+function createTarget(id: string, getTop: () => number = () => DOCS_STICKY_HEADER_OFFSET) {
   const target = document.createElement('h2')
   target.id = id
   target.scrollIntoView = vi.fn()
+  target.getBoundingClientRect = vi.fn(() => ({ top: getTop() }) as DOMRect)
   document.body.append(target)
   return target
 }
 
 beforeEach(() => {
+  vi.useFakeTimers()
   frames = new Map()
   nextFrame = 0
   originalRequestAnimationFrame = globalThis.requestAnimationFrame
@@ -54,6 +62,7 @@ afterEach(() => {
   globalThis.cancelAnimationFrame = originalCancelAnimationFrame
   window.matchMedia = originalMatchMedia
   vi.restoreAllMocks()
+  vi.useRealTimers()
 })
 
 describe('useDocsScroll', () => {
@@ -150,6 +159,34 @@ describe('useDocsScroll', () => {
     expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
   })
 
+  test('reconciles a known hash target that shifts above the sticky header after initial scroll', () => {
+    let top = DOCS_STICKY_HEADER_OFFSET
+    const target = createTarget('api-props', () => top)
+    const [location] = createSignal<ScrollState>({ pathname: '/button', hash: '#api-props' })
+
+    render(() => {
+      useDocsScroll({
+        getLocation: location,
+        isRouting: () => false,
+        committedPath: () => '/button',
+        getScrollRoot: () => undefined,
+      })
+      return null
+    })
+
+    flushAnimationFrames()
+    top = DOCS_STICKY_HEADER_OFFSET - 1
+    flushAnimationFrames()
+    top = DOCS_STICKY_HEADER_OFFSET
+    for (let attempt = 1; attempt < DOCS_SCROLL_TARGET_POSITION_RETRY_ATTEMPTS; attempt += 1) {
+      vi.advanceTimersByTime(DOCS_SCROLL_TARGET_POSITION_RETRY_DELAY)
+      flushAnimationFrames()
+    }
+
+    expect(target.scrollIntoView).toHaveBeenCalledTimes(2)
+    expect(frames.size).toBe(0)
+  })
+
   test('does not scroll unknown hashes and treats malformed cross-page hashes as no hash', () => {
     const root = document.createElement('main')
     root.scrollTop = 96
@@ -180,8 +217,12 @@ describe('useDocsScroll', () => {
 
   test('uses auto behavior for reduced motion and cancels superseded work on navigation and unmount', () => {
     window.matchMedia = vi.fn(() => ({ matches: true })) as unknown as typeof window.matchMedia
+    const clearTimeout = vi.spyOn(window, 'clearTimeout')
     const target = createTarget('usage')
-    const [location, setLocation] = createSignal<ScrollState>({ pathname: '/button', hash: '#late' })
+    const [location, setLocation] = createSignal<ScrollState>({
+      pathname: '/button',
+      hash: '#late',
+    })
     const rendered = render(() => {
       useDocsScroll({
         getLocation: location,
@@ -195,9 +236,11 @@ describe('useDocsScroll', () => {
     setLocation({ pathname: '/button', hash: '#usage' })
     expect(globalThis.cancelAnimationFrame).toHaveBeenCalled()
     flushAnimationFrames()
+    flushAnimationFrames()
     expect(target.scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
 
     setLocation({ pathname: '/button', hash: '#later' })
+    expect(clearTimeout).toHaveBeenCalled()
     rendered.unmount()
     expect(globalThis.cancelAnimationFrame).toHaveBeenCalled()
   })
