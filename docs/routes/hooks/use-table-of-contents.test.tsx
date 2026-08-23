@@ -12,26 +12,42 @@ const entries = [
 let observer: MockIntersectionObserver | undefined
 let originalIntersectionObserver: typeof IntersectionObserver
 
-class MockIntersectionObserver {
-  observe = vi.fn()
-  disconnect = vi.fn()
-  constructor(
-    readonly callback: IntersectionObserverCallback,
-    readonly options?: IntersectionObserverInit,
-  ) {
-    observer = this
+interface MockIntersectionObserver {
+  callback: IntersectionObserverCallback
+  options?: IntersectionObserverInit
+  observe: ReturnType<typeof vi.fn>
+  disconnect: ReturnType<typeof vi.fn>
+  root: null
+  rootMargin: string
+  thresholds: number[]
+  takeRecords: () => never[]
+  unobserve: ReturnType<typeof vi.fn>
+}
+
+const MockIntersectionObserver = function (
+  callback: IntersectionObserverCallback,
+  options?: IntersectionObserverInit,
+) {
+  const instance: MockIntersectionObserver = {
+    callback,
+    options,
+    observe: vi.fn(),
+    disconnect: vi.fn(),
+    root: null,
+    rootMargin: '',
+    thresholds: [],
+    takeRecords: () => [],
+    unobserve: vi.fn(),
   }
-  root = null
-  rootMargin = ''
-  thresholds: number[] = []
-  takeRecords = () => []
-  unobserve = vi.fn()
+  observer = instance
+  return instance
 }
 
 beforeEach(() => {
   observer = undefined
   originalIntersectionObserver = globalThis.IntersectionObserver
-  globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
+  globalThis.IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver
 })
 
 afterEach(() => {
@@ -81,7 +97,11 @@ describe('useTableOfContents', () => {
     let primaryActiveId: (() => string) | undefined
 
     render(() => {
-      const toc = useTableOfContents(() => entries, hash, () => undefined)
+      const toc = useTableOfContents(
+        () => entries,
+        hash,
+        () => undefined,
+      )
       primaryActiveId = toc.primaryActiveId
       return null
     })
@@ -94,7 +114,11 @@ describe('useTableOfContents', () => {
 
   test('disconnects its observer on cleanup', () => {
     const screen = render(() => {
-      useTableOfContents(() => entries, () => '', () => undefined)
+      useTableOfContents(
+        () => entries,
+        () => '',
+        () => undefined,
+      )
       return <h2 id="usage">Usage</h2>
     })
 
