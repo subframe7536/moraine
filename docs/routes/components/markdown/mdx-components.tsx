@@ -38,6 +38,8 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Markdown,
 
   Example(props: MdxProps) {
+    const playground = props.playground === true
+    const controls = playground ? props.controls : undefined
     const [descriptor, { refetch }] = createResource(() => {
       const loader = props.load
       if (typeof loader !== 'function') {
@@ -57,7 +59,14 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
     return (
       <Show when={descriptor()}>
-        {(value) => <DocsDemoBlock component={value().component} source={value().source} />}
+        {(value) => (
+          <DocsDemoBlock
+            component={value().component}
+            source={value().source}
+            playground={playground}
+            controls={controls}
+          />
+        )}
       </Show>
     )
   },

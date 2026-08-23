@@ -30,7 +30,40 @@ root
 
 Visual variants for primary, secondary, subtle, and destructive actions.
 
-<Example path="./variants" />
+<Example
+  path="./playground"
+  playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Button' },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+/>
 
 ### Sizes
 
