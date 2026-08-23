@@ -154,12 +154,8 @@ export function RealWorldExample() {
       </div>
 
       <Modal open={open()} onOpenChange={setOpen}>
-        <Modal.Trigger>
-          {(props) => (
-            <Button {...props} variant="outline">
-              Search projects, issues, and actions
-            </Button>
-          )}
+        <Modal.Trigger as={Button} variant="outline">
+          Search projects, issues, and actions
         </Modal.Trigger>
         <Modal.Content
           overlay

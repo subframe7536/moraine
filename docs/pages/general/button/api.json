@@ -44,18 +44,6 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Accessibility attribute forwarded by the rendered component."
-        },
-        {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
     },

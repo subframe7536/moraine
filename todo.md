@@ -39,6 +39,7 @@
 - [x] simplify separator structure, same to kobalte: remove children, only one element
 - [x] refactor multi-select 's tag, get rid of badge, simplify IconButtonInner
 - [x] fix: icon component has no need to setup size/`size-*` for most case, its size will inherit from font size
+- [x] refactor Modal.Trigger as a polymorphic Button-compatible primitive
 - [ ] add Collapsible.Trigger and Collapsible.Content
   - [ ] content enter/exit should has opacity transition
 - [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.

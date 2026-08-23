@@ -19,8 +19,9 @@ import { Modal } from 'moraine'
 ## Composition
 
 `Modal` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
-`Modal.Trigger` connects a single trigger element. `Modal.Content` owns the portal and renders the
-overlay and content as sibling surfaces. Set `overlay` to render the optional backdrop.
+`Modal.Trigger` renders a native button by default, and accepts `as` for a different intrinsic root
+or a component such as `Button`. `Modal.Content` owns the portal and renders the overlay and content
+as sibling surfaces. Set `overlay` to render the optional backdrop.
 
 When `Modal.Content` does not receive a `class`, it uses the default popup transition classes
 (`data-expanded:animate-popup-in` and `data-closed:animate-popup-out`). Passing `class` replaces

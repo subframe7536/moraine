@@ -8,9 +8,10 @@ import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { Modal } from '../base/modal.tsx'
-import type { ModalProps } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
+import { Modal } from '../modal/modal.tsx'
+import type { ModalProps } from '../modal/modal.tsx'
 
 import {
   DIALOG_BODY_CLASS,
@@ -269,7 +270,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
     >
-      <Modal.Trigger children={triggerRender()} triggerProps={triggerProps} />
+      <ModalTriggerRenderer {...triggerProps}>{triggerRender()}</ModalTriggerRenderer>
       <Modal.Content
         overlay={merged.overlay}
         overlayScroll={overlayScroll()}

@@ -1,13 +1,182 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
+import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../elements/button/index.ts'
+import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { pushOverlayLayer } from '../base/overlay-stack.ts'
+import { getFocusableElements } from '../base/utils.ts'
+
+import { ModalTriggerRenderer } from './modal-trigger.tsx'
 import { Modal } from './modal.tsx'
-import { pushOverlayLayer } from './overlay-stack.ts'
-import type { OverlayTriggerProps } from './trigger.ts'
-import { getFocusableElements } from './utils.ts'
 
 describe('Modal primitives', () => {
+  test('forwards flat callback trigger props and honors canceled clicks', async () => {
+    const onOpenChange = vi.fn()
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    let triggerElement: HTMLElement | undefined
+    const screen = render(() => (
+      <Modal onOpenChange={onOpenChange}>
+        <ModalTriggerRenderer
+          class="flat-trigger"
+          style={{ color: 'red' }}
+          ref={(element) => (triggerElement = element)}
+          onClick={onClick}
+        >
+          {(props) => (
+            <button {...props} type="button">
+              Open modal
+            </button>
+          )}
+        </ModalTriggerRenderer>
+        <Modal.Content contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Open modal' })
+
+    expect(trigger).toBe(triggerElement)
+    expect(trigger.className).toBe('flat-trigger')
+    expect((trigger as HTMLElement).style.color).toBe('red')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+
+    await fireEvent.click(trigger)
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    screen.unmount()
+  })
+
+  test('renders a native button trigger with Modal accessibility state', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Modal onOpenChange={onOpenChange}>
+        <Modal.Trigger data-testid="trigger">Open modal</Modal.Trigger>
+        <Modal.Content contentRender={<span>Content</span>} />
+      </Modal>
+    ))
+    const trigger = screen.getByTestId('trigger') as HTMLButtonElement
+
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.type).toBe('button')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+
+    await fireEvent.click(trigger)
+
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    screen.unmount()
+  })
+
+  test('respects disabled and canceled trigger activation', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <Modal onOpenChange={onOpenChange}>
+          <Modal.Trigger disabled data-testid="disabled-trigger">
+            Disabled
+          </Modal.Trigger>
+          <Modal.Content contentRender={<span>Disabled content</span>} />
+        </Modal>
+        <Modal onOpenChange={onOpenChange}>
+          <Modal.Trigger onClick={(event) => event.preventDefault()} data-testid="canceled-trigger">
+            Canceled
+          </Modal.Trigger>
+          <Modal.Content contentRender={<span>Canceled content</span>} />
+        </Modal>
+      </>
+    ))
+
+    await fireEvent.click(screen.getByTestId('disabled-trigger'))
+    await fireEvent.click(screen.getByTestId('canceled-trigger'))
+
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    screen.unmount()
+  })
+
+  test('supports non-native and Button trigger roots', async () => {
+    let triggerElement: HTMLElement | undefined
+    const screen = render(() => (
+      <>
+        <Modal>
+          <Modal.Trigger
+            as="div"
+            ref={(element) => (triggerElement = element)}
+            data-testid="div-trigger"
+          >
+            Open with keyboard
+          </Modal.Trigger>
+          <Modal.Content contentRender={<span>Div content</span>} />
+        </Modal>
+        <Modal>
+          <Modal.Trigger as={Button} variant="outline" data-testid="button-trigger">
+            Open with Button
+          </Modal.Trigger>
+          <Modal.Content contentRender={<span>Button content</span>} />
+        </Modal>
+      </>
+    ))
+    const divTrigger = screen.getByTestId('div-trigger')
+    const buttonTrigger = screen.getByTestId('button-trigger')
+
+    expect(divTrigger.getAttribute('role')).toBe('button')
+    expect(divTrigger.getAttribute('tabindex')).toBe('0')
+    expect(triggerElement).toBe(divTrigger)
+    expect(buttonTrigger.tagName).toBe('BUTTON')
+    expect(buttonTrigger.className).toContain('border')
+
+    await fireEvent.keyDown(divTrigger, { key: 'Enter' })
+
+    expect(document.body.textContent).toContain('Div content')
+    screen.unmount()
+  })
+
+  test('hydrates the polymorphic trigger and defers closed content', async () => {
+    const markup = renderSsrFixture(
+      '/src/overlays/modal/modal.ssr.fixture.tsx',
+      'renderModalFixture',
+    )
+    const container = document.createElement('div')
+    container.innerHTML = markup
+    document.body.append(container)
+    const serverTrigger = container.querySelector('[data-slot="trigger"]')
+    let mounts = 0
+    const Content = () => {
+      mounts += 1
+      return <span data-testid="hydrated-content">Content</span>
+    }
+    const restoreHydrationState = installHydrationState()
+
+    const dispose = hydrate(
+      () => (
+        <Modal>
+          <Modal.Trigger as={Button} variant="outline">
+            Open modal
+          </Modal.Trigger>
+          <Modal.Content contentRender={<Content />} />
+        </Modal>
+      ),
+      container,
+    )
+    const trigger = container.querySelector('[data-slot="trigger"]')!
+
+    expect(trigger).toBe(serverTrigger)
+    expect(mounts).toBe(0)
+    await fireEvent.click(trigger)
+    expect(mounts).toBe(1)
+    expect(document.body.querySelector('[data-testid="hydrated-content"]')).not.toBeNull()
+
+    dispose()
+    container.remove()
+    restoreHydrationState()
+  })
+
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
       <Modal defaultOpen>
@@ -602,13 +771,7 @@ describe('Modal primitives', () => {
   test('restores nested modal focus in stack order', async () => {
     const screen = render(() => (
       <Modal>
-        <Modal.Trigger
-          children={(props) => (
-            <button {...props} type="button" data-testid="outer-trigger">
-              Open outer
-            </button>
-          )}
-        />
+        <Modal.Trigger data-testid="outer-trigger">Open outer</Modal.Trigger>
         <Modal.Content
           contentRender={(outerContext) => (
             <>
@@ -616,13 +779,7 @@ describe('Modal primitives', () => {
                 Close outer
               </button>
               <Modal>
-                <Modal.Trigger
-                  children={(props) => (
-                    <button {...props} type="button" data-testid="inner-trigger">
-                      Open inner
-                    </button>
-                  )}
-                />
+                <Modal.Trigger data-testid="inner-trigger">Open inner</Modal.Trigger>
                 <Modal.Content
                   contentRender={(innerContext) => (
                     <button type="button" data-testid="inner-close" onClick={innerContext.close}>
@@ -720,13 +877,9 @@ describe('Modal primitives', () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
       <Modal>
-        <Modal.Trigger
-          children={(props) => (
-            <button {...props} type="button" disabled={disabled()} data-testid="trigger">
-              Open
-            </button>
-          )}
-        />
+        <Modal.Trigger disabled={disabled()} data-testid="trigger">
+          Open
+        </Modal.Trigger>
         <Modal.Content
           contentRender={(context) => (
             <button type="button" data-testid="close-disabled" onClick={context.close}>
@@ -756,13 +909,7 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal>
         <Show when={showTrigger()}>
-          <Modal.Trigger
-            children={(props) => (
-              <button {...props} type="button" data-testid="removable-trigger">
-                Open
-              </button>
-            )}
-          />
+          <Modal.Trigger data-testid="removable-trigger">Open</Modal.Trigger>
         </Show>
         <Modal.Content
           contentRender={(context) => (
@@ -794,13 +941,7 @@ describe('Modal primitives', () => {
     const onExitComplete = vi.fn()
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Trigger
-          children={(props) => (
-            <button {...props} type="button" data-testid="rapid-trigger">
-              Open
-            </button>
-          )}
-        />
+        <Modal.Trigger data-testid="rapid-trigger">Open</Modal.Trigger>
         <Modal.Content
           overlay
           contentRender={(context) => (
@@ -846,11 +987,7 @@ describe('Modal primitives', () => {
     const triggerProps = {
       get children() {
         childrenReads += 1
-        return (props: OverlayTriggerProps) => (
-          <button {...props} type="button">
-            Open
-          </button>
-        )
+        return <span>Open</span>
       },
     }
 
@@ -868,13 +1005,7 @@ describe('Modal primitives', () => {
 
     render(() => (
       <Modal>
-        <Modal.Trigger
-          children={(props) => (
-            <button {...props} type="button">
-              Open
-            </button>
-          )}
-        />
+        <Modal.Trigger>Open</Modal.Trigger>
         <Show when={true}>
           <Modal.Content
             contentRender={() => {

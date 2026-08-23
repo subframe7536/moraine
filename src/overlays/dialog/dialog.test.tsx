@@ -8,9 +8,10 @@ import { Button } from '../../elements/button/index.ts'
 import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
-import { Modal } from '../base/index.ts'
-import type { ModalT } from '../base/modal.tsx'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { Modal } from '../modal/index.ts'
+import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
+import type { ModalT } from '../modal/modal.tsx'
 
 import { Dialog } from './dialog.tsx'
 
@@ -29,7 +30,7 @@ function TestModal(props: TestModalProps): JSX.Element {
 
   return (
     <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
-      <Modal.Trigger children={trigger()} />
+      <ModalTriggerRenderer children={trigger()} />
       <Show when={content()}>
         <Modal.Content overlay={props.overlay} contentRender={content()!} />
       </Show>

@@ -126,22 +126,10 @@
           "description": "Accessibility attribute forwarded by the rendered component."
         },
         {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
-        },
-        {
           "name": "aria-label",
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Provides an accessible label when visible text is not sufficient."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
     },

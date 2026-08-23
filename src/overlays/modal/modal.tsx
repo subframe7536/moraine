@@ -1,31 +1,15 @@
-import type { Accessor, JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  onCleanup,
-  onMount,
-  untrack,
-} from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
+import { Show, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
-
-import { useOverlayInteraction } from './interaction.ts'
-import {
-  MODAL_CONTENT_CLASS,
-  MODAL_CONTENT_DEFAULT_CLASS,
-  MODAL_OVERLAY_CLASS,
-} from './modal.class.ts'
-import type { OverlayTriggerProps } from './trigger.ts'
-import { validateOverlayTrigger } from './trigger.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { useOverlayInteraction } from '../base/interaction.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
@@ -33,7 +17,19 @@ import {
   focusWithoutScrolling,
   focusTrigger,
   trapFocusInContainer,
-} from './utils.ts'
+} from '../base/utils.ts'
+
+import { ModalProvider, useModalContext } from './modal-context.ts'
+import { ModalTrigger } from './modal-trigger.tsx'
+import {
+  MODAL_CONTENT_CLASS,
+  MODAL_CONTENT_DEFAULT_CLASS,
+  MODAL_OVERLAY_CLASS,
+} from './modal.class.ts'
+
+type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
+  ? HTMLElementTagNameMap[T]
+  : HTMLElement
 
 export namespace ModalT {
   export interface ContentContext {
@@ -81,13 +77,32 @@ export namespace ModalT {
 
   export type Props = Base
 
-  export interface TriggerProps {
-    /** Render the modal trigger as a single HTMLElement root. */
-    children?: (props: OverlayTriggerProps) => JSX.Element
-
-    /** Root props forwarded by a public modal wrapper. */
-    triggerProps?: Partial<OverlayTriggerProps>
+  export type TriggerBase<T extends ValidComponent = 'button'> = {
+    /** Element or component to render as. @default 'button' */
+    as?: T
+    type?: T extends 'a'
+      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
+      : T extends 'button'
+        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+        : T extends 'input'
+          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
+          : never
+    /** Whether this trigger is disabled. */
+    disabled?: boolean
+    onClick?: JSX.EventHandlerUnion<ModalTriggerElementFor<T>, MouseEvent>
+    onKeyDown?: JSX.EventHandlerUnion<ModalTriggerElementFor<T>, KeyboardEvent>
+    onKeyUp?: JSX.EventHandlerUnion<ModalTriggerElementFor<T>, KeyboardEvent>
+    onBlur?: JSX.EventHandlerUnion<ModalTriggerElementFor<T>, FocusEvent>
+    onPointerDown?: JSX.EventHandlerUnion<ModalTriggerElementFor<T>, PointerEvent>
+    /** Trigger label and visual content. */
+    children?: JSX.Element
   }
+
+  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    TriggerBase<T>,
+    never
+  >
 
   export interface ContentProps {
     /** Receives the mounted content element and `undefined` when it unmounts. */
@@ -136,23 +151,6 @@ export namespace ModalT {
 
 /** Props for the Modal component. */
 export type ModalProps = ModalT.Props
-
-interface ModalContext {
-  open: Accessor<boolean>
-  presence: ReturnType<typeof useTransitionPresence>
-  contentId: Accessor<string>
-  updateOpen: (open: boolean) => void
-  dismissible: Accessor<boolean>
-  triggerElement: Accessor<HTMLElement | undefined>
-  setTriggerElement: (element: HTMLElement | undefined) => void
-  contentElement: Accessor<HTMLDivElement | undefined>
-  setContentElement: (element: HTMLDivElement | undefined) => void
-  registerContent: () => () => void
-  contentPresent: Accessor<boolean>
-  isPresent: Accessor<boolean>
-}
-
-const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
@@ -355,7 +353,7 @@ export function Modal(props: ModalProps): JSX.Element {
     },
   })
 
-  const context: ModalContext = {
+  const context = {
     open: () => Boolean(open()),
     presence,
     contentId,
@@ -394,59 +392,9 @@ export function Modal(props: ModalProps): JSX.Element {
   return <ModalProvider value={context}>{props.children}</ModalProvider>
 }
 
-function ModalTrigger(props: ModalT.TriggerProps): JSX.Element {
-  const context = useModalContext()
-  const triggerRender = createMemo(() => props.children)
-  const userTriggerProps = (): Partial<OverlayTriggerProps> | undefined => props.triggerProps
-  const triggerProps = mergeProps(
-    {
-      get 'aria-controls'() {
-        return context.contentPresent() ? context.contentId() : undefined
-      },
-      get 'aria-expanded'() {
-        return context.contentPresent() ? 'true' : 'false'
-      },
-      'data-slot': 'trigger',
-    },
-    untrack(userTriggerProps) ?? {},
-    {
-      ref: (element: HTMLElement | undefined) => {
-        context.setTriggerElement(element)
-        callRef(userTriggerProps()?.ref, element)
-        if (element) {
-          onCleanup(() => {
-            if (context.triggerElement() === element) {
-              context.setTriggerElement(undefined)
-            }
-            callRef(userTriggerProps()?.ref, undefined)
-          })
-        }
-      },
-      onClick: (event: MouseEvent) => {
-        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
-        if (!event.defaultPrevented) {
-          context.updateOpen(true)
-        }
-      },
-    },
-  ) as OverlayTriggerProps
-
-  onMount(() => {
-    if (triggerRender()) {
-      validateOverlayTrigger(context.triggerElement(), 'Modal')
-    }
-  })
-
-  return (
-    <Show when={triggerRender()}>
-      {(render) => renderComponentOrElement(render(), triggerProps)}
-    </Show>
-  )
-}
-
 function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
-  const contentRender = createMemo(() => props.contentRender)
+  const contentRender = createLazyMemo(() => props.contentRender)
   const overlayScroll = createMemo(() => Boolean(props.overlayScroll && props.overlay))
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))

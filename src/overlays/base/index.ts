@@ -1,7 +1,6 @@
 export * from './floating.ts'
 export * from './interaction.ts'
 export * from './menu/index.ts'
-export * from './modal.tsx'
 export * from './overlay-stack.ts'
 export * from './popper.tsx'
 export * from './utils.ts'

@@ -28,6 +28,7 @@ const fixtureModules = [
   '/src/navigation/pagination/pagination.ssr.fixture.tsx',
   '/src/navigation/tabs/tabs.ssr.fixture.tsx',
   '/src/overlays/context-menu/context-menu.ssr.fixture.tsx',
+  '/src/overlays/modal/modal.ssr.fixture.tsx',
   '/src/overlays/dialog/dialog.ssr.fixture.tsx',
   '/src/overlays/dropdown-menu/dropdown-menu.ssr.fixture.tsx',
   '/src/overlays/popover/popover.ssr.fixture.tsx',

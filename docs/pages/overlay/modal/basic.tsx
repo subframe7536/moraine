@@ -3,7 +3,7 @@ import { Button, Modal } from '@src'
 export function Basic() {
   return (
     <Modal>
-      <Modal.Trigger>{(props) => <Button {...props}>Open modal</Button>}</Modal.Trigger>
+      <Modal.Trigger as={Button}>Open modal</Modal.Trigger>
       <Modal.Content
         overlay
         ariaLabel="Custom modal"

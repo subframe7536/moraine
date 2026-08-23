@@ -1,4 +1,4 @@
-export * from './base/modal.tsx'
+export * from './modal/index.ts'
 export * from './context-menu/index.ts'
 export * from './dialog/index.ts'
 export * from './dropdown-menu/index.ts'
