@@ -278,7 +278,7 @@
       "category": "overlays",
       "polymorphic": false,
       "description": "Low-level modal primitives for composing custom dialog surfaces.",
-      "sourcePath": "src/overlays/base/modal.tsx"
+      "sourcePath": "src/overlays/modal/modal.tsx"
     },
     {
       "key": "context-menu",

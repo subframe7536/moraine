@@ -1,88 +1,68 @@
-import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
+import { createMemo, createSignal, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { cn, useId } from '../../shared/utils.ts'
 
-import {
-  COLLAPSIBLE_CONTENT_CLASS,
-  COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
-  COLLAPSIBLE_ROOT_CLASS,
-  COLLAPSIBLE_TRIGGER_CLASS,
-} from './collapsible.class.ts'
+import { CollapsibleContent } from './collapsible-content.tsx'
+import type { CollapsibleContext } from './collapsible-context.ts'
+import { CollapsibleProvider } from './collapsible-context.ts'
+import { CollapsibleTrigger } from './collapsible-trigger.tsx'
+import { COLLAPSIBLE_ROOT_CLASS } from './collapsible.class.ts'
+
+type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
+  ? HTMLElementTagNameMap[T]
+  : HTMLElement
 
 export namespace CollapsibleT {
-  export interface TriggerProps {
-    /** Stable id used by the content `aria-labelledby` relationship. */
-    id: string
-
-    /** Native button type. */
-    type: 'button'
-
-    /** Slot identity for the rendered trigger element. */
-    'data-slot': 'trigger'
-
-    /** Trigger class overrides. */
-    class?: string
-
-    /** Trigger style overrides. */
-    style: JSX.CSSProperties | undefined
-
-    /** Content id while the collapsible is open. */
-    'aria-controls'?: string
-
-    /** Whether the controlled content is open. */
-    'aria-expanded': boolean
-
-    /** Whether the trigger is disabled. */
-    disabled: boolean
-
-    /** Present while the collapsible is closed. */
-    'data-closed'?: string
-
-    /** Present while the collapsible is disabled. */
-    'data-disabled'?: string
-
-    /** Present while the collapsible is open. */
-    'data-expanded'?: string
-
-    /** Click handler that toggles the content. */
-    onClick: (event: MouseEvent) => void
+  export type TriggerBase<T extends ValidComponent = 'button'> = {
+    /** Element or component to render as. @default 'button' */
+    as?: T
+    type?: T extends 'a'
+      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
+      : T extends 'button'
+        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
+        : T extends 'input'
+          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
+          : never
+    /** Whether this trigger is disabled. */
+    disabled?: boolean
+    onClick?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, MouseEvent>
+    onKeyDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
+    onKeyUp?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
+    onBlur?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, FocusEvent>
+    onPointerDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, PointerEvent>
+    /** Trigger label and visual content. */
+    children?: JSX.Element
   }
 
-  /**
-   * Props passed to the trigger render component.
-   */
-  export interface TriggerRenderProps {
-    /**
-     * Whether the collapsible is open.
-     */
-    isOpen: boolean
+  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    TriggerBase<T>,
+    never
+  >
 
-    /**
-     * Whether the collapsible is disabled.
-     */
-    disabled: boolean
-
-    /** Opens the collapsible content. */
-    open: VoidFunction
-
-    /** Closes the collapsible content. */
-    close: VoidFunction
-
-    /** Toggles the collapsible content. */
-    toggle: VoidFunction
-
-    /**
-     * Button props for the element that should toggle the content.
-     */
-    triggerProps: TriggerProps
+  export type ContentBase<T extends ValidComponent = 'div'> = {
+    /** Element or component to render inner content as. @default 'div' */
+    as?: T
+    /** Whether to unmount content when closed. @default true */
+    unmountOnHide?: boolean
+    /** Force mounting the content in the DOM even when closed. @default false */
+    forceMount?: boolean
+    /** Additional class applied to the outer animated height wrapper. */
+    wrapperClass?: string
+    /** Additional style applied to the outer animated height wrapper. */
+    wrapperStyle?: JSX.CSSProperties
+    /** Ref callback for the outer animated height wrapper element. */
+    wrapperRef?: (element: HTMLDivElement | undefined) => void
+    /** Content to render. */
+    children?: JSX.Element
   }
+
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<T, ContentBase<T>, never>
 
   export interface Slot<T = unknown> {
     /**
@@ -138,8 +118,11 @@ export namespace CollapsibleT {
      */
     transition?: boolean
 
-    /** Custom trigger renderer. Spread `triggerProps` onto the interactive trigger element. */
-    triggerRender: ComponentOrElement<TriggerRenderProps>
+    /**
+     * Whether to unmount collapsible content when closed.
+     * @default true
+     */
+    unmountOnHide?: boolean
 
     /**
      * Content to render inside the collapsible.
@@ -160,37 +143,36 @@ export interface CollapsibleProps extends CollapsibleT.Props {}
 
 /** Expandable content section with optional height transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
-  const [, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props, [
     'id',
     'open',
     'defaultOpen',
     'onOpenChange',
     'disabled',
     'transition',
-    'triggerRender',
+    'unmountOnHide',
     'children',
     'classes',
     'styles',
     'class',
     'style',
   ])
-  const rootId = useId(() => props.id, 'collapsible')
+  const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
   const [open, setControlledOpen] = useControllableValue<boolean>({
-    value: () => props.open,
-    defaultValue: () => Boolean(props.defaultOpen),
+    value: () => local.open,
+    defaultValue: () => Boolean(local.defaultOpen),
   })
   const resolvedOpen = createMemo(() => Boolean(open()))
   const { contentHeight, dataAttrs, disabled, setContentElement } = useDisclosureState({
     open: resolvedOpen,
-    disabled: () => Boolean(props.disabled),
+    disabled: () => Boolean(local.disabled),
   })
   const contentPresence = useTransitionPresence({ open: resolvedOpen })
-  const shouldRenderContent = createMemo(
-    () => resolvedOpen() || (Boolean(props.transition) && contentPresence.present()),
-  )
-  const triggerRender = createMemo(() => props.triggerRender)
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
+  const transition = createMemo(() => Boolean(local.transition))
+  const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
 
   function setOpen(nextOpen: boolean): void {
     if (disabled() || nextOpen === resolvedOpen()) {
@@ -198,118 +180,56 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     }
 
     setControlledOpen(nextOpen)
-    props.onOpenChange?.(nextOpen)
+    local.onOpenChange?.(nextOpen)
   }
 
   function toggleContent(): void {
     setOpen(!resolvedOpen())
   }
 
-  function onTriggerClick(event: MouseEvent): void {
-    if (!event.defaultPrevented) {
-      toggleContent()
-    }
-  }
-
-  const triggerProps: CollapsibleT.TriggerProps = {
-    get id() {
-      return triggerId()
-    },
-    type: 'button',
-    'data-slot': 'trigger',
-    get class() {
-      return cn(COLLAPSIBLE_TRIGGER_CLASS, props.classes?.trigger)
-    },
-    get style() {
-      return props.styles?.trigger
-    },
-    get 'aria-controls'() {
-      return resolvedOpen() ? contentId() : undefined
-    },
-    get 'aria-expanded'() {
-      return resolvedOpen()
-    },
-    get disabled() {
-      return disabled()
-    },
-    get 'data-closed'() {
-      return dataAttrs()['data-closed']
-    },
-    get 'data-disabled'() {
-      return dataAttrs()['data-disabled']
-    },
-    get 'data-expanded'() {
-      return dataAttrs()['data-expanded']
-    },
-    onClick: onTriggerClick,
-  }
-
-  const triggerRenderProps: CollapsibleT.TriggerRenderProps = {
-    get isOpen() {
-      return resolvedOpen()
-    },
-    get disabled() {
-      return disabled()
-    },
-    open: () => setOpen(true),
-    close: () => setOpen(false),
+  const context: CollapsibleContext = {
+    rootId,
+    triggerId,
+    contentId,
+    open: resolvedOpen,
+    setOpen,
     toggle: toggleContent,
-    triggerProps,
+    disabled,
+    transition,
+    unmountOnHide,
+    dataAttrs,
+    contentHeight,
+    setContentElement: (element) => {
+      if (element) {
+        setContentElement(element)
+      }
+    },
+    contentPresence,
+    triggerElement,
+    setTriggerElement,
+    get classes() {
+      return local.classes
+    },
+    get styles() {
+      return local.styles
+    },
   }
 
   return (
-    <div
-      id={rootId()}
-      data-slot="root"
-      {...dataAttrs()}
-      {...rest}
-      style={{ ...props.styles?.root, ...props.style }}
-      class={cn(COLLAPSIBLE_ROOT_CLASS, props.classes?.root, props.class)}
-    >
-      <Show
-        when={typeof triggerRender() === 'function'}
-        fallback={<button {...triggerProps}>{triggerRender() as JSX.Element}</button>}
+    <CollapsibleProvider value={context}>
+      <div
+        id={rootId()}
+        data-slot="root"
+        {...dataAttrs()}
+        {...rest}
+        style={{ ...(local.styles?.root as JSX.CSSProperties | undefined), ...local.style }}
+        class={cn(COLLAPSIBLE_ROOT_CLASS, local.classes?.root, local.class)}
       >
-        {renderComponentOrElement(triggerRender(), triggerRenderProps)}
-      </Show>
-
-      <Show when={shouldRenderContent()}>
-        {(visible) => {
-          if (!visible()) {
-            return null
-          }
-
-          const children = resolveChildren(() => props.children)
-
-          return (
-            <div
-              ref={(element) => {
-                setContentElement(element)
-                contentPresence.setElement(element)
-              }}
-              id={contentId()}
-              aria-labelledby={triggerId()}
-              data-slot="content-wrapper"
-              style={{
-                '--mo-collapsible-content-height': `${contentHeight()}px`,
-              }}
-              class={cn(
-                COLLAPSIBLE_CONTENT_CLASS,
-                props.transition && COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
-              )}
-              {...dataAttrs()}
-            >
-              <div
-                data-slot="content"
-                style={props.styles?.content}
-                class={cn(props.classes?.content)}
-              >
-                {children()}
-              </div>
-            </div>
-          )
-        }}
-      </Show>
-    </div>
+        {local.children}
+      </div>
+    </CollapsibleProvider>
   )
 }
+
+Collapsible.Trigger = CollapsibleTrigger
+Collapsible.Content = CollapsibleContent

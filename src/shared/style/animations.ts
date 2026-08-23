@@ -67,12 +67,12 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
     },
   },
   'accordion-down': {
-    from: { height: '0' },
-    to: { height: 'var(--mo-collapsible-content-height)' },
+    from: { height: '0', opacity: '0' },
+    to: { height: 'var(--mo-collapsible-content-height)', opacity: '1' },
   },
   'accordion-up': {
-    from: { height: 'var(--mo-collapsible-content-height)' },
-    to: { height: '0' },
+    from: { height: 'var(--mo-collapsible-content-height)', opacity: '1' },
+    to: { height: '0', opacity: '0' },
   },
   spin: {
     to: { transform: 'rotate(360deg)' },

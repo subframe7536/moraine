@@ -4,8 +4,11 @@ import { Collapsible } from './collapsible.tsx'
 
 export function renderCollapsibleFixture(): string {
   return renderToString(() => (
-    <Collapsible triggerRender={<span>Details</span>}>
-      <span data-testid="hydrated-content">Content</span>
+    <Collapsible>
+      <Collapsible.Trigger>Details</Collapsible.Trigger>
+      <Collapsible.Content>
+        <span data-testid="hydrated-content">Content</span>
+      </Collapsible.Content>
     </Collapsible>
   ))
 }

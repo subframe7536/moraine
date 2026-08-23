@@ -104,10 +104,11 @@
         "defaultValue": "false"
       },
       {
-        "name": "triggerRender",
-        "required": true,
-        "type": "ComponentOrElement<CollapsibleT.TriggerRenderProps>",
-        "description": "Custom trigger renderer. Spread `triggerProps` onto the interactive trigger element."
+        "name": "unmountOnHide",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to unmount collapsible content when closed.",
+        "defaultValue": "true"
       }
     ],
     "inherited": []
