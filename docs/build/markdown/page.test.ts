@@ -44,6 +44,7 @@ describe('createDocsMdxOptions', () => {
       title: 'Button',
       order: 10,
       group: 'general',
+      sections: [{ id: 'button', label: 'Button', level: 1 }],
     })
     expect(extension?.routeConfig?.metadata).toEqual({
       title: 'Button | Moraine',

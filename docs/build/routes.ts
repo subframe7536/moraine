@@ -15,6 +15,13 @@ export interface DocsRouteInfo {
   group?: string
   badge?: string
   api?: string
+  sections?: DocsRouteSection[]
+}
+
+export interface DocsRouteSection {
+  id: string
+  label: string
+  level: number
 }
 
 export interface DocsRouteEntry {
@@ -117,6 +124,7 @@ export function createDocsRouteInfo(
   group: string | undefined,
   frontmatter: FrontmatterData,
   componentKeys: ReadonlySet<string>,
+  sections: readonly DocsRouteSection[] = [],
 ): DocsRouteInfo {
   return {
     key,
@@ -127,5 +135,6 @@ export function createDocsRouteInfo(
     ...(group ? { group } : {}),
     ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
     ...(componentKeys.has(key) ? { api: key } : {}),
+    ...(sections.length > 0 ? { sections: [...sections] } : {}),
   }
 }

@@ -4,10 +4,36 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'
 import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
+
+vi.mock('virtual:routes', () => ({
+  routeInfo: {
+    '/button': {
+      key: 'button',
+      title: 'Button',
+      description: 'Button description.',
+      order: 1,
+      tags: ['button'],
+      sections: [
+        { id: 'usage', label: 'Usage', level: 2 },
+        null,
+        { id: '', label: 'Missing ID', level: 2 },
+        { id: 'invalid-level', label: 'Invalid level', level: 7 },
+      ],
+    },
+    '/input': {
+      key: 'input',
+      title: 'Input',
+      description: 'Input description.',
+      order: 2,
+      tags: ['input'],
+      sections: [null, { id: 'label', label: 'Label', level: '2' }],
+    },
+  },
+}))
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
@@ -32,6 +58,23 @@ search:
 }
 
 describe('docs route metadata', () => {
+  test('retains valid pages while dropping malformed optional section entries', async () => {
+    const { getDocsPages } = await import('../routes/docs-route.ts')
+
+    expect(getDocsPages()).toMatchObject([
+      {
+        key: 'button',
+        path: '/button',
+        sections: [{ id: 'usage', label: 'Usage', level: 2 }],
+      },
+      {
+        key: 'input',
+        path: '/input',
+        sections: [],
+      },
+    ])
+  })
+
   test('scans mdx pages into metadata and logical provider paths', async () => {
     const projectRoot = await createTempProject()
 
@@ -117,5 +160,55 @@ describe('docs route metadata', () => {
       group: 'general',
       api: 'button',
     })
+  })
+
+  test('includes non-empty document sections without changing other metadata', () => {
+    expect(
+      createDocsRouteInfo(
+        'button',
+        'general',
+        {
+          title: 'Button',
+          description: 'Button description.',
+          sidebar: { order: 1, badge: 'New' },
+          search: { tags: ['button'] },
+        },
+        new Set(['button']),
+        [
+          { id: 'usage', label: 'Usage', level: 2 },
+          { id: 'usage-1', label: 'Usage', level: 2 },
+        ],
+      ),
+    ).toEqual({
+      key: 'button',
+      title: 'Button',
+      description: 'Button description.',
+      order: 1,
+      tags: ['button'],
+      group: 'general',
+      badge: 'New',
+      api: 'button',
+      sections: [
+        { id: 'usage', label: 'Usage', level: 2 },
+        { id: 'usage-1', label: 'Usage', level: 2 },
+      ],
+    })
+  })
+
+  test('omits empty document sections from route metadata', () => {
+    expect(
+      createDocsRouteInfo(
+        'button',
+        undefined,
+        {
+          title: 'Button',
+          description: 'Button description.',
+          sidebar: { order: 1 },
+          search: { tags: ['button'] },
+        },
+        new Set(),
+        [],
+      ),
+    ).not.toHaveProperty('sections')
   })
 })

@@ -53,7 +53,7 @@ export const Sidebar = (props: SidebarProps) => {
       <nav class="pb-2 flex flex-col gap-5">
         <For each={grouped()}>
           {(section) => (
-            <section>
+            <section aria-label={section.group}>
               <Show when={section.group}>
                 <div class="text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
                   {section.group}
@@ -65,15 +65,28 @@ export const Sidebar = (props: SidebarProps) => {
                 class="flex flex-col gap-0.5"
                 items={section.pages}
                 itemRender={(context) => (
-                  <button
-                    type="button"
+                  <a
+                    href={context.item.path}
+                    aria-current={
+                      props.activePage() === context.item.key ? ('page' as const) : undefined
+                    }
                     class={cn(
                       'text-sm text-muted-foreground px-2.5 py-1.75 text-left rounded-md transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
                       props.activePage() === context.item.key
                         ? 'text-accent-foreground font-medium bg-accent'
                         : 'hover:text-foreground hover:bg-accent/30',
                     )}
-                    onClick={() => props.setActivePage(context.item.key)}
+                    onClick={(event) => {
+                      if (
+                        event.button === 0 &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey
+                      ) {
+                        props.setActivePage(context.item.key)
+                      }
+                    }}
                   >
                     <span class="flex gap-2 min-w-0 w-full items-center justify-between">
                       <span class="truncate">{context.item.label}</span>
@@ -81,7 +94,7 @@ export const Sidebar = (props: SidebarProps) => {
                         {(badge) => <Badge variant="outline">{badge()}</Badge>}
                       </Show>
                     </span>
-                  </button>
+                  </a>
                 )}
               />
             </section>

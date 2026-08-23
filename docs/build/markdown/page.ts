@@ -84,12 +84,18 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const page = resolveDocsPageContext(sourcePath)
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
       const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
-      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys)
-      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
-      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
+      const info = createDocsRouteInfo(
+        page.pageKey,
+        page.group,
+        frontmatter,
+        componentKeys,
+        onThisPageEntries,
+      )
+      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
+      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
 
       return {
         routeConfig: { info, metadata },

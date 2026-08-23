@@ -9,6 +9,13 @@ export interface DocsRouteInfo {
   group?: string
   badge?: string
   api?: string
+  sections?: DocsRouteSection[]
+}
+
+export interface DocsRouteSection {
+  id: string
+  label: string
+  level: number
 }
 
 export interface DocsPageEntry {
@@ -20,6 +27,7 @@ export interface DocsPageEntry {
   group?: string
   badge?: string
   path: string
+  sections: DocsRouteSection[]
 }
 
 const GROUP_ORDER = new Map<string, number>([
@@ -45,6 +53,31 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   )
 }
 
+function normalizeSections(value: unknown): DocsRouteSection[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter((section): section is DocsRouteSection => {
+    if (!section || typeof section !== 'object') {
+      return false
+    }
+
+    const candidate = section as Partial<DocsRouteSection>
+    const level = candidate.level
+    return (
+      typeof candidate.id === 'string' &&
+      candidate.id.length > 0 &&
+      typeof candidate.label === 'string' &&
+      candidate.label.length > 0 &&
+      typeof level === 'number' &&
+      Number.isInteger(level) &&
+      level >= 1 &&
+      level <= 6
+    )
+  })
+}
+
 export function getDocsPages(): DocsPageEntry[] {
   return Object.entries(routeInfo)
     .map(([path, info]) => {
@@ -59,6 +92,7 @@ export function getDocsPages(): DocsPageEntry[] {
         order: info.order,
         tags: info.tags,
         path,
+        sections: normalizeSections(info.sections),
       }
       if (info.group) {
         page.group = info.group

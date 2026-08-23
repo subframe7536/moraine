@@ -46,6 +46,7 @@ const config = {
         group: 'string',
         badge: 'string',
         api: 'string',
+        sections: '{ id: string; label: string; level: number }[]',
       },
     }) as unknown,
     siteMetaPlugin({

@@ -1,3 +1,4 @@
+import { useNavigate } from '@solidjs/router'
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
@@ -10,45 +11,98 @@ export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
 
 export interface DocsCommandPaletteProps {
   pages: SidebarPage[]
-  onNavigate: (key: string) => void
+  onNavigate: (path: string) => void
   open: Accessor<boolean>
   setOpen: (open: boolean) => void
   variant?: DocsCommandPaletteVariant
 }
 
-export function buildDocsCommandItems(pages: SidebarPage[]): CommandPaletteT.Group[] {
-  const grouped = new Map<string, CommandPaletteT.Item[]>()
-  const ungrouped: CommandPaletteT.Item[] = []
+interface DocsCommandItem extends CommandPaletteT.Item {
+  href: string
+}
+
+export function buildDocsCommandItems(
+  pages: SidebarPage[],
+): CommandPaletteT.Group<DocsCommandItem>[] {
+  const pageItems: DocsCommandItem[] = []
+  const sectionItems: DocsCommandItem[] = []
+  const destinations = new Set<string>()
 
   for (const page of pages) {
-    const item: CommandPaletteT.Item = {
-      value: page.key,
-      label: page.label,
-      description: page.description,
-      keywords: page.tags,
+    if (!destinations.has(page.path)) {
+      pageItems.push({
+        href: page.path,
+        value: page.path,
+        label: page.label,
+        description: page.description,
+        keywords: [...page.tags, page.path],
+      })
+      destinations.add(page.path)
     }
-    const group = page.group?.trim()
-    if (!group) {
-      ungrouped.push(item)
-      continue
+
+    for (const section of page.sections) {
+      const href = `${page.path}#${encodeURIComponent(section.id)}`
+      if (destinations.has(href)) {
+        continue
+      }
+
+      sectionItems.push({
+        href,
+        value: href,
+        label: section.label,
+        description: page.label,
+        keywords: [page.label, page.description, ...page.tags, page.path, section.id],
+      })
+      destinations.add(href)
     }
-    const list = grouped.get(group) ?? []
-    list.push(item)
-    grouped.set(group, list)
   }
 
-  const items: CommandPaletteT.Group[] = []
-  if (ungrouped.length > 0) {
-    items.push({ id: 'ungrouped', items: ungrouped })
-  }
-  for (const [group, groupItems] of grouped.entries()) {
-    items.push({
-      id: `group-${group}`,
-      label: group.charAt(0).toUpperCase() + group.slice(1),
-      items: groupItems,
+  const groups: CommandPaletteT.Group<DocsCommandItem>[] = [
+    {
+      id: 'pages',
+      label: 'Pages',
+      items: pageItems,
+    },
+  ]
+  if (sectionItems.length > 0) {
+    groups.push({
+      id: 'sections',
+      label: 'Sections',
+      items: sectionItems,
     })
   }
-  return items
+  return groups
+}
+
+function isModifiedActivation(event: MouseEvent): boolean {
+  return event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+}
+
+function createDocsCommandItem(
+  context: CommandPaletteT.ItemRenderProps<DocsCommandItem>,
+  onNavigate: (path: string) => void,
+  close: () => void,
+): JSX.Element {
+  return (
+    <a
+      href={context.item.href}
+      aria-label={`${context.item.description}: ${context.item.label}`}
+      class="flex flex-1 flex-col min-w-0"
+      onClick={(event) => {
+        event.stopPropagation()
+        if (isModifiedActivation(event)) {
+          return
+        }
+
+        event.preventDefault()
+        onNavigate(context.item.href)
+        close()
+      }}
+    >
+      <span class="truncate">{context.item.label}</span>
+      <span class="text-xs text-muted-foreground truncate">{context.item.description}</span>
+    </a>
+  )
 }
 
 export function DocsSearchTrigger(
@@ -78,9 +132,11 @@ export function DocsSearchTrigger(
 
 export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element {
   const [searchTerm, setSearchTerm] = createSignal('')
+  const navigate = useNavigate()
 
-  const onSelect = (item: CommandPaletteT.Item) => {
-    props.onNavigate(item.value)
+  const onSelect = (item: DocsCommandItem) => {
+    navigate(item.href)
+    props.onNavigate(item.href)
   }
 
   const onClose = () => {
@@ -123,12 +179,22 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       close={false}
       classes={{ body: 'p-0 mb-0' }}
       body={
-        <CommandPalette
+        <CommandPalette<DocsCommandItem>
           groups={items()}
           placeholder="Search components, hooks, and pages..."
           searchTerm={searchTerm()}
           onSearchTermChange={setSearchTerm}
           onSelect={onSelect}
+          itemRender={(context) =>
+            createDocsCommandItem(
+              context,
+              (href) => {
+                navigate(href)
+                props.onNavigate(href)
+              },
+              onClose,
+            )
+          }
           showClose
           onClose={onClose}
           emptyRender={(ctx) => (
