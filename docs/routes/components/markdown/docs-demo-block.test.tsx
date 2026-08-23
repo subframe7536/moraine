@@ -26,15 +26,15 @@ afterEach(() => {
 })
 
 beforeAll(() => {
-  globalThis.ResizeObserver = class {
-    constructor(_callback: ResizeObserverCallback) {}
-    observe(): void {}
-    unobserve(): void {}
-    disconnect(): void {}
-    takeRecords(): ResizeObserverEntry[] {
-      return []
+  function ResizeObserverMock(_callback: ResizeObserverCallback): ResizeObserver {
+    return {
+      observe: () => {},
+      unobserve: () => {},
+      disconnect: () => {},
     }
   }
+
+  globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver
 })
 
 describe('DocsDemoBlock', () => {
