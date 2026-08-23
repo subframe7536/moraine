@@ -5,6 +5,20 @@ import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 
 import { presetMoraine } from '../src/unocss/theme.ts'
 
 const transformer = transformerVariantGroup()
+const docsShortCuts = {
+  // Shared docs geometry. Use these names in docs routes instead of reintroducing measurements.
+  'docs-shell-header': 'h-13',
+  'docs-anchor-offset': 'scroll-mt-13',
+  'docs-content-gutter': 'px-5 sm:px-8',
+  'docs-article-measure': 'max-w-4xl',
+  'docs-navigation-width': 'w-64',
+  'docs-toc-width': 'w-60',
+  'docs-focus-visible':
+    'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+  'docs-compact-control': 'h-8',
+  'docs-content-enter': 'animate-docs-page-slide-up motion-reduce:animate-docs-page-fade-in',
+}
+
 const markdownShortCuts = {
   'docs-h1': 'text-3xl text-foreground font-bold mb-3 mt-6 sm:mt-10',
   'docs-h2':
@@ -25,8 +39,8 @@ const markdownShortCuts = {
     'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border-2 border-border rounded-md text-sm text-destructive font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
 }
 export default defineConfig<PresetWind4Theme>({
-  shortcuts: markdownShortCuts,
-  safelist: Object.keys(markdownShortCuts),
+  shortcuts: { ...docsShortCuts, ...markdownShortCuts },
+  safelist: [...Object.keys(docsShortCuts), ...Object.keys(markdownShortCuts)],
   presets: [
     presetWind4(),
     presetIcons({
