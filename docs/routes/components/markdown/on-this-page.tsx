@@ -40,7 +40,10 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
   }
 
   return (
-    <aside class="p-4 shrink-0 max-h-[calc(100vh-4rem)] w-60 hidden self-start top-13 sticky overflow-y-auto xl:block">
+    <nav
+      aria-label="On This Page"
+      class="bg-muted/35 border-border/80 my-6 p-4 rounded-lg xl:(docs-toc-width bg-transparent border-0 my-0 p-0 max-h-[calc(100vh-4rem)] self-start top-13 sticky overflow-y-auto col-start-2 row-start-1)"
+    >
       <p class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
         On This Page
       </p>
@@ -48,7 +51,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
         when={props.entries.length > 0}
         fallback={<p class="text-xs text-muted-foreground mt-3">No sections</p>}
       >
-        <nav aria-label="On This Page" class="mt-3 flex flex-col gap-1">
+        <div class="mt-3 flex flex-col gap-1">
           <For each={props.entries}>
             {(entry) => (
               <a
@@ -56,7 +59,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
                 onClick={handleAnchorClick}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 data-active:text-primary hover:text-foreground"
+                class="docs-focus-visible text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 data-active:(border-primary/20 bg-accent/35 text-primary) hover:text-foreground"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show
@@ -69,8 +72,8 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
               </a>
             )}
           </For>
-        </nav>
+        </div>
       </Show>
-    </aside>
+    </nav>
   )
 }

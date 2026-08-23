@@ -113,6 +113,12 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         )}
         mainRender={(ctx) => (
           <>
+            <a
+              href="#main-content"
+              class="docs-focus-visible bg-background text-foreground px-4 py-2 rounded-md -translate-x-1/2 -translate-y-full left-1/2 fixed z-toast transition-transform top-2 focus-visible:translate-y-0"
+            >
+              Skip to main content
+            </a>
             <header
               data-scrolled={ctx.scrolled() ? '' : undefined}
               class={cn(
@@ -173,7 +179,11 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               </div>
             </header>
 
-            <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
+            <main id="main-content" tabindex="-1" class="min-w-0" data-docs-main>
+              <Suspense fallback={<div class="docs-content-gutter py-8 min-h-screen" />}>
+                {props.children}
+              </Suspense>
+            </main>
           </>
         )}
         scrollThreshold={4}
