@@ -1,20 +1,24 @@
 ---
 title: Introduction
-description: A comprehensive SolidJS component library inspired by Nuxt UI and shadcn.
+description: A composable SolidJS component library with documented styling, types, and utilities.
 sidebar:
   order: 1
 search:
   tags: [getting started, installation, SolidJS, components]
 ---
 
-<IntroCards />
+Moraine is a SolidJS component library with atomic class styling. It is **pre-1.0; breaking changes may occur**.
 
-## Quick Start
+[Browse the component directory](#component-directory) · [Configure styling](/styling) · [Read TypeScript guidance](/typescript)
 
-Install and start exploring component pages from the sidebar.
+## Setup
+
+1. Install Moraine and SolidJS with your package manager.
 
 <CodeTabs package="moraine" />
 
-## All Components
+2. Configure [UnoCSS](/styling#unocss) before rendering components. Moraine also includes an experimental Tailwind integration; the styling guide documents both paths.
+
+3. Import the components you need from `moraine`, then use the directory below to move to their API pages.
 
 <IntroComponents />

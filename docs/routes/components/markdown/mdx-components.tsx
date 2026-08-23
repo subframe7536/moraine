@@ -6,7 +6,6 @@ import { Tabs } from '../../../../src/index.ts'
 
 import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
 import { DocsDemoBlock } from './docs-demo-block.tsx'
-import { IntroCards } from './intro-cards.tsx'
 import { IntroComponents } from './intro-components.tsx'
 import { Markdown } from './markdown.tsx'
 import type { DocsMdxCodeTabItem } from './markdown.tsx'
@@ -96,8 +95,6 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
       />
     )
   },
-
-  IntroCards,
 
   IntroComponents,
 
