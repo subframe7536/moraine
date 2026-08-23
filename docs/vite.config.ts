@@ -30,7 +30,7 @@ const config = {
     solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
     fileRouter({
       pagesDir: 'routes',
-      ignore: [...DEFAULT_IGNORES, 'hooks'],
+      ignore: [...DEFAULT_IGNORES, 'hooks', '**/*.test.tsx'],
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {

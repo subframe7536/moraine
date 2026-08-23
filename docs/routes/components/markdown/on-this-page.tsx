@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from '@solidjs/router'
 import { For, Show } from 'solid-js'
 
 import { useTableOfContents } from '../../hooks/use-table-of-contents.ts'
@@ -8,8 +9,35 @@ function getOnThisPageIndentStyle(level: number) {
   return { 'padding-inline-start': `${indentLevel * 0.75}rem` }
 }
 
+function getLocationHash(routerHash: string): string {
+  return routerHash || (typeof window === 'undefined' ? '' : window.location.hash)
+}
+
 export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
-  const { activeIds, primaryActiveId } = useTableOfContents(() => props.entries)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { activeIds, primaryActiveId } = useTableOfContents(
+    () => props.entries,
+    () => getLocationHash(location.hash),
+    () => document.querySelector<HTMLElement>('[data-slot="main"]') ?? undefined,
+  )
+
+  const handleAnchorClick = (event: MouseEvent) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    const anchor = event.currentTarget as HTMLAnchorElement
+    navigate(anchor.getAttribute('href') ?? '#', { scroll: false })
+  }
 
   return (
     <aside class="p-4 shrink-0 max-h-[calc(100vh-4rem)] w-60 hidden self-start top-13 sticky overflow-y-auto xl:block">
@@ -25,6 +53,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
             {(entry) => (
               <a
                 href={`#${entry.id}`}
+                onClick={handleAnchorClick}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
                 class="text-(sm muted-foreground) leading-8 px-2 b-(1 border transparent) rounded-md h-8 data-active:text-primary hover:text-foreground"

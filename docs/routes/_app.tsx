@@ -10,6 +10,7 @@ import { DocsCommandPalette } from './components/layout/docs-command-palette.tsx
 import { Sidebar, SidebarHeader } from './components/layout/sidebar.tsx'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components.tsx'
 import { getDocsPages } from './docs-route.ts'
+import { useDocsScroll } from './hooks/use-docs-scroll.ts'
 import { useTheme } from './hooks/use-theme.ts'
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
@@ -34,16 +35,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   let rootElement: HTMLDivElement | undefined
   let renderedPage = untrack(committedPage)
 
-  const resetMainScroll = () => {
-    const mainElement = rootElement?.querySelector<HTMLElement>('[data-slot="main"]')
-    if (mainElement) {
-      const scrollBehavior = mainElement.style.scrollBehavior
-      mainElement.style.scrollBehavior = 'auto'
-      mainElement.scrollTop = 0
-      mainElement.style.scrollBehavior = scrollBehavior
-    }
-  }
-
   createEffect(() => {
     const page = activePage()
     if (isRouting()) {
@@ -56,7 +47,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
     renderedPage = page
     setCommittedPage(page)
-    resetMainScroll()
   })
 
   createEffect(() => {
@@ -66,6 +56,17 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }
 
     setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
+  })
+
+  useDocsScroll({
+    getLocation: () => ({
+      pathname: location.pathname,
+      hash: location.hash || (typeof window === 'undefined' ? '' : window.location.hash),
+    }),
+    isRouting,
+    committedPath: () => pages.find((page) => page.key === committedPage())?.path ?? '',
+    getScrollRoot: () =>
+      rootElement?.querySelector<HTMLElement>('[data-slot="main"]') ?? undefined,
   })
 
   const navigateToPage = (key: string) => {
