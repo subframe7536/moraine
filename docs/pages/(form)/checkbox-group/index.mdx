@@ -7,32 +7,18 @@ search:
   tags: [multiple selection, checked, options, table]
 ---
 
+import { CheckboxGroup } from '@src'
+import { createSignal } from 'solid-js'
+
 ## Import
 
 ```tsx
 import { CheckboxGroup } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Fieldset with an optional legend grouping multiple Checkbox items.
-
-```text
-root
-└── fieldset
-    ├── legend (optional)
-    └── root (Checkbox, ×n)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'select',
@@ -68,7 +54,50 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    const NOTIFICATION_OPTIONS = [
+      { label: 'Email alerts', value: 'email', description: 'Weekly digests and critical updates' },
+      {
+        label: 'Push notifications',
+        value: 'push',
+        description: 'Instant alerts on mobile and desktop',
+      },
+      { label: 'SMS updates', value: 'sms', description: 'Security and login codes' },
+    ]
+
+    const [value, setValue] = createSignal(['email'])
+
+    return (
+      <div class="max-w-full w-96">
+        <CheckboxGroup
+          items={NOTIFICATION_OPTIONS}
+          value={value()}
+          onChange={setValue}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          orientation={props.orientation}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Slot Structure
+
+Fieldset with an optional legend grouping multiple Checkbox items.
+
+```text
+root
+└── fieldset
+    ├── legend (optional)
+    └── root (Checkbox, ×n)
+```
+
+## Examples
 
 ### Variants
 

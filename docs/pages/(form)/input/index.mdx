@@ -7,32 +7,17 @@ search:
   tags: [text field, textbox, form control, loading]
 ---
 
+import { Input } from '@src'
+
 ## Import
 
 ```tsx
 import { Input } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Text input shell with optional leading and trailing icon slots.
-
-```text
-root
-├── leading (optional)
-├── input
-└── trailing (optional)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'input',
@@ -66,7 +51,33 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <Input
+        placeholder={props.placeholder}
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        loading={props.loading}
+        leading="i-lucide:search"
+      />
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Text input shell with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (optional)
+├── input
+└── trailing (optional)
+```
+
+## Examples
 
 ### Variants
 

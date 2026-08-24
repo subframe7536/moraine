@@ -53,11 +53,22 @@ describe('component documentation example coverage', () => {
       const source = readFileSync(page, 'utf8')
       const examples = getExamplePaths(source)
       const playgrounds = [
-        ...source.matchAll(/<Example\b(?=[^>]*\bplayground\b)(?=[^>]*\bcontrols=\{\[)[^>]*>/g),
+        ...source.matchAll(
+          /<Playground\b(?=[^>]*\bcontrols=\{\[)[\s\S]*?\{\(props\)\s*=>[\s\S]*?<\/Playground>/g,
+        ),
       ]
 
       expect(source, page).toContain('## Examples')
       expect(playgrounds, page).toHaveLength(1)
+      const importIndex = source.indexOf('\n## Import')
+      const playgroundIndex = source.indexOf('\n## Playground')
+      const examplesIndex = source.indexOf('\n## Examples')
+      expect(importIndex, page).toBeGreaterThanOrEqual(0)
+      expect(playgroundIndex, page).toBeGreaterThan(importIndex)
+      expect(examplesIndex, page).toBeGreaterThan(playgroundIndex)
+      expect(source.match(/^## Playground\s*$/gm), page).toHaveLength(1)
+      expect(source).not.toContain('### Playground')
+      expect(source, page).not.toContain('path="./playground"')
       expect(examples.length, page).toBeGreaterThanOrEqual(3)
       expect(new Set(examples).size, page).toBeGreaterThanOrEqual(3)
 
@@ -69,5 +80,6 @@ describe('component documentation example coverage', () => {
     }
 
     expect(allReferences.length).toBeGreaterThan(186)
+    expect(collectFiles(PAGES_ROOT, (file) => path.basename(file) === 'playground.tsx')).toEqual([])
   })
 })

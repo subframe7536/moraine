@@ -7,14 +7,53 @@ search:
   tags: [modal, primitive, overlay, focus trap]
 ---
 
-Use `Dialog` or `Sheet` for their standard layouts. Use the Modal primitives when a custom modal
-surface cannot be expressed by either component.
+import { Button, Modal } from '@src'
 
 ## Import
 
 ```tsx
 import { Modal } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'ariaLabel', label: 'Accessible name', defaultValue: 'Project details' },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <Modal dismissible={props.dismissible}>
+        <Modal.Trigger as={Button} variant="outline">
+          Open Modal
+        </Modal.Trigger>
+        <Modal.Content
+          overlay={props.overlay}
+          ariaLabel={props.ariaLabel}
+          contentRender={(context) => (
+            <div class="p-5 gap-4 grid">
+              <div>
+                <h4 class="text-sm text-foreground font-semibold">Custom Primitive Surface</h4>
+                <p class="text-xs text-muted-foreground leading-relaxed mt-1">
+                  Low-level modal primitives provide focus trapping, scroll locking, and dismissal
+                  with arbitrary layouts.
+                </p>
+              </div>
+              <div class="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={context.close}>
+                  Got it
+                </Button>
+              </div>
+            </div>
+          )}
+        />
+      </Modal>
+    )
+  }}
+</Playground>
 
 ## Composition
 
@@ -39,21 +78,6 @@ Modal
 Provide `ariaLabel`, `ariaLabelledBy`, or another accessible naming strategy for every modal.
 
 ## Examples
-
-### Playground
-
-Use primitive controls for the accessible name, backdrop, and dismissal behavior; use the following
-examples for state ownership and composition.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    { kind: 'input', prop: 'ariaLabel', label: 'Accessible name', defaultValue: 'Project details' },
-    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
-    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
-  ]}
-/>
 
 ### Basic Composition
 

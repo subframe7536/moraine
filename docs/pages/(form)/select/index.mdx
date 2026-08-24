@@ -7,49 +7,17 @@ search:
   tags: [combobox, dropdown, options, searchable]
 ---
 
+import { Select } from '@src'
+
 ## Import
 
 ```tsx
 import { Select } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Trigger control and a floating listbox with grouped options. The control or search input keeps focus while options provide selection, highlight, and active-descendant semantics.
-
-### Control
-
-```text
-control
-├── leading (Icon, optional)
-├── input
-├── clear (IconButton, optional)
-└── trigger (IconButton)
-```
-
-### Listbox
-
-```text
-content (portal)
-├── listbox
-│   ├── item (×n)
-│   │   ├── itemLabel
-│   │   ├── itemDescription (optional)
-│   │   └── itemTrailing (optional)
-│   └── group (×n, optional)
-│       └── label (optional)
-└── empty (optional, no matches)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'input',
@@ -83,7 +51,61 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    const TECH_OPTIONS = [
+      { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
+      { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
+      { label: 'React', value: 'react', icon: 'i-lucide:box' },
+      { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
+      { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
+    ]
+
+    return (
+      <Select
+        options={TECH_OPTIONS}
+        placeholder={props.placeholder}
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        search={props.search}
+        allowClear
+      />
+    )
+
+}}
+
+</Playground>
+
+## Slot Structure
+
+Trigger control and a floating listbox with grouped options. The control or search input keeps focus while options provide selection, highlight, and active-descendant semantics.
+
+### Control
+
+```text
+control
+├── leading (Icon, optional)
+├── input
+├── clear (IconButton, optional)
+└── trigger (IconButton)
+```
+
+### Listbox
+
+```text
+content (portal)
+├── listbox
+│   ├── item (×n)
+│   │   ├── itemLabel
+│   │   ├── itemDescription (optional)
+│   │   └── itemTrailing (optional)
+│   └── group (×n, optional)
+│       └── label (optional)
+└── empty (optional, no matches)
+```
+
+## Examples
 
 ### Single Select
 

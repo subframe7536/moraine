@@ -7,11 +7,45 @@ search:
   tags: [dropzone, files, upload, progress]
 ---
 
+import { FileUpload } from '@src'
+
 ## Import
 
 ```tsx
 import { FileUpload } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'dropzone', label: 'Dropzone', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <FileUpload
+        label="Upload documents"
+        description="Drag & drop PDF, PNG, or JPG up to 10MB"
+        size={props.size}
+        disabled={props.disabled}
+        dropzone={props.dropzone}
+      />
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -42,30 +76,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'dropzone', label: 'Dropzone', defaultValue: true },
-  ]}
-/>
 
 ### Single Upload
 

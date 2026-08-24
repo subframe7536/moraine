@@ -7,11 +7,48 @@ search:
   tags: [profile, image, fallback, user]
 ---
 
+import { Avatar } from '@src'
+
 ## Import
 
 ```tsx
 import { Avatar } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
+    { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="flex gap-4 items-center">
+        <Avatar
+          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+          alt={props.alt}
+          text={props.text}
+          size={props.size}
+          badge="i-lucide:check"
+          badgePosition="bottom-right"
+        />
+      </div>
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -28,30 +65,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
-    { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-  ]}
-/>
 
 ### Single Avatar
 

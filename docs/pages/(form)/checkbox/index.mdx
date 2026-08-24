@@ -7,36 +7,17 @@ search:
   tags: [boolean, checked, indeterminate, selection]
 ---
 
+import { Checkbox } from '@src'
+
 ## Import
 
 ```tsx
 import { Checkbox } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Checkbox indicator with optional label and description.
-
-```text
-root
-├── container
-│   ├── input
-│   └── control
-│       └── indicator (optional)
-└── wrapper (optional)
-    ├── label (optional)
-    └── description (optional)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Accept terms and conditions' },
     {
@@ -62,7 +43,37 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <Checkbox
+        label={props.label}
+        description={props.description}
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        defaultChecked
+      />
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Checkbox indicator with optional label and description.
+
+```text
+root
+├── container
+│   ├── input
+│   └── control
+│       └── indicator (optional)
+└── wrapper (optional)
+    ├── label (optional)
+    └── description (optional)
+```
+
+## Examples
 
 ### Variants
 

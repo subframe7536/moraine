@@ -79,10 +79,10 @@ hit areas using `docs-compact-control` where their component API permits it.
 
 ## Examples
 
-Every interactive example has a clear preview, a compact header that identifies the example or its
-controls, and source that is available without obscuring the preview. Controls are chosen by the
-author to demonstrate meaningful behavior and must wrap or move below the preview on narrow screens;
-they are not a generic property editor.
+Every interactive Playground has a clear preview and compact controls. Playgrounds do not include a
+source panel; regular `Example` blocks provide source for standalone examples. Controls are chosen by
+the author to demonstrate meaningful behavior and must wrap or move below the preview on narrow
+screens; they are not a generic property editor.
 
 Use dedicated examples for complex props, state transitions, render functions, accessibility-related
 attributes, or layout constraints. Keep the preview realistic enough to reveal behavior, but do not
@@ -110,5 +110,5 @@ short, non-blocking, and omit transform movement when reduced motion is requeste
 
 Validate every shell, landing, and example change at 320, 375, 414, 768, and 1440 CSS-pixel widths.
 At each width, verify that there is no page-level horizontal overflow, primary control labels do not
-wrap, keyboard focus remains visible, navigation remains reachable, and examples retain preview,
-controls, and source access.
+wrap, keyboard focus remains visible, navigation remains reachable, and Playgrounds retain their
+preview and controls while standalone examples retain source access.

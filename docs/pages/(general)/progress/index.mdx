@@ -7,34 +7,17 @@ search:
   tags: [loading, percentage, steps, indicator]
 ---
 
+import { Progress } from '@src'
+
 ## Import
 
 ```tsx
 import { Progress } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Track with a fill indicator, optional status text, and step labels.
-
-```text
-root
-├── status (optional, determinate only)
-├── track
-│   └── indicator
-└── steps (optional, step mode)
-    └── step (×n)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
     {
@@ -50,7 +33,33 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     },
     { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <Progress
+        value={props.value}
+        size={props.size}
+        status={props.status}
+        animation={props.animation}
+      />
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Track with a fill indicator, optional status text, and step labels.
+
+```text
+root
+├── status (optional, determinate only)
+├── track
+│   └── indicator
+└── steps (optional, step mode)
+    └── step (×n)
+```
+
+## Examples
 
 ### Sizes
 

@@ -7,36 +7,18 @@ search:
   tags: [pages, previous, next, navigation]
 ---
 
+import { Pagination } from '@src'
+import { createSignal } from 'solid-js'
+
 ## Import
 
 ```tsx
 import { Pagination } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Page controls with previous, next, and numbered page link buttons.
-
-```text
-root
-└── list
-    ├── item (prev)
-    │   └── prev (Button)
-    ├── item (×n, page links)
-    │   └── link (Button)
-    └── item (next)
-        └── next (Button)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'select',
@@ -58,7 +40,44 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     },
     { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
   ]}
-/>
+>
+  {(props) => {
+    const [page, setPage] = createSignal(1)
+
+    return (
+      <div class="flex flex-col gap-3 items-center">
+        <Pagination
+          total={100}
+          page={page()}
+          onPageChange={setPage}
+          itemsPerPage={props.itemsPerPage}
+          size={props.size}
+          showControls={props.showControls}
+        />
+        <span class="text-xs text-muted-foreground font-mono">Current Page: {page()} of 10</span>
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Slot Structure
+
+Page controls with previous, next, and numbered page link buttons.
+
+```text
+root
+└── list
+    ├── item (prev)
+    │   └── prev (Button)
+    ├── item (×n, page links)
+    │   └── link (Button)
+    └── item (next)
+        └── next (Button)
+```
+
+## Examples
 
 ### Variants
 

@@ -7,11 +7,72 @@ search:
   tags: [drawer, panel, overlay, mobile]
 ---
 
+import { Button, Input, Sheet } from '@src'
+
 ## Import
 
 ```tsx
 import { Sheet } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'side',
+      label: 'Side',
+      defaultValue: 'right',
+      options: [
+        { label: 'Right', value: 'right' },
+        { label: 'Left', value: 'left' },
+        { label: 'Top', value: 'top' },
+        { label: 'Bottom', value: 'bottom' },
+      ],
+    },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <Sheet
+        side={props.side}
+        title="Edit User Profile"
+        description="Make changes to your account profile here."
+        dismissible={props.dismissible}
+        overlay={props.overlay}
+        body={
+          <div class="py-3 space-y-4">
+            <div class="space-y-1.5">
+              <label class="text-xs text-muted-foreground font-medium">Display name</label>
+              <Input defaultValue="Sarah Connor" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs text-muted-foreground font-medium">Username</label>
+              <Input defaultValue="@sconnor" />
+            </div>
+          </div>
+        }
+        footer={
+          <div class="flex gap-2 w-full justify-end">
+            <Button variant="ghost" size="sm">
+              Cancel
+            </Button>
+            <Button size="sm">Save changes</Button>
+          </div>
+        }
+      >
+        {(triggerProps) => (
+          <Button {...triggerProps} variant="outline">
+            Open Sheet
+          </Button>
+        )}
+      </Sheet>
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -32,31 +93,6 @@ trigger
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'side',
-      label: 'Side',
-      defaultValue: 'right',
-      options: [
-        { label: 'Right', value: 'right' },
-        { label: 'Left', value: 'left' },
-        { label: 'Top', value: 'top' },
-        { label: 'Bottom', value: 'bottom' },
-      ],
-    },
-    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
-    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
-  ]}
-/>
 
 ### Variants
 

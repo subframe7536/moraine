@@ -7,11 +7,75 @@ search:
   tags: [combobox, multiple selection, tags, options]
 ---
 
+import { MultiSelect } from '@src'
+import { createSignal } from 'solid-js'
+
 ## Import
 
 ```tsx
 import { MultiSelect } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const TAG_OPTIONS = [
+      { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
+      { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+      { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+      { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+      { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+    ]
+
+    const [selected, setSelected] = createSignal(['design', 'dev'])
+
+    return (
+      <MultiSelect
+        options={TAG_OPTIONS}
+        value={selected()}
+        onChange={setSelected}
+        placeholder={props.placeholder}
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        loading={props.loading}
+        allowClear
+      />
+    )
+
+}}
+
+</Playground>
 
 ## Slot Structure
 
@@ -46,43 +110,6 @@ content (portal)
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Subtle', value: 'subtle' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'None', value: 'none' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-  ]}
-/>
 
 ### Multiple Select
 

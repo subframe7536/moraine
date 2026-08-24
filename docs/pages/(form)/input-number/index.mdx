@@ -7,44 +7,18 @@ search:
   tags: [number, stepper, spinbutton, numeric]
 ---
 
+import { InputNumber } from '@src'
+import { createSignal } from 'solid-js'
+
 ## Import
 
 ```tsx
 import { InputNumber } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
-
-### Horizontal
-
-```text
-root
-├── decrement (optional)
-├── input
-└── increment (optional)
-```
-
-### Vertical
-
-```text
-root
-├── input
-└── controls
-    ├── increment (optional)
-    └── decrement (optional)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'select',
@@ -82,7 +56,48 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'increment', label: 'Increment control', defaultValue: true },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <div class="max-w-full w-64">
+        <InputNumber
+          variant={props.variant}
+          size={props.size}
+          orientation={props.orientation}
+          disabled={props.disabled}
+          increment={props.increment}
+          min={0}
+          max={100}
+        />
+      </div>
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Numeric input with increment/decrement controls placed inline (horizontal) or stacked (vertical).
+
+### Horizontal
+
+```text
+root
+├── decrement (optional)
+├── input
+└── increment (optional)
+```
+
+### Vertical
+
+```text
+root
+├── input
+└── controls
+    ├── increment (optional)
+    └── decrement (optional)
+```
+
+## Examples
 
 ### Variants
 

@@ -47,6 +47,8 @@
   - [x] fix broken auto scroll to anchor
 - [ ] production barrel import optimize
 - [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
+- [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
+- [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
 
 # V1
 

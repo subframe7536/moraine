@@ -7,6 +7,8 @@ search:
   tags: [list, collection, virtualization, headless]
 ---
 
+import { Badge, List } from '@src'
+
 ## Import
 
 ```tsx
@@ -16,19 +18,48 @@ import { useListVirtualizer } from 'moraine/utils'
 
 `List` owns collection traversal and the scroll-element bridge used by virtual renderers. Item markup, semantics, styling, filtering, focus, and selection remain under caller control.
 
-## Examples
+## Playground
 
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'label', label: 'List title', defaultValue: 'Recent projects' },
   ]}
-/>
+>
+  {(props) => {
+    const PROJECT_ITEMS = [
+      { id: '1', name: 'Moraine UI', status: 'Active', category: 'Design System' },
+      { id: '2', name: 'SolidDocs', status: 'Review', category: 'Documentation' },
+      { id: '3', name: 'Formisch', status: 'Stable', category: 'Form Validation' },
+    ]
+
+    return (
+      <>
+        <p class="text-xs text-muted-foreground/80 tracking-wider font-medium mb-2 uppercase">
+          {props.label}
+        </p>
+        <List
+          items={PROJECT_ITEMS}
+          itemRender={(ctx) => (
+            <li class="p-3 border-b border-border/50 rounded-lg flex transition-colors items-center justify-between last:border-0 hover:bg-muted/30">
+              <div>
+                <p class="text-xs text-foreground font-medium">{ctx.item.name}</p>
+                <p class="text-[0.7rem] text-muted-foreground">{ctx.item.category}</p>
+              </div>
+              <Badge variant="outline" size="sm">
+                {ctx.item.status}
+              </Badge>
+            </li>
+          )}
+          class="p-1 border border-border/60 rounded-xl bg-card/30"
+        />
+      </>
+    )
+
+}}
+
+</Playground>
+
+## Examples
 
 ### Object List
 

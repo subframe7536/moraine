@@ -7,32 +7,17 @@ search:
   tags: [keyboard, shortcut, keycap, hotkey]
 ---
 
+import { Kbd } from '@src'
+
 ## Import
 
 ```tsx
 import { Kbd } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-`Kbd` renders a single accessible keycap. Use [`KbdGroup`](/general/kbd-group) for shortcut chords and ordered sequences.
-Static aliases such as `meta`, `enter`, `escape`, and `arrowup` resolve to familiar key symbols with accessible labels.
-Set `symbol={false}` to render the raw key value without alias resolution.
-Use `KbdT.Key` in shortcut data models to retain alias autocomplete while accepting custom key names.
-
-```text
-root
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'select',
@@ -70,7 +55,31 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     },
     { kind: 'switch', prop: 'symbol', label: 'Resolve symbol', defaultValue: true },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <div class="flex gap-2 items-center">
+        <span class="text-xs text-muted-foreground">Press</span>
+        <Kbd value={props.value} variant={props.variant} size={props.size} symbol={props.symbol} />
+        <Kbd value="K" variant={props.variant} size={props.size} />
+        <span class="text-xs text-muted-foreground">to open command menu</span>
+      </div>
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+`Kbd` renders a single accessible keycap. Use [`KbdGroup`](/general/kbd-group) for shortcut chords and ordered sequences.
+Static aliases such as `meta`, `enter`, `escape`, and `arrowup` resolve to familiar key symbols with accessible labels.
+Set `symbol={false}` to render the raw key value without alias resolution.
+Use `KbdT.Key` in shortcut data models to retain alias autocomplete while accepting custom key names.
+
+```text
+root
+```
+
+## Examples
 
 ### Variants
 

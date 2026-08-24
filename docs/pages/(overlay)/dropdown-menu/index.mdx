@@ -7,11 +7,62 @@ search:
   tags: [actions, menu, submenu, dropdown]
 ---
 
+import { Button, DropdownMenu } from '@src'
+
 ## Import
 
 ```tsx
 import { DropdownMenu } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    return (
+      <DropdownMenu
+        items={[
+          {
+            type: 'group',
+            label: 'Account',
+            children: [
+              { label: 'Profile', icon: 'i-lucide:user' },
+              { label: 'Billing', icon: 'i-lucide:credit-card' },
+              { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
+            ],
+          },
+          {
+            type: 'group',
+            children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }],
+          },
+        ]}
+        size={props.size}
+        disabled={props.disabled}
+      >
+        {(triggerProps) => (
+          <Button {...triggerProps} variant="outline" trailing="i-lucide:chevron-down">
+            Account Actions
+          </Button>
+        )}
+      </DropdownMenu>
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -45,29 +96,6 @@ item
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
-/>
 
 ### Sizes
 

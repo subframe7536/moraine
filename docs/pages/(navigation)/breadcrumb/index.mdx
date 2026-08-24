@@ -7,11 +7,46 @@ search:
   tags: [path, hierarchy, navigation, trail]
 ---
 
+import { Breadcrumb } from '@src'
+
 ## Import
 
 ```tsx
 import { Breadcrumb } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'separator',
+      label: 'Separator',
+      defaultValue: 'i-lucide:chevron-right',
+    },
+    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const TRAIL_ITEMS = [
+      { label: 'Home', href: '#', icon: 'i-lucide:home' },
+      { label: 'Projects', href: '#' },
+      { label: 'Design System', href: '#' },
+      { label: 'Components' },
+    ]
+
+    return (
+      <Breadcrumb
+        items={TRAIL_ITEMS}
+        separator={props.separator || 'i-lucide:chevron-right'}
+        wrap={props.wrap}
+      />
+    )
+
+}}
+
+</Playground>
 
 ## Slot Structure
 
@@ -28,24 +63,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'input',
-      prop: 'separator',
-      label: 'Separator',
-      defaultValue: 'i-lucide:chevron-right',
-    },
-    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
-  ]}
-/>
 
 ### Default
 

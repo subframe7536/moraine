@@ -90,6 +90,8 @@ const INTRO_CARD_CONTENT = [
   ],
 ] as const
 
+const PLAYGROUND_SECTION_PATTERN = /^## Playground\r?\n[\s\S]*?(?=^## |$(?![\s\S]))/gm
+
 function normalizeSiteUrl(siteUrl: string): string {
   return siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`
 }
@@ -121,6 +123,10 @@ function normalizeApiType(type: string): string {
 function readFrontmatterBlock(source: string): string {
   const match = source.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/)
   return match?.[0].trimEnd() ?? ''
+}
+
+function removePlaygroundSections(source: string): string {
+  return source.replace(PLAYGROUND_SECTION_PATTERN, '')
 }
 
 function stringOffsetFromUtf8ByteOffset(source: Buffer, offset: number): number {
@@ -273,6 +279,17 @@ function codeFence(language: string, source: string): string {
   return `${fence}${language}\n${source.trimEnd()}\n${fence}\n`
 }
 
+async function renderExample(examplePath: string, context: PageConversionContext) {
+  const exampleSourcePath = resolveExampleFile(context.sourcePath, examplePath)
+  const source = await readFile(exampleSourcePath, 'utf8')
+  const exportName = resolveExampleExportName(await parseExampleCode(source), exampleSourcePath)
+  const componentSource = await resolveExampleComponentSource(source, exportName, parseExampleCode)
+  if (!componentSource) {
+    throw new Error(`[docs-llms] unable to extract the example component from ${exampleSourcePath}`)
+  }
+  return codeFence('tsx', componentSource)
+}
+
 async function renderExampleNode(node: MdxComponentNode, context: PageConversionContext) {
   const examplePath = getComponentAttribute(node, 'path', context.sourcePath)?.trim()
   if (!examplePath) {
@@ -284,14 +301,7 @@ async function renderExampleNode(node: MdxComponentNode, context: PageConversion
     throw new Error(`[docs-llms] <Example /> cannot have children in ${context.sourcePath}`)
   }
 
-  const exampleSourcePath = resolveExampleFile(context.sourcePath, examplePath)
-  const source = await readFile(exampleSourcePath, 'utf8')
-  const exportName = resolveExampleExportName(await parseExampleCode(source), exampleSourcePath)
-  const componentSource = await resolveExampleComponentSource(source, exportName, parseExampleCode)
-  if (!componentSource) {
-    throw new Error(`[docs-llms] unable to extract the example component from ${exampleSourcePath}`)
-  }
-  return codeFence('tsx', componentSource)
+  return renderExample(examplePath, context)
 }
 
 function renderCodeTabsNode(node: MdxComponentNode, context: PageConversionContext): string {
@@ -390,7 +400,8 @@ async function convertPageMarkdown(
   source: string,
   context: PageConversionContext,
 ): Promise<string> {
-  const components = await collectMdxComponents(source, context.sourcePath)
+  const markdownSource = removePlaygroundSections(source)
+  const components = await collectMdxComponents(markdownSource, context.sourcePath)
   const replacements = await Promise.all(
     components.map(async (node) => ({
       start: node.start,
@@ -399,7 +410,7 @@ async function convertPageMarkdown(
     })),
   )
 
-  let output = source
+  let output = markdownSource
   for (const replacement of replacements.sort((left, right) => right.start - left.start)) {
     output = `${output.slice(0, replacement.start)}${replacement.value}${output.slice(replacement.end)}`
   }

@@ -10,7 +10,9 @@ category: overlays
 upstreamHref: https://github.com/subframe7536/solid-toaster
 ---
 
-<ToastHosts />
+import 'solid-toaster/style.css'
+import { Button } from '@src'
+import { toast } from 'solid-toaster'
 
 ## Import
 
@@ -36,15 +38,9 @@ export default function App() {
 }
 ```
 
-## Examples
+## Playground
 
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'input',
@@ -65,7 +61,36 @@ Adjust common primitive props while keeping the focused scenarios below for comp
       ],
     },
   ]}
-/>
+>
+  {(props) => {
+    const showToast = () => {
+      const message = props.message
+      switch (props.tone) {
+        case 'warning':
+          toast.warning(message)
+          break
+        case 'error':
+          toast.error(message)
+          break
+        case 'info':
+          toast(message)
+          break
+        default:
+          toast.success(message)
+      }
+    }
+
+    return (
+      <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
+        Trigger Toast Notification
+      </Button>
+    )
+
+}}
+
+</Playground>
+
+## Examples
 
 ### Basic Toasts
 

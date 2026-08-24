@@ -7,11 +7,65 @@ search:
   tags: [right click, long press, actions, menu]
 ---
 
+import { ContextMenu } from '@src'
+
 ## Import
 
 ```tsx
 import { ContextMenu } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    return (
+      <ContextMenu
+        items={[
+          {
+            type: 'group',
+            label: 'Edit',
+            children: [
+              { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
+              { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
+              { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
+            ],
+          },
+          {
+            type: 'group',
+            children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }],
+          },
+        ]}
+        size={props.size}
+        disabled={props.disabled}
+      >
+        {(triggerProps) => (
+          <div
+            {...triggerProps}
+            class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
+          >
+            Right click or long press here
+          </div>
+        )}
+      </ContextMenu>
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -45,29 +99,6 @@ item
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
-/>
 
 ### Sizes
 

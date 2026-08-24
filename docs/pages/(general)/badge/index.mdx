@@ -7,32 +7,17 @@ search:
   tags: [label, tag, status, metadata]
 ---
 
+import { Badge } from '@src'
+
 ## Import
 
 ```tsx
 import { Badge } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Compact label with optional leading and trailing icon slots.
-
-```text
-root
-├── leading (Icon, optional)
-├── label (optional)
-└── trailing (Icon or IconButton, optional)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'New feature' },
     {
@@ -59,7 +44,28 @@ Adjust common primitive props while keeping the focused scenarios below for comp
       ],
     },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <Badge variant={props.variant} size={props.size} leading="i-lucide:sparkles">
+        {props.title}
+      </Badge>
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Compact label with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon or IconButton, optional)
+```
+
+## Examples
 
 ### Variants
 

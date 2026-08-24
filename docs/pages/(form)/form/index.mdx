@@ -7,6 +7,10 @@ search:
   tags: [Formisch, validation, submit, store]
 ---
 
+import { Button, createForm, Form, FormField, Input, Switch } from '@src'
+import { Show, createSignal } from 'solid-js'
+import * as v from 'valibot'
+
 ## Import
 
 Create the Formisch store with a Valibot schema, then pass it to `Form`. Moraine fields and
@@ -38,17 +42,61 @@ export function NoticationForm() {
 For field arrays or custom rendering, import `Field`, `FieldArray`, `useField`, and Formisch
 methods directly from `@formisch/solid` and use the same store.
 
-## Examples
+## Playground
 
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
-/>
+>
+  {(props) => {
+    const LoginSchema = v.object({
+      email: v.pipe(v.string(), v.email('Enter a valid email address.')),
+      password: v.pipe(v.string(), v.minLength(6, 'Password must be at least 6 characters.')),
+      remember: v.boolean(),
+    })
+
+    const [success, setSuccess] = createSignal(false)
+    const form = createForm({
+      schema: LoginSchema,
+      initialInput: {
+        email: '',
+        password: '',
+        remember: true,
+      },
+    })
+
+    return (
+      <Form of={form} onSubmit={() => setSuccess(true)} class="space-y-4">
+        <FormField name="email" label="Email" required>
+          <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
+        </FormField>
+
+        <FormField name="password" label="Password" required>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            disabled={props.disabled}
+            leading="i-lucide:lock"
+          />
+        </FormField>
+
+        <FormField name="remember">
+          <Switch label="Remember me" disabled={props.disabled} />
+        </FormField>
+
+        <Button type="submit" class="w-full" disabled={props.disabled}>
+          Sign in
+        </Button>
+        <Show when={success()}>
+          <p class="text-xs text-primary font-medium text-center">Successfully signed in!</p>
+        </Show>
+      </Form>
+    )
+
+}}
+
+</Playground>
+
+## Examples
 
 ### Workspace Provisioning
 

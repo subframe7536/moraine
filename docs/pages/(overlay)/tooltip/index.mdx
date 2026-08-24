@@ -7,33 +7,17 @@ search:
   tags: [hint, hover, label, floating]
 ---
 
+import { Button, Tooltip } from '@src'
+
 ## Import
 
 ```tsx
 import { Tooltip } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Polymorphic trigger root with a floating content portal containing text and optional keyboard hints.
-
-```text
-trigger
-└── content (portal)
-    ├── text (optional)
-    └── kbds (optional)
-        └── kbd (×n)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Tooltip text', defaultValue: 'Create new document' },
     {
@@ -51,7 +35,41 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <div class="p-6 flex items-center justify-center">
+        <Tooltip
+          text={props.text}
+          kbds={['⌘', 'N']}
+          placement={props.placement}
+          disabled={props.disabled}
+          invert={props.invert}
+        >
+          {(triggerProps) => (
+            <Button {...triggerProps} variant="outline" leading="i-lucide:file-plus">
+              Hover me
+            </Button>
+          )}
+        </Tooltip>
+      </div>
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Polymorphic trigger root with a floating content portal containing text and optional keyboard hints.
+
+```text
+trigger
+└── content (portal)
+    ├── text (optional)
+    └── kbds (optional)
+        └── kbd (×n)
+```
+
+## Examples
 
 ### Placements
 

@@ -100,7 +100,11 @@ describe('llms.txt generation', () => {
       await writeProjectFile(
         projectRoot,
         'docs/pages/(general)/button/index.mdx',
-        pageSource('Button', 1, 'Use [`Button`](/general/button).\n\n<Example path="./basic" />'),
+        pageSource(
+          'Button',
+          1,
+          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Examples\n\n<Example path="./basic" />',
+        ),
       )
       await writeProjectFile(
         projectRoot,
@@ -167,7 +171,12 @@ describe('llms.txt generation', () => {
       expect(button).toContain('##### ARIA Attributes')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
+      expect(button).toContain('## Examples')
       expect(button).not.toContain('<Example')
+      expect(button).not.toContain('## Playground')
+      expect(button).not.toContain('<Playground')
+      expect(button).not.toContain('props.label')
+      expect(button).not.toContain('UnknownComponent')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

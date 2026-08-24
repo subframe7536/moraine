@@ -1,11 +1,12 @@
 import type { MDXComponents } from 'solid-file-router/mdx'
-import type { Component } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createResource, onMount, Show } from 'solid-js'
 
 import { Tabs } from '../../../../src/index.ts'
 
 import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
 import { DocsDemoBlock } from './docs-demo-block.tsx'
+import { DocsPlayground as Playground } from './docs-playground.tsx'
 import { IntroComponents } from './intro-components.tsx'
 import { Markdown } from './markdown.tsx'
 import type { DocsMdxCodeTabItem } from './markdown.tsx'
@@ -34,12 +35,18 @@ function toStringProp(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
 }
 
+function MdxButton(props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return <button {...props} />
+}
+
 export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Markdown,
 
+  button: MdxButton,
+
+  Playground,
+
   Example(props: MdxProps) {
-    const playground = props.playground === true
-    const controls = playground ? props.controls : undefined
     const [descriptor, { refetch }] = createResource(() => {
       const loader = props.load
       if (typeof loader !== 'function') {
@@ -59,14 +66,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
     return (
       <Show when={descriptor()}>
-        {(value) => (
-          <DocsDemoBlock
-            component={value().component}
-            source={value().source}
-            playground={playground}
-            controls={controls}
-          />
-        )}
+        {(value) => <DocsDemoBlock component={value().component} source={value().source} />}
       </Show>
     )
   },

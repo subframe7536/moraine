@@ -7,11 +7,58 @@ search:
   tags: [disclosure, expand, collapse, sections]
 ---
 
+import { Accordion } from '@src'
+
 ## Import
 
 ```tsx
 import { Accordion } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'collapsible', label: 'Collapsible', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    const FAQ_ITEMS = [
+      {
+        value: 'install',
+        label: 'How do I install Moraine?',
+        content:
+          'Install moraine with bun add moraine and configure UnoCSS or Tailwind with presetMoraine.',
+      },
+      {
+        value: 'ssr',
+        label: 'Is server-side rendering supported?',
+        content:
+          'Yes, Moraine components render safely during Solid SSR and hydrate seamlessly on the client.',
+      },
+      {
+        value: 'customize',
+        label: 'Can I customize component styles?',
+        content:
+          'Every component provides root class/style props and named slots classes/styles for fine-grained customization.',
+      },
+    ]
+
+    return (
+      <div class="max-w-full w-96">
+        <Accordion
+          items={FAQ_ITEMS}
+          defaultValue={['install']}
+          disabled={props.disabled}
+          collapsible={props.collapsible}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
 
 ## Slot Structure
 
@@ -29,19 +76,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'collapsible', label: 'Collapsible', defaultValue: true },
-  ]}
-/>
 
 ### Single
 

@@ -7,32 +7,17 @@ search:
   tags: [action, click, submit, loading]
 ---
 
+import { Button } from '@src/elements/button/button.tsx'
+
 ## Import
 
 ```tsx
 import { Button } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Trigger element with optional leading and trailing icon slots.
-
-```text
-root
-├── leading (Icon, optional)
-├── label (optional)
-└── trailing (Icon, optional)
-```
-
-## Examples
-
-### Variants
-
-Visual variants for primary, secondary, subtle, and destructive actions.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Button' },
     {
@@ -63,7 +48,33 @@ Visual variants for primary, secondary, subtle, and destructive actions.
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    return (
+      <Button
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        loading={props.loading}
+      >
+        {props.label}
+      </Button>
+    )
+  }}
+</Playground>
+
+## Slot Structure
+
+Trigger element with optional leading and trailing icon slots.
+
+```text
+root
+├── leading (Icon, optional)
+├── label (optional)
+└── trailing (Icon, optional)
+```
+
+## Examples
 
 ### Sizes
 

@@ -7,11 +7,43 @@ search:
   tags: [button, actions, toolbar, group]
 ---
 
+import { Button, ButtonGroup } from '@src'
+
 ## Import
 
 ```tsx
 import { Button, ButtonGroup } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'separator', label: 'Separators', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <ButtonGroup
+      variant="outline"
+      orientation={props.orientation}
+      separator={props.separator}
+      aria-label="Document history"
+    >
+      <Button leading="i-lucide:undo-2">Undo</Button>
+      <Button leading="i-lucide:redo-2">Redo</Button>
+    </ButtonGroup>
+  )}
+</Playground>
 
 ## Usage
 
@@ -39,28 +71,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./basic"
-  playground
-  controls={[
-    { kind: 'switch', prop: 'separator', label: 'Separators', defaultValue: false },
-    {
-      kind: 'select',
-      prop: 'orientation',
-      label: 'Orientation',
-      defaultValue: 'horizontal',
-      options: [
-        { label: 'Horizontal', value: 'horizontal' },
-        { label: 'Vertical', value: 'vertical' },
-      ],
-    },
-  ]}
-/>
 
 ### Basic
 

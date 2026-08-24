@@ -7,11 +7,41 @@ search:
   tags: [keyboard, shortcut, chord, hotkey]
 ---
 
+import { KbdGroup } from '@src'
+
 ## Import
 
 ```tsx
 import { KbdGroup } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="flex gap-2 items-center">
+        <span class="text-xs text-muted-foreground">Quick save:</span>
+        <KbdGroup items={['ctrl', 'shift', 'S']} size={props.size} separator={props.separator} />
+      </div>
+    )
+  }}
+</Playground>
 
 ## Usage
 
@@ -30,29 +60,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
-  ]}
-/>
 
 ### Basic
 

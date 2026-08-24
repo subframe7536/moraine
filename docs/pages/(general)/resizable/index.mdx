@@ -7,11 +7,53 @@ search:
   tags: [panels, splitter, drag, resize]
 ---
 
+import { Resizable } from '@src'
+
 ## Import
 
 ```tsx
 import { Resizable } from 'moraine'
 ```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
+        <Resizable
+          handle={props.handle}
+          disable={props.disabled}
+          panels={[
+            {
+              defaultSize: '35%',
+              min: '20%',
+              content: (
+                <div class="text-xs text-muted-foreground font-mono p-4 bg-muted/20 flex h-full items-center justify-center">
+                  Sidebar Panel
+                </div>
+              ),
+            },
+            {
+              defaultSize: '65%',
+              min: '30%',
+              content: (
+                <div class="text-xs text-muted-foreground font-mono p-4 bg-background/50 flex h-full items-center justify-center">
+                  Main Editor Content
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
+    )
+  }}
+</Playground>
 
 ## Slot Structure
 
@@ -27,19 +69,6 @@ root
 ```
 
 ## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
-  controls={[
-    { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-  ]}
-/>
 
 ### Basic Horizontal
 

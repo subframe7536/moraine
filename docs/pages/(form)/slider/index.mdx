@@ -7,33 +7,18 @@ search:
   tags: [range, value, thumb, step]
 ---
 
+import { Slider } from '@src'
+import { createSignal } from 'solid-js'
+
 ## Import
 
 ```tsx
 import { Slider } from 'moraine'
 ```
 
-## Slot Structure
+## Playground
 
-Track with a fill range and one or more draggable thumb handles.
-
-```text
-root
-├── track
-│   ├── range
-│   └── divider (optional ×n)
-└── thumb (×n)
-```
-
-## Examples
-
-### Playground
-
-Adjust common primitive props while keeping the focused scenarios below for composition and controlled state.
-
-<Example
-  path="./playground"
-  playground
+<Playground
   controls={[
     {
       kind: 'select',
@@ -59,7 +44,48 @@ Adjust common primitive props while keeping the focused scenarios below for comp
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
   ]}
-/>
+>
+  {(props) => {
+    const [value, setValue] = createSignal(65)
+
+    return (
+      <div class="space-y-3">
+        <div class="text-xs text-muted-foreground flex items-center justify-between">
+          <span>Volume level</span>
+          <span class="text-foreground font-medium font-mono">{value()}%</span>
+        </div>
+        <Slider
+          value={value()}
+          onValueChange={(val) => {
+            if (typeof val === 'number') {
+              setValue(val)
+            }
+          }}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          inverted={props.inverted}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Slot Structure
+
+Track with a fill range and one or more draggable thumb handles.
+
+```text
+root
+├── track
+│   ├── range
+│   └── divider (optional ×n)
+└── thumb (×n)
+```
+
+## Examples
 
 ### Controlled Single
 
