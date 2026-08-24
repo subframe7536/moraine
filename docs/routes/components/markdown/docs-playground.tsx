@@ -231,7 +231,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
         <InputNumber
           id={controlId}
           value={values[control.prop] as InputT.Value}
-          onChange={(value) => setValues(control.prop, value)}
+          onRawValueChange={(value) => setValues(control.prop, value)}
         />
       </FormField>
     )

@@ -20,13 +20,13 @@ import { Icon } from 'moraine'
 <Playground
   controls={[
     { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
-    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide:sparkles' },
+    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide-sparkles' },
   ]}
 >
   {(props) => {
     return (
       <div class="p-4 flex items-center justify-center">
-        <Icon name={props.name} size={props.size} class="text-primary transition-all" />
+        <Icon name={props.name} size={props.size} class="text-primary" />
       </div>
     )
   }}

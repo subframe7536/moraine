@@ -13,7 +13,7 @@ function getLocationHash(routerHash: string): string {
   return routerHash || (typeof window === 'undefined' ? '' : window.location.hash)
 }
 
-export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
+export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { activeIds, primaryActiveId } = useTableOfContents(
@@ -40,10 +40,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
   }
 
   return (
-    <nav
-      aria-label="On This Page"
-      class="my-6 p-4 border border-border/60 bg-muted/40 lg:(my-0 p-0 border-0 bg-transparent col-start-2 row-start-1 docs-toc-width max-h-[calc(100vh-4rem)] self-start top-16 sticky overflow-y-auto)"
-    >
+    <nav aria-label="On This Page" class={props.class}>
       <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold uppercase">
         On This Page
       </p>
@@ -59,7 +56,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
                 onClick={handleAnchorClick}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 docs-focus-visible transition-colors data-active:(text-primary font-medium) hover:text-foreground"
+                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 transition-colors data-active:(text-primary font-medium) hover:text-foreground focus-visible:effect-fv"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

@@ -78,7 +78,7 @@ function IntroSpecimen() {
               value={message()}
               placeholder="Write an update"
               onInput={(event) => setMessage(event.currentTarget.value)}
-              class="text-sm text-foreground px-3 docs-focus-visible border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground"
+              class="text-sm text-foreground px-3 border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground focus-visible:effect-fv"
             />
           </div>
 
@@ -119,7 +119,8 @@ function IntroSpecimen() {
             size="sm"
             classes={{
               list: 'w-full justify-start border-b border-border/60 rounded-none bg-transparent',
-              trigger: 'docs-focus-visible',
+              trigger:
+                'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
               content: 'pt-3',
             }}
             items={[
@@ -194,7 +195,7 @@ export const IntroComponents = () => {
           <code class="docs-inline-code">moraine/unocss</code>; the Tailwind integration is
           experimental and is documented separately in the{' '}
           <a
-            class="text-primary docs-focus-visible underline underline-offset-3 hover:text-primary-hover"
+            class="text-primary underline underline-offset-3 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
             href="/styling"
           >
             styling guide
@@ -241,7 +242,7 @@ export const IntroComponents = () => {
                       <li>
                         <a
                           href={`/${component.key}`}
-                          class="group p-3.5 docs-focus-visible border border-border/60 rounded-xl bg-card/30 block transition-all hover:(border-border bg-muted/40)"
+                          class="group p-3.5 border border-border/60 rounded-xl bg-card/30 block transition-all focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:(border-border bg-muted/40)"
                         >
                           <span class="text-sm text-foreground font-medium transition-colors group-hover:text-primary">
                             {component.name}
@@ -270,7 +271,7 @@ export const IntroComponents = () => {
         <ul class="mt-3 p-0 list-none gap-x-6 gap-y-3 grid sm:grid-cols-2">
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="/styling"
             >
               Styling guide
@@ -278,7 +279,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="/typescript"
             >
               TypeScript guide
@@ -286,7 +287,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="/utils"
             >
               Utility reference
@@ -294,7 +295,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="/llms.txt"
             >
               llms.txt
@@ -302,7 +303,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="https://github.com/subframe7536/moraine"
               target="_blank"
               rel="noopener noreferrer"
@@ -312,7 +313,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="https://github.com/subframe7536/moraine/blob/main/README.md"
               target="_blank"
               rel="noopener noreferrer"
@@ -322,7 +323,7 @@ export const IntroComponents = () => {
           </li>
           <li>
             <a
-              class="text-primary docs-focus-visible underline underline-offset-2 hover:text-primary-hover"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               href="https://github.com/subframe7536/moraine/blob/main/LICENSE"
               target="_blank"
               rel="noopener noreferrer"

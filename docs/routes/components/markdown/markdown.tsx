@@ -147,9 +147,9 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
   })
 
   return (
-    <article class="text-foreground docs-content-gutter min-h-screen w-full">
-      <div class="mx-auto max-w-7xl">
-        <header class="text-foreground mt-3 docs-article-measure">
+    <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8 lg:gap-12">
+      <div class="flex-1 min-w-0 w-full">
+        <header class="text-foreground mt-3">
           <div class="flex flex-wrap gap-2 items-center">
             <Show when={category()}>
               {(nextCategory) => (
@@ -182,7 +182,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                 variant="ghost"
                 size="sm"
                 leading="i-lucide:file-text"
-                class="docs-focus-visible docs-compact-control"
+                class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               >
                 View as Markdown
               </Button>
@@ -193,7 +193,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                 leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
                 disabled={!input.markdownSource}
                 onClick={copyMarkdownSource}
-                class="docs-focus-visible docs-compact-control"
+                class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
               >
                 {copyState() === 'copied'
                   ? 'Copied Markdown'
@@ -212,7 +212,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                   variant="ghost"
                   size="sm"
                   leading="i-lucide:github"
-                  class="docs-focus-visible docs-compact-control"
+                  class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Source Code
                 </Button>
@@ -229,7 +229,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                   variant="ghost"
                   size="sm"
                   leading="icon-external"
-                  class="docs-focus-visible docs-compact-control"
+                  class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Upstream
                 </Button>
@@ -237,15 +237,17 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             </Show>
           </div>
         </header>
-        <div class="gap-8 grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start">
-          <OnThisPage entries={onThisPageEntries()} />
-          <div class="mb-24 docs-article-measure min-w-0 w-full xl:col-start-1 xl:row-start-1">
-            {input.children}
-            <DocsApiReference apiDoc={input.apiDoc} />
-            <DocsPageNavigation currentPageKey={input.pageKey} />
-          </div>
+
+        <div class="mb-24 min-w-0 w-full">
+          {input.children}
+          <DocsApiReference apiDoc={input.apiDoc} />
+          <DocsPageNavigation currentPageKey={input.pageKey} />
         </div>
       </div>
+      <OnThisPage
+        class="shrink-0 h-fit w-60 hidden lg:(block top-20 sticky)"
+        entries={onThisPageEntries()}
+      />
     </article>
   )
 }

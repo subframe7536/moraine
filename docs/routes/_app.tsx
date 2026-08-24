@@ -100,7 +100,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <>
             <a
               href="#main-content"
-              class="z-toast text-foreground px-4 py-2 docs-focus-visible rounded-md bg-background transition-transform left-1/2 top-2 fixed -translate-x-1/2 -translate-y-full focus-visible:translate-y-0"
+              class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
             >
               Skip to main content
             </a>
@@ -155,7 +155,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             </header>
 
             <main id="main-content" tabindex="-1" class="min-w-0" data-docs-main>
-              <Suspense fallback={<div class="docs-content-gutter py-8 min-h-screen" />}>
+              <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
                 {props.children}
               </Suspense>
             </main>
