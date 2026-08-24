@@ -1,42 +1,27 @@
-import { Checkbox } from '@src'
-import type { CheckboxT } from '@src'
-import { For, createSignal } from 'solid-js'
+import { Badge, Checkbox } from '@src'
+import { createSignal } from 'solid-js'
 
 export function CustomTrueFalseValues() {
-  const INDICATORS: CheckboxIndicatorName[] = ['start', 'end', 'hidden']
-
-  const [featureFlag, setFeatureFlag] = createSignal<'enabled' | 'disabled'>('enabled')
-
-  type CheckboxIndicatorName = Exclude<CheckboxT.Variant['indicator'], undefined>
+  const [telemetry, setTelemetry] = createSignal<'opted-in' | 'opted-out'>('opted-in')
 
   return (
-    <div class="max-w-xl space-y-3">
-      <Checkbox<'enabled', 'disabled'>
-        label="Feature flag"
-        description="Controlled with custom values"
-        trueValue="enabled"
-        falseValue="disabled"
-        checked={featureFlag()}
-        onChange={setFeatureFlag}
-        indicator="end"
-      />
-      <p class="text-xs text-muted-foreground">Current value: {featureFlag()}</p>
-
-      <div class="p-3 b-(1 border) rounded-lg">
-        <p class="text-xs text-muted-foreground mb-2">Indicator matrix:</p>
-        <div class="flex flex-col gap-2">
-          <For each={INDICATORS}>
-            {(indicator) => (
-              <Checkbox
-                indicator={indicator}
-                label={`Indicator ${indicator}`}
-                description="Uncontrolled"
-                defaultChecked
-              />
-            )}
-          </For>
-        </div>
+    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+      <div class="flex gap-4 items-center justify-between">
+        <Checkbox<'opted-in', 'opted-out'>
+          label="Anonymous telemetry collection"
+          description="Send anonymous crash diagnostics and performance reports."
+          trueValue="opted-in"
+          falseValue="opted-out"
+          checked={telemetry()}
+          onChange={setTelemetry}
+        />
+        <Badge variant={telemetry() === 'opted-in' ? 'default' : 'outline'}>{telemetry()}</Badge>
       </div>
+
+      <p class="text-xs text-muted-foreground">
+        Controlled domain state is stored as <code class="font-mono">{telemetry()}</code> instead of
+        a raw boolean.
+      </p>
     </div>
   )
 }

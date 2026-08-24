@@ -4,16 +4,20 @@ export function Variants() {
   return (
     <div class="gap-8 grid sm:grid-cols-2">
       <div class="space-y-3">
-        <Checkbox label="List / start" description="Default list style" defaultChecked />
         <Checkbox
-          label="List / end"
-          description="Indicator at the end"
+          label="Terms of Service"
+          description="I agree to the Terms of Service and Privacy Policy."
+          defaultChecked
+        />
+        <Checkbox
+          label="Weekly digest"
+          description="Receive a summary of workspace activity every Monday."
           indicator="end"
           defaultChecked
         />
         <Checkbox
-          label="List / hidden"
-          description="Only text, no visible indicator"
+          label="Auto-save drafts"
+          description="Save document edits automatically to local cache."
           indicator="hidden"
           defaultChecked
         />
@@ -22,17 +26,22 @@ export function Variants() {
       <div class="space-y-3">
         <Checkbox
           variant="card"
-          label="Card variant"
-          description="Whole card area is clickable"
+          label="Automatic renewal"
+          description="Renews automatically on Oct 24 for $19/month."
           defaultChecked
         />
         <Checkbox
           variant="card"
-          label="Card / end"
-          description="Card with trailing indicator"
+          label="Two-factor authentication"
+          description="Require a hardware key or TOTP code on login."
           indicator="end"
         />
-        <Checkbox variant="card" label="Card / disabled" description="Disabled state" disabled />
+        <Checkbox
+          variant="card"
+          label="Dedicated IP pool"
+          description="Available exclusively on Enterprise tier plans."
+          disabled
+        />
       </div>
     </div>
   )

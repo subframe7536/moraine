@@ -1,21 +1,26 @@
 ---
 title: Avatar
-description: Circular user or entity avatar with fallback initials and an optional indicator.
+description: An image element with graceful fallback initials, status badge indicators, and consistent size scaling for user profiles and entities.
 sidebar:
   order: 4
 search:
-  tags: [profile, image, fallback, user]
+  tags: [profile, image, fallback, user, avatar, initials, status dot]
 ---
 
 import { Avatar } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Avatar } from 'moraine'
+import type { AvatarT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -50,42 +55,53 @@ import { Avatar } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Avatar renders a single image/fallback frame. Use [`AvatarGroup`](/general/avatar-group) for grouped avatars with an overflow counter.
+- **Graceful Async Loading**: Displays fallback text/initials immediately while the image preloads in the background, preventing blank flashes or layout shifts.
+- **Smart Initials Derivation**: Automatically extracts 2-letter uppercase initials from `alt` text if no explicit `text` is provided.
+- **Status Badges**: Position presence dots, verified badges, or custom icons at `top-left`, `top-right`, `bottom-left`, or `bottom-right`.
+- **Icon Fallback**: Render standard user icons or custom SVGs when no image URL or initials are available.
+- **Uniform Size Scale**: Proportional avatar radii and typography across `xs`, `sm`, `md`, `lg`, and `xl`.
 
-### Single avatar
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── image
-├── fallback
-│   └── fallbackIcon (Icon, optional)
-└── badge (optional)
+root (circular image frame)
+├── image (rendered when URL loads successfully)
+├── fallback (initials or user glyph)
+│   └── fallbackIcon (Icon, rendered if icon fallback)
+└── badge (optional status indicator pill or icon)
 ```
+
+- `root`: Container applying circular clip path, border, and size dimensions.
+- `image`: HTML `<img>` tag with lazy loading and error detection.
+- `fallback`: Background container displaying formatted initials.
+- `badge`: Corner indicator displaying online presence or verification status.
 
 ## Examples
 
 ### Single Avatar
 
-Fallback first, then image crossfades in after preload.
+Preloads remote image with smooth opacity crossfade from initial fallback letters.
 
 <Example path="./single-avatar" />
 
 ### Sizes
 
-Scale single avatars from `sm` to `lg`.
+Preview single avatar scaling across `sm`, `md`, and `lg`.
 
 <Example path="./sizes" />
 
 ### Fallback Modes
 
-Text, initials-from-alt and fallback icon.
+Compare explicit fallback text, automated initials extraction from `alt`, and generic user icon fallbacks.
 
 <Example path="./fallback-modes" />
 
 ### Badge Positions
 
-Top/bottom + left/right corner badge.
+Configure presence indicator placement in all 4 corners (`bottom-right`, `bottom-left`, `top-right`, `top-left`).
 
 <Example path="./badge-positions" />

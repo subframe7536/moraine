@@ -1,21 +1,26 @@
 ---
 title: AvatarGroup
-description: Group of overlapping avatars with an optional overflow count.
+description: A container that stacks overlapping avatars horizontally with automatic overflow count calculation and hover depth effects.
 sidebar:
   order: 5
 search:
-  tags: [profiles, stack, overflow, users]
+  tags: [profiles, stack, overflow, users, avatar group, team, assignees]
 ---
 
 import { Avatar, AvatarGroup } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
-import { AvatarGroup } from 'moraine'
+import { Avatar, AvatarGroup } from 'moraine'
+import type { AvatarGroupT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -66,33 +71,46 @@ import { AvatarGroup } from 'moraine'
   }}
 </Playground>
 
-## Usage
+## Features
 
-`AvatarGroup` renders multiple `Avatar` items as an overlapping group with an optional overflow count.
-Use [`Avatar`](/general/avatar) for a standalone avatar.
+- **Negative Spacing Stacking**: Automatically overlays avatars with matching background ring borders to cleanly delineate adjacent items.
+- **Dynamic Overflow Truncation**: When total items exceed `max`, extra avatars are summarized into an accessible `+N` badge.
+- **Cascading Size Control**: Setting `size` on `AvatarGroup` automatically propagates to all nested avatars and the overflow badge.
+- **Interactive Depth Elevation**: Individual avatars lift on hover with elevation z-index so users can inspect obscured faces.
 
-## Slot Structure
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── count (optional, overflow count)
-└── item (×n)
-    ├── image
-    ├── fallback
-    │   └── fallbackIcon (Icon, optional)
-    └── badge (optional)
+root (horizontal avatar stack)
+├── item (individual Avatar instance ×n)
+│   ├── image
+│   ├── fallback
+│   └── badge
+└── count (overflow counter pill "+N")
 ```
+
+- `root`: Flex container applying negative horizontal margins and border rings.
+- `item`: Composed child `Avatar` instances.
+- `count`: Badge showing remaining count when `children.length > max`.
 
 ## Examples
 
 ### Basic
 
+Standard overlapping team member stack with ring borders.
+
 <Example path="./basic" />
 
 ### Overflow Count
 
+Truncates 6 team contributors to 3 visible avatars with an interactive `+3` overflow badge.
+
 <Example path="./overflow" />
 
 ### Sizes
+
+Size scaling across `sm`, `md`, and `lg` adjusting ring thicknesses and negative margin overlaps.
 
 <Example path="./sizes" />

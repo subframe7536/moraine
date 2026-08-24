@@ -1,24 +1,25 @@
 import { Switch } from '@src'
-import type { SwitchT } from '@src'
-import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: SwitchSizeName[] = ['sm', 'md', 'lg']
-
-  type SwitchSizeName = Exclude<SwitchT.Variant['size'], undefined>
-
   return (
-    <div class="gap-3 grid sm:grid-cols-2">
-      <For each={SIZES}>
-        {(size) => (
-          <Switch
-            size={size}
-            label={`Size ${size}`}
-            description="Size preview"
-            defaultChecked={size === 'lg'}
-          />
-        )}
-      </For>
+    <div class="flex flex-col gap-4 max-w-xl">
+      <Switch
+        size="sm"
+        label="Auto-renew domain license"
+        description="Small compact row toggle (sm)"
+        defaultChecked
+      />
+      <Switch
+        size="md"
+        label="Enable push notifications"
+        description="Standard form settings toggle (md)"
+        defaultChecked
+      />
+      <Switch
+        size="lg"
+        label="Developer Mode & Debugging Tools"
+        description="Prominent hero feature switch with large touch target (lg)"
+      />
     </div>
   )
 }

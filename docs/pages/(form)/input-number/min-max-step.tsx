@@ -2,14 +2,21 @@ import { InputNumber } from '@src'
 
 export function MinMaxStep() {
   return (
-    <div class="flex flex-wrap gap-6 items-start">
-      <div class="space-y-1">
-        <label class="text-xs text-muted-foreground block">Step 5 (0–100)</label>
-        <InputNumber defaultValue={25} minValue={0} maxValue={100} step={5} />
+    <div class="gap-4 grid max-w-xl sm:grid-cols-2">
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
+        <label class="text-xs text-muted-foreground tracking-wider font-semibold block uppercase">
+          CPU Cores (1 to 32)
+        </label>
+        <InputNumber defaultValue={4} minValue={1} maxValue={32} step={1} />
+        <p class="text-xs text-muted-foreground">Dedicated compute vCPUs</p>
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-muted-foreground block">Step 0.1 (0–1)</label>
-        <InputNumber defaultValue={0.5} minValue={0} maxValue={1} step={0.1} />
+
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
+        <label class="text-xs text-muted-foreground tracking-wider font-semibold block uppercase">
+          RAM in GB (Step 2, Max 64)
+        </label>
+        <InputNumber defaultValue={16} minValue={2} maxValue={64} step={2} />
+        <p class="text-xs text-muted-foreground">ECC high-throughput memory</p>
       </div>
     </div>
   )

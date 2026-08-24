@@ -1,52 +1,73 @@
-import { FileUpload } from '@src'
+import { Badge, FileUpload } from '@src'
 import type { FileUploadT } from '@src'
-import { createSignal } from 'solid-js'
+import { createSignal, For, Show } from 'solid-js'
 
 export function MultipleMaxFiles() {
-  function fileCount(value: FileUploadValue): number {
-    if (value === null) {
-      return 0
-    }
-
-    if (Array.isArray(value)) {
-      return value.length
-    }
-
-    return 1
-  }
-
-  function fileNames(value: FileUploadValue): string {
-    if (value === null) {
-      return 'none'
-    }
-
-    if (Array.isArray(value)) {
-      return value.length > 0 ? value.map((file) => file.name).join(', ') : 'none'
-    }
-
-    return value.name
-  }
-
-  const [multiValue, setMultiValue] = createSignal<FileUploadValue>([])
-
-  const [rejectedCount, setRejectedCount] = createSignal(0)
-
   type FileUploadValue = FileUploadT.Value
 
+  const [receipts, setReceipts] = createSignal<FileUploadValue>([])
+  const [rejectWarning, setRejectWarning] = createSignal<string | null>(null)
+
+  const filesList = () => {
+    const val = receipts()
+    if (!val) {
+      return []
+    }
+    return Array.isArray(val) ? val : [val]
+  }
+
   return (
-    <div class="max-w-xl space-y-3">
+    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-medium">Expense receipts</h4>
+          <p class="text-xs text-muted-foreground">
+            Upload up to 3 receipt images or PDF documents.
+          </p>
+        </div>
+        <Badge variant="outline">Max 3 files</Badge>
+      </div>
+
       <FileUpload
         multiple
         maxFiles={3}
         accept="image/*,.pdf"
-        label="Upload up to 3 files"
-        description="Drop or select multiple files."
-        onValueChange={setMultiValue}
-        onFileReject={(files) => setRejectedCount(files.length)}
+        label="Drop receipts here"
+        description="PDF, PNG, JPG up to 10MB each"
+        onValueChange={(val) => {
+          setReceipts(val)
+          setRejectWarning(null)
+        }}
+        onFileReject={(rejected) => {
+          setRejectWarning(
+            `Rejected ${rejected.length} file(s) exceeding the 3 file limit or invalid format.`,
+          )
+        }}
       />
-      <p class="text-xs text-muted-foreground">Selected count: {fileCount(multiValue())}</p>
-      <p class="text-xs text-muted-foreground">Selected names: {fileNames(multiValue())}</p>
-      <p class="text-xs text-muted-foreground">Last reject batch size: {rejectedCount()}</p>
+
+      <Show when={rejectWarning()}>
+        <p class="text-xs text-destructive">{rejectWarning()}</p>
+      </Show>
+
+      <Show when={filesList().length > 0}>
+        <div class="pt-2 border-t border-border space-y-2">
+          <p class="text-xs text-muted-foreground font-medium">
+            Attached files ({filesList().length}/3):
+          </p>
+          <div class="space-y-1">
+            <For each={filesList()}>
+              {(file) => (
+                <div class="text-xs p-2 rounded-lg bg-muted/40 flex items-center justify-between">
+                  <span class="font-medium truncate">{file.name}</span>
+                  <span class="text-muted-foreground font-mono">
+                    {(file.size / 1024).toFixed(1)} KB
+                  </span>
+                </div>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
     </div>
   )
 }

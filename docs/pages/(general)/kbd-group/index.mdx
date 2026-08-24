@@ -1,21 +1,26 @@
 ---
 title: KbdGroup
-description: Group of keyboard shortcut keys supporting simultaneous chords and ordered sequences.
+description: A container component for assembling simultaneous shortcut chords and multi-step key sequences with configurable divider separators.
 sidebar:
   order: 14
 search:
-  tags: [keyboard, shortcut, chord, hotkey]
+  tags: [keyboard, shortcut, chord, hotkey, kbd group, key sequence]
 ---
 
 import { KbdGroup } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { KbdGroup } from 'moraine'
+import type { KbdGroupT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -43,36 +48,52 @@ import { KbdGroup } from 'moraine'
   }}
 </Playground>
 
-## Usage
+## Features
 
-`KbdGroup` composes multiple [`Kbd`](/general/kbd) keycaps.
-Use `items` for keys pressed at the same time, such as `Ctrl + K`.
-Use `sequence` for chords pressed one after another, such as `Ctrl + K` then `Ctrl + S`.
+- **Simultaneous Chords (`items`)**: Joins keys pressed at the same time (e.g. `⌘ + K` or `Ctrl + Shift + P`) with a configurable plus separator.
+- **Sequential Multi-Step Chords (`sequence`)**: Supports multi-stage keyboard commands (e.g. `g` then `i` for Git inbox, or `Ctrl+K` then `Ctrl+S`).
+- **Custom Dividers**: Customize delimiter characters between simultaneous keys (`+`, `-`) or ordered steps (`then`, `->`).
+- **Cascading Size & Variant Propagation**: Uniformly applies size and color styling across all nested keycaps.
 
-## Slot Structure
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── chord
-│   ├── item (×n)
-│   └── divider (between simultaneous keys)
-└── sequenceDivider (between ordered chords)
+root (kbd group container)
+├── chord (simultaneous key combination container)
+│   ├── item (individual Kbd element ×n)
+│   └── divider (separator between keys, e.g. "+")
+└── sequenceDivider (delimiter between chord steps, e.g. "then")
 ```
+
+- `root`: Flex container wrapping shortcut chords in semantic flow order.
+- `chord`: Grouping for simultaneous key presses.
+- `divider`: Plus sign or joiner glyph.
+- `sequenceDivider`: Text separator indicating temporal succession.
 
 ## Examples
 
 ### Basic
 
+Simultaneous modifier chord combinations (`⌘ + Shift + P`, `Ctrl + Alt + Del`).
+
 <Example path="./basic" />
 
 ### Sequences
+
+Sequential VS Code and Vim style chords (`Ctrl + K` then `Ctrl + S`, `g` then `p`).
 
 <Example path="./sequences" />
 
 ### Custom Dividers
 
+Configure custom separators like arrows, text labels, or bullet points.
+
 <Example path="./custom-dividers" />
 
 ### Sizes
+
+Size scale from `sm` to `lg`.
 
 <Example path="./sizes" />

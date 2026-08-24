@@ -1,25 +1,44 @@
 ---
 title: ButtonGroup
-description: Cohesive group of related buttons with shared size, variant, and orientation.
+description: A connected toolbar container for grouping related buttons with shared variants, sizes, divider separators, and split action dropdowns.
 sidebar:
   order: 1
 search:
-  tags: [button, actions, toolbar, group]
+  tags: [button, actions, toolbar, group, split button, segment]
 ---
 
 import { Button, ButtonGroup } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Button, ButtonGroup } from 'moraine'
+import type { ButtonGroupT } from 'moraine'
 ```
 
 ## Playground
 
+Interactive component preview with configurable props.
+
 <Playground
   controls={[
     { kind: 'switch', prop: 'separator', label: 'Separators', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
     {
       kind: 'select',
       prop: 'orientation',
@@ -34,7 +53,7 @@ import { Button, ButtonGroup } from 'moraine'
 >
   {(props) => (
     <ButtonGroup
-      variant="outline"
+      variant={props.variant}
       orientation={props.orientation}
       separator={props.separator}
       aria-label="Document history"
@@ -45,65 +64,74 @@ import { Button, ButtonGroup } from 'moraine'
   )}
 </Playground>
 
-## Usage
+## Features
 
-`ButtonGroup` joins the edges of direct button children and provides shared `size` and `variant`
-defaults. A child `Button` can override either default when needed.
+- **Seamless Edge Merging**: Automatically removes intermediate border radii and collapses adjacent borders into clean connected button rails.
+- **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
+- **Divider Separator**: Enable `separator={true}` to inject decorative hairline divider borders between adjoining button items.
+- **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
+- **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
 
-Add an accessible label when the surrounding content does not already name the group.
+## Anatomy
 
-Set `separator` to render a decorative separator between adjacent controls. Customize its root
-with the `separator` slot in `classes` or `styles`.
-
-```tsx
-<ButtonGroup separator classes={{ separator: 'text-primary' }}>
-  <Button>Export</Button>
-  <Button>Share</Button>
-</ButtonGroup>
-```
-
-## Slot Structure
+Hierarchical slot and element structure:
 
 ```text
-root
-├── Button (x n)
-└── separator (between adjacent children, optional)
+root (button group container)
+├── Button (child button item ×n)
+└── separator (hairline divider line between buttons, optional)
 ```
+
+- `root`: Flex container managing border collapsing and role orientation.
+- `separator`: Decorative divider element inserted between consecutive buttons.
 
 ## Examples
 
 ### Basic
 
+Standard text editor alignment toolbar (`Align Left`, `Center`, `Align Right`, `Justify`).
+
 <Example path="./basic" />
 
 ### Variants
+
+Compare `outline`, `secondary`, and `ghost` button group appearances.
 
 <Example path="./variants" />
 
 ### Sizes
 
+Size scaling across `sm`, `md`, and `lg`.
+
 <Example path="./sizes" />
 
 ### Orientations
 
-Horizontal and vertical groups using compact quantity controls.
+Horizontal action rows and vertical quantity counter controls.
 
 <Example path="./vertical" />
 
 ### Separators
 
-Toggle separators between adjacent controls with a switch.
+Hairline separator dividers cleanly segmenting distinct action clusters.
 
 <Example path="./separator" />
 
 ### Popover
 
-Compose a primary button with a Popover trigger inside the same group.
+Compose an action button with an inline parameter popover trigger.
 
 <Example path="./button-popover" />
 
 ### Dropdown
 
-A report export action composed from a button trigger and a dropdown menu.
+Split button pattern pairing a primary 'Deploy' action with a dropdown menu of deployment targets.
 
 <Example path="./button-dropdown" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                |
+| ----------------------------------- | ---------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Moves focus sequentially through the buttons in the group. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the currently focused button in the group.       |

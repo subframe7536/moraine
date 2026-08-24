@@ -1,22 +1,27 @@
 ---
 title: SidebarFrame
-description: Sidebar and main frame with mobile Sheet support and desktop layout wrappers.
+description: An application shell layout component managing responsive desktop sidebars, resizable panels, mobile overlay drawers, and nested header/footer regions.
 sidebar:
   order: 6
   badge: New
 search:
-  tags: [app shell, layout, navigation, mobile]
+  tags: [app shell, layout, navigation, mobile, sidebar, drawer, responsive shell]
 ---
 
 import { Badge, Button, Icon, SidebarFrame } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { SidebarFrame, SidebarFrameSheetResizableRender } from 'moraine'
+import type { SidebarFrameT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -91,53 +96,65 @@ import { SidebarFrame, SidebarFrameSheetResizableRender } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Root frame containing a sidebar with optional header/footer and a scrollable main area.
+- **Responsive Breakpoint Adaptation**: Automatically switches from desktop fixed/resizable sidebar to mobile overlay slide-out `Sheet` drawer.
+- **3 Visual Styles**: Supports `default` (flush side border), `floating` (detached floating card rail), and `inset` (recessed canvas background).
+- **Sidebar Sides (`left` & `right`)**: Place navigation on the left or secondary inspector/property panels on the right.
+- **Resizable Drawer Adapter**: Integrates with `SidebarFrameSheetResizableRender` for draggable panel resizing and mini-rail collapse states.
+- **Dedicated Slot Regions**: Clean modular separation of `sidebarHeaderRender`, `sidebarBodyRender`, `sidebarFooterRender`, and `mainRender`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── sidebar
-│   ├── sidebarHeader (optional)
-│   ├── sidebarBody
-│   └── sidebarFooter (optional)
-└── main
+root (app shell container)
+├── sidebar (desktop panel or mobile sheet drawer)
+│   ├── sidebarHeader (organization brand / switcher, optional)
+│   ├── sidebarBody (scrollable navigation links)
+│   └── sidebarFooter (user profile / settings, optional)
+└── main (primary scrollable page content)
 ```
+
+- `root`: Outer layout frame managing media queries and CSS grid/flex layout.
+- `sidebar`: Responsive navigation container with width variables (`--sidebar-width`).
+- `main`: Content viewport container.
 
 ## Examples
 
 ### Basic
 
-Desktop fixed layout with a simple header/body/main composition. Use `--sidebar-width` to control sidebar width
+Desktop layout with workspace switcher, navigation links, and main view.
 
 <Example path="./basic" />
 
 ### Variants
 
-Compare `default`, `floating`, and `inset` visual variants with the same content.
+Compare `default`, `floating`, and `inset` layout variants.
 
 <Example path="./variants" />
 
 ### Sides
 
-Compare `side="left"` and `side="right"` desktop layouts.
+Position the sidebar on the `left` (navigation) or `right` (inspector panel).
 
 <Example path="./sides" />
 
 ### SheetResizableRender
 
-Use `SidebarFrameSheetResizableRender` with external collapse button, `collapsibleMin`, and icon handle.
+Interactive resizable sidebar with drag divider, collapse button, and mini rail icon state.
 
 <Example path="./sheet-resizable-render" />
 
 ### ForcedMobile
 
-Force mobile mode and open the sidebar sheet from main content via `ctx.toggle`.
+Force mobile view behavior to test mobile drawer toggle actions.
 
 <Example path="./forced-mobile" />
 
 ### Header and Footer Slots
 
-Use optional `sidebarHeaderRender` and `sidebarFooterRender` while keeping body as the scroll region.
+Fixed header (workspace branding) and fixed footer (user account menu) with scrollable middle navigation body.
 
 <Example path="./header-footer-slots" />

@@ -4,28 +4,33 @@ export function Multiple() {
   return (
     <Accordion
       multiple
-      defaultValue={['a']}
+      defaultValue={['general', 'security']}
       items={[
         {
-          value: 'a',
-          label: 'Account setup',
-          content: 'Create your account and verify email.',
+          value: 'general',
+          label: 'General Workspace Information',
+          leading: 'i-lucide:settings',
+          content: 'Configure your organization name, slug, avatar, and default language settings.',
         },
         {
-          value: 'b',
-          label: 'Team invite',
-          content: 'Invite teammates to your workspace.',
+          value: 'security',
+          label: 'Security & Access Control',
+          leading: 'i-lucide:shield-alert',
+          content:
+            'Manage SSO providers, enforce two-factor authentication, and review active sessions.',
         },
         {
-          value: 'c',
-          label: 'Billing',
-          content: 'Add a payment method to continue.',
+          value: 'billing',
+          label: 'Subscription & Invoices',
+          leading: 'i-lucide:credit-card',
+          content:
+            'View current plan usage, payment methods, and download historical invoice receipts.',
         },
       ]}
       classes={{
-        root: 'max-w-xl rounded-lg b-1 b-border border-border bg-background',
+        root: 'max-w-xl rounded-xl b-1 b-border border-border bg-card',
         trigger: 'px-4',
-        content: 'px-4 text-foreground',
+        content: 'px-4 text-foreground text-sm',
       }}
     />
   )

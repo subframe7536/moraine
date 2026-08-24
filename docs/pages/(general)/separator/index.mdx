@@ -1,21 +1,26 @@
 ---
 title: Separator
-description: Visual divider with configurable orientation, style, and border type.
+description: A visual or semantic divider separating sections with horizontal and vertical orientations, decorative styling, and solid/dashed/dotted border styles.
 sidebar:
   order: 9
 search:
-  tags: [divider, horizontal, vertical, rule]
+  tags: [divider, horizontal, vertical, rule, separator, line, hairline]
 ---
 
 import { Separator } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Separator } from 'moraine'
+import type { SeparatorT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -54,30 +59,39 @@ import { Separator } from 'moraine'
   }}
 </Playground>
 
-## Structure
+## Features
 
-The separator renders one root element that acts as the horizontal or vertical rule.
+- **Horizontal & Vertical Orientations**: Automatically applies full width for horizontal rules or full height for inline vertical dividers.
+- **Border Stroke Styles**: Choose from `solid`, `dashed`, and `dotted` lines.
+- **Calibrated Thickness Scale**: Three thickness levels (`sm`, `md`, `lg`) matching theme border scales.
+- **Accessible By Default**: Sets `role="none"` or `role="separator"` depending on `decorative` prop.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
+root (semantic <hr> or decorative divider element)
 ```
+
+- `root`: Line element applying orientation, border style, and theme border colors (`border-border`).
 
 ## Examples
 
 ### Sizes
 
-Border thickness variants.
+Compare hairline `sm`, medium `md`, and heavy `lg` divider thicknesses.
 
 <Example path="./sizes" />
 
 ### Types
 
-Solid, dashed, and dotted divider styles.
+Explore `solid` (clean boundary), `dashed` (dropzone or secondary boundary), and `dotted` line styles.
 
 <Example path="./types" />
 
 ### Vertical
 
-Vertical separators in flexible layouts.
+Vertical separator dividing breadcrumb segments, navbar links, and button toolbars.
 
 <Example path="./orientation" />

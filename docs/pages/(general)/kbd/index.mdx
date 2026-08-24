@@ -1,21 +1,26 @@
 ---
 title: Kbd
-description: Keyboard keycap component with configurable size, variant, and accessible label.
+description: A semantic keyboard keycap indicator for rendering shortcut combinations, symbol aliases, and accessible hotkey annotations.
 sidebar:
   order: 13
 search:
-  tags: [keyboard, shortcut, keycap, hotkey]
+  tags: [keyboard, shortcut, keycap, hotkey, kbd, command key]
 ---
 
 import { Kbd } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Kbd } from 'moraine'
+import type { KbdT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -68,33 +73,40 @@ import { Kbd } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-`Kbd` renders a single accessible keycap. Use [`KbdGroup`](/general/kbd-group) for shortcut chords and ordered sequences.
-Static aliases such as `meta`, `enter`, `escape`, and `arrowup` resolve to familiar key symbols with accessible labels.
-Set `symbol={false}` to render the raw key value without alias resolution.
-Use `KbdT.Key` in shortcut data models to retain alias autocomplete while accepting custom key names.
+- **Automated Platform Symbols**: Maps key strings like `'meta'`, `'ctrl'`, `'shift'`, `'enter'`, `'escape'` to official Mac and Windows glyphs (`⌘`, `⌃`, `⇧`, `↵`, `⎋`).
+- **Semantic `<kbd>` Markup**: Renders semantic HTML `<kbd>` elements with `aria-label` for screen reader accessibility.
+- **Multiple Visual Styles**: Supports `default` (raised surface keycap), `outline` (clean border), and `invert` (high-contrast dark key).
+- **Proportional Size Scale**: Three sizes (`sm`, `md`, `lg`) calibrated to match button, input, and menu font scales.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
+root (semantic HTML <kbd> element)
+└── {resolved symbol or text child}
 ```
+
+- `root`: The `<kbd>` element styled with mono typography, border shadow, and rounded corners.
 
 ## Examples
 
 ### Variants
 
-Outline, default, and invert visual modes.
+Compare `default` (subtle border and background), `outline` (monochrome border), and `invert` (solid high-contrast).
 
 <Example path="./variants" />
 
 ### Sizes
 
-Keycap sizes from sm to lg.
+Size scaling from `sm` (table tooltips) to `lg` (onboarding dialogs).
 
 <Example path="./sizes" />
 
 ### Inline Usage
 
-Single-key inline hint.
+Embed single key hints within descriptive prose, buttons, and command palette items.
 
 <Example path="./shortcut-composition" />

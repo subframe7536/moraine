@@ -1,21 +1,26 @@
 ---
 title: FileUpload
-description: Drag-and-drop file upload component with progress tracking and file list management.
+description: A drag-and-drop file upload component supporting multiple files, rejection validation rules, image previews, and compact trigger buttons.
 sidebar:
   order: 13
 search:
-  tags: [dropzone, files, upload, progress]
+  tags: [dropzone, files, upload, progress, attachments, drag and drop]
 ---
 
 import { FileUpload } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { FileUpload } from 'moraine'
+import type { FileUploadT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -47,62 +52,83 @@ import { FileUpload } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Upload control and optional file preview list.
+- **Drag-and-Drop Dropzone**: Native dragover, dragleave, and drop event handlers with visual focus and hover state feedback.
+- **Single & Multiple File Mode**: Select individual files (like avatars) or append multiple files up to a configured `maxFiles` limit.
+- **Granular Rejection Rules**: Built-in validation rejecting invalid MIME types (`accept`), oversized files (`maxSize`), undersized files (`minSize`), and duplicates with detailed error callbacks.
+- **Trigger-Only Mode**: Disable the full dropzone with `dropzone={false}` to render a compact, accessible file picker button.
+- **Integrated File Preview & Removal**: Built-in file items displaying thumbnail previews, formatted file sizes, and quick delete actions.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ### Upload area
 
 ```text
 root
-└── control (dropzone or trigger button)
+├── input (visually hidden native file input)
+└── control (dropzone container or trigger button)
     └── wrapper
-        ├── icon (Icon)
-        ├── label (optional)
-        └── description (optional)
+        ├── icon (leading upload icon)
+        ├── label (title text)
+        └── description (formats & size instructions)
 ```
 
 ### File preview list
 
 ```text
 root
-└── files
-    └── file (×n)
-        ├── filePreview
-        ├── fileMeta
-        │   ├── fileName
-        │   └── fileSize
-        └── fileRemove
+└── files (file list container)
+    └── file (individual file item ×n)
+        ├── filePreview (thumbnail or file icon)
+        ├── fileMeta (metadata column)
+        │   ├── fileName (file name string)
+        │   └── fileSize (formatted byte size)
+        └── fileRemove (remove action button)
 ```
+
+- `root`: Outer component container.
+- `control`: The interactive dropzone target or button triggering the native file picker.
+- `files`: Container grouping all staged attachments.
+- `fileRemove`: Individual remove button emitting delete events.
 
 ## Examples
 
 ### Single Upload
 
-Basic single-file mode with a live readout from onValueChange.
+Ideal for profile avatars or single document uploads. Displays the active selected file name and formatted size badge.
 
 <Example path="./single-upload" />
 
 ### Multiple + Max Files
 
-Append files across selections, reject overflow, and show selected names.
+Enforce maximum file limits (e.g. up to 3 receipt images). File selection exceeding the quota automatically triggers validation warnings.
 
 <Example path="./multiple-max-files" />
 
 ### Sizes
 
-Size scale from `sm` to `lg` for trigger height, spacing, and file list density.
+Scales padding, typography, icon size, and file item density across `sm`, `md`, and `lg`.
 
 <Example path="./sizes" />
 
 ### Trigger Mode (No Dropzone)
 
-Use button-style trigger behavior by disabling dropzone interaction.
+Set `dropzone={false}` to render a compact inline file picker button suitable for message toolbars and comment boxes.
 
 <Example path="./trigger-mode-no-dropzone" />
 
 ### Form Integration
 
-Submit to validate a required attachment with Form + FormField.
+Seamless integration with `Form` and `FormField` to enforce mandatory file attachments and display validation errors upon submit.
 
 <Example path="./form-integration" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                                              |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
+| <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |

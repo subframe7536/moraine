@@ -1,21 +1,26 @@
 ---
 title: DropdownMenu
-description: Triggered action menu anchored to its child content.
+description: A triggered overlay menu component anchored to a button or custom element, featuring categorized groups, nested submenus, shortcut annotations, and checkbox/radio items.
 sidebar:
   order: 6
 search:
-  tags: [actions, menu, submenu, dropdown]
+  tags: [actions, menu, submenu, dropdown, dropdown menu, popover menu]
 ---
 
 import { Button, DropdownMenu } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { DropdownMenu } from 'moraine'
+import type { DropdownMenuT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -64,59 +69,70 @@ import { DropdownMenu } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Polymorphic trigger root with a floating menu portal containing grouped items.
+- **Anchored Floating Overlay**: Automatically positions relative to the trigger using Floating UI with smart collision detection and auto-flip.
+- **Categorized Sections & Separators**: Organize action items into clean labeled groups with hairline dividers.
+- **Multi-Level Submenus**: Supports infinite submenu nesting with smooth delay timers and diagonal pointer guidance.
+- **Checkbox & Radio Menu Items**: Supports toggle states and single-choice lists directly inside the dropdown.
+- **WAI-ARIA Menu Standards**: Strict conformance to `role="menu"` and `role="menuitem"`, with roving focus and keyboard activation.
 
-Use `contentProps` and `itemProps` to forward native attributes, refs, and event handlers. Item handlers run before built-in menu behavior and can call `preventDefault()` to cancel activation.
+## Anatomy
 
-The enter and exit motion follows the resolved `placement` and alignment, including collision flips from Floating UI. Override `classes.content` or `styles.content` when a custom motion is needed.
-
-### Menu
-
-```text
-trigger
-└── content (portal)
-    └── group (×n)
-        ├── label (optional)
-        ├── separator (optional)
-        └── item (×n)
-```
-
-### Item internals
+Hierarchical slot and element structure:
 
 ```text
-item
-├── itemLeading (optional)
-├── itemWrapper
-│   ├── itemLabel (optional)
-│   └── itemDescription (optional)
-└── itemTrailing
-    └── itemIndicator (optional, checkbox items)
+trigger (button launching dropdown)
+└── content (floating overlay portal)
+    └── group (section container ×n)
+        ├── label (group header, optional)
+        ├── separator (hairline divider line, optional)
+        └── item (individual action item ×n)
+            ├── itemLeading (icon, avatar, or check indicator)
+            ├── itemWrapper
+            │   ├── itemLabel (action title)
+            │   └── itemDescription (subtext or trailing shortcut hint)
+            └── itemTrailing (kbd shortcuts or nested submenu chevron)
 ```
+
+- `trigger`: Component or element receiving pointer/click handlers.
+- `content`: Floating menu card rendered via portal.
+- `item`: Selectable row executing an action on click or Enter.
 
 ## Examples
 
 ### Sizes
 
-Menu item size scale from `sm` to `lg` for compact and roomy density.
+Size scaling across `sm` (compact table action menu), `md` (standard), and `lg` (spacious touch menu).
 
 <Example path="./sizes" />
 
 ### Account / Team
 
-An account dropdown with grouped actions, workspace switching, shortcut hints, and a destructive sign-out row.
+Account switcher with organization selection, billing links, shortcut badges, and destructive sign-out.
 
 <Example path="./account-team" />
 
 ### Editor / View Options
 
-A workspace-style menu with recent files, nested submenus, checkbox toggles, and theme selection for keyboard and pointer testing.
+Workspace view settings menu with checkbox toggles (Minimap, Breadcrumbs), theme switcher, and nested submenus.
 
 <Example path="./editor-view-options" />
 
 ### Project / Release Actions
 
-A heavier project menu with move flows, release actions, mixed-content labels, and destructive project operations.
+Project management menu with Move to Workspace, Release Tagging, and Danger Zone delete actions.
 
 <Example path="./project-release-actions" />
+
+## Keyboard Interactions
+
+| Key                                                        | Description                                                       |
+| ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>ArrowDown</kbd> | Opens the dropdown menu and focuses the first item.               |
+| <kbd>ArrowDown</kbd>                                       | Moves highlight to the next menu item.                            |
+| <kbd>ArrowUp</kbd>                                         | Moves highlight to the previous menu item.                        |
+| <kbd>ArrowRight</kbd>                                      | Opens a nested submenu when focused on a submenu trigger.         |
+| <kbd>ArrowLeft</kbd>                                       | Closes the open submenu and returns focus to the parent trigger.  |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Executes the highlighted action and closes the menu.              |
+| <kbd>Escape</kbd>                                          | Closes the dropdown menu and returns focus to the trigger button. |

@@ -1,21 +1,26 @@
 ---
 title: Textarea
-description: Multi-line text input with autoresize support and form field integration.
+description: A multi-line text input component featuring seamless automatic height resizing, min/max row clamping, header and footer toolbars, and size scaling.
 sidebar:
   order: 4
 search:
-  tags: [multiline, text field, autoresize, form control]
+  tags: [multiline, text field, autoresize, form control, textarea, notes, composer]
 ---
 
 import { Textarea } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Textarea } from 'moraine'
+import type { TextareaT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -66,39 +71,60 @@ import { Textarea } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Multi-line text input with optional header and footer slots.
+- **Fluid Auto-Resize**: Automatically expands height as the user types, eliminating awkward internal scrollbars.
+- **Row Clamping**: Enforce minimum (`minRows`) and maximum (`maxRows`) height limits to prevent unbounded growth.
+- **Header & Footer Composability**: Embed rich formatting toolbars in `header` and submit buttons, character counters, or markdown badges in `footer`.
+- **Multiple Visual Styles**: Supports `outline`, `subtle`, `ghost`, and `none` variants for inline scratchpads, code reviews, and cards.
+- **WAI-ARIA Accessibility**: Standard multi-line textbox accessibility, integrating seamlessly with `FormField` labels and validation errors.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── header (optional)
-├── input
-└── footer (optional)
+root (outer container)
+├── header (optional formatting toolbar)
+├── input (native HTML <textarea>)
+└── footer (optional submit button & counter)
 ```
+
+- `root`: Container wrapper applying border, focus ring, and variant styling.
+- `header`: Slot positioned above the text area (e.g. for markdown formatting buttons).
+- `input`: The multi-line text input with dynamic height calculation.
+- `footer`: Slot positioned below the text area (e.g. for character count or action buttons).
 
 ## Examples
 
 ### Variants
 
-Outline/subtle/ghost/none visual variants.
+Compare `outline` (support ticket), `subtle` (PR review comments), `ghost` (scratchpad notes), and `none` (embedded inside custom container).
 
 <Example path="./variants" />
 
 ### Sizes
 
-Textarea size scale from sm to lg.
+Scales typography and padding across `sm` (commit summary), `md` (support message), and `lg` (release notes).
 
 <Example path="./sizes" />
 
 ### Autoresize
 
-Autoresize growth with maxrows.
+Auto-expands up to 8 rows with live character counter limit (`142 / 280`).
 
 <Example path="./autoresize" />
 
 ### Header + Footer
 
-Build composer-like surfaces using header/footer slots.
+Compose a complete comment composer with a markdown formatting toolbar in the header and action buttons in the footer.
 
 <Example path="./header-footer" />
+
+## Keyboard Interactions
+
+| Key                                      | Description                                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd>                         | Inserts a new line character in the textarea.                                       |
+| <kbd>Cmd</kbd> / <kbd>Ctrl + Enter</kbd> | Standard convention for submitting the enclosing form or comment composer.          |
+| <kbd>Tab</kbd>                           | Moves focus to the next focusable element (or inserts indentation when configured). |

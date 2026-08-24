@@ -17,7 +17,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": [

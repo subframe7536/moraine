@@ -65,37 +65,37 @@
           "name": "data-checked",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is checked or selected."
+          "description": "Present when the item or toggle is checked."
         },
         {
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-indeterminate",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the checkbox or progress state is indeterminate."
         },
         {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": [
@@ -146,31 +146,31 @@
           "name": "data-checked",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is checked or selected."
+          "description": "Present when the item or toggle is checked."
         },
         {
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-indeterminate",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the checkbox or progress state is indeterminate."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": []

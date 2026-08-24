@@ -37,7 +37,7 @@
           "name": "data-side",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the resolved floating content side."
+          "description": "Stores the resolved floating or drawer content side."
         }
       ],
       "ariaAttributes": [
@@ -105,13 +105,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-expanded",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the panel, accordion, or menu is expanded."
         },
         {
           "name": "data-highlighted",
@@ -123,7 +123,7 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         }
       ],
       "ariaAttributes": [

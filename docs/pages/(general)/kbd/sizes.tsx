@@ -1,12 +1,25 @@
 import { Kbd } from '@src'
-import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES = ['sm', 'md', 'lg'] as const
-
   return (
-    <div class="flex flex-wrap gap-3 items-center">
-      <For each={SIZES}>{(size) => <Kbd size={size} value={size.toUpperCase()} />}</For>
+    <div class="flex flex-wrap gap-4 items-center">
+      <div class="flex gap-1.5 items-center">
+        <span class="text-xs text-muted-foreground">Small (sm):</span>
+        <Kbd size="sm" value="⌘" />
+        <Kbd size="sm" value="K" />
+      </div>
+
+      <div class="flex gap-1.5 items-center">
+        <span class="text-xs text-muted-foreground">Medium (md):</span>
+        <Kbd size="md" value="Ctrl" />
+        <Kbd size="md" value="Shift" />
+        <Kbd size="md" value="P" />
+      </div>
+
+      <div class="flex gap-1.5 items-center">
+        <span class="text-xs text-muted-foreground">Large (lg):</span>
+        <Kbd size="lg" value="Space" />
+      </div>
     </div>
   )
 }

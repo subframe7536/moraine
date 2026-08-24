@@ -1,21 +1,26 @@
 ---
 title: Tabs
-description: Tabbed navigation component with configurable orientation and variant styles.
+description: A tabbed navigation component with pill/link/tab visual variants, animated active indicators, horizontal/vertical orientations, and WAI-ARIA tablist accessibility.
 sidebar:
   order: 2
 search:
-  tags: [tablist, panels, navigation, selection]
+  tags: [tablist, panels, navigation, selection, tabs, segmented control]
 ---
 
 import { Tabs } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Tabs } from 'moraine'
+import type { TabsT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -94,42 +99,66 @@ import { Tabs } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Tab list with triggers and associated content panels.
+- **3 Semantic Visual Styles**: `pill` (enclosed segmented control), `link` (underline border highlight), and `tab` (browser-style card tabs).
+- **Horizontal & Vertical Orientations**: Switch between standard top tab rails or left-hand sidebar navigation panels.
+- **WAI-ARIA Tablist Pattern**: Follows W3C guidelines with `role="tablist"`, `role="tab"`, `role="tabpanel"`, and roving focus.
+- **Leading Icons & Custom Badges**: Embed status icons, unread notification counts, and trailing badges in tab headers.
+- **Controlled & Disabled States**: Full programmatic control with reactive value signals and granular per-tab disabled rules.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── list
-│   ├── indicator (optional)
-│   └── trigger (×n)
-│       ├── leading (Icon, optional)
-│       └── label (optional)
-└── content (×n)
+root (tabs container)
+├── list (tablist trigger rail)
+│   ├── indicator (sliding active highlight line or pill)
+│   └── trigger (individual tab button ×n)
+│       ├── leading (icon, optional)
+│       ├── label (tab title text)
+│       └── trailing (counter badge, optional)
+└── content (active tabpanel body content)
 ```
+
+- `root`: Container managing active tab state and ARIA associations.
+- `list`: Container with `role="tablist"`.
+- `trigger`: Semantic button with `role="tab"` and `aria-selected`.
+- `content`: Associated view panel with `role="tabpanel"`.
 
 ## Examples
 
 ### Variants
 
-Pill and link visual variants for the tab list.
+Compare `pill` (segmented bar), `link` (underlined border highlight), and `tab` (folder tabs) visual styles.
 
 <Example path="./variants" />
 
 ### Sizes
 
-Trigger size scale from sm to lg.
+Size scaling across `sm`, `md`, and `lg`.
 
 <Example path="./sizes" />
 
 ### Orientations
 
-Horizontal and vertical orientation with the same items contract.
+Switch between horizontal tab bars and vertical side tabs for preferences and account settings.
 
 <Example path="./orientations" />
 
 ### Controlled + Disabled Items
 
-Controlled value with disabled tab options and external navigation controls.
+Bind a reactive signal to switch tabs programmatically, with disabled security clearance tabs.
 
 <Example path="./controlled-disabled-items" />
+
+## Keyboard Interactions
+
+| Key                                          | Description                                                                 |
+| -------------------------------------------- | --------------------------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves focus and selection to the next tab in the tablist (wrapping around). |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves focus and selection to the previous tab in the tablist.               |
+| <kbd>Home</kbd>                              | Moves focus directly to the first enabled tab.                              |
+| <kbd>End</kbd>                               | Moves focus directly to the last enabled tab.                               |
+| <kbd>Tab</kbd>                               | Moves focus out of the tablist into the active tabpanel.                    |

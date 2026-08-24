@@ -1,21 +1,26 @@
 ---
 title: Collapsible
-description: Expandable content section with optional height transitions.
+description: An interactive disclosure primitive for expanding and collapsing arbitrary content sections with smooth hardware-accelerated height transitions.
 sidebar:
   order: 8
 search:
-  tags: [disclosure, expand, collapse, transition]
+  tags: [disclosure, expand, collapse, transition, collapsible, details, toggle]
 ---
 
 import { Button, Card, Collapsible, Icon } from '@src'
 
 ## Import
 
+Import the component and its subcomponents from the package root:
+
 ```tsx
 import { Collapsible } from 'moraine'
+import type { CollapsibleT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -64,39 +69,59 @@ import { Collapsible } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Single expandable section with a trigger slot.
+- **Smooth CSS Height Transitions**: Measures dynamic intrinsic element scrollHeight for fluid zero-to-full height unfolding without jerky jumps.
+- **Controlled & Uncontrolled State**: Bind `open` and `onOpenChange` or let the component manage its own `defaultOpen` state internally.
+- **Composable Subcomponents**: Assemble complex surfaces freely with `Collapsible.Trigger` and `Collapsible.Content`.
+- **WAI-ARIA Disclosure Compliance**: Emits `aria-expanded` and `aria-controls` connecting the trigger button directly to the collapsible panel.
+- **Disabled State Propagation**: Disabling the root automatically cascades to all triggers and suppresses expansion events.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── trigger
-└── content-wrapper
-    └── content
+root (Collapsible container)
+├── Collapsible.Trigger (clickable toggle button)
+└── Collapsible.Content (collapsible panel)
+    └── content-wrapper (internal zero-height overflow clip)
+        └── {children}
 ```
+
+- `root`: State provider managing open/closed boolean signals.
+- `Collapsible.Trigger`: Semantic button or polymorphic trigger toggling open state.
+- `Collapsible.Content`: Animated container transitioning `max-height` and `opacity`.
 
 ## Examples
 
 ### Basic
 
-Expandable repository card composed with `<Collapsible.Trigger>` and `<Collapsible.Content>`.
+Composable repository card pattern keeping 1 item preview visible and folding the rest.
 
 <Example path="./composable" />
 
 ### Uncontrolled and Transition
 
-FAQ pattern with optional height transition. Spacing belongs inside the content so the wrapper can collapse without layout shifts.
+Uncontrolled FAQ card with smooth CSS height animation.
 
 <Example path="./uncontrolled" />
 
 ### Controlled and Disabled
 
-External state controls a billing panel and can temporarily disable the trigger while an operation is locked.
+External state switch controlling a sensitive billing details panel with disabled lockout.
 
 <Example path="./controlled" />
 
 ### Stateful Trigger
 
-Compose a compact row where only the icon button toggles detail content.
+Compact data table row embedding an icon chevron toggle for expandable JSON metadata.
 
 <Example path="./stateful" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the expanded / collapsed state of the focused trigger.                            |
+| <kbd>Tab</kbd>                      | Moves focus between the trigger and any interactive elements inside the expanded content. |

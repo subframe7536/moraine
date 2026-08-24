@@ -2,28 +2,32 @@ import { CheckboxGroup } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ControlledDisabledItems() {
-  const ITEMS = [
-    { value: 'alpha', label: 'Alpha', description: 'Primary rollout channel' },
-    { value: 'beta', label: 'Beta', description: 'Early access channel' },
-    { value: 'stable', label: 'Stable', description: 'Production channel' },
+  const ROLES = [
+    { value: 'viewer', label: 'Viewer', description: 'Read-only access to repositories' },
+    { value: 'developer', label: 'Developer', description: 'Can push commits and create PRs' },
+    { value: 'maintainer', label: 'Maintainer', description: 'Can merge PRs and manage releases' },
+    {
+      value: 'owner',
+      label: 'Owner (Immutable)',
+      description: 'Primary organization administrator',
+      disabled: true,
+    },
   ]
 
-  const [value, setValue] = createSignal<string[]>(['beta'])
+  const [value, setValue] = createSignal<string[]>(['developer', 'owner'])
 
   return (
-    <div class="max-w-2xl space-y-3">
+    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
       <CheckboxGroup
-        legend="Controlled channels"
-        variant="table"
-        orientation="horizontal"
-        items={[
-          ...ITEMS,
-          { value: 'legacy', label: 'Legacy', description: 'Frozen channel', disabled: true },
-        ]}
+        legend="Team member role permissions"
+        variant="card"
+        items={ROLES}
         value={value()}
         onChange={setValue}
       />
-      <p class="text-xs text-muted-foreground">Selected: {value().join(', ') || 'none'}</p>
+      <p class="text-xs text-muted-foreground">
+        Active roles: <span class="text-foreground font-medium">{value().join(', ')}</span>
+      </p>
     </div>
   )
 }

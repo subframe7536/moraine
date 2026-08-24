@@ -1,21 +1,26 @@
 ---
 title: Icon
-description: Renders an icon from a UnoCSS icon class, JSX element, or render function.
+description: A flexible icon renderer supporting UnoCSS pure CSS icon classes, custom SVG elements, and dynamic render functions.
 sidebar:
   order: 2
 search:
-  tags: [Iconify, Lucide, symbol, SVG]
+  tags: [Iconify, Lucide, symbol, SVG, icon, vector, glyph]
 ---
 
 import { Icon } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Icon } from 'moraine'
+import type { IconT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -32,26 +37,39 @@ import { Icon } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Icon element with no slot.
+- **UnoCSS Pure CSS Icon Integration**: Effortlessly load any Iconify glyph (`i-lucide:sparkles`, `i-simple-icons:github`) via pure CSS masking.
+- **Custom JSX & SVG Support**: Accepts custom SVG JSX components, render functions, or string class names interchangeably.
+- **Dynamic Numeric Sizing**: Pass numeric pixel values (`size={24}`) or UnoCSS utility sizes (`class="size-6"`).
+- **Accessible By Default**: Injects `aria-hidden="true"` by default for decorative icons.
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (span with pure CSS icon mask or embedded SVG)
+```
+
+- `root`: An inline-block `<span role="img">` or custom SVG node styled with currentColor.
 
 ## Examples
 
 ### Icon Sizes
 
-Numeric pixel sizes from 12 to 48.
+Numeric pixel scaling from 12px to 48px.
 
 <Example path="./icon-sizes" />
 
 ### Icon Gallery
 
-Common Lucide icons rendered via UnoCSS classes.
+Explore standard SaaS and DevTool icons (Git, cloud infrastructure, security, database).
 
 <Example path="./icon-gallery" />
 
 ### Icon as JSX
 
-Pass a JSX element or render function instead of a string name.
+Embed custom inline SVG nodes or animated SVG components directly via JSX.
 
 <Example path="./icon-as-jsx" />

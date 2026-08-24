@@ -1,29 +1,57 @@
-import { Button, Checkbox } from '@src'
-import { createSignal } from 'solid-js'
+import { Checkbox } from '@src'
+import { createMemo, createSignal, For } from 'solid-js'
 
 export function IndeterminateCustomIcons() {
-  const [indeterminate, setIndeterminate] = createSignal<'indeterminate' | boolean>('indeterminate')
+  const [tasks, setTasks] = createSignal([
+    { id: 'tests', label: 'Run unit and integration test suites', checked: true },
+    { id: 'build', label: 'Build static assets and server bundle', checked: true },
+    { id: 'migrate', label: 'Apply pending database migrations', checked: false },
+  ])
+
+  const checkedCount = createMemo(() => tasks().filter((t) => t.checked).length)
+  const allChecked = createMemo(() => checkedCount() === tasks().length)
+  const isIndeterminate = createMemo(() => checkedCount() > 0 && checkedCount() < tasks().length)
+
+  const parentState = createMemo<'indeterminate' | boolean>(() => {
+    if (isIndeterminate()) {
+      return 'indeterminate'
+    }
+    return allChecked()
+  })
+
+  const toggleAll = () => {
+    const nextState = !allChecked()
+    setTasks((current) => current.map((task) => ({ ...task, checked: nextState })))
+  }
+
+  const toggleTask = (id: string) => {
+    setTasks((current) =>
+      current.map((task) => (task.id === id ? { ...task, checked: !task.checked } : task)),
+    )
+  }
 
   return (
-    <div class="max-w-xl space-y-3">
+    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
       <Checkbox
-        label="Permissions"
-        description={`Current: ${String(indeterminate())}`}
-        checked={indeterminate()}
-        onChange={setIndeterminate}
+        label="Production deployment checklist"
+        description={`${checkedCount()} of ${tasks().length} tasks completed`}
+        checked={parentState()}
+        onChange={toggleAll}
         checkedIcon="i-lucide:check-check"
-        indeterminateIcon="i-lucide:ellipsis"
+        indeterminateIcon="i-lucide:minus"
       />
-      <div class="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" onClick={() => setIndeterminate('indeterminate')}>
-          Set indeterminate
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setIndeterminate(true)}>
-          Set checked
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setIndeterminate(false)}>
-          Set unchecked
-        </Button>
+
+      <div class="pl-6 border-l-2 border-border space-y-2">
+        <For each={tasks()}>
+          {(task) => (
+            <Checkbox
+              size="sm"
+              label={task.label}
+              checked={task.checked}
+              onChange={() => toggleTask(task.id)}
+            />
+          )}
+        </For>
       </div>
     </div>
   )

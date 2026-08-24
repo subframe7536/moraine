@@ -1,21 +1,26 @@
 ---
 title: Input
-description: Text input component with icon slots, loading state, and form field integration.
+description: A text input component featuring leading and trailing adornments, clearable resets, password toggles, async loading states, and size scaling.
 sidebar:
   order: 3
 search:
-  tags: [text field, textbox, form control, loading]
+  tags: [text field, textbox, form control, loading, search input, password]
 ---
 
 import { Input } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Input } from 'moraine'
+import type { InputT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -23,7 +28,7 @@ import { Input } from 'moraine'
       kind: 'input',
       prop: 'placeholder',
       label: 'Placeholder',
-      defaultValue: 'Search projects...',
+      defaultValue: 'Search repositories...',
     },
     {
       kind: 'select',
@@ -66,39 +71,60 @@ import { Input } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Text input shell with optional leading and trailing icon slots.
+- **Leading & Trailing Slots**: Easily embed icons, badges, dropdown triggers, copy buttons, keyboard shortcuts (`Kbd`), or currency symbols.
+- **Multiple Visual Variants**: Supports `outline` (standard border), `subtle` (soft background), `ghost` (frameless inline editing), and `none` (custom container wrapping).
+- **Interactive Action Enhancements**: Out-of-the-box support for password visibility eye toggles, clearable buttons, and copy-to-clipboard actions.
+- **Built-in Async Loading Spinner**: Displays an animated loader in leading or trailing position during asynchronous searches or data fetching.
+- **WAI-ARIA Accessibility**: Complies with native input accessibility, supporting `aria-invalid`, `aria-required`, and automatic field association.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
 root
-├── leading (optional)
-├── input
-└── trailing (optional)
+├── leading (icon, text prefix, or spinner)
+├── input (native HTML <input>)
+└── trailing (icon, clear button, kbd shortcut, or action)
 ```
+
+- `root`: Container wrapper applying border, focus ring, size height, and variant background.
+- `leading`: Left adornment element aligned before the text cursor.
+- `input`: The underlying native HTML `<input>` handling keyboard typing and focus.
+- `trailing`: Right adornment element for interactive action buttons or indicators.
 
 ## Examples
 
 ### Variants
 
-Visual style variants.
+Compare `outline` (standard input), `subtle` (soft background with keyboard shortcut badge), `ghost` (inline document title editing), and `none` (embedded inside custom card container).
 
 <Example path="./input-variants" />
 
 ### Sizes
 
-From sm to lg.
+Preview size scaling across `sm` (table filters), `md` (standard forms), and `lg` (hero search prompts).
 
 <Example path="./input-sizes" />
 
 ### With Icons
 
-Leading and trailing icon slots.
+Compose leading search icons, password eye visibility toggles, domain prefixes (`https://`), and currency indicators.
 
 <Example path="./input-with-icons" />
 
 ### States
 
-Loading, disabled, and type.
+Demonstrates asynchronous loading spinners, read-only token fields with one-click copy buttons, disabled enterprise inputs, and validated checkmarks.
 
 <Example path="./input-states" />
+
+## Keyboard Interactions
+
+| Key               | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| <kbd>Tab</kbd>    | Moves focus to the input element or its trailing action buttons. |
+| <kbd>Escape</kbd> | Clears the input when focused if clearable action is present.    |
+| <kbd>Enter</kbd>  | Submits the enclosing form or triggers instant search.           |

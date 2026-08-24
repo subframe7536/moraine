@@ -2,25 +2,37 @@ import { CheckboxGroup } from '@src'
 import { For } from 'solid-js'
 
 export function Sizes() {
-  const ITEMS = [
-    { value: 'alpha', label: 'Alpha', description: 'Primary rollout channel' },
-    { value: 'beta', label: 'Beta', description: 'Early access channel' },
-    { value: 'stable', label: 'Stable', description: 'Production channel' },
+  const ADDONS = [
+    {
+      value: 'backups',
+      label: 'Daily backups',
+      description: 'Automated 30-day point-in-time recovery',
+    },
+    {
+      value: 'security',
+      label: 'DDoS protection',
+      description: 'Advanced Layer 7 traffic scrubbing',
+    },
+    {
+      value: 'support',
+      label: '24/7 SLA support',
+      description: 'Guaranteed 15-minute response time',
+    },
   ]
 
   const SIZES = ['sm', 'md', 'lg'] as const
 
   return (
-    <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">
+    <div class="gap-4 grid lg:grid-cols-3 sm:grid-cols-2">
       <For each={SIZES}>
         {(size) => (
-          <div class="p-4 b-(1 border) rounded-lg">
+          <div class="p-4 b-(1 border) rounded-xl">
             <CheckboxGroup
-              legend={`Size ${size}`}
-              items={ITEMS}
+              legend={`Add-ons (${size})`}
+              items={ADDONS}
               variant="card"
               size={size}
-              defaultValue={size === 'sm' ? ['alpha'] : ['stable']}
+              defaultValue={size === 'sm' ? ['backups'] : ['backups', 'security']}
             />
           </div>
         )}

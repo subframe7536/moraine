@@ -1,25 +1,30 @@
 ---
 title: Button
-description: Button component with polymorphic rendering and automatic loading state.
+description: An interactive button component supporting polymorphic element rendering, automatic async loading states, icon adornments, and 6 semantic visual variants.
 sidebar:
   order: 0
 search:
-  tags: [action, click, submit, loading]
+  tags: [action, click, submit, loading, button, polymorphic, icon button]
 ---
 
 import { Button } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Button } from 'moraine'
+import type { ButtonT } from 'moraine'
 ```
 
 ## Playground
 
+Interactive component preview with configurable props.
+
 <Playground
   controls={[
-    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Button' },
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Deploy Project' },
     {
       kind: 'select',
       prop: 'variant',
@@ -40,9 +45,11 @@ import { Button } from 'moraine'
       label: 'Size',
       defaultValue: 'md',
       options: [
+        { label: 'Extra Small', value: 'xs' },
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
         { label: 'Large', value: 'lg' },
+        { label: 'Extra Large', value: 'xl' },
       ],
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -56,6 +63,7 @@ import { Button } from 'moraine'
         size={props.size}
         disabled={props.disabled}
         loading={props.loading}
+        leading="i-lucide:rocket"
       >
         {props.label}
       </Button>
@@ -63,45 +71,70 @@ import { Button } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Trigger element with optional leading and trailing icon slots.
+- **Polymorphic Rendering**: Render as a semantic `<button>`, anchor `<a>` link (`as="a"`), or any custom Solid component without losing button styles.
+- **Auto-Loading from Async Handlers**: Passing an async promise-returning function to `onClick` automatically displays a loading spinner until the promise resolves.
+- **Smart Loading Spinner Placement**: Replaces `leading` icon first, or `trailing` icon if no leading icon is present.
+- **Icon Buttons**: Support square icon-only buttons with built-in accessibility labeling.
+- **6 Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── leading (Icon, optional)
-├── label (optional)
-└── trailing (Icon, optional)
+root (<button> or polymorphic element)
+├── leading (icon, image, or spinner)
+├── label (button text children)
+└── trailing (icon or shortcut badge)
 ```
+
+- `root`: Interactive focusable container with hover, active, and focus-visible states.
+- `leading`: Left icon slot automatically swapped with an animated spinner when `loading={true}`.
+- `trailing`: Right icon slot.
 
 ## Examples
 
+### Variants
+
+Semantic visual variants: `default` (primary action), `secondary` (supporting action), `outline` (preview), `ghost` (dismiss), `destructive` (delete), and `link`.
+
+<Example path="./variants" />
+
 ### Sizes
 
-Text button sizes with a leading icon to preview label and icon spacing.
+Size scale spanning `xs`, `sm`, `md`, `lg`, and `xl` with proportional padding and typography.
 
 <Example path="./sizes" />
 
 ### Loading States
 
-Controlled loading and async auto-loading from click handlers.
+Automatic loading state detection from async `onClick` promises and controlled `loading` prop.
 
 <Example path="./loading-states" />
 
 #### Loading Placement
 
-When loading, the icon replaces `leading` first. If no `leading` is set, it replaces `trailing`.
+Demonstrates loader icon substitution rules for leading and trailing adornments.
 
 <Example path="./loading-placement" />
 
 ### Icon Buttons
 
-Icon-only sizes using decrease and increase actions. Always provide an accessible label when a button has no visible text.
+Compact square action buttons with accessible `aria-label` attributes.
 
 <Example path="./icon-buttons" />
 
 ### Polymorphic
 
-Anchor rendering support via the polymorphic as prop.
+Render links and routing anchors using the polymorphic `as="a"` prop.
 
 <Example path="./polymorphic" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                     |
+| ----------------------------------- | ----------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Triggers the button's `onClick` action handler. |
+| <kbd>Tab</kbd>                      | Moves focus to the button element.              |

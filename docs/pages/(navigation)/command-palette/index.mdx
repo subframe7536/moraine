@@ -1,21 +1,26 @@
 ---
 title: CommandPalette
-description: Searchable command list with groups, keyboard navigation, and customizable rendering.
+description: A command menu and search palette component featuring grouped items, fuzzy keyword filtering, customizable row slots, and modal dialog integration.
 sidebar:
   order: 5
 search:
-  tags: [command menu, search, keyboard, actions]
+  tags: [command menu, search, keyboard, actions, command palette, spotlight, cmkd]
 ---
 
 import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { CommandPalette } from 'moraine'
+import type { CommandPaletteT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -123,87 +128,106 @@ import { CommandPalette } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-CommandPalette renders a searchable grouped list with keyboard navigation, active-descendant semantics, and optional footer content. It is inline by default, so it can sit directly in a page, panel, or popover. Compose it with `Dialog` only when the command surface should be modal.
+- **Inline or Modal Presentation**: Use directly inside views/sidebars or host inside a modal `Dialog` triggerable via `⌘K`.
+- **Fuzzy Search & Categorized Groups**: Fast real-time filtering across item labels, descriptions, and keywords grouped into structured sections.
+- **Rich Slot Hooks**: Supports `leadingRender`, `trailingRender` (shortcuts/badges), `footerRender` (keyboard hints), and full custom `itemRender`.
+- **Multi-Level Sub-Navigation**: Drill down into nested sub-menus (e.g. "Assignee > Select Member") smoothly without closing the palette.
+- **WAI-ARIA Combobox / Listbox**: Fully accessible with `role="combobox"`, `aria-activedescendant`, `aria-expanded`, and keyboard navigation.
 
-### Input area
+## Anatomy
+
+Hierarchical slot and element structure:
+
+### Search Input area
+
+```text
+root (command palette container)
+└── inputWrapper (search header bar)
+    ├── search (leading magnifying glass icon or loading spinner)
+    ├── input (text query search field)
+    └── close (clear or dismiss icon button, optional)
+```
+
+### Results Listbox
 
 ```text
 root
-└── inputWrapper
-    ├── search (IconButton, optional)
-    ├── input
-    └── close (IconButton, optional)
+├── listbox (scrollable options list)
+│   ├── group (grouped category section ×n)
+│   │   ├── label (group category title)
+│   │   └── item (command action row ×n)
+│   │       ├── itemLeading (icon or avatar)
+│   │       ├── itemWrapper
+│   │       │   ├── itemLabel (command title)
+│   │       │   └── itemDescription (subtext or trailing hint)
+│   │       └── itemTrailing (keyboard shortcut kbd badges)
+├── empty (custom no results fallback message)
+└── footer (bottom status bar with shortcut hints)
 ```
 
-### Results
-
-```text
-root
-├── listbox
-│   ├── item (×n)
-│   │   ├── itemLeading (optional)
-│   │   ├── itemWrapper
-│   │   │   ├── itemLabel
-│   │   │   └── itemDescription (optional, bottom or trailing inside itemLabel)
-│   │   └── itemTrailing (optional custom metadata)
-│   └── group (×n, optional)
-│       └── label (optional)
-├── empty (optional, no matches)
-└── footer (optional)
-```
+- `root`: Main surface container.
+- `input`: Search input dispatching live filter query signals.
+- `listbox`: Scrollable options area highlighting active item.
+- `footer`: Optional bottom row explaining keyboard shortcuts.
 
 ## Examples
 
 ### Basic
 
-The base example is inline so the search field and result hierarchy are visible without an extra trigger. Handle the selected item with CommandPalette's `onSelect` callback; enabled selections request closing by default through `onClose` when the palette is hosted in an overlay.
+Inline command menu with grouped workspace actions and system navigation links.
 
 <Example path="./usage" />
 
 ### Real-World Example
 
-Drive the palette from the same shortcut map you use across the app, and render those bindings with `item.trailingRender` plus `Kbd` so the UI and keyboard behavior stay aligned. This real-world example intentionally wraps the palette in a dialog to demonstrate the modal composition.
+Modal command palette triggered globally via `⌘K` or `Ctrl+K` shortcut dialog.
 
 <Example path="./real-world-example" />
 
 ### Custom Item Render
 
-Use `itemRender` when the row layout needs richer metadata than the default label, description, leadingRender, and trailingRender item render hooks.
+Custom card row rendering with rich status badges, user avatars, and branch metadata.
 
 <Example path="./custom-item-render" />
 
 ### Description Position
 
-Set `descriptionPosition="trailing"` to keep descriptions inline near the label while reserving `item.trailingRender` for badges, shortcuts, or other metadata.
+Configure description position at `bottom` (stacked subtext) or `trailing` (inline right aligned).
 
 <Example path="./description-position" />
 
 ### Custom Empty State
 
-Override the default 'No results.' message.
+Render an expressive illustration or action button when no commands match the search term.
 
 <Example path="./custom-empty-state" />
 
 ### Loading
 
-Search icon becomes a spinner while loading.
+Asynchronous API search with an animated spinner replacing the search icon.
 
 <Example path="./loading" />
 
 ### With Close Button
 
-A close button in the input trailing slot.
+Header bar with an explicit close icon button in the trailing position.
 
 <Example path="./with-close-button" />
 
 ### Sub-Navigation
 
-Compose multi-step flows outside the component by swapping the `groups` prop in a wrapper and set `closeOnSelect={false}` while the palette remains open between steps.
+Multi-tier nested navigation tree keeping the palette open while drilling into secondary actions.
 
 <Example path="./sub-navigation" />
 
-## Sizes and Virtual Rendering
+## Keyboard Interactions
 
-Use `size="sm" | "md" | "lg"` to size command rows. For large collections, pass `virtualRender` and `scrollToItem`; CommandPalette exposes type-safe flattened entries and its mounted scroll element, while `scrollToItem` receives the source command plus its flattened entry index.
+| Key                              | Description                                                   |
+| -------------------------------- | ------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd>             | Moves highlight to the next command item.                     |
+| <kbd>ArrowUp</kbd>               | Moves highlight to the previous command item.                 |
+| <kbd>Enter</kbd>                 | Executes the currently highlighted command action.            |
+| <kbd>Escape</kbd>                | Clears query or emits `onClose` to dismiss the palette.       |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Jumps highlight directly to the first or last available item. |

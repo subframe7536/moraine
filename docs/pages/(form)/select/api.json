@@ -17,19 +17,19 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": []
@@ -77,7 +77,7 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-highlighted",
@@ -89,7 +89,7 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         }
       ],
       "ariaAttributes": [
@@ -167,19 +167,19 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": []
@@ -214,7 +214,7 @@
           "name": "data-loading",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component is loading."
+          "description": "Present when the component or async operation is loading."
         }
       ],
       "ariaAttributes": [

@@ -1,43 +1,44 @@
 ---
 title: FormField
-description: Form field wrapper providing label, description, and validation message layout.
+description: An accessible form field wrapper coordinating labels, optional hints, descriptions, required indicators, and real-time validation error feedback.
 sidebar:
   order: 2
 search:
-  tags: [label, validation, errors, field]
+  tags: [label, validation, errors, field, form control, hint, description]
 ---
 
 import { FormField, Input } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
-import { createForm, Form, FormField } from 'moraine'
+import { FormField } from 'moraine'
+import type { FormFieldT } from 'moraine'
 ```
 
-Inside `Form`, a named field automatically reads its value and validation state from Formisch.
-Top-level fields accept a string name; nested and array fields use a path such as
-`['users', 0, 'email']`. Outside `Form`, the component remains a standalone layout primitive.
-
-Pass the schema type to validate names at compile time:
+When used inside `Form`, a named `FormField` automatically subscribes to schema validation and errors:
 
 ```tsx
-<FormField<typeof schema> name={['profile', 'email']} label="Email">
-  <Input />
+<FormField<typeof schema> name={['profile', 'email']} label="Email Address">
+  <Input placeholder="you@company.com" leading="i-lucide:mail" />
 </FormField>
 ```
 
 ## Playground
 
+Interactive component preview with configurable props.
+
 <Playground
   controls={[
     { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Email address' },
-    { kind: 'input', prop: 'hint', label: 'Hint', defaultValue: 'E-Mail' },
+    { kind: 'input', prop: 'hint', label: 'Hint', defaultValue: 'Optional' },
     {
       kind: 'input',
       prop: 'description',
       label: 'Description',
-      defaultValue: "We'll never share your email.",
+      defaultValue: "We'll send account alerts to this address.",
     },
     {
       kind: 'select',
@@ -70,69 +71,88 @@ Pass the schema type to validate names at compile time:
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Label, description, and hint area above a control slot with validation feedback.
+- **Automated ARIA Association**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`) with the child control using deterministic IDs.
+- **Formisch Schema Integration**: Binds nested or flat path names (`['users', 0, 'email']`) with type-safe schema validation.
+- **Vertical & Horizontal Layouts**: Switch to `orientation="horizontal"` for 1-to-3 grid columns common in desktop settings and admin consoles.
+- **Render Context & Error Reactivity**: Child function render prop receives `{ invalid, error, size, disabled, required }` to dynamically tailor child components.
+- **Granular Slots**: Supports separate slots for `label`, `hint`, `description`, `help`, and `error`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
 root
-├── wrapper
-│   ├── labelWrapper (optional)
-│   │   ├── label
-│   │   └── hint (optional)
-│   └── description (optional)
-└── container
-    ├── {children}
-    ├── help (optional)
-    └── error (optional)
+├── wrapper (label & description header)
+│   ├── labelWrapper
+│   │   ├── label (form control label)
+│   │   ├── required (asterisk indicator)
+│   │   └── hint (optional badge/subtext)
+│   └── description (helper text)
+└── container (control & feedback area)
+    ├── {children} (input, select, textarea, etc.)
+    ├── help (supplemental help note)
+    └── error (validation error message)
 ```
+
+- `root`: Field wrapper applying size, invalid state, and layout classes.
+- `wrapper`: Top section holding the title, hint, and description.
+- `container`: Bottom or right section holding the input control and error feedback.
+- `error`: Rendered conditionally when validation errors exist, automatically setting `role="alert"`.
 
 ## Examples
 
 ### Basic
 
-Label, hint, description, and help text with a single control.
+Complete vertical field layout with label, optional hint, helper description, input control, and help footer.
 
 <Example path="./basic" />
 
 ### With Validation
 
-Bind to a Formisch store and show validation feedback without a render prop.
+Integrates with Formisch schema stores to display inline error validation messages automatically upon blur or submit.
 
 <Example path="./with-validation" />
 
 ### Horizontal Layout
 
-Use `orientation="horizontal"` for a fixed one-row layout with a right-aligned label column occupying one quarter of the field and controls occupying the remaining three quarters. The layout stays horizontal at every width; use existing class overrides when an application needs stacking.
+Uses `orientation="horizontal"` to place the label on the left column and controls on the right, perfect for account settings and profile forms.
 
 <Example path="./horizontal-layout" />
 
 ### Registration Form
 
-Combine horizontal fields into a complete registration form with consistent control alignment.
+Compose multiple fields into a cohesive multi-input form layout with unified spacing and alignment.
 
 <Example path="./registration-form" />
 
 ### Sizes
 
-Preview the field typography scale from sm to lg.
+Preview the typography and spacing scale across `sm`, `md`, and `lg`.
 
 <Example path="./sizes" />
 
 ### Manual Error
 
-Force error state with a custom error message.
+Explicitly set an `error` string or boolean to force an error state without schema validation.
 
 <Example path="./manual-error" />
 
 ### Render Context
 
-Use render-function children to react to `error` state.
+Pass a render function as children to receive live field state `{ error, invalid, size }` and adapt your custom controls.
 
 <Example path="./render-context" />
 
 ### Nested Path
 
-Use array path names for nested form fields.
+Type-safe schema binding with array path notation for deeply nested objects and arrays.
 
 <Example path="./nested-path" />
+
+## Accessibility
+
+- Automatically injects `id`, `aria-labelledby`, `aria-describedby`, and `aria-invalid` onto supported child controls.
+- Renders error messages with `role="alert"` so screen readers immediately announce validation issues.

@@ -1,21 +1,26 @@
 ---
 title: Card
-description: Structured content container with optional header, body, footer, and action slots.
+description: A structured surface container providing header, title, description, top-right action, body, and footer slots for dashboards, forms, and media presentations.
 sidebar:
   order: 6
 search:
-  tags: [container, panel, content, surface]
+  tags: [container, panel, content, surface, card, box, section]
 ---
 
 import { Badge, Button, Card } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Card } from 'moraine'
+import type { CardT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -53,42 +58,56 @@ import { Card } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Structured content container with optional header, body, and footer sections.
+- **Structured Section Slots**: Composable `header`, `title`, `description`, `action`, `body`, and `footer` slots for standard UI patterns.
+- **Header Action Adornment**: Top-right `action` slot for contextual status badges, dropdown action menus, or close buttons.
+- **Comfortable & Compact Densities**: Toggle `compact={true}` for tight table summaries, data density layouts, or sidebar widgets.
+- **Media & Cover Image Embedding**: Easily embed edge-to-edge cover images or interactive preview panels.
+- **Semantic HTML Tagging**: Renders as an accessible section/article surface with consistent theme border tokens (`bg-card`, `border-border`).
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── header (optional)
-│   ├── title (optional)
-│   ├── description (optional)
-│   └── action (optional)
-├── body (optional)
-└── footer (optional)
+root (card surface container)
+├── header (header region)
+│   ├── titleWrapper
+│   │   ├── title (card heading)
+│   │   └── description (subheading text)
+│   └── action (top-right badge or button)
+├── body (main content area, children)
+└── footer (bottom actions / metadata bar)
 ```
+
+- `root`: Background card container applying surface styling, rounded borders, and shadows.
+- `header`: Top row organizing title, description, and action button.
+- `body`: Main slot where children are rendered with standard interior padding.
+- `footer`: Bottom row bordered action bar for confirmation buttons or secondary links.
 
 ## Examples
 
 ### Default
 
-Create project form card from coss/ui.
+Create Project configuration card with text inputs, category selector, and submit actions.
 
 <Example path="./default" />
 
 ### Sizes
 
-Default and compact size presets.
+Compare comfortable default card padding with `compact` spacing for dense analytics dashboards.
 
 <Example path="./sizes" />
 
 ### With Image
 
-Media-first card using body slot customization.
+Media card with top cover image banner, tag pill, article title, and author avatar footer.
 
 <Example path="./with-image" />
 
 ### Header Action
 
-Custom action area inside the header slot.
+Embed top-right status badges or action buttons in the card header.
 
 <Example path="./header-action" />

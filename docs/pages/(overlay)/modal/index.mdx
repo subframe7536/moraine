@@ -1,21 +1,26 @@
 ---
 title: Modal
-description: Low-level modal primitives for composing custom dialog surfaces.
+description: Low-level headless modal primitives providing focus containment, document scroll locking, escape dismissal, and unopinionated surface styling.
 sidebar:
   order: 1
 search:
-  tags: [modal, primitive, overlay, focus trap]
+  tags: [modal, primitive, overlay, focus trap, headless modal, dialog primitive]
 ---
 
 import { Button, Modal } from '@src'
 
 ## Import
 
+Import the component and its subcomponents from the package root:
+
 ```tsx
 import { Modal } from 'moraine'
+import type { ModalT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -55,44 +60,55 @@ import { Modal } from 'moraine'
   }}
 </Playground>
 
-## Composition
+## Features
 
-`Modal` owns state, scroll locking, focus containment, dismissal, and nested-overlay behavior.
-`Modal.Trigger` renders a native button by default, and accepts `as` for a different intrinsic root
-or a component such as `Button`. `Modal.Content` owns the portal and renders the overlay and content
-as sibling surfaces. Set `overlay` to render the optional backdrop.
+- **Unopinionated Headless Architecture**: Pure structural primitives (`Modal`, `Modal.Trigger`, `Modal.Content`) with complete styling freedom.
+- **Robust Focus Trap & Restore**: Automatically restricts Tab navigation inside the active surface and restores focus accurately on close.
+- **Scroll Lock & Portal Rendering**: Renders outside the main DOM tree via Portal and safely prevents background body scroll bleed.
+- **Dismissible & Backdrop Control**: Configure backdrop overlay rendering and handle click-outside or ESC dismissal.
+- **WAI-ARIA Dialog Compliance**: Supports `ariaLabel`, `ariaLabelledBy`, and `role="dialog"`.
 
-When `Modal.Content` does not receive a `class`, it uses the default popup transition classes
-(`data-expanded:animate-popup-in` and `data-closed:animate-popup-out`). Passing `class` replaces
-the default content classes completely, so custom surfaces can provide their own layout and motion.
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-Modal
-├── Modal.Trigger
-└── Modal.Content (portal)
-    ├── overlay (optional)
-    └── content
-        └── custom content
+Modal (state root & focus manager)
+├── Modal.Trigger (clickable opener button)
+└── Modal.Content (portal container)
+    ├── overlay (optional backdrop screen)
+    └── content (custom surface card)
+        └── contentRender ({ close, open })
 ```
 
-Provide `ariaLabel`, `ariaLabelledBy`, or another accessible naming strategy for every modal.
+- `Modal`: Coordinates open/close signals and keyboard event listeners.
+- `Modal.Trigger`: Polymorphic element opening the modal on click.
+- `Modal.Content`: Portaled container rendering backdrop and surface.
 
 ## Examples
 
 ### Basic Composition
 
-Compose a custom modal surface with the default uncontrolled state.
+Custom media showcase modal built from raw primitive components.
 
 <Example path="./basic" />
 
 ### Controlled State
 
-Own the open state when another part of the interface must coordinate the modal.
+Externally controlled open signal synchronized with application navigation and status bars.
 
 <Example path="./controlled" />
 
 ### Without Backdrop
 
-Omit the optional backdrop when the surrounding surface already provides context.
+Omit the backdrop overlay for non-blocking floating inspection palettes.
 
 <Example path="./no-overlay" />
+
+## Keyboard Interactions
+
+| Key                    | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| <kbd>Escape</kbd>      | Dismisses the modal when `dismissible={true}`.                       |
+| <kbd>Tab</kbd>         | Cycles forward through focusable elements inside the modal surface.  |
+| <kbd>Shift + Tab</kbd> | Cycles backward through focusable elements inside the modal surface. |

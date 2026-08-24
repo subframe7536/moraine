@@ -1,32 +1,36 @@
 import { CheckboxGroup } from '@src'
 
-const ITEMS = [
-  { value: 'alpha', label: 'Alpha', description: 'Primary rollout channel' },
-  { value: 'beta', label: 'Beta', description: 'Early access channel' },
-  { value: 'stable', label: 'Stable', description: 'Production channel' },
+const REGIONS = [
+  { value: 'us-east', label: 'US East (N. Virginia)', description: 'Primary edge cluster' },
+  { value: 'eu-central', label: 'EU Central (Frankfurt)', description: 'Low latency Europe' },
+  { value: 'ap-east', label: 'AP East (Tokyo)', description: 'Asia-Pacific gateway' },
 ]
 
-const HORIZONTAL_ITEMS = [
-  { value: 'alpha', label: 'Alpha', description: 'Primary' },
-  { value: 'beta', label: 'Beta', description: 'Early access' },
-  { value: 'stable', label: 'Stable', description: 'Production' },
+const PLATFORMS = [
+  { value: 'macos', label: 'macOS', description: 'Apple Silicon & Intel' },
+  { value: 'linux', label: 'Linux', description: 'x86_64 and arm64' },
+  { value: 'windows', label: 'Windows', description: 'Windows 10/11' },
 ]
 
 export function Orientation() {
   return (
     <div class="gap-4 grid md:grid-cols-2">
-      <div class="p-4 b-(1 border) rounded-lg space-y-1">
-        <CheckboxGroup legend="Vertical" items={ITEMS} defaultValue={['beta']} />
-      </div>
-      <div class="p-4 b-(1 border) rounded-lg space-y-1">
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
         <CheckboxGroup
-          legend="Horizontal"
-          items={HORIZONTAL_ITEMS}
+          legend="Deployment regions (Vertical)"
+          items={REGIONS}
+          defaultValue={['us-east', 'eu-central']}
+        />
+      </div>
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
+        <CheckboxGroup
+          legend="Supported platforms (Horizontal)"
+          items={PLATFORMS}
           orientation="horizontal"
-          defaultValue={['alpha']}
+          defaultValue={['macos', 'linux']}
           classes={{
             fieldset: 'flex-wrap',
-            item: 'min-w-26 flex-1',
+            item: 'min-w-28 flex-1',
           }}
         />
       </div>

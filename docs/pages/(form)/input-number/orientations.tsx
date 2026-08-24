@@ -2,14 +2,21 @@ import { InputNumber } from '@src'
 
 export function Orientations() {
   return (
-    <div class="flex flex-wrap gap-6 items-start">
-      <div class="space-y-1">
-        <label class="text-xs text-muted-foreground block">Horizontal</label>
-        <InputNumber defaultValue={5} minValue={0} maxValue={20} />
+    <div class="gap-6 grid max-w-xl sm:grid-cols-2">
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
+        <label class="text-xs text-muted-foreground tracking-wider font-semibold block uppercase">
+          Horizontal (Order Quantity)
+        </label>
+        <InputNumber defaultValue={3} minValue={1} maxValue={20} />
+        <p class="text-xs text-muted-foreground">Standard left-to-right stepper buttons</p>
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-muted-foreground block">Vertical</label>
-        <InputNumber orientation="vertical" defaultValue={5} minValue={0} maxValue={20} />
+
+      <div class="p-4 b-(1 border) rounded-xl space-y-2">
+        <label class="text-xs text-muted-foreground tracking-wider font-semibold block uppercase">
+          Vertical (Inventory Stock)
+        </label>
+        <InputNumber orientation="vertical" defaultValue={12} minValue={0} maxValue={100} />
+        <p class="text-xs text-muted-foreground">Stacked vertical stepper buttons</p>
       </div>
     </div>
   )

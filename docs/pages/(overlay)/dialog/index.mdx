@@ -1,21 +1,26 @@
 ---
 title: Dialog
-description: Modal dialog with structured slots, backdrop overlay, and dismissal control.
+description: A modal dialog overlay component with focus trapping, backdrop blurring, ESC key handling, scroll locking, and structured header/body/footer slots.
 sidebar:
   order: 4
 search:
-  tags: [modal, overlay, confirmation, focus trap]
+  tags: [modal, overlay, confirmation, focus trap, dialog, alert dialog, window]
 ---
 
 import { Button, Dialog } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Dialog } from 'moraine'
+import type { DialogT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -58,41 +63,61 @@ import { Dialog } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Polymorphic trigger root with optional backdrop and a floating panel with title, body, and footer slots.
+- **Automated Focus Trapping & Restoration**: Keeps keyboard navigation constrained within the modal while open, and restores focus back to the triggering element upon dismissal.
+- **Scroll Locking & Backdrop Blur**: Locks background document scrollbars and renders an accessible backdrop overlay.
+- **Structured Content Slots**: Out-of-the-box slots for `title`, `description`, `body`, `footer`, and top-right `close` button.
+- **Fullscreen & Prevent-Close Controls**: Enable `fullscreen` mode for mobile/tablet workflows, or intercept dismissal attempts with `preventClose`.
+- **WAI-ARIA Dialog Role**: Automatically injects `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, and `aria-describedby`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-trigger
-├── overlay (optional)
-└── content (portal)
-    ├── header (optional)
-    │   ├── wrapper (optional)
-    │   │   ├── title (optional)
-    │   │   └── description (optional)
-    │   └── close (optional)
-    ├── body (optional)
-    └── footer (optional)
+trigger (element opening the dialog)
+├── overlay (dark backdrop overlay with blur)
+└── content (floating centered modal card)
+    ├── header (modal header region)
+    │   ├── wrapper
+    │   │   ├── title (accessible modal heading)
+    │   │   └── description (subheading description)
+    │   └── close (top-right dismiss icon button)
+    ├── body (scrollable body container)
+    └── footer (bottom actions container, e.g. Cancel / Confirm)
 ```
+
+- `trigger`: Component or element receiving click handler to launch dialog.
+- `overlay`: Translucent screen blocker intercepting outside clicks.
+- `content`: Floating centered modal panel.
+- `header` / `body` / `footer`: Structured regions.
 
 ## Examples
 
 ### Default Shell
 
-Header, description, actions, body, and footer slots.
+Standard confirmation dialog with title, description, content body, and action footer.
 
 <Example path="./default-shell" />
 
 ### Variants
 
-`close` supports default button, hidden, and custom JSX content.
+Compare standard close button, hidden close button, and custom JSX header actions.
 
 <Example path="./variants" />
 
 ### Long Content + Dismissible Control
 
-Long body content with a prevent-close callback when dismiss is disabled.
-
-By default, long content scrolls inside the dialog body. Set `scrollable` to `true` to scroll the complete dialog panel with the overlay.
+Scrollable long agreement text with locked dismissal preventing accidental cancellation until acknowledged.
 
 <Example path="./long-content-dismissible-control" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                          |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| <kbd>Escape</kbd>                   | Dismisses the dialog (unless `preventClose` is active).              |
+| <kbd>Tab</kbd>                      | Cycles focus forward through interactive controls inside the dialog. |
+| <kbd>Shift + Tab</kbd>              | Cycles focus backward through interactive controls.                  |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused button inside the dialog.                      |

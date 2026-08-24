@@ -17,7 +17,7 @@
           "name": "data-focused",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the element holds keyboard focus."
         }
       ],
       "ariaAttributes": []

@@ -44,13 +44,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-state",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks."
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
         }
       ],
       "ariaAttributes": []
@@ -77,13 +77,13 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         },
         {
           "name": "data-state",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks."
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
         }
       ],
       "ariaAttributes": [
@@ -149,13 +149,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-state",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks."
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
         }
       ],
       "ariaAttributes": []
@@ -190,7 +190,7 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         }
       ],
       "ariaAttributes": [

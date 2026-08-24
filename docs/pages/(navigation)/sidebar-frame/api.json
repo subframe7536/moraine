@@ -30,7 +30,7 @@
           "name": "data-side",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the resolved floating content side."
+          "description": "Stores the resolved floating or drawer content side."
         }
       ],
       "ariaAttributes": [

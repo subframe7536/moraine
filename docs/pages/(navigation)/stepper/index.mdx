@@ -1,21 +1,26 @@
 ---
 title: Stepper
-description: Tab-structured step navigation with configurable orientation and separator layout.
+description: A multi-step wizard and progress navigation component supporting linear/non-linear flows, step checkmarks, vertical timelines, and step content panels.
 sidebar:
   order: 3
 search:
-  tags: [wizard, steps, progress, workflow]
+  tags: [wizard, steps, progress, workflow, stepper, timeline, checkout]
 ---
 
 import { Stepper } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Stepper } from 'moraine'
+import type { StepperT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -87,45 +92,66 @@ import { Stepper } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Header with step items and optional per-step content panels.
+- **Linear & Non-Linear Workflows**: Enforce strict sequential completion with `linear={true}` or allow free jumping between unlocked stages.
+- **Horizontal & Vertical Orientations**: Standard top horizontal wizard bar or vertical workflow timeline checklist.
+- **Integrated Step Content Panels**: Embed active step body content directly inside each item definition or control external views.
+- **Completed Step Checkmarks**: Automatically turns past completed step icons into checkmark badges.
+- **WAI-ARIA Tablist Semantics**: Accessible `role="tablist"` with `aria-selected` and roving focus between step triggers.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── header
-│   └── item (×n)
+root (stepper container)
+├── header (step buttons row or column)
+│   └── item (step item element ×n)
 │       ├── container
-│       │   ├── trigger
-│       │   └── separator (optional, between items)
-│       └── wrapper (optional)
-│           ├── title (optional)
-│           └── description (optional)
-└── content (×n, optional)
+│       │   ├── trigger (step button with circle number or icon)
+│       │   └── separator (connecting line between steps)
+│       └── wrapper
+│           ├── title (step name)
+│           └── description (step summary subtext)
+└── content (active step panel content)
 ```
+
+- `root`: Container managing active step index and orientation.
+- `header`: Container grouping all step badges and connecting line separators.
+- `trigger`: Clickable step pill with completion indicator.
+- `content`: Associated content panel for the active step.
 
 ## Examples
 
 ### Sizes
 
-Preview the Stepper across all supported sizes using the default linear, non-clickable tab navigation.
+Size scaling across `sm`, `md`, and `lg` adjusting circle diameters and typography.
 
 <Example path="./sizes" />
 
 ### Controlled + Non-linear
 
-Manage the active step externally and allow jumping to any step.
+Manage the active step externally with 'Previous' and 'Next' action buttons.
 
 <Example path="./controlled-non-linear" />
 
 ### Interaction Modes
 
-Toggle click navigation and linear progression while keeping the same checkout stepper.
+Checkout flow switching between strict linear progression and free-form clickable tabs.
 
 <Example path="./clickable-and-linear" />
 
 ### Vertical
 
-Render the tab-structured step navigation vertically.
+Vertical deployment pipeline timeline with nested status cards.
 
 <Example path="./vertical" />
+
+## Keyboard Interactions
+
+| Key                                          | Description                                         |
+| -------------------------------------------- | --------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves focus to the next clickable step trigger.     |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves focus to the previous clickable step trigger. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>          | Activates the focused step trigger.                 |

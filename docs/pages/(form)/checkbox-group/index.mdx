@@ -1,10 +1,10 @@
 ---
 title: CheckboxGroup
-description: Multi-select checkbox group with card, list, and table layout variants.
+description: A multi-selection group component that coordinates multiple checkboxes with array value bindings, card/list/table layouts, and orientation control.
 sidebar:
   order: 7
 search:
-  tags: [multiple selection, checked, options, table]
+  tags: [multiple selection, checked, options, table, checkbox list, permissions]
 ---
 
 import { CheckboxGroup } from '@src'
@@ -12,11 +12,16 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { CheckboxGroup } from 'moraine'
+import type { CheckboxGroupT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -86,45 +91,72 @@ import { CheckboxGroup } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Fieldset with an optional legend grouping multiple Checkbox items.
+- **Array Value Binding**: Seamlessly binds a `string[]` or `number[]` array of selected values in controlled and uncontrolled modes.
+- **Card, List, and Table Variants**: Switch effortlessly between compact `list` items, interactive `card` grids, and bordered `table` rows.
+- **Orientation Flow**: Supports `vertical` stacking for forms and `horizontal` layout for toolbars and filters.
+- **Flexible Indicator Positioning**: Align check indicators at `start` (default), `end` (trailing toggle style), or `hidden` for button-like cards.
+- **Per-Item Disable & Custom Metadata**: Individual items can be independently disabled, badged, or customized with leading icons.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-└── fieldset
-    ├── legend (optional)
-    └── root (Checkbox, ×n)
+root (fieldset)
+├── legend (optional group title)
+└── items (flex or grid container)
+    └── item (individual Checkbox)
+        ├── container
+        │   ├── input (native hidden checkbox)
+        │   └── control (styled check square)
+        └── wrapper
+            ├── label (item title)
+            └── description (optional subtext)
 ```
+
+- `root`: The outer `<fieldset>` managing semantic group role and disabled propagation.
+- `legend`: Optional accessible title for the group of options.
+- `items`: Layout container for stacking items according to `orientation` and `variant`.
+- `item`: Composed `Checkbox` instance rendering individual option state and labels.
 
 ## Examples
 
 ### Variants
 
-List, card, and table variants with shared items data.
+Compare `list` (clean baseline), `card` (prominent selectable blocks with hover and active borders), and `table` (compact tabular rows for dense data tables).
 
 <Example path="./variants" />
 
 ### Sizes
 
-Size scale from sm to lg in card variant.
+Consistent scaling from `sm` to `lg` adjusting paddings, typography sizes, and indicator dimensions.
 
 <Example path="./sizes" />
 
 ### Orientation
 
-Vertical and horizontal layouts with the same item set.
+Arrange options in `vertical` columns for progressive forms or `horizontal` rows for filter bars and platform selectors.
 
 <Example path="./orientation" />
 
 ### Indicator
 
-Start/end/hidden indicator positions in list layout.
+Configure check indicator alignment with `indicator="start"`, `indicator="end"`, or `indicator="hidden"`.
 
 <Example path="./indicator" />
 
 ### Controlled + Disabled Items
 
-Controlled selected values with per-item disabled state.
+Bind a reactive signal to inspect selected values in real-time, with granular disabled rules for specific enterprise permissions.
 
 <Example path="./controlled-disabled-items" />
+
+## Keyboard Interactions
+
+| Key                    | Description                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>         | Moves focus to the next checkbox item within the group.                                              |
+| <kbd>Shift + Tab</kbd> | Moves focus to the previous checkbox item.                                                           |
+| <kbd>Space</kbd>       | Toggles selection of the currently focused checkbox item without affecting other items in the group. |

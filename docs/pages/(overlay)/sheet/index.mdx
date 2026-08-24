@@ -1,21 +1,26 @@
 ---
 title: Sheet
-description: Slide-in panel overlay from any screen edge with structured content slots.
+description: A sliding drawer panel extending from any edge of the viewport, featuring focus trapping, backdrop overlay, dismiss control, and structured slot regions.
 sidebar:
   order: 5
 search:
-  tags: [drawer, panel, overlay, mobile]
+  tags: [drawer, panel, overlay, mobile, sheet, sidebar drawer, slideover]
 ---
 
 import { Button, Input, Sheet } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Sheet } from 'moraine'
+import type { SheetT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -74,40 +79,60 @@ import { Sheet } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Polymorphic trigger root with optional backdrop and a sliding panel with title, body, footer, and close slots.
+- **4 Edge Slide Directions**: Opens smoothly from `right` (inspector panel), `left` (mobile navigation), `bottom` (action sheet), or `top` (notification drawer).
+- **Focus Containment & Trapping**: Maintains keyboard Tab focus within the active drawer and restores focus upon dismissal.
+- **Scroll Lock & Backdrop Overlay**: Freezes background viewport scrolling and provides a dark backdrop.
+- **Structured Content Slots**: Predefined slots for `title`, `description`, `body`, `actions`, `footer`, and `close`.
+- **Dismissible & Outside Interaction Control**: Supports click-outside and Escape dismiss with prevention callbacks.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-trigger
-├── overlay (optional)
-└── content (portal)
-    ├── header (optional)
-    │   ├── wrapper (optional)
-    │   │   ├── title (optional)
-    │   │   └── description (optional)
-    │   ├── actions (optional)
-    │   └── close (optional)
-    ├── body (optional)
-    └── footer (optional)
+trigger (button opening drawer)
+├── overlay (dark backdrop screen)
+└── content (sliding drawer panel)
+    ├── header (top region)
+    │   ├── wrapper
+    │   │   ├── title (accessible drawer title)
+    │   │   └── description (subheading text)
+    │   ├── actions (optional custom toolbar buttons)
+    │   └── close (top-right close icon button)
+    ├── body (scrollable main content area)
+    └── footer (bottom actions / buttons)
 ```
+
+- `trigger`: Element launching the slideover drawer.
+- `overlay`: Backdrop element handling click-to-dismiss.
+- `content`: Sliding sheet element positioned along viewport edges.
 
 ## Examples
 
 ### Variants
 
-Inset layout with custom close content or hidden close control.
+Compare standard sheet styling with `inset` card frame and custom close action slots.
 
 <Example path="./variants" />
 
 ### Sides
 
-Open sheet from each side with shared shell slots.
+Inspect slideover transitions from all 4 screen edges: `left`, `right`, `top`, and `bottom`.
 
 <Example path="./sides" />
 
 ### Dismiss Control
 
-Prevent close on outside interaction and Escape while counting attempts.
+Intercept outside interaction and Escape attempts to warn users about unsaved form edits.
 
 <Example path="./dismiss-control" />
+
+## Keyboard Interactions
+
+| Key                    | Description                                                  |
+| ---------------------- | ------------------------------------------------------------ |
+| <kbd>Escape</kbd>      | Dismisses the open sheet and returns focus to the trigger.   |
+| <kbd>Tab</kbd>         | Cycles forward through focusable elements inside the sheet.  |
+| <kbd>Shift + Tab</kbd> | Cycles backward through focusable elements inside the sheet. |

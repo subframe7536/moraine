@@ -1,17 +1,45 @@
 import { Textarea } from '@src'
-import type { TextareaT } from '@src'
-import { For } from 'solid-js'
 
 export function Variants() {
-  const VARIANTS: TextareaVariantName[] = ['outline', 'subtle', 'ghost', 'none']
-
-  type TextareaVariantName = Exclude<TextareaT.Variant['variant'], undefined>
-
   return (
-    <div class="gap-3 grid w-full lg:grid-cols-4 sm:grid-cols-2">
-      <For each={VARIANTS}>
-        {(variant) => <Textarea variant={variant} placeholder={`Variant: ${variant}`} rows={2} />}
-      </For>
+    <div class="gap-4 grid max-w-2xl w-full sm:grid-cols-2">
+      <div class="space-y-1.5">
+        <label class="text-xs text-muted-foreground font-medium">Outline (Support ticket)</label>
+        <Textarea
+          variant="outline"
+          placeholder="Describe the steps to reproduce the issue..."
+          rows={3}
+        />
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-xs text-muted-foreground font-medium">Subtle (PR review comment)</label>
+        <Textarea
+          variant="subtle"
+          placeholder="Leave a review comment or code suggestion..."
+          rows={3}
+        />
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-xs text-muted-foreground font-medium">
+          Ghost (Scratchpad / Quick notes)
+        </label>
+        <Textarea variant="ghost" placeholder="Jot down quick thoughts..." rows={3} />
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-xs text-muted-foreground font-medium">
+          None (Embedded markdown editor)
+        </label>
+        <div class="p-2 b-(1 border) rounded-lg bg-card">
+          <Textarea
+            variant="none"
+            placeholder="Write markdown content without standard borders..."
+            rows={3}
+          />
+        </div>
+      </div>
     </div>
   )
 }

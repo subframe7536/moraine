@@ -1,33 +1,43 @@
 import { FileUpload } from '@src'
 import type { FileUploadT } from '@src'
-import { createSignal } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 
 export function SingleUpload() {
   type FileUploadValue = FileUploadT.Value
 
-  function fileNames(value: FileUploadValue): string {
-    if (value === null) {
-      return 'none'
-    }
+  const [avatar, setAvatar] = createSignal<FileUploadValue>(null)
 
-    if (Array.isArray(value)) {
-      return value.length > 0 ? value.map((file) => file.name).join(', ') : 'none'
+  const fileName = () => {
+    const file = avatar()
+    if (!file) {
+      return null
     }
-
-    return value.name
+    return Array.isArray(file) ? file[0]?.name : file.name
   }
 
-  const [singleValue, setSingleValue] = createSignal<FileUploadValue>(null)
+  const fileSize = () => {
+    const file = avatar()
+    if (!file) {
+      return null
+    }
+    const bytes = Array.isArray(file) ? (file[0]?.size ?? 0) : file.size
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+  }
 
   return (
-    <div class="max-w-xl space-y-3">
+    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
       <FileUpload
-        label="Upload one file"
-        description="PNG, JPG, PDF up to your browser limit."
-        accept="image/*,.pdf"
-        onValueChange={setSingleValue}
+        label="Profile picture"
+        description="Upload a high-resolution avatar. PNG, JPG, or WebP up to 5MB."
+        accept="image/png,image/jpeg,image/webp"
+        onValueChange={setAvatar}
       />
-      <p class="text-xs text-muted-foreground">Selected file: {fileNames(singleValue())}</p>
+      <Show when={fileName()}>
+        <div class="text-xs p-3 rounded-lg bg-muted/40 flex items-center justify-between">
+          <span class="font-medium max-w-xs truncate">{fileName()}</span>
+          <span class="text-muted-foreground font-mono">{fileSize()}</span>
+        </div>
+      </Show>
     </div>
   )
 }

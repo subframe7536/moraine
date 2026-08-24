@@ -17,13 +17,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         }
       ],
       "ariaAttributes": [
@@ -62,7 +62,7 @@
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         }
       ],
       "ariaAttributes": [

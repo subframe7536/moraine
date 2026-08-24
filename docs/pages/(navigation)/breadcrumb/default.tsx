@@ -1,11 +1,12 @@
 import { Breadcrumb } from '@src'
 
 export function Default() {
-  const DEFAULT_ITEMS = [
-    { label: 'Home', href: '#' },
-    { label: 'Components', href: '#' },
-    { label: 'Breadcrumb', href: '#', active: true },
+  const ITEMS = [
+    { label: 'Acme Corp', href: '#', icon: 'i-lucide:building-2' },
+    { label: 'Production Clusters', href: '#', icon: 'i-lucide:server' },
+    { label: 'Services', href: '#', icon: 'i-lucide:cpu' },
+    { label: 'payments-api', href: '#', active: true, icon: 'i-lucide:radio' },
   ]
 
-  return <Breadcrumb items={DEFAULT_ITEMS} />
+  return <Breadcrumb items={ITEMS} />
 }

@@ -1,10 +1,10 @@
 ---
 title: RadioGroup
-description: Single-select radio group with card, list, and table layout variants.
+description: A single-selection radio group component with card, list, and table layout variants, roving focus keyboard navigation, and indicator styling.
 sidebar:
   order: 8
 search:
-  tags: [single selection, options, radio, choice]
+  tags: [single selection, options, radio, choice, radiogroup, plans, pricing]
 ---
 
 import { RadioGroup } from '@src'
@@ -12,11 +12,16 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { RadioGroup } from 'moraine'
+import type { RadioGroupT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -82,49 +87,71 @@ import { RadioGroup } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Radiogroup root with mutually exclusive radio items. Use `FormField` for the group label, description, help text, and validation message.
+- **Mutually Exclusive Selection**: Enforces single-value selection across all radio options with reactive value binding.
+- **Roving Focus Navigation**: Follows W3C WAI-ARIA radio group patterns where arrow keys move focus and select adjacent options.
+- **Card, List, and Table Layouts**: Choose between selectable cards with active glow rings, standard form lists, or compact tabular rows.
+- **Custom Indicator Placement**: Configure circular radio indicator positions (`start`, `end`, or `hidden` for button-like cards).
+- **Per-Option Disabling**: Disable specific deprecated or restricted plan options while keeping the remainder selectable.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-└── item (×n)
-    ├── input
-    ├── control
-    │   └── indicator
-    └── wrapper (optional)
-        ├── label (optional)
-        └── description (optional)
+root (radiogroup container)
+└── item (individual radio option ×n)
+    ├── input (hidden native radio input)
+    ├── control (styled circle radio container)
+    │   └── indicator (inner animated active dot)
+    └── wrapper
+        ├── label (option title)
+        └── description (optional helper text)
 ```
+
+- `root`: Container managing `role="radiogroup"` and roving tabindex.
+- `item`: Composed radio option element with state data attributes (`data-checked`, `data-disabled`).
+- `control`: The circular radio border and background.
+- `indicator`: The centered active status indicator.
 
 ## Examples
 
 ### Variants
 
-List, card, and table variants for single selection.
+Select from Subscription Plans (`card`), Payment Methods (`list`), or Backup Schedules (`table`).
 
 <Example path="./variants" />
 
 ### Sizes
 
-Size scale from sm to lg.
+Size scaling across `sm`, `md`, and `lg` adjusting card paddings, radio dot diameters, and label font sizes.
 
 <Example path="./sizes" />
 
 ### Orientation
 
-Horizontal modes for card and table variants.
+Horizontal flow for layout density switches and target environment cards.
 
 <Example path="./orientations" />
 
 ### Controlled + Disabled
 
-Controlled value with disabled option in data set.
+Bind a reactive signal to observe selected state changes and handle disabled options gracefully.
 
 <Example path="./controlled-disabled" />
 
 ### Indicator Positions
 
-Start/end/hidden indicator styles with card variant.
+Align the circular indicator to the start or end of the card, or hide it completely for pure card button triggers.
 
 <Example path="./indicator-positions" />
+
+## Keyboard Interactions
+
+| Key                                          | Description                                                                               |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowRight</kbd> | Moves focus and selection to the next radio item in the group (wrapping around to start). |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous radio item.                                     |
+| <kbd>Space</kbd>                             | Selects the currently focused radio item if not already selected.                         |
+| <kbd>Tab</kbd>                               | Moves focus out of the radio group to the next interactive page element.                  |

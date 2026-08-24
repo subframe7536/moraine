@@ -1,17 +1,32 @@
 import { Textarea } from '@src'
-import type { TextareaT } from '@src'
-import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: TextareaSizeName[] = ['sm', 'md', 'lg']
-
-  type TextareaSizeName = Exclude<TextareaT.Variant['size'], undefined>
-
   return (
-    <div class="gap-3 grid w-full lg:grid-cols-3 sm:grid-cols-2">
-      <For each={SIZES}>
-        {(size) => <Textarea size={size} placeholder={`Size: ${size}`} rows={2} />}
-      </For>
+    <div class="flex flex-col gap-4 max-w-xl">
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Small (sm) - Quick commit summary
+        </label>
+        <Textarea size="sm" placeholder="feat: add virtualized list component" rows={2} />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Medium (md) - Support message
+        </label>
+        <Textarea size="md" placeholder="How can our engineering team help you today?" rows={3} />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Large (lg) - Extensive release notes
+        </label>
+        <Textarea
+          size="lg"
+          placeholder="Write release highlights, migration guides, and breaking changes..."
+          rows={4}
+        />
+      </div>
     </div>
   )
 }

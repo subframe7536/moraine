@@ -1,24 +1,25 @@
 import { Checkbox } from '@src'
-import type { CheckboxT } from '@src'
-import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: CheckboxSizeName[] = ['sm', 'md', 'lg']
-
-  type CheckboxSizeName = Exclude<CheckboxT.Variant['size'], undefined>
-
   return (
-    <div class="flex flex-col gap-2 max-w-xl">
-      <For each={SIZES}>
-        {(size) => (
-          <Checkbox
-            size={size}
-            label={`Size ${size}`}
-            description={`Checkbox size: ${size}`}
-            defaultChecked={size === 'md' || size === 'lg'}
-          />
-        )}
-      </For>
+    <div class="flex flex-col gap-3 max-w-xl">
+      <Checkbox
+        size="sm"
+        label="Select order #4819 for batch export"
+        description="Small compact row checkbox (sm)"
+        defaultChecked
+      />
+      <Checkbox
+        size="md"
+        label="Allow team members to edit this workspace"
+        description="Standard form field size with regular line height (md)"
+        defaultChecked
+      />
+      <Checkbox
+        size="lg"
+        label="Confirm production deployment to 12 edge regions"
+        description="Prominent action checkbox with larger hit target (lg)"
+      />
     </div>
   )
 }

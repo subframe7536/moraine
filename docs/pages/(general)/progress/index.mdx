@@ -1,21 +1,26 @@
 ---
 title: Progress
-description: Determinate or indeterminate progress indicator with optional step labels.
+description: A progress indicator component supporting determinate values, 4 smooth indeterminate animation styles, step checkpoints, and horizontal/vertical orientations.
 sidebar:
   order: 10
 search:
-  tags: [loading, percentage, steps, indicator]
+  tags: [loading, percentage, steps, indicator, progress bar, meter]
 ---
 
 import { Progress } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Progress } from 'moraine'
+import type { ProgressT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -46,47 +51,61 @@ import { Progress } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Track with a fill indicator, optional status text, and step labels.
+- **Determinate & Indeterminate Modes**: Displays precise percentage values or animated indeterminate pulses when duration is unknown.
+- **4 Distinct Animation Styles**: Choose from `carousel`, `reverse`, `swing`, and `elastic` indeterminate visual physics.
+- **Step Checkpoints**: Pass an array of step names (`['Draft', 'Review', 'Approved', 'Shipped']`) to render discrete progression dots and milestone labels.
+- **Horizontal & Vertical Orientations**: Switch to vertical progress bars for column meters and audio level visualizers.
+- **WAI-ARIA Progressbar Role**: Complies with `role="progressbar"`, providing `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-├── status (optional, determinate only)
-├── track
-│   └── indicator
-└── steps (optional, step mode)
-    └── step (×n)
+root (progress container)
+├── status (determinate percentage or label, optional)
+├── track (background bar rail)
+│   └── indicator (animated fill bar)
+└── steps (discrete milestone checkpoints, optional)
+    └── step (individual step dot & label ×n)
 ```
+
+- `root`: Outer layout element managing orientation and ARIA role.
+- `status`: Text or custom renderer indicating numeric progress.
+- `track`: The background track groove.
+- `indicator`: Colored bar filling from 0% to 100%.
+- `steps`: Step milestone ticks placed along the track.
 
 ## Examples
 
 ### Sizes
 
-Size scale from `sm` to `lg`.
+Size scaling across `sm`, `md`, and `lg` adjusting track heights and status label typography.
 
 <Example path="./sizes" />
 
 ### Orientations
 
-Horizontal and vertical layouts with consistent value rendering.
+Horizontal progress rails and vertical resource gauge meters.
 
 <Example path="./orientations" />
 
 ### Determinate
 
-Standard progress bar with status text and custom status renderer.
+Track file downloads, storage capacity, and disk space usage with custom status renderers.
 
 <Example path="./determinate" />
 
 ### Animations
 
-Indeterminate animation variants: `carousel`, `reverse`, `swing`, and `elastic`.
+Compare indeterminate motion presets (`carousel`, `reverse`, `swing`, `elastic`) during background operations.
 
 <Example path="./animations" />
 
 ### Step Mode
 
-String-array max renders named steps.
+Milestone pipeline tracking (`Plan`, `Build`, `Test`, `Deploy`, `Verify`).
 
 <Example path="./step-mode" />

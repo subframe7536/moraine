@@ -1,10 +1,18 @@
 import { CheckboxGroup } from '@src'
 import { For } from 'solid-js'
 
-const ITEMS = [
-  { value: 'alpha', label: 'Alpha', description: 'Primary rollout channel' },
-  { value: 'beta', label: 'Beta', description: 'Early access channel' },
-  { value: 'stable', label: 'Stable', description: 'Production channel' },
+const NOTIFICATIONS = [
+  {
+    value: 'mentions',
+    label: 'Direct @mentions',
+    description: 'When someone mentions you in a thread',
+  },
+  { value: 'assignee', label: 'Issue assigned', description: 'When an issue is assigned to you' },
+  {
+    value: 'review',
+    label: 'Review requested',
+    description: 'When your review is required on a PR',
+  },
 ]
 
 const INDICATORS = ['start', 'end', 'hidden'] as const
@@ -14,13 +22,15 @@ export function Indicator() {
     <div class="gap-4 grid md:grid-cols-2 xl:grid-cols-3">
       <For each={INDICATORS}>
         {(indicator) => (
-          <div class="p-4 b-(1 border) rounded-lg space-y-1">
-            <p class="text-xs text-muted-foreground">Indicator: {indicator}</p>
+          <div class="p-4 b-(1 border) rounded-xl space-y-2">
+            <p class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
+              Indicator: {indicator}
+            </p>
             <CheckboxGroup
-              legend="Channels"
-              items={ITEMS}
+              legend="Activity alerts"
+              items={NOTIFICATIONS}
               indicator={indicator}
-              defaultValue={['beta']}
+              defaultValue={['mentions', 'review']}
             />
           </div>
         )}

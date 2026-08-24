@@ -24,25 +24,25 @@
           "name": "data-checked",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is checked or selected."
+          "description": "Present when the item or toggle is checked."
         },
         {
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-unchecked",
@@ -99,19 +99,19 @@
           "name": "data-checked",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is checked or selected."
+          "description": "Present when the item or toggle is checked."
         },
         {
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         }
       ],
       "ariaAttributes": []

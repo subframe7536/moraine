@@ -1,21 +1,26 @@
 ---
 title: Select
-description: Dropdown select component with search and custom item rendering.
+description: A single-selection combobox and listbox component with fuzzy search filtering, option groups, infinite scroll loading, and virtualized lists.
 sidebar:
   order: 10
 search:
-  tags: [combobox, dropdown, options, searchable]
+  tags: [combobox, dropdown, options, searchable, select listbox, filter]
 ---
 
 import { Select } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Select } from 'moraine'
+import type { SelectT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -77,86 +82,102 @@ import { Select } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Trigger control and a floating listbox with grouped options. The control or search input keeps focus while options provide selection, highlight, and active-descendant semantics.
+- **Combobox & Search Filter**: Enable `search` to turn the select into a searchable combobox with typeahead and fuzzy keyword filtering.
+- **Categorized Option Groups**: Structure items into labeled hierarchical sections with non-selectable group headings.
+- **Infinite Scroll & Virtualization**: Effortlessly handle massive datasets with TanStack Virtual integration and bottom-scroll async pagination.
+- **Clearable Selection**: Enable `allowClear` to render an accessible one-click reset action button.
+- **WAI-ARIA Listbox Pattern**: Fully conforms to W3C Combobox/Listbox guidelines with roving active-descendant focus, `aria-expanded`, and keyboard shortcuts.
 
-### Control
+## Anatomy
+
+Hierarchical slot and element structure:
+
+### Trigger control
 
 ```text
 control
-├── leading (Icon, optional)
-├── input
-├── clear (IconButton, optional)
-└── trigger (IconButton)
+├── leading (optional status or category icon)
+├── input (read-only label or search field)
+├── clear (optional clear button)
+└── trigger (open/close chevron indicator)
 ```
 
-### Listbox
+### Floating Listbox (Portal)
 
 ```text
-content (portal)
-├── listbox
-│   ├── item (×n)
-│   │   ├── itemLabel
-│   │   ├── itemDescription (optional)
-│   │   └── itemTrailing (optional)
-│   └── group (×n, optional)
-│       └── label (optional)
-└── empty (optional, no matches)
+content (floating popover)
+└── listbox (scrollable options container)
+    ├── item (selectable option row ×n)
+    │   ├── itemLabel (text and icon)
+    │   ├── itemDescription (optional subtext)
+    │   └── itemTrailing (check indicator)
+    ├── group (grouped section container ×n)
+    │   └── label (group header)
+    └── empty (fallback message when no results match)
 ```
+
+- `control`: The trigger box maintaining focus and managing open/closed states.
+- `listbox`: The floating popover displaying selectable items with active highlight.
 
 ## Examples
 
 ### Single Select
 
-Basic single selection with controlled value and an optional clear action.
+Controlled deployment environment switcher (`Production`, `Staging`, `Preview`, `Local Dev`) with live state readout and `allowClear`.
 
 <Example path="./single-select" />
 
 ### Variants
 
-Visual style variants.
+Compare `outline`, `subtle`, `ghost`, and `none` styling options.
 
 <Example path="./variants" />
 
 ### Sizes
 
-From sm to lg.
+Size scale from `sm` (compact table filters) to `lg` (prominent forms).
 
 <Example path="./sizes" />
 
 ### Disabled
 
-Non-interactive state.
+Non-interactive disabled state preventing dropdown activation.
 
 <Example path="./disabled" />
 
 ### Searchable
 
-Type to filter options.
+Interactive country and currency code selector with live search filtering.
 
 <Example path="./searchable" />
 
 ### Grouped Options
 
-Options organized in sections.
+Group options into regional timezone categories (`Americas`, `Europe`, `Asia Pacific`).
 
 <Example path="./grouped-options" />
 
 ### Infinite Scroll
 
-Scroll to the bottom to load more options.
+Load additional items on demand as the user scrolls to the bottom of the listbox.
 
 <Example path="./infinite-scroll" />
 
-## Virtual Rendering
+### Virtualization
 
-Import `useListVirtualizer` from `moraine/utils` to render only visible entries. Pass its `virtualRender` to Select and forward `scrollToItem` to its `scrollToIndex` method so keyboard highlighting can reveal off-screen options.
-
-Install the adapter's optional peer dependency before using it:
-
-```bash
-bun add @tanstack/virtual-core
-```
+High-performance virtual scrolling for massive lists of thousands of options using `useListVirtualizer`.
 
 <Example path="./virtualization" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                      |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the listbox or confirms selection of the highlighted item. |
+| <kbd>ArrowDown</kbd>                | Highlights the next option in the list.                          |
+| <kbd>ArrowUp</kbd>                  | Highlights the previous option in the list.                      |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Jumps highlight directly to the first or last available option.  |
+| <kbd>Escape</kbd>                   | Closes the dropdown without changing the current value.          |
+| <kbd>Tab</kbd>                      | Closes the listbox and moves focus to the next element.          |

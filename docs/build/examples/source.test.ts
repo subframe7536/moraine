@@ -105,7 +105,9 @@ export function LoadingExample() {
 
   test('returns null for empty or whitespace-only source', async () => {
     expect(await resolveExampleComponentSource('', 'Example', parseExampleCode)).toBeNull()
-    expect(await resolveExampleComponentSource('   \n  \t  ', 'Example', parseExampleCode)).toBeNull()
+    expect(
+      await resolveExampleComponentSource('   \n  \t  ', 'Example', parseExampleCode),
+    ).toBeNull()
   })
 })
 

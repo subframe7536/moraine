@@ -1,21 +1,26 @@
 ---
 title: Popover
-description: Click-triggered floating content panel anchored to a trigger element.
+description: A click- or hover-triggered floating panel anchored to a trigger element, featuring smart collision detection, custom body slots, and dismissal control.
 sidebar:
   order: 2
 search:
-  tags: [floating panel, overlay, anchored, trigger]
+  tags: [floating panel, overlay, anchored, trigger, popover, flyout]
 ---
 
 import { Button, Input, Popover } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Popover } from 'moraine'
+import type { PopoverT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -67,32 +72,51 @@ import { Popover } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Polymorphic trigger root with a floating content portal containing the body.
+- **Floating UI Coordinate Positioning**: Anchors precisely to the trigger element with collision detection, shift, and auto-flip protection.
+- **Click & Hover Trigger Modes**: Open on click for forms/actions, or on hover with custom `openDelay` and `closeDelay` for rich preview cards.
+- **Dismissible & Outside Interaction Control**: Smooth dismiss on outside clicks or Escape, with option to lock interaction (`dismissible={false}`).
+- **WAI-ARIA Dialog Role**: Supports `aria-haspopup="dialog"`, `aria-expanded`, and focus containment.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-trigger
-└── content (portal)
-    └── body
+trigger (button or element opening popover)
+└── content (floating panel portal)
+    └── body (custom content card)
 ```
+
+- `trigger`: Element receiving click or hover listeners.
+- `content`: Portaled floating container with entering/exiting animations.
+- `body`: Surface rendering custom form controls or rich information.
 
 ## Examples
 
 ### Placements
 
-Click trigger with four placement variants.
+Explore 12-point Floating UI placement options (`top`, `bottom`, `left`, `right`, and start/end alignments).
 
 <Example path="./placements" />
 
 ### Hover Mode
 
-Hover-based popover using open and close delays.
+User profile and repository preview cards triggering on hover with open/close debouncing.
 
 <Example path="./hover-mode" />
 
 ### Dismiss Control
 
-Prevent closing on outside interaction and Escape key.
+Prevent dismissal during multi-step configuration forms or critical inputs.
 
 <Example path="./dismiss-control" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                          |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the popover when focused on the trigger button.                |
+| <kbd>Escape</kbd>                   | Closes the open popover and restores focus to the trigger.           |
+| <kbd>Tab</kbd>                      | Navigates through interactive form controls inside the popover body. |

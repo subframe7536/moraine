@@ -1,10 +1,10 @@
 ---
 title: Form
-description: Styled Formisch form that provides its store to Moraine form fields.
+description: A type-safe form container orchestrated by Formisch and Valibot, providing automatic store binding, reactive validation, and submission handling.
 sidebar:
   order: 1
 search:
-  tags: [Formisch, validation, submit, store]
+  tags: [Formisch, validation, submit, store, Valibot, form container, schemas]
 ---
 
 import { Button, createForm, Form, FormField, Input, Switch } from '@src'
@@ -13,36 +13,39 @@ import * as v from 'valibot'
 
 ## Import
 
-Create the Formisch store with a Valibot schema, then pass it to `Form`. Moraine fields and
-controls bind to the store automatically through `FormField.name`.
+Import `Form` and `createForm` from the package root:
 
 ```tsx
-import { createForm, Form, Input, Switch } from 'moraine'
+import { createForm, Form, FormField, Input, Switch } from 'moraine'
+import type { FormT } from 'moraine'
+```
 
-export function NoticationForm() {
+Define your schema with [Valibot](https://valibot.dev), create a reactive form store with `createForm`, and pass it to `Form`:
+
+```tsx
+export function NotificationForm() {
   const form = createForm({
     schema,
     initialInput: { email: '', enabled: false },
   })
-  const save = (output) => {}
 
   return (
-    <Form of={form} onSubmit={(output) => save(output)}>
-      <FormField name="email" label="Email">
-        <Input />
+    <Form of={form} onSubmit={(output) => console.log(output)}>
+      <FormField name="email" label="Email Address">
+        <Input leading="i-lucide:mail" />
       </FormField>
-      <FormField name="enabled" label="Enable notifications">
+      <FormField name="enabled" label="Enable Notifications">
         <Switch />
       </FormField>
+      <Button type="submit">Save Changes</Button>
     </Form>
   )
 }
 ```
 
-For field arrays or custom rendering, import `Field`, `FieldArray`, `useField`, and Formisch
-methods directly from `@formisch/solid` and use the same store.
-
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
@@ -65,7 +68,7 @@ methods directly from `@formisch/solid` and use the same store.
     })
 
     return (
-      <Form of={form} onSubmit={() => setSuccess(true)} class="space-y-4">
+      <Form of={form} onSubmit={() => setSuccess(true)} class="space-y-4 max-w-sm">
         <FormField name="email" label="Email" required>
           <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
         </FormField>
@@ -80,7 +83,7 @@ methods directly from `@formisch/solid` and use the same store.
         </FormField>
 
         <FormField name="remember">
-          <Switch label="Remember me" disabled={props.disabled} />
+          <Switch label="Remember me on this device" disabled={props.disabled} />
         </FormField>
 
         <Button type="submit" class="w-full" disabled={props.disabled}>
@@ -96,28 +99,60 @@ methods directly from `@formisch/solid` and use the same store.
 
 </Playground>
 
+## Features
+
+- **Formisch & Valibot Orchestration**: Built upon `@formisch/solid` for high-performance, fine-grained reactive form validation.
+- **Contextual Store Propagation**: Child `FormField` components automatically read their values, errors, and validation states without boilerplate props.
+- **Async Submission Handling**: Handles promise lifecycles, error boundaries, and auto-disabling during in-flight network requests.
+- **Nested & Array Path Support**: Seamlessly validates arrays (`['members', 0, 'email']`) and deeply nested configuration objects.
+- **Cascading Disabled States**: Disabling the top-level form automatically cascades to all child fields and controls.
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (HTML <form>)
+└── fields (composed FormField instances)
+    ├── FormField (name="email")
+    │   ├── label
+    │   ├── Input (reads store value)
+    │   └── error (displays validation message)
+    └── Button (type="submit")
+```
+
+- `root`: The `<form>` element intercepting native submit events and executing schema validations.
+- `fields`: Composed `FormField` elements subscribing to the form store.
+
 ## Examples
 
 ### Workspace Provisioning
 
-Create a new workspace with owner identity, default role, and rollout target.
+Multi-field organization setup with slug validation, workspace tier selection, and owner email.
 
 <Example path="./workspace-provisioning" />
 
 ### Release Readiness Checklist
 
-Validate release metadata, rollout channels, and approval gate with a Formisch schema.
+Production deployment gate validating changelogs, semver versioning, automated smoke test checks, and approval signatures.
 
 <Example path="./release-readiness-checklist" />
 
 ### Incident Escalation Policy
 
-Configure nested policy fields for severity routing and automatic rollback behavior.
+Complex nested object schema managing on-call alert channels, paging severity thresholds, and fallback escalation contacts.
 
 <Example path="./incident-escalation-policy" />
 
 ### Access Request Review
 
-Review temporary access requests with scoped permissions and required reviewers.
+Temporary infrastructure access request with time-to-live duration, scope tags, and reason justification.
 
 <Example path="./access-request-review" />
+
+## Keyboard Interactions
+
+| Key              | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| <kbd>Enter</kbd> | Submits the form when focused inside an `<input>` (unless multiline textarea). |
+| <kbd>Tab</kbd>   | Sequentially navigates through form fields in logical DOM order.               |

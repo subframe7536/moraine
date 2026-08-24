@@ -3,28 +3,33 @@ import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
 export function MultipleSelect() {
-  const FRUIT_OPTIONS: MultiSelectT.Item[] = [
-    { label: 'Apple', value: 'apple' },
-    { label: 'Banana', value: 'banana' },
-    { label: 'Cherry', value: 'cherry' },
-    { label: 'Date', value: 'date' },
-    { label: 'Elderberry', value: 'elderberry', disabled: true },
-    { label: 'Forest', value: 'forest', icon: 'i-lucide:braces' },
+  const TEAM_MEMBERS: MultiSelectT.Item[] = [
+    { label: 'Alex Morgan (Tech Lead)', value: 'alex', icon: 'i-lucide:user-check' },
+    { label: 'Sarah Chen (Product Designer)', value: 'sarah', icon: 'i-lucide:palette' },
+    { label: 'Jordan Lee (Backend Engineer)', value: 'jordan', icon: 'i-lucide:server' },
+    { label: 'Marcus Vance (DevOps)', value: 'marcus', icon: 'i-lucide:cpu' },
+    { label: 'Elena Rostova (Contractor - Inactive)', value: 'elena', disabled: true },
   ]
 
-  const [multiValue, setMultiValue] = createSignal<MultiSelectT.Value[]>([])
+  const [assignees, setAssignees] = createSignal<MultiSelectT.Value[]>(['alex', 'sarah'])
 
   return (
-    <div class="w-80 space-y-2">
+    <div class="w-96 space-y-3">
+      <label class="text-xs text-muted-foreground font-medium block">
+        Assign reviewers to pull request
+      </label>
       <MultiSelect
-        options={FRUIT_OPTIONS}
-        value={multiValue()}
-        onChange={setMultiValue}
-        placeholder="Pick fruits..."
+        options={TEAM_MEMBERS}
+        value={assignees()}
+        onChange={setAssignees}
+        placeholder="Select team members..."
         allowClear
         classes={{ control: 'w-full' }}
       />
-      <p class="text-xs text-muted-foreground">Selected: {multiValue().join(', ') || 'none'}</p>
+      <p class="text-xs text-muted-foreground">
+        Assigned ({assignees().length}):{' '}
+        <span class="text-foreground font-medium">{assignees().join(', ') || 'none'}</span>
+      </p>
     </div>
   )
 }

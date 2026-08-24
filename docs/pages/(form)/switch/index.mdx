@@ -1,21 +1,26 @@
 ---
 title: Switch
-description: Toggle switch control with icon slots and loading state.
+description: A binary toggle switch component supporting custom true/false domain values, checked/unchecked thumb icons, async loading spinners, and size scaling.
 sidebar:
   order: 9
 search:
-  tags: [toggle, boolean, checked, setting]
+  tags: [toggle, boolean, checked, setting, switch, preferences]
 ---
 
 import { Switch } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Switch } from 'moraine'
+import type { SwitchT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -49,43 +54,64 @@ import { Switch } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Toggle track with thumb and optional label area.
+- **WAI-ARIA Switch Role**: Accessible `role="switch"` with automatic synchronization of `aria-checked` and label IDs.
+- **Custom Thumb Icons**: Render distinct icons inside the moving thumb for checked (`checkedIcon`) and unchecked (`uncheckedIcon`) states (e.g. moon/sun for dark mode).
+- **Built-in Async Loading Spinner**: Replaces the thumb icon with an animated loader during background async operations.
+- **Domain Value Mapping**: Bind custom values like `'online'` / `'maintenance'` via `trueValue` and `falseValue` props.
+- **Proportional Size Scale**: Three standard sizes (`sm`, `md`, `lg`) adjusting track radius, thumb padding, and label typography.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
+root (label wrapper)
 ├── container
-│   ├── input
-│   └── track
-│       └── thumb
+│   ├── input (native hidden checkbox)
+│   └── track (pill toggle background)
+│       └── thumb (sliding circle)
+│           ├── checkedIcon (rendered when checked)
+│           └── uncheckedIcon (rendered when unchecked)
 └── wrapper (optional)
-    ├── label (optional)
-    └── description (optional)
+    ├── label (title text)
+    └── description (subtext note)
 ```
+
+- `root`: Top-level interactive label container.
+- `track`: The pill background transitioning color upon toggle.
+- `thumb`: Smoothly animated circle handle with optional icons.
 
 ## Examples
 
 ### Basic + Controlled
 
-Uncontrolled and controlled switch with icon slots.
+Interactive security settings switch (Two-Factor Authentication toggle) with live status readout.
 
 <Example path="./basic-controlled" />
 
 ### Variants
 
-Loading, disabled, and explicit icon combinations.
+Compare loading states, dark mode icons (`sun`/`moon-star`), and disabled billing switches.
 
 <Example path="./variants" />
 
 ### Sizes
 
-Switch size scale from sm to lg.
+Scales across `sm` (table row toggle), `md` (standard settings), and `lg` (prominent feature switch).
 
 <Example path="./sizes" />
 
 ### Custom True/False Values
 
-Map checked state to domain values instead of boolean.
+Bind custom domain state values (`'online'` vs `'maintenance'`) directly to the switch.
 
 <Example path="./custom-true-false-values" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                             |
+| ----------------------------------- | ------------------------------------------------------- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggles the switch state between checked and unchecked. |
+| <kbd>Tab</kbd>                      | Moves focus to the switch element.                      |

@@ -1,21 +1,26 @@
 ---
 title: Breadcrumb
-description: Breadcrumb navigation trail with separator icons and optional wrapping.
+description: A hierarchical navigation trail component with custom separator icons, responsive wrapping, leading item glyphs, and WAI-ARIA breadcrumb landmarks.
 sidebar:
   order: 1
 search:
-  tags: [path, hierarchy, navigation, trail]
+  tags: [path, hierarchy, navigation, trail, breadcrumb, routing, sitemap]
 ---
 
 import { Breadcrumb } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Breadcrumb } from 'moraine'
+import type { BreadcrumbT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -48,42 +53,62 @@ import { Breadcrumb } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Ordered navigation list with links, separators, and a non-clickable current page.
+- **WAI-ARIA Breadcrumb Landmark**: Semantic `<nav aria-label="Breadcrumb">` wrapping an ordered `<ol>` list.
+- **Current Page Indication**: The final item is automatically rendered as text with `aria-current="page"`.
+- **Custom Separator Glyph or JSX**: Choose chevron, slash, arrow, or custom SVG separators.
+- **Leading Icons & Avatars**: Embed section icons or repository icons alongside trail labels.
+- **Responsive Wrapping Control**: Toggle `wrap` to gracefully wrap long path chains without truncating text.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-└── list
-    ├── item
-    │   └── link
-    ├── separator
-    └── item
-        └── page
+root (semantic <nav aria-label="Breadcrumb">)
+└── list (<ol> ordered navigation container)
+    ├── item (<li> element ×n)
+    │   ├── link (clickable ancestor anchor)
+    │   └── page (non-clickable current page text with aria-current="page")
+    └── separator (<li> delimiter with aria-hidden="true")
 ```
+
+- `root`: Outer `<nav>` landmark.
+- `list`: Semantic ordered `<ol>` list.
+- `link`: Clickable parent directory / section link.
+- `separator`: Decorative divider between items.
+- `page`: Terminal node indicating the user's current location.
 
 ## Examples
 
 ### Default
 
-Simple breadcrumb trail with an active last item.
+Standard application hierarchy trail with leading home icon and active current page.
 
 <Example path="./default" />
 
 ### Sizes
 
-Different size.
+Size scaling across `sm`, `md`, and `lg` adjusting link font sizes and separator icon dimensions.
 
 <Example path="./sizes" />
 
 ### Custom Separator + Disabled
 
-Use an alternative separator and mark links as disabled.
+Slash `/` separator style and disabled intermediate route permissions.
 
 <Example path="./custom-separator-disabled" />
 
 ### Wrapping
 
-Toggle wrapping behavior for long breadcrumb labels.
+Multi-level deep directory path demonstrating graceful responsive wrapping behavior.
 
 <Example path="./wrapping" />
+
+## Keyboard Interactions
+
+| Key              | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>   | Navigates focus sequentially through clickable ancestor links in the trail. |
+| <kbd>Enter</kbd> | Activates the focused link to navigate to the parent path.                  |

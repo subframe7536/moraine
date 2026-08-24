@@ -17,13 +17,13 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-resizable-root",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Identifies the root container of a resizable layout."
         }
       ],
       "ariaAttributes": []
@@ -37,25 +37,25 @@
           "name": "data-collapsed",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the panel or section is collapsed."
         },
         {
           "name": "data-expanded",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present when the panel, accordion, or menu is expanded."
         },
         {
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-resizing",
           "required": false,
           "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "description": "Present while resizable handles are actively dragging."
         },
         {
           "name": "data-transitioning",
@@ -75,7 +75,7 @@
           "name": "data-active",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is active."
+          "description": "Present when the item or trigger is active."
         },
         {
           "name": "data-cross",
@@ -93,7 +93,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": [

@@ -17,31 +17,31 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": [
@@ -62,7 +62,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": []
@@ -76,7 +76,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": []
@@ -90,7 +90,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": []
@@ -104,7 +104,7 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-dragging",
@@ -116,19 +116,19 @@
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field has a validation error."
+          "description": "Present when the field or form has a validation error."
         },
         {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is read-only."
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the field is required."
+          "description": "Present when the field input is required."
         }
       ],
       "ariaAttributes": [

@@ -1,12 +1,32 @@
 import { Input } from '@src'
-import { For } from 'solid-js'
 
 export function InputSizes() {
-  const SIZES = ['sm', 'md', 'lg'] as const
-
   return (
-    <div class="gap-3 grid lg:grid-cols-3 sm:grid-cols-2">
-      <For each={SIZES}>{(size) => <Input size={size} placeholder={`Size: ${size}`} />}</For>
+    <div class="flex flex-col gap-4 max-w-xl">
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Small (sm) - Compact table filter
+        </label>
+        <Input size="sm" leading="i-lucide:filter" placeholder="Filter by keyword..." />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Medium (md) - Standard form field
+        </label>
+        <Input size="md" placeholder="Enter your full name" defaultValue="Alex Morgan" />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-muted-foreground font-medium">
+          Large (lg) - Hero search / prompt input
+        </label>
+        <Input
+          size="lg"
+          leading="i-lucide:sparkles"
+          placeholder="Ask AI to generate a UI layout..."
+        />
+      </div>
     </div>
   )
 }

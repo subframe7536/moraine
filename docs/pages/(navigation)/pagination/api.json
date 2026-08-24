@@ -58,19 +58,19 @@
           "name": "data-current",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item represents the current location."
+          "description": "Present when the item represents the current location or step."
         },
         {
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-loading",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component is loading."
+          "description": "Present when the component or async operation is loading."
         },
         {
           "name": "data-size",
@@ -115,13 +115,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-loading",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component is loading."
+          "description": "Present when the component or async operation is loading."
         },
         {
           "name": "data-size",
@@ -160,13 +160,13 @@
           "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or item is disabled."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
           "name": "data-loading",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component is loading."
+          "description": "Present when the component or async operation is loading."
         },
         {
           "name": "data-size",

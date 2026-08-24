@@ -17,7 +17,7 @@
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation."
+          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": []
@@ -71,7 +71,7 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         }
       ],
       "ariaAttributes": [
@@ -125,7 +125,7 @@
           "name": "data-selected",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the item is selected."
+          "description": "Present when the item or tab is selected."
         }
       ],
       "ariaAttributes": [

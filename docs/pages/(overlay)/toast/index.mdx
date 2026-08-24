@@ -1,10 +1,10 @@
 ---
 title: Toast
-description: Temporary notification messages backed by the solid-toaster package.
+description: Temporary notification messages with asynchronous promise lifecycles, action buttons, progress bars, and position anchoring powered by solid-toaster.
 sidebar:
   order: 8
 search:
-  tags: [notification, message, feedback, promise]
+  tags: [notification, message, feedback, promise, toast, alert, toaster]
 componentKey: toast
 category: overlays
 upstreamHref: https://github.com/subframe7536/solid-toaster
@@ -20,18 +20,18 @@ Install `solid-toaster`:
 
 <CodeTabs package="solid-toaster" />
 
-Then import styles, mount a `Toaster` instance.
+Then import styles and mount a `Toaster` instance at your application root:
 
 ```tsx
 import 'solid-toaster/style.css'
 
-import { Button } from '@subframe7536/moraine'
+import { Button } from 'moraine'
 import { Toaster, toast } from 'solid-toaster'
 
 export default function App() {
   return (
     <>
-      <Button onClick={() => toast.success('Saved!')}>Toast</Button>
+      <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
       <Toaster />
     </>
   )
@@ -39,6 +39,8 @@ export default function App() {
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -90,22 +92,48 @@ export default function App() {
 
 </Playground>
 
+## Features
+
+- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` seamlessly updates message tone and icons in-place as network calls resolve.
+- **Multiple Semantic Tones**: Dedicated methods for `toast.success()`, `toast.error()`, `toast.warning()`, and `toast.info()`.
+- **Scoped Multi-Toaster Instances**: Target specific viewport regions or modal contexts using `toasterId`.
+- **Dismissal & Duration Controls**: Custom per-toast timeouts, progress timers, and manual `toast.dismiss()` triggers.
+- **Accessible ARIA Live Regions**: Announces messages via `role="status"` and `aria-live="polite"` or `aria-live="assertive"`.
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+Toaster (viewport container)
+└── Toast (floating card ×n)
+    ├── icon (status indicator icon)
+    ├── content
+    │   ├── title (primary message string)
+    │   └── description (optional subtext)
+    ├── action (optional action button)
+    └── close (optional dismiss button)
+```
+
+- `Toaster`: Mounts at top-level root managing stacking, gaps, and z-index.
+- `Toast`: Individual animated notification card.
+
 ## Examples
 
 ### Basic Toasts
 
-Send status toasts to the global toaster instance, including loading to success update.
+Send success, error, warning, and info notification toasts to the global toaster.
 
 <Example path="./basic-toasts" />
 
 ### Promise + Scoped Instances
 
-Use toast.promise for async lifecycle and route toasts by toasterId.
+Track async git push operations with `toast.promise` and target scoped sub-toasters.
 
 <Example path="./promise-scoped-instances" />
 
 ### Duration and Dismissal
 
-Control how long an individual toast stays visible, or dismiss the current notifications together.
+Customize display duration in milliseconds, or dismiss all notifications programmatically.
 
 <Example path="./duration" />

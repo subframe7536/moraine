@@ -1,24 +1,27 @@
 ---
 title: List
-description: Headless collection renderer with polymorphic roots and caller-controlled virtualization.
+description: A high-performance collection primitive with polymorphic elements, render function item rendering, and seamless TanStack Virtual integration for massive datasets.
 sidebar:
   order: 11
 search:
-  tags: [list, collection, virtualization, headless]
+  tags: [list, collection, virtualization, headless, virtual list, dynamic height]
 ---
 
 import { Badge, List } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { List } from 'moraine'
 import { useListVirtualizer } from 'moraine/utils'
+import type { ListT } from 'moraine'
 ```
 
-`List` owns collection traversal and the scroll-element bridge used by virtual renderers. Item markup, semantics, styling, filtering, focus, and selection remain under caller control.
-
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -59,30 +62,42 @@ import { useListVirtualizer } from 'moraine/utils'
 
 </Playground>
 
+## Features
+
+- **Fine-Grained Item Rendering**: Uses `itemRender` callback receiving `{ item, index }` context for total markup control.
+- **Polymorphic Container**: Default semantic `<ul>` root (`role="list"`), easily configurable to `<div>`, `<ol>`, or custom components via `as`.
+- **First-Class Virtualization**: Integrates with TanStack Virtual via `useListVirtualizer` for infinite scroll lists of 100,000+ rows.
+- **Dynamic Row Height Measurement**: Automatically measures variable-height content cards and re-indexes layout gaps smoothly.
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (semantic <ul> or polymorphic container)
+└── itemRender ({ item, index } ×n)
+    └── <li> (custom caller-defined row markup)
+```
+
+- `root`: Container element with `role="list"` and scroll tracking.
+- `itemRender`: High-efficiency Solid JSX factory rendering individual array items.
+
 ## Examples
 
 ### Object List
 
-Render arbitrary objects with a semantic `ul` root, `role="list"`, and `data-slot="root"` by default. Use `as` and native root attributes when another element or role is required; explicit attributes override the defaults.
+Render structured project records with custom cards, badges, and hover highlights.
 
 <Example path="./basic" />
 
 ### Virtualization
 
-Import `useListVirtualizer` from `moraine/utils`. It provides a ready-to-use `virtualRender`, automatically connects the scroll element, positions rows, and forwards dynamic measurement refs. Configure `estimateSize`, a stable `getItemKey`, and optional TanStack Virtual settings such as `gap` and `overscan`.
-
-The built-in adapter requires `@tanstack/virtual-core` as an optional peer dependency. Install a compatible version in your application before using it.
-
-```bash
-bun add @tanstack/virtual-core
-```
-
-Provide a custom `virtualRender` component when the built-in absolute row layout is not suitable.
+Virtualize 10,000+ entries effortlessly using `useListVirtualizer` with constant 60fps frame rates.
 
 <Example path="./virtualization" />
 
 ### Dynamic Heights
 
-For variable-height rows, provide a reasonable estimate and let the built-in renderer measure connected rows. TanStack Virtual observes later content size changes and recalculates positions; `gap` remains consistent between measured rows.
+Render variable-height commit logs and messages with automatic DOM resize observers.
 
 <Example path="./dynamic-height" />

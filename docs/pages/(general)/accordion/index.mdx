@@ -1,21 +1,26 @@
 ---
 title: Accordion
-description: Stacked disclosure component with single or multiple expanded sections.
+description: A vertically stacked set of interactive disclosure headings that expand and collapse content sections, supporting single or multiple active panels.
 sidebar:
   order: 7
 search:
-  tags: [disclosure, expand, collapse, sections]
+  tags: [disclosure, expand, collapse, sections, accordion, faq, panels]
 ---
 
 import { Accordion } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Accordion } from 'moraine'
+import type { AccordionT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -60,37 +65,60 @@ import { Accordion } from 'moraine'
 
 </Playground>
 
-## Slot Structure
+## Features
 
-Stacked item list where each item has a clickable header and collapsible content.
+- **Single & Multiple Expansion Modes**: Allow only one section open at a time (`single`) or multiple concurrent open panels (`multiple`).
+- **Smooth Height Transitions**: Animates expanding and collapsing states cleanly without layout pops or calculation glitches.
+- **WAI-ARIA Disclosure Pattern**: Follows W3C Accordion practices using proper `<button>` triggers with `aria-expanded` and `aria-controls`.
+- **Leading & Trailing Slot Customization**: Easily embed icons, badges, status dots, or custom trigger chevron glyphs (`trailing="icon-plus"`).
+- **Per-Section Disabling**: Disable locked or permission-gated sections while keeping others interactive.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
-root
-└── item (×n)
-    ├── header
-    │   └── trigger
-    │       ├── leading (Icon, optional)
-    │       ├── label (optional)
-    │       └── trailing (Icon, optional)
-    └── content (optional)
+root (accordion container)
+└── item (individual section ×n)
+    ├── header (heading wrapper)
+    │   └── trigger (clickable button)
+    │       ├── leading (icon, optional)
+    │       ├── label (section title)
+    │       └── trailing (animated chevron or icon)
+    └── content (collapsible panel)
 ```
+
+- `root`: Container element managing shared expansion state.
+- `item`: Bounded section wrapper with `data-expanded` attributes.
+- `trigger`: Semantic `<button>` handling click and keyboard activation.
+- `content`: Animateable body container revealing the section's content.
 
 ## Examples
 
 ### Single
 
-Single-open mode with controlled state and icon leading/trailing slots.
+Single-expansion product FAQ with leading icons and live open state readout.
 
 <Example path="./single" />
 
 ### Multiple
 
-Multiple-open mode with custom trailing icons.
+Allow multiple sections (General, Security, Billing) to remain open simultaneously.
 
 <Example path="./multiple" />
 
 ### Disabled + Custom Content
 
-Mix disabled items with rich JSX content blocks.
+Mix locked sections with rich nested JSX checklists, cards, and formatting.
 
 <Example path="./disabled-custom-content" />
+
+## Keyboard Interactions
+
+| Key                                 | Description                                                 |
+| ----------------------------------- | ----------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Expands or collapses the focused accordion trigger.         |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next accordion header trigger.           |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous accordion header trigger.       |
+| <kbd>Home</kbd>                     | Moves focus directly to the first accordion header trigger. |
+| <kbd>End</kbd>                      | Moves focus directly to the last accordion header trigger.  |

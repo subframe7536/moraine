@@ -1,19 +1,23 @@
 import { Button } from '@src'
-import type { ButtonT } from '@src'
-import { For } from 'solid-js'
 
 export function Sizes() {
-  const SIZES: ButtonT.Variant['size'][] = ['xs', 'sm', 'md', 'lg', 'xl']
-
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <For each={SIZES}>
-        {(size) => (
-          <Button size={size} variant="outline" leading="i-lucide:plus">
-            Add item ({size})
-          </Button>
-        )}
-      </For>
+      <Button size="xs" variant="outline">
+        xs / Copy
+      </Button>
+      <Button size="sm" variant="outline" leading="i-lucide:filter">
+        sm / Filter
+      </Button>
+      <Button size="md" variant="default" leading="i-lucide:check">
+        md / Save Changes
+      </Button>
+      <Button size="lg" variant="default" leading="i-lucide:sparkles">
+        lg / Create Project
+      </Button>
+      <Button size="xl" variant="default" leading="i-lucide:rocket">
+        xl / Get Started Free
+      </Button>
     </div>
   )
 }

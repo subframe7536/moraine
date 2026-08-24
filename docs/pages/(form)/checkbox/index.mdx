@@ -1,21 +1,26 @@
 ---
 title: Checkbox
-description: Single checkbox control with card and list variants and custom true/false values.
+description: A tri-state boolean selection control supporting custom true/false values, indeterminate states, card and list variants, and WAI-ARIA accessibility.
 sidebar:
   order: 6
 search:
-  tags: [boolean, checked, indeterminate, selection]
+  tags: [boolean, checked, indeterminate, selection, form control]
 ---
 
 import { Checkbox } from '@src'
 
 ## Import
 
+Import the component and its companion types from the package root:
+
 ```tsx
 import { Checkbox } from 'moraine'
+import type { CheckboxT } from 'moraine'
 ```
 
 ## Playground
+
+Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -58,43 +63,65 @@ import { Checkbox } from 'moraine'
   }}
 </Playground>
 
-## Slot Structure
+## Features
 
-Checkbox indicator with optional label and description.
+- **Tri-State Support**: Fully supports checked, unchecked, and indeterminate states with automatic ARIA sync (`aria-checked="mixed"`).
+- **Custom Value Mapping**: Bind custom domain values (such as `'opted-in'` / `'opted-out'`) via `trueValue` and `falseValue` props instead of raw booleans.
+- **Card & List Layouts**: Choose between lightweight `list` styling and interactive bounded `card` panels with start, end, or hidden indicator positions.
+- **Keyboard Accessible**: Full compliance with WAI-ARIA checkbox pattern, supporting spacebar activation, roving focus, and form label associations.
+- **Icon Flexibility**: Customize both checked and indeterminate icons with any UnoCSS or SVG icon name.
+
+## Anatomy
+
+Hierarchical slot and element structure:
 
 ```text
 root
 ├── container
-│   ├── input
-│   └── control
-│       └── indicator (optional)
-└── wrapper (optional)
+│   ├── input (native hidden checkbox)
+│   └── control (styled indicator box)
+│       └── indicator (icon or checkmark)
+└── wrapper (optional label container)
     ├── label (optional)
     └── description (optional)
 ```
+
+- `root`: Top-level label container with state data attributes (`data-checked`, `data-indeterminate`, `data-disabled`).
+- `container`: Box containing the visually hidden native `<input>` and custom styled `control`.
+- `control`: The visible checkbox square that animates checkmarks and border styles.
+- `indicator`: The rendered icon (defaults to `i-lucide:check` or `i-lucide:minus`).
+- `wrapper`: Container grouping the title `label` and optional helper `description`.
 
 ## Examples
 
 ### Variants
 
-List and card variants with start/end/hidden indicator positions.
+Checkbox supports standard `list` layout for compact inline forms, as well as `card` layout for rich selection blocks with start or end indicator positions.
 
 <Example path="./variants" />
 
 ### Sizes
 
-Scale from sm to lg with unified label spacing.
+Uniform scaling across `sm`, `md`, and `lg` sizes with proportional indicator boxes, typography, and gap alignment.
 
 <Example path="./sizes" />
 
 ### Indeterminate + Custom Icons
 
-Custom checked/indeterminate icons with controlled indeterminate transition.
+Useful for nested checklist hierarchies (such as selecting all child tasks). When some but not all tasks are selected, the parent checkbox automatically transitions to the indeterminate state.
 
 <Example path="./indeterminate-custom-icons" />
 
 ### Custom True/False Values
 
-Map checked state to domain values instead of boolean.
+Map checkbox states directly to domain-specific strings or values using `trueValue` and `falseValue`, eliminating manual boolean-to-string mappings.
 
 <Example path="./custom-true-false-values" />
+
+## Keyboard Interactions
+
+| Key                    | Description                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| <kbd>Space</kbd>       | Toggles the checkbox state between checked and unchecked. If indeterminate, transitions to checked. |
+| <kbd>Tab</kbd>         | Moves focus to the next focusable element.                                                          |
+| <kbd>Shift + Tab</kbd> | Moves focus to the previous focusable element.                                                      |
