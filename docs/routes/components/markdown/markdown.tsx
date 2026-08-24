@@ -139,6 +139,13 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
     ...getDocsApiReferenceTocEntries(input.apiDoc),
   ])
 
+  onMount(() => {
+    const el = document.getElementById(window.location.hash.slice(1))
+    if (el) {
+      el.scrollIntoView({ block: 'start' })
+    }
+  })
+
   return (
     <article class="text-foreground docs-content-gutter min-h-screen w-full">
       <div class="mx-auto max-w-7xl">

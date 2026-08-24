@@ -16,7 +16,7 @@ export function FormFieldPlayground(props: FormFieldPlaygroundProps) {
       <FormField
         label={props.label ?? 'Email address'}
         description={props.description ?? "We'll never share your email."}
-        hint={props.hint ?? 'Required'}
+        hint={props.hint ?? 'E-Mail'}
         error={props.error ? props.error : undefined}
         size={props.size ?? 'md'}
         required={props.required ?? false}

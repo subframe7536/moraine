@@ -20,19 +20,19 @@ const docsShortCuts = {
 }
 
 const markdownShortCuts = {
-  'docs-h1': 'text-2xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
+  'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':
-    'text-lg sm:text-xl text-foreground font-semibold tracking-tight mb-3 sm:mb-4 mt-8 sm:mt-10 pb-2 border-b border-border/60',
-  'docs-h3': 'text-base sm:text-lg text-foreground font-semibold tracking-tight mb-2 mt-5 sm:mt-6',
-  'docs-h4': 'text-sm sm:text-base text-foreground font-semibold mb-1.5 mt-4',
-  'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
-  'docs-p': 'text-sm text-muted-foreground leading-relaxed mb-3.5',
-  'docs-ul': 'list-disc list-outside pl-5 mb-3.5 text-sm text-muted-foreground space-y-1',
-  'docs-ol': 'list-decimal list-outside pl-5 mb-3.5 text-sm text-muted-foreground space-y-1',
+    'text-xl sm:text-2xl text-foreground font-semibold tracking-tight mb-3 sm:mb-4 mt-8 sm:mt-10 pb-2 border-b border-border/60',
+  'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold tracking-tight mb-2 mt-5 sm:mt-6',
+  'docs-h4': 'sm:text-base text-foreground font-semibold mb-1.5 mt-4',
+  'docs-h5': 'text-foreground font-semibold mb-1 mt-3',
+  'docs-p': 'text-muted-foreground leading-relaxed mb-3.5',
+  'docs-ul': 'list-disc list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
+  'docs-ol': 'list-decimal list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
   'docs-li': 'leading-relaxed',
   'docs-a': 'text-primary underline underline-offset-3 hover:text-primary-hover transition-colors',
   'docs-blockquote':
-    'my-4 rounded-xl bg-muted/40 border border-border/60 px-4 py-3 text-sm text-muted-foreground [&>p]:m-0',
+    'my-4 rounded-xl bg-muted/40 border border-border/60 px-4 py-3 text-muted-foreground [&>p]:m-0',
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border/60 my-6',
   'docs-inline-code':

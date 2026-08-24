@@ -42,7 +42,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
   return (
     <nav
       aria-label="On This Page"
-      class="my-6 p-4 border border-border/60 rounded-xl bg-muted/40 xl:(my-0 p-0 border-0 bg-transparent col-start-2 row-start-1 docs-toc-width max-h-[calc(100vh-4rem)] self-start top-16 sticky overflow-y-auto)"
+      class="my-6 p-4 border border-border/60 bg-muted/40 lg:(my-0 p-0 border-0 bg-transparent col-start-2 row-start-1 docs-toc-width max-h-[calc(100vh-4rem)] self-start top-16 sticky overflow-y-auto)"
     >
       <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold uppercase">
         On This Page
@@ -59,7 +59,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[] }) {
                 onClick={handleAnchorClick}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 docs-focus-visible rounded-md transition-colors data-active:(text-primary font-medium bg-primary/10 dark:bg-primary/15) hover:text-foreground"
+                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 docs-focus-visible transition-colors data-active:(text-primary font-medium) hover:text-foreground"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

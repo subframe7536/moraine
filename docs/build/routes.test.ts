@@ -95,7 +95,7 @@ describe('docs route metadata', () => {
         { info: { key: 'introduction', title: 'Intro' }, routePath: 'index.tsx' },
         {
           info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
-          routePath: path.join('(general)', 'button', 'index.tsx'),
+          routePath: path.posix.join('(general)', 'button', 'index.tsx'),
         },
       ])
     } finally {

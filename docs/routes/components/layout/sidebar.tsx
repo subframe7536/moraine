@@ -55,7 +55,7 @@ export const Sidebar = (props: SidebarProps) => {
           {(section) => (
             <section aria-label={section.group}>
               <Show when={section.group}>
-                <div class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
+                <div class="text-xs text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase">
                   {section.group}
                 </div>
               </Show>
@@ -110,7 +110,7 @@ export const Sidebar = (props: SidebarProps) => {
         </Show>
 
         <section>
-          <div class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
+          <div class="text-xs text-muted-foreground/80 tracking-tight font-semibold mb-1.5 mt-3 px-2 uppercase">
             Resources
           </div>
           <a
@@ -119,10 +119,6 @@ export const Sidebar = (props: SidebarProps) => {
             type="text/markdown"
             class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-lg flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
-            <span
-              class="i-lucide-file-text text-muted-foreground shrink-0 size-4"
-              aria-hidden="true"
-            />
             <span class="truncate">llms.txt</span>
           </a>
         </section>

@@ -4,7 +4,7 @@ import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
 
 export const inputRootVariants = cva(
-  'rounded-md inline-flex w-full cursor-text transition-[colors,box-shadow] items-center overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
+  'inline-flex w-full cursor-text transition-[colors,box-shadow] items-center overflow-hidden focus-within:effect-fv-border data-invalid:effect-invalid data-disabled:effect-dis focus-within:data-invalid:effect-invalid',
   {
     defaultVariants: {
       size: 'md',
@@ -12,9 +12,9 @@ export const inputRootVariants = cva(
     },
     variants: {
       size: {
-        sm: 'text-xs h-7',
-        md: 'text-sm h-8',
-        lg: 'text-base h-9',
+        sm: 'text-xs rounded-sm h-7',
+        md: 'text-sm rounded-md h-8',
+        lg: 'text-base rounded-lg h-9',
       },
       variant: INPUT_VARIANT,
     },

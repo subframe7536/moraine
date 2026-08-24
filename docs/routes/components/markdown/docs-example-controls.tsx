@@ -59,23 +59,11 @@ function getValueKey(value: string | number): string {
   return `${typeof value}:${value}`
 }
 
-function warnForTooManyControls(): void {
-  if (import.meta.env.DEV) {
-    console.warn('[docs-example-controls] A playground accepts at most five controls.')
-  }
-}
-
 /** Validates the static, serializable control configuration authored in MDX. */
 export function normalizeDocsExampleControls(value: unknown): readonly DocsExampleControl[] {
   if (!Array.isArray(value)) {
     return []
   }
-
-  if (value.length > 5) {
-    warnForTooManyControls()
-    return []
-  }
-
   const controls: DocsExampleControl[] = []
   const props = new Set<string>()
 
@@ -328,7 +316,7 @@ export function DocsExampleControls(props: DocsExampleControlsProps) {
 
   return (
     <div class={DOCS_EXAMPLE_CONTROLS_CLASS} role="group" aria-label="Example controls">
-      <div class="h-8 shrink-0 pb-2 border-b border-border/50 flex items-center justify-between">
+      <div class="pb-2 border-b border-border/50 flex shrink-0 h-8 items-center justify-between">
         <span class="text-xs text-foreground/90 tracking-tight font-semibold">Props</span>
         <Show when={hasChanges()}>
           <Button

@@ -10,7 +10,6 @@ import { DocsCommandPalette } from './components/layout/docs-command-palette.tsx
 import { Sidebar, SidebarHeader } from './components/layout/sidebar.tsx'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components.tsx'
 import { getDocsPages } from './docs-route.ts'
-import { useDocsScroll } from './hooks/use-docs-scroll.ts'
 import { useTheme } from './hooks/use-theme.ts'
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
@@ -28,11 +27,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   })
 
   const [committedPage, setCommittedPage] = createSignal(untrack(activePage))
-  const pageTitle = createMemo(
-    () => pages.find((page) => page.key === committedPage())?.label ?? '',
-  )
   const navigationLoading = createMemo(() => isRouting() && location.pathname === routingFromPath())
-  let rootElement: HTMLDivElement | undefined
   let renderedPage = untrack(committedPage)
 
   createEffect(() => {
@@ -58,16 +53,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
   })
 
-  useDocsScroll({
-    getLocation: () => ({
-      pathname: location.pathname,
-      hash: location.hash || (typeof window === 'undefined' ? '' : window.location.hash),
-    }),
-    isRouting,
-    committedPath: () => pages.find((page) => page.key === committedPage())?.path ?? '',
-    getScrollRoot: () => rootElement?.querySelector<HTMLElement>('[data-slot="main"]') ?? undefined,
-  })
-
   const navigateToPage = (key: string) => {
     const path = pages.find((page) => page.key === key)?.path
     if (path) {
@@ -89,8 +74,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         />
       </Show>
       <SidebarFrame
-        ref={(element) => {
-          rootElement = element
+        classes={{
+          sidebar: 'border-none',
         }}
         sidebarHeaderRender={(ctx) => (
           <SidebarHeader
@@ -121,7 +106,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             <header
               data-scrolled={ctx.scrolled() ? '' : undefined}
               class={cn(
-                'px-4 border-b border-transparent bg-transparent flex h-13 transition-([border-color,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
+                'px-4 bg-transparent flex h-13 transition-([border-color,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
                 'data-scrolled:(border-border/60 bg-background/80)',
               )}
             >
@@ -135,16 +120,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                     onClick={ctx.toggle}
                   />
                 </Show>
-                <span
-                  class={cn(
-                    'text-sm text-foreground font-semibold truncate transition-([opacity,transform] duration-200) lg:text-lg',
-                    ctx.scrolled()
-                      ? 'opacity-100 translate-y-0'
-                      : 'opacity-0 pointer-events-none translate-y-2',
-                  )}
-                >
-                  {pageTitle()}
-                </span>
               </div>
               <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
                 <DocsCommandPalette

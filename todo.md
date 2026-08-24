@@ -46,6 +46,7 @@
   - [x] follow solid-file-router's default fs router path name resolution
   - [x] fix broken auto scroll to anchor
 - [ ] production barrel import optimize
+- [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
 
 # V1
 
