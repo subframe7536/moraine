@@ -1,17 +1,19 @@
-import type { ParseExampleCode, ProgramNode, StatementNode } from './ast.ts'
-
-interface ComponentDeclaration {
-  name: string
-  sourceText: string
-}
+import { parseExampleCode as defaultParseExampleCode } from './ast.ts'
+import type { ParseExampleCode, ProgramNode } from './ast.ts'
 
 interface QueryResult {
-  name: string
+  name?: string
 }
 
 interface NodeRange {
   start: number
   end: number
+}
+
+interface Replacement {
+  start: number
+  end: number
+  replacement: string
 }
 
 function hasRange(value: unknown): value is NodeRange {
@@ -40,107 +42,112 @@ function parseExampleSourceQuery(id: string): QueryResult | null {
   }
 
   const name = params.get('name')
-  return name ? { name } : null
+  return name ? { name } : {}
 }
 
-function sliceSource(code: string, node: NodeRange): string {
-  return code.slice(node.start, node.end).trim()
-}
-
-function getVariableComponentDeclaration(
-  statement: Extract<StatementNode, { type: 'VariableDeclaration' }>,
-  code: string,
-): ComponentDeclaration | null {
-  if (statement.declarations.length !== 1) {
-    return null
-  }
-
-  const declaration = statement.declarations[0]!
+function convertSrcImport(specifier: string): string {
   if (
-    declaration.id.type !== 'Identifier' ||
-    !declaration.init ||
-    (declaration.init.type !== 'ArrowFunctionExpression' &&
-      declaration.init.type !== 'FunctionExpression') ||
-    !hasRange(statement)
+    specifier === '@src' ||
+    specifier === '@src/index' ||
+    specifier === '@src/index.ts' ||
+    specifier === '@src/index.tsx'
   ) {
-    return null
+    return 'moraine'
   }
-
-  return {
-    name: declaration.id.name,
-    sourceText: sliceSource(code, statement),
+  if (specifier === '@src/utils' || specifier === '@src/utils.ts') {
+    return 'moraine/utils'
   }
+  if (specifier === '@src/unocss' || specifier === '@src/unocss.ts') {
+    return 'moraine/unocss'
+  }
+  if (specifier === '@src/tailwind' || specifier === '@src/tailwind.ts') {
+    return 'moraine/tailwind'
+  }
+  if (
+    specifier === '@src/tw4.css' ||
+    specifier === '@src/tw3.css' ||
+    specifier === '@src/icon.css'
+  ) {
+    return `moraine/${specifier.slice('@src/'.length)}`
+  }
+  if (
+    specifier.startsWith('@src/elements/') ||
+    specifier.startsWith('@src/forms/') ||
+    specifier.startsWith('@src/navigation/') ||
+    specifier.startsWith('@src/overlays/')
+  ) {
+    return 'moraine'
+  }
+  if (specifier.startsWith('@src/')) {
+    const subpath = specifier.slice('@src/'.length).replace(/\.(?:tsx?|jsx?)$/, '')
+    return subpath === 'index' ? 'moraine' : `moraine/${subpath}`
+  }
+  return specifier
 }
 
-function getTopLevelComponentDeclaration(
-  statement: StatementNode,
-  code: string,
-): ComponentDeclaration | null {
-  if (statement.type === 'FunctionDeclaration') {
-    if (!statement.id || statement.id.type !== 'Identifier' || !hasRange(statement)) {
-      return null
-    }
-
-    return {
-      name: statement.id.name,
-      sourceText: sliceSource(code, statement),
-    }
-  }
-
-  if (statement.type === 'VariableDeclaration') {
-    return getVariableComponentDeclaration(statement, code)
-  }
-
-  if (statement.type === 'ExportNamedDeclaration' && statement.declaration) {
-    return getTopLevelComponentDeclaration(statement.declaration as StatementNode, code)
-  }
-
-  return null
+function toQuotedSpecifier(code: string, node: NodeRange, newSpecifier: string): string {
+  const raw = code.slice(node.start, node.end)
+  const quote = raw.startsWith('"') ? '"' : "'"
+  return `${quote}${newSpecifier}${quote}`
 }
 
-function resolveDefaultExportSource(
-  program: ProgramNode,
-  code: string,
-  byName: Map<string, string>,
-): string | null {
+function transformSourceImports(code: string, program: ProgramNode): string {
+  const replacements: Replacement[] = []
+
   for (const statement of program.body) {
-    if (statement.type !== 'ExportDefaultDeclaration') {
-      continue
+    if (
+      statement.type === 'ImportDeclaration' ||
+      statement.type === 'ExportNamedDeclaration' ||
+      statement.type === 'ExportAllDeclaration'
+    ) {
+      const source = statement.source
+      if (
+        source &&
+        typeof source.value === 'string' &&
+        source.value.startsWith('@src') &&
+        hasRange(source)
+      ) {
+        const converted = convertSrcImport(source.value)
+        replacements.push({
+          start: source.start,
+          end: source.end,
+          replacement: toQuotedSpecifier(code, source, converted),
+        })
+      }
     }
-
-    const declaration = statement.declaration
-    if (declaration.type === 'Identifier') {
-      return byName.get(declaration.name) ?? null
-    }
-
-    if (hasRange(declaration)) {
-      return sliceSource(code, declaration)
-    }
-
-    return null
   }
 
-  return null
+  let result = code
+  for (const { start, end, replacement } of replacements.sort((a, b) => b.start - a.start)) {
+    result = `${result.slice(0, start)}${replacement}${result.slice(end)}`
+  }
+
+  return result.trim()
+}
+
+function convertFallbackImports(code: string): string {
+  return code.replace(/(['"])@src(\/[^'"]*)?\1/g, (_match, quote: string, subpath?: string) => {
+    const specifier = `@src${subpath ?? ''}`
+    return `${quote}${convertSrcImport(specifier)}${quote}`
+  })
 }
 
 export async function resolveExampleComponentSource(
   code: string,
-  name: string,
-  parseExampleCode: ParseExampleCode,
+  _name?: string,
+  parseCode: ParseExampleCode = defaultParseExampleCode,
 ): Promise<string | null> {
-  const program = await parseExampleCode(code)
-  const byName = new Map<string, string>()
-
-  for (const statement of program.body) {
-    const declaration = getTopLevelComponentDeclaration(statement, code)
-    if (declaration) {
-      byName.set(declaration.name, declaration.sourceText)
-    }
+  const trimmed = code.trim()
+  if (!trimmed) {
+    return null
   }
 
-  return name === 'default'
-    ? resolveDefaultExportSource(program, code, byName)
-    : (byName.get(name) ?? null)
+  try {
+    const program = await parseCode(code)
+    return transformSourceImports(code, program)
+  } catch {
+    return convertFallbackImports(trimmed)
+  }
 }
 
 export async function transformExampleSourceModule(
@@ -156,7 +163,6 @@ export async function transformExampleSourceModule(
 
   const sourceText = await resolveExampleComponentSource(code, query.name, parseExampleCode)
   if (!sourceText) {
-    console.warn(`[example-source] component "${query.name}" not found in ${id}`)
     return 'export default ""\n'
   }
 

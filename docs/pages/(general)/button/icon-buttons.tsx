@@ -1,6 +1,5 @@
-import { Icon } from '@src'
-import { Button } from '@src/elements/button/button.tsx'
-import type { ButtonT } from '@src/elements/button/button.tsx'
+import { Button, Icon } from '@src'
+import type { ButtonT } from '@src'
 import { For } from 'solid-js'
 
 export function IconButtons() {

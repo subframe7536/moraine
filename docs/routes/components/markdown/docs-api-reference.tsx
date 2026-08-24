@@ -10,7 +10,7 @@ import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from '../../../build/markdown/shared.ts'
+} from '../../../build/markdown/shared.class.ts'
 
 export interface PropsTableProps {
   sections: PropsTableSection[]

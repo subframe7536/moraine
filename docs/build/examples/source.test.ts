@@ -10,37 +10,102 @@ async function parseExampleCode(code: string) {
 }
 
 describe('resolveExampleComponentSource', () => {
-  test('extracts named arrow component declaration', async () => {
-    const source = `
-export const BasicExample = () => <div>basic</div>
+  test('reads the whole code and converts @src imports to moraine', async () => {
+    const source = `import { Button } from '@src'
+import type { ButtonT } from '@src'
+import { For, createSignal } from 'solid-js'
+
+export function BasicExample() {
+  const [count, setCount] = createSignal(0)
+  return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>
+}
 `
 
     expect(await resolveExampleComponentSource(source, 'BasicExample', parseExampleCode)).toBe(
-      'const BasicExample = () => <div>basic</div>',
+      `import { Button } from 'moraine'
+import type { ButtonT } from 'moraine'
+import { For, createSignal } from 'solid-js'
+
+export function BasicExample() {
+  const [count, setCount] = createSignal(0)
+  return <Button onClick={() => setCount(c => c + 1)}>Count: {count()}</Button>
+}`,
     )
   })
 
-  test('extracts named function component declaration', async () => {
-    const source = `
-function LoadingExample() {
+  test('converts subpath imports (@src/utils.ts, @src/unocss, @src/elements/...)', async () => {
+    const source = `import { useListVirtualizer } from '@src/utils.ts'
+import { unocssPreset } from '@src/unocss'
+import { Button } from '@src/elements/button/button.tsx'
+import '@src/icon.css'
+
+export const VirtualList = () => <div />
+`
+
+    expect(await resolveExampleComponentSource(source, 'VirtualList', parseExampleCode)).toBe(
+      `import { useListVirtualizer } from 'moraine/utils'
+import { unocssPreset } from 'moraine/unocss'
+import { Button } from 'moraine'
+import 'moraine/icon.css'
+
+export const VirtualList = () => <div />`,
+    )
+  })
+
+  test('preserves double quotes when rewriting imports', async () => {
+    const source = `import { Button } from "@src"
+import type { ButtonT } from "@src"
+
+export function Example() {
+  return <Button />
+}
+`
+
+    expect(await resolveExampleComponentSource(source, 'Example', parseExampleCode)).toBe(
+      `import { Button } from "moraine"
+import type { ButtonT } from "moraine"
+
+export function Example() {
+  return <Button />
+}`,
+    )
+  })
+
+  test('preserves top-level helper functions, types, and comments outside component', async () => {
+    const source = `import { Button } from '@src'
+import { createSignal } from 'solid-js'
+
+// Helper function
+function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+type Size = 'sm' | 'md'
+
+export function LoadingExample() {
   return <div>loading</div>
 }
 `
 
     expect(await resolveExampleComponentSource(source, 'LoadingExample', parseExampleCode))
-      .toBe(`function LoadingExample() {
+      .toBe(`import { Button } from 'moraine'
+import { createSignal } from 'solid-js'
+
+// Helper function
+function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+type Size = 'sm' | 'md'
+
+export function LoadingExample() {
   return <div>loading</div>
 }`)
   })
 
-  test('returns null for missing component', async () => {
-    const source = `
-export const BasicExample = () => <div>basic</div>
-`
-
-    expect(
-      await resolveExampleComponentSource(source, 'MissingExample', parseExampleCode),
-    ).toBeNull()
+  test('returns null for empty or whitespace-only source', async () => {
+    expect(await resolveExampleComponentSource('', 'Example', parseExampleCode)).toBeNull()
+    expect(await resolveExampleComponentSource('   \n  \t  ', 'Example', parseExampleCode)).toBeNull()
   })
 })
 
@@ -132,9 +197,10 @@ describe('transformExampleModule', () => {
 })
 
 describe('transformExampleSourceModule', () => {
-  test('transforms ?example-source requests to highlighted html module', async () => {
-    const source = `
-export const BasicExample = () => <div>basic</div>
+  test('transforms ?example-source requests to highlighted html module with converted imports', async () => {
+    const source = `import { Button } from '@src'
+
+export const BasicExample = () => <Button>basic</Button>
 `
     const toHtml = vi.fn(async (value: string, lang: 'tsx') => `<pre ${lang}>${value}</pre>`)
 
@@ -146,7 +212,12 @@ export const BasicExample = () => <div>basic</div>
     )
 
     expect(transformed).toContain('export default ')
-    expect(toHtml).toHaveBeenCalledWith('const BasicExample = () => <div>basic</div>', 'tsx')
+    expect(toHtml).toHaveBeenCalledWith(
+      `import { Button } from 'moraine'
+
+export const BasicExample = () => <Button>basic</Button>`,
+      'tsx',
+    )
   })
 
   test('ignores non source-query modules', async () => {
@@ -160,12 +231,12 @@ export const BasicExample = () => <div>basic</div>
     expect(transformed).toBeNull()
   })
 
-  test('returns empty html module when component does not exist', async () => {
+  test('returns empty html module when source is empty', async () => {
     const toHtml = vi.fn(async () => '<pre>code</pre>')
 
     const transformed = await transformExampleSourceModule(
-      'export const BasicExample = () => <div>basic</div>',
-      '/tmp/docs/examples/button/basic.tsx?example-source&name=MissingExample',
+      '   \n\t  ',
+      '/tmp/docs/examples/button/basic.tsx?example-source',
       parseExampleCode,
       toHtml,
     )

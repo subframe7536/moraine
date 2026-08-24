@@ -148,7 +148,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
   return (
     <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8 lg:gap-12">
-      <div class="flex-1 min-w-0 w-full">
+      <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
         <header class="text-foreground mt-3">
           <div class="flex flex-wrap gap-2 items-center">
             <Show when={category()}>
