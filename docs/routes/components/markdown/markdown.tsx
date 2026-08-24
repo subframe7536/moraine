@@ -239,7 +239,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         </header>
         <div class="gap-8 grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start">
           <OnThisPage entries={onThisPageEntries()} />
-          <div class="mb-24 docs-article-measure min-w-0 w-full docs-content-enter xl:col-start-1 xl:row-start-1">
+          <div class="mb-24 docs-article-measure min-w-0 w-full xl:col-start-1 xl:row-start-1">
             {input.children}
             <DocsApiReference apiDoc={input.apiDoc} />
             <DocsPageNavigation currentPageKey={input.pageKey} />

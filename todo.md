@@ -45,6 +45,7 @@
 - [x] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/index.mdx) more useful.
   - [x] follow solid-file-router's default fs router path name resolution
   - [x] fix broken auto scroll to anchor
+- [ ] add `mainRef` and `sidebarRef` prop on sidebarFrame component and auto scroll to top when switching page
 - [ ] production barrel import optimize
 - [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
 - [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not

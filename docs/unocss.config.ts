@@ -16,7 +16,6 @@ const docsShortCuts = {
   'docs-focus-visible':
     'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
   'docs-compact-control': 'h-8',
-  'docs-content-enter': 'animate-docs-page-slide-up motion-reduce:animate-docs-page-fade-in',
 }
 
 const markdownShortCuts = {

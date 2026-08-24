@@ -1,11 +1,11 @@
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component, JSX } from 'solid-js'
-import { createResource, onMount, Show } from 'solid-js'
+import { createMemo, lazy, Show, untrack } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Tabs } from '../../../../src/index.ts'
 
-import { DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
-import { DocsDemoBlock } from './docs-demo-block.tsx'
+import { DocsCodeBlock, DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
 import { DocsPlayground as Playground } from './docs-playground.tsx'
 import { IntroComponents } from './intro-components.tsx'
 import { Markdown } from './markdown.tsx'
@@ -21,6 +21,11 @@ const DOCS_INSTALL_TABS_INDICATOR_CLASS =
 const DOCS_INSTALL_TABS_TRIGGER_CLASS =
   'text-xs px-3 py-1 flex-none z-base rounded-lg text-muted-foreground data-selected:text-foreground data-selected:font-medium hover:not-disabled:text-foreground active:not-disabled:scale-[0.98] transition-[color,transform] duration-150'
 const DOCS_INSTALL_TABS_CONTENT_CLASS = 'p-0'
+
+const DOCS_DEMO_BLOCK_CLASS =
+  'mb-6 mt-4 border border-border/60 rounded-xl bg-card/40 overflow-hidden shadow-xs'
+const DOCS_DEMO_BLOCK_PREVIEW_CLASS =
+  'p-6 sm:p-8 flex items-center justify-center min-h-[160px] bg-background/60 relative'
 
 interface MdxProps {
   [key: string]: unknown
@@ -47,28 +52,29 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Playground,
 
   Example(props: MdxProps) {
-    const [descriptor, { refetch }] = createResource(() => {
-      const loader = props.load
-      if (typeof loader !== 'function') {
-        throw new TypeError('[docs-mdx] compiled example is missing its loader')
+    const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxExample }>)
+    const ExampleRender = lazy(async () => {
+      const descriptor = (await loader()).default
+
+      return {
+        default() {
+          return (
+            <section class={DOCS_DEMO_BLOCK_CLASS}>
+              <div class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}>
+                <Show when={descriptor.component}>
+                  {(value) => <Dynamic component={value()} />}
+                </Show>
+              </div>
+              <Show when={descriptor.source}>
+                {(value) => <DocsCodeBlock variant="source" html={value()} />}
+              </Show>
+            </section>
+          )
+        },
       }
-      return (loader as () => Promise<{ default: DocsMdxExample }>)().then((module) => {
-        const descriptor = module.default
-        return import.meta.env.SSR ? { source: descriptor.source } : descriptor
-      })
     })
 
-    // Component functions cannot be serialized into the SSR resource payload. The
-    // client must refetch after hydration to replace the source-only descriptor.
-    onMount(() => {
-      refetch()
-    })
-
-    return (
-      <Show when={descriptor()}>
-        {(value) => <DocsDemoBlock component={value().component} source={value().source} />}
-      </Show>
-    )
+    return <ExampleRender />
   },
 
   CodeTabs(props: MdxProps) {
@@ -102,13 +108,13 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   ToastHosts,
 
   DocsCodeBlock(props: MdxProps) {
-    const html = () => {
+    const html = createMemo(() => {
       const value = toStringProp(props.html)
       if (!value) {
         throw new Error('[docs-mdx] compiled code block is missing rendered HTML')
       }
       return value
-    }
+    })
     return <DocsCodeBlockView html={html()} />
   },
 }

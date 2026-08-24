@@ -100,15 +100,3 @@ browser chrome, or decorative assets that do not explain the component library. 
 principles from shadcn/ui's direct, navigable hierarchy and Nuxt UI's useful usage coverage with
 author-selected live controls, but it must not reuse their wording, layout, assets, or
 framework-specific APIs.
-
-## Motion and Responsive Validation
-
-Motion is limited to quiet opacity and transform feedback. `docs-content-enter` uses the existing
-220 ms upward entrance only when motion is allowed; under `prefers-reduced-motion`, it switches to
-the existing 120 ms opacity-only entrance, removing spatial movement. Other transitions must be
-short, non-blocking, and omit transform movement when reduced motion is requested.
-
-Validate every shell, landing, and example change at 320, 375, 414, 768, and 1440 CSS-pixel widths.
-At each width, verify that there is no page-level horizontal overflow, primary control labels do not
-wrap, keyboard focus remains visible, navigation remains reachable, and Playgrounds retain their
-preview and controls while standalone examples retain source access.

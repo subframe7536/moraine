@@ -41,6 +41,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }
 
     renderedPage = page
+    document.querySelector('[data-slot=main]')?.scrollTo({ top: 0 })
     setCommittedPage(page)
   })
 
