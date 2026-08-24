@@ -66,6 +66,41 @@ const config = {
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'moraine-elements',
+              test: /[\\/]src[\\/]elements[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-forms',
+              test: /[\\/]src[\\/]forms[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-navigation',
+              test: /[\\/]src[\\/]navigation[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-overlays',
+              test: /[\\/]src[\\/]overlays[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-shared',
+              test: /[\\/]src[\\/]shared[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+          ],
+        },
+      },
+    },
+  },
 } as unknown as UserConfig
 
 export default config
