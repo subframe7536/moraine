@@ -1,6 +1,6 @@
 ---
 title: InputNumber
-description: A numeric spinbutton input featuring boundary clamping, customizable step intervals, continuous long-press acceleration, and horizontal/vertical stepper layouts.
+description: A numeric spinbutton input with boundary clamping, configurable step intervals, press-and-hold repeat, and horizontal or vertical stepper layouts.
 sidebar:
   order: 5
 search:
@@ -12,16 +12,12 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { InputNumber } from 'moraine'
 import type { InputNumberT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -71,8 +67,8 @@ Interactive component preview with configurable props.
           orientation={props.orientation}
           disabled={props.disabled}
           increment={props.increment}
-          min={0}
-          max={100}
+          minValue={0}
+          maxValue={100}
         />
       </div>
     )
@@ -81,92 +77,89 @@ Interactive component preview with configurable props.
 
 ## Features
 
-- **Boundary Clamping & Step Snapping**: Enforces `min`, `max`, and `step` values, automatically rounding to clean decimal precisions upon blur.
-- **Horizontal & Vertical Stepper Modes**: Display decrement/increment buttons inline on left/right edges (`horizontal`) or stacked in a compact right rail (`vertical`).
-- **Continuous Long-Press Acceleration**: Hold down the plus or minus buttons to smoothly and rapidly increment/decrement the numeric counter.
-- **WAI-ARIA Spinbutton Pattern**: Full accessibility support with `role="spinbutton"`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`.
-- **Keyboard Arrow Stepping**: Arrow keys increment and decrement with modifier key acceleration (`Shift` for 10x step).
+- **Boundary Clamping**: `minValue` and `maxValue` constrain committed values.
+- **Decimal-Safe Stepping**: Increment and decrement operations use `step` without accumulating common floating-point artifacts.
+- **Horizontal & Vertical Controls**: Place decrement/increment buttons on the sides or stack them in a right-hand rail.
+- **Press-and-Hold Repeat**: Hold a step button to repeat after `repeatDelayMs` at the configured `repeatIntervalMs`; disable it with `holdRepeat={false}`.
+- **Spinbutton Semantics**: The input exposes spinbutton value metadata such as `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` where applicable.
 
 ## Anatomy
-
-Hierarchical slot and element structure:
 
 ### Horizontal layout
 
 ```text
 root
-├── decrement (decrease button on left)
-├── input (numeric HTML input)
-└── increment (increase button on right)
+├── decrement
+├── input
+└── increment
 ```
 
 ### Vertical layout
 
 ```text
 root
-├── input (numeric HTML input)
-└── controls (stepper rail on right)
-    ├── increment (stacked increase button)
-    └── decrement (stacked decrease button)
+├── input
+└── controls
+    ├── increment
+    └── decrement
 ```
 
-- `root`: Container wrapper applying border, variant styling, and focus outline.
-- `input`: The text entry area with numeric regex formatting.
-- `increment` / `decrement`: Interactive stepper buttons with long-press repeat handlers.
+- `root`: Container applying variant styling and focus state.
+- `input`: Numeric text entry and spinbutton keyboard target.
+- `increment` / `decrement`: Step buttons with optional press-and-hold repeat.
 
 ## Examples
 
 ### Variants
 
-Compare `outline` (cart checkout), `subtle` (metric targets), `ghost` (inline table counters), and `none` (embedded inside custom panels).
+Compare `outline`, `subtle`, `ghost`, and `none` styling options.
 
 <Example path="./variants" />
 
 ### Sizes
 
-Size scaling across `sm` (compact table cells), `md` (standard forms), and `lg` (prominent checkout quantity adjusters).
+Size scaling across `sm`, `md`, and `lg`.
 
 <Example path="./sizes" />
 
 ### Orientations
 
-Switch between `horizontal` (flanking left/right minus and plus buttons) and `vertical` (stacked up/down chevron buttons).
+Switch between side-by-side and stacked step controls.
 
 <Example path="./orientations" />
 
 ### Controlled
 
-Bind a reactive signal to calculate real-time order subtotals and discounts.
+Bind the numeric value to a reactive signal.
 
 <Example path="./controlled" />
 
 ### Disabled
 
-Non-interactive state disabling text input and stepper buttons.
+Disable text entry and step controls together.
 
 <Example path="./disabled" />
 
 ### Long Press
 
-Hold down the increment or decrement button to trigger continuous rapid stepping. Configure or disable via `holdRepeat={false}`.
+Hold the increment or decrement button to repeat stepping. Configure or disable the behavior with the hold-repeat props.
 
 <Example path="./long-press" />
 
 ### Min / Max / Step
 
-Demonstrates allocation of compute resources (e.g. CPU Cores from 1 to 32, RAM in increments of 2GB).
+Combine bounds with a custom step interval.
 
 <Example path="./min-max-step" />
 
 ## Keyboard Interactions
 
-| Key                          | Description                                  |
-| ---------------------------- | -------------------------------------------- |
-| <kbd>ArrowUp</kbd>           | Increments the numeric value by `step`.      |
-| <kbd>ArrowDown</kbd>         | Decrements the numeric value by `step`.      |
-| <kbd>Shift + ArrowUp</kbd>   | Increments by 10 × `step` for large jumps.   |
-| <kbd>Shift + ArrowDown</kbd> | Decrements by 10 × `step`.                   |
-| <kbd>Home</kbd>              | Sets value to `min` if defined.              |
-| <kbd>End</kbd>               | Sets value to `max` if defined.              |
-| <kbd>PageUp</kbd>            | Steps up by a larger interval (10 × step).   |
-| <kbd>PageDown</kbd>          | Steps down by a larger interval (10 × step). |
+| Key                       | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| <kbd>ArrowUp</kbd>        | Increments the value by `step`.                          |
+| <kbd>ArrowDown</kbd>      | Decrements the value by `step`.                          |
+| <kbd>PageUp</kbd>         | Increments by `largeStep` (defaults to `step * 10`).     |
+| <kbd>PageDown</kbd>       | Decrements by `largeStep` (defaults to `step * 10`).     |
+| <kbd>Home</kbd>           | Sets the value to `minValue` when a minimum is defined.  |
+| <kbd>End</kbd>            | Sets the value to `maxValue` when a maximum is defined.  |
+| <kbd>Enter</kbd>          | Commits the current text input as a numeric value.       |

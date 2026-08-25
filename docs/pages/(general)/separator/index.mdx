@@ -1,6 +1,6 @@
 ---
 title: Separator
-description: A visual or semantic divider separating sections with horizontal and vertical orientations, decorative styling, and solid/dashed/dotted border styles.
+description: A horizontal or vertical separator with configurable thickness, border style, and decorative accessibility behavior.
 sidebar:
   order: 9
 search:
@@ -11,8 +11,6 @@ import { Separator } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Separator } from 'moraine'
 import type { SeparatorT } from 'moraine'
@@ -20,15 +18,10 @@ import type { SeparatorT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'sm',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'sm',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -36,10 +29,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'type',
-      label: 'Border Style',
-      defaultValue: 'solid',
+      kind: 'select', prop: 'type', label: 'Border Style', defaultValue: 'solid',
       options: [
         { label: 'Solid', value: 'solid' },
         { label: 'Dashed', value: 'dashed' },
@@ -48,50 +38,35 @@ Interactive component preview with configurable props.
     },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="space-y-4">
-        <div class="text-xs text-muted-foreground">Section Header</div>
-        <Separator size={props.size} type={props.type} />
-        <div class="text-xs text-muted-foreground">Content Section</div>
-      </div>
-    )
-  }}
+  {(props) => (
+    <div class="space-y-4">
+      <div class="text-xs text-muted-foreground">Section Header</div>
+      <Separator size={props.size} type={props.type} />
+      <div class="text-xs text-muted-foreground">Content Section</div>
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **Horizontal & Vertical Orientations**: Automatically applies full width for horizontal rules or full height for inline vertical dividers.
-- **Border Stroke Styles**: Choose from `solid`, `dashed`, and `dotted` lines.
-- **Calibrated Thickness Scale**: Three thickness levels (`sm`, `md`, `lg`) matching theme border scales.
-- **Accessible By Default**: Sets `role="none"` or `role="separator"` depending on `decorative` prop.
+- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` metadata.
+- **Border Styles**: Choose `solid`, `dashed`, or `dotted`.
+- **Thickness Scale**: `sm`, `md`, and `lg` adjust the rendered separator thickness.
+- **Semantic or Decorative Use**: The root always renders as `<div role="separator">`; `decorative` adds `aria-hidden="true"` so assistive technologies ignore it.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (semantic <hr> or decorative divider element)
+root (<div role="separator">)
 ```
-
-- `root`: Line element applying orientation, border style, and theme border colors (`border-border`).
 
 ## Examples
 
 ### Sizes
-
-Compare hairline `sm`, medium `md`, and heavy `lg` divider thicknesses.
-
 <Example path="./sizes" />
 
 ### Types
-
-Explore `solid` (clean boundary), `dashed` (dropzone or secondary boundary), and `dotted` line styles.
-
 <Example path="./types" />
 
 ### Vertical
-
-Vertical separator dividing breadcrumb segments, navbar links, and button toolbars.
-
 <Example path="./orientation" />

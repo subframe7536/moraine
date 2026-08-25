@@ -1,6 +1,6 @@
 ---
 title: Breadcrumb
-description: A hierarchical navigation trail component with custom separator icons, responsive wrapping, leading item glyphs, and WAI-ARIA breadcrumb landmarks.
+description: A hierarchical navigation trail with custom separators, optional leading icons, wrapping control, and current-page metadata.
 sidebar:
   order: 1
 search:
@@ -11,8 +11,6 @@ import { Breadcrumb } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Breadcrumb } from 'moraine'
 import type { BreadcrumbT } from 'moraine'
@@ -20,16 +18,9 @@ import type { BreadcrumbT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
-    {
-      kind: 'input',
-      prop: 'separator',
-      label: 'Separator',
-      defaultValue: 'i-lucide:chevron-right',
-    },
+    { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
     { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
   ]}
 >
@@ -48,67 +39,42 @@ Interactive component preview with configurable props.
         wrap={props.wrap}
       />
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **WAI-ARIA Breadcrumb Landmark**: Semantic `<nav aria-label="Breadcrumb">` wrapping an ordered `<ol>` list.
-- **Current Page Indication**: The final item is automatically rendered as text with `aria-current="page"`.
-- **Custom Separator Glyph or JSX**: Choose chevron, slash, arrow, or custom SVG separators.
-- **Leading Icons & Avatars**: Embed section icons or repository icons alongside trail labels.
-- **Responsive Wrapping Control**: Toggle `wrap` to gracefully wrap long path chains without truncating text.
+- **Breadcrumb Landmark**: Uses `<nav aria-label="Breadcrumb">` with an ordered list.
+- **Current Page Metadata**: The terminal page item is non-interactive and marked with `aria-current="page"`.
+- **Custom Separators**: Use an icon source or custom separator content between trail entries.
+- **Leading Icons**: Individual items can include a leading icon.
+- **Wrapping Control**: `wrap` controls whether longer trails wrap onto additional lines.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (semantic <nav aria-label="Breadcrumb">)
-└── list (<ol> ordered navigation container)
-    ├── item (<li> element ×n)
-    │   ├── link (clickable ancestor anchor)
-    │   └── page (non-clickable current page text with aria-current="page")
-    └── separator (<li> delimiter with aria-hidden="true")
+root (<nav aria-label="Breadcrumb">)
+└── list (<ol>)
+    ├── item (<li> ×n)
+    │   ├── link (ancestor item)
+    │   └── page (current item)
+    └── separator (decorative)
 ```
-
-- `root`: Outer `<nav>` landmark.
-- `list`: Semantic ordered `<ol>` list.
-- `link`: Clickable parent directory / section link.
-- `separator`: Decorative divider between items.
-- `page`: Terminal node indicating the user's current location.
 
 ## Examples
 
 ### Default
-
-Standard application hierarchy trail with leading home icon and active current page.
-
 <Example path="./default" />
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg` adjusting link font sizes and separator icon dimensions.
-
 <Example path="./sizes" />
 
 ### Custom Separator + Disabled
-
-Slash `/` separator style and disabled intermediate route permissions.
-
 <Example path="./custom-separator-disabled" />
 
 ### Wrapping
-
-Multi-level deep directory path demonstrating graceful responsive wrapping behavior.
-
 <Example path="./wrapping" />
 
 ## Keyboard Interactions
 
-| Key              | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>   | Navigates focus sequentially through clickable ancestor links in the trail. |
-| <kbd>Enter</kbd> | Activates the focused link to navigate to the parent path.                  |
+Breadcrumb does not add custom keyboard handling; linked ancestors use their underlying link/button semantics and normal document focus order.

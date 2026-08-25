@@ -1,6 +1,6 @@
 ---
 title: Icon
-description: A flexible icon renderer supporting UnoCSS pure CSS icon classes, custom SVG elements, and dynamic render functions.
+description: A flexible icon renderer for UnoCSS icon classes, JSX elements, and Solid components.
 sidebar:
   order: 2
 search:
@@ -11,8 +11,6 @@ import { Icon } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Icon } from 'moraine'
 import type { IconT } from 'moraine'
@@ -20,56 +18,41 @@ import type { IconT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
     { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide-sparkles' },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="p-4 flex items-center justify-center">
-        <Icon name={props.name} size={props.size} class="text-primary" />
-      </div>
-    )
-  }}
+  {(props) => (
+    <div class="p-4 flex items-center justify-center">
+      <Icon name={props.name} size={props.size} class="text-primary" />
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **UnoCSS Pure CSS Icon Integration**: Effortlessly load any Iconify glyph (`i-lucide:sparkles`, `i-simple-icons:github`) via pure CSS masking.
-- **Custom JSX & SVG Support**: Accepts custom SVG JSX components, render functions, or string class names interchangeably.
-- **Dynamic Numeric Sizing**: Pass numeric pixel values (`size={24}`) or UnoCSS utility sizes (`class="size-6"`).
-- **Accessible By Default**: Injects `aria-hidden="true"` by default for decorative icons.
+- **UnoCSS Icon Classes**: String names are applied as icon utility classes, including application-defined aliases such as `icon-search`.
+- **JSX & Component Sources**: `name` can also be a JSX node or Solid component.
+- **Explicit Sizing**: Numeric `size` values are interpreted as pixels; string values are passed through as CSS font-size values.
+- **Decorative by Default**: When no `aria-label` is provided, the rendered icon receives `aria-hidden="true"`. Add an accessible label when the icon itself carries meaning.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (span with pure CSS icon mask or embedded SVG)
+root (dynamic icon element)
 ```
 
-- `root`: An inline-block `<span role="img">` or custom SVG node styled with currentColor.
+For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.
 
 ## Examples
 
 ### Icon Sizes
-
-Numeric pixel scaling from 12px to 48px.
-
 <Example path="./icon-sizes" />
 
 ### Icon Gallery
-
-Explore standard SaaS and DevTool icons (Git, cloud infrastructure, security, database).
-
 <Example path="./icon-gallery" />
 
 ### Icon as JSX
-
-Embed custom inline SVG nodes or animated SVG components directly via JSX.
-
 <Example path="./icon-as-jsx" />

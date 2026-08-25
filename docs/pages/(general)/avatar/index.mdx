@@ -1,6 +1,6 @@
 ---
 title: Avatar
-description: An image element with graceful fallback initials, status badge indicators, and consistent size scaling for user profiles and entities.
+description: An avatar with image preloading, fallback initials or icons, status metadata, badges, and consistent size variants.
 sidebar:
   order: 4
 search:
@@ -11,8 +11,6 @@ import { Avatar } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Avatar } from 'moraine'
 import type { AvatarT } from 'moraine'
@@ -20,17 +18,12 @@ import type { AvatarT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
     { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -39,69 +32,50 @@ Interactive component preview with configurable props.
     },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="flex gap-4 items-center">
-        <Avatar
-          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-          alt={props.alt}
-          text={props.text}
-          size={props.size}
-          badge="i-lucide:check"
-          badgePosition="bottom-right"
-        />
-      </div>
-    )
-  }}
+  {(props) => (
+    <div class="flex gap-4 items-center">
+      <Avatar
+        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+        alt={props.alt}
+        text={props.text}
+        size={props.size}
+        badge="i-lucide:check"
+        badgePosition="bottom-right"
+      />
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **Graceful Async Loading**: Displays fallback text/initials immediately while the image preloads in the background, preventing blank flashes or layout shifts.
-- **Smart Initials Derivation**: Automatically extracts 2-letter uppercase initials from `alt` text if no explicit `text` is provided.
-- **Status Badges**: Position presence dots, verified badges, or custom icons at `top-left`, `top-right`, `bottom-left`, or `bottom-right`.
-- **Icon Fallback**: Render standard user icons or custom SVGs when no image URL or initials are available.
-- **Uniform Size Scale**: Proportional avatar radii and typography across `xs`, `sm`, `md`, `lg`, and `xl`.
+- **Image Preloading & Status**: Preloads `src` with `Image` in the browser and exposes `idle`, `loading`, `loaded`, or `error` through `data-status` and `onStatusChange`.
+- **Fallback Initials**: Uses explicit `text` when provided; otherwise derives up to two uppercase initials from `alt`.
+- **Icon Fallback**: `fallback` can provide an icon instead of fallback text.
+- **Status Badge**: Position a badge icon in any corner with `badgePosition`.
+- **Accessible Fallback**: The loaded image uses `alt`; while unavailable, fallback content can use `alt` or `text` as its accessible label.
+
+`Avatar` preloads the source before exposing it on the rendered `<img>`. It does not set native `loading="lazy"` automatically.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (circular image frame)
-├── image (rendered when URL loads successfully)
-├── fallback (initials or user glyph)
-│   └── fallbackIcon (Icon, rendered if icon fallback)
-└── badge (optional status indicator pill or icon)
+root (<span>)
+├── image (<img>)
+├── fallback (<span>)
+│   └── fallbackIcon (optional)
+└── badge (optional)
 ```
-
-- `root`: Container applying circular clip path, border, and size dimensions.
-- `image`: HTML `<img>` tag with lazy loading and error detection.
-- `fallback`: Background container displaying formatted initials.
-- `badge`: Corner indicator displaying online presence or verification status.
 
 ## Examples
 
 ### Single Avatar
-
-Preloads remote image with smooth opacity crossfade from initial fallback letters.
-
 <Example path="./single-avatar" />
 
 ### Sizes
-
-Preview single avatar scaling across `sm`, `md`, and `lg`.
-
 <Example path="./sizes" />
 
 ### Fallback Modes
-
-Compare explicit fallback text, automated initials extraction from `alt`, and generic user icon fallbacks.
-
 <Example path="./fallback-modes" />
 
 ### Badge Positions
-
-Configure presence indicator placement in all 4 corners (`bottom-right`, `bottom-left`, `top-right`, `top-left`).
-
 <Example path="./badge-positions" />

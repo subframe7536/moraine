@@ -1,6 +1,6 @@
 ---
 title: Badge
-description: A compact badge and status indicator component featuring leading/trailing icons, solid and outline visual variants, and proportional sizing.
+description: A compact inline label for status and metadata with icon adornments, visual variants, and size options.
 sidebar:
   order: 3
 search:
@@ -11,8 +11,6 @@ import { Badge } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Badge } from 'moraine'
 import type { BadgeT } from 'moraine'
@@ -20,16 +18,11 @@ import type { BadgeT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'New feature' },
     {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'default',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Outline', value: 'outline' },
@@ -38,10 +31,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -50,53 +40,36 @@ Interactive component preview with configurable props.
     },
   ]}
 >
-  {(props) => {
-    return (
-      <Badge variant={props.variant} size={props.size} leading="i-lucide:sparkles">
-        {props.title}
-      </Badge>
-    )
-  }}
+  {(props) => (
+    <Badge variant={props.variant} size={props.size} leading="i-lucide:sparkles">
+      {props.title}
+    </Badge>
+  )}
 </Playground>
 
 ## Features
 
-- **Semantic Visual Variants**: Choose between `default` (soft tone), `outline` (border-only), `solid` (high-contrast primary), and `subtle`.
-- **Leading & Trailing Adornments**: Embed status icons, animated spinners, dismissal buttons, or git branch icons effortlessly.
-- **Proportional Size Scale**: Three standard sizes (`sm`, `md`, `lg`) adjusting inner padding, font size, and icon dimensions.
-- **WAI-ARIA Accessibility**: Rendered as semantic badges with proper inline formatting.
+- **Visual Variants**: `default`, `outline`, `solid`, and `subtle` presentations share the same content model.
+- **Leading & Trailing Adornments**: Add icons or other supported adornment content around the label.
+- **Size Scale**: `sm`, `md`, and `lg` adjust padding, typography, and icon sizing.
+- **Presentation Semantics**: Badge is presentational text rather than a special ARIA widget. If a badge contains an interactive control, that control must provide its own semantics and accessible name.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (badge container)
-├── leading (icon or status dot, optional)
-├── label (badge text content)
-└── trailing (icon or dismiss action, optional)
+root
+├── leading (optional)
+├── label
+└── trailing (optional)
 ```
-
-- `root`: Inline-flex container managing rounded corners, border, and typography.
-- `leading`: Left icon or status indicator element.
-- `trailing`: Right icon or action button element.
 
 ## Examples
 
 ### Variants
-
-Compare `default` (New Feature), `outline` (v2.4.0), and `solid` (Pro Plan) visual styles.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scaling across `sm` (compact inline tags), `md` (standard status badges), and `lg` (prominent feature callouts).
-
 <Example path="./sizes" />
 
 ### Status and Metadata
-
-Combine badges for CI/CD deployment pipelines, build statuses, and Git repository metadata.
-
 <Example path="./status-and-metadata" />

@@ -1,6 +1,6 @@
 ---
 title: ContextMenu
-description: An overlay menu triggered by right-click pointer coordinates or long-press gestures, featuring nested submenus, shortcut badges, and checkbox/radio items.
+description: A context-triggered menu anchored to pointer coordinates, with grouped actions, submenus, shortcut hints, and checkbox or radio items.
 sidebar:
   order: 7
 search:
@@ -11,8 +11,6 @@ import { ContextMenu } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { ContextMenu } from 'moraine'
 import type { ContextMenuT } from 'moraine'
@@ -20,15 +18,10 @@ import type { ContextMenuT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -38,110 +31,83 @@ Interactive component preview with configurable props.
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
   ]}
 >
-  {(props) => {
-    return (
-      <ContextMenu
-        items={[
-          {
-            type: 'group',
-            label: 'Edit',
-            children: [
-              { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
-              { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
-              { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
-            ],
-          },
-          {
-            type: 'group',
-            children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }],
-          },
-        ]}
-        size={props.size}
-        disabled={props.disabled}
-      >
-        {(triggerProps) => (
-          <div
-            {...triggerProps}
-            class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
-          >
-            Right click or long press here
-          </div>
-        )}
-      </ContextMenu>
-    )
-  }}
+  {(props) => (
+    <ContextMenu
+      items={[
+        {
+          type: 'group',
+          label: 'Edit',
+          children: [
+            { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
+            { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
+            { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
+          ],
+        },
+        { type: 'group', children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }] },
+      ]}
+      size={props.size}
+      disabled={props.disabled}
+    >
+      {(triggerProps) => (
+        <div
+          {...triggerProps}
+          class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
+        >
+          Right click or long press here
+        </div>
+      )}
+    </ContextMenu>
+  )}
 </Playground>
 
 ## Features
 
-- **Precise Cursor Coordinate Anchoring**: Opens positioned exactly at the cursor point, with smart viewport edge avoidance and auto-flipping.
-- **Mobile Long-Press Support**: Automatically detects touch pointer dwell events on mobile/tablet touchscreens.
-- **Nested Cascading Submenus**: Multi-level submenu trees with intelligent pointer intent heuristics.
-- **Checkbox & Radio Option Items**: Support persistent toggles and mutually exclusive group selections inside the menu.
-- **WAI-ARIA Menu Standards**: Full implementation of `role="menu"`, `role="menuitem"`, active-descendant highlight, and roving arrow navigation.
+- **Pointer-Anchored Positioning**: Opens at the context interaction point and uses the shared floating-positioning layer to stay within available viewport space.
+- **Pointer and Touch Triggers**: Supports context-menu pointer interaction and the component's long-press trigger behavior.
+- **Nested Submenus**: Menu items can contain nested child menus.
+- **Checkbox & Radio Items**: Menu data supports persistent checked items and radio-style single-choice groups.
+- **Menu Semantics**: The menu surface and interactive rows expose menu/menuitem semantics and keyboard-highlight state through the shared menu primitive.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-trigger (right-click target area)
-└── content (floating overlay portal)
-    └── group (grouped section container ×n)
-        ├── label (group category title, optional)
-        ├── separator (divider line, optional)
-        └── item (individual menu action ×n)
-            ├── itemLeading (icon or check indicator)
+trigger
+└── content (floating portal)
+    └── group (×n)
+        ├── label (optional)
+        ├── separator (optional)
+        └── item (×n)
+            ├── itemLeading
             ├── itemWrapper
-            │   ├── itemLabel (action title)
-            │   └── itemDescription (subtext or trailing hint)
-            └── itemTrailing (keyboard shortcut kbd badges or submenu chevron)
+            │   ├── itemLabel
+            │   └── itemDescription
+            └── itemTrailing
 ```
-
-- `trigger`: Area listening for `contextmenu` and long-press touch events.
-- `content`: Floating menu panel container.
-- `item`: Selectable menu row with focus highlight and click handler.
 
 ## Examples
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg` for high-density tables vs touch-friendly surfaces.
-
 <Example path="./sizes" />
 
 ### Placements
-
-Placement direction sanity checks ensuring smooth anchor animations.
-
 <Example path="./placements" />
 
 ### File Explorer
-
-File system management menu with Rename, Move to Folder, Download, Copy Path, and Delete actions.
-
 <Example path="./file-explorer" />
 
 ### Editor Selection
-
-Code editor context menu with Refactor, Format Document, Git Blame, and Toggle Word Wrap.
-
 <Example path="./editor-selection" />
 
 ### Project / Issue Actions
-
-Kanban card context menu with nested Assignee submenus, Priority radio selections, and Archive actions.
-
 <Example path="./project-issue-actions" />
 
 ## Keyboard Interactions
 
 | Key                                             | Description                                                      |
 | ----------------------------------------------- | ---------------------------------------------------------------- |
-| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens the context menu on the focused trigger element.           |
-| <kbd>ArrowDown</kbd>                            | Moves highlight to the next menu item.                           |
-| <kbd>ArrowUp</kbd>                              | Moves highlight to the previous menu item.                       |
-| <kbd>ArrowRight</kbd>                           | Opens a nested submenu when focused on a submenu trigger.        |
-| <kbd>ArrowLeft</kbd>                            | Closes the open submenu and returns focus to the parent trigger. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the highlighted menu item and closes the menu.         |
-| <kbd>Escape</kbd>                               | Closes the open context menu.                                    |
+| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens from a focused trigger when the trigger supports it.       |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>       | Moves the active item through available menu entries.            |
+| <kbd>ArrowRight</kbd>                           | Opens an available submenu from its parent item.                 |
+| <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                       |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                                 |
+| <kbd>Escape</kbd>                               | Closes the current menu layer.                                   |

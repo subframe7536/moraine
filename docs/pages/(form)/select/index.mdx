@@ -1,6 +1,6 @@
 ---
 title: Select
-description: A single-selection combobox and listbox component with fuzzy search filtering, option groups, infinite scroll loading, and virtualized lists.
+description: A single-selection combobox/listbox with optional search, grouped options, incremental loading, and virtualized rendering.
 sidebar:
   order: 10
 search:
@@ -11,8 +11,6 @@ import { Select } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Select } from 'moraine'
 import type { SelectT } from 'moraine'
@@ -20,21 +18,11 @@ import type { SelectT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
+    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select a framework...' },
     {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Select a framework...',
-    },
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -43,10 +31,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -65,7 +50,6 @@ Interactive component preview with configurable props.
       { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
       { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
     ]
-
     return (
       <Select
         options={TECH_OPTIONS}
@@ -77,107 +61,76 @@ Interactive component preview with configurable props.
         allowClear
       />
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Combobox & Search Filter**: Enable `search` to turn the select into a searchable combobox with typeahead and fuzzy keyword filtering.
-- **Categorized Option Groups**: Structure items into labeled hierarchical sections with non-selectable group headings.
-- **Infinite Scroll & Virtualization**: Effortlessly handle massive datasets with TanStack Virtual integration and bottom-scroll async pagination.
-- **Clearable Selection**: Enable `allowClear` to render an accessible one-click reset action button.
-- **WAI-ARIA Listbox Pattern**: Fully conforms to W3C Combobox/Listbox guidelines with roving active-descendant focus, `aria-expanded`, and keyboard shortcuts.
+- **Optional Search**: Enable `search` to use the combobox input for filtering and typeahead interaction.
+- **Grouped Options**: Options can be organized into labeled, non-selectable groups.
+- **Incremental Loading**: Use the listbox loading hooks to append options as the user reaches the end of the list.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger option sets.
+- **Clearable Selection**: `allowClear` adds a clear action when a value is selected.
+- **Combobox/Listbox Semantics**: Exposes combobox/listbox roles, expanded state, active option metadata, and keyboard navigation appropriate to the current mode.
 
 ## Anatomy
-
-Hierarchical slot and element structure:
 
 ### Trigger control
 
 ```text
 control
-├── leading (optional status or category icon)
-├── input (read-only label or search field)
-├── clear (optional clear button)
-└── trigger (open/close chevron indicator)
+├── leading (optional)
+├── input
+├── clear (optional)
+└── trigger
 ```
 
-### Floating Listbox (Portal)
+### Floating listbox
 
 ```text
-content (floating popover)
-└── listbox (scrollable options container)
-    ├── item (selectable option row ×n)
-    │   ├── itemLabel (text and icon)
-    │   ├── itemDescription (optional subtext)
-    │   └── itemTrailing (check indicator)
-    ├── group (grouped section container ×n)
-    │   └── label (group header)
-    └── empty (fallback message when no results match)
+content
+└── listbox
+    ├── item (×n)
+    ├── group (optional ×n)
+    └── empty (optional)
 ```
-
-- `control`: The trigger box maintaining focus and managing open/closed states.
-- `listbox`: The floating popover displaying selectable items with active highlight.
 
 ## Examples
 
 ### Single Select
-
-Controlled deployment environment switcher (`Production`, `Staging`, `Preview`, `Local Dev`) with live state readout and `allowClear`.
-
 <Example path="./single-select" />
 
 ### Variants
-
-Compare `outline`, `subtle`, `ghost`, and `none` styling options.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scale from `sm` (compact table filters) to `lg` (prominent forms).
-
 <Example path="./sizes" />
 
 ### Disabled
-
-Non-interactive disabled state preventing dropdown activation.
-
 <Example path="./disabled" />
 
 ### Searchable
-
-Interactive country and currency code selector with live search filtering.
-
 <Example path="./searchable" />
 
 ### Grouped Options
-
-Group options into regional timezone categories (`Americas`, `Europe`, `Asia Pacific`).
-
 <Example path="./grouped-options" />
 
 ### Infinite Scroll
-
-Load additional items on demand as the user scrolls to the bottom of the listbox.
-
 <Example path="./infinite-scroll" />
 
 ### Virtualization
-
-High-performance virtual scrolling for massive lists of thousands of options using `useListVirtualizer`.
+Virtualization reduces the number of mounted option rows; actual performance depends on item rendering and environment.
 
 <Example path="./virtualization" />
 
 ## Keyboard Interactions
 
-| Key                                 | Description                                                      |
-| ----------------------------------- | ---------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the listbox or confirms selection of the highlighted item. |
-| <kbd>ArrowDown</kbd>                | Highlights the next option in the list.                          |
-| <kbd>ArrowUp</kbd>                  | Highlights the previous option in the list.                      |
-| <kbd>Home</kbd> / <kbd>End</kbd>    | Jumps highlight directly to the first or last available option.  |
-| <kbd>Escape</kbd>                   | Closes the dropdown without changing the current value.          |
-| <kbd>Tab</kbd>                      | Closes the listbox and moves focus to the next element.          |
+| Key                              | Description                                                      |
+| -------------------------------- | ---------------------------------------------------------------- |
+| <kbd>Enter</kbd>                 | Opens the listbox or selects the active option.                   |
+| <kbd>Space</kbd>                 | Opens/selects where the current trigger/input mode permits it.    |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next available option.          |
+| <kbd>ArrowUp</kbd>               | Moves to the previous available option.                           |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                      |
+| <kbd>Escape</kbd>                | Closes the listbox without changing the selected value.           |
+| <kbd>Tab</kbd>                   | Leaves the control according to normal document focus order.      |

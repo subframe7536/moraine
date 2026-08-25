@@ -1,6 +1,6 @@
 ---
 title: Accordion
-description: A vertically stacked set of interactive disclosure headings that expand and collapse content sections, supporting single or multiple active panels.
+description: A stacked disclosure component with single or multiple expanded sections, optional collapse restrictions, and keyboard focus navigation.
 sidebar:
   order: 7
 search:
@@ -11,16 +11,12 @@ import { Accordion } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Accordion } from 'moraine'
 import type { AccordionT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -33,20 +29,17 @@ Interactive component preview with configurable props.
       {
         value: 'install',
         label: 'How do I install Moraine?',
-        content:
-          'Install moraine with bun add moraine and configure UnoCSS or Tailwind with presetMoraine.',
+        content: 'Install moraine and configure either UnoCSS or Tailwind CSS before rendering components.',
       },
       {
         value: 'ssr',
         label: 'Is server-side rendering supported?',
-        content:
-          'Yes, Moraine components render safely during Solid SSR and hydrate seamlessly on the client.',
+        content: 'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
       },
       {
         value: 'customize',
         label: 'Can I customize component styles?',
-        content:
-          'Every component provides root class/style props and named slots classes/styles for fine-grained customization.',
+        content: 'Components expose root class/style props and named slot classes/styles where applicable.',
       },
     ]
 
@@ -60,65 +53,48 @@ Interactive component preview with configurable props.
         />
       </div>
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Single & Multiple Expansion Modes**: Allow only one section open at a time (`single`) or multiple concurrent open panels (`multiple`).
-- **Smooth Height Transitions**: Animates expanding and collapsing states cleanly without layout pops or calculation glitches.
-- **WAI-ARIA Disclosure Pattern**: Follows W3C Accordion practices using proper `<button>` triggers with `aria-expanded` and `aria-controls`.
-- **Leading & Trailing Slot Customization**: Easily embed icons, badges, status dots, or custom trigger chevron glyphs (`trailing="icon-plus"`).
-- **Per-Section Disabling**: Disable locked or permission-gated sections while keeping others interactive.
+- **Single & Multiple Expansion**: `multiple={false}` keeps at most one item open; enable `multiple` for concurrent sections.
+- **Collapse Control**: `collapsible={false}` prevents the last open item from being collapsed in single-selection mode.
+- **Presence-Based Content Transition**: Expanded content is measured for disclosure styling and can remain mounted through its exit transition.
+- **Disclosure Semantics**: Each item uses an `<h3>` header and `<button>` trigger with `aria-expanded`; an expanded trigger references its content with `aria-controls`.
+- **Keyboard Focus Navigation**: Arrow keys, Home, and End move among enabled triggers; `loopFocus` controls wrapping.
+- **Per-Item Disabling**: Disable individual sections or the entire accordion.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (accordion container)
-└── item (individual section ×n)
-    ├── header (heading wrapper)
-    │   └── trigger (clickable button)
-    │       ├── leading (icon, optional)
-    │       ├── label (section title)
-    │       └── trailing (animated chevron or icon)
-    └── content (collapsible panel)
+root
+└── item (×n)
+    ├── header (<h3>)
+    │   └── trigger (<button>)
+    │       ├── leading (optional)
+    │       ├── label
+    │       └── trailing (optional)
+    └── content
 ```
-
-- `root`: Container element managing shared expansion state.
-- `item`: Bounded section wrapper with `data-expanded` attributes.
-- `trigger`: Semantic `<button>` handling click and keyboard activation.
-- `content`: Animateable body container revealing the section's content.
 
 ## Examples
 
 ### Single
-
-Single-expansion product FAQ with leading icons and live open state readout.
-
 <Example path="./single" />
 
 ### Multiple
-
-Allow multiple sections (General, Security, Billing) to remain open simultaneously.
-
 <Example path="./multiple" />
 
 ### Disabled + Custom Content
-
-Mix locked sections with rich nested JSX checklists, cards, and formatting.
-
 <Example path="./disabled-custom-content" />
 
 ## Keyboard Interactions
 
-| Key                                 | Description                                                 |
-| ----------------------------------- | ----------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Expands or collapses the focused accordion trigger.         |
-| <kbd>ArrowDown</kbd>                | Moves focus to the next accordion header trigger.           |
-| <kbd>ArrowUp</kbd>                  | Moves focus to the previous accordion header trigger.       |
-| <kbd>Home</kbd>                     | Moves focus directly to the first accordion header trigger. |
-| <kbd>End</kbd>                      | Moves focus directly to the last accordion header trigger.  |
+| Key                                 | Description                                                   |
+| ----------------------------------- | ------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.                     |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.                      |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger.                  |
+| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.                     |
+| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.                      |

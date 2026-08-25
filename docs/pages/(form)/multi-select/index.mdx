@@ -1,6 +1,6 @@
 ---
 title: MultiSelect
-description: A multi-token combobox component supporting interactive tag chips, search filtering, tag creation, overflow truncation, and virtualized scrolling.
+description: A multi-value combobox with removable tags, search, optional value creation, token separators, overflow summaries, and virtualized rendering.
 sidebar:
   order: 11
 search:
@@ -12,8 +12,6 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { MultiSelect } from 'moraine'
 import type { MultiSelectT } from 'moraine'
@@ -21,16 +19,11 @@ import type { MultiSelectT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
     {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -39,10 +32,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -61,9 +51,7 @@ Interactive component preview with configurable props.
       { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
       { label: 'Research', value: 'research', icon: 'i-lucide:search' },
     ]
-
     const [selected, setSelected] = createSignal(['design', 'dev'])
-
     return (
       <MultiSelect
         options={TAG_OPTIONS}
@@ -77,89 +65,61 @@ Interactive component preview with configurable props.
         allowClear
       />
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Interactive Tag Badges**: Selected options render as dismissible tag chips with individual delete buttons and backspace removal.
-- **Search & Tag Creation**: Typeahead search filters available options in real time. Enable `creatable` to allow on-the-fly tag generation.
-- **Token Separators**: Convert input values to tags automatically upon typing configured delimiter keys (like commas or spaces).
-- **Max Count & Max Tag Count**: Enforce maximum selectable values (`maxCount`) and collapse excessive visible tags into a summary badge (`maxTagCount={2}` -> `+3 more`).
-- **High-Performance Virtualization**: Handles thousands of options with zero lag using TanStack Virtual integration via `useListVirtualizer`.
+- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
+- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
+- **Token Separators**: Configured delimiter keys can convert typed text into selections.
+- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
+- **Floating UI Positioning**: The listbox is positioned with Floating UI.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
-### Control box
+### Control
 
 ```text
-control (input trigger box)
-├── tagsContainer (wrap container for chips)
-│   ├── tag (selected item chip ×n)
-│   │   ├── label (tag name)
-│   │   └── tagRemove (clear button)
-│   ├── tagOverflow (summary badge "+N more")
-│   └── input (inline search field)
-├── clear (clear-all button, optional)
-└── trigger (open/close chevron indicator)
+control
+├── tagsContainer
+│   ├── tag (×n)
+│   ├── tagOverflow (optional)
+│   └── input
+├── clear (optional)
+└── trigger
 ```
 
-### Floating Listbox (Portal)
+### Floating listbox
 
 ```text
-content (floating popover)
-└── listbox (scrollable dropdown)
-    ├── item (option row ×n)
-    │   ├── itemLabel (text & icon)
-    │   └── itemTrailing (check indicator)
-    ├── group (optional grouped section)
-    │   └── label (group heading)
-    └── empty (fallback message when no results match)
+content
+└── listbox
+    ├── item (×n)
+    ├── group (optional ×n)
+    └── empty (optional)
 ```
-
-- `control`: The main interactive container wrapping selected tags and the active typing cursor.
-- `tagOverflow`: Badge displaying hidden items count when `maxTagCount` is exceeded.
-- `listbox`: The floating options overlay positioning via Popper / Floating UI.
 
 ## Examples
 
 ### Multiple Select
-
-Assign multiple pull request reviewers or assignees with `allowClear` to quickly reset selections.
-
 <Example path="./multiple-select" />
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg` aligning chip padding and input typography.
-
 <Example path="./sizes" />
 
 ### Token Separators
-
-Auto-tokenize comma-separated or space-separated inputs into tags.
-
 <Example path="./token-separators" />
 
 ### Create New Tags
-
-Allow users to create and add new custom tag values dynamically by typing and pressing Enter.
-
 <Example path="./create-new-tags" />
 
 ### Max Count & Max Tag Count
-
-Restrict selection count to a maximum budget and collapse long tag lists into clean `+N` indicator pills.
-
 <Example path="./max-count-max-tag-count" />
 
 ### Virtualization
-
-Render thousands of items with smooth 60fps scrolling using `useListVirtualizer` from `moraine/utils`.
+Virtualization reduces mounted option rows; frame rate and capacity depend on row content, browser workload, and virtualizer configuration.
 
 <Example path="./virtualization" />
 
@@ -167,9 +127,9 @@ Render thousands of items with smooth 60fps scrolling using `useListVirtualizer`
 
 | Key                              | Description                                                                   |
 | -------------------------------- | ----------------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or highlights the next option.                              |
-| <kbd>ArrowUp</kbd>               | Highlights the previous option.                                               |
-| <kbd>Enter</kbd>                 | Selects / deselects the highlighted option or creates a new tag if creatable. |
-| <kbd>Backspace</kbd>             | Deletes the last tag when the search input is empty.                          |
-| <kbd>Escape</kbd>                | Closes the open listbox popover.                                              |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Jumps highlight to the first or last available option.                        |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                                |
+| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                                 |
+| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it.      |
+| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                   |
+| <kbd>Escape</kbd>                | Closes the listbox.                                                           |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                                  |

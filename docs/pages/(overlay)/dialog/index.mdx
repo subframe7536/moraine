@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: A modal dialog overlay component with focus trapping, backdrop blurring, ESC key handling, scroll locking, and structured header/body/footer slots.
+description: A modal dialog with focus management, scroll locking, backdrop support, and structured header, body, and footer regions.
 sidebar:
   order: 4
 search:
@@ -11,16 +11,12 @@ import { Button, Dialog } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Dialog } from 'moraine'
 import type { DialogT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -65,59 +61,52 @@ Interactive component preview with configurable props.
 
 ## Features
 
-- **Automated Focus Trapping & Restoration**: Keeps keyboard navigation constrained within the modal while open, and restores focus back to the triggering element upon dismissal.
-- **Scroll Locking & Backdrop Blur**: Locks background document scrollbars and renders an accessible backdrop overlay.
-- **Structured Content Slots**: Out-of-the-box slots for `title`, `description`, `body`, `footer`, and top-right `close` button.
-- **Fullscreen & Prevent-Close Controls**: Enable `fullscreen` mode for mobile/tablet workflows, or intercept dismissal attempts with `preventClose`.
-- **WAI-ARIA Dialog Role**: Automatically injects `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, and `aria-describedby`.
+- **Focus Management**: Constrains keyboard focus while the dialog is open and restores focus when it closes.
+- **Scroll Lock & Overlay**: Prevents background document scrolling while open and can render a backdrop overlay.
+- **Structured Content**: Provides `title`, `description`, `body`, `footer`, and close-button regions.
+- **Dismissal Control**: Set `dismissible={false}` to block normal dismissal. Use `onClosePrevent` to observe prevented close attempts.
+- **Dialog Semantics**: The dialog surface provides `role="dialog"`, `aria-modal`, and title/description associations when those regions are present.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-trigger (element opening the dialog)
-├── overlay (dark backdrop overlay with blur)
-└── content (floating centered modal card)
-    ├── header (modal header region)
+trigger
+├── overlay
+└── content
+    ├── header
     │   ├── wrapper
-    │   │   ├── title (accessible modal heading)
-    │   │   └── description (subheading description)
-    │   └── close (top-right dismiss icon button)
-    ├── body (scrollable body container)
-    └── footer (bottom actions container, e.g. Cancel / Confirm)
+    │   │   ├── title
+    │   │   └── description
+    │   └── close
+    ├── body
+    └── footer
 ```
 
-- `trigger`: Component or element receiving click handler to launch dialog.
-- `overlay`: Translucent screen blocker intercepting outside clicks.
-- `content`: Floating centered modal panel.
-- `header` / `body` / `footer`: Structured regions.
+- `trigger`: Element that opens the dialog.
+- `overlay`: Optional backdrop.
+- `content`: Modal surface.
+- `header` / `body` / `footer`: Structured content regions.
 
 ## Examples
 
 ### Default Shell
 
-Standard confirmation dialog with title, description, content body, and action footer.
-
 <Example path="./default-shell" />
 
 ### Variants
-
-Compare standard close button, hidden close button, and custom JSX header actions.
 
 <Example path="./variants" />
 
 ### Long Content + Dismissible Control
 
-Scrollable long agreement text with locked dismissal preventing accidental cancellation until acknowledged.
+Use `dismissible={false}` when an interaction must explicitly allow closing, and handle prevented attempts with `onClosePrevent` when needed.
 
 <Example path="./long-content-dismissible-control" />
 
 ## Keyboard Interactions
 
-| Key                                 | Description                                                          |
-| ----------------------------------- | -------------------------------------------------------------------- |
-| <kbd>Escape</kbd>                   | Dismisses the dialog (unless `preventClose` is active).              |
-| <kbd>Tab</kbd>                      | Cycles focus forward through interactive controls inside the dialog. |
-| <kbd>Shift + Tab</kbd>              | Cycles focus backward through interactive controls.                  |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused button inside the dialog.                      |
+| Key                    | Description                                                                 |
+| ---------------------- | --------------------------------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                              |
+| <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.          |
+| <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog.         |

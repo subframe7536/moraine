@@ -36,7 +36,9 @@ function PrimaryButton(props: PrimaryButtonProps) {
 
 ## Root props
 
-Every public component owns a documented root element. In the default type mode, that root accepts arbitrary attributes, while component business props stay separate from the DOM surface and `ref` remains typed to the concrete root element.
+Components with a DOM root document that root through their public types. Some composite primitives, such as `Modal`, are state providers and expose their DOM through subcomponents instead of rendering a root element themselves.
+
+In the default type mode, a rendered root accepts arbitrary attributes, while component-specific props stay separate from the DOM surface and `ref` remains typed to the concrete root element.
 
 ```tsx
 <Card aria-describedby="details" data-testid="card" />
@@ -45,6 +47,8 @@ Every public component owns a documented root element. In the default type mode,
 Full intrinsic attributes are opt-in because including every HTML attribute in every component makes editor completion slower and allows control props to be mistaken for wrapper props. Enable the expanded surface with a type-only package-root augmentation:
 
 ```tsx
+import 'moraine'
+
 declare module 'moraine' {
   interface MoraineTypeConfig {
     enableRootAutocomplete: true
@@ -54,7 +58,7 @@ declare module 'moraine' {
 
 The augmentation has no runtime effect. It enables the exact attributes for the documented root tag, including camelCase Solid handlers, and preserves required props for custom Solid components passed through polymorphic `as` APIs such as `Button`, `List`, `FormField`, and `FileUpload`. Lowercase event aliases and Solid directive prefixes remain excluded from the autocomplete surface.
 
-Root attributes are forwarded at runtime even when the expanded type mode is disabled. Generated state metadata is emitted before user rest props, so caller values override `data-slot`, state `data-*`, and generated `aria-*` attributes. Wrapper components forward root props to their wrapper or trigger, while form control props and secondary APIs such as `listboxProps` stay on their documented internal elements.
+Root attributes are forwarded at runtime even when the expanded type mode is disabled. Generated state metadata is emitted before user rest props, so caller values can override `data-slot`, state `data-*`, and generated `aria-*` attributes. Avoid overriding generated accessibility or state attributes unless you intentionally need to replace Moraine's behavior. Wrapper components forward root props to their wrapper or trigger, while form control props and secondary APIs such as `listboxProps` stay on their documented internal elements.
 
 ## Component Namespace (`XxxT`)
 
@@ -118,7 +122,7 @@ Each `XxxT` namespace may expose the following members depending on the componen
 | `Value`   | Domain type of the component's controlled value                                       |
 | `Classes` | Typed map from slot name to CSS class string                                          |
 | `Styles`  | Typed map from slot name to inline style object                                       |
-| `Base`    | Component-specific business props (internal)                                          |
+| `Base`    | Component-specific base/business props                                                |
 | `Props`   | Final public props shape (same as `XxxProps`)                                         |
 
 ## Tips

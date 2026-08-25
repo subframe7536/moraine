@@ -1,6 +1,6 @@
 ---
 title: Tabs
-description: A tabbed navigation component with pill/link/tab visual variants, animated active indicators, horizontal/vertical orientations, and WAI-ARIA tablist accessibility.
+description: Tabbed content navigation with pill, link, and tab styles, horizontal or vertical orientation, and keyboard selection modes.
 sidebar:
   order: 2
 search:
@@ -11,8 +11,6 @@ import { Tabs } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Tabs } from 'moraine'
 import type { TabsT } from 'moraine'
@@ -20,15 +18,10 @@ import type { TabsT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'pill',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'pill',
       options: [
         { label: 'Pill', value: 'pill' },
         { label: 'Link', value: 'link' },
@@ -36,10 +29,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -51,36 +41,9 @@ Interactive component preview with configurable props.
 >
   {(props) => {
     const ITEMS = [
-      {
-        label: 'Overview',
-        value: 'overview',
-        icon: 'i-lucide:layout-dashboard',
-        content: (
-          <p class="text-xs text-muted-foreground leading-relaxed pt-3">
-            High-level metrics and system activity overview.
-          </p>
-        ),
-      },
-      {
-        label: 'Deployments',
-        value: 'deployments',
-        icon: 'i-lucide:rocket',
-        content: (
-          <p class="text-xs text-muted-foreground leading-relaxed pt-3">
-            Production pipelines, recent builds, and rollout health.
-          </p>
-        ),
-      },
-      {
-        label: 'Settings',
-        value: 'settings',
-        icon: 'i-lucide:settings',
-        content: (
-          <p class="text-xs text-muted-foreground leading-relaxed pt-3">
-            Environment variables, security secrets, and domain management.
-          </p>
-        ),
-      },
+      { label: 'Overview', value: 'overview', icon: 'i-lucide:layout-dashboard', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">High-level metrics and system activity overview.</p> },
+      { label: 'Deployments', value: 'deployments', icon: 'i-lucide:rocket', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Production pipelines, recent builds, and rollout health.</p> },
+      { label: 'Settings', value: 'settings', icon: 'i-lucide:settings', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Environment variables, security secrets, and domain management.</p> },
     ]
 
     return (
@@ -94,71 +57,51 @@ Interactive component preview with configurable props.
         />
       </div>
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **3 Semantic Visual Styles**: `pill` (enclosed segmented control), `link` (underline border highlight), and `tab` (browser-style card tabs).
-- **Horizontal & Vertical Orientations**: Switch between standard top tab rails or left-hand sidebar navigation panels.
-- **WAI-ARIA Tablist Pattern**: Follows W3C guidelines with `role="tablist"`, `role="tab"`, `role="tabpanel"`, and roving focus.
-- **Leading Icons & Custom Badges**: Embed status icons, unread notification counts, and trailing badges in tab headers.
-- **Controlled & Disabled States**: Full programmatic control with reactive value signals and granular per-tab disabled rules.
+- **Visual Variants**: `pill`, `link`, and `tab` change presentation without changing the tab data model.
+- **Horizontal & Vertical Orientation**: Orientation controls layout and directional keyboard navigation.
+- **Tab Semantics**: Exposes `tablist`, `tab`, and `tabpanel` roles with selection and ID associations.
+- **Automatic or Manual Activation**: Keyboard navigation can select on focus or wait for explicit activation, depending on `activationMode`.
+- **Controlled & Disabled State**: Control the selected value externally and disable individual tab items.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (tabs container)
-├── list (tablist trigger rail)
-│   ├── indicator (sliding active highlight line or pill)
-│   └── trigger (individual tab button ×n)
-│       ├── leading (icon, optional)
-│       ├── label (tab title text)
-│       └── trailing (counter badge, optional)
-└── content (active tabpanel body content)
+root
+├── list (role="tablist")
+│   ├── indicator
+│   └── trigger (role="tab" ×n)
+│       ├── leading (optional)
+│       ├── label
+│       └── trailing (optional)
+└── content (active role="tabpanel")
 ```
-
-- `root`: Container managing active tab state and ARIA associations.
-- `list`: Container with `role="tablist"`.
-- `trigger`: Semantic button with `role="tab"` and `aria-selected`.
-- `content`: Associated view panel with `role="tabpanel"`.
 
 ## Examples
 
 ### Variants
-
-Compare `pill` (segmented bar), `link` (underlined border highlight), and `tab` (folder tabs) visual styles.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg`.
-
 <Example path="./sizes" />
 
 ### Orientations
-
-Switch between horizontal tab bars and vertical side tabs for preferences and account settings.
-
 <Example path="./orientations" />
 
 ### Controlled + Disabled Items
-
-Bind a reactive signal to switch tabs programmatically, with disabled security clearance tabs.
-
 <Example path="./controlled-disabled-items" />
 
 ## Keyboard Interactions
 
-| Key                                          | Description                                                                 |
-| -------------------------------------------- | --------------------------------------------------------------------------- |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves focus and selection to the next tab in the tablist (wrapping around). |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves focus and selection to the previous tab in the tablist.               |
-| <kbd>Home</kbd>                              | Moves focus directly to the first enabled tab.                              |
-| <kbd>End</kbd>                               | Moves focus directly to the last enabled tab.                               |
-| <kbd>Tab</kbd>                               | Moves focus out of the tablist into the active tabpanel.                    |
+Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
+
+| Key                              | Description                                      |
+| -------------------------------- | ------------------------------------------------ |
+| <kbd>Arrow keys</kbd>            | Moves focus among enabled tabs by orientation.   |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves focus to the first or last enabled tab.    |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.      |
+| <kbd>Tab</kbd>                   | Leaves the tab list according to normal focus order. |

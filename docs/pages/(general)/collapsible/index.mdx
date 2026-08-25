@@ -1,6 +1,6 @@
 ---
 title: Collapsible
-description: An interactive disclosure primitive for expanding and collapsing arbitrary content sections with smooth hardware-accelerated height transitions.
+description: A disclosure primitive for controlled or uncontrolled expanding and collapsing content with optional transitions.
 sidebar:
   order: 8
 search:
@@ -11,8 +11,6 @@ import { Button, Card, Collapsible, Icon } from '@src'
 
 ## Import
 
-Import the component and its subcomponents from the package root:
-
 ```tsx
 import { Collapsible } from 'moraine'
 import type { CollapsibleT } from 'moraine'
@@ -20,108 +18,69 @@ import type { CollapsibleT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="max-w-md w-full">
-        <Card classes={{ root: 'p-4 rounded-xl border border-border/60 bg-card/50' }}>
-          <Collapsible transition={props.transition} disabled={props.disabled}>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-foreground font-medium">
-                @solidjs starred 3 repositories
-              </span>
-              <Collapsible.Trigger
-                as={Button}
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Toggle repositories"
-                disabled={props.disabled}
-              >
-                <Icon name="i-lucide:chevrons-up-down" class="size-4" />
-              </Collapsible.Trigger>
-            </div>
-
-            <div class="text-xs font-mono mt-2 px-3 py-2 border border-border/50 rounded-lg bg-background/50">
-              @solidjs/router
-            </div>
-
-            <Collapsible.Content class="pt-2 space-y-2">
-              <div class="text-xs font-mono px-3 py-2 border border-border/50 rounded-lg bg-background/50">
-                @solidjs/testing-library
-              </div>
-              <div class="text-xs font-mono px-3 py-2 border border-border/50 rounded-lg bg-background/50">
-                subframe7536/moraine
-              </div>
-            </Collapsible.Content>
-          </Collapsible>
-        </Card>
-      </div>
-    )
-
-}}
-
+  {(props) => (
+    <div class="max-w-md w-full">
+      <Card classes={{ root: 'p-4 rounded-xl border border-border/60 bg-card/50' }}>
+        <Collapsible transition={props.transition} disabled={props.disabled}>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-foreground font-medium">@solidjs starred 3 repositories</span>
+            <Collapsible.Trigger as={Button} variant="ghost" size="icon-sm" aria-label="Toggle repositories" disabled={props.disabled}>
+              <Icon name="i-lucide:chevrons-up-down" class="size-4" />
+            </Collapsible.Trigger>
+          </div>
+          <div class="text-xs font-mono mt-2 px-3 py-2 border border-border/50 rounded-lg bg-background/50">@solidjs/router</div>
+          <Collapsible.Content class="pt-2 space-y-2">
+            <div class="text-xs font-mono px-3 py-2 border border-border/50 rounded-lg bg-background/50">@solidjs/testing-library</div>
+            <div class="text-xs font-mono px-3 py-2 border border-border/50 rounded-lg bg-background/50">subframe7536/moraine</div>
+          </Collapsible.Content>
+        </Collapsible>
+      </Card>
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **Smooth CSS Height Transitions**: Measures dynamic intrinsic element scrollHeight for fluid zero-to-full height unfolding without jerky jumps.
-- **Controlled & Uncontrolled State**: Bind `open` and `onOpenChange` or let the component manage its own `defaultOpen` state internally.
-- **Composable Subcomponents**: Assemble complex surfaces freely with `Collapsible.Trigger` and `Collapsible.Content`.
-- **WAI-ARIA Disclosure Compliance**: Emits `aria-expanded` and `aria-controls` connecting the trigger button directly to the collapsible panel.
-- **Disabled State Propagation**: Disabling the root automatically cascades to all triggers and suppresses expansion events.
+- **Controlled & Uncontrolled State**: Use `open` with `onOpenChange`, or initialize uncontrolled state with `defaultOpen`.
+- **Composable Trigger and Content**: `Collapsible.Trigger` and `Collapsible.Content` can be placed within caller-owned layout.
+- **Optional Transition**: `transition` enables the built-in open/close transition for the content region.
+- **Disclosure Metadata**: Trigger state is reflected through `aria-expanded` and the trigger/content association.
+- **Disabled State**: Disabling the root prevents its trigger from changing disclosure state.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (Collapsible container)
-├── Collapsible.Trigger (clickable toggle button)
-└── Collapsible.Content (collapsible panel)
-    └── content-wrapper (internal zero-height overflow clip)
-        └── {children}
+Collapsible (state provider)
+├── Collapsible.Trigger
+└── Collapsible.Content
+    └── content
 ```
-
-- `root`: State provider managing open/closed boolean signals.
-- `Collapsible.Trigger`: Semantic button or polymorphic trigger toggling open state.
-- `Collapsible.Content`: Animated container transitioning `max-height` and `opacity`.
 
 ## Examples
 
 ### Basic
-
-Composable repository card pattern keeping 1 item preview visible and folding the rest.
-
 <Example path="./composable" />
 
 ### Uncontrolled and Transition
-
-Uncontrolled FAQ card with smooth CSS height animation.
-
 <Example path="./uncontrolled" />
 
 ### Controlled and Disabled
-
-External state switch controlling a sensitive billing details panel with disabled lockout.
-
 <Example path="./controlled" />
 
 ### Stateful Trigger
-
-Compact data table row embedding an icon chevron toggle for expandable JSON metadata.
-
 <Example path="./stateful" />
 
 ## Keyboard Interactions
 
-| Key                                 | Description                                                                               |
-| ----------------------------------- | ----------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the expanded / collapsed state of the focused trigger.                            |
-| <kbd>Tab</kbd>                      | Moves focus between the trigger and any interactive elements inside the expanded content. |
+The trigger uses button semantics by default. Polymorphic triggers inherit the keyboard semantics of the supplied element or component.
+
+| Key                                 | Description                                                 |
+| ----------------------------------- | ----------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button trigger and toggles disclosure.   |
+| <kbd>Tab</kbd>                      | Follows normal document focus order.                        |

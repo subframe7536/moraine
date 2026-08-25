@@ -1,6 +1,6 @@
 ---
 title: Progress
-description: A progress indicator component supporting determinate values, 4 smooth indeterminate animation styles, step checkpoints, and horizontal/vertical orientations.
+description: A determinate or indeterminate progress indicator with animation presets, optional step markers, and horizontal or vertical orientation.
 sidebar:
   order: 10
 search:
@@ -11,8 +11,6 @@ import { Progress } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Progress } from 'moraine'
 import type { ProgressT } from 'moraine'
@@ -20,16 +18,11 @@ import type { ProgressT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -39,73 +32,41 @@ Interactive component preview with configurable props.
     { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
   ]}
 >
-  {(props) => {
-    return (
-      <Progress
-        value={props.value}
-        size={props.size}
-        status={props.status}
-        animation={props.animation}
-      />
-    )
-  }}
+  {(props) => <Progress value={props.value} size={props.size} status={props.status} animation={props.animation} />}
 </Playground>
 
 ## Features
 
-- **Determinate & Indeterminate Modes**: Displays precise percentage values or animated indeterminate pulses when duration is unknown.
-- **4 Distinct Animation Styles**: Choose from `carousel`, `reverse`, `swing`, and `elastic` indeterminate visual physics.
-- **Step Checkpoints**: Pass an array of step names (`['Draft', 'Review', 'Approved', 'Shipped']`) to render discrete progression dots and milestone labels.
-- **Horizontal & Vertical Orientations**: Switch to vertical progress bars for column meters and audio level visualizers.
-- **WAI-ARIA Progressbar Role**: Complies with `role="progressbar"`, providing `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`.
+- **Determinate & Indeterminate Modes**: Provide a value for determinate progress or use an indeterminate animation when completion cannot be measured.
+- **Animation Presets**: `carousel`, `reverse`, `swing`, and `elastic` provide built-in indeterminate motion styles.
+- **Step Markers**: Supply step labels to display discrete milestones along the progress track.
+- **Horizontal & Vertical Orientations**: Choose the track direction that fits the surrounding layout.
+- **Progressbar Metadata**: Exposes `role="progressbar"` and value-related ARIA attributes for determinate progress.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (progress container)
-├── status (determinate percentage or label, optional)
-├── track (background bar rail)
-│   └── indicator (animated fill bar)
-└── steps (discrete milestone checkpoints, optional)
-    └── step (individual step dot & label ×n)
+root
+├── status (optional)
+├── track
+│   └── indicator
+└── steps (optional)
+    └── step (×n)
 ```
-
-- `root`: Outer layout element managing orientation and ARIA role.
-- `status`: Text or custom renderer indicating numeric progress.
-- `track`: The background track groove.
-- `indicator`: Colored bar filling from 0% to 100%.
-- `steps`: Step milestone ticks placed along the track.
 
 ## Examples
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg` adjusting track heights and status label typography.
-
 <Example path="./sizes" />
 
 ### Orientations
-
-Horizontal progress rails and vertical resource gauge meters.
-
 <Example path="./orientations" />
 
 ### Determinate
-
-Track file downloads, storage capacity, and disk space usage with custom status renderers.
-
 <Example path="./determinate" />
 
 ### Animations
-
-Compare indeterminate motion presets (`carousel`, `reverse`, `swing`, `elastic`) during background operations.
-
 <Example path="./animations" />
 
 ### Step Mode
-
-Milestone pipeline tracking (`Plan`, `Build`, `Test`, `Deploy`, `Verify`).
-
 <Example path="./step-mode" />

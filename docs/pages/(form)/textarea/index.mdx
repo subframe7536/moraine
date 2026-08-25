@@ -1,6 +1,6 @@
 ---
 title: Textarea
-description: A multi-line text input component featuring seamless automatic height resizing, min/max row clamping, header and footer toolbars, and size scaling.
+description: A multi-line text input with optional auto-resizing, row limits, header and footer content, and FormField integration.
 sidebar:
   order: 4
 search:
@@ -11,8 +11,6 @@ import { Textarea } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Textarea } from 'moraine'
 import type { TextareaT } from 'moraine'
@@ -20,21 +18,11 @@ import type { TextareaT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
+    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Write a comment or description...' },
     {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Write a comment or description...',
-    },
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -43,10 +31,7 @@ Interactive component preview with configurable props.
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -57,74 +42,54 @@ Interactive component preview with configurable props.
     { kind: 'switch', prop: 'autoResize', label: 'Auto-resize', defaultValue: true },
   ]}
 >
-  {(props) => {
-    return (
-      <Textarea
-        placeholder={props.placeholder}
-        variant={props.variant}
-        size={props.size}
-        disabled={props.disabled}
-        autoResize={props.autoResize}
-        rows={3}
-      />
-    )
-  }}
+  {(props) => (
+    <Textarea
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      autoResize={props.autoResize}
+      rows={3}
+    />
+  )}
 </Playground>
 
 ## Features
 
-- **Fluid Auto-Resize**: Automatically expands height as the user types, eliminating awkward internal scrollbars.
-- **Row Clamping**: Enforce minimum (`minRows`) and maximum (`maxRows`) height limits to prevent unbounded growth.
-- **Header & Footer Composability**: Embed rich formatting toolbars in `header` and submit buttons, character counters, or markdown badges in `footer`.
-- **Multiple Visual Styles**: Supports `outline`, `subtle`, `ghost`, and `none` variants for inline scratchpads, code reviews, and cards.
-- **WAI-ARIA Accessibility**: Standard multi-line textbox accessibility, integrating seamlessly with `FormField` labels and validation errors.
+- **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
+- **Row Limits**: Use `minRows` and `maxRows` to bound auto-resized height.
+- **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
+- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
+- **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (outer container)
-├── header (optional formatting toolbar)
-├── input (native HTML <textarea>)
-└── footer (optional submit button & counter)
+root
+├── header (optional)
+├── input (native <textarea>)
+└── footer (optional)
 ```
-
-- `root`: Container wrapper applying border, focus ring, and variant styling.
-- `header`: Slot positioned above the text area (e.g. for markdown formatting buttons).
-- `input`: The multi-line text input with dynamic height calculation.
-- `footer`: Slot positioned below the text area (e.g. for character count or action buttons).
 
 ## Examples
 
 ### Variants
-
-Compare `outline` (support ticket), `subtle` (PR review comments), `ghost` (scratchpad notes), and `none` (embedded inside custom container).
-
 <Example path="./variants" />
 
 ### Sizes
-
-Scales typography and padding across `sm` (commit summary), `md` (support message), and `lg` (release notes).
-
 <Example path="./sizes" />
 
 ### Autoresize
-
-Auto-expands up to 8 rows with live character counter limit (`142 / 280`).
-
 <Example path="./autoresize" />
 
 ### Header + Footer
-
-Compose a complete comment composer with a markdown formatting toolbar in the header and action buttons in the footer.
-
 <Example path="./header-footer" />
 
 ## Keyboard Interactions
 
-| Key                                      | Description                                                                         |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>                         | Inserts a new line character in the textarea.                                       |
-| <kbd>Cmd</kbd> / <kbd>Ctrl + Enter</kbd> | Standard convention for submitting the enclosing form or comment composer.          |
-| <kbd>Tab</kbd>                           | Moves focus to the next focusable element (or inserts indentation when configured). |
+Textarea preserves native keyboard behavior. Submit shortcuts such as Cmd/Ctrl+Enter and custom Tab indentation are application-level behaviors that callers can implement when needed.
+
+| Key              | Description                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| <kbd>Enter</kbd> | Inserts a line break in the textarea.                           |
+| <kbd>Tab</kbd>   | Moves focus according to normal browser behavior unless handled by the caller. |

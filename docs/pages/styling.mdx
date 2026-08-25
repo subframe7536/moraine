@@ -34,16 +34,15 @@ You can define the variables directly in CSS or generate them with UnoCSS's [`co
 
 Use either `presetWind3` or `presetWind4`, then add `presetMoraine`. Built-in component animations are included in the preset, so no extra animation preset is needed.
 
-[`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS that optimizes for `solid-js` + `oxlint`'s use case. It is recommended for use with Moraine, but the full `unocss` can also be used if desired.
+[`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS optimized for the SolidJS setup used by Moraine. The full `unocss` package can also be used.
 
-```tsx
+```ts
 // unocss.config.ts
-import { presetWind3, presetWind4 } from '@subf/unocss'
+import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [
-    // presetWind3(),
     presetWind4(),
     presetMoraine({
       enableComponentLayer: true,
@@ -52,6 +51,8 @@ export default defineConfig({
   ],
 })
 ```
+
+`presetWind3()` is also supported; use it in place of `presetWind4()` when your application targets the Wind3 preset.
 
 ### Motion duration variables
 
@@ -120,7 +121,7 @@ Moraine provides the same semantic z-index utilities through UnoCSS and Tailwind
 
 ## Tailwind CSS
 
-Moraine ships a first-class Tailwind plugin that injects CSS variable tokens, theme extensions (colors, font families, radius, shadows, keyframes, animations, animation metadata), and `icon-*` utility stubs. It also provides `data-*` and `aria-*` variants for attribute-based styling.
+Moraine ships a Tailwind plugin that injects CSS variable tokens, theme extensions (colors, font families, radius, shadows, keyframes, animations, and animation metadata), and `icon-*` utility stubs. It also provides `data-*` and `aria-*` variants for attribute-based styling.
 
 ### v4
 
@@ -130,16 +131,16 @@ Moraine ships a first-class Tailwind plugin that injects CSS variable tokens, th
 /* Moraine plugin: tokens, theme, icon stubs */
 @plugin 'moraine/tailwind';
 
-/* Optional: on-demand icon utilities (recommended) */
+/* Optional: on-demand icon utilities */
 @plugin '@iconify/tailwind' {
   collections: lucide;
 }
 
-/* Scan moraine dist for component utility classes */
+/* Scan Moraine dist for component utility classes */
 @source './node_modules/moraine/**/*';
 ```
 
-Or, for a zero-config icon setup (larger bundle), import the pre-built icon CSS instead:
+Or, for a zero-config icon setup with the full bundled icon set, import the pre-built icon CSS instead:
 
 ```css
 @import 'moraine/icon.css';
@@ -202,7 +203,7 @@ function MyButton() {
 
 ## Class Concatenation
 
-Moraine provides `cn()` and `cva()` utilities that concatenate class strings and conditionals. It is used internally to merge user-provided classes with defaults.
+Moraine provides `cn()` and `cva()` utilities that concatenate class strings and conditionals. They are used internally to merge user-provided classes with defaults.
 
 ```ts
 import { cn, cva } from 'moraine'
@@ -220,7 +221,6 @@ const buttonClasses = cva('btn', {
     },
   },
 })
-// Reuse `cn()` under the hood to merge variant classes with other conditionals
 buttonClasses({ color: 'primary', disabled: isDisabled }, 'other', condition && 'another')
 // => "btn btn-primary btn-disabled other another"
 ```

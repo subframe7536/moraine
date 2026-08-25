@@ -1,6 +1,6 @@
 ---
 title: Resizable
-description: A flexible multi-pane layout component with draggable splitters, pixel/percentage constraints, nested grid intersections, and keyboard resizing.
+description: A multi-pane layout component with draggable separators, size constraints, nested layouts, collapse behavior, and keyboard resizing.
 sidebar:
   order: 12
 search:
@@ -11,8 +11,6 @@ import { Resizable } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Resizable } from 'moraine'
 import type { ResizableT } from 'moraine'
@@ -20,109 +18,75 @@ import type { ResizableT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
-        <Resizable
-          handle={props.handle}
-          disable={props.disabled}
-          panels={[
-            {
-              defaultSize: '35%',
-              min: '20%',
-              content: (
-                <div class="text-xs text-muted-foreground font-mono p-4 bg-muted/20 flex h-full items-center justify-center">
-                  Sidebar Panel
-                </div>
-              ),
-            },
-            {
-              defaultSize: '65%',
-              min: '30%',
-              content: (
-                <div class="text-xs text-muted-foreground font-mono p-4 bg-background/50 flex h-full items-center justify-center">
-                  Main Editor Content
-                </div>
-              ),
-            },
-          ]}
-        />
-      </div>
-    )
-  }}
+  {(props) => (
+    <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
+      <Resizable
+        handle={props.handle}
+        disable={props.disabled}
+        panels={[
+          {
+            defaultSize: '35%', min: '20%',
+            content: <div class="text-xs text-muted-foreground font-mono p-4 bg-muted/20 flex h-full items-center justify-center">Sidebar Panel</div>,
+          },
+          {
+            defaultSize: '65%', min: '30%',
+            content: <div class="text-xs text-muted-foreground font-mono p-4 bg-background/50 flex h-full items-center justify-center">Main Editor Content</div>,
+          },
+        ]}
+      />
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **Fluid Pointer Dragging**: Smooth hardware-accelerated divider dragging with zero lag and boundary snapping.
-- **Pixel & Percentage Constraints**: Set precise `min`, `max`, and `defaultSize` constraints using percentages (`'30%'`) or pixels (`240`).
-- **Collapsible Rails**: Click the splitter handle to instantly collapse a sidebar down to a mini rail icon bar.
-- **Nested Intersections**: Create 4-quadrant IDE layouts with multi-axis draggable intersection handles.
-- **WAI-ARIA Separator Support**: Focusable splitters implementing `role="separator"` with full keyboard resizing.
+- **Pointer Resizing**: Drag separators to resize adjacent panels within their configured constraints.
+- **Pixel & Percentage Constraints**: `min`, `max`, and `defaultSize` accept the size forms supported by panel configuration.
+- **Collapsible Panels**: Configure collapsible panels and collapsed minimum sizes for compact rails.
+- **Nested Layouts**: Compose resizable instances to build multi-axis layouts.
+- **Separator Semantics**: Interactive separators expose separator semantics and keyboard resizing controls.
+
+Performance depends on the content rendered inside each panel and the surrounding application; Resizable does not promise a fixed frame rate or zero-latency dragging.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (resizable container)
-├── panel (individual resizable pane ×n)
-└── divider (interactive splitter between adjacent panels)
-    ├── cross-target (intersection corner drag hit target)
-    └── handle (optional centered grip pill)
+root
+├── panel (×n)
+└── divider (between panels)
+    ├── cross-target (when applicable)
+    └── handle (optional)
 ```
-
-- `root`: Container managing flex proportions and pointer events.
-- `panel`: Bounded container rendering panel children.
-- `divider`: Draggable separator with active cursor styling.
-- `handle`: Visual grip pill with click-to-collapse support.
 
 ## Examples
 
 ### Basic Horizontal
-
-Two-pane editor layout with draggable divider and centered grip handle.
-
 <Example path="./basic-horizontal" />
 
 ### Controlled Sizes
-
-Synchronize live pane pixel sizes with external status bars and state stores.
-
 <Example path="./controlled-sizes" />
 
 ### Vertical + Disable
-
-Vertical split view (code editor top, terminal bottom) with disabled drag lock.
-
 <Example path="./vertical-disable" />
 
 ### Nested Panels
-
-Compose complex multi-pane development environments with nested horizontal and vertical splits.
-
 <Example path="./nested-panels" />
 
 ### Collapsible + Collapsible Min
-
-Click the splitter handle to toggle between expanded and collapsed mini-sidebar rail states.
-
 <Example path="./collapsible-collapsible-min" />
 
 ## Keyboard Interactions
 
-| Key                                          | Description                                                    |
-| -------------------------------------------- | -------------------------------------------------------------- |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Decreases the preceding panel size by step increment.          |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Increases the preceding panel size by step increment.          |
-| <kbd>Home</kbd>                              | Resizes preceding panel to its minimum permitted bound.        |
-| <kbd>End</kbd>                               | Resizes preceding panel to its maximum permitted bound.        |
-| <kbd>Enter</kbd>                             | Toggles collapse/expand if the panel is marked as collapsible. |
+| Key                                          | Description                                                     |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Resizes in the decreasing direction for the active separator.   |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Resizes in the increasing direction for the active separator.   |
+| <kbd>Home</kbd>                              | Moves the adjacent panel toward its minimum permitted size.      |
+| <kbd>End</kbd>                               | Moves the adjacent panel toward its maximum permitted size.      |
+| <kbd>Enter</kbd>                             | Toggles collapse/expand when collapse behavior is configured.    |

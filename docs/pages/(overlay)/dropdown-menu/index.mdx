@@ -1,6 +1,6 @@
 ---
 title: DropdownMenu
-description: A triggered overlay menu component anchored to a button or custom element, featuring categorized groups, nested submenus, shortcut annotations, and checkbox/radio items.
+description: A trigger-anchored action menu with groups, submenus, shortcut hints, and checkbox or radio items.
 sidebar:
   order: 6
 search:
@@ -11,8 +11,6 @@ import { Button, DropdownMenu } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { DropdownMenu } from 'moraine'
 import type { DropdownMenuT } from 'moraine'
@@ -20,15 +18,10 @@ import type { DropdownMenuT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -38,101 +31,77 @@ Interactive component preview with configurable props.
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
   ]}
 >
-  {(props) => {
-    return (
-      <DropdownMenu
-        items={[
-          {
-            type: 'group',
-            label: 'Account',
-            children: [
-              { label: 'Profile', icon: 'i-lucide:user' },
-              { label: 'Billing', icon: 'i-lucide:credit-card' },
-              { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
-            ],
-          },
-          {
-            type: 'group',
-            children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }],
-          },
-        ]}
-        size={props.size}
-        disabled={props.disabled}
-      >
-        {(triggerProps) => (
-          <Button {...triggerProps} variant="outline" trailing="i-lucide:chevron-down">
-            Account Actions
-          </Button>
-        )}
-      </DropdownMenu>
-    )
-  }}
+  {(props) => (
+    <DropdownMenu
+      items={[
+        {
+          type: 'group',
+          label: 'Account',
+          children: [
+            { label: 'Profile', icon: 'i-lucide:user' },
+            { label: 'Billing', icon: 'i-lucide:credit-card' },
+            { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
+          ],
+        },
+        { type: 'group', children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }] },
+      ]}
+      size={props.size}
+      disabled={props.disabled}
+    >
+      {(triggerProps) => (
+        <Button {...triggerProps} variant="outline" trailing="i-lucide:chevron-down">
+          Account Actions
+        </Button>
+      )}
+    </DropdownMenu>
+  )}
 </Playground>
 
 ## Features
 
-- **Anchored Floating Overlay**: Automatically positions relative to the trigger using Floating UI with smart collision detection and auto-flip.
-- **Categorized Sections & Separators**: Organize action items into clean labeled groups with hairline dividers.
-- **Multi-Level Submenus**: Supports infinite submenu nesting with smooth delay timers and diagonal pointer guidance.
-- **Checkbox & Radio Menu Items**: Supports toggle states and single-choice lists directly inside the dropdown.
-- **WAI-ARIA Menu Standards**: Strict conformance to `role="menu"` and `role="menuitem"`, with roving focus and keyboard activation.
+- **Floating UI Positioning**: Anchors the menu to its trigger through Moraine's shared floating-positioning primitive.
+- **Groups & Separators**: Organize menu items into labeled sections.
+- **Nested Submenus**: Items can open child menus; nesting depth should be chosen with usability and layout constraints in mind rather than treated as unbounded.
+- **Checkbox & Radio Items**: Menu data supports toggle state and radio-style single-choice groups.
+- **Menu Semantics**: The shared menu behavior exposes menu/menuitem roles, highlighted state, and keyboard navigation without claiming conformance beyond the implemented behavior.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-trigger (button launching dropdown)
-└── content (floating overlay portal)
-    └── group (section container ×n)
-        ├── label (group header, optional)
-        ├── separator (hairline divider line, optional)
-        └── item (individual action item ×n)
-            ├── itemLeading (icon, avatar, or check indicator)
+trigger
+└── content (floating portal)
+    └── group (×n)
+        ├── label (optional)
+        ├── separator (optional)
+        └── item (×n)
+            ├── itemLeading
             ├── itemWrapper
-            │   ├── itemLabel (action title)
-            │   └── itemDescription (subtext or trailing shortcut hint)
-            └── itemTrailing (kbd shortcuts or nested submenu chevron)
+            │   ├── itemLabel
+            │   └── itemDescription
+            └── itemTrailing
 ```
-
-- `trigger`: Component or element receiving pointer/click handlers.
-- `content`: Floating menu card rendered via portal.
-- `item`: Selectable row executing an action on click or Enter.
 
 ## Examples
 
 ### Sizes
-
-Size scaling across `sm` (compact table action menu), `md` (standard), and `lg` (spacious touch menu).
-
 <Example path="./sizes" />
 
 ### Account / Team
-
-Account switcher with organization selection, billing links, shortcut badges, and destructive sign-out.
-
 <Example path="./account-team" />
 
 ### Editor / View Options
-
-Workspace view settings menu with checkbox toggles (Minimap, Breadcrumbs), theme switcher, and nested submenus.
-
 <Example path="./editor-view-options" />
 
 ### Project / Release Actions
-
-Project management menu with Move to Workspace, Release Tagging, and Danger Zone delete actions.
-
 <Example path="./project-release-actions" />
 
 ## Keyboard Interactions
 
-| Key                                                        | Description                                                       |
-| ---------------------------------------------------------- | ----------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>ArrowDown</kbd> | Opens the dropdown menu and focuses the first item.               |
-| <kbd>ArrowDown</kbd>                                       | Moves highlight to the next menu item.                            |
-| <kbd>ArrowUp</kbd>                                         | Moves highlight to the previous menu item.                        |
-| <kbd>ArrowRight</kbd>                                      | Opens a nested submenu when focused on a submenu trigger.         |
-| <kbd>ArrowLeft</kbd>                                       | Closes the open submenu and returns focus to the parent trigger.  |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Executes the highlighted action and closes the menu.              |
-| <kbd>Escape</kbd>                                          | Closes the dropdown menu and returns focus to the trigger button. |
+| Key                                                        | Description                                              |
+| ---------------------------------------------------------- | -------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>ArrowDown</kbd> | Opens the menu from an eligible trigger interaction.     |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>                  | Moves the active item through available menu entries.    |
+| <kbd>ArrowRight</kbd>                                      | Opens an available submenu from its parent item.         |
+| <kbd>ArrowLeft</kbd>                                       | Returns from a submenu to its parent menu.               |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activates the current menu item.                         |
+| <kbd>Escape</kbd>                                          | Closes the current menu layer.                           |

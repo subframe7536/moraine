@@ -1,6 +1,6 @@
 ---
 title: Pagination
-description: A responsive page navigation component with sibling window clamping, edge jump buttons, customizable page link variants, and ARIA pagination landmarks.
+description: Page navigation with sibling windows, optional edge controls, polymorphic page items, and current-page metadata.
 sidebar:
   order: 4
 search:
@@ -12,8 +12,6 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Pagination } from 'moraine'
 import type { PaginationT } from 'moraine'
@@ -21,34 +19,22 @@ import type { PaginationT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
         { label: 'Large', value: 'lg' },
       ],
     },
-    {
-      kind: 'input',
-      prop: 'itemsPerPage',
-      label: 'Items per page',
-      defaultValue: 10,
-      inputType: 'number',
-    },
+    { kind: 'input', prop: 'itemsPerPage', label: 'Items per page', defaultValue: 10, inputType: 'number' },
     { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
   ]}
 >
   {(props) => {
     const [page, setPage] = createSignal(1)
-
     return (
       <div class="flex flex-col gap-3 items-center">
         <Pagination
@@ -62,69 +48,41 @@ Interactive component preview with configurable props.
         <span class="text-xs text-muted-foreground font-mono">Current Page: {page()} of 10</span>
       </div>
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Dynamic Sibling Clamping**: Intelligent ellipsis truncation keeping visible page buttons constrained to `siblingCount` bounds.
-- **Edge Jump Buttons**: Toggle `showEdges` to render quick-jump buttons to page 1 and the final page.
-- **WAI-ARIA Pagination Landmark**: Renders `<nav aria-label="Pagination">` with `aria-current="page"` and accessible button labels.
-- **Link & Button Modes**: Render standard clickable buttons or polymorphic anchor tags (`<a>`) for SEO-friendly URL pagination.
-- **Configurable Sizes**: Size scale across `sm` (compact table footers), `md` (standard), and `lg`.
+- **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
+- **Edge Controls**: `showEdges` adds controls for the first and last page; `showControls` controls previous/next buttons.
+- **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
+- **Polymorphic Page Items**: Configure page controls to render with the element/component shape required by your router or application.
+- **Controlled State**: `page` and `onPageChange` support application-owned page state.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (semantic <nav aria-label="Pagination">)
-└── list (flex list container)
-    ├── item (prev button container)
-    │   └── prev (Button with previous chevron)
-    ├── item (page number or ellipsis ×n)
-    │   ├── link (page number Button)
-    │   └── ellipsis (decorative span "...")
-    └── item (next button container)
-        └── next (Button with next chevron)
+root (pagination navigation)
+└── list
+    ├── item → prev (optional)
+    ├── item → page link / ellipsis (×n)
+    └── item → next (optional)
 ```
-
-- `root`: Semantic `<nav>` landmark wrapper.
-- `list`: Flex container organizing page buttons.
-- `prev` / `next`: Directional stepper buttons with boundary auto-disabling.
-- `link`: Interactive numbered button with `data-active` indicator.
 
 ## Examples
 
 ### Variants
-
-Render controls as polymorphic links and customize active page button variants.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scale from `sm` (table footer controls) to `lg` (prominent article pagination).
-
 <Example path="./sizes" />
 
 ### Controlled
-
-Controlled page state with live records count and active page readout.
-
 <Example path="./controlled" />
 
 ### Minimal
-
-Compact pagination hiding arrow buttons and showing only numeric page buttons.
-
 <Example path="./minimal" />
 
 ## Keyboard Interactions
 
-| Key                                 | Description                                                     |
-| ----------------------------------- | --------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Moves focus through pagination links and previous/next buttons. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Navigates to the focused page number.                           |
+Pagination does not add collection-style arrow navigation. Each interactive page control uses the keyboard semantics of its rendered button, link, or custom polymorphic element.

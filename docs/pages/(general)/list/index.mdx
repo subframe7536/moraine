@@ -1,6 +1,6 @@
 ---
 title: List
-description: A high-performance collection primitive with polymorphic elements, render function item rendering, and seamless TanStack Virtual integration for massive datasets.
+description: A headless polymorphic collection primitive with caller-controlled item rendering and optional virtualization.
 sidebar:
   order: 11
 search:
@@ -11,8 +11,6 @@ import { Badge, List } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { List } from 'moraine'
 import { useListVirtualizer } from 'moraine/utils'
@@ -20,8 +18,6 @@ import type { ListT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -37,9 +33,7 @@ Interactive component preview with configurable props.
 
     return (
       <>
-        <p class="text-xs text-muted-foreground/80 tracking-wider font-medium mb-2 uppercase">
-          {props.label}
-        </p>
+        <p class="text-xs text-muted-foreground/80 tracking-wider font-medium mb-2 uppercase">{props.label}</p>
         <List
           items={PROJECT_ITEMS}
           itemRender={(ctx) => (
@@ -48,56 +42,45 @@ Interactive component preview with configurable props.
                 <p class="text-xs text-foreground font-medium">{ctx.item.name}</p>
                 <p class="text-[0.7rem] text-muted-foreground">{ctx.item.category}</p>
               </div>
-              <Badge variant="outline" size="sm">
-                {ctx.item.status}
-              </Badge>
+              <Badge variant="outline" size="sm">{ctx.item.status}</Badge>
             </li>
           )}
           class="p-1 border border-border/60 rounded-xl bg-card/30"
         />
       </>
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Fine-Grained Item Rendering**: Uses `itemRender` callback receiving `{ item, index }` context for total markup control.
-- **Polymorphic Container**: Default semantic `<ul>` root (`role="list"`), easily configurable to `<div>`, `<ol>`, or custom components via `as`.
-- **First-Class Virtualization**: Integrates with TanStack Virtual via `useListVirtualizer` for infinite scroll lists of 100,000+ rows.
-- **Dynamic Row Height Measurement**: Automatically measures variable-height content cards and re-indexes layout gaps smoothly.
+- **Caller-Controlled Rendering**: `itemRender` receives `{ item, index, props }`, leaving row markup to the caller.
+- **Polymorphic Root**: The root defaults to `<ul>` with `role="list"` and can be changed with `as`.
+- **Optional Virtual Rendering**: `virtualRender` replaces normal iteration with a caller-provided renderer.
+- **Virtualizer Helper**: `useListVirtualizer` can be used with `virtualRender` to render only the visible portion of larger collections and pass row measurement props to `itemRender`.
+
+`List` itself does not impose a dataset-size or frame-rate guarantee; virtualization performance depends on row content, browser workload, and virtualizer configuration.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (semantic <ul> or polymorphic container)
-└── itemRender ({ item, index } ×n)
-    └── <li> (custom caller-defined row markup)
+root (<ul> by default)
+└── itemRender ({ item, index, props } ×n)
 ```
 
-- `root`: Container element with `role="list"` and scroll tracking.
-- `itemRender`: High-efficiency Solid JSX factory rendering individual array items.
+When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
 
 ## Examples
 
 ### Object List
-
-Render structured project records with custom cards, badges, and hover highlights.
-
 <Example path="./basic" />
 
 ### Virtualization
-
-Virtualize 10,000+ entries effortlessly using `useListVirtualizer` with constant 60fps frame rates.
+Render large collections with `useListVirtualizer` and caller-controlled virtual rendering.
 
 <Example path="./virtualization" />
 
 ### Dynamic Heights
-
-Render variable-height commit logs and messages with automatic DOM resize observers.
+The virtualizer helper can measure rendered rows when item heights vary.
 
 <Example path="./dynamic-height" />

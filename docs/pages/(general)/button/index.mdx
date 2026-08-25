@@ -1,6 +1,6 @@
 ---
 title: Button
-description: An interactive button component supporting polymorphic element rendering, automatic async loading states, icon adornments, and 6 semantic visual variants.
+description: An interactive button component with polymorphic rendering, optional promise-driven loading state, icon adornments, and semantic visual variants.
 sidebar:
   order: 0
 search:
@@ -11,16 +11,12 @@ import { Button } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -73,68 +69,61 @@ Interactive component preview with configurable props.
 
 ## Features
 
-- **Polymorphic Rendering**: Render as a semantic `<button>`, anchor `<a>` link (`as="a"`), or any custom Solid component without losing button styles.
-- **Auto-Loading from Async Handlers**: Passing an async promise-returning function to `onClick` automatically displays a loading spinner until the promise resolves.
-- **Smart Loading Spinner Placement**: Replaces `leading` icon first, or `trailing` icon if no leading icon is present.
-- **Icon Buttons**: Support square icon-only buttons with built-in accessibility labeling.
-- **6 Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
+- **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
+- **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
+- **Controlled Loading**: Use `loading` directly when loading state comes from external state.
+- **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
+- **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
+- **Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
 root (<button> or polymorphic element)
-├── leading (icon, image, or spinner)
-├── label (button text children)
-└── trailing (icon or shortcut badge)
+├── leading (icon, image, or loading indicator)
+├── label (button content)
+└── trailing (icon or custom trailing content)
 ```
 
-- `root`: Interactive focusable container with hover, active, and focus-visible states.
-- `leading`: Left icon slot automatically swapped with an animated spinner when `loading={true}`.
-- `trailing`: Right icon slot.
+- `root`: Interactive element with hover, active, disabled, and focus-visible states.
+- `leading`: Leading adornment; may be replaced by the loading icon.
+- `trailing`: Trailing adornment; may be replaced by the loading icon when no leading adornment exists.
 
 ## Examples
 
 ### Variants
 
-Semantic visual variants: `default` (primary action), `secondary` (supporting action), `outline` (preview), `ghost` (dismiss), `destructive` (delete), and `link`.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scale spanning `xs`, `sm`, `md`, `lg`, and `xl` with proportional padding and typography.
 
 <Example path="./sizes" />
 
 ### Loading States
 
-Automatic loading state detection from async `onClick` promises and controlled `loading` prop.
+Compare controlled `loading` with opt-in `loadingAuto` for promise-returning click handlers.
 
 <Example path="./loading-states" />
 
 #### Loading Placement
 
-Demonstrates loader icon substitution rules for leading and trailing adornments.
-
 <Example path="./loading-placement" />
 
 ### Icon Buttons
 
-Compact square action buttons with accessible `aria-label` attributes.
+Icon-only controls should include an accessible name such as `aria-label`.
 
 <Example path="./icon-buttons" />
 
 ### Polymorphic
 
-Render links and routing anchors using the polymorphic `as="a"` prop.
-
 <Example path="./polymorphic" />
 
 ## Keyboard Interactions
 
+Native button keyboard behavior applies when the root is a button. Polymorphic roots inherit the semantics and keyboard behavior of the element or component you provide.
+
 | Key                                 | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Triggers the button's `onClick` action handler. |
-| <kbd>Tab</kbd>                      | Moves focus to the button element.              |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button when it is focused.   |
+| <kbd>Tab</kbd>                      | Moves focus to the button when it is focusable. |

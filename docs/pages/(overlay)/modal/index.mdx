@@ -1,17 +1,15 @@
 ---
 title: Modal
-description: Low-level headless modal primitives providing focus containment, document scroll locking, escape dismissal, and unopinionated surface styling.
+description: Low-level modal primitives with focus management, scroll locking, dismissal control, and overridable default surface styles.
 sidebar:
   order: 1
 search:
-  tags: [modal, primitive, overlay, focus trap, headless modal, dialog primitive]
+  tags: [modal, primitive, overlay, focus trap, dialog primitive]
 ---
 
 import { Button, Modal } from '@src'
 
 ## Import
-
-Import the component and its subcomponents from the package root:
 
 ```tsx
 import { Modal } from 'moraine'
@@ -19,8 +17,6 @@ import type { ModalT } from 'moraine'
 ```
 
 ## Playground
-
-Interactive component preview with configurable props.
 
 <Playground
   controls={[
@@ -41,10 +37,10 @@ Interactive component preview with configurable props.
           contentRender={(context) => (
             <div class="p-5 gap-4 grid">
               <div>
-                <h4 class="text-sm text-foreground font-semibold">Custom Primitive Surface</h4>
+                <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
                 <p class="text-xs text-muted-foreground leading-relaxed mt-1">
-                  Low-level modal primitives provide focus trapping, scroll locking, and dismissal
-                  with arbitrary layouts.
+                  Modal provides focus management, scroll locking, dismissal, and overridable
+                  default surface styles.
                 </p>
               </div>
               <div class="flex gap-2 justify-end">
@@ -62,46 +58,39 @@ Interactive component preview with configurable props.
 
 ## Features
 
-- **Unopinionated Headless Architecture**: Pure structural primitives (`Modal`, `Modal.Trigger`, `Modal.Content`) with complete styling freedom.
-- **Robust Focus Trap & Restore**: Automatically restricts Tab navigation inside the active surface and restores focus accurately on close.
-- **Scroll Lock & Portal Rendering**: Renders outside the main DOM tree via Portal and safely prevents background body scroll bleed.
-- **Dismissible & Backdrop Control**: Configure backdrop overlay rendering and handle click-outside or ESC dismissal.
-- **WAI-ARIA Dialog Compliance**: Supports `ariaLabel`, `ariaLabelledBy`, and `role="dialog"`.
+- **Composable Primitives**: `Modal`, `Modal.Trigger`, and `Modal.Content` separate state, trigger, and portaled content responsibilities.
+- **Overridable Defaults**: `Modal.Content` and the overlay provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
+- **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
+- **Scroll Lock & Portal Rendering**: Portals modal content and prevents background body scrolling while open.
+- **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
+- **Dialog Semantics**: Supports `ariaLabel`, `ariaLabelledBy`, and the dialog role on the content surface.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-Modal (state root & focus manager)
-├── Modal.Trigger (clickable opener button)
-└── Modal.Content (portal container)
-    ├── overlay (optional backdrop screen)
-    └── content (custom surface card)
-        └── contentRender ({ close, open })
+Modal (state provider)
+├── Modal.Trigger
+└── Modal.Content (portal)
+    ├── overlay (optional)
+    └── content
+        └── contentRender ({ close })
 ```
 
-- `Modal`: Coordinates open/close signals and keyboard event listeners.
-- `Modal.Trigger`: Polymorphic element opening the modal on click.
-- `Modal.Content`: Portaled container rendering backdrop and surface.
+- `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.
+- `Modal.Trigger`: Polymorphic element that opens the modal.
+- `Modal.Content`: Portaled overlay and content surface.
 
 ## Examples
 
 ### Basic Composition
 
-Custom media showcase modal built from raw primitive components.
-
 <Example path="./basic" />
 
 ### Controlled State
 
-Externally controlled open signal synchronized with application navigation and status bars.
-
 <Example path="./controlled" />
 
 ### Without Backdrop
-
-Omit the backdrop overlay for non-blocking floating inspection palettes.
 
 <Example path="./no-overlay" />
 
@@ -109,6 +98,6 @@ Omit the backdrop overlay for non-blocking floating inspection palettes.
 
 | Key                    | Description                                                          |
 | ---------------------- | -------------------------------------------------------------------- |
-| <kbd>Escape</kbd>      | Dismisses the modal when `dismissible={true}`.                       |
-| <kbd>Tab</kbd>         | Cycles forward through focusable elements inside the modal surface.  |
-| <kbd>Shift + Tab</kbd> | Cycles backward through focusable elements inside the modal surface. |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                        |
+| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.                    |
+| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope.                   |

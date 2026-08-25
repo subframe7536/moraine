@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: A range slider component supporting single and dual thumb handles, step tick dividers, vertical faders, inverted ranges, and keyboard stepping.
+description: A single- or multi-thumb range slider with step dividers, vertical orientation, inverted direction, and keyboard control.
 sidebar:
   order: 12
 search:
@@ -12,8 +12,6 @@ import { createSignal } from 'solid-js'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Slider } from 'moraine'
 import type { SliderT } from 'moraine'
@@ -21,25 +19,17 @@ import type { SliderT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'default',
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Bold', value: 'bold' },
       ],
     },
     {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -52,7 +42,6 @@ Interactive component preview with configurable props.
 >
   {(props) => {
     const [value, setValue] = createSignal(65)
-
     return (
       <div class="space-y-3">
         <div class="text-xs text-muted-foreground flex items-center justify-between">
@@ -62,9 +51,7 @@ Interactive component preview with configurable props.
         <Slider
           value={value()}
           onValueChange={(val) => {
-            if (typeof val === 'number') {
-              setValue(val)
-            }
+            if (typeof val === 'number') setValue(val)
           }}
           variant={props.variant}
           size={props.size}
@@ -73,88 +60,60 @@ Interactive component preview with configurable props.
         />
       </div>
     )
-
-}}
-
+  }}
 </Playground>
 
 ## Features
 
-- **Single & Dual Thumb Range Selection**: Supports scalar numeric values as well as `[min, max]` intervals with collision gap controls.
-- **Horizontal & Vertical Orientations**: Use standard horizontal layout or switch to vertical faders for equalizers and audio mixer consoles.
-- **Step Intervals & Visual Dividers**: Enable `divider` ticks along the track matching configured `step` intervals.
-- **Inverted Direction Flow**: Flip value direction with `inverted` (e.g. right-to-left or top-to-bottom).
-- **WAI-ARIA Slider Compliance**: Implements `role="slider"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and full keyboard navigation.
+- **Single & Multi-Thumb Values**: Use a scalar number or an array of values for range selection.
+- **Horizontal & Vertical Orientations**: Supports standard horizontal tracks and vertical faders.
+- **Optional Step Dividers**: `divider` renders markers when a positive `step` is configured.
+- **Thumb Constraints**: `minStepsBetweenThumbs` and `allowThumbCrossing` control multi-thumb movement.
+- **Inverted Direction**: `inverted` reverses the value direction while respecting orientation and document direction.
+- **Slider Semantics**: Each thumb exposes `role="slider"`, value metadata, orientation, and disabled/read-only state through ARIA attributes.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (slider track container)
-├── track (background rail)
-│   ├── range (active colored fill highlight)
-│   └── divider (step tick markers ×n, optional)
-└── thumb (draggable handle ×n)
+root
+├── track
+│   ├── range
+│   └── divider (optional ×n)
+└── thumb (×n)
 ```
-
-- `root`: The touch/pointer tracking surface managing coordinate offsets.
-- `track`: The inactive background bar.
-- `range`: The colored segment indicating active progress.
-- `thumb`: Focusable circular handle with active elevation and focus ring.
 
 ## Examples
 
 ### Controlled Single
-
-Interactive audio volume slider with dynamic mute button and live percentage readout.
-
 <Example path="./controlled-single" />
 
 ### Variants
-
-Compare `default` and `bold` track thickness options with optional step tick dividers.
-
 <Example path="./variants" />
 
 ### Sizes
-
-Size scaling across `sm`, `md`, and `lg` adjusting track heights and thumb diameters.
-
 <Example path="./sizes" />
 
 ### Disabled
-
-Non-interactive disabled state maintaining visual value position.
-
 <Example path="./disabled" />
 
 ### Orientations and Invert
-
-Vertical mixer faders and inverted range directions.
-
 <Example path="./orientations" />
 
 ### Range Slider
-
-Dual-thumb price range filter ($50 – $750) with min-gap enforcement.
-
 <Example path="./range-slider" />
 
 ### Form Integration
-
-Validate minimum required slider values inside `Form` and `FormField`.
-
 <Example path="./form-integration" />
 
 ## Keyboard Interactions
 
-| Key                                         | Description                                          |
-| ------------------------------------------- | ---------------------------------------------------- |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Increments the thumb value by `step`.                |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Decrements the thumb value by `step`.                |
-| <kbd>Shift + ArrowRight</kbd>               | Increments by a 10× step jump.                       |
-| <kbd>Shift + ArrowLeft</kbd>                | Decrements by a 10× step jump.                       |
-| <kbd>Home</kbd>                             | Snaps the focused thumb to the slider's `min` bound. |
-| <kbd>End</kbd>                              | Snaps the focused thumb to the slider's `max` bound. |
-| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Steps by a large interval (10× step).                |
+When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized movement is approximately 10% of the range and is snapped to `step` when one is defined.
+
+| Key                                         | Description                                                |
+| ------------------------------------------- | ---------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step.    |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step.    |
+| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                         |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                         |
+| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value.    |
+| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value.    |

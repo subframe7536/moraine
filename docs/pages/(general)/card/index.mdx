@@ -1,6 +1,6 @@
 ---
 title: Card
-description: A structured surface container providing header, title, description, top-right action, body, and footer slots for dashboards, forms, and media presentations.
+description: A structured surface with optional header, title, description, action, body, footer, and compact spacing.
 sidebar:
   order: 6
 search:
@@ -11,8 +11,6 @@ import { Badge, Button, Card } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Card } from 'moraine'
 import type { CardT } from 'moraine'
@@ -20,94 +18,66 @@ import type { CardT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Team Subscription' },
-    {
-      kind: 'input',
-      prop: 'description',
-      label: 'Description',
-      defaultValue: 'Manage billing and team seat limits.',
-    },
+    { kind: 'input', prop: 'description', label: 'Description', defaultValue: 'Manage billing and team seat limits.' },
     { kind: 'switch', prop: 'compact', label: 'Compact', defaultValue: false },
   ]}
 >
-  {(props) => {
-    return (
-      <Card
-        title={props.title}
-        description={props.description}
-        action={<Badge variant="outline">Pro Plan</Badge>}
-        compact={props.compact}
-        footer={
-          <div class="flex w-full items-center justify-between">
-            <span class="text-xs text-muted-foreground">$49 / month</span>
-            <Button size="sm">Manage billing</Button>
-          </div>
-        }
-        class="max-w-full w-96"
-      >
-        <p class="text-xs text-muted-foreground leading-relaxed">
-          Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited
-          seats and SSO integration.
-        </p>
-      </Card>
-    )
-  }}
+  {(props) => (
+    <Card
+      title={props.title}
+      description={props.description}
+      action={<Badge variant="outline">Pro Plan</Badge>}
+      compact={props.compact}
+      footer={
+        <div class="flex w-full items-center justify-between">
+          <span class="text-xs text-muted-foreground">$49 / month</span>
+          <Button size="sm">Manage billing</Button>
+        </div>
+      }
+      class="max-w-full w-96"
+    >
+      <p class="text-xs text-muted-foreground leading-relaxed">
+        Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited
+        seats and SSO integration.
+      </p>
+    </Card>
+  )}
 </Playground>
 
 ## Features
 
-- **Structured Section Slots**: Composable `header`, `title`, `description`, `action`, `body`, and `footer` slots for standard UI patterns.
-- **Header Action Adornment**: Top-right `action` slot for contextual status badges, dropdown action menus, or close buttons.
-- **Comfortable & Compact Densities**: Toggle `compact={true}` for tight table summaries, data density layouts, or sidebar widgets.
-- **Media & Cover Image Embedding**: Easily embed edge-to-edge cover images or interactive preview panels.
-- **Semantic HTML Tagging**: Renders as an accessible section/article surface with consistent theme border tokens (`bg-card`, `border-border`).
+- **Structured Regions**: Compose `header`, `title`, `description`, `action`, body children, and `footer` content.
+- **Header Override**: Supplying `header` replaces the built-in title/description header content.
+- **Compact Spacing**: `compact` reduces header, body, and footer spacing for denser layouts.
+- **Flexible Body Content**: The body accepts arbitrary JSX, including media and interactive controls.
+
+`Card` renders a `<div>` root and does not assign document-section semantics automatically. Add suitable headings, landmarks, or ARIA metadata in the surrounding application when the content requires them.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (card surface container)
-├── header (header region)
-│   ├── titleWrapper
-│   │   ├── title (card heading)
-│   │   └── description (subheading text)
-│   └── action (top-right badge or button)
-├── body (main content area, children)
-└── footer (bottom actions / metadata bar)
+root (<div>)
+├── header (optional)
+│   ├── title (optional)
+│   ├── description (optional)
+│   └── action (optional)
+├── body (children, optional)
+└── footer (optional)
 ```
-
-- `root`: Background card container applying surface styling, rounded borders, and shadows.
-- `header`: Top row organizing title, description, and action button.
-- `body`: Main slot where children are rendered with standard interior padding.
-- `footer`: Bottom row bordered action bar for confirmation buttons or secondary links.
 
 ## Examples
 
 ### Default
-
-Create Project configuration card with text inputs, category selector, and submit actions.
-
 <Example path="./default" />
 
 ### Sizes
-
-Compare comfortable default card padding with `compact` spacing for dense analytics dashboards.
-
 <Example path="./sizes" />
 
 ### With Image
-
-Media card with top cover image banner, tag pill, article title, and author avatar footer.
-
 <Example path="./with-image" />
 
 ### Header Action
-
-Embed top-right status badges or action buttons in the card header.
-
 <Example path="./header-action" />

@@ -1,6 +1,6 @@
 ---
 title: Tooltip
-description: A lightweight hover- and focus-triggered floating hint component anchored to any element, featuring keyboard shortcut keycaps, smart arrow offsets, and dark/light color inversion.
+description: A hover- and focus-triggered hint anchored to a trigger element, with optional keyboard shortcut keycaps and inverted styling.
 sidebar:
   order: 3
 search:
@@ -11,8 +11,6 @@ import { Button, Tooltip } from '@src'
 
 ## Import
 
-Import the component and its companion types from the package root:
-
 ```tsx
 import { Tooltip } from 'moraine'
 import type { TooltipT } from 'moraine'
@@ -20,16 +18,11 @@ import type { TooltipT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Tooltip text', defaultValue: 'Create new document' },
     {
-      kind: 'select',
-      prop: 'placement',
-      label: 'Placement',
-      defaultValue: 'top',
+      kind: 'select', prop: 'placement', label: 'Placement', defaultValue: 'top',
       options: [
         { label: 'Top', value: 'top' },
         { label: 'Bottom', value: 'bottom' },
@@ -41,80 +34,59 @@ Interactive component preview with configurable props.
     { kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
   ]}
 >
-  {(props) => {
-    return (
-      <div class="p-6 flex items-center justify-center">
-        <Tooltip
-          text={props.text}
-          kbds={['⌘', 'N']}
-          placement={props.placement}
-          disabled={props.disabled}
-          invert={props.invert}
-        >
-          {(triggerProps) => (
-            <Button {...triggerProps} variant="outline" leading="i-lucide:file-plus">
-              Hover me
-            </Button>
-          )}
-        </Tooltip>
-      </div>
-    )
-  }}
+  {(props) => (
+    <div class="p-6 flex items-center justify-center">
+      <Tooltip
+        text={props.text}
+        kbds={['⌘', 'N']}
+        placement={props.placement}
+        disabled={props.disabled}
+        invert={props.invert}
+      >
+        {(triggerProps) => (
+          <Button {...triggerProps} variant="outline" leading="i-lucide:file-plus">
+            Hover me
+          </Button>
+        )}
+      </Tooltip>
+    </div>
+  )}
 </Playground>
 
 ## Features
 
-- **Hover & Focus Synchronization**: Automatically displays on pointer hover or keyboard Tab focus with debounced delay timing.
-- **Embedded Shortcut Keycaps (`kbds`)**: Pass an array of keys (`kbds={['⌘', 'K']}`) to automatically render styled inline `Kbd` badges.
-- **Color Inversion Variant**: Toggle `invert={true}` for high-contrast dark keycap styling.
-- **Floating UI Smart Placements**: Supports all 12 Floating UI alignment coordinates (`top`, `bottom`, `left`, `right`) with auto-flip and collision avoidance.
-- **WAI-ARIA Tooltip Pattern**: Uses `role="tooltip"` with `aria-describedby` linking the trigger to the hint text for screen readers.
+- **Hover & Focus Triggers**: Opens from pointer hover or focus and uses configured open/close timing.
+- **Shortcut Keycaps**: `kbds` renders the provided shortcut keys with Moraine's Kbd components.
+- **Inverted Styling**: `invert` switches the tooltip color treatment.
+- **Floating Placement**: Uses the shared Floating UI positioning layer for placement and collision handling.
+- **Tooltip Semantics**: The floating hint uses `role="tooltip"` and associates itself with the trigger through the shared overlay trigger metadata.
+
+Tooltips should contain supplemental, non-interactive information. Do not rely on tooltip text as the only way to label an otherwise unlabeled control.
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-trigger (hoverable / focusable element)
-└── content (floating tooltip portal)
-    ├── text (informational label string)
-    └── kbds (inline keyboard shortcut container, optional)
-        └── kbd (individual key badge ×n)
+trigger
+└── content (portal, role="tooltip")
+    ├── text (optional)
+    └── kbds (optional)
+        └── kbd (×n)
 ```
-
-- `trigger`: Component or HTML element accepting pointer and focus handlers.
-- `content`: Portaled floating pill container with fade and scale animations.
-- `kbds`: Slot displaying keyboard shortcut combinations.
 
 ## Examples
 
 ### Placements
-
-Position tooltips at `top`, `bottom`, `left`, or `right` edges with smart auto-flipping.
-
 <Example path="./placements" />
 
 ### Trigger Types
-
-Attach tooltips to icon buttons, text badges, inline links, and disabled elements.
-
 <Example path="./trigger-types" />
 
 ### Keyboard Shortcuts
-
-Display descriptive action labels alongside keyboard shortcut hotkeys (`⌘ + B`, `Ctrl + Shift + F`).
-
 <Example path="./keyboard-shortcuts" />
 
 ### Text Only vs Shortcuts Only
-
-Compare text-only tooltips, shortcut-only keycaps, and hybrid combination pills.
-
 <Example path="./text-only-vs-shortcuts-only" />
 
 ## Keyboard Interactions
 
-| Key               | Description                                                             |
-| ----------------- | ----------------------------------------------------------------------- |
-| <kbd>Tab</kbd>    | Focusing the trigger element displays the tooltip after standard delay. |
-| <kbd>Escape</kbd> | Dismisses the visible tooltip immediately without shifting focus.       |
+Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the tooltip content.
