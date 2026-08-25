@@ -282,7 +282,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
           <div class="max-w-full w-80">{props.children(values)}</div>
         </div>
         <div
-          class="p-4 border-t border-border/60 bg-muted/20 flex shrink-0 flex-col gap-3.5 w-full md:border-l md:border-t-0 lg:w-72 md:w-64"
+          class="p-4 border-t border-border/60 bg-muted/20 flex shrink-0 flex-col gap-3.5 w-full md:border-l md:border-t-0 lg:w-56 md:w-48"
           role="group"
           aria-label="Example controls"
         >

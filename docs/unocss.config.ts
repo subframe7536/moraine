@@ -23,7 +23,7 @@ const markdownShortCuts = {
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border/60 my-6',
   'docs-inline-code':
-    'mx-[0.15rem] px-1.5 py-0.5 bg-muted/70 border border-border/50 rounded-md text-[0.85em] text-foreground font-mono font-medium [h2>&]:text-lg [h2>&]:lg:text-xl',
+    'mx-[0.15rem] px-1.5 py-0.5 bg-muted/70 border border-border/50 rounded-md text-[0.85em] text-destructive font-mono font-medium [h2>&]:text-lg [h2>&]:lg:text-xl',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,

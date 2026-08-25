@@ -179,7 +179,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                 aria-label="View markdown source"
                 rel="alternate external"
                 type="text/markdown"
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 leading="i-lucide:file-text"
                 class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
@@ -188,7 +188,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
               </Button>
               <Button
                 aria-label="Copy markdown source"
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
                 disabled={!input.markdownSource}
@@ -209,7 +209,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                   href={href()}
                   target="_blank"
                   rel="noreferrer"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   leading="i-lucide:github"
                   class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
@@ -226,7 +226,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                   href={href()}
                   target="_blank"
                   rel="noreferrer"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   leading="icon-external"
                   class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
