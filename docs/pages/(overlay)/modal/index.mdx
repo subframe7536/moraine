@@ -16,6 +16,15 @@ import { Modal } from 'moraine'
 import type { ModalT } from 'moraine'
 ```
 
+## Features
+
+- **Composable Primitives**: `Modal`, `Modal.Trigger`, and `Modal.Content` separate state, trigger, and portaled content responsibilities.
+- **Overridable Defaults**: `Modal.Content` and the overlay provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
+- **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
+- **Scroll Lock & Portal Rendering**: Portals modal content and prevents background body scrolling while open.
+- **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
+- **Dialog Semantics**: Supports `ariaLabel`, `ariaLabelledBy`, and the dialog role on the content surface.
+
 ## Playground
 
 <Playground
@@ -56,15 +65,6 @@ import type { ModalT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Composable Primitives**: `Modal`, `Modal.Trigger`, and `Modal.Content` separate state, trigger, and portaled content responsibilities.
-- **Overridable Defaults**: `Modal.Content` and the overlay provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
-- **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
-- **Scroll Lock & Portal Rendering**: Portals modal content and prevents background body scrolling while open.
-- **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
-- **Dialog Semantics**: Supports `ariaLabel`, `ariaLabelledBy`, and the dialog role on the content surface.
-
 ## Anatomy
 
 ```text
@@ -80,24 +80,38 @@ Modal (state provider)
 - `Modal.Trigger`: Polymorphic element that opens the modal.
 - `Modal.Content`: Portaled overlay and content surface.
 
+## Usage
+
+### Composition
+
+`Modal` is a state provider, not a DOM root. Compose `Modal.Trigger` with `Modal.Content`; the content is portaled and owns the optional overlay plus focus and scroll behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
+
+### State, styling, and exit lifecycle
+
+Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` applies default popup classes only when its `class` is omitted; provide a class when the application owns the content animation. `onExitComplete` waits for the registered overlay and content exit presence to finish.
+
+### Keyboard interaction
+
+| Key                    | Description                                        |
+| ---------------------- | -------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.      |
+| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.  |
+| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope. |
+
 ## Examples
 
-### Basic Composition
+### Basic composition
 
 <Example path="./basic" />
 
-### Controlled State
+### Controlled state
 
 <Example path="./controlled" />
 
-### Without Backdrop
+### Without backdrop
 
 <Example path="./no-overlay" />
 
-## Keyboard Interactions
+### Exit lifecycle
 
-| Key                    | Description                                                          |
-| ---------------------- | -------------------------------------------------------------------- |
-| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                        |
-| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.                    |
-| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope.                   |
+<Example path="./exit-lifecycle" />

@@ -17,13 +17,25 @@ import { MultiSelect } from 'moraine'
 import type { MultiSelectT } from 'moraine'
 ```
 
+## Features
+
+- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
+- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
+- **Token Separators**: Configured delimiter keys can convert typed text into selections.
+- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
+- **Floating UI Positioning**: The listbox is positioned with Floating UI.
+
 ## Playground
 
 <Playground
   controls={[
     { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -32,7 +44,10 @@ import type { MultiSelectT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -68,15 +83,6 @@ import type { MultiSelectT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
-- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
-- **Token Separators**: Configured delimiter keys can convert typed text into selections.
-- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
-- **Floating UI Positioning**: The listbox is positioned with Floating UI.
-
 ## Anatomy
 
 ### Control
@@ -101,35 +107,41 @@ content
     └── empty (optional)
 ```
 
+## Usage
+
+### Values, search, and creation
+
+The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant options are enabled.
+
+### Large option sets
+
+Use groups to organize options and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
+
+### Keyboard interaction
+
+| Key                              | Description                                                              |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                           |
+| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                            |
+| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it. |
+| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.              |
+| <kbd>Escape</kbd>                | Closes the listbox.                                                      |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                             |
+
 ## Examples
 
-### Multiple Select
-<Example path="./multiple-select" />
+### Create tags
 
-### Sizes
-<Example path="./sizes" />
-
-### Token Separators
-<Example path="./token-separators" />
-
-### Create New Tags
 <Example path="./create-new-tags" />
 
-### Max Count & Max Tag Count
+### Token separators
+
+<Example path="./token-separators" />
+
+### Selection limits
+
 <Example path="./max-count-max-tag-count" />
 
 ### Virtualization
-Virtualization reduces mounted option rows; frame rate and capacity depend on row content, browser workload, and virtualizer configuration.
 
 <Example path="./virtualization" />
-
-## Keyboard Interactions
-
-| Key                              | Description                                                                   |
-| -------------------------------- | ----------------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                                |
-| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                                 |
-| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it.      |
-| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                   |
-| <kbd>Escape</kbd>                | Closes the listbox.                                                           |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                                  |

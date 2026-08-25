@@ -16,13 +16,30 @@ import { Input } from 'moraine'
 import type { InputT } from 'moraine'
 ```
 
+## Features
+
+- **Leading & Trailing Adornments**: Render icon names or custom content before or after the native input.
+- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none` styling modes.
+- **Loading Indicator**: `loading` replaces one adornment position with `loadingIcon`; it does not manage an asynchronous operation itself.
+- **Composable Actions**: Add password visibility, clear, copy, or shortcut controls as caller-owned children or adjacent controls when needed.
+- **FormField Integration**: Inherits field identity and state and applies generated validation/accessibility metadata to the native input.
+- **Model Modifiers**: Supports value modifiers such as `trim`, `lazy`, and `number` through `modelModifiers`.
+
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Search repositories...' },
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Search repositories...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -31,7 +48,10 @@ import type { InputT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -54,15 +74,6 @@ import type { InputT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Leading & Trailing Adornments**: Render icon names or custom content before or after the native input.
-- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none` styling modes.
-- **Loading Indicator**: `loading` replaces one adornment position with `loadingIcon`; it does not manage an asynchronous operation itself.
-- **Composable Actions**: Add password visibility, clear, copy, or shortcut controls as caller-owned children or adjacent controls when needed.
-- **FormField Integration**: Inherits field identity and state and applies generated validation/accessibility metadata to the native input.
-- **Model Modifiers**: Supports value modifiers such as `trim`, `lazy`, and `number` through `modelModifiers`.
-
 ## Anatomy
 
 ```text
@@ -77,27 +88,31 @@ root
 - `input`: Native form control that owns text entry and focus.
 - `leading` / `trailing`: Adornment slots; a loading icon can replace one of them.
 
-## Examples
+## Usage
 
-### Variants
-<Example path="./input-variants" />
+### Native input behavior
 
-### Sizes
-<Example path="./input-sizes" />
+`Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and `defaultValue` for an initial uncontrolled value. `readOnly` keeps the field focusable without allowing edits; `disabled` removes it from interaction.
 
-### With Icons
-<Example path="./input-with-icons" />
+### Composed controls
 
-### States
-The examples compose loading, read-only, copy, and validation UI. Copy and clear actions are application composition rather than built-in Input behavior.
+Use leading and trailing content for static context such as an icon or unit. Password visibility, clearing, copying, and loading ownership remain application behavior: compose buttons into the slots and provide their labels and handlers.
 
-<Example path="./input-states" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 `Input` keeps native input keyboard behavior. Moraine does not add a built-in Escape-to-clear or search-submit shortcut.
 
-| Key              | Description                                                               |
-| ---------------- | ------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>   | Moves focus to the input according to normal document focus order.        |
-| <kbd>Enter</kbd> | Participates in native form submission when the surrounding form allows.  |
+| Key              | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| <kbd>Tab</kbd>   | Moves focus to the input according to normal document focus order.       |
+| <kbd>Enter</kbd> | Participates in native form submission when the surrounding form allows. |
+
+## Examples
+
+### States
+
+<Example path="./input-states" />
+
+### Leading and trailing content
+
+<Example path="./input-with-icons" />

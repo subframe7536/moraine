@@ -16,13 +16,30 @@ import { Select } from 'moraine'
 import type { SelectT } from 'moraine'
 ```
 
+## Features
+
+- **Optional Search**: Enable `search` to use the combobox input for filtering and typeahead interaction.
+- **Grouped Options**: Options can be organized into labeled, non-selectable groups.
+- **Incremental Loading**: Use the listbox loading hooks to append options as the user reaches the end of the list.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger option sets.
+- **Clearable Selection**: `allowClear` adds a clear action when a value is selected.
+- **Combobox/Listbox Semantics**: Exposes combobox/listbox roles, expanded state, active option metadata, and keyboard navigation appropriate to the current mode.
+
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select a framework...' },
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Select a framework...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -31,7 +48,10 @@ import type { SelectT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -64,15 +84,6 @@ import type { SelectT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Optional Search**: Enable `search` to use the combobox input for filtering and typeahead interaction.
-- **Grouped Options**: Options can be organized into labeled, non-selectable groups.
-- **Incremental Loading**: Use the listbox loading hooks to append options as the user reaches the end of the list.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger option sets.
-- **Clearable Selection**: `allowClear` adds a clear action when a value is selected.
-- **Combobox/Listbox Semantics**: Exposes combobox/listbox roles, expanded state, active option metadata, and keyboard navigation appropriate to the current mode.
-
 ## Anatomy
 
 ### Trigger control
@@ -95,42 +106,46 @@ content
     └── empty (optional)
 ```
 
+## Usage
+
+### Value and search state
+
+Use `value` with `onChange` for controlled selection, or a default value for local state. Search, clear affordances, grouped options, and loading are separate concerns; provide the option collection and any incremental loading behavior from your application.
+
+### Large and remote collections
+
+Virtualization is appropriate for large, stable option lists. Infinite loading should be driven by application state and deterministic loading callbacks; the component does not fetch data itself.
+
+### Keyboard interaction
+
+| Key                              | Description                                                    |
+| -------------------------------- | -------------------------------------------------------------- |
+| <kbd>Enter</kbd>                 | Opens the listbox or selects the active option.                |
+| <kbd>Space</kbd>                 | Opens/selects where the current trigger/input mode permits it. |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next available option.       |
+| <kbd>ArrowUp</kbd>               | Moves to the previous available option.                        |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                   |
+| <kbd>Escape</kbd>                | Closes the listbox without changing the selected value.        |
+| <kbd>Tab</kbd>                   | Leaves the control according to normal document focus order.   |
+
 ## Examples
 
-### Single Select
-<Example path="./single-select" />
+### Searchable options
 
-### Variants
-<Example path="./variants" />
-
-### Sizes
-<Example path="./sizes" />
-
-### Disabled
-<Example path="./disabled" />
-
-### Searchable
 <Example path="./searchable" />
 
-### Grouped Options
+### Grouped options
+
 <Example path="./grouped-options" />
 
-### Infinite Scroll
+### Incremental loading
+
 <Example path="./infinite-scroll" />
 
 ### Virtualization
-Virtualization reduces the number of mounted option rows; actual performance depends on item rendering and environment.
 
 <Example path="./virtualization" />
 
-## Keyboard Interactions
+### Disabled state
 
-| Key                              | Description                                                      |
-| -------------------------------- | ---------------------------------------------------------------- |
-| <kbd>Enter</kbd>                 | Opens the listbox or selects the active option.                   |
-| <kbd>Space</kbd>                 | Opens/selects where the current trigger/input mode permits it.    |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next available option.          |
-| <kbd>ArrowUp</kbd>               | Moves to the previous available option.                           |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                      |
-| <kbd>Escape</kbd>                | Closes the listbox without changing the selected value.           |
-| <kbd>Tab</kbd>                   | Leaves the control according to normal document focus order.      |
+<Example path="./states" />

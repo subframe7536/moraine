@@ -16,13 +16,30 @@ import { CommandPalette } from 'moraine'
 import type { CommandPaletteT } from 'moraine'
 ```
 
+## Features
+
+- **Inline or Modal Composition**: Render the palette inline or place it inside `Dialog` when your application needs a modal command surface. Global shortcuts such as Cmd/Ctrl+K are registered by the application, not by `CommandPalette` itself.
+- **Search & Groups**: Filters command items while preserving grouped presentation.
+- **Custom Regions**: Supports `leadingRender`, `trailingRender`, `footerRender`, and custom item rendering.
+- **Sub-Navigation**: The sub-navigation APIs let a command surface replace its visible item set while remaining open.
+- **Combobox/Listbox Metadata**: The search input and result list expose the roles and active-item metadata used by keyboard navigation.
+- **Loading State**: `loading` changes the palette presentation; asynchronous request orchestration remains caller-owned.
+
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Search commands or pages...' },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Search commands or pages...',
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -38,18 +55,45 @@ import type { CommandPaletteT } from 'moraine'
         id: 'workspace',
         label: 'Workspace Actions',
         items: [
-          { value: 'new-issue', label: 'Create New Issue', leadingRender: () => <Icon name="i-lucide:circle-plus" />, trailingRender: () => <KbdGroup items={['⌘', 'N']} size="sm" /> },
-          { value: 'open-inbox', label: 'Open Notifications', leadingRender: () => <Icon name="i-lucide:inbox" />, trailingRender: () => <KbdGroup items={['⌘', 'I']} size="sm" /> },
-          { value: 'sync-roadmap', label: 'Sync Roadmap', leadingRender: () => <Icon name="i-lucide:refresh-cw" />, description: 'Pull the latest project updates' },
+          {
+            value: 'new-issue',
+            label: 'Create New Issue',
+            leadingRender: () => <Icon name="i-lucide:circle-plus" />,
+            trailingRender: () => <KbdGroup items={['⌘', 'N']} size="sm" />,
+          },
+          {
+            value: 'open-inbox',
+            label: 'Open Notifications',
+            leadingRender: () => <Icon name="i-lucide:inbox" />,
+            trailingRender: () => <KbdGroup items={['⌘', 'I']} size="sm" />,
+          },
+          {
+            value: 'sync-roadmap',
+            label: 'Sync Roadmap',
+            leadingRender: () => <Icon name="i-lucide:refresh-cw" />,
+            description: 'Pull the latest project updates',
+          },
         ],
       },
       {
         id: 'navigation',
         label: 'Navigation',
         items: [
-          { value: 'go-dashboard', label: 'Dashboard Overview', leadingRender: () => <Icon name="i-lucide:layout-dashboard" /> },
-          { value: 'go-projects', label: 'Projects Directory', leadingRender: () => <Icon name="i-lucide:folder-kanban" /> },
-          { value: 'go-settings', label: 'Settings & Security', leadingRender: () => <Icon name="i-lucide:settings" /> },
+          {
+            value: 'go-dashboard',
+            label: 'Dashboard Overview',
+            leadingRender: () => <Icon name="i-lucide:layout-dashboard" />,
+          },
+          {
+            value: 'go-projects',
+            label: 'Projects Directory',
+            leadingRender: () => <Icon name="i-lucide:folder-kanban" />,
+          },
+          {
+            value: 'go-settings',
+            label: 'Settings & Security',
+            leadingRender: () => <Icon name="i-lucide:settings" />,
+          },
         ],
       },
     ]
@@ -65,10 +109,19 @@ import type { CommandPaletteT } from 'moraine'
           footerRender={() => (
             <div class="text-xs text-muted-foreground flex gap-4 items-center justify-between">
               <div class="flex flex-wrap gap-3 items-center">
-                <div class="flex gap-1.5 items-center"><KbdGroup items={['↑', '↓']} size="sm" /><span>Navigate</span></div>
-                <div class="flex gap-1.5 items-center"><Kbd value="enter" size="sm" /><span>Select</span></div>
+                <div class="flex gap-1.5 items-center">
+                  <KbdGroup items={['↑', '↓']} size="sm" />
+                  <span>Navigate</span>
+                </div>
+                <div class="flex gap-1.5 items-center">
+                  <Kbd value="enter" size="sm" />
+                  <span>Select</span>
+                </div>
               </div>
-              <div class="flex gap-1.5 items-center"><Kbd value="escape" size="sm" /><span>Close</span></div>
+              <div class="flex gap-1.5 items-center">
+                <Kbd value="escape" size="sm" />
+                <span>Close</span>
+              </div>
             </div>
           )}
         />
@@ -76,15 +129,6 @@ import type { CommandPaletteT } from 'moraine'
     )
   }}
 </Playground>
-
-## Features
-
-- **Inline or Modal Composition**: Render the palette inline or place it inside `Dialog` when your application needs a modal command surface. Global shortcuts such as Cmd/Ctrl+K are registered by the application, not by `CommandPalette` itself.
-- **Search & Groups**: Filters command items while preserving grouped presentation.
-- **Custom Regions**: Supports `leadingRender`, `trailingRender`, `footerRender`, and custom item rendering.
-- **Sub-Navigation**: The sub-navigation APIs let a command surface replace its visible item set while remaining open.
-- **Combobox/Listbox Metadata**: The search input and result list expose the roles and active-item metadata used by keyboard navigation.
-- **Loading State**: `loading` changes the palette presentation; asynchronous request orchestration remains caller-owned.
 
 ## Anatomy
 
@@ -101,40 +145,44 @@ root
 └── footer (optional)
 ```
 
+## Usage
+
+### Groups, filtering, and selection
+
+Pass groups and items from application state. The palette filters the supplied collection and invokes item selection callbacks; fetching commands, routing, and global keyboard shortcuts are application-owned.
+
+### Custom states and navigation
+
+Use the custom item renderer for a changed item layout, and provide loading or empty content when those states need explanation. Sub-navigation should represent a short, deliberate branch of commands rather than a complete application shell.
+
+### Keyboard interaction
+
+| Key                              | Description                                                            |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd>             | Moves to the next available command.                                   |
+| <kbd>ArrowUp</kbd>               | Moves to the previous available command.                               |
+| <kbd>Enter</kbd>                 | Activates the current command.                                         |
+| <kbd>Escape</kbd>                | Clears the current query or requests close according to current state. |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available command.                          |
+
 ## Examples
 
-### Basic
+### Basic palette
+
 <Example path="./usage" />
 
-### Real-World Example
-Shows an application-level global shortcut opening the palette in a dialog.
+### Custom item rendering
 
-<Example path="./real-world-example" />
-
-### Custom Item Render
 <Example path="./custom-item-render" />
 
-### Description Position
-<Example path="./description-position" />
+### Custom empty state
 
-### Custom Empty State
 <Example path="./custom-empty-state" />
 
 ### Loading
+
 <Example path="./loading" />
 
-### With Close Button
-<Example path="./with-close-button" />
+### Sub-navigation
 
-### Sub-Navigation
 <Example path="./sub-navigation" />
-
-## Keyboard Interactions
-
-| Key                              | Description                                                           |
-| -------------------------------- | --------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd>             | Moves to the next available command.                                  |
-| <kbd>ArrowUp</kbd>               | Moves to the previous available command.                              |
-| <kbd>Enter</kbd>                 | Activates the current command.                                        |
-| <kbd>Escape</kbd>                | Clears the current query or requests close according to current state.|
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available command.                          |

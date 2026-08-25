@@ -165,7 +165,7 @@ describe('llms.txt generation', () => {
       expect(introduction).toContain('npm i moraine')
       expect(button).toContain('[`Button`](https://ui.subf.dev/button.md)')
       expect(button).toContain('function Basic()')
-      expect(button).toContain('## API Reference')
+      expect(button).toContain('## API')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('#### `root`')
       expect(button).toContain('##### ARIA Attributes')

@@ -19,6 +19,14 @@ import { SidebarFrame, SidebarFrameSheetResizableRender } from 'moraine'
 import type { SidebarFrameT } from 'moraine'
 ```
 
+## Features
+
+- **Responsive Breakpoint Adaptation**: Automatically switches from desktop fixed/resizable sidebar to mobile overlay slide-out `Sheet` drawer.
+- **3 Visual Styles**: Supports `default` (flush side border), `floating` (detached floating card rail), and `inset` (recessed canvas background).
+- **Sidebar Sides (`left` & `right`)**: Place navigation on the left or secondary inspector/property panels on the right.
+- **Resizable Drawer Adapter**: Integrates with `SidebarFrameSheetResizableRender` for draggable panel resizing and mini-rail collapse states.
+- **Dedicated Slot Regions**: Clean modular separation of `sidebarHeaderRender`, `sidebarBodyRender`, `sidebarFooterRender`, and `mainRender`.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -96,14 +104,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **Responsive Breakpoint Adaptation**: Automatically switches from desktop fixed/resizable sidebar to mobile overlay slide-out `Sheet` drawer.
-- **3 Visual Styles**: Supports `default` (flush side border), `floating` (detached floating card rail), and `inset` (recessed canvas background).
-- **Sidebar Sides (`left` & `right`)**: Place navigation on the left or secondary inspector/property panels on the right.
-- **Resizable Drawer Adapter**: Integrates with `SidebarFrameSheetResizableRender` for draggable panel resizing and mini-rail collapse states.
-- **Dedicated Slot Regions**: Clean modular separation of `sidebarHeaderRender`, `sidebarBodyRender`, `sidebarFooterRender`, and `mainRender`.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -121,40 +121,26 @@ root (app shell container)
 - `sidebar`: Responsive navigation container with width variables (`--sidebar-width`).
 - `main`: Content viewport container.
 
+## Usage
+
+### Responsive composition
+
+SidebarFrame chooses a desktop resizable sidebar or mobile sheet according to its responsive configuration. The application supplies navigation content and decides when forced mobile behavior is useful for previews or constrained layouts.
+
+### Slots and side
+
+Use header and footer slots for persistent frame content. Side configuration affects placement, not the navigation semantics of the children you render.
+
 ## Examples
 
-### Basic
-
-Desktop layout with workspace switcher, navigation links, and main view.
-
-<Example path="./basic" />
-
-### Variants
-
-Compare `default`, `floating`, and `inset` layout variants.
-
-<Example path="./variants" />
-
-### Sides
-
-Position the sidebar on the `left` (navigation) or `right` (inspector panel).
-
-<Example path="./sides" />
-
-### SheetResizableRender
-
-Interactive resizable sidebar with drag divider, collapse button, and mini rail icon state.
+### Mobile Sheet and desktop Resizable
 
 <Example path="./sheet-resizable-render" />
 
-### ForcedMobile
-
-Force mobile view behavior to test mobile drawer toggle actions.
+### Forced mobile mode
 
 <Example path="./forced-mobile" />
 
-### Header and Footer Slots
-
-Fixed header (workspace branding) and fixed footer (user account menu) with scrollable middle navigation body.
+### Header and footer slots
 
 <Example path="./header-footer-slots" />

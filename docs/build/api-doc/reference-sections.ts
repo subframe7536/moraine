@@ -32,7 +32,5 @@ export function getApiReferenceTocEntries(
     sections.push({ id: 'api-inherited', label: 'Inherited', level: 2 })
   }
 
-  return sections.length > 0
-    ? [{ id: 'api-reference', label: 'API Reference', level: 1 }, ...sections]
-    : []
+  return sections.length > 0 ? [{ id: 'api-reference', label: 'API', level: 1 }, ...sections] : []
 }

@@ -41,6 +41,14 @@ export function NotificationForm() {
 }
 ```
 
+## Features
+
+- **Formisch + Valibot**: `createForm` provides the reactive store and schema validation used by Moraine form controls.
+- **Form Context**: `Form` provides its store to nested `FormField` components so controls can bind values, validation metadata, and field events.
+- **Submission State**: Formisch manages submission state; Moraine mirrors `of.isSubmitting` as `data-submitting` on the form root for styling or coordination.
+- **Nested Paths**: Formisch field names can target nested and array values supported by the store.
+- **Native Reset Coordination**: Moraine coordinates native form reset with Formisch so control state returns to the store snapshot.
+
 ## Playground
 
 <Playground
@@ -76,16 +84,10 @@ export function NotificationForm() {
         </Show>
       </Form>
     )
-  }}
+
+}}
+
 </Playground>
-
-## Features
-
-- **Formisch + Valibot**: `createForm` provides the reactive store and schema validation used by Moraine form controls.
-- **Form Context**: `Form` provides its store to nested `FormField` components so controls can bind values, validation metadata, and field events.
-- **Submission State**: Formisch manages submission state; Moraine mirrors `of.isSubmitting` as `data-submitting` on the form root for styling or coordination.
-- **Nested Paths**: Formisch field names can target nested and array values supported by the store.
-- **Native Reset Coordination**: Moraine coordinates native form reset with Formisch so control state returns to the store snapshot.
 
 ## Anatomy
 
@@ -96,20 +98,34 @@ root (<form> managed by Formisch)
 
 `Form` does not automatically disable child controls during submission. Use the form store's submission state when your application needs that behavior.
 
-## Examples
+## Usage
 
-### Workspace Provisioning
-<Example path="./workspace-provisioning" />
+### Creating and submitting a form
 
-### Release Readiness Checklist
-<Example path="./release-readiness-checklist" />
+Create the Formisch store with `createForm`, then pass it through `of`. The submit callback receives the schema output only after successful validation. `Form` provides that store to descendant `FormField` components; it does not automatically disable controls or choose a loading UI while a submission is pending.
 
-### Incident Escalation Policy
-<Example path="./incident-escalation-policy" />
+### Submission and reset
 
-### Access Request Review
-<Example path="./access-request-review" />
+Read `form.isSubmitting` in application code to derive button loading or disabled state. Native reset events are coordinated with Formisch: a `type="reset"` button restores the store input and metadata snapshot unless an `onReset` handler prevents the event.
 
-## Keyboard Interactions
+### Keyboard interaction
 
 `Form` relies on native form and child-control keyboard behavior. For example, Enter can submit from eligible single-line form controls, while Tab follows normal document focus order.
+
+## Examples
+
+### Validation
+
+<Example path="./validation" />
+
+### Async submit
+
+<Example path="./async-submit" />
+
+### Reset
+
+<Example path="./reset" />
+
+### Mixed fields
+
+<Example path="./mixed-fields" />

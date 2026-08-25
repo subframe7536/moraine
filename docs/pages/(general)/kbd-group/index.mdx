@@ -18,6 +18,13 @@ import { KbdGroup } from 'moraine'
 import type { KbdGroupT } from 'moraine'
 ```
 
+## Features
+
+- **Simultaneous Chords (`items`)**: Joins keys pressed at the same time (e.g. `⌘ + K` or `Ctrl + Shift + P`) with a configurable plus separator.
+- **Sequential Multi-Step Chords (`sequence`)**: Supports multi-stage keyboard commands (e.g. `g` then `i` for Git inbox, or `Ctrl+K` then `Ctrl+S`).
+- **Custom Dividers**: Customize delimiter characters between simultaneous keys (`+`, `-`) or ordered steps (`then`, `->`).
+- **Cascading Size & Variant Propagation**: Uniformly applies size and color styling across all nested keycaps.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -48,13 +55,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **Simultaneous Chords (`items`)**: Joins keys pressed at the same time (e.g. `⌘ + K` or `Ctrl + Shift + P`) with a configurable plus separator.
-- **Sequential Multi-Step Chords (`sequence`)**: Supports multi-stage keyboard commands (e.g. `g` then `i` for Git inbox, or `Ctrl+K` then `Ctrl+S`).
-- **Custom Dividers**: Customize delimiter characters between simultaneous keys (`+`, `-`) or ordered steps (`then`, `->`).
-- **Cascading Size & Variant Propagation**: Uniformly applies size and color styling across all nested keycaps.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -72,28 +72,16 @@ root (kbd group container)
 - `divider`: Plus sign or joiner glyph.
 - `sequenceDivider`: Text separator indicating temporal succession.
 
+## Usage
+
+Use `KbdGroup` to display simultaneous keys or ordered sequences. Choose dividers that make the intended relationship clear; the rendered notation is descriptive and does not register a shortcut.
+
 ## Examples
-
-### Basic
-
-Simultaneous modifier chord combinations (`⌘ + Shift + P`, `Ctrl + Alt + Del`).
-
-<Example path="./basic" />
 
 ### Sequences
 
-Sequential VS Code and Vim style chords (`Ctrl + K` then `Ctrl + S`, `g` then `p`).
-
 <Example path="./sequences" />
 
-### Custom Dividers
-
-Configure custom separators like arrows, text labels, or bullet points.
+### Custom dividers
 
 <Example path="./custom-dividers" />
-
-### Sizes
-
-Size scale from `sm` to `lg`.
-
-<Example path="./sizes" />

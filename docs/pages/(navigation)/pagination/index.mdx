@@ -17,19 +17,36 @@ import { Pagination } from 'moraine'
 import type { PaginationT } from 'moraine'
 ```
 
+## Features
+
+- **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
+- **Edge Controls**: `showEdges` adds controls for the first and last page; `showControls` controls previous/next buttons.
+- **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
+- **Polymorphic Page Items**: Configure page controls to render with the element/component shape required by your router or application.
+- **Controlled State**: `page` and `onPageChange` support application-owned page state.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'input', prop: 'itemsPerPage', label: 'Items per page', defaultValue: 10, inputType: 'number' },
+    {
+      kind: 'input',
+      prop: 'itemsPerPage',
+      label: 'Items per page',
+      defaultValue: 10,
+      inputType: 'number',
+    },
     { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
   ]}
 >
@@ -51,14 +68,6 @@ import type { PaginationT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
-- **Edge Controls**: `showEdges` adds controls for the first and last page; `showControls` controls previous/next buttons.
-- **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
-- **Polymorphic Page Items**: Configure page controls to render with the element/component shape required by your router or application.
-- **Controlled State**: `page` and `onPageChange` support application-owned page state.
-
 ## Anatomy
 
 ```text
@@ -69,20 +78,26 @@ root (pagination navigation)
     └── item → next (optional)
 ```
 
-## Examples
+## Usage
 
-### Variants
-<Example path="./variants" />
+### Current page
 
-### Sizes
-<Example path="./sizes" />
+Use `page` with `onChange` for controlled navigation. The component calculates the visible sibling window and edge controls; the surrounding application owns data fetching and URL updates.
 
-### Controlled
-<Example path="./controlled" />
+### Rendering links
 
-### Minimal
-<Example path="./minimal" />
+Use the supported polymorphic rendering path when page controls should be links. Ensure the resulting link target and current-page semantics fit the router in use.
 
-## Keyboard Interactions
+### Keyboard interaction
 
 Pagination does not add collection-style arrow navigation. Each interactive page control uses the keyboard semantics of its rendered button, link, or custom polymorphic element.
+
+## Examples
+
+### Controlled page
+
+<Example path="./controlled" />
+
+### Minimal pagination
+
+<Example path="./minimal" />

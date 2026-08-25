@@ -16,6 +16,15 @@ import { Accordion } from 'moraine'
 import type { AccordionT } from 'moraine'
 ```
 
+## Features
+
+- **Single & Multiple Expansion**: `multiple={false}` keeps at most one item open; enable `multiple` for concurrent sections.
+- **Collapse Control**: `collapsible={false}` prevents the last open item from being collapsed in single-selection mode.
+- **Presence-Based Content Transition**: Expanded content is measured for disclosure styling and can remain mounted through its exit transition.
+- **Disclosure Semantics**: Each item uses an `<h3>` header and `<button>` trigger with `aria-expanded`; an expanded trigger references its content with `aria-controls`.
+- **Keyboard Focus Navigation**: Arrow keys, Home, and End move among enabled triggers; `loopFocus` controls wrapping.
+- **Per-Item Disabling**: Disable individual sections or the entire accordion.
+
 ## Playground
 
 <Playground
@@ -53,17 +62,10 @@ import type { AccordionT } from 'moraine'
         />
       </div>
     )
-  }}
+
+}}
+
 </Playground>
-
-## Features
-
-- **Single & Multiple Expansion**: `multiple={false}` keeps at most one item open; enable `multiple` for concurrent sections.
-- **Collapse Control**: `collapsible={false}` prevents the last open item from being collapsed in single-selection mode.
-- **Presence-Based Content Transition**: Expanded content is measured for disclosure styling and can remain mounted through its exit transition.
-- **Disclosure Semantics**: Each item uses an `<h3>` header and `<button>` trigger with `aria-expanded`; an expanded trigger references its content with `aria-controls`.
-- **Keyboard Focus Navigation**: Arrow keys, Home, and End move among enabled triggers; `loopFocus` controls wrapping.
-- **Per-Item Disabling**: Disable individual sections or the entire accordion.
 
 ## Anatomy
 
@@ -78,23 +80,36 @@ root
     └── content
 ```
 
+## Usage
+
+### Open items
+
+Use a single value for one open item or an array when multiple items may be open. In controlled usage, pair the value with `onChange`. `collapsible` determines whether the currently open item may be closed.
+
+### Content lifetime
+
+Accordion item content can remain mounted or unmount while closed according to its configuration. Choose based on whether hidden controls need to preserve local state.
+
+### Keyboard interaction
+
+| Key                                 | Description                                  |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
+| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
+| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
+
 ## Examples
 
-### Single
+### Single item
+
 <Example path="./single" />
 
-### Multiple
+### Multiple items
+
 <Example path="./multiple" />
 
-### Disabled + Custom Content
+### Disabled and custom content
+
 <Example path="./disabled-custom-content" />
-
-## Keyboard Interactions
-
-| Key                                 | Description                                                   |
-| ----------------------------------- | ------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.                     |
-| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.                      |
-| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger.                  |
-| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.                     |
-| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.                      |

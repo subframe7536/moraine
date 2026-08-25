@@ -69,8 +69,10 @@ describe('component documentation example coverage', () => {
       expect(source.match(/^## Playground\s*$/gm), page).toHaveLength(1)
       expect(source).not.toContain('### Playground')
       expect(source, page).not.toContain('path="./playground"')
-      expect(examples.length, page).toBeGreaterThanOrEqual(3)
-      expect(new Set(examples).size, page).toBeGreaterThanOrEqual(3)
+      // Playgrounds cover common visual prop matrices. A component page needs one focused,
+      // copy-ready recipe, not an arbitrary minimum number of gallery examples.
+      expect(examples.length, page).toBeGreaterThanOrEqual(1)
+      expect(new Set(examples).size, page).toBe(examples.length)
 
       for (const examplePath of examples) {
         expect(() => resolveExampleFile(page, examplePath)).not.toThrow()
@@ -79,7 +81,7 @@ describe('component documentation example coverage', () => {
       allReferences.push(...examples.map((examplePath) => `${page}:${examplePath}`))
     }
 
-    expect(allReferences.length).toBeGreaterThan(186)
+    expect(allReferences.length).toBeGreaterThanOrEqual(pages.length)
     expect(collectFiles(PAGES_ROOT, (file) => path.basename(file) === 'playground.tsx')).toEqual([])
   })
 })

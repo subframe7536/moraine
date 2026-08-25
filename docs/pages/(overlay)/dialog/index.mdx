@@ -16,6 +16,14 @@ import { Dialog } from 'moraine'
 import type { DialogT } from 'moraine'
 ```
 
+## Features
+
+- **Focus Management**: Constrains keyboard focus while the dialog is open and restores focus when it closes.
+- **Scroll Lock & Overlay**: Prevents background document scrolling while open and can render a backdrop overlay.
+- **Structured Content**: Provides `title`, `description`, `body`, `footer`, and close-button regions.
+- **Dismissal Control**: Set `dismissible={false}` to block normal dismissal. Use `onClosePrevent` to observe prevented close attempts.
+- **Dialog Semantics**: The dialog surface provides `role="dialog"`, `aria-modal`, and title/description associations when those regions are present.
+
 ## Playground
 
 <Playground
@@ -59,14 +67,6 @@ import type { DialogT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Focus Management**: Constrains keyboard focus while the dialog is open and restores focus when it closes.
-- **Scroll Lock & Overlay**: Prevents background document scrolling while open and can render a backdrop overlay.
-- **Structured Content**: Provides `title`, `description`, `body`, `footer`, and close-button regions.
-- **Dismissal Control**: Set `dismissible={false}` to block normal dismissal. Use `onClosePrevent` to observe prevented close attempts.
-- **Dialog Semantics**: The dialog surface provides `role="dialog"`, `aria-modal`, and title/description associations when those regions are present.
-
 ## Anatomy
 
 ```text
@@ -87,26 +87,34 @@ trigger
 - `content`: Modal surface.
 - `header` / `body` / `footer`: Structured content regions.
 
+## Usage
+
+### State and dismissal
+
+Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility. `dismissible={false}` blocks outside and Escape dismissal and calls `onClosePrevent`; provide a clear explicit close path in that case.
+
+### Structure and lifecycle
+
+Use title and description so the dialog receives an accessible name and description. `scrollable` and `fullscreen` change the content structure, while `onExitComplete` runs only after the exit presence motion finishes.
+
+### Keyboard interaction
+
+| Key                    | Description                                                        |
+| ---------------------- | ------------------------------------------------------------------ |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                      |
+| <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
+| <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
+
 ## Examples
 
-### Default Shell
+### Basic dialog
 
-<Example path="./default-shell" />
+<Example path="./basic" />
 
-### Variants
+### Scrollable and fullscreen content
 
-<Example path="./variants" />
+<Example path="./scrollable-fullscreen" />
 
-### Long Content + Dismissible Control
+### Controlled lifecycle
 
-Use `dismissible={false}` when an interaction must explicitly allow closing, and handle prevented attempts with `onClosePrevent` when needed.
-
-<Example path="./long-content-dismissible-control" />
-
-## Keyboard Interactions
-
-| Key                    | Description                                                                 |
-| ---------------------- | --------------------------------------------------------------------------- |
-| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                              |
-| <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.          |
-| <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog.         |
+<Example path="./controlled-lifecycle" />

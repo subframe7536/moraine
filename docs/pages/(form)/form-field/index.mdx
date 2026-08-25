@@ -26,6 +26,14 @@ When used inside `Form`, a named `FormField` automatically subscribes to schema 
 </FormField>
 ```
 
+## Features
+
+- **Automated ARIA Association**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`) with the child control using deterministic IDs.
+- **Formisch Schema Integration**: Binds nested or flat path names (`['users', 0, 'email']`) with type-safe schema validation.
+- **Vertical & Horizontal Layouts**: Switch to `orientation="horizontal"` for 1-to-3 grid columns common in desktop settings and admin consoles.
+- **Render Context & Error Reactivity**: Child function render prop receives `{ invalid, error, size, disabled, required }` to dynamically tailor child components.
+- **Granular Slots**: Supports separate slots for `label`, `hint`, `description`, `help`, and `error`.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -71,14 +79,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **Automated ARIA Association**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`) with the child control using deterministic IDs.
-- **Formisch Schema Integration**: Binds nested or flat path names (`['users', 0, 'email']`) with type-safe schema validation.
-- **Vertical & Horizontal Layouts**: Switch to `orientation="horizontal"` for 1-to-3 grid columns common in desktop settings and admin consoles.
-- **Render Context & Error Reactivity**: Child function render prop receives `{ invalid, error, size, disabled, required }` to dynamically tailor child components.
-- **Granular Slots**: Supports separate slots for `label`, `hint`, `description`, `help`, and `error`.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -102,57 +102,39 @@ root
 - `container`: Bottom or right section holding the input control and error feedback.
 - `error`: Rendered conditionally when validation errors exist, automatically setting `role="alert"`.
 
-## Examples
+## Usage
 
-### Basic
+### Binding a field
 
-Complete vertical field layout with label, optional hint, helper description, input control, and help footer.
+Inside `Form`, give `FormField` a typed `name` to bind a descendant Moraine control to that Formisch path. An unnamed field is useful for layout and explicit accessibility metadata, but does not subscribe to form state.
 
-<Example path="./basic" />
+### Labels, messages, and custom controls
 
-### With Validation
+`label`, `description`, help text, and errors are associated with supported child controls. Use `error` for application-owned validation messages. A child render function receives live field metadata when a custom control needs to react to invalid, disabled, required, or size state.
 
-Integrates with Formisch schema stores to display inline error validation messages automatically upon blur or submit.
-
-<Example path="./with-validation" />
-
-### Horizontal Layout
-
-Uses `orientation="horizontal"` to place the label on the left column and controls on the right, perfect for account settings and profile forms.
-
-<Example path="./horizontal-layout" />
-
-### Registration Form
-
-Compose multiple fields into a cohesive multi-input form layout with unified spacing and alignment.
-
-<Example path="./registration-form" />
-
-### Sizes
-
-Preview the typography and spacing scale across `sm`, `md`, and `lg`.
-
-<Example path="./sizes" />
-
-### Manual Error
-
-Explicitly set an `error` string or boolean to force an error state without schema validation.
-
-<Example path="./manual-error" />
-
-### Render Context
-
-Pass a render function as children to receive live field state `{ error, invalid, size }` and adapt your custom controls.
-
-<Example path="./render-context" />
-
-### Nested Path
-
-Type-safe schema binding with array path notation for deeply nested objects and arrays.
-
-<Example path="./nested-path" />
-
-## Accessibility
+### Accessibility
 
 - Automatically injects `id`, `aria-labelledby`, `aria-describedby`, and `aria-invalid` onto supported child controls.
 - Renders error messages with `role="alert"` so screen readers immediately announce validation issues.
+
+## Examples
+
+### Validation
+
+<Example path="./with-validation" />
+
+### Manual error
+
+<Example path="./manual-error" />
+
+### Render context
+
+<Example path="./render-context" />
+
+### Nested path
+
+<Example path="./nested-path" />
+
+### Horizontal layout
+
+<Example path="./horizontal-layout" />

@@ -18,6 +18,13 @@ import { Avatar, AvatarGroup } from 'moraine'
 import type { AvatarGroupT } from 'moraine'
 ```
 
+## Features
+
+- **Negative Spacing Stacking**: Automatically overlays avatars with matching background ring borders to cleanly delineate adjacent items.
+- **Dynamic Overflow Truncation**: When total items exceed `max`, extra avatars are summarized into an accessible `+N` badge.
+- **Cascading Size Control**: Setting `size` on `AvatarGroup` automatically propagates to all nested avatars and the overflow badge.
+- **Interactive Depth Elevation**: Individual avatars lift on hover with elevation z-index so users can inspect obscured faces.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -71,13 +78,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **Negative Spacing Stacking**: Automatically overlays avatars with matching background ring borders to cleanly delineate adjacent items.
-- **Dynamic Overflow Truncation**: When total items exceed `max`, extra avatars are summarized into an accessible `+N` badge.
-- **Cascading Size Control**: Setting `size` on `AvatarGroup` automatically propagates to all nested avatars and the overflow badge.
-- **Interactive Depth Elevation**: Individual avatars lift on hover with elevation z-index so users can inspect obscured faces.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -95,22 +95,14 @@ root (horizontal avatar stack)
 - `item`: Composed child `Avatar` instances.
 - `count`: Badge showing remaining count when `children.length > max`.
 
+## Usage
+
+### Grouping avatars
+
+Use `AvatarGroup` to apply consistent overlap and ordering to a collection of Avatar children. Configure an overflow indicator when only a bounded number should be visible; it communicates a count, not the omitted identities.
+
 ## Examples
 
-### Basic
-
-Standard overlapping team member stack with ring borders.
-
-<Example path="./basic" />
-
-### Overflow Count
-
-Truncates 6 team contributors to 3 visible avatars with an interactive `+3` overflow badge.
+### Overflow indicator
 
 <Example path="./overflow" />
-
-### Sizes
-
-Size scaling across `sm`, `md`, and `lg` adjusting ring thicknesses and negative margin overlaps.
-
-<Example path="./sizes" />

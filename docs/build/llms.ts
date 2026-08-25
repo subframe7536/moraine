@@ -197,7 +197,7 @@ function renderItem(item: ItemDoc): string[] {
 }
 
 function renderApiReference(apiDoc: ComponentDoc): string {
-  const output = ['## API Reference', '']
+  const output = ['## API', '']
 
   if (apiDoc.slots.length > 0) {
     output.push('### Attributes', '')

@@ -16,12 +16,23 @@ import { Popover } from 'moraine'
 import type { PopoverT } from 'moraine'
 ```
 
+## Features
+
+- **Floating UI Positioning**: Anchors to the trigger and uses the shared Popper positioning layer for collision-aware placement.
+- **Click & Hover Modes**: `mode="click"` is the default; hover mode supports `openDelay` and `closeDelay` and also responds to trigger focus/blur.
+- **Dismissal Control**: Outside interaction and Escape close a dismissible popover. With `dismissible={false}`, those close attempts are prevented and can be observed through `onClosePrevent`.
+- **Optional Modal Behavior**: `modal` and `preventScroll` are forwarded to the underlying Popper primitive when modal interaction is required.
+- **Dialog Semantics**: The floating content uses `role="dialog"`; provide `ariaLabel` when the dialog does not have another accessible naming mechanism.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'placement', label: 'Placement', defaultValue: 'bottom',
+      kind: 'select',
+      prop: 'placement',
+      label: 'Placement',
+      defaultValue: 'bottom',
       options: [
         { label: 'Bottom', value: 'bottom' },
         { label: 'Top', value: 'top' },
@@ -63,14 +74,6 @@ import type { PopoverT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Floating UI Positioning**: Anchors to the trigger and uses the shared Popper positioning layer for collision-aware placement.
-- **Click & Hover Modes**: `mode="click"` is the default; hover mode supports `openDelay` and `closeDelay` and also responds to trigger focus/blur.
-- **Dismissal Control**: Outside interaction and Escape close a dismissible popover. With `dismissible={false}`, those close attempts are prevented and can be observed through `onClosePrevent`.
-- **Optional Modal Behavior**: `modal` and `preventScroll` are forwarded to the underlying Popper primitive when modal interaction is required.
-- **Dialog Semantics**: The floating content uses `role="dialog"`; provide `ariaLabel` when the dialog does not have another accessible naming mechanism.
-
 ## Anatomy
 
 ```text
@@ -79,17 +82,26 @@ trigger
     └── body (optional)
 ```
 
-## Examples
+## Usage
 
-### Placements
-<Example path="./placements" />
+### Trigger modes and state
 
-### Hover Mode
-<Example path="./hover-mode" />
+Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
 
-### Dismiss Control
-<Example path="./dismiss-control" />
+### Dismissal and accessibility
 
-## Keyboard Interactions
+Escape and outside interaction close a dismissible popover. When a popover has no visible label, provide `ariaLabel`. Modal and scroll-prevention behavior should be used only when the interaction genuinely requires it.
+
+### Keyboard interaction
 
 Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. Moraine does not imply a focus trap unless modal behavior is explicitly enabled by the underlying overlay configuration.
+
+## Examples
+
+### Hover mode
+
+<Example path="./hover-mode" />
+
+### Dismiss control
+
+<Example path="./dismiss-control" />

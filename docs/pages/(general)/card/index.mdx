@@ -16,12 +16,26 @@ import { Card } from 'moraine'
 import type { CardT } from 'moraine'
 ```
 
+## Features
+
+- **Structured Regions**: Compose `header`, `title`, `description`, `action`, body children, and `footer` content.
+- **Header Override**: Supplying `header` replaces the built-in title/description header content.
+- **Compact Spacing**: `compact` reduces header, body, and footer spacing for denser layouts.
+- **Flexible Body Content**: The body accepts arbitrary JSX, including media and interactive controls.
+
+`Card` renders a `<div>` root and does not assign document-section semantics automatically. Add suitable headings, landmarks, or ARIA metadata in the surrounding application when the content requires them.
+
 ## Playground
 
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Team Subscription' },
-    { kind: 'input', prop: 'description', label: 'Description', defaultValue: 'Manage billing and team seat limits.' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Manage billing and team seat limits.',
+    },
     { kind: 'switch', prop: 'compact', label: 'Compact', defaultValue: false },
   ]}
 >
@@ -40,21 +54,12 @@ import type { CardT } from 'moraine'
       class="max-w-full w-96"
     >
       <p class="text-xs text-muted-foreground leading-relaxed">
-        Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited
-        seats and SSO integration.
+        Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited seats
+        and SSO integration.
       </p>
     </Card>
   )}
 </Playground>
-
-## Features
-
-- **Structured Regions**: Compose `header`, `title`, `description`, `action`, body children, and `footer` content.
-- **Header Override**: Supplying `header` replaces the built-in title/description header content.
-- **Compact Spacing**: `compact` reduces header, body, and footer spacing for denser layouts.
-- **Flexible Body Content**: The body accepts arbitrary JSX, including media and interactive controls.
-
-`Card` renders a `<div>` root and does not assign document-section semantics automatically. Add suitable headings, landmarks, or ARIA metadata in the surrounding application when the content requires them.
 
 ## Anatomy
 
@@ -68,16 +73,26 @@ root (<div>)
 └── footer (optional)
 ```
 
+## Usage
+
+### Structured content
+
+Use the title, description, body, footer, and action regions for a conventional card layout. For a non-standard header, replace that region with custom content rather than forcing text-only props into a richer design.
+
+### Semantics
+
+Card is a layout surface. Choose an appropriate root element or add the heading and link semantics required by the surrounding page.
+
 ## Examples
 
-### Default
-<Example path="./default" />
+### Image
 
-### Sizes
-<Example path="./sizes" />
-
-### With Image
 <Example path="./with-image" />
 
-### Header Action
+### Header action
+
 <Example path="./header-action" />
+
+### Custom header
+
+<Example path="./custom-header" />

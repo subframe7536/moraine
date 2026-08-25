@@ -16,6 +16,13 @@ import { Icon } from 'moraine'
 import type { IconT } from 'moraine'
 ```
 
+## Features
+
+- **UnoCSS Icon Classes**: String names are applied as icon utility classes, including application-defined aliases such as `icon-search`.
+- **JSX & Component Sources**: `name` can also be a JSX node or Solid component.
+- **Explicit Sizing**: Numeric `size` values are interpreted as pixels; string values are passed through as CSS font-size values.
+- **Decorative by Default**: When no `aria-label` is provided, the rendered icon receives `aria-hidden="true"`. Add an accessible label when the icon itself carries meaning.
+
 ## Playground
 
 <Playground
@@ -31,13 +38,6 @@ import type { IconT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **UnoCSS Icon Classes**: String names are applied as icon utility classes, including application-defined aliases such as `icon-search`.
-- **JSX & Component Sources**: `name` can also be a JSX node or Solid component.
-- **Explicit Sizing**: Numeric `size` values are interpreted as pixels; string values are passed through as CSS font-size values.
-- **Decorative by Default**: When no `aria-label` is provided, the rendered icon receives `aria-hidden="true"`. Add an accessible label when the icon itself carries meaning.
-
 ## Anatomy
 
 ```text
@@ -46,13 +46,22 @@ root (dynamic icon element)
 
 For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.
 
+## Usage
+
+### Icon sources
+
+Pass a supported icon name, JSX element, or component source. Use an icon as decoration only when adjacent text already names the meaning; otherwise provide an accessible label on the meaningful control or icon.
+
+### Slots
+
+The icon's slot name supports targeted class and style customization without introducing a separate wrapper.
+
 ## Examples
 
-### Icon Sizes
-<Example path="./icon-sizes" />
+### JSX icon
 
-### Icon Gallery
-<Example path="./icon-gallery" />
-
-### Icon as JSX
 <Example path="./icon-as-jsx" />
+
+### Accessibility
+
+<Example path="./accessibility" />

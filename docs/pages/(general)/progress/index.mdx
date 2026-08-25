@@ -16,13 +16,24 @@ import { Progress } from 'moraine'
 import type { ProgressT } from 'moraine'
 ```
 
+## Features
+
+- **Determinate & Indeterminate Modes**: Provide a value for determinate progress or use an indeterminate animation when completion cannot be measured.
+- **Animation Presets**: `carousel`, `reverse`, `swing`, and `elastic` provide built-in indeterminate motion styles.
+- **Step Markers**: Supply step labels to display discrete milestones along the progress track.
+- **Horizontal & Vertical Orientations**: Choose the track direction that fits the surrounding layout.
+- **Progressbar Metadata**: Exposes `role="progressbar"` and value-related ARIA attributes for determinate progress.
+
 ## Playground
 
 <Playground
   controls={[
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -32,16 +43,15 @@ import type { ProgressT } from 'moraine'
     { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
   ]}
 >
-  {(props) => <Progress value={props.value} size={props.size} status={props.status} animation={props.animation} />}
+  {(props) => (
+    <Progress
+      value={props.value}
+      size={props.size}
+      status={props.status}
+      animation={props.animation}
+    />
+  )}
 </Playground>
-
-## Features
-
-- **Determinate & Indeterminate Modes**: Provide a value for determinate progress or use an indeterminate animation when completion cannot be measured.
-- **Animation Presets**: `carousel`, `reverse`, `swing`, and `elastic` provide built-in indeterminate motion styles.
-- **Step Markers**: Supply step labels to display discrete milestones along the progress track.
-- **Horizontal & Vertical Orientations**: Choose the track direction that fits the surrounding layout.
-- **Progressbar Metadata**: Exposes `role="progressbar"` and value-related ARIA attributes for determinate progress.
 
 ## Anatomy
 
@@ -54,19 +64,30 @@ root
     └── step (×n)
 ```
 
+## Usage
+
+### Progress models
+
+Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+
+### Semantics and animation
+
+The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+
 ## Examples
 
-### Sizes
-<Example path="./sizes" />
+### Determinate progress
 
-### Orientations
-<Example path="./orientations" />
-
-### Determinate
 <Example path="./determinate" />
 
-### Animations
+### Step mode
+
+<Example path="./step-mode" />
+
+### Animation
+
 <Example path="./animations" />
 
-### Step Mode
-<Example path="./step-mode" />
+### Orientation
+
+<Example path="./orientations" />

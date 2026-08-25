@@ -16,13 +16,26 @@ import { Tooltip } from 'moraine'
 import type { TooltipT } from 'moraine'
 ```
 
+## Features
+
+- **Hover & Focus Triggers**: Opens from pointer hover or focus and uses configured open/close timing.
+- **Shortcut Keycaps**: `kbds` renders the provided shortcut keys with Moraine's Kbd components.
+- **Inverted Styling**: `invert` switches the tooltip color treatment.
+- **Floating Placement**: Uses the shared Floating UI positioning layer for placement and collision handling.
+- **Tooltip Semantics**: The floating hint uses `role="tooltip"` and associates itself with the trigger through the shared overlay trigger metadata.
+
+Tooltips should contain supplemental, non-interactive information. Do not rely on tooltip text as the only way to label an otherwise unlabeled control.
+
 ## Playground
 
 <Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Tooltip text', defaultValue: 'Create new document' },
     {
-      kind: 'select', prop: 'placement', label: 'Placement', defaultValue: 'top',
+      kind: 'select',
+      prop: 'placement',
+      label: 'Placement',
+      defaultValue: 'top',
       options: [
         { label: 'Top', value: 'top' },
         { label: 'Bottom', value: 'bottom' },
@@ -53,16 +66,6 @@ import type { TooltipT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Hover & Focus Triggers**: Opens from pointer hover or focus and uses configured open/close timing.
-- **Shortcut Keycaps**: `kbds` renders the provided shortcut keys with Moraine's Kbd components.
-- **Inverted Styling**: `invert` switches the tooltip color treatment.
-- **Floating Placement**: Uses the shared Floating UI positioning layer for placement and collision handling.
-- **Tooltip Semantics**: The floating hint uses `role="tooltip"` and associates itself with the trigger through the shared overlay trigger metadata.
-
-Tooltips should contain supplemental, non-interactive information. Do not rely on tooltip text as the only way to label an otherwise unlabeled control.
-
 ## Anatomy
 
 ```text
@@ -73,20 +76,26 @@ trigger
         └── kbd (×n)
 ```
 
-## Examples
+## Usage
 
-### Placements
-<Example path="./placements" />
+### Supplemental information
 
-### Trigger Types
-<Example path="./trigger-types" />
+Use tooltips for non-interactive hints that supplement an already labeled trigger. Do not use tooltip text as the sole accessible name of an icon-only control.
 
-### Keyboard Shortcuts
-<Example path="./keyboard-shortcuts" />
+### Triggering and shortcuts
 
-### Text Only vs Shortcuts Only
-<Example path="./text-only-vs-shortcuts-only" />
+Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut.
 
-## Keyboard Interactions
+### Keyboard interaction
 
 Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the tooltip content.
+
+## Examples
+
+### Trigger types
+
+<Example path="./trigger-types" />
+
+### Keyboard shortcuts
+
+<Example path="./keyboard-shortcuts" />

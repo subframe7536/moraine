@@ -38,6 +38,14 @@ export default function App() {
 }
 ```
 
+## Features
+
+- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` updates message tone and icons as a promise settles.
+- **Multiple Semantic Tones**: Dedicated methods for `toast.success()`, `toast.error()`, `toast.warning()`, and `toast.info()`.
+- **Scoped Multi-Toaster Instances**: Target specific viewport regions or modal contexts using `toasterId`.
+- **Dismissal & Duration Controls**: Custom per-toast timeouts, progress timers, and manual `toast.dismiss()` triggers.
+- **Accessible ARIA Live Regions**: Announces messages via `role="status"` and `aria-live="polite"` or `aria-live="assertive"`.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -92,14 +100,6 @@ Interactive component preview with configurable props.
 
 </Playground>
 
-## Features
-
-- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` seamlessly updates message tone and icons in-place as network calls resolve.
-- **Multiple Semantic Tones**: Dedicated methods for `toast.success()`, `toast.error()`, `toast.warning()`, and `toast.info()`.
-- **Scoped Multi-Toaster Instances**: Target specific viewport regions or modal contexts using `toasterId`.
-- **Dismissal & Duration Controls**: Custom per-toast timeouts, progress timers, and manual `toast.dismiss()` triggers.
-- **Accessible ARIA Live Regions**: Announces messages via `role="status"` and `aria-live="polite"` or `aria-live="assertive"`.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -118,22 +118,22 @@ Toaster (viewport container)
 - `Toaster`: Mounts at top-level root managing stacking, gaps, and z-index.
 - `Toast`: Individual animated notification card.
 
+## Usage
+
+### Setup
+
+Toast is provided by the `solid-toaster` integration, not a Moraine component export. Import its stylesheet and mount a `Toaster` host before calling `toast` methods.
+
+### Calls and lifecycles
+
+Use semantic toast calls for immediate feedback and `toast.promise` for a promise whose pending, success, and error states need distinct messages. Duration and scoped instances are supplied to the toaster integration.
+
 ## Examples
 
-### Basic Toasts
-
-Send success, error, warning, and info notification toasts to the global toaster.
+### Basic toasts
 
 <Example path="./basic-toasts" />
 
-### Promise + Scoped Instances
-
-Track async git push operations with `toast.promise` and target scoped sub-toasters.
+### Promise and scoped instances
 
 <Example path="./promise-scoped-instances" />
-
-### Duration and Dismissal
-
-Customize display duration in milliseconds, or dismiss all notifications programmatically.
-
-<Example path="./duration" />

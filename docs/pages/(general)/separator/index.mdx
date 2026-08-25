@@ -16,12 +16,22 @@ import { Separator } from 'moraine'
 import type { SeparatorT } from 'moraine'
 ```
 
+## Features
+
+- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` metadata.
+- **Border Styles**: Choose `solid`, `dashed`, or `dotted`.
+- **Thickness Scale**: `sm`, `md`, and `lg` adjust the rendered separator thickness.
+- **Semantic or Decorative Use**: The root always renders as `<div role="separator">`; `decorative` adds `aria-hidden="true"` so assistive technologies ignore it.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'sm',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'sm',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -29,7 +39,10 @@ import type { SeparatorT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'type', label: 'Border Style', defaultValue: 'solid',
+      kind: 'select',
+      prop: 'type',
+      label: 'Border Style',
+      defaultValue: 'solid',
       options: [
         { label: 'Solid', value: 'solid' },
         { label: 'Dashed', value: 'dashed' },
@@ -47,26 +60,18 @@ import type { SeparatorT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` metadata.
-- **Border Styles**: Choose `solid`, `dashed`, or `dotted`.
-- **Thickness Scale**: `sm`, `md`, and `lg` adjust the rendered separator thickness.
-- **Semantic or Decorative Use**: The root always renders as `<div role="separator">`; `decorative` adds `aria-hidden="true"` so assistive technologies ignore it.
-
 ## Anatomy
 
 ```text
 root (<div role="separator">)
 ```
 
+## Usage
+
+Use a semantic separator when it marks a real thematic break, and decorative mode for purely visual division. Choose horizontal or vertical orientation to match the surrounding layout.
+
 ## Examples
 
-### Sizes
-<Example path="./sizes" />
+### Orientation and semantics
 
-### Types
-<Example path="./types" />
-
-### Vertical
-<Example path="./orientation" />
+<Example path="./orientation-and-types" />

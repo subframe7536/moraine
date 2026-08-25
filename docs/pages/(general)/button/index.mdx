@@ -16,6 +16,15 @@ import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
 ```
 
+## Features
+
+- **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
+- **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
+- **Controlled Loading**: Use `loading` directly when loading state comes from external state.
+- **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
+- **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
+- **Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
+
 ## Playground
 
 <Playground
@@ -67,15 +76,6 @@ import type { ButtonT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
-- **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
-- **Controlled Loading**: Use `loading` directly when loading state comes from external state.
-- **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
-- **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
-- **Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
-
 ## Anatomy
 
 ```text
@@ -89,37 +89,17 @@ root (<button> or polymorphic element)
 - `leading`: Leading adornment; may be replaced by the loading icon.
 - `trailing`: Trailing adornment; may be replaced by the loading icon when no leading adornment exists.
 
-## Examples
+## Usage
 
-### Variants
+### Loading
 
-<Example path="./variants" />
+Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. It does not change how you handle errors or application completion.
 
-### Sizes
+### Icons and polymorphism
 
-<Example path="./sizes" />
+Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. When rendering with `as`, the caller owns the target element's semantics, navigation behavior, and relevant attributes.
 
-### Loading States
-
-Compare controlled `loading` with opt-in `loadingAuto` for promise-returning click handlers.
-
-<Example path="./loading-states" />
-
-#### Loading Placement
-
-<Example path="./loading-placement" />
-
-### Icon Buttons
-
-Icon-only controls should include an accessible name such as `aria-label`.
-
-<Example path="./icon-buttons" />
-
-### Polymorphic
-
-<Example path="./polymorphic" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 Native button keyboard behavior applies when the root is a button. Polymorphic roots inherit the semantics and keyboard behavior of the element or component you provide.
 
@@ -127,3 +107,21 @@ Native button keyboard behavior applies when the root is a button. Polymorphic r
 | ----------------------------------- | ----------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button when it is focused.   |
 | <kbd>Tab</kbd>                      | Moves focus to the button when it is focusable. |
+
+## Examples
+
+### Loading
+
+<Example path="./loading-states" />
+
+### Automatic loading
+
+<Example path="./loading-auto" />
+
+### Icon buttons
+
+<Example path="./icon-buttons" />
+
+### Polymorphic rendering
+
+<Example path="./polymorphic" />

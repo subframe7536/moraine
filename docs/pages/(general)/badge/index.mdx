@@ -16,13 +16,23 @@ import { Badge } from 'moraine'
 import type { BadgeT } from 'moraine'
 ```
 
+## Features
+
+- **Visual Variants**: `default`, `outline`, `solid`, and `subtle` presentations share the same content model.
+- **Leading & Trailing Adornments**: Add icons or other supported adornment content around the label.
+- **Size Scale**: `sm`, `md`, and `lg` adjust padding, typography, and icon sizing.
+- **Presentation Semantics**: Badge is presentational text rather than a special ARIA widget. If a badge contains an interactive control, that control must provide its own semantics and accessible name.
+
 ## Playground
 
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'New feature' },
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'default',
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Outline', value: 'outline' },
@@ -31,7 +41,10 @@ import type { BadgeT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -47,13 +60,6 @@ import type { BadgeT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Visual Variants**: `default`, `outline`, `solid`, and `subtle` presentations share the same content model.
-- **Leading & Trailing Adornments**: Add icons or other supported adornment content around the label.
-- **Size Scale**: `sm`, `md`, and `lg` adjust padding, typography, and icon sizing.
-- **Presentation Semantics**: Badge is presentational text rather than a special ARIA widget. If a badge contains an interactive control, that control must provide its own semantics and accessible name.
-
 ## Anatomy
 
 ```text
@@ -63,13 +69,12 @@ root
 └── trailing (optional)
 ```
 
+## Usage
+
+Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. It does not add interactive behavior or replace an accessible status announcement where one is required.
+
 ## Examples
 
-### Variants
-<Example path="./variants" />
+### Status and metadata
 
-### Sizes
-<Example path="./sizes" />
-
-### Status and Metadata
 <Example path="./status-and-metadata" />

@@ -18,6 +18,13 @@ import { Kbd } from 'moraine'
 import type { KbdT } from 'moraine'
 ```
 
+## Features
+
+- **Automated Platform Symbols**: Maps key strings like `'meta'`, `'ctrl'`, `'shift'`, `'enter'`, `'escape'` to official Mac and Windows glyphs (`⌘`, `⌃`, `⇧`, `↵`, `⎋`).
+- **Semantic `<kbd>` Markup**: Renders semantic HTML `<kbd>` elements with `aria-label` for screen reader accessibility.
+- **Multiple Visual Styles**: Supports `default` (raised surface keycap), `outline` (clean border), and `invert` (high-contrast dark key).
+- **Proportional Size Scale**: Three sizes (`sm`, `md`, `lg`) calibrated to match button, input, and menu font scales.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -73,13 +80,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **Automated Platform Symbols**: Maps key strings like `'meta'`, `'ctrl'`, `'shift'`, `'enter'`, `'escape'` to official Mac and Windows glyphs (`⌘`, `⌃`, `⇧`, `↵`, `⎋`).
-- **Semantic `<kbd>` Markup**: Renders semantic HTML `<kbd>` elements with `aria-label` for screen reader accessibility.
-- **Multiple Visual Styles**: Supports `default` (raised surface keycap), `outline` (clean border), and `invert` (high-contrast dark key).
-- **Proportional Size Scale**: Three sizes (`sm`, `md`, `lg`) calibrated to match button, input, and menu font scales.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -91,22 +91,12 @@ root (semantic HTML <kbd> element)
 
 - `root`: The `<kbd>` element styled with mono typography, border shadow, and rounded corners.
 
+## Usage
+
+Use `Kbd` for a single key or keycap in instructional text. It conveys displayed keyboard notation; application-level shortcut registration and platform-specific behavior remain outside the component.
+
 ## Examples
 
-### Variants
-
-Compare `default` (subtle border and background), `outline` (monochrome border), and `invert` (solid high-contrast).
-
-<Example path="./variants" />
-
-### Sizes
-
-Size scaling from `sm` (table tooltips) to `lg` (onboarding dialogs).
-
-<Example path="./sizes" />
-
-### Inline Usage
-
-Embed single key hints within descriptive prose, buttons, and command palette items.
+### Shortcut composition
 
 <Example path="./shortcut-composition" />

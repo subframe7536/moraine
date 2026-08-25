@@ -16,6 +16,16 @@ import { Avatar } from 'moraine'
 import type { AvatarT } from 'moraine'
 ```
 
+## Features
+
+- **Image Preloading & Status**: Preloads `src` with `Image` in the browser and exposes `idle`, `loading`, `loaded`, or `error` through `data-status` and `onStatusChange`.
+- **Fallback Initials**: Uses explicit `text` when provided; otherwise derives up to two uppercase initials from `alt`.
+- **Icon Fallback**: `fallback` can provide an icon instead of fallback text.
+- **Status Badge**: Position a badge icon in any corner with `badgePosition`.
+- **Accessible Fallback**: The loaded image uses `alt`; while unavailable, fallback content can use `alt` or `text` as its accessible label.
+
+`Avatar` preloads the source before exposing it on the rendered `<img>`. It does not set native `loading="lazy"` automatically.
+
 ## Playground
 
 <Playground
@@ -23,7 +33,10 @@ import type { AvatarT } from 'moraine'
     { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
     { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -46,16 +59,6 @@ import type { AvatarT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Image Preloading & Status**: Preloads `src` with `Image` in the browser and exposes `idle`, `loading`, `loaded`, or `error` through `data-status` and `onStatusChange`.
-- **Fallback Initials**: Uses explicit `text` when provided; otherwise derives up to two uppercase initials from `alt`.
-- **Icon Fallback**: `fallback` can provide an icon instead of fallback text.
-- **Status Badge**: Position a badge icon in any corner with `badgePosition`.
-- **Accessible Fallback**: The loaded image uses `alt`; while unavailable, fallback content can use `alt` or `text` as its accessible label.
-
-`Avatar` preloads the source before exposing it on the rendered `<img>`. It does not set native `loading="lazy"` automatically.
-
 ## Anatomy
 
 ```text
@@ -66,16 +69,26 @@ root (<span>)
 └── badge (optional)
 ```
 
+## Usage
+
+### Image fallbacks
+
+Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
+
+### Loading status
+
+Use image loading and error callbacks when surrounding UI needs to respond to a changed source status.
+
 ## Examples
 
-### Single Avatar
-<Example path="./single-avatar" />
+### Fallback modes
 
-### Sizes
-<Example path="./sizes" />
-
-### Fallback Modes
 <Example path="./fallback-modes" />
 
-### Badge Positions
+### Loading status
+
+<Example path="./status-change" />
+
+### Badge and group composition
+
 <Example path="./badge-positions" />

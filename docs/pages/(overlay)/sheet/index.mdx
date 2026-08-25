@@ -18,6 +18,14 @@ import { Sheet } from 'moraine'
 import type { SheetT } from 'moraine'
 ```
 
+## Features
+
+- **4 Edge Slide Directions**: Opens smoothly from `right` (inspector panel), `left` (mobile navigation), `bottom` (action sheet), or `top` (notification drawer).
+- **Focus Containment & Trapping**: Maintains keyboard Tab focus within the active drawer and restores focus upon dismissal.
+- **Scroll Lock & Backdrop Overlay**: Freezes background viewport scrolling and provides a dark backdrop.
+- **Structured Content Slots**: Predefined slots for `title`, `description`, `body`, `actions`, `footer`, and `close`.
+- **Dismissible & Outside Interaction Control**: Supports click-outside and Escape dismiss with prevention callbacks.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -79,14 +87,6 @@ Interactive component preview with configurable props.
   }}
 </Playground>
 
-## Features
-
-- **4 Edge Slide Directions**: Opens smoothly from `right` (inspector panel), `left` (mobile navigation), `bottom` (action sheet), or `top` (notification drawer).
-- **Focus Containment & Trapping**: Maintains keyboard Tab focus within the active drawer and restores focus upon dismissal.
-- **Scroll Lock & Backdrop Overlay**: Freezes background viewport scrolling and provides a dark backdrop.
-- **Structured Content Slots**: Predefined slots for `title`, `description`, `body`, `actions`, `footer`, and `close`.
-- **Dismissible & Outside Interaction Control**: Supports click-outside and Escape dismiss with prevention callbacks.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -109,30 +109,30 @@ trigger (button opening drawer)
 - `overlay`: Backdrop element handling click-to-dismiss.
 - `content`: Sliding sheet element positioned along viewport edges.
 
-## Examples
+## Usage
 
-### Variants
+### Structured drawer
 
-Compare standard sheet styling with `inset` card frame and custom close action slots.
+Use `side` to choose the viewport edge, then compose title, description, body, actions, and footer through the provided regions. Sheet is the structured alternative to manually composing a Modal surface.
 
-<Example path="./variants" />
+### State and dismissal
 
-### Sides
+Use controlled open state when a layout owns visibility. Disable normal dismissal only when the sheet has a clear explicit close action; `onClosePrevent` receives blocked outside or Escape attempts.
 
-Inspect slideover transitions from all 4 screen edges: `left`, `right`, `top`, and `bottom`.
-
-<Example path="./sides" />
-
-### Dismiss Control
-
-Intercept outside interaction and Escape attempts to warn users about unsaved form edits.
-
-<Example path="./dismiss-control" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 | Key                    | Description                                                  |
 | ---------------------- | ------------------------------------------------------------ |
 | <kbd>Escape</kbd>      | Dismisses the open sheet and returns focus to the trigger.   |
 | <kbd>Tab</kbd>         | Cycles forward through focusable elements inside the sheet.  |
 | <kbd>Shift + Tab</kbd> | Cycles backward through focusable elements inside the sheet. |
+
+## Examples
+
+### Dismiss control
+
+<Example path="./dismiss-control" />
+
+### Sides
+
+<Example path="./sides" />

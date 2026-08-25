@@ -17,19 +17,34 @@ import { Slider } from 'moraine'
 import type { SliderT } from 'moraine'
 ```
 
+## Features
+
+- **Single & Multi-Thumb Values**: Use a scalar number or an array of values for range selection.
+- **Horizontal & Vertical Orientations**: Supports standard horizontal tracks and vertical faders.
+- **Optional Step Dividers**: `divider` renders markers when a positive `step` is configured.
+- **Thumb Constraints**: `minStepsBetweenThumbs` and `allowThumbCrossing` control multi-thumb movement.
+- **Inverted Direction**: `inverted` reverses the value direction while respecting orientation and document direction.
+- **Slider Semantics**: Each thumb exposes `role="slider"`, value metadata, orientation, and disabled/read-only state through ARIA attributes.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'default',
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Bold', value: 'bold' },
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -63,15 +78,6 @@ import type { SliderT } from 'moraine'
   }}
 </Playground>
 
-## Features
-
-- **Single & Multi-Thumb Values**: Use a scalar number or an array of values for range selection.
-- **Horizontal & Vertical Orientations**: Supports standard horizontal tracks and vertical faders.
-- **Optional Step Dividers**: `divider` renders markers when a positive `step` is configured.
-- **Thumb Constraints**: `minStepsBetweenThumbs` and `allowThumbCrossing` control multi-thumb movement.
-- **Inverted Direction**: `inverted` reverses the value direction while respecting orientation and document direction.
-- **Slider Semantics**: Each thumb exposes `role="slider"`, value metadata, orientation, and disabled/read-only state through ARIA attributes.
-
 ## Anatomy
 
 ```text
@@ -82,38 +88,43 @@ root
 └── thumb (×n)
 ```
 
-## Examples
+## Usage
 
-### Controlled Single
-<Example path="./controlled-single" />
+### Single values and ranges
 
-### Variants
-<Example path="./variants" />
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onChange` for controlled state; `onValueChange` is useful when the application needs immediate updates during drag.
 
-### Sizes
-<Example path="./sizes" />
+### Keyboard and forms
 
-### Disabled
-<Example path="./disabled" />
+The thumb supports keyboard stepping, including page-sized increments. Add a `name` for native form participation or use `FormField` when the slider belongs to a Formisch store.
 
-### Orientations and Invert
-<Example path="./orientations" />
-
-### Range Slider
-<Example path="./range-slider" />
-
-### Form Integration
-<Example path="./form-integration" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized movement is approximately 10% of the range and is snapped to `step` when one is defined.
 
-| Key                                         | Description                                                |
-| ------------------------------------------- | ---------------------------------------------------------- |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step.    |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step.    |
-| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                         |
-| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                         |
-| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value.    |
-| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value.    |
+| Key                                         | Description                                             |
+| ------------------------------------------- | ------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step. |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step. |
+| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                      |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                      |
+| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value. |
+| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value. |
+
+## Examples
+
+### Controlled value
+
+<Example path="./controlled-single" />
+
+### Range
+
+<Example path="./range-slider" />
+
+### Form integration
+
+<Example path="./form-integration" />
+
+### Orientation
+
+<Example path="./orientations" />

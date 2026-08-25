@@ -18,6 +18,14 @@ import { Button, ButtonGroup } from 'moraine'
 import type { ButtonGroupT } from 'moraine'
 ```
 
+## Features
+
+- **Connected Button Layout**: Removes intermediate border radii and collapses adjacent borders between grouped buttons.
+- **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
+- **Divider Separator**: Enable `separator={true}` to inject decorative hairline divider borders between adjoining button items.
+- **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
+- **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
+
 ## Playground
 
 Interactive component preview with configurable props.
@@ -64,14 +72,6 @@ Interactive component preview with configurable props.
   )}
 </Playground>
 
-## Features
-
-- **Seamless Edge Merging**: Automatically removes intermediate border radii and collapses adjacent borders into clean connected button rails.
-- **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
-- **Divider Separator**: Enable `separator={true}` to inject decorative hairline divider borders between adjoining button items.
-- **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
-- **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
-
 ## Anatomy
 
 Hierarchical slot and element structure:
@@ -85,53 +85,33 @@ root (button group container)
 - `root`: Flex container managing border collapsing and role orientation.
 - `separator`: Decorative divider element inserted between consecutive buttons.
 
-## Examples
+## Usage
 
-### Basic
+### Composition
 
-Standard text editor alignment toolbar (`Align Left`, `Center`, `Align Right`, `Justify`).
+Use `ButtonGroup` to align related actions without changing the semantics of its children. Compose a menu or popover trigger as a child when an action needs an attached overlay, and use separators only when they clarify distinct action clusters.
 
-<Example path="./basic" />
-
-### Variants
-
-Compare `outline`, `secondary`, and `ghost` button group appearances.
-
-<Example path="./variants" />
-
-### Sizes
-
-Size scaling across `sm`, `md`, and `lg`.
-
-<Example path="./sizes" />
-
-### Orientations
-
-Horizontal action rows and vertical quantity counter controls.
-
-<Example path="./vertical" />
-
-### Separators
-
-Hairline separator dividers cleanly segmenting distinct action clusters.
-
-<Example path="./separator" />
-
-### Popover
-
-Compose an action button with an inline parameter popover trigger.
-
-<Example path="./button-popover" />
-
-### Dropdown
-
-Split button pattern pairing a primary 'Deploy' action with a dropdown menu of deployment targets.
-
-<Example path="./button-dropdown" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 | Key                                 | Description                                                |
 | ----------------------------------- | ---------------------------------------------------------- |
 | <kbd>Tab</kbd>                      | Moves focus sequentially through the buttons in the group. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the currently focused button in the group.       |
+
+## Examples
+
+### Dropdown menu composition
+
+<Example path="./button-dropdown" />
+
+### Popover composition
+
+<Example path="./button-popover" />
+
+### Separators
+
+<Example path="./separator" />
+
+### Vertical layout
+
+<Example path="./vertical" />

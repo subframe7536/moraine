@@ -16,13 +16,29 @@ import { Textarea } from 'moraine'
 import type { TextareaT } from 'moraine'
 ```
 
+## Features
+
+- **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
+- **Row Limits**: Use `minRows` and `maxRows` to bound auto-resized height.
+- **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
+- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
+- **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
+
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Write a comment or description...' },
     {
-      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'outline',
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Write a comment or description...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
       options: [
         { label: 'Outline', value: 'outline' },
         { label: 'Subtle', value: 'subtle' },
@@ -31,7 +47,10 @@ import type { TextareaT } from 'moraine'
       ],
     },
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -54,14 +73,6 @@ import type { TextareaT } from 'moraine'
   )}
 </Playground>
 
-## Features
-
-- **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
-- **Row Limits**: Use `minRows` and `maxRows` to bound auto-resized height.
-- **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
-- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
-- **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
-
 ## Anatomy
 
 ```text
@@ -71,25 +82,35 @@ root
 └── footer (optional)
 ```
 
-## Examples
+## Usage
 
-### Variants
-<Example path="./variants" />
+### Native text behavior
 
-### Sizes
-<Example path="./sizes" />
+`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values. Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
 
-### Autoresize
-<Example path="./autoresize" />
+### Size and composition
 
-### Header + Footer
-<Example path="./header-footer" />
+Enable autoresize and constrain it with `minRows` and `maxRows`. Header and footer regions are composition slots; counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
 
-## Keyboard Interactions
+### Keyboard interaction
 
 Textarea preserves native keyboard behavior. Submit shortcuts such as Cmd/Ctrl+Enter and custom Tab indentation are application-level behaviors that callers can implement when needed.
 
-| Key              | Description                                                     |
-| ---------------- | --------------------------------------------------------------- |
-| <kbd>Enter</kbd> | Inserts a line break in the textarea.                           |
+| Key              | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| <kbd>Enter</kbd> | Inserts a line break in the textarea.                                          |
 | <kbd>Tab</kbd>   | Moves focus according to normal browser behavior unless handled by the caller. |
+
+## Examples
+
+### Autoresize
+
+<Example path="./autoresize" />
+
+### Header and footer
+
+<Example path="./header-footer" />
+
+### Character count
+
+<Example path="./character-count" />

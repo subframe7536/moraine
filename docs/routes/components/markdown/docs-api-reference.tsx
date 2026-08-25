@@ -823,7 +823,7 @@ export const DocsApiReference = (props: DocsApiReferenceProps) => {
   return (
     <Show when={model().sections.length > 0}>
       <HeadingWithAnchor id="api-reference" level={2}>
-        API Reference
+        API
       </HeadingWithAnchor>
       <For each={model().sections}>{(section) => <SectionTableBlock section={section} />}</For>
     </Show>

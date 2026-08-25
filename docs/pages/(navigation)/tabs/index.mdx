@@ -16,6 +16,14 @@ import { Tabs } from 'moraine'
 import type { TabsT } from 'moraine'
 ```
 
+## Features
+
+- **Visual Variants**: `pill`, `link`, and `tab` change presentation without changing the tab data model.
+- **Horizontal & Vertical Orientation**: Orientation controls layout and directional keyboard navigation.
+- **Tab Semantics**: Exposes `tablist`, `tab`, and `tabpanel` roles with selection and ID associations.
+- **Automatic or Manual Activation**: Keyboard navigation can select on focus or wait for explicit activation, depending on `activationMode`.
+- **Controlled & Disabled State**: Control the selected value externally and disable individual tab items.
+
 ## Playground
 
 <Playground
@@ -57,16 +65,10 @@ import type { TabsT } from 'moraine'
         />
       </div>
     )
-  }}
+
+}}
+
 </Playground>
-
-## Features
-
-- **Visual Variants**: `pill`, `link`, and `tab` change presentation without changing the tab data model.
-- **Horizontal & Vertical Orientation**: Orientation controls layout and directional keyboard navigation.
-- **Tab Semantics**: Exposes `tablist`, `tab`, and `tabpanel` roles with selection and ID associations.
-- **Automatic or Manual Activation**: Keyboard navigation can select on focus or wait for explicit activation, depending on `activationMode`.
-- **Controlled & Disabled State**: Control the selected value externally and disable individual tab items.
 
 ## Anatomy
 
@@ -81,27 +83,33 @@ root
 └── content (active role="tabpanel")
 ```
 
-## Examples
+## Usage
 
-### Variants
-<Example path="./variants" />
+### Selected value
 
-### Sizes
-<Example path="./sizes" />
+Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection. Disabled items are skipped during selection and keyboard navigation.
 
-### Orientations
-<Example path="./orientations" />
+### Activation and keyboard navigation
 
-### Controlled + Disabled Items
-<Example path="./controlled-disabled-items" />
+`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode, arrows move focus and Enter or Space selects. `keyboardLoop` controls whether navigation wraps at the first and last enabled items.
 
-## Keyboard Interactions
+### Keyboard interaction
 
 Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
 
-| Key                              | Description                                      |
-| -------------------------------- | ------------------------------------------------ |
-| <kbd>Arrow keys</kbd>            | Moves focus among enabled tabs by orientation.   |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves focus to the first or last enabled tab.    |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.      |
-| <kbd>Tab</kbd>                   | Leaves the tab list according to normal focus order. |
+| Key                                 | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| <kbd>Arrow keys</kbd>               | Moves focus among enabled tabs by orientation.       |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Moves focus to the first or last enabled tab.        |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.            |
+| <kbd>Tab</kbd>                      | Leaves the tab list according to normal focus order. |
+
+## Examples
+
+### Controlled state and disabled items
+
+<Example path="./controlled-disabled-items" />
+
+### Activation mode
+
+<Example path="./activation-mode" />

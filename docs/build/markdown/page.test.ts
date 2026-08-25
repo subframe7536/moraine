@@ -72,7 +72,7 @@ describe('createDocsMdxOptions', () => {
       group: 'general',
       sections: [
         { id: 'button', label: 'Button', level: 1 },
-        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-reference', label: 'API', level: 1 },
         { id: 'api-props', label: 'Props', level: 2 },
       ],
     })
@@ -115,7 +115,7 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.info).toMatchObject({
       sections: [
         { id: 'usage', label: 'Usage', level: 1 },
-        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-reference', label: 'API', level: 1 },
         { id: 'api-props', label: 'Props', level: 2 },
       ],
     })

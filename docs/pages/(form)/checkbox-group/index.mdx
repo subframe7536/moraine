@@ -17,6 +17,15 @@ import { CheckboxGroup } from 'moraine'
 import type { CheckboxGroupT } from 'moraine'
 ```
 
+## Features
+
+- **Array Value Binding**: Supports controlled and uncontrolled `string[]` selection values.
+- **List, Card & Table Variants**: Reuses Checkbox presentation for standard lists, selectable cards, and bordered table-style rows.
+- **Orientation**: Arrange grouped options vertically or horizontally.
+- **Indicator Configuration**: Configure indicator placement and checked/indeterminate icons for the group.
+- **Per-Item State**: Individual items can be disabled or indeterminate and can override their state icons.
+- **FormField Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
+
 ## Playground
 
 <Playground
@@ -68,17 +77,10 @@ import type { CheckboxGroupT } from 'moraine'
         />
       </div>
     )
-  }}
+
+}}
+
 </Playground>
-
-## Features
-
-- **Array Value Binding**: Supports controlled and uncontrolled `string[]` selection values.
-- **List, Card & Table Variants**: Reuses Checkbox presentation for standard lists, selectable cards, and bordered table-style rows.
-- **Orientation**: Arrange grouped options vertically or horizontally.
-- **Indicator Configuration**: Configure indicator placement and checked/indeterminate icons for the group.
-- **Per-Item State**: Individual items can be disabled or indeterminate and can override their state icons.
-- **FormField Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
 
 ## Anatomy
 
@@ -97,29 +99,32 @@ root (<div>)
 
 The outer `root` owns styling and forwarded root props. The nested `<fieldset>` owns group semantics, disabled state, and the optional `<legend>` association.
 
-## Examples
+## Usage
 
-### Variants
-<Example path="./variants" />
+### Selection model
 
-### Sizes
-<Example path="./sizes" />
+The group value is an array of item values. Pair `value` with `onChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
 
-### Orientation
-<Example path="./orientation" />
+### Forms and keyboard behavior
 
-### Indicator
-<Example path="./indicator" />
+The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `FormField` for schema-bound fields.
 
-### Controlled + Disabled Items
-<Example path="./controlled-disabled-items" />
-
-## Keyboard Interactions
+### Keyboard interaction
 
 Each item keeps native checkbox keyboard behavior; the group does not implement radio-style roving focus.
 
-| Key                    | Description                                                   |
-| ---------------------- | ------------------------------------------------------------- |
-| <kbd>Space</kbd>       | Toggles the focused checkbox item.                            |
-| <kbd>Tab</kbd>         | Moves through enabled checkbox items in normal focus order.   |
-| <kbd>Shift + Tab</kbd> | Moves backward in normal focus order.                         |
+| Key                    | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| <kbd>Space</kbd>       | Toggles the focused checkbox item.                          |
+| <kbd>Tab</kbd>         | Moves through enabled checkbox items in normal focus order. |
+| <kbd>Shift + Tab</kbd> | Moves backward in normal focus order.                       |
+
+## Examples
+
+### Controlled value and disabled items
+
+<Example path="./controlled-disabled-items" />
+
+### Custom indicator
+
+<Example path="./indicator" />

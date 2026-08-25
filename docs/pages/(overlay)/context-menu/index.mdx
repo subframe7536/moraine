@@ -16,12 +16,23 @@ import { ContextMenu } from 'moraine'
 import type { ContextMenuT } from 'moraine'
 ```
 
+## Features
+
+- **Pointer-Anchored Positioning**: Opens at the context interaction point and uses the shared floating-positioning layer to stay within available viewport space.
+- **Pointer and Touch Triggers**: Supports context-menu pointer interaction and the component's long-press trigger behavior.
+- **Nested Submenus**: Menu items can contain nested child menus.
+- **Checkbox & Radio Items**: Menu data supports persistent checked items and radio-style single-choice groups.
+- **Menu Semantics**: The menu surface and interactive rows expose menu/menuitem semantics and keyboard-highlight state through the shared menu primitive.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -43,7 +54,10 @@ import type { ContextMenuT } from 'moraine'
             { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
           ],
         },
-        { type: 'group', children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }] },
+        {
+          type: 'group',
+          children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }],
+        },
       ]}
       size={props.size}
       disabled={props.disabled}
@@ -59,14 +73,6 @@ import type { ContextMenuT } from 'moraine'
     </ContextMenu>
   )}
 </Playground>
-
-## Features
-
-- **Pointer-Anchored Positioning**: Opens at the context interaction point and uses the shared floating-positioning layer to stay within available viewport space.
-- **Pointer and Touch Triggers**: Supports context-menu pointer interaction and the component's long-press trigger behavior.
-- **Nested Submenus**: Menu items can contain nested child menus.
-- **Checkbox & Radio Items**: Menu data supports persistent checked items and radio-style single-choice groups.
-- **Menu Semantics**: The menu surface and interactive rows expose menu/menuitem semantics and keyboard-highlight state through the shared menu primitive.
 
 ## Anatomy
 
@@ -84,30 +90,41 @@ trigger
             └── itemTrailing
 ```
 
+## Usage
+
+### Triggering the menu
+
+Wrap the target with the render-function child. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
+
+### Item models
+
+Groups, separators, checkbox items, radio items, disabled items, and nested children are all represented in the public item model. Keep state for checkbox and radio values in the application and update it through item callbacks.
+
+### Keyboard interaction
+
+| Key                                             | Description                                                |
+| ----------------------------------------------- | ---------------------------------------------------------- |
+| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens from a focused trigger when the trigger supports it. |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>       | Moves the active item through available menu entries.      |
+| <kbd>ArrowRight</kbd>                           | Opens an available submenu from its parent item.           |
+| <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                 |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                           |
+| <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
+
 ## Examples
 
-### Sizes
-<Example path="./sizes" />
+### Basic context menu
 
-### Placements
-<Example path="./placements" />
+<Example path="./basic" />
 
-### File Explorer
-<Example path="./file-explorer" />
+### Checkbox and radio items
 
-### Editor Selection
-<Example path="./editor-selection" />
+<Example path="./checkbox-radio" />
 
-### Project / Issue Actions
-<Example path="./project-issue-actions" />
+### Submenus
 
-## Keyboard Interactions
+<Example path="./submenus" />
 
-| Key                                             | Description                                                      |
-| ----------------------------------------------- | ---------------------------------------------------------------- |
-| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens from a focused trigger when the trigger supports it.       |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>       | Moves the active item through available menu entries.            |
-| <kbd>ArrowRight</kbd>                           | Opens an available submenu from its parent item.                 |
-| <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                       |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                                 |
-| <kbd>Escape</kbd>                               | Closes the current menu layer.                                   |
+### Touch long press
+
+<Example path="./long-press" />

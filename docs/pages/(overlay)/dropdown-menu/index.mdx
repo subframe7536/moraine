@@ -16,12 +16,23 @@ import { DropdownMenu } from 'moraine'
 import type { DropdownMenuT } from 'moraine'
 ```
 
+## Features
+
+- **Floating UI Positioning**: Anchors the menu to its trigger through Moraine's shared floating-positioning primitive.
+- **Groups & Separators**: Organize menu items into labeled sections.
+- **Nested Submenus**: Items can open child menus; nesting depth should be chosen with usability and layout constraints in mind rather than treated as unbounded.
+- **Checkbox & Radio Items**: Menu data supports toggle state and radio-style single-choice groups.
+- **Menu Semantics**: The shared menu behavior exposes menu/menuitem roles, highlighted state, and keyboard navigation without claiming conformance beyond the implemented behavior.
+
 ## Playground
 
 <Playground
   controls={[
     {
-      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
       options: [
         { label: 'Small', value: 'sm' },
         { label: 'Medium', value: 'md' },
@@ -43,7 +54,10 @@ import type { DropdownMenuT } from 'moraine'
             { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
           ],
         },
-        { type: 'group', children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }] },
+        {
+          type: 'group',
+          children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }],
+        },
       ]}
       size={props.size}
       disabled={props.disabled}
@@ -56,14 +70,6 @@ import type { DropdownMenuT } from 'moraine'
     </DropdownMenu>
   )}
 </Playground>
-
-## Features
-
-- **Floating UI Positioning**: Anchors the menu to its trigger through Moraine's shared floating-positioning primitive.
-- **Groups & Separators**: Organize menu items into labeled sections.
-- **Nested Submenus**: Items can open child menus; nesting depth should be chosen with usability and layout constraints in mind rather than treated as unbounded.
-- **Checkbox & Radio Items**: Menu data supports toggle state and radio-style single-choice groups.
-- **Menu Semantics**: The shared menu behavior exposes menu/menuitem roles, highlighted state, and keyboard navigation without claiming conformance beyond the implemented behavior.
 
 ## Anatomy
 
@@ -81,27 +87,41 @@ trigger
             └── itemTrailing
 ```
 
+## Usage
+
+### Trigger and items
+
+Render the trigger with the provided props so the menu can provide its click, keyboard, and ARIA behavior. Describe each action in the item model; groups and separators organize that model without adding application state.
+
+### Stateful and nested items
+
+Checkbox and radio-like menu items receive their checked or selected state from your application through their callbacks. Nested children create submenus. Disabled items remain visible but cannot be activated.
+
+### Keyboard interaction
+
+| Key                                                        | Description                                           |
+| ---------------------------------------------------------- | ----------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>ArrowDown</kbd> | Opens the menu from an eligible trigger interaction.  |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>                  | Moves the active item through available menu entries. |
+| <kbd>ArrowRight</kbd>                                      | Opens an available submenu from its parent item.      |
+| <kbd>ArrowLeft</kbd>                                       | Returns from a submenu to its parent menu.            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activates the current menu item.                      |
+| <kbd>Escape</kbd>                                          | Closes the current menu layer.                        |
+
 ## Examples
 
-### Sizes
-<Example path="./sizes" />
+### Basic menu
 
-### Account / Team
-<Example path="./account-team" />
+<Example path="./basic" />
 
-### Editor / View Options
-<Example path="./editor-view-options" />
+### Checkbox and radio items
 
-### Project / Release Actions
-<Example path="./project-release-actions" />
+<Example path="./checkbox-radio" />
 
-## Keyboard Interactions
+### Submenus
 
-| Key                                                        | Description                                              |
-| ---------------------------------------------------------- | -------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>ArrowDown</kbd> | Opens the menu from an eligible trigger interaction.     |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>                  | Moves the active item through available menu entries.    |
-| <kbd>ArrowRight</kbd>                                      | Opens an available submenu from its parent item.         |
-| <kbd>ArrowLeft</kbd>                                       | Returns from a submenu to its parent menu.               |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activates the current menu item.                         |
-| <kbd>Escape</kbd>                                          | Closes the current menu layer.                           |
+<Example path="./submenus" />
+
+### Shortcuts and disabled items
+
+<Example path="./shortcuts-disabled" />
