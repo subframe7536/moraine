@@ -8,12 +8,12 @@ import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'
 
-import { EXAMPLE_PARSE_OPTIONS } from './examples/ast.ts'
 import { docsBuildPlugin } from './plugin.ts'
+import { PREVIEW_PARSE_OPTIONS } from './previews/ast.ts'
 
 const TRANSFORM_CONTEXT = {
   parse(code: string) {
-    return parseSync('example.tsx', code, EXAMPLE_PARSE_OPTIONS).program
+    return parseSync('example.tsx', code, PREVIEW_PARSE_OPTIONS).program
   },
 }
 
@@ -54,7 +54,7 @@ search:
 
 ## Button
 
-<Example path="./basic-example" />
+<Preview path="./basic-example" />
 `,
     'utf8',
   )
@@ -153,13 +153,13 @@ describe('docsBuildPlugin', () => {
           : await load?.handler(resolvedClientId as string)
       expect(expressiveCodeClient).toContain('MutationObserver')
 
-      const exampleModule = await transform?.handler.call(
+      const previewModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
         'export const BasicExample = () => <button>Basic</button>\n',
-        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?example'),
+        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?preview'),
       )
-      expect(exampleModule).toContain('export default { component, source: __ExampleSource }')
-      expect(exampleModule).toContain('?example-source&name=BasicExample')
+      expect(previewModule).toContain('export default { component, source: __PreviewSource }')
+      expect(previewModule).toContain('?preview-source&name=BasicExample')
 
       const markdownModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
@@ -168,14 +168,14 @@ describe('docsBuildPlugin', () => {
       )
       expect(markdownModule).toBeNull()
 
-      const ssrExampleModule = await transform?.handler.call(
+      const ssrPreviewModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
         'export const BasicExample = () => <button>Basic</button>\n',
-        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?example'),
+        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?preview'),
         { ssr: true },
       )
-      expect(ssrExampleModule).toContain('const component = () => null')
-      expect(ssrExampleModule).not.toContain('import { BasicExample as __Example }')
+      expect(ssrPreviewModule).toContain('const component = () => null')
+      expect(ssrPreviewModule).not.toContain('import { BasicExample as __Preview }')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -203,12 +203,12 @@ describe('docsBuildPlugin', () => {
       )
       expect(String(expressiveCodeCss)).toContain(':root.dark')
 
-      const exampleModule = await server.transformRequest(
-        '/pages/(general)/button/basic-example.tsx?example',
+      const previewModule = await server.transformRequest(
+        '/pages/(general)/button/basic-example.tsx?preview',
       )
-      expect(exampleModule?.code).toContain('export default')
-      expect(exampleModule?.code).toContain('source: __ExampleSource')
-      expect(exampleModule?.code).toContain('?example-source&name=BasicExample')
+      expect(previewModule?.code).toContain('export default')
+      expect(previewModule?.code).toContain('source: __PreviewSource')
+      expect(previewModule?.code).toContain('?preview-source&name=BasicExample')
     } finally {
       await server?.close()
       await rm(projectRoot, { recursive: true, force: true })

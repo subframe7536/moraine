@@ -2,26 +2,26 @@ import path from 'node:path'
 
 import { toSingleQuoted } from '../core/strings.ts'
 
-import type { ParseExampleCode, ProgramNode } from './ast.ts'
+import type { ParsePreviewCode, ProgramNode } from './ast.ts'
 
-interface ExampleExport {
+interface PreviewExport {
   importedName: string
   sourceName: string
   default: boolean
 }
 
-function isExampleRequest(id: string): boolean {
+function isPreviewRequest(id: string): boolean {
   const queryIndex = id.indexOf('?')
   if (queryIndex < 0) {
     return false
   }
 
   const params = new URLSearchParams(id.slice(queryIndex + 1))
-  return params.has('example')
+  return params.has('preview')
 }
 
-function collectExampleExports(program: ProgramNode, id: string): ExampleExport[] {
-  const exports: ExampleExport[] = []
+function collectPreviewExports(program: ProgramNode, id: string): PreviewExport[] {
+  const exports: PreviewExport[] = []
 
   for (const statement of program.body) {
     if (statement.type === 'ExportDefaultDeclaration') {
@@ -34,7 +34,7 @@ function collectExampleExports(program: ProgramNode, id: string): ExampleExport[
     }
 
     if (statement.source) {
-      throw new Error(`[example] re-exported components are not supported in ${id}`)
+      throw new Error(`[preview] re-exported components are not supported in ${id}`)
     }
 
     if (statement.declaration?.type === 'FunctionDeclaration' && statement.declaration.id) {
@@ -72,50 +72,50 @@ function collectExampleExports(program: ProgramNode, id: string): ExampleExport[
   return exports
 }
 
-function resolveExampleExport(program: ProgramNode, id: string): ExampleExport {
-  const exports = collectExampleExports(program, id)
+function resolvePreviewExport(program: ProgramNode, id: string): PreviewExport {
+  const exports = collectPreviewExports(program, id)
   if (exports.length !== 1) {
     throw new Error(
-      `[example] expected exactly one component export in ${id}, found ${exports.length}`,
+      `[preview] expected exactly one component export in ${id}, found ${exports.length}`,
     )
   }
   return exports[0]!
 }
 
-export function resolveExampleExportName(program: ProgramNode, id: string): string {
-  return resolveExampleExport(program, id).sourceName
+export function resolvePreviewExportName(program: ProgramNode, id: string): string {
+  return resolvePreviewExport(program, id).sourceName
 }
 
-export async function transformExampleModule(
+export async function transformPreviewModule(
   code: string,
   id: string,
-  parseExampleCode: ParseExampleCode,
+  parsePreviewCode: ParsePreviewCode,
   options: { ssr?: boolean } = {},
 ): Promise<string | null> {
-  if (!isExampleRequest(id)) {
+  if (!isPreviewRequest(id)) {
     return null
   }
 
   const sourcePath = id.slice(0, id.indexOf('?'))
   const sourceImportPath = `./${path.basename(sourcePath)}`
-  const exampleExport = resolveExampleExport(await parseExampleCode(code), sourcePath)
+  const previewExport = resolvePreviewExport(await parsePreviewCode(code), sourcePath)
   const imports = [
     options.ssr
       ? ''
-      : exampleExport.default
-        ? `import __Example from ${toSingleQuoted(sourceImportPath)}`
-        : `import { ${exampleExport.importedName} as __Example } from ${toSingleQuoted(sourceImportPath)}`,
-    `import __ExampleSource from ${toSingleQuoted(
-      `${sourceImportPath}?example-source&name=${encodeURIComponent(exampleExport.sourceName)}`,
+      : previewExport.default
+        ? `import __Preview from ${toSingleQuoted(sourceImportPath)}`
+        : `import { ${previewExport.importedName} as __Preview } from ${toSingleQuoted(sourceImportPath)}`,
+    `import __PreviewSource from ${toSingleQuoted(
+      `${sourceImportPath}?preview-source&name=${encodeURIComponent(previewExport.sourceName)}`,
     )}`,
   ].filter(Boolean)
 
   return [
     ...imports,
     '',
-    `const component = ${options.ssr ? '() => null' : '__Example'}`,
+    `const component = ${options.ssr ? '() => null' : '__Preview'}`,
     '',
-    'export default { component, source: __ExampleSource }',
+    'export default { component, source: __PreviewSource }',
     '',
   ].join('\n')
 }

@@ -3,7 +3,7 @@ import { For } from 'solid-js'
 
 const TASKS = [
   'Release checklist',
-  'Migrate docs examples',
+  'Migrate docs previews',
   'Review API naming',
   'Polish accessibility labels',
   'Publish changelog',

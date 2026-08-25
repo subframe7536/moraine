@@ -83,7 +83,7 @@ function IntroSpecimen() {
           </div>
 
           <Checkbox
-            label="Include component examples"
+            label="Include component previews"
             description="A normal checkbox keeps the choice visible and keyboard reachable."
             defaultChecked
           />
@@ -176,7 +176,7 @@ export const IntroComponents = () => {
             order.
           </p>
           <p class="text-sm text-muted-foreground leading-relaxed">
-            The documentation renders page structure during Solid SSR, then hydrates local examples
+            The documentation renders page structure during Solid SSR, then hydrates local previews
             in the browser. Keep component composition in regular JSX so server and client agree on
             the initial tree.
           </p>
