@@ -1,5 +1,5 @@
-import { parseExampleCode as defaultParseExampleCode } from './ast.ts'
-import type { ParseExampleCode, ProgramNode } from './ast.ts'
+import { parsePreviewCode as defaultParsePreviewCode } from './ast.ts'
+import type { ParsePreviewCode, ProgramNode } from './ast.ts'
 
 interface QueryResult {
   name?: string
@@ -30,14 +30,14 @@ function hasRange(value: unknown): value is NodeRange {
   )
 }
 
-function parseExampleSourceQuery(id: string): QueryResult | null {
+function parsePreviewSourceQuery(id: string): QueryResult | null {
   const queryIndex = id.indexOf('?')
   if (queryIndex < 0) {
     return null
   }
 
   const params = new URLSearchParams(id.slice(queryIndex + 1))
-  if (!params.has('example-source')) {
+  if (!params.has('preview-source')) {
     return null
   }
 
@@ -132,10 +132,10 @@ function convertFallbackImports(code: string): string {
   })
 }
 
-export async function resolveExampleComponentSource(
+export async function resolvePreviewComponentSource(
   code: string,
   _name?: string,
-  parseCode: ParseExampleCode = defaultParseExampleCode,
+  parseCode: ParsePreviewCode = defaultParsePreviewCode,
 ): Promise<string | null> {
   const trimmed = code.trim()
   if (!trimmed) {
@@ -150,18 +150,18 @@ export async function resolveExampleComponentSource(
   }
 }
 
-export async function transformExampleSourceModule(
+export async function transformPreviewSourceModule(
   code: string,
   id: string,
-  parseExampleCode: ParseExampleCode,
+  parsePreviewCode: ParsePreviewCode,
   toHtml: (src: string, lang: 'tsx') => Promise<string>,
 ): Promise<string | null> {
-  const query = parseExampleSourceQuery(id)
+  const query = parsePreviewSourceQuery(id)
   if (!query) {
     return null
   }
 
-  const sourceText = await resolveExampleComponentSource(code, query.name, parseExampleCode)
+  const sourceText = await resolvePreviewComponentSource(code, query.name, parsePreviewCode)
   if (!sourceText) {
     return 'export default ""\n'
   }

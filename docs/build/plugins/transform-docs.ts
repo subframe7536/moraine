@@ -1,17 +1,17 @@
 import { renderDocsCodeHtml } from '../core/expressive-code.ts'
-import { parseExampleCode } from '../examples/ast.ts'
-import { transformExampleModule } from '../examples/module.ts'
-import { transformExampleSourceModule } from '../examples/source.ts'
+import { parsePreviewCode } from '../previews/ast.ts'
+import { transformPreviewModule } from '../previews/module.ts'
+import { transformPreviewSourceModule } from '../previews/source.ts'
 
-function isExampleRequest(id: string): boolean {
-  return id.includes('?example')
+function isPreviewRequest(id: string): boolean {
+  return id.includes('?preview')
 }
 
-function isExampleSourceRequest(id: string): boolean {
-  return id.includes('?example-source')
+function isPreviewSourceRequest(id: string): boolean {
+  return id.includes('?preview-source')
 }
 
-export const DOCS_TRANSFORM_FILTER = /(?:\?example(?:&|$)|\?example-source(?:&|$))/
+export const DOCS_TRANSFORM_FILTER = /(?:\?preview(?:&|$)|\?preview-source(?:&|$))/
 
 export function createDocsTransformHandler() {
   return async function transformDocs(
@@ -19,14 +19,14 @@ export function createDocsTransformHandler() {
     id: string,
     options?: { ssr?: boolean },
   ): Promise<string | null> {
-    if (!isExampleRequest(id) && !isExampleSourceRequest(id)) {
+    if (!isPreviewRequest(id) && !isPreviewSourceRequest(id)) {
       return null
     }
 
-    const sourceModule = await transformExampleSourceModule(
+    const sourceModule = await transformPreviewSourceModule(
       code,
       id,
-      parseExampleCode,
+      parsePreviewCode,
       (source, lang) => {
         const sourceFilePath = id.split('?')[0] ?? id
         return renderDocsCodeHtml({
@@ -45,11 +45,11 @@ export function createDocsTransformHandler() {
       return sourceModule
     }
 
-    const exampleModule = await transformExampleModule(code, id, parseExampleCode, {
+    const previewModule = await transformPreviewModule(code, id, parsePreviewCode, {
       ssr: options?.ssr,
     })
-    if (exampleModule) {
-      return exampleModule
+    if (previewModule) {
+      return previewModule
     }
 
     return null

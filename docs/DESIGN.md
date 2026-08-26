@@ -66,7 +66,7 @@ primary control labels must remain on one line; controls may wrap as groups or m
 
 ## Interaction states
 
-Navigation, search, examples, code controls, and theme controls must all expose a visible keyboard
+Navigation, search, previews, code controls, and theme controls must all expose a visible keyboard
 focus state using `docs-focus-visible`; hover never substitutes for focus. Hover gives quiet
 foreground or surface feedback, active gives a small color or opacity change, and selected state is
 distinguished with the action or accent surface plus text contrast.
@@ -77,16 +77,16 @@ shell. Empty states explain what is absent and the next useful action. Error sta
 destructive role with explicit text, rather than color alone. Search and theme controls keep compact
 hit areas using `docs-compact-control` where their component API permits it.
 
-## Examples
+## Previews
 
 Every interactive Playground has a clear preview and compact controls. Playgrounds do not include a
-source panel; regular `Example` blocks provide source for standalone examples. Controls are chosen by
+source panel; regular `Preview` blocks provide source for standalone previews. Controls are chosen by
 the author to demonstrate meaningful behavior and must wrap or move below the preview on narrow
 screens; they are not a generic property editor.
 
-Use dedicated examples for complex props, state transitions, render functions, accessibility-related
+Use dedicated previews for complex props, state transitions, render functions, accessibility-related
 attributes, or layout constraints. Keep the preview realistic enough to reveal behavior, but do not
-add fake application chrome or duplicate production examples only to fill a grid.
+add fake application chrome or duplicate production previews only to fill a grid.
 
 ## Landing composition
 

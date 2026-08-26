@@ -27,7 +27,7 @@ describe('docs expressive code renderer', () => {
     expect(html).not.toContain('class="ln"')
   })
 
-  test('renders example source with a sticky copy control and no header', async () => {
+  test('renders preview source with a sticky copy control and no header', async () => {
     const html = await renderDocsCodeHtml({
       code: 'export const value = 1',
       language: 'tsx',
@@ -65,8 +65,9 @@ describe('docs expressive code renderer', () => {
     expect(assets.css).toContain(':root')
     expect(assets.css).toContain(':root.dark')
     expect(assets.css).toContain('--ec-brdCol:var(--border)')
-    expect(assets.css).toContain('--ec-frm-frameBoxShdCssVal:none')
-    expect(assets.css).toContain('--ec-codePadBlk:0.75rem')
+    expect(assets.css).toContain('--ec-frm-frameBoxShdCssVal:0 1px 2px rgb(0 0 0 / 0.04)')
+    expect(assets.css).toContain('--ec-codePadBlk:0.875rem')
+    expect(assets.css).toContain('--ec-frm-inlBtnBrd:var(--border)')
     expect(assets.css).toContain('M4%2016c-1.1')
     expect(assets.css).not.toContain('prefers-color-scheme')
     expect(assets.js).toContain('MutationObserver')

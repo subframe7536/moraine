@@ -22,13 +22,13 @@ import type {
   SlotDoc,
 } from './api-doc/types.ts'
 import { resolveDocsPageContext } from './core/paths.ts'
-import { parseExampleCode } from './examples/ast.ts'
-import { resolveExampleExportName } from './examples/module.ts'
-import { resolveExampleComponentSource } from './examples/source.ts'
-import { resolveExampleFile } from './markdown/examples.ts'
 import { readFrontmatterData } from './markdown/frontmatter.ts'
 import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx.ts'
 import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
+import { resolvePreviewFile } from './markdown/previews.ts'
+import { parsePreviewCode } from './previews/ast.ts'
+import { resolvePreviewExportName } from './previews/module.ts'
+import { resolvePreviewComponentSource } from './previews/source.ts'
 import type { DocsRouteEntry } from './routes.ts'
 import { scanDocsRoutes } from './routes.ts'
 
@@ -279,29 +279,29 @@ function codeFence(language: string, source: string): string {
   return `${fence}${language}\n${source.trimEnd()}\n${fence}\n`
 }
 
-async function renderExample(examplePath: string, context: PageConversionContext) {
-  const exampleSourcePath = resolveExampleFile(context.sourcePath, examplePath)
-  const source = await readFile(exampleSourcePath, 'utf8')
-  const exportName = resolveExampleExportName(await parseExampleCode(source), exampleSourcePath)
-  const componentSource = await resolveExampleComponentSource(source, exportName, parseExampleCode)
+async function renderPreview(previewPath: string, context: PageConversionContext) {
+  const previewSourcePath = resolvePreviewFile(context.sourcePath, previewPath)
+  const source = await readFile(previewSourcePath, 'utf8')
+  const exportName = resolvePreviewExportName(await parsePreviewCode(source), previewSourcePath)
+  const componentSource = await resolvePreviewComponentSource(source, exportName, parsePreviewCode)
   if (!componentSource) {
-    throw new Error(`[docs-llms] unable to extract the example component from ${exampleSourcePath}`)
+    throw new Error(`[docs-llms] unable to extract the preview component from ${previewSourcePath}`)
   }
   return codeFence('tsx', componentSource)
 }
 
-async function renderExampleNode(node: MdxComponentNode, context: PageConversionContext) {
-  const examplePath = getComponentAttribute(node, 'path', context.sourcePath)?.trim()
-  if (!examplePath) {
+async function renderPreviewNode(node: MdxComponentNode, context: PageConversionContext) {
+  const previewPath = getComponentAttribute(node, 'path', context.sourcePath)?.trim()
+  if (!previewPath) {
     throw new Error(
-      `[docs-llms] <Example /> requires a static "path" string in ${context.sourcePath}`,
+      `[docs-llms] <Preview /> requires a static "path" string in ${context.sourcePath}`,
     )
   }
   if (node.hasChildren) {
-    throw new Error(`[docs-llms] <Example /> cannot have children in ${context.sourcePath}`)
+    throw new Error(`[docs-llms] <Preview /> cannot have children in ${context.sourcePath}`)
   }
 
-  return renderExample(examplePath, context)
+  return renderPreview(previewPath, context)
 }
 
 function renderCodeTabsNode(node: MdxComponentNode, context: PageConversionContext): string {
@@ -325,8 +325,8 @@ function renderComponentNode(
   node: MdxComponentNode,
   context: PageConversionContext,
 ): Promise<string> | string {
-  if (node.name === 'Example') {
-    return renderExampleNode(node, context)
+  if (node.name === 'Preview') {
+    return renderPreviewNode(node, context)
   }
   if (node.name === 'CodeTabs') {
     return renderCodeTabsNode(node, context)
@@ -456,7 +456,7 @@ export function buildLlmsTxt(
     '',
     `> ${options.description}`,
     '',
-    'Moraine is an accessible, composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, examples, and API details.',
+    'Moraine is an accessible, composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, previews, and API details.',
   ]
   let currentGroup: string | undefined
   for (const route of routes) {

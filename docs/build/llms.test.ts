@@ -74,7 +74,7 @@ describe('llms.txt generation', () => {
     }
   })
 
-  test('converts MDX components, examples, internal links, and API data', async () => {
+  test('converts MDX components, previews, internal links, and API data', async () => {
     const projectRoot = await createTempProject()
 
     try {
@@ -103,7 +103,7 @@ describe('llms.txt generation', () => {
         pageSource(
           'Button',
           1,
-          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Examples\n\n<Example path="./basic" />',
+          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Previews\n\n<Preview path="./basic" />',
         ),
       )
       await writeProjectFile(
@@ -171,8 +171,8 @@ describe('llms.txt generation', () => {
       expect(button).toContain('##### ARIA Attributes')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
-      expect(button).toContain('## Examples')
-      expect(button).not.toContain('<Example')
+      expect(button).toContain('## Previews')
+      expect(button).not.toContain('<Preview')
       expect(button).not.toContain('## Playground')
       expect(button).not.toContain('<Playground')
       expect(button).not.toContain('props.label')

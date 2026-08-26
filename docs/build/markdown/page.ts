@@ -8,7 +8,6 @@ import { resolveDocsPageContext } from '../core/paths.ts'
 import { createDocsRouteInfo } from '../routes.ts'
 
 import { createMdxCodeTabsPlugin } from './code-tabs.ts'
-import { createMdxExamplesPlugin } from './examples.ts'
 import { validateFrontmatterData } from './frontmatter.ts'
 import {
   createDocsCodePlugin,
@@ -17,6 +16,7 @@ import {
   DOCS_ON_THIS_PAGE_DATA_KEY,
 } from './plugins.ts'
 import type { OnThisPageEntryLiteral } from './plugins.ts'
+import { createMdxPreviewsPlugin } from './previews.ts'
 import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
 
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
@@ -75,7 +75,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     pagesDir: 'pages',
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
-      () => createMdxExamplesPlugin(),
+      () => createMdxPreviewsPlugin(),
       () => createMdxCodeTabsPlugin(),
       () => createDocsCodePlugin(),
     ],

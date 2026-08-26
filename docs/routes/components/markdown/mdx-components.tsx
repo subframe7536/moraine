@@ -23,15 +23,15 @@ const DOCS_INSTALL_TABS_TRIGGER_CLASS =
 const DOCS_INSTALL_TABS_CONTENT_CLASS = 'p-0'
 
 const DOCS_DEMO_BLOCK_CLASS =
-  'mb-6 mt-4 border border-border/60 rounded-xl bg-card/40 overflow-hidden shadow-xs'
+  'mb-6 mt-4 overflow-hidden border border-border/70 rounded-xl bg-card shadow-xs'
 const DOCS_DEMO_BLOCK_PREVIEW_CLASS =
-  'p-6 sm:p-8 flex items-center justify-center min-h-[160px] bg-background/60 relative'
+  'relative flex items-center justify-center min-h-[160px] p-6 sm:p-8 bg-background/45'
 
 interface MdxProps {
   [key: string]: unknown
 }
 
-export interface DocsMdxExample {
+export interface DocsMdxPreview {
   component?: Component
   source?: string
 }
@@ -51,9 +51,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
   Playground,
 
-  Example(props: MdxProps) {
-    const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxExample }>)
-    const ExampleRender = lazy(async () => {
+  Preview(props: MdxProps) {
+    const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)
+    const PreviewRender = lazy(async () => {
       const descriptor = (await loader()).default
 
       return {
@@ -74,7 +74,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
       }
     })
 
-    return <ExampleRender />
+    return <PreviewRender />
   },
 
   CodeTabs(props: MdxProps) {
