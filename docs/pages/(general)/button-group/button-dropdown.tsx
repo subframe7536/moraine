@@ -34,11 +34,11 @@ export function DropdownAction() {
 
   return (
     <div class="flex flex-col gap-3 items-start">
-      <ButtonGroup separator>
+      <ButtonGroup>
         <Button leading="i-lucide:download">Export report</Button>
         <DropdownMenu items={exportItems}>
           {(props) => (
-            <Button {...props}>
+            <Button {...props} size="icon-md">
               <Icon name="i-lucide:chevron-down" />
             </Button>
           )}
