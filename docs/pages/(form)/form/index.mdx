@@ -104,15 +104,19 @@ root (<form> managed by Formisch)
 
 Create the Formisch store with `createForm`, then pass it through `of`. The submit callback receives the schema output only after successful validation. `Form` provides that store to descendant `FormField` components; it does not automatically disable controls or choose a loading UI while a submission is pending.
 
+<Preview path="./basic-form" />
+
 ### Submission and reset
 
 Read `form.isSubmitting` in application code to derive button loading or disabled state. Native reset events are coordinated with Formisch: a `type="reset"` button restores the store input and metadata snapshot unless an `onReset` handler prevents the event.
+
+<Preview path="./submission-reset" />
 
 ### Keyboard interaction
 
 `Form` relies on native form and child-control keyboard behavior. For example, Enter can submit from eligible single-line form controls, while Tab follows normal document focus order.
 
-## Previews
+## Examples
 
 ### Validation
 

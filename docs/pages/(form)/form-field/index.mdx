@@ -108,16 +108,22 @@ root
 
 Inside `Form`, give `FormField` a typed `name` to bind a descendant Moraine control to that Formisch path. An unnamed field is useful for layout and explicit accessibility metadata, but does not subscribe to form state.
 
+<Preview path="./field-binding" />
+
 ### Labels, messages, and custom controls
 
 `label`, `description`, help text, and errors are associated with supported child controls. Use `error` for application-owned validation messages. A child render function receives live field metadata when a custom control needs to react to invalid, disabled, required, or size state.
+
+<Preview path="./labels-messages" />
 
 ### Accessibility
 
 - Automatically injects `id`, `aria-labelledby`, `aria-describedby`, and `aria-invalid` onto supported child controls.
 - Renders error messages with `role="alert"` so screen readers immediately announce validation issues.
 
-## Previews
+<Preview path="./accessibility" />
+
+## Examples
 
 ### Validation
 

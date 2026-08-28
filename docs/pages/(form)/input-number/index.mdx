@@ -114,9 +114,13 @@ root
 
 Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and `onChange` expose the locale-formatted string. The component preserves partial typed input until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
 
+<Preview path="./boundaries" />
+
 ### Stepping and repeat
 
 `step` controls increment and decrement buttons, while `largeStep` controls PageUp and PageDown. Hold-to-repeat is enabled by default and can be tuned with the repeat timing props.
+
+<Preview path="./stepping" />
 
 ### Keyboard interaction
 
@@ -130,7 +134,7 @@ Use `rawValue` with `onRawValueChange` when numeric state is application-owned; 
 | <kbd>End</kbd>       | Sets the value to `maxValue` when a maximum is defined. |
 | <kbd>Enter</kbd>     | Commits the current text input as a numeric value.      |
 
-## Previews
+## Examples
 
 ### Controlled value
 

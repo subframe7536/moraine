@@ -51,6 +51,7 @@
 - [ ] collapsible playground example will retrigger open transition when it is already open and the user turn on the transition switch
 - [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
 - [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
+- [ ] multi-select 's disable cause close icon shift, loading not working
 - [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
 
 # V1

@@ -77,16 +77,17 @@ shell. Empty states explain what is absent and the next useful action. Error sta
 destructive role with explicit text, rather than color alone. Search and theme controls keep compact
 hit areas using `docs-compact-control` where their component API permits it.
 
-## Previews
+## Usage and examples
 
 Every interactive Playground has a clear preview and compact controls. Playgrounds do not include a
-source panel; regular `Preview` blocks provide source for standalone previews. Controls are chosen by
-the author to demonstrate meaningful behavior and must wrap or move below the preview on narrow
-screens; they are not a generic property editor.
+source panel; regular `Preview` blocks provide source for usage subsections and standalone examples.
+Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
+preview on narrow screens; they are not a generic property editor.
 
-Use dedicated previews for complex props, state transitions, render functions, accessibility-related
-attributes, or layout constraints. Keep the preview realistic enough to reveal behavior, but do not
-add fake application chrome or duplicate production previews only to fill a grid.
+Use dedicated previews in `Usage` for core API guides and in `Examples` for complex compositions, state
+transitions, render functions, accessibility-related attributes, or layout constraints. Keep the
+preview realistic enough to reveal behavior, but do not add fake application chrome or duplicate
+production previews only to fill a grid.
 
 ## Landing composition
 

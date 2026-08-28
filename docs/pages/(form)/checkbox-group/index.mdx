@@ -105,9 +105,13 @@ The outer `root` owns styling and forwarded root props. The nested `<fieldset>` 
 
 The group value is an array of item values. Pair `value` with `onChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
 
+<Preview path="./selection-model" />
+
 ### Forms and keyboard behavior
 
 The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `FormField` for schema-bound fields.
+
+<Preview path="./form-behavior" />
 
 ### Keyboard interaction
 
@@ -119,7 +123,7 @@ Each item keeps native checkbox keyboard behavior; the group does not implement 
 | <kbd>Tab</kbd>         | Moves through enabled checkbox items in normal focus order. |
 | <kbd>Shift + Tab</kbd> | Moves backward in normal focus order.                       |
 
-## Previews
+## Examples
 
 ### Controlled value and disabled items
 

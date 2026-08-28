@@ -103,7 +103,7 @@ describe('llms.txt generation', () => {
         pageSource(
           'Button',
           1,
-          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Previews\n\n<Preview path="./basic" />',
+          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Examples\n\n<Preview path="./basic" />',
         ),
       )
       await writeProjectFile(
@@ -171,7 +171,7 @@ describe('llms.txt generation', () => {
       expect(button).toContain('##### ARIA Attributes')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
-      expect(button).toContain('## Previews')
+      expect(button).toContain('## Examples')
       expect(button).not.toContain('<Preview')
       expect(button).not.toContain('## Playground')
       expect(button).not.toContain('<Playground')

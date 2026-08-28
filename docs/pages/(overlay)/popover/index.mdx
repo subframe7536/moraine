@@ -88,15 +88,19 @@ trigger
 
 Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
 
+<Preview path="./trigger-modes" />
+
 ### Dismissal and accessibility
 
 Escape and outside interaction close a dismissible popover. When a popover has no visible label, provide `ariaLabel`. Modal and scroll-prevention behavior should be used only when the interaction genuinely requires it.
+
+<Preview path="./dismissal-usage" />
 
 ### Keyboard interaction
 
 Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. Moraine does not imply a focus trap unless modal behavior is explicitly enabled by the underlying overlay configuration.
 
-## Previews
+## Examples
 
 ### Hover mode
 

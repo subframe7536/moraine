@@ -58,19 +58,21 @@ describe('component documentation preview coverage', () => {
         ),
       ]
 
-      expect(source, page).toContain('## Previews')
+      expect(source, page).toContain('## Usage')
+      expect(source, page).toContain('## Examples')
       expect(playgrounds, page).toHaveLength(1)
       const importIndex = source.indexOf('\n## Import')
       const playgroundIndex = source.indexOf('\n## Playground')
-      const previewsIndex = source.indexOf('\n## Previews')
+      const usageIndex = source.indexOf('\n## Usage')
+      const examplesIndex = source.indexOf('\n## Examples')
       expect(importIndex, page).toBeGreaterThanOrEqual(0)
       expect(playgroundIndex, page).toBeGreaterThan(importIndex)
-      expect(previewsIndex, page).toBeGreaterThan(playgroundIndex)
+      expect(usageIndex, page).toBeGreaterThan(playgroundIndex)
+      expect(examplesIndex, page).toBeGreaterThan(usageIndex)
       expect(source.match(/^## Playground\s*$/gm), page).toHaveLength(1)
       expect(source).not.toContain('### Playground')
       expect(source, page).not.toContain('path="./playground"')
-      // Playgrounds cover common visual prop matrices. A component page needs one focused,
-      // copy-ready recipe, not an arbitrary minimum number of gallery previews.
+      // Usage and Examples sections provide interactive guides and copy-ready scenarios.
       expect(previews.length, page).toBeGreaterThanOrEqual(1)
       expect(new Set(previews).size, page).toBe(previews.length)
 

@@ -80,9 +80,13 @@ Collapsible (state provider)
 
 Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the component owns its initial state. The trigger and content primitives may be composed into a custom layout.
 
+<Preview path="./state-ownership" />
+
 ### Content lifetime
 
 The content transition and mount behavior are separate choices. Keep content mounted when it holds state that should survive closing; unmount it when inactive content should leave the document.
+
+<Preview path="./content-lifetime" />
 
 ### Keyboard interaction
 
@@ -93,7 +97,7 @@ The trigger uses button semantics by default. Polymorphic triggers inherit the k
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button trigger and toggles disclosure. |
 | <kbd>Tab</kbd>                      | Follows normal document focus order.                      |
 
-## Previews
+## Examples
 
 ### Uncontrolled state
 

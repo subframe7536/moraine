@@ -86,9 +86,13 @@ Modal (state provider)
 
 `Modal` is a state provider, not a DOM root. Compose `Modal.Trigger` with `Modal.Content`; the content is portaled and owns the optional overlay plus focus and scroll behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
 
+<Preview path="./modal-composition" />
+
 ### State, styling, and exit lifecycle
 
 Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` applies default popup classes only when its `class` is omitted; provide a class when the application owns the content animation. `onExitComplete` waits for the registered overlay and content exit presence to finish.
+
+<Preview path="./modal-lifecycle" />
 
 ### Keyboard interaction
 
@@ -98,7 +102,7 @@ Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` applie
 | <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope. |
 
-## Previews
+## Examples
 
 ### Basic composition
 

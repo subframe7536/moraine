@@ -95,9 +95,13 @@ root (<button> or polymorphic element)
 
 Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. It does not change how you handle errors or application completion.
 
+<Preview path="./loading-usage" />
+
 ### Icons and polymorphism
 
 Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. When rendering with `as`, the caller owns the target element's semantics, navigation behavior, and relevant attributes.
+
+<Preview path="./icons-polymorphism" />
 
 ### Keyboard interaction
 
@@ -108,7 +112,7 @@ Native button keyboard behavior applies when the root is a button. Polymorphic r
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button when it is focused.   |
 | <kbd>Tab</kbd>                      | Moves focus to the button when it is focusable. |
 
-## Previews
+## Examples
 
 ### Loading
 

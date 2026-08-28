@@ -100,9 +100,13 @@ root
 
 Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
 
+<Preview path="./selecting-files" />
+
 ### Rejections and form behavior
 
 `accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list; `disabled` also removes interaction.
+
+<Preview path="./form-behavior" />
 
 ### Keyboard interaction
 
@@ -111,7 +115,7 @@ Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={fals
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
 | <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
 
-## Previews
+## Examples
 
 ### Multiple files
 
