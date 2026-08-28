@@ -1,7 +1,8 @@
 import { MultiSelect } from '@src'
+import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-const FRAMEWORKS = [
+const FRAMEWORKS: MultiSelectT.Item[] = [
   { label: 'SolidJS', value: 'solid' },
   { label: 'Vue', value: 'vue' },
   { label: 'React', value: 'react' },
@@ -16,14 +17,15 @@ export function ValuesAndSearch() {
     <div class="max-w-md w-full space-y-3">
       <MultiSelect
         search
-        label="Frameworks"
         placeholder="Select frameworks..."
-        items={FRAMEWORKS}
+        options={FRAMEWORKS}
         value={selected()}
         onChange={setSelected}
+        allowClear
       />
       <p class="text-xs text-muted-foreground">
-        Selected: <span class="text-foreground font-mono">{JSON.stringify(selected())}</span>
+        Selected:{' '}
+        <span class="text-foreground font-medium font-mono">{JSON.stringify(selected())}</span>
       </p>
     </div>
   )

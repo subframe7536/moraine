@@ -21,8 +21,7 @@ export function SelectionModel() {
   return (
     <div class="flex flex-col gap-3">
       <CheckboxGroup
-        label="Notification preferences"
-        description="Select how you would like to be notified."
+        legend="Notification preferences"
         items={NOTIFICATION_OPTIONS}
         value={selected()}
         onChange={setSelected}

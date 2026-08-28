@@ -14,7 +14,7 @@ export function Autoresize() {
       </label>
       <Textarea
         autoResize
-        minRows={3}
+        rows={3}
         maxRows={8}
         value={post()}
         onValueChange={(next) => setPost(String(next ?? ''))}

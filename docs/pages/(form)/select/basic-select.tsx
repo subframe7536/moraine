@@ -1,7 +1,8 @@
 import { Select } from '@src'
+import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-const COUNTRIES = [
+const COUNTRIES: SelectT.Item[] = [
   { label: 'United States', value: 'us' },
   { label: 'Germany', value: 'de' },
   { label: 'Japan', value: 'jp' },
@@ -16,14 +17,15 @@ export function BasicSelect() {
     <div class="max-w-xs w-full space-y-3">
       <Select
         search
-        label="Country / Region"
         placeholder="Select a country..."
-        items={COUNTRIES}
+        options={COUNTRIES}
         value={selected()}
         onChange={setSelected}
+        allowClear
       />
       <p class="text-xs text-muted-foreground">
-        Selected country code: <span class="text-foreground font-mono">{selected() ?? 'none'}</span>
+        Selected country code:{' '}
+        <span class="text-foreground font-medium font-mono">{selected() ?? 'none'}</span>
       </p>
     </div>
   )

@@ -6,7 +6,7 @@ export function Composition() {
       <Textarea
         placeholder="Write a comment..."
         autoResize
-        minRows={2}
+        rows={2}
         maxRows={6}
         footer={
           <div class="flex w-full items-center justify-between">

@@ -42,14 +42,24 @@ Interactive component preview with configurable props.
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'switch', prop: 'separator', label: 'Separator', defaultValue: true },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Invert', value: 'invert' },
+      ],
+    },
   ]}
 >
   {(props) => {
     return (
       <div class="flex gap-2 items-center">
         <span class="text-xs text-muted-foreground">Quick save:</span>
-        <KbdGroup items={['ctrl', 'shift', 'S']} size={props.size} separator={props.separator} />
+        <KbdGroup items={['ctrl', 'shift', 'S']} size={props.size} variant={props.variant} />
       </div>
     )
   }}

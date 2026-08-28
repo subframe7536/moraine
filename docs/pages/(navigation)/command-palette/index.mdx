@@ -35,17 +35,6 @@ import type { CommandPaletteT } from 'moraine'
       label: 'Placeholder',
       defaultValue: 'Search commands or pages...',
     },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
@@ -103,7 +92,6 @@ import type { CommandPaletteT } from 'moraine'
           groups={GROUPS}
           placeholder={props.placeholder}
           loading={props.loading}
-          size={props.size}
           autofocus={false}
           showClose
           footerRender={() => (

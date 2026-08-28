@@ -19,7 +19,7 @@ import type { TextareaT } from 'moraine'
 ## Features
 
 - **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
-- **Row Limits**: Use `minRows` and `maxRows` to bound auto-resized height.
+- **Row Limits**: Use `rows` and `maxRows` to bound auto-resized height.
 - **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
 - **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
 - **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
@@ -92,7 +92,7 @@ root
 
 ### Size and composition
 
-Enable autoresize and constrain it with `minRows` and `maxRows`. Header and footer regions are composition slots; counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+Enable autoresize and constrain it with `rows` and `maxRows`. Header and footer regions are composition slots; counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
 
 <Preview path="./composition" />
 

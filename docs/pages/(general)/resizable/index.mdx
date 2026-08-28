@@ -31,14 +31,14 @@ Performance depends on the content rendered inside each panel and the surroundin
 <Playground
   controls={[
     { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'disable', label: 'Disabled', defaultValue: false },
   ]}
 >
   {(props) => (
     <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
       <Resizable
         handle={props.handle}
-        disable={props.disabled}
+        disable={props.disable}
         panels={[
           {
             defaultSize: '35%',

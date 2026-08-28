@@ -1,20 +1,27 @@
 import { Tabs } from '@src'
+import type { TabsT } from '@src'
 
-const TABS = [
+const TABS: TabsT.Item[] = [
   {
     value: 'tab1',
     label: 'Overview',
-    children: <div class="text-xs text-muted-foreground p-3">General overview.</div>,
+    content: (
+      <div class="text-xs text-muted-foreground p-3">System status and resource metrics.</div>
+    ),
   },
   {
     value: 'tab2',
     label: 'Analytics',
-    children: <div class="text-xs text-muted-foreground p-3">Usage charts.</div>,
+    content: (
+      <div class="text-xs text-muted-foreground p-3">Traffic breakdowns and request volume.</div>
+    ),
   },
   {
     value: 'tab3',
     label: 'Logs',
-    children: <div class="text-xs text-muted-foreground p-3">Server logs.</div>,
+    content: (
+      <div class="text-xs text-muted-foreground p-3">Real-time application execution stream.</div>
+    ),
   },
 ]
 
