@@ -40,14 +40,11 @@ function toStringProp(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
 }
 
-function MdxButton(props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button {...props} />
-}
-
 export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Markdown,
 
-  button: MdxButton,
+  button: (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
+  label: (props: JSX.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props} />,
 
   Playground,
 
