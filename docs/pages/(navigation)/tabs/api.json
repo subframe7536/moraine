@@ -1,0 +1,283 @@
+{
+  "component": {
+    "key": "tabs",
+    "name": "Tabs",
+    "category": "navigation",
+    "polymorphic": false,
+    "description": "Tabbed navigation component with configurable orientation and variant styles.",
+    "sourcePath": "src/navigation/tabs/tabs.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Tabs container that owns tab selection and panel rendering.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "list",
+      "description": "Tablist that contains all tab triggers and the selection indicator.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-orientation",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Communicates horizontal or vertical orientation."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "indicator",
+      "description": "Moving indicator aligned with the active tab trigger.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "trigger",
+      "description": "Tab button users activate to select a panel.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-highlighted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is highlighted by pointer or keyboard navigation."
+        },
+        {
+          "name": "data-selected",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item or tab is selected."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-selected",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates the currently selected option or tab."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "leading",
+      "description": "Optional icon rendered before a tab label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "label",
+      "description": "Text or custom label rendered inside a tab trigger.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trailing",
+      "description": "Optional trailing content rendered after a tab label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "content",
+      "description": "Tab panel rendered for the selected item.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-selected",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item or tab is selected."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to display when the tab is active."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the tab is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon to display next to the label."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Label to display on the tab trigger."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique value for the tab.",
+        "defaultValue": "index of the item"
+      }
+    ],
+    "description": "An individual tab in the tabs component."
+  },
+  "props": {
+    "own": [
+      {
+        "name": "activationMode",
+        "required": false,
+        "type": "\"manual\" | \"automatic\" | undefined",
+        "description": "Whether keyboard navigation activates the tab immediately or waits for confirmation.",
+        "defaultValue": "automatic"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "TabsT.Classes | undefined"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Default active tab value for uncontrolled usage."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the tab list is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the tabs root element."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "TabsT.Item[] | undefined",
+        "description": "Array of tabs to display."
+      },
+      {
+        "name": "keyboardLoop",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether arrow-key navigation wraps from the ends.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: string) => void) | undefined",
+        "description": "Callback when the active tab changes."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "The orientation of the tab list.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "TabsT.Styles | undefined"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Controlled active tab value."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"link\" | \"pill\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

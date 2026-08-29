@@ -1,0 +1,112 @@
+---
+title: Checkbox
+description: A checkbox control with checked, unchecked, and indeterminate states, custom true/false values, and list or card presentation.
+sidebar:
+  order: 6
+search:
+  tags: [boolean, checked, indeterminate, selection, form control]
+---
+
+import { Checkbox } from '@src'
+
+## Import
+
+```tsx
+import { Checkbox } from 'moraine'
+import type { CheckboxT } from 'moraine'
+```
+
+## Features
+
+- **Three Visual States**: Supports checked, unchecked, and indeterminate presentation and exposes mixed checked state through checkbox ARIA metadata.
+- **Custom Value Mapping**: `trueValue` and `falseValue` map checkbox state to domain values instead of requiring booleans.
+- **List & Card Variants**: Use compact list presentation or a bounded card surface.
+- **Indicator Placement**: Position the checkbox indicator at the start or end, or hide it when the surrounding surface communicates selection.
+- **Form Integration**: Uses native checkbox behavior and FormField metadata for labeling, validation, disabled, required, and read-only state.
+- **Custom Icons**: Checked and indeterminate indicators accept Moraine icon sources.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Accept terms and conditions' },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'list',
+      options: [
+        { label: 'List', value: 'list' },
+        { label: 'Card', value: 'card' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Checkbox
+      label={props.label}
+      description={props.description}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      defaultChecked
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── container
+│   ├── input
+│   └── control
+│       └── indicator
+└── wrapper (optional)
+    ├── label
+    └── description
+```
+
+## Usage
+
+### State and form values
+
+Use `checked` with `onChange` when the application owns the value; otherwise use `defaultChecked`. Set `indeterminate` from your own aggregate selection state—it changes the mixed presentation but is not a third submitted value. `trueValue` and `falseValue` let the same control map to a domain value while retaining native checkbox form behavior.
+
+<Preview path="./state-and-values" />
+
+### Read-only and disabled
+
+`disabled` removes the control from normal interaction. `readOnly` preserves the value and focusability while preventing changes.
+
+<Preview path="./disabled-readonly" />
+
+### Keyboard interaction
+
+| Key                    | Description                                                         |
+| ---------------------- | ------------------------------------------------------------------- |
+| <kbd>Space</kbd>       | Toggles the focused checkbox according to native checkbox behavior. |
+| <kbd>Tab</kbd>         | Moves focus according to normal document order.                     |
+| <kbd>Shift + Tab</kbd> | Moves focus backward according to normal document order.            |
+
+## Examples
+
+### Indeterminate and custom indicator
+
+<Preview path="./indeterminate-custom-icons" />
+
+### Custom true and false values
+
+<Preview path="./custom-true-false-values" />

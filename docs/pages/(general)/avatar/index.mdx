@@ -1,0 +1,98 @@
+---
+title: Avatar
+description: An avatar with image preloading, fallback initials or icons, status metadata, badges, and consistent size variants.
+sidebar:
+  order: 4
+search:
+  tags: [profile, image, fallback, user, avatar, initials, status dot]
+---
+
+import { Avatar } from '@src'
+
+## Import
+
+```tsx
+import { Avatar } from 'moraine'
+import type { AvatarT } from 'moraine'
+```
+
+## Features
+
+- **Image Preloading & Status**: Preloads `src` with `Image` in the browser and exposes `idle`, `loading`, `loaded`, or `error` through `data-status` and `onStatusChange`.
+- **Fallback Initials**: Uses explicit `text` when provided; otherwise derives up to two uppercase initials from `alt`.
+- **Icon Fallback**: `fallback` can provide an icon instead of fallback text.
+- **Status Badge**: Position a badge icon in any corner with `badgePosition`.
+- **Accessible Fallback**: The loaded image uses `alt`; while unavailable, fallback content can use `alt` or `text` as its accessible label.
+
+`Avatar` preloads the source before exposing it on the rendered `<img>`. It does not set native `loading="lazy"` automatically.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
+    { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <div class="flex gap-4 items-center">
+      <Avatar
+        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+        alt={props.alt}
+        text={props.text}
+        size={props.size}
+        badge="i-lucide:check"
+        badgePosition="bottom-right"
+      />
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root (<span>)
+├── image (<img>)
+├── fallback (<span>)
+│   └── fallbackIcon (optional)
+└── badge (optional)
+```
+
+## Usage
+
+### Image fallbacks
+
+Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
+
+<Preview path="./fallback-usage" />
+
+### Loading status
+
+Use image loading and error callbacks when surrounding UI needs to respond to a changed source status.
+
+<Preview path="./loading-usage" />
+
+## Examples
+
+### Fallback modes
+
+<Preview path="./fallback-modes" />
+
+### Loading status
+
+<Preview path="./status-change" />
+
+### Badge and group composition
+
+<Preview path="./badge-positions" />

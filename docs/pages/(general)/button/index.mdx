@@ -1,0 +1,131 @@
+---
+title: Button
+description: An interactive button component with polymorphic rendering, optional promise-driven loading state, icon adornments, and semantic visual variants.
+sidebar:
+  order: 0
+search:
+  tags: [action, click, submit, loading, button, polymorphic, icon button]
+---
+
+import { Button } from '@src'
+
+## Import
+
+```tsx
+import { Button } from 'moraine'
+import type { ButtonT } from 'moraine'
+```
+
+## Features
+
+- **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
+- **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
+- **Controlled Loading**: Use `loading` directly when loading state comes from external state.
+- **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
+- **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
+- **Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Deploy Project' },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Extra Small', value: 'xs' },
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+        { label: 'Extra Large', value: 'xl' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    return (
+      <Button
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        loading={props.loading}
+        leading="i-lucide:rocket"
+      >
+        {props.label}
+      </Button>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+root (<button> or polymorphic element)
+├── leading (icon, image, or loading indicator)
+├── label (button content)
+└── trailing (icon or custom trailing content)
+```
+
+- `root`: Interactive element with hover, active, disabled, and focus-visible states.
+- `leading`: Leading adornment; may be replaced by the loading icon.
+- `trailing`: Trailing adornment; may be replaced by the loading icon when no leading adornment exists.
+
+## Usage
+
+### Loading
+
+Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. It does not change how you handle errors or application completion.
+
+<Preview path="./loading-usage" />
+
+### Icons and polymorphism
+
+Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. When rendering with `as`, the caller owns the target element's semantics, navigation behavior, and relevant attributes.
+
+<Preview path="./icons-polymorphism" />
+
+### Keyboard interaction
+
+Native button keyboard behavior applies when the root is a button. Polymorphic roots inherit the semantics and keyboard behavior of the element or component you provide.
+
+| Key                                 | Description                                     |
+| ----------------------------------- | ----------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button when it is focused.   |
+| <kbd>Tab</kbd>                      | Moves focus to the button when it is focusable. |
+
+## Examples
+
+### Loading
+
+<Preview path="./loading-states" />
+
+### Automatic loading
+
+<Preview path="./loading-auto" />
+
+### Icon buttons
+
+<Preview path="./icon-buttons" />
+
+### Polymorphic rendering
+
+<Preview path="./polymorphic" />

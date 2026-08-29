@@ -1,0 +1,81 @@
+---
+title: Separator
+description: A horizontal or vertical separator with configurable thickness, border style, and decorative accessibility behavior.
+sidebar:
+  order: 9
+search:
+  tags: [divider, horizontal, vertical, rule, separator, line, hairline]
+---
+
+import { Separator } from '@src'
+
+## Import
+
+```tsx
+import { Separator } from 'moraine'
+import type { SeparatorT } from 'moraine'
+```
+
+## Features
+
+- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` metadata.
+- **Border Styles**: Choose `solid`, `dashed`, or `dotted`.
+- **Thickness Scale**: `sm`, `md`, and `lg` adjust the rendered separator thickness.
+- **Semantic or Decorative Use**: The root always renders as `<div role="separator">`; `decorative` adds `aria-hidden="true"` so assistive technologies ignore it.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'sm',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'type',
+      label: 'Border Style',
+      defaultValue: 'solid',
+      options: [
+        { label: 'Solid', value: 'solid' },
+        { label: 'Dashed', value: 'dashed' },
+        { label: 'Dotted', value: 'dotted' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <div class="space-y-4">
+      <div class="text-xs text-muted-foreground">Section Header</div>
+      <Separator size={props.size} type={props.type} />
+      <div class="text-xs text-muted-foreground">Content Section</div>
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root (<div role="separator">)
+```
+
+## Usage
+
+### Visual and semantic dividers
+
+Use a semantic separator when it marks a real thematic break, and decorative mode for purely visual division. Choose horizontal or vertical orientation to match the surrounding layout.
+
+<Preview path="./separator-usage" />
+
+## Examples
+
+### Orientation and semantics
+
+<Preview path="./orientation-and-types" />

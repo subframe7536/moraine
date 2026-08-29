@@ -22,13 +22,13 @@ import type {
   SlotDoc,
 } from './api-doc/types.ts'
 import { resolveDocsPageContext } from './core/paths.ts'
-import { parseExampleCode } from './examples/ast.ts'
-import { resolveExampleExportName } from './examples/module.ts'
-import { resolveExampleComponentSource } from './examples/source.ts'
-import { resolveExampleFile } from './markdown/examples.ts'
 import { readFrontmatterData } from './markdown/frontmatter.ts'
 import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx.ts'
 import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
+import { resolvePreviewFile } from './markdown/previews.ts'
+import { parsePreviewCode } from './previews/ast.ts'
+import { resolvePreviewExportName } from './previews/module.ts'
+import { resolvePreviewComponentSource } from './previews/source.ts'
 import type { DocsRouteEntry } from './routes.ts'
 import { scanDocsRoutes } from './routes.ts'
 
@@ -90,6 +90,8 @@ const INTRO_CARD_CONTENT = [
   ],
 ] as const
 
+const PLAYGROUND_SECTION_PATTERN = /^## Playground\r?\n[\s\S]*?(?=^## |$(?![\s\S]))/gm
+
 function normalizeSiteUrl(siteUrl: string): string {
   return siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`
 }
@@ -121,6 +123,10 @@ function normalizeApiType(type: string): string {
 function readFrontmatterBlock(source: string): string {
   const match = source.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/)
   return match?.[0].trimEnd() ?? ''
+}
+
+function removePlaygroundSections(source: string): string {
+  return source.replace(PLAYGROUND_SECTION_PATTERN, '')
 }
 
 function stringOffsetFromUtf8ByteOffset(source: Buffer, offset: number): number {
@@ -191,7 +197,7 @@ function renderItem(item: ItemDoc): string[] {
 }
 
 function renderApiReference(apiDoc: ComponentDoc): string {
-  const output = ['## API Reference', '']
+  const output = ['## API', '']
 
   if (apiDoc.slots.length > 0) {
     output.push('### Attributes', '')
@@ -273,25 +279,29 @@ function codeFence(language: string, source: string): string {
   return `${fence}${language}\n${source.trimEnd()}\n${fence}\n`
 }
 
-async function renderExampleNode(node: MdxComponentNode, context: PageConversionContext) {
-  const examplePath = getComponentAttribute(node, 'path', context.sourcePath)?.trim()
-  if (!examplePath) {
+async function renderPreview(previewPath: string, context: PageConversionContext) {
+  const previewSourcePath = resolvePreviewFile(context.sourcePath, previewPath)
+  const source = await readFile(previewSourcePath, 'utf8')
+  const exportName = resolvePreviewExportName(await parsePreviewCode(source), previewSourcePath)
+  const componentSource = await resolvePreviewComponentSource(source, exportName, parsePreviewCode)
+  if (!componentSource) {
+    throw new Error(`[docs-llms] unable to extract the preview component from ${previewSourcePath}`)
+  }
+  return codeFence('tsx', componentSource)
+}
+
+async function renderPreviewNode(node: MdxComponentNode, context: PageConversionContext) {
+  const previewPath = getComponentAttribute(node, 'path', context.sourcePath)?.trim()
+  if (!previewPath) {
     throw new Error(
-      `[docs-llms] <Example /> requires a static "path" string in ${context.sourcePath}`,
+      `[docs-llms] <Preview /> requires a static "path" string in ${context.sourcePath}`,
     )
   }
   if (node.hasChildren) {
-    throw new Error(`[docs-llms] <Example /> cannot have children in ${context.sourcePath}`)
+    throw new Error(`[docs-llms] <Preview /> cannot have children in ${context.sourcePath}`)
   }
 
-  const exampleSourcePath = resolveExampleFile(context.sourcePath, examplePath)
-  const source = await readFile(exampleSourcePath, 'utf8')
-  const exportName = resolveExampleExportName(await parseExampleCode(source), exampleSourcePath)
-  const componentSource = await resolveExampleComponentSource(source, exportName, parseExampleCode)
-  if (!componentSource) {
-    throw new Error(`[docs-llms] unable to extract the example component from ${exampleSourcePath}`)
-  }
-  return codeFence('tsx', componentSource)
+  return renderPreview(previewPath, context)
 }
 
 function renderCodeTabsNode(node: MdxComponentNode, context: PageConversionContext): string {
@@ -315,8 +325,8 @@ function renderComponentNode(
   node: MdxComponentNode,
   context: PageConversionContext,
 ): Promise<string> | string {
-  if (node.name === 'Example') {
-    return renderExampleNode(node, context)
+  if (node.name === 'Preview') {
+    return renderPreviewNode(node, context)
   }
   if (node.name === 'CodeTabs') {
     return renderCodeTabsNode(node, context)
@@ -390,7 +400,8 @@ async function convertPageMarkdown(
   source: string,
   context: PageConversionContext,
 ): Promise<string> {
-  const components = await collectMdxComponents(source, context.sourcePath)
+  const markdownSource = removePlaygroundSections(source)
+  const components = await collectMdxComponents(markdownSource, context.sourcePath)
   const replacements = await Promise.all(
     components.map(async (node) => ({
       start: node.start,
@@ -399,7 +410,7 @@ async function convertPageMarkdown(
     })),
   )
 
-  let output = source
+  let output = markdownSource
   for (const replacement of replacements.sort((left, right) => right.start - left.start)) {
     output = `${output.slice(0, replacement.start)}${replacement.value}${output.slice(replacement.end)}`
   }
@@ -445,7 +456,7 @@ export function buildLlmsTxt(
     '',
     `> ${options.description}`,
     '',
-    'Moraine is an accessible, composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, examples, and API details.',
+    'Moraine is an accessible, composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, previews, and API details.',
   ]
   let currentGroup: string | undefined
   for (const route of routes) {

@@ -4,15 +4,16 @@ import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { Button, cn } from '../../../../src/index.ts'
 
 const DOCS_CODE_BLOCK_ROOT_CLASS =
-  '[&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>span:only-child)_.copy_button]:-translate-y-1/2!'
-const DOCS_CODE_BLOCK_SOURCE_CLASS = 'group relative my-0 border-t border-border/80 overflow-hidden'
+  '[&_.expressive-code_.copy_button]:size-6! [&_.expressive-code_.copy_button]:border! [&_.expressive-code_.copy_button]:border-border! [&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code_.copy_button]:bg-background/85! [&_.expressive-code_.copy_button]:shadow-xs! [&_.expressive-code_.copy_button]:backdrop-blur-sm! [&_.expressive-code_.copy_button:hover]:bg-muted! [&_.expressive-code_.copy_button:hover]:text-foreground! [&_.expressive-code_.copy_button:active]:scale-95! [&_.expressive-code_.copy_button:focus-visible]:outline-none! [&_.expressive-code_.copy_button:focus-visible]:ring-2! [&_.expressive-code_.copy_button:focus-visible]:ring-ring! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-2! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-background! [&_.expressive-code_.copy_button::after]:m-1! [&_.expressive-code_.copy_button::before]:hidden! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:-translate-y-1/2!'
+const DOCS_CODE_BLOCK_SOURCE_CLASS =
+  'group relative my-0 overflow-hidden border-t border-border/70 bg-muted/25'
 const DOCS_CODE_BLOCK_INSTALL_CLASS =
   '[&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.expressive-code_pre]:border-0 [&_.expressive-code_pre]:rounded-none [&_.expressive-code_pre>code]:py-2!'
 const DOCS_CODE_BLOCK_VIEWPORT_CLASS =
-  'relative transition-[height] duration-300 ease-in-out overflow-hidden'
+  'relative transition-[height] duration-300 ease-in-out overflow-hidden motion-reduce:transition-none'
 const DOCS_CODE_BLOCK_CONTENT_CLASS = '[&_.expressive-code]:my-2'
 const DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS =
-  'h-full overflow-x-auto [&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.docs-code-copy-toolbar]:sticky! [&_.docs-code-copy-toolbar]:top-0 [&_.docs-code-copy-toolbar]:z-raised [&_.docs-code-copy-toolbar]:h-0 [&_.docs-code-copy-toolbar_.copy]:[inset-block-start:0.25rem]! [&_.docs-code-copy-toolbar_.copy]:[inset-inline-end:0.25rem]! [&_.expressive-code_pre]:border-0! [&_.expressive-code_pre]:rounded-none! [&_.expressive-code_pre]:font-mono'
+  'h-full overflow-x-auto overscroll-x-contain scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent [&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.docs-code-copy-toolbar]:sticky! [&_.docs-code-copy-toolbar]:top-0 [&_.docs-code-copy-toolbar]:z-raised [&_.docs-code-copy-toolbar]:h-0 [&_.docs-code-copy-toolbar_.copy]:[inset-block-start:0.5rem]! [&_.docs-code-copy-toolbar_.copy]:[inset-inline-end:0.5rem]! [&_.expressive-code_pre]:border-0! [&_.expressive-code_pre]:rounded-none! [&_.expressive-code_pre]:font-mono'
 
 const COLLAPSED_HEIGHT_PX = 150
 const EXPANDED_HEIGHT_PX = 400
@@ -66,6 +67,9 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
   })
 
   onMount(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return
+    }
     const observer = new ResizeObserver(updateExpandable)
     if (contentRef) {
       observer.observe(contentRef)
@@ -103,17 +107,19 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
               DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS,
               isExpandable() && !isExpanded() && 'pointer-events-none',
             )}
+            inert={isExpandable() && !isExpanded() ? true : undefined}
             // oxlint-disable-next-line subf/solid-no-innerhtml
             innerHTML={props.html}
           />
 
           <Show when={isExpandable() && !isExpanded()}>
-            <div class="pointer-events-none inset-0 top-2 absolute from-background to-transparent bg-gradient-to-t" />
+            <div class="pointer-events-none inset-0 top-2 absolute from-background/95 to-transparent via-background/45 bg-gradient-to-t" />
             <Button
               variant="outline"
+              size="sm"
               aria-label="Expand code"
               onClick={() => setIsExpanded(true)}
-              class="bottom-2 left-1/2 absolute !translate--1/2"
+              class="border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:effect-fv !translate-x--1/2"
             >
               Expand code
             </Button>

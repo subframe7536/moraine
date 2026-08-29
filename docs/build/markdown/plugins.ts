@@ -10,7 +10,7 @@ import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from './shared.ts'
+} from './shared.class.ts'
 
 export interface OnThisPageEntryLiteral {
   id: string

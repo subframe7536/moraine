@@ -1,0 +1,119 @@
+---
+title: ButtonGroup
+description: A connected toolbar container for grouping related buttons with shared variants, sizes, divider separators, and split action dropdowns.
+sidebar:
+  order: 1
+search:
+  tags: [button, actions, toolbar, group, split button, segment]
+---
+
+import { Button, ButtonGroup } from '@src'
+
+## Import
+
+Import the component and its companion types from the package root:
+
+```tsx
+import { Button, ButtonGroup } from 'moraine'
+import type { ButtonGroupT } from 'moraine'
+```
+
+## Features
+
+- **Connected Button Layout**: Removes intermediate border radii and collapses adjacent borders between grouped buttons.
+- **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
+- **Divider Separator**: Enable `separator={true}` to inject decorative hairline divider borders between adjoining button items.
+- **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
+- **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
+
+## Playground
+
+Interactive component preview with configurable props.
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'separator', label: 'Separators', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <ButtonGroup
+      variant={props.variant}
+      orientation={props.orientation}
+      separator={props.separator}
+      aria-label="Document history"
+    >
+      <Button leading="i-lucide:undo-2">Undo</Button>
+      <Button leading="i-lucide:redo-2">Redo</Button>
+    </ButtonGroup>
+  )}
+</Playground>
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (button group container)
+├── Button (child button item ×n)
+└── separator (hairline divider line between buttons, optional)
+```
+
+- `root`: Flex container managing border collapsing and role orientation.
+- `separator`: Decorative divider element inserted between consecutive buttons.
+
+## Usage
+
+### Composition
+
+Use `ButtonGroup` to align related actions without changing the semantics of its children. Compose a menu or popover trigger as a child when an action needs an attached overlay, and use separators only when they clarify distinct action clusters.
+
+<Preview path="./group-composition" />
+
+### Keyboard interaction
+
+| Key                                 | Description                                                |
+| ----------------------------------- | ---------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Moves focus sequentially through the buttons in the group. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the currently focused button in the group.       |
+
+## Examples
+
+### Dropdown menu composition
+
+<Preview path="./button-dropdown" />
+
+### Popover composition
+
+<Preview path="./button-popover" />
+
+### Separators
+
+<Preview path="./separator" />
+
+### Vertical layout
+
+<Preview path="./vertical" />

@@ -53,41 +53,31 @@ export interface IconProps extends IconT.Props {}
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])
   const name = createMemo(() => local.name)
-  const component = createMemo<ValidComponent>(() => {
-    const value = name()
+  const componentProps = createMemo<{ component: ValidComponent; class: string | undefined }>(
+    () => {
+      const value = name()
 
-    if (typeof value === 'string') {
-      return 'div'
-    }
+      if (typeof value === 'string') {
+        return { component: 'div', class: cn(value, local.class) }
+      }
 
-    if (typeof value === 'function') {
-      return value
-    }
+      return {
+        component: typeof value === 'function' ? value : () => value,
+        class: cn(local.class),
+      }
+    },
+  )
 
-    return () => value as JSX.Element
-  })
-  const iconClass = createMemo(() => {
-    const value = name()
-    return typeof value === 'string' ? value : undefined
-  })
-
-  const style = createMemo(() => {
-    if (!local.size) {
-      return local.style
-    }
-    return {
-      'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-      ...local.style,
-    }
-  })
   return (
     <Dynamic
       data-slot={local.slotName ?? 'icon'}
       aria-hidden={rest['aria-label'] ? undefined : true}
       {...rest}
-      component={component()}
-      class={cn(iconClass(), local.class)}
-      style={style()}
+      {...componentProps()}
+      style={{
+        'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
+        ...local.style,
+      }}
     />
   )
 }

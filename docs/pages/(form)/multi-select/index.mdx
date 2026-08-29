@@ -1,0 +1,151 @@
+---
+title: MultiSelect
+description: A multi-value combobox with removable tags, search, optional value creation, token separators, overflow summaries, and virtualized rendering.
+sidebar:
+  order: 11
+search:
+  tags: [combobox, multiple selection, tags, options, multi-select, chips, tag input]
+---
+
+import { MultiSelect } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { MultiSelect } from 'moraine'
+import type { MultiSelectT } from 'moraine'
+```
+
+## Features
+
+- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
+- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
+- **Token Separators**: Configured delimiter keys can convert typed text into selections.
+- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
+- **Floating UI Positioning**: The listbox is positioned with Floating UI.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const TAG_OPTIONS = [
+      { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
+      { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+      { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+      { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+      { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+    ]
+    const [selected, setSelected] = createSignal(['design', 'dev'])
+    return (
+      <MultiSelect
+        options={TAG_OPTIONS}
+        value={selected()}
+        onChange={setSelected}
+        placeholder={props.placeholder}
+        variant={props.variant}
+        size={props.size}
+        disabled={props.disabled}
+        loading={props.loading}
+        allowClear
+      />
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+### Control
+
+```text
+control
+├── tagsContainer
+│   ├── tag (×n)
+│   ├── tagOverflow (optional)
+│   └── input
+├── clear (optional)
+└── trigger
+```
+
+### Floating listbox
+
+```text
+content
+└── listbox
+    ├── item (×n)
+    ├── group (optional ×n)
+    └── empty (optional)
+```
+
+## Usage
+
+### Values, search, and creation
+
+The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant options are enabled.
+
+<Preview path="./values-and-search" />
+
+### Large option sets
+
+Use groups to organize options and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
+
+<Preview path="./large-collections" />
+
+### Keyboard interaction
+
+| Key                              | Description                                                              |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                           |
+| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                            |
+| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it. |
+| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.              |
+| <kbd>Escape</kbd>                | Closes the listbox.                                                      |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                             |
+
+## Examples
+
+### Create tags
+
+<Preview path="./create-new-tags" />
+
+### Token separators
+
+<Preview path="./token-separators" />
+
+### Selection limits
+
+<Preview path="./max-count-max-tag-count" />
+
+### Virtualization
+
+<Preview path="./virtualization" />

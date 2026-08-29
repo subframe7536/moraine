@@ -1,0 +1,129 @@
+---
+title: RadioGroup
+description: A single-selection radio group with list, card, and table variants, arrow-key navigation, and configurable indicators.
+sidebar:
+  order: 8
+search:
+  tags: [single selection, options, radio, choice, radiogroup, plans, pricing]
+---
+
+import { RadioGroup } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { RadioGroup } from 'moraine'
+import type { RadioGroupT } from 'moraine'
+```
+
+## Features
+
+- **Single Selection**: Maintains one selected value in controlled or uncontrolled mode.
+- **Arrow-Key Navigation**: Arrow keys move focus and selection among enabled options, with wrapping according to the component's navigation behavior.
+- **List, Card & Table Variants**: Present the same radio model in standard lists, selectable cards, or table-style rows.
+- **Indicator Placement**: Position the radio indicator at the start or end, or hide it for card-like selection surfaces.
+- **Per-Option Disabling**: Individual options can be disabled without disabling the rest of the group.
+- **Radio Group Semantics**: Exposes radiogroup/radio state and native form inputs while managing focus across the visible options.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'card',
+      options: [
+        { label: 'Card', value: 'card' },
+        { label: 'List', value: 'list' },
+        { label: 'Table', value: 'table' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const PLAN_OPTIONS = [
+      { label: 'Hobby', value: 'hobby', description: 'Free forever for personal projects' },
+      { label: 'Pro', value: 'pro', description: '$20/month for growing teams' },
+      { label: 'Enterprise', value: 'enterprise', description: 'Custom scale and security' },
+    ]
+    const [selected, setSelected] = createSignal('pro')
+
+    return (
+      <div class="max-w-full w-96">
+        <RadioGroup
+          items={PLAN_OPTIONS}
+          value={selected()}
+          onChange={setSelected}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          orientation={props.orientation}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root (radio group)
+└── item (×n)
+    ├── input (hidden native radio)
+    ├── control
+    │   └── indicator
+    └── wrapper
+        ├── label
+        └── description
+```
+
+## Usage
+
+### Single selection
+
+Use one string value for the selected item and pair `value` with `onChange` for controlled state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior rather than the independent focus order of checkboxes.
+
+<Preview path="./selection" />
+
+### Forms
+
+Set a `name` when a native form needs the selected value, or place the group inside `FormField` for Formisch binding and validation metadata.
+
+<Preview path="./form-usage" />
+
+### Keyboard interaction
+
+| Key                                          | Description                                                   |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowRight</kbd> | Moves focus and selection to the next enabled radio item.     |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous enabled radio item. |
+| <kbd>Space</kbd>                             | Selects the focused radio item.                               |
+| <kbd>Tab</kbd>                               | Enters or leaves the group according to normal focus order.   |
+
+## Examples
+
+### Controlled value and disabled items
+
+<Preview path="./controlled-disabled" />
+
+### Indicator position
+
+<Preview path="./indicator-positions" />

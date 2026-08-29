@@ -1,0 +1,97 @@
+---
+title: Progress
+description: A determinate or indeterminate progress indicator with animation presets, optional step markers, and horizontal or vertical orientation.
+sidebar:
+  order: 10
+search:
+  tags: [loading, percentage, steps, indicator, progress bar, meter]
+---
+
+import { Progress } from '@src'
+
+## Import
+
+```tsx
+import { Progress } from 'moraine'
+import type { ProgressT } from 'moraine'
+```
+
+## Features
+
+- **Determinate & Indeterminate Modes**: Provide a value for determinate progress or use an indeterminate animation when completion cannot be measured.
+- **Animation Presets**: `carousel`, `reverse`, `swing`, and `elastic` provide built-in indeterminate motion styles.
+- **Step Markers**: Supply step labels to display discrete milestones along the progress track.
+- **Horizontal & Vertical Orientations**: Choose the track direction that fits the surrounding layout.
+- **Progressbar Metadata**: Exposes `role="progressbar"` and value-related ARIA attributes for determinate progress.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Progress
+      value={props.value}
+      size={props.size}
+      status={props.status}
+      animation={props.animation}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── status (optional)
+├── track
+│   └── indicator
+└── steps (optional)
+    └── step (×n)
+```
+
+## Usage
+
+### Progress models
+
+Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+
+<Preview path="./models" />
+
+### Semantics and animation
+
+The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+
+<Preview path="./semantics" />
+
+## Examples
+
+### Determinate progress
+
+<Preview path="./determinate" />
+
+### Step mode
+
+<Preview path="./step-mode" />
+
+### Animation
+
+<Preview path="./animations" />
+
+### Orientation
+
+<Preview path="./orientations" />

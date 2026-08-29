@@ -63,20 +63,17 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
   },
 })
 
-export const sidebarFrameMainVariants = cva(
-  'scroll-smooth flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
-  {
-    defaultVariants: {
-      variant: 'default',
-    },
-    variants: {
-      variant: {
-        default: '',
-        floating: '',
-        inset: 'rounded-xl bg-background shadow-sm',
-      },
+export const sidebarFrameMainVariants = cva('flex-1 h-full min-h-0 min-w-0 overflow-y-auto', {
+  defaultVariants: {
+    variant: 'default',
+  },
+  variants: {
+    variant: {
+      default: '',
+      floating: '',
+      inset: 'rounded-xl bg-background shadow-sm',
     },
   },
-)
+})
 
 export type SidebarFrameVariantProps = VariantProps<typeof sidebarFrameDesktopLayoutVariants>

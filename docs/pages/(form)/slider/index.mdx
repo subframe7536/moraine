@@ -1,0 +1,134 @@
+---
+title: Slider
+description: A single- or multi-thumb range slider with step dividers, vertical orientation, inverted direction, and keyboard control.
+sidebar:
+  order: 12
+search:
+  tags: [range, value, thumb, step, slider, volume, fader, audio, dual handle]
+---
+
+import { Slider } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { Slider } from 'moraine'
+import type { SliderT } from 'moraine'
+```
+
+## Features
+
+- **Single & Multi-Thumb Values**: Use a scalar number or an array of values for range selection.
+- **Horizontal & Vertical Orientations**: Supports standard horizontal tracks and vertical faders.
+- **Optional Step Dividers**: `divider` renders markers when a positive `step` is configured.
+- **Thumb Constraints**: `minStepsBetweenThumbs` and `allowThumbCrossing` control multi-thumb movement.
+- **Inverted Direction**: `inverted` reverses the value direction while respecting orientation and document direction.
+- **Slider Semantics**: Each thumb exposes `role="slider"`, value metadata, orientation, and disabled/read-only state through ARIA attributes.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Bold', value: 'bold' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const [value, setValue] = createSignal(65)
+    return (
+      <div class="space-y-3">
+        <div class="text-xs text-muted-foreground flex items-center justify-between">
+          <span>Volume level</span>
+          <span class="text-foreground font-medium font-mono">{value()}%</span>
+        </div>
+        <Slider
+          value={value()}
+          onValueChange={(val) => {
+            if (typeof val === 'number') setValue(val)
+          }}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          inverted={props.inverted}
+        />
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── track
+│   ├── range
+│   └── divider (optional ×n)
+└── thumb (×n)
+```
+
+## Usage
+
+### Single values and ranges
+
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onChange` for controlled state; `onValueChange` is useful when the application needs immediate updates during drag.
+
+<Preview path="./values" />
+
+### Keyboard and forms
+
+The thumb supports keyboard stepping, including page-sized increments. Add a `name` for native form participation or use `FormField` when the slider belongs to a Formisch store.
+
+<Preview path="./keyboard-forms" />
+
+### Keyboard interaction
+
+When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized movement is approximately 10% of the range and is snapped to `step` when one is defined.
+
+| Key                                         | Description                                             |
+| ------------------------------------------- | ------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step. |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step. |
+| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                      |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                      |
+| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value. |
+| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value. |
+
+## Examples
+
+### Controlled value
+
+<Preview path="./controlled-single" />
+
+### Range
+
+<Preview path="./range-slider" />
+
+### Form integration
+
+<Preview path="./form-integration" />
+
+### Orientation
+
+<Preview path="./orientations" />

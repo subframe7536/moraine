@@ -1,0 +1,135 @@
+---
+title: Form
+description: A type-safe Formisch form wrapper with Valibot schemas, form-store context, validation, and submission state.
+sidebar:
+  order: 1
+search:
+  tags: [Formisch, validation, submit, store, Valibot, form container, schemas]
+---
+
+import { Button, createForm, Form, FormField, Input, Switch } from '@src'
+import { Show, createSignal } from 'solid-js'
+import * as v from 'valibot'
+
+## Import
+
+```tsx
+import { createForm, Form, FormField, Input, Switch } from 'moraine'
+import type { FormT } from 'moraine'
+```
+
+Define a schema, create a Formisch store with `createForm`, and pass it to `Form`:
+
+```tsx
+export function NotificationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+
+  return (
+    <Form of={form} onSubmit={(output) => console.log(output)}>
+      <FormField name="email" label="Email Address">
+        <Input leading="i-lucide:mail" />
+      </FormField>
+      <FormField name="enabled" label="Enable Notifications">
+        <Switch />
+      </FormField>
+      <Button type="submit">Save Changes</Button>
+    </Form>
+  )
+}
+```
+
+## Features
+
+- **Formisch + Standard Schema**: `createForm` provides the reactive store and schema validation used by Moraine form controls.
+- **Form Context**: `Form` provides its store to nested `FormField` components so controls can bind values, validation metadata, and field events.
+- **Submission State**: Formisch manages submission state; Moraine mirrors `of.isSubmitting` as `data-submitting` on the form root for styling or coordination.
+- **Nested Paths**: Formisch field names can target nested and array values supported by the store.
+- **Native Reset Coordination**: Moraine coordinates native form reset with Formisch so control state returns to the store snapshot.
+
+## Playground
+
+<Playground
+  controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
+>
+  {(props) => {
+    const LoginSchema = v.object({
+      email: v.pipe(v.string(), v.email('Enter a valid email address.')),
+      password: v.pipe(v.string(), v.minLength(6, 'Password must be at least 6 characters.')),
+      remember: v.boolean(),
+    })
+
+    const [success, setSuccess] = createSignal(false)
+    const form = createForm({
+      schema: LoginSchema,
+      initialInput: { email: '', password: '', remember: true },
+    })
+
+    return (
+      <Form of={form} onSubmit={() => setSuccess(true)} class="space-y-4 max-w-sm">
+        <FormField name="email" label="Email" required>
+          <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
+        </FormField>
+        <FormField name="password" label="Password" required>
+          <Input type="password" placeholder="••••••••" disabled={props.disabled} leading="i-lucide:lock" />
+        </FormField>
+        <FormField name="remember">
+          <Switch label="Remember me on this device" disabled={props.disabled} />
+        </FormField>
+        <Button type="submit" class="w-full" disabled={props.disabled}>Sign in</Button>
+        <Show when={success()}>
+          <p class="text-xs text-primary font-medium text-center">Successfully signed in!</p>
+        </Show>
+      </Form>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root (<form> managed by Formisch)
+└── composed fields and controls
+```
+
+`Form` does not automatically disable child controls during submission. Use the form store's submission state when your application needs that behavior.
+
+## Usage
+
+### Creating and submitting a form
+
+Create the Formisch store with `createForm`, then pass it through `of`. The submit callback receives the schema output only after successful validation. `Form` provides that store to descendant `FormField` components; it does not automatically disable controls or choose a loading UI while a submission is pending.
+
+<Preview path="./basic-form" />
+
+### Submission and reset
+
+Read `form.isSubmitting` in application code to derive button loading or disabled state. Native reset events are coordinated with Formisch: a `type="reset"` button restores the store input and metadata snapshot unless an `onReset` handler prevents the event.
+
+<Preview path="./submission-reset" />
+
+### Keyboard interaction
+
+`Form` relies on native form and child-control keyboard behavior. For example, Enter can submit from eligible single-line form controls, while Tab follows normal document focus order.
+
+## Examples
+
+### Validation
+
+<Preview path="./validation" />
+
+### Async submit
+
+<Preview path="./async-submit" />
+
+### Reset
+
+<Preview path="./reset" />
+
+### Mixed fields
+
+<Preview path="./mixed-fields" />

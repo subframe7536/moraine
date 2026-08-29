@@ -1,0 +1,118 @@
+---
+title: Stepper
+description: Tab-structured step navigation with linear or non-linear flows, horizontal or vertical layout, and optional active-step content.
+sidebar:
+  order: 3
+search:
+  tags: [wizard, steps, progress, workflow, stepper, timeline, checkout]
+---
+
+import { Stepper } from '@src'
+
+## Import
+
+```tsx
+import { Stepper } from 'moraine'
+import type { StepperT } from 'moraine'
+```
+
+## Features
+
+- **Linear & Non-Linear Navigation**: `linear` controls whether a clickable stepper can jump past the next step. It defaults to `true`.
+- **Explicit Clickability**: `clickable` defaults to `false`; when disabled, only the active step is interactive through the built-in triggers.
+- **Horizontal & Vertical Layouts**: Orientation changes both visual layout and arrow-key navigation direction.
+- **Active-Step Content**: An item's `content` renders as the selected tab panel.
+- **State Metadata**: Items are marked `inactive`, `active`, or `completed` according to their position relative to the active step. Moraine does not replace completed icons automatically; provide the icon you want in each item.
+- **Tab Semantics**: The header uses `role="tablist"`, triggers use `role="tab"`, and active content uses `role="tabpanel"` with ID associations.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'clickable', label: 'Clickable', defaultValue: true },
+    { kind: 'switch', prop: 'linear', label: 'Linear flow', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const ONBOARDING_STEPS = [
+      { value: 'account', title: 'Account', description: 'Create credentials', icon: 'i-lucide:user', content: <p class="text-xs text-muted-foreground p-3">Step 1: Set up your profile and login credentials.</p> },
+      { value: 'workspace', title: 'Workspace', description: 'Team settings', icon: 'i-lucide:building-2', content: <p class="text-xs text-muted-foreground p-3">Step 2: Define your organization name and invite collaborators.</p> },
+      { value: 'confirm', title: 'Confirm', description: 'Launch project', icon: 'i-lucide:check-circle', content: <p class="text-xs text-muted-foreground p-3">Step 3: Review settings and provision your instance.</p> },
+    ]
+
+    return (
+      <div class="max-w-xl w-full">
+        <Stepper
+          items={ONBOARDING_STEPS}
+          defaultValue="account"
+          size={props.size}
+          clickable={props.clickable}
+          linear={props.linear}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── header (role="tablist")
+│   └── item (×n)
+│       ├── container
+│       │   ├── trigger (role="tab")
+│       │   └── separator (except last)
+│       └── wrapper
+│           ├── title
+│           └── description
+└── content (active role="tabpanel", optional)
+```
+
+## Usage
+
+### Linear and clickable steps
+
+The component's linear and clickable behavior determines which steps can be activated. Use controlled state with `value` and `onChange` when completion or navigation decisions come from application state.
+
+<Preview path="./linear-usage" />
+
+### Panels and orientation
+
+Step labels and panels use tab-like relationships. Vertical orientation changes the layout and directional keyboard navigation; completed state and step icons remain data you supply.
+
+<Preview path="./panels-usage" />
+
+### Keyboard interaction
+
+`activationMode` controls whether keyboard focus selects a step immediately (`automatic`, the default navigation mode) or selection waits for activation (`manual`). Disabled or linear-locked steps are skipped.
+
+| Key                                          | Description                                              |
+| -------------------------------------------- | -------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves toward the next enabled step where applicable.     |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves toward the previous enabled step where applicable. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>          | Activates the focused step in manual activation mode.    |
+
+## Examples
+
+### Controlled step
+
+<Preview path="./controlled-non-linear" />
+
+### Clickable and linear steps
+
+<Preview path="./clickable-and-linear" />
+
+### Vertical layout
+
+<Preview path="./vertical" />

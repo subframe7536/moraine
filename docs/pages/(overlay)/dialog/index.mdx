@@ -1,0 +1,124 @@
+---
+title: Dialog
+description: A modal dialog with focus management, scroll locking, backdrop support, and structured header, body, and footer regions.
+sidebar:
+  order: 4
+search:
+  tags: [modal, overlay, confirmation, focus trap, dialog, alert dialog, window]
+---
+
+import { Button, Dialog } from '@src'
+
+## Import
+
+```tsx
+import { Dialog } from 'moraine'
+import type { DialogT } from 'moraine'
+```
+
+## Features
+
+- **Focus Management**: Constrains keyboard focus while the dialog is open and restores focus when it closes.
+- **Scroll Lock & Overlay**: Prevents background document scrolling while open and can render a backdrop overlay.
+- **Structured Content**: Provides `title`, `description`, `body`, `footer`, and close-button regions.
+- **Dismissal Control**: Set `dismissible={false}` to block normal dismissal. Use `onClosePrevent` to observe prevented close attempts.
+- **Dialog Semantics**: The dialog surface provides `role="dialog"`, `aria-modal`, and title/description associations when those regions are present.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Delete deployment' },
+    { kind: 'switch', prop: 'fullscreen', label: 'Fullscreen', defaultValue: false },
+    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <Dialog
+        title={props.title}
+        description="This action is permanent and will stop all running containers."
+        body={
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            Are you sure you want to delete <code class="docs-inline-code">prod-cluster-east</code>?
+            All active traffic will immediately failover to standby.
+          </p>
+        }
+        footer={
+          <div class="flex gap-2 w-full justify-end">
+            <Button variant="ghost" size="sm">
+              Cancel
+            </Button>
+            <Button variant="destructive" size="sm">
+              Delete permanently
+            </Button>
+          </div>
+        }
+        fullscreen={props.fullscreen}
+        overlay={props.overlay}
+      >
+        {(triggerProps) => (
+          <Button {...triggerProps} variant="outline">
+            Open Dialog
+          </Button>
+        )}
+      </Dialog>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+trigger
+├── overlay
+└── content
+    ├── header
+    │   ├── wrapper
+    │   │   ├── title
+    │   │   └── description
+    │   └── close
+    ├── body
+    └── footer
+```
+
+- `trigger`: Element that opens the dialog.
+- `overlay`: Optional backdrop.
+- `content`: Modal surface.
+- `header` / `body` / `footer`: Structured content regions.
+
+## Usage
+
+### State and dismissal
+
+Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility. `dismissible={false}` blocks outside and Escape dismissal and calls `onClosePrevent`; provide a clear explicit close path in that case.
+
+<Preview path="./state-dismissal" />
+
+### Structure and lifecycle
+
+Use title and description so the dialog receives an accessible name and description. `scrollable` and `fullscreen` change the content structure, while `onExitComplete` runs only after the exit presence motion finishes.
+
+<Preview path="./structure-lifecycle" />
+
+### Keyboard interaction
+
+| Key                    | Description                                                        |
+| ---------------------- | ------------------------------------------------------------------ |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                      |
+| <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
+| <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
+
+## Examples
+
+### Basic dialog
+
+<Preview path="./basic" />
+
+### Scrollable and fullscreen content
+
+<Preview path="./scrollable-fullscreen" />
+
+### Controlled lifecycle
+
+<Preview path="./controlled-lifecycle" />

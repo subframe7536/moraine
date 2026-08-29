@@ -1,0 +1,71 @@
+---
+title: Icon
+description: A flexible icon renderer for UnoCSS icon classes, JSX elements, and Solid components.
+sidebar:
+  order: 2
+search:
+  tags: [Iconify, Lucide, symbol, SVG, icon, vector, glyph]
+---
+
+import { Icon } from '@src'
+
+## Import
+
+```tsx
+import { Icon } from 'moraine'
+import type { IconT } from 'moraine'
+```
+
+## Features
+
+- **UnoCSS Icon Classes**: String names are applied as icon utility classes, including application-defined aliases such as `icon-search`.
+- **JSX & Component Sources**: `name` can also be a JSX node or Solid component.
+- **Explicit Sizing**: Numeric `size` values are interpreted as pixels; string values are passed through as CSS font-size values.
+- **Decorative by Default**: When no `aria-label` is provided, the rendered icon receives `aria-hidden="true"`. Add an accessible label when the icon itself carries meaning.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
+    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide-sparkles' },
+  ]}
+>
+  {(props) => (
+    <div class="p-4 flex items-center justify-center">
+      <Icon name={props.name} size={props.size} class="text-primary" />
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root (dynamic icon element)
+```
+
+For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.
+
+## Usage
+
+### Icon sources
+
+Pass a supported icon name, JSX element, or component source. Use an icon as decoration only when adjacent text already names the meaning; otherwise provide an accessible label on the meaningful control or icon.
+
+<Preview path="./sources" />
+
+### Slots
+
+The icon's slot name supports targeted class and style customization without introducing a separate wrapper.
+
+<Preview path="./slots" />
+
+## Examples
+
+### JSX icon
+
+<Preview path="./icon-as-jsx" />
+
+### Accessibility
+
+<Preview path="./accessibility" />

@@ -1,0 +1,92 @@
+---
+title: Breadcrumb
+description: A hierarchical navigation trail with custom separators, optional leading icons, wrapping control, and current-page metadata.
+sidebar:
+  order: 1
+search:
+  tags: [path, hierarchy, navigation, trail, breadcrumb, routing, sitemap]
+---
+
+import { Breadcrumb } from '@src'
+
+## Import
+
+```tsx
+import { Breadcrumb } from 'moraine'
+import type { BreadcrumbT } from 'moraine'
+```
+
+## Features
+
+- **Breadcrumb Landmark**: Uses `<nav aria-label="Breadcrumb">` with an ordered list.
+- **Current Page Metadata**: The terminal page item is non-interactive and marked with `aria-current="page"`.
+- **Custom Separators**: Use an icon source or custom separator content between trail entries.
+- **Leading Icons**: Individual items can include a leading icon.
+- **Wrapping Control**: `wrap` controls whether longer trails wrap onto additional lines.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
+    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const TRAIL_ITEMS = [
+      { label: 'Home', href: '#', icon: 'i-lucide:home' },
+      { label: 'Projects', href: '#' },
+      { label: 'Design System', href: '#' },
+      { label: 'Components' },
+    ]
+
+    return (
+      <Breadcrumb
+        items={TRAIL_ITEMS}
+        separator={props.separator || 'i-lucide:chevron-right'}
+        wrap={props.wrap}
+      />
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root (<nav aria-label="Breadcrumb">)
+└── list (<ol>)
+    ├── item (<li> ×n)
+    │   ├── link (ancestor item)
+    │   └── page (current item)
+    └── separator (decorative)
+```
+
+## Usage
+
+### Items and current page
+
+Use links for navigable ancestors and mark the terminal item as the current page. A custom separator changes presentation only; it does not create a collection keyboard model.
+
+<Preview path="./items-page" />
+
+### Wrapping
+
+Allow wrapping when breadcrumb labels can exceed the available width instead of relying on shortened labels that lose navigation context.
+
+<Preview path="./wrapping-usage" />
+
+### Keyboard interaction
+
+Breadcrumb does not add custom keyboard handling; linked ancestors use their underlying link/button semantics and normal document focus order.
+
+## Examples
+
+### Custom separator and disabled item
+
+<Preview path="./custom-separator-disabled" />
+
+### Wrapping
+
+<Preview path="./wrapping" />

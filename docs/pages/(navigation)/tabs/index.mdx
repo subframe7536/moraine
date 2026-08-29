@@ -1,0 +1,118 @@
+---
+title: Tabs
+description: Tabbed content navigation with pill, link, and tab styles, horizontal or vertical orientation, and keyboard selection modes.
+sidebar:
+  order: 2
+search:
+  tags: [tablist, panels, navigation, selection, tabs, segmented control]
+---
+
+import { Tabs } from '@src'
+
+## Import
+
+```tsx
+import { Tabs } from 'moraine'
+import type { TabsT } from 'moraine'
+```
+
+## Features
+
+- **Visual Variants**: `pill`, `link`, and `tab` change presentation without changing the tab data model.
+- **Horizontal & Vertical Orientation**: Orientation controls layout and directional keyboard navigation.
+- **Tab Semantics**: Exposes `tablist`, `tab`, and `tabpanel` roles with selection and ID associations.
+- **Automatic or Manual Activation**: Keyboard navigation can select on focus or wait for explicit activation, depending on `activationMode`.
+- **Controlled & Disabled State**: Control the selected value externally and disable individual tab items.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'pill',
+      options: [
+        { label: 'Pill', value: 'pill' },
+        { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const ITEMS = [
+      { label: 'Overview', value: 'overview', icon: 'i-lucide:layout-dashboard', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">High-level metrics and system activity overview.</p> },
+      { label: 'Deployments', value: 'deployments', icon: 'i-lucide:rocket', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Production pipelines, recent builds, and rollout health.</p> },
+      { label: 'Settings', value: 'settings', icon: 'i-lucide:settings', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Environment variables, security secrets, and domain management.</p> },
+    ]
+
+    return (
+      <div class="max-w-lg w-full">
+        <Tabs
+          defaultValue="overview"
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          items={ITEMS}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── list (role="tablist")
+│   ├── indicator
+│   └── trigger (role="tab" ×n)
+│       ├── leading (optional)
+│       ├── label
+│       └── trailing (optional)
+└── content (active role="tabpanel")
+```
+
+## Usage
+
+### Selected value
+
+Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection. Disabled items are skipped during selection and keyboard navigation.
+
+<Preview path="./selection-usage" />
+
+### Activation and keyboard navigation
+
+`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode, arrows move focus and Enter or Space selects. `keyboardLoop` controls whether navigation wraps at the first and last enabled items.
+
+<Preview path="./activation-usage" />
+
+### Keyboard interaction
+
+Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
+
+| Key                                 | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| <kbd>Arrow keys</kbd>               | Moves focus among enabled tabs by orientation.       |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Moves focus to the first or last enabled tab.        |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.            |
+| <kbd>Tab</kbd>                      | Leaves the tab list according to normal focus order. |
+
+## Examples
+
+### Controlled state and disabled items
+
+<Preview path="./controlled-disabled-items" />
+
+### Activation mode
+
+<Preview path="./activation-mode" />

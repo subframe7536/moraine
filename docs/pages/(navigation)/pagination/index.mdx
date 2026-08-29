@@ -1,0 +1,107 @@
+---
+title: Pagination
+description: Page navigation with sibling windows, optional edge controls, polymorphic page items, and current-page metadata.
+sidebar:
+  order: 4
+search:
+  tags: [pages, previous, next, navigation, pagination, table paging]
+---
+
+import { Pagination } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { Pagination } from 'moraine'
+import type { PaginationT } from 'moraine'
+```
+
+## Features
+
+- **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
+- **Edge Controls**: `showEdges` adds controls for the first and last page; `showControls` controls previous/next buttons.
+- **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
+- **Polymorphic Page Items**: Configure page controls to render with the element/component shape required by your router or application.
+- **Controlled State**: `page` and `onPageChange` support application-owned page state.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'input',
+      prop: 'itemsPerPage',
+      label: 'Items per page',
+      defaultValue: 10,
+      inputType: 'number',
+    },
+    { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    const [page, setPage] = createSignal(1)
+    return (
+      <div class="flex flex-col gap-3 items-center">
+        <Pagination
+          total={100}
+          page={page()}
+          onPageChange={setPage}
+          itemsPerPage={props.itemsPerPage}
+          size={props.size}
+          showControls={props.showControls}
+        />
+        <span class="text-xs text-muted-foreground font-mono">Current Page: {page()} of 10</span>
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+root (pagination navigation)
+└── list
+    ├── item → prev (optional)
+    ├── item → page link / ellipsis (×n)
+    └── item → next (optional)
+```
+
+## Usage
+
+### Current page
+
+Use `page` with `onChange` for controlled navigation. The component calculates the visible sibling window and edge controls; the surrounding application owns data fetching and URL updates.
+
+<Preview path="./page-state" />
+
+### Rendering links
+
+Use the supported polymorphic rendering path when page controls should be links. Ensure the resulting link target and current-page semantics fit the router in use.
+
+<Preview path="./link-rendering" />
+
+### Keyboard interaction
+
+Pagination does not add collection-style arrow navigation. Each interactive page control uses the keyboard semantics of its rendered button, link, or custom polymorphic element.
+
+## Examples
+
+### Controlled page
+
+<Preview path="./controlled" />
+
+### Minimal pagination
+
+<Preview path="./minimal" />

@@ -1,0 +1,134 @@
+---
+title: CheckboxGroup
+description: A multi-selection checkbox group with array value binding, list, card, or table layouts, and FormField integration.
+sidebar:
+  order: 7
+search:
+  tags: [multiple selection, checked, options, table, checkbox list, permissions]
+---
+
+import { CheckboxGroup } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { CheckboxGroup } from 'moraine'
+import type { CheckboxGroupT } from 'moraine'
+```
+
+## Features
+
+- **Array Value Binding**: Supports controlled and uncontrolled `string[]` selection values.
+- **List, Card & Table Variants**: Reuses Checkbox presentation for standard lists, selectable cards, and bordered table-style rows.
+- **Orientation**: Arrange grouped options vertically or horizontally.
+- **Indicator Configuration**: Configure indicator placement and checked/indeterminate icons for the group.
+- **Per-Item State**: Individual items can be disabled or indeterminate and can override their state icons.
+- **FormField Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'card',
+      options: [
+        { label: 'Card', value: 'card' },
+        { label: 'List', value: 'list' },
+        { label: 'Table', value: 'table' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const NOTIFICATION_OPTIONS = [
+      { label: 'Email alerts', value: 'email', description: 'Weekly digests and critical updates' },
+      { label: 'Push notifications', value: 'push', description: 'Instant alerts on mobile and desktop' },
+      { label: 'SMS updates', value: 'sms', description: 'Security and login codes' },
+    ]
+    const [value, setValue] = createSignal(['email'])
+
+    return (
+      <div class="max-w-full w-96">
+        <CheckboxGroup
+          items={NOTIFICATION_OPTIONS}
+          value={value()}
+          onChange={setValue}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          orientation={props.orientation}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root (<div>)
+└── fieldset
+    ├── legend (optional)
+    └── Checkbox item (×n)
+        ├── container
+        │   ├── input
+        │   └── control
+        └── wrapper
+            ├── label
+            └── description
+```
+
+The outer `root` owns styling and forwarded root props. The nested `<fieldset>` owns group semantics, disabled state, and the optional `<legend>` association.
+
+## Usage
+
+### Selection model
+
+The group value is an array of item values. Pair `value` with `onChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
+
+<Preview path="./selection-model" />
+
+### Forms and keyboard behavior
+
+The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `FormField` for schema-bound fields.
+
+<Preview path="./form-behavior" />
+
+### Keyboard interaction
+
+Each item keeps native checkbox keyboard behavior; the group does not implement radio-style roving focus.
+
+| Key                    | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| <kbd>Space</kbd>       | Toggles the focused checkbox item.                          |
+| <kbd>Tab</kbd>         | Moves through enabled checkbox items in normal focus order. |
+| <kbd>Shift + Tab</kbd> | Moves backward in normal focus order.                       |
+
+## Examples
+
+### Controlled value and disabled items
+
+<Preview path="./controlled-disabled-items" />
+
+### Custom indicator
+
+<Preview path="./indicator" />

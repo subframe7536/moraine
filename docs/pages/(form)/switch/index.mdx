@@ -1,0 +1,107 @@
+---
+title: Switch
+description: A binary switch with custom true/false domain values, optional thumb icons, loading state, and FormField integration.
+sidebar:
+  order: 9
+search:
+  tags: [toggle, boolean, checked, setting, switch, preferences]
+---
+
+import { Switch } from '@src'
+
+## Import
+
+```tsx
+import { Switch } from 'moraine'
+import type { SwitchT } from 'moraine'
+```
+
+## Features
+
+- **Switch Semantics**: The visible control uses `role="switch"` and reflects its state through `aria-checked`.
+- **Custom Thumb Icons**: `checkedIcon` and `uncheckedIcon` customize the thumb in each state.
+- **Loading State**: `loading` displays the loading icon and makes the control non-interactive; asynchronous work remains caller-owned.
+- **Domain Value Mapping**: `trueValue` and `falseValue` map checked state to application-specific values.
+- **FormField Integration**: A hidden native checkbox participates in forms while the visible switch owns interaction and accessibility metadata.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Email alerts' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Switch
+      label={props.label}
+      description="Receive a notification when a deployment completes."
+      size={props.size}
+      defaultChecked
+      disabled={props.disabled}
+      loading={props.loading}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── container
+│   ├── input (hidden native checkbox)
+│   └── track (visible button with role="switch")
+│       └── thumb
+└── wrapper (optional)
+    ├── label
+    └── description
+```
+
+## Usage
+
+### Checked state and forms
+
+`Switch` has checkbox semantics and a hidden native input. Use `checked` with `onChange` for controlled state, or `defaultChecked` for an initial value. `trueValue` and `falseValue` map that state to domain values for form integration.
+
+<Preview path="./state-forms" />
+
+### Loading ownership
+
+`loading` is visual state supplied by the application. It does not represent an asynchronous operation on its own; decide whether the switch should also be disabled while that operation is pending.
+
+<Preview path="./loading-state" />
+
+### Keyboard interaction
+
+The visible switch is a button, so native button activation applies.
+
+| Key                                 | Description                                |
+| ----------------------------------- | ------------------------------------------ |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggles the switch when it is interactive. |
+| <kbd>Tab</kbd>                      | Moves focus to the visible switch control. |
+
+## Examples
+
+### Controlled state
+
+<Preview path="./controlled" />
+
+### Custom true and false values
+
+<Preview path="./custom-true-false-values" />
+
+### Loading icons
+
+<Preview path="./loading-icons" />

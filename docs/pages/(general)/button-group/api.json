@@ -1,0 +1,136 @@
+{
+  "component": {
+    "key": "button-group",
+    "name": "ButtonGroup",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Joins related buttons and provides shared size and visual variant defaults.",
+    "sourcePath": "src/elements/button/button-group.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Container that joins the edges of its direct button children.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "description": "Separator element between buttons.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Buttons or compatible controls rendered as a cohesive group."
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ButtonGroupT.Classes | undefined"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Optional identifier for the group root."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "role",
+        "required": false,
+        "type": "JSX.AriaAttributes[\"role\"] | undefined",
+        "description": "ARIA role for the group root."
+      },
+      {
+        "name": "separator",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render a decorative separator between adjacent controls."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ButtonGroupT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

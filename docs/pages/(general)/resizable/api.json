@@ -1,0 +1,378 @@
+{
+  "component": {
+    "key": "resizable",
+    "name": "Resizable",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Resizable panel layout with draggable dividers and keyboard support.",
+    "sourcePath": "src/elements/resizable/resizable.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Layout container that owns resizable panels and handles.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        },
+        {
+          "name": "data-resizable-root",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Identifies the root container of a resizable layout."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "panel",
+      "description": "Content pane whose size is controlled by adjacent resize handles.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-collapsed",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the panel or section is collapsed."
+        },
+        {
+          "name": "data-expanded",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the panel, accordion, or menu is expanded."
+        },
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        },
+        {
+          "name": "data-resizing",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present while resizable handles are actively dragging."
+        },
+        {
+          "name": "data-transitioning",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "divider",
+      "description": "Visual separator between adjacent panels.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-active",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item or trigger is active."
+        },
+        {
+          "name": "data-cross",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-dragging",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-orientation",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Communicates horizontal or vertical orientation."
+        },
+        {
+          "name": "aria-valuemax",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the maximum value for range-like controls."
+        },
+        {
+          "name": "aria-valuemin",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the minimum value for range-like controls."
+        },
+        {
+          "name": "aria-valuenow",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Defines the current numeric value for range-like controls."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "handle",
+      "description": "Interactive target users drag or focus to resize panels.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "crossTarget",
+      "description": "Extra hit target used when nested handles meet across axes.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-resizable-handle-end-target",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-resizable-handle-start-target",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Additional CSS classes for the panel."
+      },
+      {
+        "name": "collapsible",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "collapsibleMin",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "0"
+      },
+      {
+        "name": "content",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Content to render inside the panel."
+      },
+      {
+        "name": "defaultSize",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+      },
+      {
+        "name": "max",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "1"
+      },
+      {
+        "name": "min",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+        "defaultValue": "0"
+      },
+      {
+        "name": "onCollapse",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is collapsed."
+      },
+      {
+        "name": "onExpand",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is expanded."
+      },
+      {
+        "name": "onResize",
+        "required": false,
+        "type": "((size: number) => void) | undefined",
+        "description": "Callback when the panel is resized."
+      },
+      {
+        "name": "panelId",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the panel."
+      },
+      {
+        "name": "resizable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the panel is resizable.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "JSX.CSSProperties | undefined",
+        "description": "Additional CSS styles for the panel."
+      }
+    ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ResizableT.Classes | undefined"
+      },
+      {
+        "name": "disable",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the resizable component is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "handle",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to render handles between panels.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "handleAction",
+        "required": false,
+        "type": "\"resize\" | \"collapse\" | undefined",
+        "description": "Handle interaction behavior.\n- `resize`: handle area follows divider resize interactions.\n- `collapse`: handle click toggles the nearest collapsible panel.",
+        "defaultValue": "resize"
+      },
+      {
+        "name": "handleRender",
+        "required": false,
+        "type": "ComponentOrElement<ResizableT.HandleRenderProps> | undefined",
+        "description": "Custom component rendered inside each handle."
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Unique identifier for the resizable root."
+      },
+      {
+        "name": "intersection",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether to use intersection-based handle sizing.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "keyboardDelta",
+        "required": false,
+        "type": "ResizableSize | undefined",
+        "description": "The amount to resize when using keyboard shortcuts.",
+        "defaultValue": "10%"
+      },
+      {
+        "name": "onHandleKeyDown",
+        "required": false,
+        "type": "((context: { event: KeyboardEvent; handleIndex: number; sizes: number[]; }) => void) | undefined",
+        "description": "Callback when a key is pressed on a handle."
+      },
+      {
+        "name": "onResize",
+        "required": false,
+        "type": "((sizes: number[]) => void) | undefined",
+        "description": "Callback when any panel is resized."
+      },
+      {
+        "name": "onResizeEnd",
+        "required": false,
+        "type": "((sizes: number[]) => void) | undefined",
+        "description": "Callback when a resize operation ends."
+      },
+      {
+        "name": "onResizeStart",
+        "required": false,
+        "type": "((sizes: number[]) => void) | undefined",
+        "description": "Callback when a resize operation starts."
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
+        "name": "panels",
+        "required": false,
+        "type": "ResizableT.Item[] | undefined",
+        "description": "Array of panels to render."
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ResizableT.Styles | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

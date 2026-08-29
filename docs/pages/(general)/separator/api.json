@@ -1,0 +1,100 @@
+{
+  "component": {
+    "key": "separator",
+    "name": "Separator",
+    "category": "elements",
+    "polymorphic": false,
+    "description": "Visual divider with configurable orientation, style, and border type.",
+    "sourcePath": "src/elements/separator/separator.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Separator line.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        },
+        {
+          "name": "aria-orientation",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Communicates horizontal or vertical orientation."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SeparatorT.Classes | undefined"
+      },
+      {
+        "name": "decorative",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the separator is decorative (hidden from assistive technologies).",
+        "defaultValue": "false"
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "The orientation of the separator.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SeparatorT.Styles | undefined"
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"solid\" | \"dashed\" | \"dotted\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

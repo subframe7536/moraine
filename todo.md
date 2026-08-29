@@ -42,9 +42,18 @@
 - [x] refactor Modal.Trigger as a polymorphic Button-compatible primitive
 - [x] add Collapsible.Trigger and Collapsible.Content
   - [x] content enter/exit should has opacity transition
-- [ ] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/introduction.mdx) more useful.
-  - [ ] fix broken auto scroll to anchor
+- [x] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/index.mdx) more useful.
+  - [x] follow solid-file-router's default fs router path name resolution
+  - [x] fix broken auto scroll to anchor
 - [ ] production barrel import optimize
+- [ ] add `mainRef` and `sidebarRef` prop on sidebarFrame component and auto scroll to top when switching page
+- [ ] verify avatar loading and placeholder logic, correct avatar-group playground example
+- [ ] resizable drag not working well on mobile, always auto lose control
+- [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
+- [ ] fix docs/pages/(overlay)/sheet/index.mdx 's playground not working: click button but no overlay shows
+- [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
+- [ ] multi-select 's disable cause close icon shift, loading not working
+- [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
 
 # V1
 

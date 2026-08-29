@@ -1,0 +1,243 @@
+{
+  "component": {
+    "key": "button",
+    "name": "Button",
+    "category": "elements",
+    "polymorphic": true,
+    "description": "Button component with polymorphic `as` support and loading state.",
+    "sourcePath": "src/elements/button/button.tsx"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Interactive button element, or the polymorphic element provided through `as`.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or async operation is loading."
+        },
+        {
+          "name": "data-size",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved size variant."
+        },
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        }
+      ]
+    },
+    {
+      "name": "loading",
+      "description": "Loading icon shown while the button is busy.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "leading",
+      "description": "Icon region before the button label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "description": "Button content region after render-prop resolution.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trailing",
+      "description": "Icon region after the button label.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "as",
+        "required": false,
+        "type": "\"button\" | undefined",
+        "description": "Element or component to render as.",
+        "defaultValue": "button"
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "ComponentOrElement<{ loading: boolean; }> | undefined",
+        "description": "Children of the button. Supports render function form."
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "ButtonT.Classes | undefined"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Disabled state, including for non-button polymorphic roots."
+      },
+      {
+        "name": "leading",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading visual content, usually an icon."
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled loading state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingAuto",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Auto toggles loading while async click handlers are pending.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Optional icon shown when `loading` is active.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "onBlur",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, FocusEvent> | undefined"
+      },
+      {
+        "name": "onClick",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+      },
+      {
+        "name": "onContextMenu",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+      },
+      {
+        "name": "onKeyDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+      },
+      {
+        "name": "onKeyUp",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+      },
+      {
+        "name": "onPointerCancel",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerDown",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerLeave",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "onPointerUp",
+        "required": false,
+        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+      },
+      {
+        "name": "slotName",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Root `data-slot` name"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ButtonT.Styles | undefined"
+      },
+      {
+        "name": "trailing",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Trailing visual content, usually an icon."
+      },
+      {
+        "name": "type",
+        "required": false,
+        "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : never | undefined",
+        "description": "Native type attribute for supported native roots."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+      }
+    ],
+    "inherited": []
+  }
+}

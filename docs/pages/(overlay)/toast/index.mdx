@@ -1,0 +1,143 @@
+---
+title: Toast
+description: Temporary notification messages with asynchronous promise lifecycles, action buttons, progress bars, and position anchoring powered by solid-toaster.
+sidebar:
+  order: 8
+search:
+  tags: [notification, message, feedback, promise, toast, alert, toaster]
+componentKey: toast
+category: overlays
+upstreamHref: https://github.com/subframe7536/solid-toaster
+---
+
+import 'solid-toaster/style.css'
+import { Button } from '@src'
+import { toast } from 'solid-toaster'
+
+## Import
+
+Install `solid-toaster`:
+
+<CodeTabs package="solid-toaster" />
+
+Then import styles and mount a `Toaster` instance at your application root:
+
+```tsx
+import 'solid-toaster/style.css'
+
+import { Button } from 'moraine'
+import { Toaster, toast } from 'solid-toaster'
+
+export default function App() {
+  return (
+    <>
+      <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
+      <Toaster />
+    </>
+  )
+}
+```
+
+## Features
+
+- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` updates message tone and icons as a promise settles.
+- **Multiple Semantic Tones**: Dedicated methods for `toast.success()`, `toast.error()`, `toast.warning()`, and `toast.info()`.
+- **Scoped Multi-Toaster Instances**: Target specific viewport regions or modal contexts using `toasterId`.
+- **Dismissal & Duration Controls**: Custom per-toast timeouts, progress timers, and manual `toast.dismiss()` triggers.
+- **Accessible ARIA Live Regions**: Announces messages via `role="status"` and `aria-live="polite"` or `aria-live="assertive"`.
+
+## Playground
+
+Interactive component preview with configurable props.
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'message',
+      label: 'Message',
+      defaultValue: 'Changes saved successfully',
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'success',
+      options: [
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+        { label: 'Error', value: 'error' },
+        { label: 'Info', value: 'info' },
+      ],
+    },
+  ]}
+>
+  {(props) => {
+    const showToast = () => {
+      const message = props.message
+      switch (props.tone) {
+        case 'warning':
+          toast.warning(message)
+          break
+        case 'error':
+          toast.error(message)
+          break
+        case 'info':
+          toast(message)
+          break
+        default:
+          toast.success(message)
+      }
+    }
+
+    return (
+      <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
+        Trigger Toast Notification
+      </Button>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+Toaster (viewport container)
+└── Toast (floating card ×n)
+    ├── icon (status indicator icon)
+    ├── content
+    │   ├── title (primary message string)
+    │   └── description (optional subtext)
+    ├── action (optional action button)
+    └── close (optional dismiss button)
+```
+
+- `Toaster`: Mounts at top-level root managing stacking, gaps, and z-index.
+- `Toast`: Individual animated notification card.
+
+## Usage
+
+### Setup
+
+Toast is provided by the `solid-toaster` integration, not a Moraine component export. Import its stylesheet and mount a `Toaster` host before calling `toast` methods.
+
+<Preview path="./setup-usage" />
+
+### Calls and lifecycles
+
+Use semantic toast calls for immediate feedback and `toast.promise` for a promise whose pending, success, and error states need distinct messages. Duration and scoped instances are supplied to the toaster integration.
+
+<Preview path="./calls-usage" />
+
+## Examples
+
+### Basic toasts
+
+<Preview path="./basic-toasts" />
+
+### Promise and scoped instances
+
+<Preview path="./promise-scoped-instances" />

@@ -1,4 +1,5 @@
 import { createSignal, onCleanup, onMount } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
 export interface OnThisPageEntry {
   id: string
@@ -7,18 +8,23 @@ export interface OnThisPageEntry {
 }
 
 function decodeHashAnchor(hash: string): string {
-  if (!hash) {
-    return ''
-  }
+  const anchor = hash.startsWith('#') ? hash.slice(1) : hash
+
   try {
-    return decodeURIComponent(hash)
+    return decodeURIComponent(anchor)
   } catch {
-    return hash
+    return ''
   }
 }
 
-export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
+export function useTableOfContents(
+  getEntries: Accessor<OnThisPageEntry[]>,
+  getHash: Accessor<string>,
+  getScrollRoot: () => HTMLElement | undefined,
+) {
   const [activeIds, setActiveIds] = createSignal<string[]>([])
+  const [initialHash, setInitialHash] = createSignal('')
+  const [entryIds, setEntryIds] = createSignal<Set<string>>(new Set())
 
   const setActiveIdsIfChanged = (nextIds: string[]) => {
     setActiveIds((currentIds) =>
@@ -29,24 +35,11 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
     )
   }
 
-  const scrollToAnchor = () => {
-    const hash = decodeHashAnchor(location.hash.slice(1))
-    if (!hash) {
-      return true
-    }
-
-    const target = document.getElementById(hash)
-    if (!target) {
-      return false
-    }
-
-    target.scrollIntoView?.({ block: 'start' })
-    return true
-  }
-
   onMount(() => {
+    setInitialHash(getHash())
     const entries = getEntries()
-    const entryIds = new Set(entries.map((entry) => entry.id))
+    const observedEntryIds = new Set(entries.map((entry) => entry.id))
+    setEntryIds(observedEntryIds)
     const visibleIds = new Set<string>()
 
     const syncVisibleIds = () => {
@@ -55,29 +48,13 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
       )
     }
 
-    const syncActiveIdsWithHash = () => {
-      const hash = decodeHashAnchor(location.hash.slice(1))
-      setActiveIdsIfChanged(
-        hash && entryIds.has(hash) ? [hash] : entries.slice(0, 1).map((entry) => entry.id),
-      )
-    }
-
-    syncActiveIdsWithHash()
-
-    let initialAnchorFrame = 0
-    if (location.hash) {
-      initialAnchorFrame = requestAnimationFrame(() => {
-        scrollToAnchor()
-      })
-    }
-
     const observer =
       typeof IntersectionObserver === 'function' && entries.length > 0
         ? new IntersectionObserver(
             (intersectingEntries) => {
               for (const entry of intersectingEntries) {
                 const id = (entry.target as HTMLElement)?.id ?? ''
-                if (!entryIds.has(id)) {
+                if (!observedEntryIds.has(id)) {
                   continue
                 }
                 if (entry.isIntersecting) {
@@ -89,7 +66,7 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
               syncVisibleIds()
             },
             {
-              root: null,
+              root: getScrollRoot() ?? null,
               rootMargin: '-52px 0px 0px 0px',
               threshold: 0,
             },
@@ -105,23 +82,16 @@ export function useTableOfContents(getEntries: () => OnThisPageEntry[]) {
       }
     }
 
-    const handleHashChange = () => {
-      scrollToAnchor()
-      syncActiveIdsWithHash()
-    }
-
-    window.addEventListener('hashchange', handleHashChange)
     onCleanup(() => {
-      if (initialAnchorFrame) {
-        cancelAnimationFrame(initialAnchorFrame)
-      }
-      window.removeEventListener('hashchange', handleHashChange)
       observer?.disconnect()
     })
   })
 
   return {
     activeIds,
-    primaryActiveId: () => activeIds()[0] ?? '',
+    primaryActiveId: () => {
+      const hash = decodeHashAnchor(getHash() || initialHash())
+      return entryIds().has(hash) ? hash : (activeIds()[0] ?? '')
+    },
   }
 }

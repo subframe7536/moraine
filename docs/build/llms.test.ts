@@ -41,17 +41,17 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, 'Welcome.'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 1, 'Buttons.'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/form/input/input.mdx',
+        'docs/pages/(form)/input/index.mdx',
         pageSource('Input', 1, 'Inputs.'),
       )
 
@@ -74,7 +74,7 @@ describe('llms.txt generation', () => {
     }
   })
 
-  test('converts MDX components, examples, internal links, and API data', async () => {
+  test('converts MDX components, previews, internal links, and API data', async () => {
     const projectRoot = await createTempProject()
 
     try {
@@ -94,22 +94,26 @@ describe('llms.txt generation', () => {
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, '<IntroComponents />\n\n<CodeTabs package="moraine" />'),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
-        pageSource('Button', 1, 'Use [`Button`](/general/button).\n\n<Example path="./basic" />'),
+        'docs/pages/(general)/button/index.mdx',
+        pageSource(
+          'Button',
+          1,
+          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Examples\n\n<Preview path="./basic" />',
+        ),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/basic.tsx',
+        'docs/pages/(general)/button/basic.tsx',
         'export default function Basic() {\n  return <button>Basic</button>\n}\n',
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/api.json',
+        'docs/pages/(general)/button/api.json',
         JSON.stringify({
           component: {
             key: 'button',
@@ -161,13 +165,18 @@ describe('llms.txt generation', () => {
       expect(introduction).toContain('npm i moraine')
       expect(button).toContain('[`Button`](https://ui.subf.dev/button.md)')
       expect(button).toContain('function Basic()')
-      expect(button).toContain('## API Reference')
+      expect(button).toContain('## API')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('#### `root`')
       expect(button).toContain('##### ARIA Attributes')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
-      expect(button).not.toContain('<Example')
+      expect(button).toContain('## Examples')
+      expect(button).not.toContain('<Preview')
+      expect(button).not.toContain('## Playground')
+      expect(button).not.toContain('<Playground')
+      expect(button).not.toContain('props.label')
+      expect(button).not.toContain('UnknownComponent')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -180,7 +189,7 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/introduction.mdx',
+        'docs/pages/index.mdx',
         pageSource('Introduction', 1, '<UnknownComponent />'),
       )
 

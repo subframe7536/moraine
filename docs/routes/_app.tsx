@@ -27,22 +27,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   })
 
   const [committedPage, setCommittedPage] = createSignal(untrack(activePage))
-  const pageTitle = createMemo(
-    () => pages.find((page) => page.key === committedPage())?.label ?? '',
-  )
   const navigationLoading = createMemo(() => isRouting() && location.pathname === routingFromPath())
-  let rootElement: HTMLDivElement | undefined
   let renderedPage = untrack(committedPage)
-
-  const resetMainScroll = () => {
-    const mainElement = rootElement?.querySelector<HTMLElement>('[data-slot="main"]')
-    if (mainElement) {
-      const scrollBehavior = mainElement.style.scrollBehavior
-      mainElement.style.scrollBehavior = 'auto'
-      mainElement.scrollTop = 0
-      mainElement.style.scrollBehavior = scrollBehavior
-    }
-  }
 
   createEffect(() => {
     const page = activePage()
@@ -55,8 +41,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }
 
     renderedPage = page
+    document.querySelector('[data-slot=main]')?.scrollTo({ top: 0 })
     setCommittedPage(page)
-    resetMainScroll()
   })
 
   createEffect(() => {
@@ -89,8 +75,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         />
       </Show>
       <SidebarFrame
-        ref={(element) => {
-          rootElement = element
+        classes={{
+          sidebar: 'border-none',
         }}
         sidebarHeaderRender={(ctx) => (
           <SidebarHeader
@@ -112,11 +98,17 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         )}
         mainRender={(ctx) => (
           <>
+            <a
+              href="#main-content"
+              class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+            >
+              Skip to main content
+            </a>
             <header
               data-scrolled={ctx.scrolled() ? '' : undefined}
               class={cn(
-                'px-4 b-(b transparent) bg-transparent flex h-13 transition-([border-color,box-shadow,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
-                'data-scrolled:(border-border/80 bg-background/90 shadow-xs)',
+                'px-4 bg-transparent flex h-13 transition-([border-color,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
+                'data-scrolled:(border-border/60 bg-background/80)',
               )}
             >
               <div class="flex gap-1 min-w-0 items-center">
@@ -129,16 +121,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                     onClick={ctx.toggle}
                   />
                 </Show>
-                <span
-                  class={cn(
-                    'text-sm text-foreground font-semibold truncate transition-([opacity,transform] duration-200) lg:text-lg',
-                    ctx.scrolled()
-                      ? 'opacity-100 translate-y-0'
-                      : 'opacity-0 pointer-events-none translate-y-2',
-                  )}
-                >
-                  {pageTitle()}
-                </span>
               </div>
               <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
                 <DocsCommandPalette
@@ -172,7 +154,11 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               </div>
             </header>
 
-            <Suspense fallback={<main class="px-5 py-8 min-h-screen" />}>{props.children}</Suspense>
+            <main id="main-content" tabindex="-1" class="min-w-0" data-docs-main>
+              <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
+                {props.children}
+              </Suspense>
+            </main>
           </>
         )}
         scrollThreshold={4}

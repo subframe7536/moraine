@@ -5,24 +5,25 @@ import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 
 import { presetMoraine } from '../src/unocss/theme.ts'
 
 const transformer = transformerVariantGroup()
+
 const markdownShortCuts = {
-  'docs-h1': 'text-3xl text-foreground font-bold mb-3 mt-6 sm:mt-10',
+  'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':
-    'text-xl sm:text-2xl text-foreground font-semibold mb-3 sm:mb-4 mt-8 sm:mt-11 pb-2 border-b border-border/80',
-  'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold mb-2 mt-5 sm:mt-7',
-  'docs-h4': 'text-sm sm:text-base text-foreground font-semibold mb-1.5 mt-4',
-  'docs-h5': 'text-sm text-foreground font-semibold mb-1 mt-3',
-  'docs-p': 'text-muted-foreground leading-6 mb-3',
-  'docs-ul': 'list-disc list-outside pl-5 mb-3 text-muted-foreground',
-  'docs-ol': 'list-decimal list-outside pl-5 mb-3 text-muted-foreground',
-  'docs-li': 'leading-6',
-  'docs-a': 'text-primary underline underline-offset-2 hover:text-primary/80',
+    'text-xl sm:text-2xl text-foreground font-semibold tracking-tight mb-3 sm:mb-4 mt-8 sm:mt-10 pb-2 border-b border-border/60',
+  'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold tracking-tight mb-2 mt-5 sm:mt-6',
+  'docs-h4': 'sm:text-base text-foreground font-semibold mb-1.5 mt-4',
+  'docs-h5': 'text-foreground font-semibold mb-1 mt-3',
+  'docs-p': 'text-muted-foreground leading-relaxed mb-3.5',
+  'docs-ul': 'list-disc list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
+  'docs-ol': 'list-decimal list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
+  'docs-li': 'leading-relaxed',
+  'docs-a': 'text-primary underline underline-offset-3 hover:text-primary-hover transition-colors',
   'docs-blockquote':
-    'my-4 rounded-md bg-secondary/60 b-1 b-input px-4 py-3 text-secondary-foreground [&>p]:m-0',
+    'my-4 rounded-xl bg-muted/40 border border-border/60 px-4 py-3 text-muted-foreground [&>p]:m-0',
   'docs-strong': 'text-foreground font-semibold',
-  'docs-hr': 'border-t border-border my-6',
+  'docs-hr': 'border-t border-border/60 my-6',
   'docs-inline-code':
-    'mx-[0.1rem] px-[0.3rem] py-0 bg-muted/70 border-2 border-border rounded-md text-sm text-destructive font-mono [h2>&]:text-xl [h2>&]:lg:text-2xl',
+    'mx-[0.15rem] px-1.5 py-0.5 bg-muted/70 border border-border/50 rounded-md text-[0.85em] text-destructive font-mono font-medium [h2>&]:text-lg [h2>&]:lg:text-xl',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,
@@ -40,108 +41,108 @@ export default defineConfig<PresetWind4Theme>({
         light: {
           background: {
             DEFAULT: 'hsl(0 0% 100%)',
-            hover: 'hsl(210 40% 98%)',
-            active: 'hsl(210 40% 96.1%)',
+            hover: 'hsl(220 14% 98%)',
+            active: 'hsl(220 14% 96%)',
           },
-          foreground: 'hsl(222.2 84% 4.9%)',
+          foreground: 'hsl(224 71.4% 4.1%)',
           card: {
-            DEFAULT: 'hsl(220 4% 99%)',
-            foreground: 'hsl(222.2 84% 4.9%)',
-            hover: 'hsl(220 4% 97%)',
-            active: 'hsl(220 4% 95%)',
+            DEFAULT: 'hsl(220 14% 99%)',
+            foreground: 'hsl(224 71.4% 4.1%)',
+            hover: 'hsl(220 14% 97%)',
+            active: 'hsl(220 14% 95%)',
           },
           popover: {
             DEFAULT: 'hsl(0 0% 100%)',
-            foreground: 'hsl(222.2 84% 4.9%)',
-            hover: 'hsl(210 40% 98%)',
-            active: 'hsl(210 40% 96.1%)',
+            foreground: 'hsl(224 71.4% 4.1%)',
+            hover: 'hsl(220 14% 98%)',
+            active: 'hsl(220 14% 96%)',
           },
           primary: {
-            DEFAULT: 'hsl(221.2 63.2% 58.3%)',
+            DEFAULT: 'hsl(221.2 83.2% 53.3%)',
             foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(221.2 63.2% 53.3%)',
-            active: 'hsl(221.2 63.2% 48.3%)',
+            hover: 'hsl(221.2 83.2% 48.3%)',
+            active: 'hsl(221.2 83.2% 43.3%)',
           },
           secondary: {
-            DEFAULT: 'hsl(221.2 40% 90.1%)',
-            foreground: 'hsl(222.2 47.4% 11.2%)',
-            hover: 'hsl(221.2 40% 86.1%)',
-            active: 'hsl(221.2 40% 82.1%)',
+            DEFAULT: 'hsl(220 14.3% 95.9%)',
+            foreground: 'hsl(220.9 39.3% 11%)',
+            hover: 'hsl(220 14.3% 92%)',
+            active: 'hsl(220 14.3% 88%)',
           },
           muted: {
-            DEFAULT: 'hsl(210 40% 96.1%)',
-            foreground: 'hsl(215.4 16.3% 46.9%)',
-            hover: 'hsl(210 40% 92.1%)',
-            active: 'hsl(210 40% 88.1%)',
+            DEFAULT: 'hsl(220 14.3% 95.9%)',
+            foreground: 'hsl(220 8.9% 46.1%)',
+            hover: 'hsl(220 14.3% 92%)',
+            active: 'hsl(220 14.3% 88%)',
           },
           accent: {
-            DEFAULT: 'hsl(210 40% 88.1%)',
-            foreground: 'hsl(222.2 47.4% 11.2%)',
-            hover: 'hsl(210 40% 83.1%)',
-            active: 'hsl(210 40% 78.1%)',
+            DEFAULT: 'hsl(220 14.3% 95.9%)',
+            foreground: 'hsl(220.9 39.3% 11%)',
+            hover: 'hsl(220 14.3% 91%)',
+            active: 'hsl(220 14.3% 86%)',
           },
           destructive: {
-            DEFAULT: 'hsl(351.74 100% 40.54%)',
-            foreground: 'hsl(359.81 59.23% 96.94%)',
-            hover: 'hsl(351.74 100% 35.54%)',
-            active: 'hsl(351.74 100% 30.54%)',
+            DEFAULT: 'hsl(0 84.2% 60.2%)',
+            foreground: 'hsl(210 40% 98%)',
+            hover: 'hsl(0 84.2% 55.2%)',
+            active: 'hsl(0 84.2% 50.2%)',
           },
-          border: 'hsl(214.3 31.8% 91.4%)',
-          input: 'hsl(214.3 31.8% 91.4%)',
-          ring: 'hsl(221.2 43.2% 58.3%)',
+          border: 'hsl(220 13% 91%)',
+          input: 'hsl(220 13% 91%)',
+          ring: 'hsl(221.2 83.2% 53.3%)',
         },
         dark: {
           background: {
-            DEFAULT: 'hsl(222.2 84% 4.9%)',
-            hover: 'hsl(222.2 70% 8.9%)',
-            active: 'hsl(222.2 60% 12.9%)',
+            DEFAULT: 'hsl(224 71.4% 4.1%)',
+            hover: 'hsl(224 50% 7%)',
+            active: 'hsl(224 50% 10%)',
           },
-          foreground: 'hsl(210 40% 98%)',
+          foreground: 'hsl(210 20% 98%)',
           card: {
-            DEFAULT: 'hsl(222.2 84% 4.9%)',
-            foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(222.2 70% 8.9%)',
-            active: 'hsl(222.2 60% 12.9%)',
+            DEFAULT: 'hsl(224 71.4% 4.1%)',
+            foreground: 'hsl(210 20% 98%)',
+            hover: 'hsl(224 50% 7%)',
+            active: 'hsl(224 50% 10%)',
           },
           popover: {
-            DEFAULT: 'hsl(222.2 84% 4.9%)',
-            foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(222.2 70% 8.9%)',
-            active: 'hsl(222.2 60% 12.9%)',
+            DEFAULT: 'hsl(224 71.4% 4.1%)',
+            foreground: 'hsl(210 20% 98%)',
+            hover: 'hsl(224 50% 7%)',
+            active: 'hsl(224 50% 10%)',
           },
           primary: {
-            DEFAULT: 'hsl(217.2 51.2% 55.8%)',
-            foreground: 'hsl(222.2 47.4% 96.2%)',
-            hover: 'hsl(217.2 51.2% 60.8%)',
-            active: 'hsl(217.2 51.2% 65.8%)',
+            DEFAULT: 'hsl(217.2 91.2% 59.8%)',
+            foreground: 'hsl(222.2 47.4% 11.2%)',
+            hover: 'hsl(217.2 91.2% 64.8%)',
+            active: 'hsl(217.2 91.2% 69.8%)',
           },
           secondary: {
-            DEFAULT: 'hsl(217.2 46.6% 17.5%)',
-            foreground: 'hsl(210 40% 90%)',
-            hover: 'hsl(217.2 46.6% 22.5%)',
-            active: 'hsl(217.2 46.6% 27.5%)',
+            DEFAULT: 'hsl(215 27.9% 16.9%)',
+            foreground: 'hsl(210 20% 98%)',
+            hover: 'hsl(215 27.9% 21.9%)',
+            active: 'hsl(215 27.9% 26.9%)',
           },
           muted: {
-            DEFAULT: 'hsl(217.2 32.6% 17.5%)',
-            foreground: 'hsl(215 20.2% 65.1%)',
-            hover: 'hsl(217.2 32.6% 22.5%)',
-            active: 'hsl(217.2 32.6% 27.5%)',
+            DEFAULT: 'hsl(215 27.9% 16.9%)',
+            foreground: 'hsl(217.9 10.6% 64.9%)',
+            hover: 'hsl(215 27.9% 21.9%)',
+            active: 'hsl(215 27.9% 26.9%)',
           },
           accent: {
-            DEFAULT: 'hsl(217.2 32.6% 32.5%)',
-            foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(217.2 32.6% 37.5%)',
-            active: 'hsl(217.2 32.6% 42.5%)',
+            DEFAULT: 'hsl(215 27.9% 16.9%)',
+            foreground: 'hsl(210 20% 98%)',
+            hover: 'hsl(215 27.9% 22%)',
+            active: 'hsl(215 27.9% 27%)',
           },
           destructive: {
-            DEFAULT: 'hsl(358.77 100% 69.84%)',
-            foreground: 'hsl(0 0% 100%)',
-            hover: 'hsl(358.77 100% 74.84%)',
-            active: 'hsl(358.77 100% 79.84%)',
+            DEFAULT: 'hsl(0 62.8% 30.6%)',
+            foreground: 'hsl(210 20% 98%)',
+            hover: 'hsl(0 62.8% 35.6%)',
+            active: 'hsl(0 62.8% 40.6%)',
           },
-          border: 'hsl(217.2 32.6% 24.5%)',
-          input: 'hsl(217.2 32.6% 20.5%)',
-          ring: 'hsl(224.3 76.3% 58%)',
+          border: 'hsl(215 27.9% 16.9%)',
+          input: 'hsl(215 27.9% 24.9%)',
+          ring: 'hsl(217.2 91.2% 59.8%)',
         },
       },
       globalStyles: true,
@@ -200,30 +201,30 @@ export default defineConfig<PresetWind4Theme>({
   --chart-3: hsl(216 92% 60%);
   --chart-4: hsl(210 98% 78%);
   --chart-5: hsl(212 97% 87%);
-  --sidebar: hsl(210 40% 98%);
-  --sidebar-foreground: hsl(222.2 47.4% 11.2%);
+  --sidebar: hsl(220 14% 99%);
+  --sidebar-foreground: hsl(220.9 39.3% 11%);
   --sidebar-primary: hsl(221.2 83.2% 53.3%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(214.3 31.8% 91.4%);
-  --sidebar-accent-foreground: hsl(221.2 83.2% 53.3%);
-  --sidebar-border: hsl(214.3 31.8% 91.4%);
+  --sidebar-accent: hsl(220 14.3% 95.9%);
+  --sidebar-accent-foreground: hsl(220.9 39.3% 11%);
+  --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(221.2 83.2% 53.3%);
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --shadow-x: 0;
   --shadow-y: 1px;
-  --shadow-blur: 3px;
+  --shadow-blur: 2px;
   --shadow-spread: 0px;
-  --shadow-opacity: 0.1;
+  --shadow-opacity: 0.04;
   --shadow-color: oklch(0 0 0);
-  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.10), 0 4px 6px -4px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.10), 0 8px 10px -6px hsl(0 0% 0% / 0.10);
-  --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
-  --tracking-normal: -0.015em;
+  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
+  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
+  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow-md: 0 3px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
+  --shadow-lg: 0 6px 12px -2px hsl(0 0% 0% / 0.06), 0 3px 6px -3px hsl(0 0% 0% / 0.06);
+  --shadow-xl: 0 10px 20px -3px hsl(0 0% 0% / 0.07), 0 4px 8px -4px hsl(0 0% 0% / 0.07);
+  --shadow-2xl: 0 16px 32px -8px hsl(0 0% 0% / 0.12);
+  --tracking-normal: -0.012em;
   --spacing: 0.25rem;
 }
 
@@ -233,28 +234,28 @@ export default defineConfig<PresetWind4Theme>({
   --chart-3: hsl(199 89% 48%);
   --chart-4: hsl(215 25% 27%);
   --chart-5: hsl(224 71% 45%);
-  --sidebar: hsl(222.2 84% 4.9%);
-  --sidebar-foreground: hsl(210 40% 98%);
+  --sidebar: hsl(224 71.4% 4.1%);
+  --sidebar-foreground: hsl(210 20% 98%);
   --sidebar-primary: hsl(217.2 91.2% 59.8%);
-  --sidebar-primary-foreground: hsl(222.2 84% 4.9%);
-  --sidebar-accent: hsl(217.2 32.6% 17.5%);
-  --sidebar-accent-foreground: hsl(210 40% 98%);
-  --sidebar-border: hsl(217.2 32.6% 17.5%);
-  --sidebar-ring: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(222.2 47.4% 11.2%);
+  --sidebar-accent: hsl(215 27.9% 16.9%);
+  --sidebar-accent-foreground: hsl(210 20% 98%);
+  --sidebar-border: hsl(215 27.9% 16.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
   --shadow-x: 0;
   --shadow-y: 1px;
-  --shadow-blur: 3px;
+  --shadow-blur: 2px;
   --shadow-spread: 0px;
-  --shadow-opacity: 0.1;
+  --shadow-opacity: 0.08;
   --shadow-color: oklch(0 0 0);
-  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
-  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
-  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.20), 0 1px 2px -1px hsl(0 0% 0% / 0.20);
-  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.20), 0 1px 2px -1px hsl(0 0% 0% / 0.20);
-  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.20), 0 2px 4px -2px hsl(0 0% 0% / 0.20);
-  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.20), 0 4px 6px -4px hsl(0 0% 0% / 0.20);
-  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.20), 0 8px 10px -6px hsl(0 0% 0% / 0.20);
-  --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.40);
+  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
+  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
+  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 3px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 6px 12px -2px hsl(0 0% 0% / 0.12), 0 3px 6px -3px hsl(0 0% 0% / 0.12);
+  --shadow-xl: 0 10px 20px -3px hsl(0 0% 0% / 0.14), 0 4px 8px -4px hsl(0 0% 0% / 0.14);
+  --shadow-2xl: 0 16px 32px -8px hsl(0 0% 0% / 0.20);
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {

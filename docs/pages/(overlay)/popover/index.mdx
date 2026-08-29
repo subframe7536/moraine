@@ -1,0 +1,111 @@
+---
+title: Popover
+description: An anchored click- or hover-triggered dialog panel with Floating UI positioning and configurable dismissal behavior.
+sidebar:
+  order: 2
+search:
+  tags: [floating panel, overlay, anchored, trigger, popover, flyout]
+---
+
+import { Button, Input, Popover } from '@src'
+
+## Import
+
+```tsx
+import { Popover } from 'moraine'
+import type { PopoverT } from 'moraine'
+```
+
+## Features
+
+- **Floating UI Positioning**: Anchors to the trigger and uses the shared Popper positioning layer for collision-aware placement.
+- **Click & Hover Modes**: `mode="click"` is the default; hover mode supports `openDelay` and `closeDelay` and also responds to trigger focus/blur.
+- **Dismissal Control**: Outside interaction and Escape close a dismissible popover. With `dismissible={false}`, those close attempts are prevented and can be observed through `onClosePrevent`.
+- **Optional Modal Behavior**: `modal` and `preventScroll` are forwarded to the underlying Popper primitive when modal interaction is required.
+- **Dialog Semantics**: The floating content uses `role="dialog"`; provide `ariaLabel` when the dialog does not have another accessible naming mechanism.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'placement',
+      label: 'Placement',
+      defaultValue: 'bottom',
+      options: [
+        { label: 'Bottom', value: 'bottom' },
+        { label: 'Top', value: 'top' },
+        { label: 'Right', value: 'right' },
+        { label: 'Left', value: 'left' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Popover
+      placement={props.placement}
+      disabled={props.disabled}
+      dismissible={props.dismissible}
+      content={
+        <div class="p-4 w-72 space-y-3">
+          <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
+          <div class="space-y-2">
+            <div class="flex gap-2 items-center justify-between">
+              <span class="text-xs text-muted-foreground">Width</span>
+              <Input size="sm" defaultValue="100%" class="w-28" />
+            </div>
+            <div class="flex gap-2 items-center justify-between">
+              <span class="text-xs text-muted-foreground">Max height</span>
+              <Input size="sm" defaultValue="300px" class="w-28" />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      {(triggerProps) => (
+        <Button {...triggerProps} variant="outline" size="sm">
+          Adjust dimensions
+        </Button>
+      )}
+    </Popover>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+trigger
+└── content (portal, role="dialog")
+    └── body (optional)
+```
+
+## Usage
+
+### Trigger modes and state
+
+Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
+
+<Preview path="./trigger-modes" />
+
+### Dismissal and accessibility
+
+Escape and outside interaction close a dismissible popover. When a popover has no visible label, provide `ariaLabel`. Modal and scroll-prevention behavior should be used only when the interaction genuinely requires it.
+
+<Preview path="./dismissal-usage" />
+
+### Keyboard interaction
+
+Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. Moraine does not imply a focus trap unless modal behavior is explicitly enabled by the underlying overlay configuration.
+
+## Examples
+
+### Hover mode
+
+<Preview path="./hover-mode" />
+
+### Dismiss control
+
+<Preview path="./dismiss-control" />

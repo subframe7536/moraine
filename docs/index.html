@@ -7,10 +7,17 @@
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
     <script>
       ;(() => {
+        // Apply the persisted preference before modules load to avoid a wrong-theme first frame.
         try {
-          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          document.documentElement.classList.toggle('dark', isDark)
-          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+          const storedTheme = window.localStorage.getItem('moraine-theme')
+          const theme =
+            storedTheme === 'light' || storedTheme === 'dark'
+              ? storedTheme
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          document.documentElement.classList.toggle('dark', theme === 'dark')
+          document.documentElement.style.colorScheme = theme
         } catch {}
       })()
     </script>

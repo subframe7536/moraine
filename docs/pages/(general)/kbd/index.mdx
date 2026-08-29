@@ -1,0 +1,106 @@
+---
+title: Kbd
+description: A semantic keyboard keycap indicator for rendering shortcut combinations, symbol aliases, and accessible hotkey annotations.
+sidebar:
+  order: 13
+search:
+  tags: [keyboard, shortcut, keycap, hotkey, kbd, command key]
+---
+
+import { Kbd } from '@src'
+
+## Import
+
+Import the component and its companion types from the package root:
+
+```tsx
+import { Kbd } from 'moraine'
+import type { KbdT } from 'moraine'
+```
+
+## Features
+
+- **Automated Platform Symbols**: Maps key strings like `'meta'`, `'ctrl'`, `'shift'`, `'enter'`, `'escape'` to official Mac and Windows glyphs (`⌘`, `⌃`, `⇧`, `↵`, `⎋`).
+- **Semantic `<kbd>` Markup**: Renders semantic HTML `<kbd>` elements with `aria-label` for screen reader accessibility.
+- **Multiple Visual Styles**: Supports `default` (raised surface keycap), `outline` (clean border), and `invert` (high-contrast dark key).
+- **Proportional Size Scale**: Three sizes (`sm`, `md`, `lg`) calibrated to match button, input, and menu font scales.
+
+## Playground
+
+Interactive component preview with configurable props.
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'value',
+      label: 'Key',
+      defaultValue: 'meta',
+      options: [
+        { label: 'Command / Meta', value: 'meta' },
+        { label: 'Control', value: 'ctrl' },
+        { label: 'Shift', value: 'shift' },
+        { label: 'Alt / Option', value: 'alt' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Invert', value: 'invert' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'symbol', label: 'Resolve symbol', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="flex gap-2 items-center">
+        <span class="text-xs text-muted-foreground">Press</span>
+        <Kbd value={props.value} variant={props.variant} size={props.size} symbol={props.symbol} />
+        <Kbd value="K" variant={props.variant} size={props.size} />
+        <span class="text-xs text-muted-foreground">to open command menu</span>
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (semantic HTML <kbd> element)
+└── {resolved symbol or text child}
+```
+
+- `root`: The `<kbd>` element styled with mono typography, border shadow, and rounded corners.
+
+## Usage
+
+### Keyboard notation
+
+Use `Kbd` for a single key or keycap in instructional text. It conveys displayed keyboard notation; application-level shortcut registration and platform-specific behavior remain outside the component.
+
+<Preview path="./kbd-usage" />
+
+## Examples
+
+### Shortcut composition
+
+<Preview path="./shortcut-composition" />

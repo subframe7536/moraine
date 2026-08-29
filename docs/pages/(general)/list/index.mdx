@@ -1,0 +1,97 @@
+---
+title: List
+description: A headless polymorphic collection primitive with caller-controlled item rendering and optional virtualization.
+sidebar:
+  order: 11
+search:
+  tags: [list, collection, virtualization, headless, virtual list, dynamic height]
+---
+
+import { Badge, List } from '@src'
+
+## Import
+
+```tsx
+import { List } from 'moraine'
+import { useListVirtualizer } from 'moraine/utils'
+import type { ListT } from 'moraine'
+```
+
+## Features
+
+- **Caller-Controlled Rendering**: `itemRender` receives `{ item, index, props }`, leaving row markup to the caller.
+- **Polymorphic Root**: The root defaults to `<ul>` with `role="list"` and can be changed with `as`.
+- **Optional Virtual Rendering**: `virtualRender` replaces normal iteration with a caller-provided renderer.
+- **Virtualizer Helper**: `useListVirtualizer` can be used with `virtualRender` to render only the visible portion of larger collections and pass row measurement props to `itemRender`.
+
+`List` itself does not impose a dataset-size or frame-rate guarantee; virtualization performance depends on row content, browser workload, and virtualizer configuration.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'List title', defaultValue: 'Recent projects' },
+  ]}
+>
+  {(props) => {
+    const PROJECT_ITEMS = [
+      { id: '1', name: 'Moraine UI', status: 'Active', category: 'Design System' },
+      { id: '2', name: 'SolidDocs', status: 'Review', category: 'Documentation' },
+      { id: '3', name: 'Formisch', status: 'Stable', category: 'Form Validation' },
+    ]
+
+    return (
+      <>
+        <p class="text-xs text-muted-foreground/80 tracking-wider font-medium mb-2 uppercase">{props.label}</p>
+        <List
+          items={PROJECT_ITEMS}
+          itemRender={(ctx) => (
+            <li class="p-3 border-b border-border/50 rounded-lg flex transition-colors items-center justify-between last:border-0 hover:bg-muted/30">
+              <div>
+                <p class="text-xs text-foreground font-medium">{ctx.item.name}</p>
+                <p class="text-[0.7rem] text-muted-foreground">{ctx.item.category}</p>
+              </div>
+              <Badge variant="outline" size="sm">{ctx.item.status}</Badge>
+            </li>
+          )}
+          class="p-1 border border-border/60 rounded-xl bg-card/30"
+        />
+      </>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root (<ul> by default)
+└── itemRender ({ item, index, props } ×n)
+```
+
+When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
+
+## Usage
+
+### Normal and virtual lists
+
+Use the normal renderer for modest collections. For large collections, provide the virtualizer configuration and stable item identity required by virtual rendering.
+
+<Preview path="./list-usage" />
+
+### Dynamic heights
+
+Dynamic measurement is application-owned configuration. Use it only when row height cannot be known in advance, and keep rendered row content stable enough for measurements to remain useful.
+
+<Preview path="./dynamic-heights-usage" />
+
+## Examples
+
+### Virtualization
+
+<Preview path="./virtualization" />
+
+### Dynamic heights
+
+<Preview path="./dynamic-height" />

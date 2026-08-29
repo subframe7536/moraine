@@ -53,9 +53,9 @@ export const Sidebar = (props: SidebarProps) => {
       <nav class="pb-2 flex flex-col gap-5">
         <For each={grouped()}>
           {(section) => (
-            <section>
+            <section aria-label={section.group}>
               <Show when={section.group}>
-                <div class="text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
+                <div class="text-xs text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase">
                   {section.group}
                 </div>
               </Show>
@@ -65,23 +65,40 @@ export const Sidebar = (props: SidebarProps) => {
                 class="flex flex-col gap-0.5"
                 items={section.pages}
                 itemRender={(context) => (
-                  <button
-                    type="button"
+                  <a
+                    href={context.item.path}
+                    aria-current={
+                      props.activePage() === context.item.key ? ('page' as const) : undefined
+                    }
                     class={cn(
-                      'text-sm text-muted-foreground px-2.5 py-1.75 text-left rounded-md transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
+                      'text-sm px-2.5 py-1.5 text-left rounded-lg transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
                       props.activePage() === context.item.key
-                        ? 'text-accent-foreground font-medium bg-accent'
-                        : 'hover:text-foreground hover:bg-accent/30',
+                        ? 'text-primary font-medium bg-primary/10 dark:bg-primary/15'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
                     )}
-                    onClick={() => props.setActivePage(context.item.key)}
+                    onClick={(event) => {
+                      if (
+                        event.button === 0 &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey
+                      ) {
+                        props.setActivePage(context.item.key)
+                      }
+                    }}
                   >
                     <span class="flex gap-2 min-w-0 w-full items-center justify-between">
                       <span class="truncate">{context.item.label}</span>
                       <Show when={context.item.badge}>
-                        {(badge) => <Badge variant="outline">{badge()}</Badge>}
+                        {(badge) => (
+                          <Badge variant="outline" size="sm" class="text-[0.7rem] px-1.5 py-0">
+                            {badge()}
+                          </Badge>
+                        )}
                       </Show>
                     </span>
-                  </button>
+                  </a>
                 )}
               />
             </section>
@@ -93,16 +110,15 @@ export const Sidebar = (props: SidebarProps) => {
         </Show>
 
         <section>
-          <div class="text-[0.68rem] text-muted-foreground tracking-[0.14em] font-semibold mb-1.5 mt-3 px-2 uppercase">
+          <div class="text-xs text-muted-foreground/80 tracking-tight font-semibold mb-1.5 mt-3 px-2 uppercase">
             Resources
           </div>
           <a
             href="/llms.txt"
             rel="alternate external"
             type="text/markdown"
-            class="text-sm text-muted-foreground px-2.5 py-1.75 rounded-md flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-accent/30) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-lg flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
-            <span class="i-lucide-file-text shrink-0 size-4" aria-hidden="true" />
             <span class="truncate">llms.txt</span>
           </a>
         </section>
@@ -116,14 +132,14 @@ export const SidebarHeader = (props: SidebarHeaderProps) => {
     <div
       class={cn(
         'px-4 flex shrink-0 h-13 items-center justify-between',
-        props.isMobile ? 'mt-1' : 'b-(b border)',
+        props.isMobile ? 'mt-1' : 'border-b border-border/60',
       )}
     >
       <div class="flex gap-2.5 min-w-0 items-center">
-        <img src="/favicon.svg" alt="icon" class="size-7" />
-        <p class="text-lg font-semibold truncate">
+        <img src="/favicon.svg" alt="icon" class="size-6" />
+        <p class="text-base font-semibold flex truncate items-center">
           Moraine
-          <Badge size="sm" variant="outline" class="font-mono ms-1.5">
+          <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono ms-2 px-1.5 py-0">
             v{version}
           </Badge>
         </p>

@@ -1,0 +1,110 @@
+---
+title: AvatarGroup
+description: A container that stacks overlapping avatars horizontally with automatic overflow count calculation and hover depth effects.
+sidebar:
+  order: 5
+search:
+  tags: [profiles, stack, overflow, users, avatar group, team, assignees]
+---
+
+import { Avatar, AvatarGroup } from '@src'
+
+## Import
+
+Import the component and its companion types from the package root:
+
+```tsx
+import { Avatar, AvatarGroup } from 'moraine'
+import type { AvatarGroupT } from 'moraine'
+```
+
+## Features
+
+- **Negative Spacing Stacking**: Automatically overlays avatars with matching background ring borders to cleanly delineate adjacent items.
+- **Dynamic Overflow Truncation**: When total items exceed `max`, extra avatars are summarized into an accessible `+N` badge.
+- **Cascading Size Control**: Setting `size` on `AvatarGroup` automatically propagates to all nested avatars and the overflow badge.
+- **Interactive Depth Elevation**: Individual avatars lift on hover with elevation z-index so users can inspect obscured faces.
+
+## Playground
+
+Interactive component preview with configurable props.
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'max', label: 'Visible avatars', defaultValue: 3, inputType: 'number' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => {
+    return (
+      <AvatarGroup max={props.max} size={props.size}>
+        <Avatar
+          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+          alt="Sarah Connor"
+          text="SC"
+        />
+        <Avatar
+          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+          alt="John Doe"
+          text="JD"
+        />
+        <Avatar
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+          alt="Emily Davis"
+          text="ED"
+        />
+        <Avatar
+          src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
+          alt="Michael Scott"
+          text="MS"
+        />
+        <Avatar
+          src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop&q=80"
+          alt="Jane Wilson"
+          text="JW"
+        />
+      </AvatarGroup>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+```text
+root (horizontal avatar stack)
+├── item (individual Avatar instance ×n)
+│   ├── image
+│   ├── fallback
+│   └── badge
+└── count (overflow counter pill "+N")
+```
+
+- `root`: Flex container applying negative horizontal margins and border rings.
+- `item`: Composed child `Avatar` instances.
+- `count`: Badge showing remaining count when `children.length > max`.
+
+## Usage
+
+### Grouping avatars
+
+Use `AvatarGroup` to apply consistent overlap and ordering to a collection of Avatar children. Configure an overflow indicator when only a bounded number should be visible; it communicates a count, not the omitted identities.
+
+<Preview path="./grouping-usage" />
+
+## Examples
+
+### Overflow indicator
+
+<Preview path="./overflow" />

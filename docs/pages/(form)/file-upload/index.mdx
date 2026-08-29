@@ -1,0 +1,134 @@
+---
+title: FileUpload
+description: A drag-and-drop file upload component supporting multiple files, rejection validation rules, image previews, and compact trigger buttons.
+sidebar:
+  order: 13
+search:
+  tags: [dropzone, files, upload, progress, attachments, drag and drop]
+---
+
+import { FileUpload } from '@src'
+
+## Import
+
+Import the component and its companion types from the package root:
+
+```tsx
+import { FileUpload } from 'moraine'
+import type { FileUploadT } from 'moraine'
+```
+
+## Features
+
+- **Drag-and-Drop Dropzone**: Native dragover, dragleave, and drop event handlers with visual focus and hover state feedback.
+- **Single & Multiple File Mode**: Select individual files (like avatars) or append multiple files up to a configured `maxFiles` limit.
+- **Granular Rejection Rules**: Built-in validation rejecting invalid MIME types (`accept`), oversized files (`maxSize`), undersized files (`minSize`), and duplicates with detailed error callbacks.
+- **Trigger-Only Mode**: Disable the full dropzone with `dropzone={false}` to render a compact, accessible file picker button.
+- **Integrated File Preview & Removal**: Built-in file items displaying thumbnail previews, formatted file sizes, and quick delete actions.
+
+## Playground
+
+Interactive component preview with configurable props.
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'dropzone', label: 'Dropzone', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <FileUpload
+        label="Upload documents"
+        description="Drag & drop PDF, PNG, or JPG up to 10MB"
+        size={props.size}
+        disabled={props.disabled}
+        dropzone={props.dropzone}
+      />
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+Hierarchical slot and element structure:
+
+### Upload area
+
+```text
+root
+├── input (visually hidden native file input)
+└── control (dropzone container or trigger button)
+    └── wrapper
+        ├── icon (leading upload icon)
+        ├── label (title text)
+        └── description (formats & size instructions)
+```
+
+### File preview list
+
+```text
+root
+└── files (file list container)
+    └── file (individual file item ×n)
+        ├── filePreview (thumbnail or file icon)
+        ├── fileMeta (metadata column)
+        │   ├── fileName (file name string)
+        │   └── fileSize (formatted byte size)
+        └── fileRemove (remove action button)
+```
+
+- `root`: Outer component container.
+- `control`: The interactive dropzone target or button triggering the native file picker.
+- `files`: Container grouping all staged attachments.
+- `fileRemove`: Individual remove button emitting delete events.
+
+## Usage
+
+### Selecting files
+
+Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
+
+<Preview path="./selecting-files" />
+
+### Rejections and form behavior
+
+`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list; `disabled` also removes interaction.
+
+<Preview path="./form-behavior" />
+
+### Keyboard interaction
+
+| Key                                 | Description                                                                              |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
+| <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
+
+## Examples
+
+### Multiple files
+
+<Preview path="./multiple-max-files" />
+
+### File rejections
+
+<Preview path="./rejections" />
+
+### Trigger-only picker
+
+<Preview path="./trigger-mode-no-dropzone" />
+
+### Form integration
+
+<Preview path="./form-integration" />

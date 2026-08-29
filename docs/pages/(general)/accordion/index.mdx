@@ -1,0 +1,119 @@
+---
+title: Accordion
+description: A stacked disclosure component with single or multiple expanded sections, optional collapse restrictions, and keyboard focus navigation.
+sidebar:
+  order: 7
+search:
+  tags: [disclosure, expand, collapse, sections, accordion, faq, panels]
+---
+
+import { Accordion } from '@src'
+
+## Import
+
+```tsx
+import { Accordion } from 'moraine'
+import type { AccordionT } from 'moraine'
+```
+
+## Features
+
+- **Single & Multiple Expansion**: `multiple={false}` keeps at most one item open; enable `multiple` for concurrent sections.
+- **Collapse Control**: `collapsible={false}` prevents the last open item from being collapsed in single-selection mode.
+- **Presence-Based Content Transition**: Expanded content is measured for disclosure styling and can remain mounted through its exit transition.
+- **Disclosure Semantics**: Each item uses an `<h3>` header and `<button>` trigger with `aria-expanded`; an expanded trigger references its content with `aria-controls`.
+- **Keyboard Focus Navigation**: Arrow keys, Home, and End move among enabled triggers; `loopFocus` controls wrapping.
+- **Per-Item Disabling**: Disable individual sections or the entire accordion.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'collapsible', label: 'Collapsible', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    const FAQ_ITEMS = [
+      {
+        value: 'install',
+        label: 'How do I install Moraine?',
+        content: 'Install moraine and configure either UnoCSS or Tailwind CSS before rendering components.',
+      },
+      {
+        value: 'ssr',
+        label: 'Is server-side rendering supported?',
+        content: 'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
+      },
+      {
+        value: 'customize',
+        label: 'Can I customize component styles?',
+        content: 'Components expose root class/style props and named slot classes/styles where applicable.',
+      },
+    ]
+
+    return (
+      <div class="max-w-full w-96">
+        <Accordion
+          items={FAQ_ITEMS}
+          defaultValue={['install']}
+          disabled={props.disabled}
+          collapsible={props.collapsible}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+root
+└── item (×n)
+    ├── header (<h3>)
+    │   └── trigger (<button>)
+    │       ├── leading (optional)
+    │       ├── label
+    │       └── trailing (optional)
+    └── content
+```
+
+## Usage
+
+### Open items
+
+Use a single value for one open item or an array when multiple items may be open. In controlled usage, pair the value with `onChange`. `collapsible` determines whether the currently open item may be closed.
+
+<Preview path="./open-items" />
+
+### Content lifetime
+
+Accordion item content can remain mounted or unmount while closed according to its configuration. Choose based on whether hidden controls need to preserve local state.
+
+<Preview path="./content-lifetime" />
+
+### Keyboard interaction
+
+| Key                                 | Description                                  |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
+| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
+| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
+
+## Examples
+
+### Single item
+
+<Preview path="./single" />
+
+### Multiple items
+
+<Preview path="./multiple" />
+
+### Disabled and custom content
+
+<Preview path="./disabled-custom-content" />

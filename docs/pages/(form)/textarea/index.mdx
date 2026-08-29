@@ -1,0 +1,120 @@
+---
+title: Textarea
+description: A multi-line text input with optional auto-resizing, row limits, header and footer content, and FormField integration.
+sidebar:
+  order: 4
+search:
+  tags: [multiline, text field, autoresize, form control, textarea, notes, composer]
+---
+
+import { Textarea } from '@src'
+
+## Import
+
+```tsx
+import { Textarea } from 'moraine'
+import type { TextareaT } from 'moraine'
+```
+
+## Features
+
+- **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
+- **Row Limits**: Use `rows` and `maxRows` to bound auto-resized height.
+- **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
+- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
+- **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Write a comment or description...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'autoResize', label: 'Auto-resize', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Textarea
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      autoResize={props.autoResize}
+      rows={3}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+root
+├── header (optional)
+├── input (native <textarea>)
+└── footer (optional)
+```
+
+## Usage
+
+### Native text behavior
+
+`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values. Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
+
+<Preview path="./native-behavior" />
+
+### Size and composition
+
+Enable autoresize and constrain it with `rows` and `maxRows`. Header and footer regions are composition slots; counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+
+<Preview path="./composition" />
+
+### Keyboard interaction
+
+Textarea preserves native keyboard behavior. Submit shortcuts such as Cmd/Ctrl+Enter and custom Tab indentation are application-level behaviors that callers can implement when needed.
+
+| Key              | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| <kbd>Enter</kbd> | Inserts a line break in the textarea.                                          |
+| <kbd>Tab</kbd>   | Moves focus according to normal browser behavior unless handled by the caller. |
+
+## Examples
+
+### Autoresize
+
+<Preview path="./autoresize" />
+
+### Header and footer
+
+<Preview path="./header-footer" />
+
+### Character count
+
+<Preview path="./character-count" />

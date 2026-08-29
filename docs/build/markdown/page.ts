@@ -3,11 +3,11 @@ import path from 'node:path'
 import type { MdxOptions } from 'solid-file-router/plugin'
 
 import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
+import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
 import { resolveDocsPageContext } from '../core/paths.ts'
-import { createDocsRouteInfo, docsRoutePath } from '../routes.ts'
+import { createDocsRouteInfo } from '../routes.ts'
 
 import { createMdxCodeTabsPlugin } from './code-tabs.ts'
-import { createMdxExamplesPlugin } from './examples.ts'
 import { validateFrontmatterData } from './frontmatter.ts'
 import {
   createDocsCodePlugin,
@@ -16,6 +16,7 @@ import {
   DOCS_ON_THIS_PAGE_DATA_KEY,
 } from './plugins.ts'
 import type { OnThisPageEntryLiteral } from './plugins.ts'
+import { createMdxPreviewsPlugin } from './previews.ts'
 import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
 
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
@@ -74,29 +75,25 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     pagesDir: 'pages',
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
-      () => createMdxExamplesPlugin(),
+      () => createMdxPreviewsPlugin(),
       () => createMdxCodeTabsPlugin(),
       () => createDocsCodePlugin(),
     ],
     hastPlugins: [() => createDocsHastPlugin()],
-    transformPath(sourcePath, defaultEntry) {
-      const page = resolveDocsPageContext(getDocsSourcePath(projectRoot, sourcePath))
-      return {
-        ...defaultEntry,
-        path: docsRoutePath(page),
-      }
-    },
     extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
       const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
-      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys)
-      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
-      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
+      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
+      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys, [
+        ...onThisPageEntries,
+        ...getApiReferenceTocEntries(apiDoc),
+      ])
+      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
 
       return {
         routeConfig: { info, metadata },

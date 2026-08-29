@@ -1,0 +1,149 @@
+---
+title: InputNumber
+description: A numeric spinbutton input with boundary clamping, configurable step intervals, press-and-hold repeat, and horizontal or vertical stepper layouts.
+sidebar:
+  order: 5
+search:
+  tags: [number, stepper, spinbutton, numeric, counter, quantity]
+---
+
+import { InputNumber } from '@src'
+import { createSignal } from 'solid-js'
+
+## Import
+
+```tsx
+import { InputNumber } from 'moraine'
+import type { InputNumberT } from 'moraine'
+```
+
+## Features
+
+- **Boundary Clamping**: `minValue` and `maxValue` constrain committed values.
+- **Decimal-Safe Stepping**: Increment and decrement operations use `step` without accumulating common floating-point artifacts.
+- **Horizontal & Vertical Controls**: Place decrement/increment buttons on the sides or stack them in a right-hand rail.
+- **Press-and-Hold Repeat**: Hold a step button to repeat after `repeatDelayMs` at the configured `repeatIntervalMs`; disable it with `holdRepeat={false}`.
+- **Spinbutton Semantics**: The input exposes spinbutton value metadata such as `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` where applicable.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'increment', label: 'Increment control', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="max-w-full w-64">
+        <InputNumber
+          variant={props.variant}
+          size={props.size}
+          orientation={props.orientation}
+          disabled={props.disabled}
+          increment={props.increment}
+          minValue={0}
+          maxValue={100}
+        />
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+### Horizontal layout
+
+```text
+root
+├── decrement
+├── input
+└── increment
+```
+
+### Vertical layout
+
+```text
+root
+├── input
+└── controls
+    ├── increment
+    └── decrement
+```
+
+- `root`: Container applying variant styling and focus state.
+- `input`: Numeric text entry and spinbutton keyboard target.
+- `increment` / `decrement`: Step buttons with optional press-and-hold repeat.
+
+## Usage
+
+### Values and boundaries
+
+Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and `onChange` expose the locale-formatted string. The component preserves partial typed input until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
+
+<Preview path="./boundaries" />
+
+### Stepping and repeat
+
+`step` controls increment and decrement buttons, while `largeStep` controls PageUp and PageDown. Hold-to-repeat is enabled by default and can be tuned with the repeat timing props.
+
+<Preview path="./stepping" />
+
+### Keyboard interaction
+
+| Key                  | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| <kbd>ArrowUp</kbd>   | Increments the value by `step`.                         |
+| <kbd>ArrowDown</kbd> | Decrements the value by `step`.                         |
+| <kbd>PageUp</kbd>    | Increments by `largeStep` (defaults to `step * 10`).    |
+| <kbd>PageDown</kbd>  | Decrements by `largeStep` (defaults to `step * 10`).    |
+| <kbd>Home</kbd>      | Sets the value to `minValue` when a minimum is defined. |
+| <kbd>End</kbd>       | Sets the value to `maxValue` when a maximum is defined. |
+| <kbd>Enter</kbd>     | Commits the current text input as a numeric value.      |
+
+## Examples
+
+### Controlled value
+
+<Preview path="./controlled" />
+
+### Keyboard stepping
+
+<Preview path="./keyboard-stepping" />
+
+### Press and hold
+
+<Preview path="./long-press" />

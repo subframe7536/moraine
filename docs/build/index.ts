@@ -1,5 +1,4 @@
 export { docsBuildPlugin } from './plugin.ts'
-export { scanDocsRoutes } from './routes.ts'
 export { createDocsMdxOptions } from './markdown/page.ts'
-export { buildSiteMetaTags, siteMetaPlugin } from './site-meta.ts'
-export { buildLlmsDocuments, buildLlmsTxt, llmsTxtPlugin } from './llms.ts'
+export { siteMetaPlugin } from './site-meta.ts'
+export { llmsTxtPlugin } from './llms.ts'

@@ -4,10 +4,36 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
-import type { DocsPageContext } from './core/paths.ts'
-import { createDocsRouteInfo, docsRoutePath, scanDocsRoutes } from './routes.ts'
+import { resolveDocsPageContext } from './core/paths.ts'
+import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
+
+vi.mock('virtual:routes', () => ({
+  routeInfo: {
+    '/button': {
+      key: 'button',
+      title: 'Button',
+      description: 'Button description.',
+      order: 1,
+      tags: ['button'],
+      sections: [
+        { id: 'usage', label: 'Usage', level: 2 },
+        null,
+        { id: '', label: 'Missing ID', level: 2 },
+        { id: 'invalid-level', label: 'Invalid level', level: 7 },
+      ],
+    },
+    '/input': {
+      key: 'input',
+      title: 'Input',
+      description: 'Input description.',
+      order: 2,
+      tags: ['input'],
+      sections: [null, { id: 'label', label: 'Label', level: '2' }],
+    },
+  },
+}))
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
@@ -32,6 +58,23 @@ search:
 }
 
 describe('docs route metadata', () => {
+  test('retains valid pages while dropping malformed optional section entries', async () => {
+    const { getDocsPages } = await import('../routes/docs-route.ts')
+
+    expect(getDocsPages()).toMatchObject([
+      {
+        key: 'button',
+        path: '/button',
+        sections: [{ id: 'usage', label: 'Usage', level: 2 }],
+      },
+      {
+        key: 'input',
+        path: '/input',
+        sections: [],
+      },
+    ])
+  })
+
   test('scans mdx pages into metadata and logical provider paths', async () => {
     const projectRoot = await createTempProject()
 
@@ -41,10 +84,10 @@ describe('docs route metadata', () => {
         'docs/pages/_api-index.json',
         JSON.stringify({ components: [{ key: 'button', name: 'Button' }] }),
       )
-      await writeProjectFile(projectRoot, 'docs/pages/introduction.mdx', pageSource('Intro', 10))
+      await writeProjectFile(projectRoot, 'docs/pages/index.mdx', pageSource('Intro', 10))
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 20, 'New'),
       )
 
@@ -52,7 +95,7 @@ describe('docs route metadata', () => {
         { info: { key: 'introduction', title: 'Intro' }, routePath: 'index.tsx' },
         {
           info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
-          routePath: path.join('(general)', 'button.tsx'),
+          routePath: path.posix.join('(general)', 'button', 'index.tsx'),
         },
       ])
     } finally {
@@ -67,12 +110,12 @@ describe('docs route metadata', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/button/button.mdx',
+        'docs/pages/(general)/button/index.mdx',
         pageSource('Button', 10),
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/general/input/input.mdx',
+        'docs/pages/(general)/input/index.mdx',
         pageSource('Input', 10),
       )
 
@@ -82,7 +125,20 @@ describe('docs route metadata', () => {
     }
   })
 
-  test('builds route metadata and path independently for provider callbacks', () => {
+  test('resolves root index pages and pathless groups like the file router', () => {
+    expect(resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toMatchObject({
+      pageKey: 'introduction',
+      group: undefined,
+      relativePath: 'index.mdx',
+    })
+    expect(resolveDocsPageContext('/tmp/docs/pages/(general)/button/index.mdx')).toMatchObject({
+      pageKey: 'button',
+      group: 'general',
+      relativePath: '(general)/button/index.mdx',
+    })
+  })
+
+  test('builds route metadata independently from provider paths', () => {
     expect(
       createDocsRouteInfo(
         'button',
@@ -104,14 +160,55 @@ describe('docs route metadata', () => {
       group: 'general',
       api: 'button',
     })
-    const page: DocsPageContext = {
-      absolutePath: '/tmp/docs/pages/introduction.mdx',
-      docsRoot: '/tmp/docs',
-      pagesRoot: '/tmp/docs/pages',
-      relativePath: 'introduction.mdx',
-      pageKey: 'introduction',
-      runtimeImportPath: './pages/introduction.mdx',
-    }
-    expect(docsRoutePath(page)).toBe('index.tsx')
+  })
+
+  test('includes non-empty document sections without changing other metadata', () => {
+    expect(
+      createDocsRouteInfo(
+        'button',
+        'general',
+        {
+          title: 'Button',
+          description: 'Button description.',
+          sidebar: { order: 1, badge: 'New' },
+          search: { tags: ['button'] },
+        },
+        new Set(['button']),
+        [
+          { id: 'usage', label: 'Usage', level: 2 },
+          { id: 'usage-1', label: 'Usage', level: 2 },
+        ],
+      ),
+    ).toEqual({
+      key: 'button',
+      title: 'Button',
+      description: 'Button description.',
+      order: 1,
+      tags: ['button'],
+      group: 'general',
+      badge: 'New',
+      api: 'button',
+      sections: [
+        { id: 'usage', label: 'Usage', level: 2 },
+        { id: 'usage-1', label: 'Usage', level: 2 },
+      ],
+    })
+  })
+
+  test('omits empty document sections from route metadata', () => {
+    expect(
+      createDocsRouteInfo(
+        'button',
+        undefined,
+        {
+          title: 'Button',
+          description: 'Button description.',
+          sidebar: { order: 1 },
+          search: { tags: ['button'] },
+        },
+        new Set(),
+        [],
+      ),
+    ).not.toHaveProperty('sections')
   })
 })

@@ -30,7 +30,7 @@ const config = {
     solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
     fileRouter({
       pagesDir: 'routes',
-      ignore: [...DEFAULT_IGNORES, 'hooks'],
+      ignore: [...DEFAULT_IGNORES, 'hooks', '**/*.test.tsx'],
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
@@ -46,6 +46,7 @@ const config = {
         group: 'string',
         badge: 'string',
         api: 'string',
+        sections: '{ id: string; label: string; level: number }[]',
       },
     }) as unknown,
     siteMetaPlugin({
@@ -64,6 +65,41 @@ const config = {
       '@src': path.resolve(projectRoot, 'src'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'moraine-elements',
+              test: /[\\/]src[\\/]elements[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-forms',
+              test: /[\\/]src[\\/]forms[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-navigation',
+              test: /[\\/]src[\\/]navigation[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-overlays',
+              test: /[\\/]src[\\/]overlays[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+            {
+              name: 'moraine-shared',
+              test: /[\\/]src[\\/]shared[\\/]/,
+              includeDependenciesRecursively: false,
+            },
+          ],
+        },
+      },
+    },
   },
 } as unknown as UserConfig
 
