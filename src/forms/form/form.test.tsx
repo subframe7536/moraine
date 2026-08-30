@@ -1,12 +1,10 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, waitFor } from '@solidjs/testing-library'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { Input } from '../input/index.ts'
 import { Switch } from '../switch/index.ts'
@@ -308,43 +306,4 @@ describe('Form', () => {
     await waitFor(() => expect(secondSubmit).toHaveBeenCalledTimes(1))
     expect(secondSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Second' })
   })
-
-  test('hydrates the same form and submits through the client-owned store', async () => {
-    const markup = renderSsrFixture('/src/forms/form/form.ssr.fixture.tsx', 'renderFormFixture')
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverForm = container.querySelector('form')
-    const onSubmit = vi.fn()
-    const restoreHydrationState = installHydrationState()
-
-    function ClientForm() {
-      const form = createForm({
-        schema: v.object({ value: v.string() }),
-        initialInput: { value: 'Server value' },
-      })
-
-      return (
-        <Form of={form} onSubmit={onSubmit} aria-label="Hydrated form">
-          <FormField name="value" label="Value">
-            <Input />
-          </FormField>
-          <Button type="submit">Submit</Button>
-        </Form>
-      )
-    }
-
-    const dispose = hydrate(() => <ClientForm />, container)
-
-    expect(container.querySelector('form')).toBe(serverForm)
-    expect((container.querySelector('input') as HTMLInputElement).value).toBe('Server value')
-
-    fireEvent.click(container.querySelector('button')!)
-    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
-    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Server value' })
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

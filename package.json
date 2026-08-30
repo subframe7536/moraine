@@ -51,7 +51,7 @@
     "docs:build": "bun run build && vite build docs",
     "docs:preview": "bun run docs:build && vite preview docs --outDir dist/client",
     "test": "vitest --run",
-    "test:types": "bun run build && tsc -p test/types/default/tsconfig.json && tsc -p test/types/autocomplete/tsconfig.json",
+    "test:types": "bun run build && tsc -p src/shared/type-test/default/tsconfig.json && tsc -p src/shared/type-test/autocomplete/tsconfig.json",
     "test:dev": "vitest",
     "lint": "oxlint --fix",
     "format": "oxfmt",

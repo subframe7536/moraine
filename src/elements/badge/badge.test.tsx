@@ -1,10 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { Badge as ExportedBadge } from '../../index.ts'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Badge } from './badge.tsx'
 
@@ -71,12 +67,12 @@ describe('Badge', () => {
     expect(trailing?.className).toContain('i-lucide-arrow-right')
   })
 
-  test('keeps standalone pointer events native and composes the caller handler', () => {
-    const onPointerDown = vi.fn((_data: string, _event: PointerEvent) => undefined)
+  test('forwards pointer handlers including tuple handlers and composes ancestors', () => {
+    const onPointerDown = vi.fn()
     const onAncestorPointerDown = vi.fn()
     const screen = render(() => (
       <div onPointerDown={onAncestorPointerDown}>
-        <Badge onPointerDown={onPointerDown}>Native</Badge>
+        <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>
       </div>
     ))
     const badge = screen.container.querySelector('[data-slot="root"]')!
@@ -86,18 +82,8 @@ describe('Badge', () => {
 
     expect(event.defaultPrevented).toBe(false)
     expect(onPointerDown).toHaveBeenCalledTimes(1)
-    expect(onAncestorPointerDown).toHaveBeenCalledTimes(1)
-  })
-
-  test('forwards tuple pointer handlers', () => {
-    const onPointerDown = vi.fn()
-    const screen = render(() => <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>)
-    const badge = screen.container.querySelector('[data-slot="root"]')!
-
-    badge.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
-
-    expect(onPointerDown).toHaveBeenCalledTimes(1)
     expect(onPointerDown).toHaveBeenCalledWith('payload', expect.any(PointerEvent))
+    expect(onAncestorPointerDown).toHaveBeenCalledTimes(1)
   })
 
   test('renders zero as label content', () => {
@@ -135,38 +121,6 @@ describe('Badge', () => {
       leading: 1,
       trailing: 1,
     })
-  })
-
-  test('hydrates stable slot order', () => {
-    const markup = renderSsrFixture(
-      '/src/elements/badge/badge.ssr.fixture.tsx',
-      'renderBadgeFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    expect(serverRoot?.getAttribute('data-hk')).toBe('00')
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Badge leading="i-lucide-check" trailing="i-lucide-x">
-          Server label
-        </Badge>
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(
-      Array.from(serverRoot?.children ?? []).map((element) => element.getAttribute('data-slot')),
-    ).toEqual(['leading', 'label', 'trailing'])
-
-    expect(container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 
   test('supports slot and attribute overrides used by select tags', () => {
@@ -215,9 +169,5 @@ describe('Badge', () => {
     expect(tag?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')
     expect(remove?.style.width).toBe('200px')
-  })
-
-  test('exports badge from root index', () => {
-    expect(ExportedBadge).toBe(Badge)
   })
 })

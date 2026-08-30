@@ -2,9 +2,7 @@ import { render, screen } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
 import { KbdGroup } from './kbd-group.tsx'
-import type { KbdGroupProps } from './kbd-group.tsx'
 import { Kbd } from './kbd.tsx'
-import type { KbdProps, KbdT } from './kbd.tsx'
 
 describe('Kbd', () => {
   test('renders a keycap in the root slot', () => {
@@ -101,26 +99,6 @@ describe('Kbd', () => {
     expect(root?.style.width).toBe('200px')
     expect(root?.style.height).toBe('20px')
   })
-
-  test('rejects invalid props in the type contract', () => {
-    const aliasKey: KbdT.Key = 'meta'
-    const rawKey: KbdT.Key = 'F13'
-    const dynamicValue: string = 'MediaPlayPause'
-    const dynamicKey: KbdT.Key = dynamicValue
-    // @ts-expect-error value is required
-    const missingValueProps: KbdProps = {}
-    // @ts-expect-error size must be a declared Kbd size
-    const invalidSizeProps: KbdProps = { size: 'invalid', value: 'K' }
-    // @ts-expect-error key values must be strings
-    const invalidValueProps: KbdProps = { value: 13 }
-
-    expect(aliasKey).toBe('meta')
-    expect(rawKey).toBe('F13')
-    expect(dynamicKey).toBe('MediaPlayPause')
-    expect(missingValueProps).toBeDefined()
-    expect(invalidSizeProps).toBeDefined()
-    expect(invalidValueProps).toBeDefined()
-  })
 })
 
 describe('KbdGroup', () => {
@@ -212,26 +190,5 @@ describe('KbdGroup', () => {
     expect(item?.style.height).toBe('20px')
     expect(divider?.className).toContain('divider-class')
     expect(divider?.style.width).toBe('10px')
-  })
-
-  test('accepts items and sequence in the type contract', () => {
-    const itemsProps: KbdGroupProps = { items: ['Ctrl', { value: 'K' }] }
-    const sequenceProps: KbdGroupProps = {
-      sequence: [
-        ['Ctrl', 'K'],
-        ['Ctrl', 'S'],
-      ],
-    }
-    const combinedProps: KbdGroupProps = { items: ['Ignored'], sequence: [['Ctrl', 'S']] }
-    // @ts-expect-error item objects require value
-    const invalidItemProps: KbdGroupProps = { items: [{ label: 'Missing value' }] }
-    // @ts-expect-error sequence must contain arrays of items
-    const flatSequenceProps: KbdGroupProps = { sequence: ['Ctrl', 'S'] }
-
-    expect(itemsProps).toBeDefined()
-    expect(sequenceProps).toBeDefined()
-    expect(combinedProps).toBeDefined()
-    expect(invalidItemProps).toBeDefined()
-    expect(flatSequenceProps).toBeDefined()
   })
 })

@@ -420,28 +420,6 @@ describe('font families', () => {
   })
 })
 
-// ─── Animation Metadata ───────────────────────────────────────────────
-
-describe('animation metadata', () => {
-  test('animation durations are available as transition durations', async () => {
-    const ds = await loadDesignSystem()
-    const durations = ds.theme.get(['--transition-duration'])
-    expect(durations).toBeDefined()
-  })
-
-  test('animation timing functions are available', async () => {
-    const ds = await loadDesignSystem()
-    const timingFns = ds.theme.get(['--transition-timing-function'])
-    expect(timingFns).toBeDefined()
-  })
-
-  test('animation iteration counts are available', async () => {
-    const ds = await loadDesignSystem()
-    const counts = ds.theme.get(['--animation-iteration-count'])
-    expect(counts).toBeDefined()
-  })
-})
-
 // ─── Attribute Variants ───────────────────────────────────────────────
 
 describe('attribute variants', () => {

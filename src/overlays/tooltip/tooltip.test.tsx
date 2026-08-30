@@ -1,13 +1,11 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
 import { Tooltip } from './tooltip.tsx'
-import type { TooltipProps, TooltipT } from './tooltip.tsx'
+import type { TooltipT } from './tooltip.tsx'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -180,9 +178,14 @@ describe('Tooltip', () => {
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
-  test('allows a fully controlled overlay without a trigger', () => {
-    const props: TooltipProps = { open: true, text: 'Tooltip content' }
-    expect(props).toBeDefined()
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => <Tooltip open text="Tooltip content" />)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+        'Tooltip content',
+      )
+    })
   })
 
   test('applies styles override to content', () => {
@@ -431,8 +434,8 @@ describe('Tooltip', () => {
 
     const firstId = first.getByRole('button').getAttribute('aria-describedby')
     const secondId = second.getByRole('button').getAttribute('aria-describedby')
-    expect(firstId).toBeTruthy()
-    expect(secondId).toBeTruthy()
+    expect(firstId).toMatch(/.+/)
+    expect(secondId).toMatch(/.+/)
     expect(firstId).not.toBe(secondId)
     expect(document.getElementById(firstId!)).not.toBeNull()
     expect(document.getElementById(secondId!)).not.toBeNull()
@@ -682,45 +685,5 @@ describe('Tooltip', () => {
 
     await vi.advanceTimersByTimeAsync(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
-  })
-
-  test('hydrates closed JSX and opens it from keyboard focus', async () => {
-    vi.useFakeTimers()
-    const markup = renderSsrFixture(
-      '/src/overlays/tooltip/tooltip.ssr.fixture.tsx',
-      'renderTooltipFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTrigger = container.querySelector('[data-slot="trigger"]')
-    const restoreHydrationState = installHydrationState()
-    const dispose = hydrate(
-      () => (
-        <Tooltip openDelay={50} text={<span>Hydrated tooltip</span>} kbds={['Ctrl', 'K']}>
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
-        </Tooltip>
-      ),
-      container,
-    )
-    const trigger = container.querySelector('[data-slot="trigger"]')!
-
-    expect(trigger).toBe(serverTrigger)
-    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
-
-    fireEvent.focus(trigger)
-    await vi.advanceTimersByTimeAsync(50)
-    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain(
-      'Hydrated tooltip',
-    )
-    expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Ctrl')
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 })

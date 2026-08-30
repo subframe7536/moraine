@@ -1,27 +1,15 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
 import { Popover } from './popover.tsx'
-import type { PopoverProps, PopoverT } from './popover.tsx'
+import type { PopoverT } from './popover.tsx'
 
 let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
-
-async function finishExitMotion(
-  content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null,
-): Promise<void> {
-  await Promise.resolve()
-
-  if (content) {
-    fireEvent.animationEnd(content)
-    fireEvent.transitionEnd(content)
-  }
-}
 
 describe('Popover', () => {
   beforeEach(() => {
@@ -352,9 +340,14 @@ describe('Popover', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
-  test('allows a fully controlled overlay without a trigger', () => {
-    const props: PopoverProps = { open: true, content: 'No trigger' }
-    expect(props).toBeDefined()
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => <Popover open content="No trigger" />)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+        'No trigger',
+      )
+    })
   })
 
   test('does not render body wrapper when content is undefined or null', () => {
@@ -699,49 +692,5 @@ describe('Popover', () => {
     expect(updatedContent?.className).toContain('data-closed:animate-popover-out')
     expect(updatedContent?.className).toContain('animate-popover-side-right')
     expect(updatedContent?.className).not.toContain('animate-popover-side-bottom')
-  })
-
-  test('hydrates closed hover markup and opens it from keyboard focus', async () => {
-    vi.useFakeTimers()
-    const markup = renderSsrFixture(
-      '/src/overlays/popover/popover.ssr.fixture.tsx',
-      'renderPopoverFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTrigger = container.querySelector('[data-slot="trigger"]')
-    const restoreHydrationState = installHydrationState()
-    const dispose = hydrate(
-      () => (
-        <Popover
-          mode="hover"
-          openDelay={50}
-          ariaLabel="Hydrated popover"
-          content={<span>Hydrated content</span>}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
-        </Popover>
-      ),
-      container,
-    )
-    const trigger = container.querySelector('[data-slot="trigger"]')!
-
-    expect(trigger).toBe(serverTrigger)
-    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
-
-    fireEvent.focus(trigger)
-    await vi.advanceTimersByTimeAsync(50)
-    expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain(
-      'Hydrated content',
-    )
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 })

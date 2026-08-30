@@ -1,13 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { Modal } from '../modal/index.ts'
 import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
@@ -36,26 +35,6 @@ function TestModal(props: TestModalProps): JSX.Element {
       </Show>
     </Modal>
   )
-}
-
-async function finishExitMotion(): Promise<void> {
-  await Promise.resolve()
-  const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
-  ) as HTMLElement[]
-  const overlays = Array.from(
-    document.body.querySelectorAll('[data-slot="overlay"]'),
-  ) as HTMLElement[]
-
-  for (const content of contents) {
-    fireEvent.animationEnd(content)
-    fireEvent.transitionEnd(content)
-  }
-
-  for (const overlay of overlays) {
-    fireEvent.animationEnd(overlay)
-    fireEvent.transitionEnd(overlay)
-  }
 }
 
 function expectAriaReferencesToResolve(content: Element): void {
@@ -384,99 +363,6 @@ describe('Modal', () => {
       header: 1,
       title: 1,
     })
-  })
-
-  test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
-    const markup = renderSsrFixture(
-      '/src/overlays/dialog/dialog.ssr.fixture.tsx',
-      'renderDialogFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTriggers = container.querySelectorAll<HTMLButtonElement>('[data-slot="trigger"]')
-    const customTrigger = serverTriggers[0]!
-    const defaultTrigger = serverTriggers[1]!
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <>
-          <Dialog
-            title="Server title"
-            description="Server description"
-            header={<div data-testid="server-header">Server header</div>}
-            body={<div data-testid="server-body">Server body</div>}
-            footer={<div data-testid="server-footer">Server footer</div>}
-            closeIcon={<span data-testid="server-close-icon">Close</span>}
-            ariaLabel="Server dialog"
-          >
-            {(props) => (
-              <button {...props} type="button">
-                Open custom dialog
-              </button>
-            )}
-          </Dialog>
-          <Dialog
-            title="Default title"
-            description="Default description"
-            body={<div data-testid="default-body">Default body</div>}
-            footer={<div data-testid="default-footer">Default footer</div>}
-            closeIcon={<span data-testid="default-close-icon">Close</span>}
-          >
-            {(props) => (
-              <button {...props} type="button">
-                Open default dialog
-              </button>
-            )}
-          </Dialog>
-        </>
-      ),
-      container,
-    )
-
-    expect(container.querySelectorAll('[data-slot="trigger"]')[0]).toBe(customTrigger)
-    expect(container.querySelectorAll('[data-slot="trigger"]')[1]).toBe(defaultTrigger)
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-
-    fireEvent.click(customTrigger)
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-    })
-    const content = document.body.querySelector('[data-slot="content"]')!
-    expect(content.getAttribute('aria-label')).toBe('Server dialog')
-    expect(content.getAttribute('aria-labelledby')).toBeNull()
-    expect(content.getAttribute('aria-describedby')).toBeNull()
-    expect(document.body.querySelector('[data-testid="server-header"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-body"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-footer"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-close-icon"]')).toBeNull()
-
-    fireEvent.keyDown(content, { key: 'Escape' })
-    await finishExitMotion()
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-      expect(document.activeElement).toBe(customTrigger)
-    })
-
-    fireEvent.click(defaultTrigger)
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-    })
-    const defaultContent = document.body.querySelector('[data-slot="content"]')!
-    expectAriaReferencesToResolve(defaultContent)
-    expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
-
-    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
-    await finishExitMotion()
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-      expect(document.activeElement).toBe(defaultTrigger)
-    })
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 
   test('renders body content and keeps shell sections', () => {

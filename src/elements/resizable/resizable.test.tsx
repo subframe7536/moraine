@@ -4,7 +4,6 @@ import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { Resizable } from './resizable.tsx'
-import type { ResizableProps } from './resizable.tsx'
 
 type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -144,17 +143,6 @@ describe('Resizable', () => {
     ))
 
     expect(screen.getByTestId('handle-content').textContent).toBe('Resize')
-  })
-
-  test('exposes separate handle visibility and render contracts', () => {
-    const validProps: ResizableProps = {
-      handle: true,
-      handleRender: (props) => <span>{props.orientation}</span>,
-    }
-    const legacyProps: ResizableProps = { renderHandle: true }
-
-    expect(validProps.handle).toBe(true)
-    expect(legacyProps).toBeDefined()
   })
 
   test('renders panels and auto inserts handles between panels', () => {
@@ -1252,7 +1240,7 @@ describe('Resizable', () => {
     await Promise.resolve()
 
     const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
-    expect(crossTarget).toBeTruthy()
+    expect(crossTarget).not.toBeNull()
     expect(outerHandle.getAttribute('data-active')).toBeNull()
     expect(innerHandle.getAttribute('data-active')).toBeNull()
 

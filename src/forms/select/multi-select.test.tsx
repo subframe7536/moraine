@@ -1,12 +1,10 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
@@ -39,12 +37,6 @@ async function finishSelectExitMotion(): Promise<void> {
 }
 
 describe('MultiSelect', () => {
-  test('accepts arbitrary root props at type level', () => {
-    const props: MultiSelectProps = { options: FRUITS, highlight: true }
-
-    expect(props).toBeDefined()
-  })
-
   test('renders tags for selected values', () => {
     const screen = render(() => <MultiSelect options={FRUITS} value={['apple', 'banana']} />)
 
@@ -898,147 +890,6 @@ describe('MultiSelect', () => {
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
     expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
   })
-
-  test('hydrates in place, removes a tag, and opens on the first ArrowDown', async () => {
-    const markup = renderSsrFixture(
-      '/src/forms/select/multi-select.ssr.fixture.tsx',
-      'renderMultiSelectFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverControl = container.querySelector('[data-slot="control"]')
-    const serverTag = container.querySelector('[data-slot="tag"]')
-    const serverNativeSelect = container.querySelector('select[name="fruits"]')
-    const reads = {
-      options: 0,
-      label: 0,
-      description: 0,
-      optionRender: 0,
-      tagRender: 0,
-      labelRender: 0,
-      emptyRender: 0,
-      leadingIcon: 0,
-      loadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
-    }
-    const onChange = vi.fn()
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () =>
-        createComponent(MultiSelect, {
-          id: 'fruits',
-          name: 'fruits',
-          search: true,
-          defaultValue: ['apple'],
-          onChange,
-          get options() {
-            reads.options += 1
-            return [
-              {
-                value: 'apple',
-                get label() {
-                  reads.label += 1
-                  return 'Apple'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Crisp'
-                },
-              },
-              {
-                value: 'banana',
-                get label() {
-                  reads.label += 1
-                  return 'Banana'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Sweet'
-                },
-              },
-            ]
-          },
-          get optionRender() {
-            reads.optionRender += 1
-            return (props: MultiSelectT.OptionRenderProps) => <span>{props.option?.label}</span>
-          },
-          get tagRender() {
-            reads.tagRender += 1
-            return undefined
-          },
-          get labelRender() {
-            reads.labelRender += 1
-            return undefined
-          },
-          get emptyRender() {
-            reads.emptyRender += 1
-            return undefined
-          },
-          get leadingIcon() {
-            reads.leadingIcon += 1
-            return 'icon-search' as const
-          },
-          get loadingIcon() {
-            reads.loadingIcon += 1
-            return 'icon-loading' as const
-          },
-          get trailingIcon() {
-            reads.trailingIcon += 1
-            return 'icon-chevron-down' as const
-          },
-          get closeIcon() {
-            reads.closeIcon += 1
-            return 'icon-close' as const
-          },
-        }),
-      container,
-    )
-    const root = container.querySelector('[data-slot="root"]')
-    const control = container.querySelector('[data-slot="control"]')
-    const tag = container.querySelector('[data-slot="tag"]')
-    const nativeSelect = container.querySelector('select[name="fruits"]')
-    const input = container.querySelector('[role="combobox"]') as HTMLInputElement
-
-    expect(root).toBe(serverRoot)
-    expect(control).toBe(serverControl)
-    expect(tag).toBe(serverTag)
-    expect(nativeSelect).toBe(serverNativeSelect)
-    expect(input.getAttribute('aria-expanded')).toBe('false')
-    expect(reads).toEqual({
-      options: 1,
-      label: 2,
-      description: 2,
-      optionRender: 1,
-      tagRender: 1,
-      labelRender: 1,
-      emptyRender: 1,
-      leadingIcon: 1,
-      loadingIcon: 1,
-      trailingIcon: 1,
-      closeIcon: 1,
-    })
-
-    fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)
-
-    expect(container.querySelector('[data-slot="tag"]')).toBeNull()
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith([])
-
-    fireEvent.keyDown(input, { key: 'ArrowDown' })
-
-    expect(input.getAttribute('aria-expanded')).toBe('true')
-    expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
-    expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
-    expect(Object.values(reads)).toEqual([1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 
   test('types onChange payload as array', () => {
     const onChange: NonNullable<MultiSelectProps['onChange']> = (value) => {

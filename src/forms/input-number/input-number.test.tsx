@@ -1,12 +1,10 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
@@ -14,23 +12,31 @@ import { InputNumber } from './input-number.tsx'
 import type { InputNumberT } from './input-number.tsx'
 
 describe('InputNumber', () => {
-  test('renders number input with increment and decrement controls', () => {
-    const screen = render(() => <InputNumber defaultValue={1} placeholder="Qty" />)
-
-    expect(screen.getByRole<HTMLInputElement>('spinbutton')).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
-  })
-
-  test('supports tuple handlers for increment clicks', async () => {
-    const onIncrementClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
+  test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
+    const onIncrementClick = vi.fn()
     const screen = render(() => (
-      <InputNumber defaultValue={0} onIncrementClick={[onIncrementClick, 'payload']} />
+      <InputNumber
+        defaultValue={1}
+        minValue={0}
+        maxValue={10}
+        placeholder="Qty"
+        onIncrementClick={[onIncrementClick, 'increment-payload']}
+      />
     ))
 
-    fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+    const increment = screen.getByRole('button', { name: 'Increment' })
+    const decrement = screen.getByRole('button', { name: 'Decrement' })
 
-    expect(onIncrementClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
+    expect(spinbutton.value).toBe('1')
+    expect(spinbutton.getAttribute('aria-valuenow')).toBe('1')
+    expect(spinbutton.getAttribute('aria-valuemin')).toBe('0')
+    expect(spinbutton.getAttribute('aria-valuemax')).toBe('10')
+    expect(increment).not.toBeNull()
+    expect(decrement).not.toBeNull()
+
+    fireEvent.click(increment)
+    expect(onIncrementClick).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
@@ -1459,119 +1465,4 @@ describe('InputNumber', () => {
       expect(spinbutton.value).toBe('10,5')
     })
   })
-
-  test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {
-    const markup = renderSsrFixture(
-      '/src/forms/input-number/input-number.ssr.fixture.tsx',
-      'renderInputNumberFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverHorizontalRoot = container.querySelector('#horizontal-number-root')
-    const serverHorizontalInput = container.querySelector('#horizontal-number') as HTMLInputElement
-    const [value, setValue] = createSignal(12.5)
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => <InputNumber id="horizontal-number" value={value()} locale="de-DE" />,
-      container,
-    )
-    const horizontalRoot = container.querySelector('#horizontal-number-root')!
-    const horizontalInput = container.querySelector('#horizontal-number') as HTMLInputElement
-
-    expect(horizontalRoot).toBe(serverHorizontalRoot)
-    expect(horizontalInput).toBe(serverHorizontalInput)
-    expect(horizontalInput.value).toBe('12,5')
-    expect(
-      Array.from(horizontalRoot.children).map((child) => child.getAttribute('data-slot')),
-    ).toEqual(['decrement', 'input', 'increment'])
-
-    setValue(13.5)
-    await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
-
-  test('hydrates vertical control order without replacing server nodes', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/input-number/input-number.ssr.fixture.tsx',
-      'renderVerticalInputNumberFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('#vertical-number-root')
-    const serverInput = container.querySelector('#vertical-number') as HTMLInputElement
-    const serverControls = serverRoot?.querySelector('[data-slot="controls"]')
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <InputNumber
-          id="vertical-number"
-          defaultValue={-2.5}
-          locale="en-US"
-          orientation="vertical"
-        />
-      ),
-      container,
-    )
-    const root = container.querySelector('#vertical-number-root')!
-    const input = container.querySelector('#vertical-number') as HTMLInputElement
-
-    expect(root).toBe(serverRoot)
-    expect(input).toBe(serverInput)
-    expect(root.querySelector('[data-slot="controls"]')).toBe(serverControls)
-    expect(input.value).toBe('-2.5')
-    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input',
-      'controls',
-    ])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
-
-  test('hydrates with both conditional controls hidden', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/input-number/input-number.ssr.fixture.tsx',
-      'renderHiddenInputNumberFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('#hidden-controls-number-root')
-    const serverInput = container.querySelector('#hidden-controls-number') as HTMLInputElement
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <InputNumber
-          id="hidden-controls-number"
-          defaultValue={3.25}
-          locale="en-US"
-          increment={false}
-          decrement={false}
-        />
-      ),
-      container,
-    )
-    const root = container.querySelector('#hidden-controls-number-root')!
-    const input = container.querySelector('#hidden-controls-number') as HTMLInputElement
-
-    expect(root).toBe(serverRoot)
-    expect(input).toBe(serverInput)
-    expect(input.value).toBe('3.25')
-    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input',
-    ])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 })

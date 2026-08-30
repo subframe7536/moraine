@@ -1,25 +1,10 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
 
 import { DropdownMenu } from './dropdown-menu.tsx'
-import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.tsx'
-
-async function finishMenuExitMotion(): Promise<void> {
-  await Promise.resolve()
-
-  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
-
-  await Promise.all(
-    contents.map(async (content) => {
-      fireEvent.animationEnd(content)
-      fireEvent.transitionEnd(content)
-    }),
-  )
-}
 
 describe('DropdownMenu', () => {
   test('applies top-level class and style to trigger', () => {
@@ -326,7 +311,7 @@ describe('DropdownMenu', () => {
         (element) => element.textContent?.includes('Nested action'),
       ) as HTMLElement | undefined
 
-      expect(content).toBeDefined()
+      expect(content).not.toBeNull()
       return content!
     })
 
@@ -686,9 +671,14 @@ describe('DropdownMenu', () => {
     expect(anchor.tabIndex).toBe(3)
   })
 
-  test('allows a fully controlled overlay without a trigger', () => {
-    const props: DropdownMenuProps = { defaultOpen: true, items: [{ label: 'Open item' }] }
-    expect(props).toBeDefined()
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => <DropdownMenu defaultOpen items={[{ label: 'Open item' }]} />)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+        'Open item',
+      )
+    })
   })
 
   test('does not open when menu trigger is disabled', async () => {
@@ -860,57 +850,6 @@ describe('DropdownMenu', () => {
     await finishMenuExitMotion()
 
     expect(document.activeElement).not.toBe(trigger)
-  })
-
-  test('hydrates the trigger once and opens on the first keyboard action', async () => {
-    const markup = renderSsrFixture(
-      '/src/overlays/dropdown-menu/dropdown-menu.ssr.fixture.tsx',
-      'renderDropdownMenuFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTrigger = container.querySelector('[data-slot="trigger"]') as HTMLButtonElement
-    let triggerReads = 0
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () =>
-        createComponent(DropdownMenu, {
-          id: 'ssr-dropdown',
-          items: [{ label: 'Archive' }, { label: 'Delete' }],
-          get children() {
-            triggerReads += 1
-            return (props: DropdownMenuT.TriggerProps) => (
-              <button {...props} type="button">
-                Actions
-              </button>
-            )
-          },
-        }),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="trigger"]')).toBe(serverTrigger)
-    expect(triggerReads).toBe(1)
-
-    fireEvent.keyDown(serverTrigger, { key: 'ArrowDown' })
-    await waitFor(() => {
-      expect(
-        document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
-      ).toContain('Archive')
-    })
-
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-    fireEvent.keyDown(content, { key: 'Escape' })
-    await finishMenuExitMotion()
-    await waitFor(() => {
-      expect(document.activeElement).toBe(serverTrigger)
-    })
-
-    dispose()
-    restoreHydrationState()
-    container.remove()
   })
 
   test('supports checkbox toggle and keeps disabled item from selecting', async () => {

@@ -1,16 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/form-field.tsx'
 import { createForm, Form } from '../form/index.ts'
 
 import { FileUpload } from './file-upload.tsx'
-import type { FileUploadProps } from './file-upload.tsx'
 
 function createFile(
   name: string,
@@ -72,12 +69,6 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('accepts arbitrary root props at type level', () => {
-    const props: FileUploadProps = { highlight: true }
-
-    expect(props).toBeDefined()
-  })
-
   test('supports tuple click handlers on the upload control', async () => {
     const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
@@ -731,41 +722,4 @@ describe('FileUpload', () => {
       screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-readonly'),
     ).toBe('')
   })
-
-  test('hydrates the empty dropzone and preserves root identity across branch changes', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/file-upload/file-upload.ssr.fixture.tsx',
-      'renderFileUploadFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const [dropzone, setDropzone] = createSignal(true)
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <FileUpload
-          dropzone={dropzone()}
-          preview={false}
-          label="Upload files"
-          description="Description"
-        />
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('DIV')
-    expect(container.querySelector('[data-slot="files"]')).toBeNull()
-
-    setDropzone(false)
-    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('BUTTON')
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

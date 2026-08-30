@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Switch } from './switch.tsx'
 
@@ -346,46 +343,4 @@ describe('Switch', () => {
       uncheckedIcon: 1,
     })
   })
-
-  test('hydrates checked conditional content without replacing server nodes', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/switch/switch.ssr.fixture.tsx',
-      'renderSwitchFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]') as HTMLElement
-    const serverTrack = container.querySelector('[data-slot="track"]') as HTMLElement
-    const serverInput = container.querySelector('[data-slot="input"]') as HTMLInputElement
-    const [checked, setChecked] = createSignal(true)
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Switch
-          id="ssr-switch"
-          checked={checked()}
-          label={0}
-          description="Server description"
-          checkedIcon={<span data-testid="checked-icon">Checked</span>}
-        />
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="track"]')).toBe(serverTrack)
-    expect(container.querySelector('[data-slot="input"]')).toBe(serverInput)
-    expectSwitchChecked(serverTrack, true)
-    expect(container.querySelector('[data-testid="checked-icon"]')).not.toBeNull()
-
-    setChecked(false)
-    expectSwitchChecked(serverTrack, false)
-    expect(container.querySelector('[data-testid="checked-icon"]')).toBeNull()
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

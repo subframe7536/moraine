@@ -1,9 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Pagination } from './pagination.tsx'
 
@@ -392,56 +389,4 @@ describe('Pagination', () => {
     expect(next?.className).toContain('next-override')
     expect(ellipsis?.className).toContain('ellipsis-override')
   })
-
-  test('renders deterministic single-page SSR markup', () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/pagination/pagination.ssr.fixture.tsx',
-      'renderSinglePagePaginationFixture',
-    )
-
-    expect(markup.match(/data-slot="link"/g)).toHaveLength(1)
-    expect(markup).toContain('Page 1 of 1')
-    expect(markup).not.toContain('data-slot="ellipsis"')
-  })
-
-  test('hydrates ellipsis link mode without replacing nodes and handles first navigation', async () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/pagination/pagination.ssr.fixture.tsx',
-      'renderPaginationFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverList = container.querySelector('[data-slot="list"]')
-    const serverStatus = container.querySelector('[data-slot="status"]')
-    const [page, setPage] = createSignal(5)
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Pagination
-          page={page()}
-          onPageChange={setPage}
-          total={100}
-          itemsPerPage={10}
-          siblingCount={1}
-          to={(target) => `#page-${target}`}
-        />
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
-    expect(container.querySelector('[data-slot="status"]')).toBe(serverStatus)
-    expect(container.querySelectorAll('[data-slot="ellipsis"]')).toHaveLength(2)
-
-    fireEvent.click(container.querySelector('[data-slot="next"]')!)
-    expect(serverStatus?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

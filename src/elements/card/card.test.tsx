@@ -3,7 +3,6 @@ import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Card } from './card.tsx'
-import type { CardProps } from './card.tsx'
 
 describe('Card', () => {
   test('renders root with default outline variant classes', () => {
@@ -121,10 +120,5 @@ describe('Card', () => {
     expect(header?.style.width).toBe('200px')
     expect(body?.style.width).toBe('200px')
     expect(footer?.style.width).toBe('200px')
-  })
-
-  test('rejects invalid variant in type contract', () => {
-    const props: CardProps = { variant: 'invalid' }
-    expect(props).toBeDefined()
   })
 })

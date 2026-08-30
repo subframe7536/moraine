@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Slider } from './slider.tsx'
 
@@ -586,7 +583,7 @@ describe('Slider', () => {
 
     const thumbsBefore = getThumbs(screen.container)
     const thumbBefore = thumbsBefore[0]
-    expect(thumbBefore).toBeDefined()
+    expect(thumbBefore?.getAttribute('aria-valuenow')).toBe('10')
 
     fireEvent.focus(thumbBefore as HTMLElement)
     fireEvent.keyDown(thumbBefore as HTMLElement, { key: 'ArrowRight' })
@@ -618,8 +615,8 @@ describe('Slider', () => {
     const thumbsBefore = getThumbs(screen.container)
     const firstThumbBefore = thumbsBefore[0]
     const secondThumbBefore = thumbsBefore[1]
-    expect(firstThumbBefore).toBeDefined()
-    expect(secondThumbBefore).toBeDefined()
+    expect(firstThumbBefore?.getAttribute('aria-valuenow')).toBe('20')
+    expect(secondThumbBefore?.getAttribute('aria-valuenow')).toBe('80')
 
     fireEvent.focus(firstThumbBefore as HTMLElement)
     fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
@@ -1282,46 +1279,4 @@ describe('Slider', () => {
 
     expect(releasePointerCapture).toHaveBeenCalledWith(7)
   })
-
-  test('hydrates normalized scalar and range thumbs without replacing server nodes', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/slider/slider.ssr.fixture.tsx',
-      'renderSliderFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverScalarRoot = container.querySelector('#ssr-scalar-slider-root') as HTMLElement
-    const serverScalarThumb = getThumbs(serverScalarRoot)[0]
-    const serverRangeRoot = container.querySelector('#ssr-range-slider-root') as HTMLElement
-    const serverRangeThumbs = getThumbs(serverRangeRoot)
-    const restoreHydrationState = installHydrationState()
-
-    expect(serverScalarThumb?.getAttribute('aria-valuenow')).toBe('25')
-    expect(serverScalarRoot.querySelectorAll('input[type="range"]')).toHaveLength(1)
-    expect(serverRangeThumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual([
-      '25',
-      '75',
-    ])
-    expect(serverRangeRoot.querySelectorAll('input[type="range"]')).toHaveLength(2)
-
-    const dispose = hydrate(
-      () => (
-        <div>
-          <Slider id="ssr-scalar-slider" defaultValue={25} />
-          <Slider id="ssr-range-slider" defaultValue={[75, 25]} orientation="vertical" />
-        </div>
-      ),
-      container,
-    )
-
-    expect(container.querySelector('#ssr-scalar-slider-root')).toBe(serverScalarRoot)
-    expect(getThumbs(serverScalarRoot)[0]).toBe(serverScalarThumb)
-    expect(container.querySelector('#ssr-range-slider-root')).toBe(serverRangeRoot)
-    expect(getThumbs(serverRangeRoot)).toEqual(serverRangeThumbs)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 })

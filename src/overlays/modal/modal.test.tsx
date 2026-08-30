@@ -1,10 +1,8 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { pushOverlayLayer } from '../base/overlay-stack.ts'
 import { getFocusableElements } from '../base/utils.ts'
 
@@ -135,46 +133,6 @@ describe('Modal primitives', () => {
 
     expect(document.body.textContent).toContain('Div content')
     screen.unmount()
-  })
-
-  test('hydrates the polymorphic trigger and defers closed content', async () => {
-    const markup = renderSsrFixture(
-      '/src/overlays/modal/modal.ssr.fixture.tsx',
-      'renderModalFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTrigger = container.querySelector('[data-slot="trigger"]')
-    let mounts = 0
-    const Content = () => {
-      mounts += 1
-      return <span data-testid="hydrated-content">Content</span>
-    }
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Modal>
-          <Modal.Trigger as={Button} variant="outline">
-            Open modal
-          </Modal.Trigger>
-          <Modal.Content contentRender={<Content />} />
-        </Modal>
-      ),
-      container,
-    )
-    const trigger = container.querySelector('[data-slot="trigger"]')!
-
-    expect(trigger).toBe(serverTrigger)
-    expect(mounts).toBe(0)
-    fireEvent.click(trigger)
-    expect(mounts).toBe(1)
-    expect(document.body.querySelector('[data-testid="hydrated-content"]')).not.toBeNull()
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 
   test('forwards an explicit accessible name to modal content', () => {

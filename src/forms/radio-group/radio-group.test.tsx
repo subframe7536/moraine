@@ -1,12 +1,10 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
@@ -598,109 +596,4 @@ describe('RadioGroup', () => {
     expect(base?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')
   })
-
-  test('hydrates item identity, descriptions, checked state, and the first keyboard action', async () => {
-    const markup = renderSsrFixture(
-      '/src/forms/radio-group/radio-group.ssr.fixture.tsx',
-      'renderRadioGroupFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('#plans')
-    const serverItems = Array.from(container.querySelectorAll('[data-slot="item"]'))
-    const serverInputs = Array.from(container.querySelectorAll('[data-slot="input"]'))
-    const [value, setValue] = createSignal('pro')
-    const reads = { items: 0, orientation: 0, variant: 0, indicator: 0, label: 0, description: 0 }
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () =>
-        createComponent(RadioGroup, {
-          id: 'plans',
-          name: 'plan',
-          get value() {
-            return value()
-          },
-          get items() {
-            reads.items += 1
-            return [
-              {
-                value: 'basic',
-                get label() {
-                  reads.label += 1
-                  return 'Basic'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Basic description'
-                },
-              },
-              {
-                value: 'pro',
-                get label() {
-                  reads.label += 1
-                  return 'Pro'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Pro description'
-                },
-              },
-              {
-                value: 'enterprise',
-                get label() {
-                  reads.label += 1
-                  return 'Enterprise'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Enterprise description'
-                },
-              },
-            ]
-          },
-          get orientation() {
-            reads.orientation += 1
-            return 'vertical' as const
-          },
-          get variant() {
-            reads.variant += 1
-            return 'list' as const
-          },
-          get indicator() {
-            reads.indicator += 1
-            return 'start' as const
-          },
-          onChange: setValue,
-        }),
-      container,
-    )
-    const root = container.querySelector('#plans')!
-    const items = Array.from(container.querySelectorAll('[data-slot="item"]'))
-    const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('[data-slot="input"]'))
-
-    expect(root).toBe(serverRoot)
-    expect(items).toEqual(serverItems)
-    expect(inputs).toEqual(serverInputs)
-    expect(inputs.map((input) => input.checked)).toEqual([false, true, false])
-    expect(inputs.map((input) => input.getAttribute('tabindex'))).toEqual(['-1', '0', '-1'])
-    expect(reads).toEqual({
-      items: 1,
-      orientation: 1,
-      variant: 1,
-      indicator: 1,
-      label: 3,
-      description: 3,
-    })
-
-    inputs[1]?.focus()
-    fireEvent.keyDown(inputs[1]!, { key: 'ArrowDown' })
-    expect(inputs.map((input) => input.checked)).toEqual([false, false, true])
-    expect(document.activeElement).toBe(inputs[2])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 })

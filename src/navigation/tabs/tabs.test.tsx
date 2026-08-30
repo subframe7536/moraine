@@ -1,9 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Tabs } from './tabs.tsx'
 
@@ -617,65 +614,6 @@ describe('Tabs', () => {
     expect(screen.getByRole('tabpanel').textContent).toBe('Zero panel')
     expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1, value: 1 })
   })
-
-  test('renders deterministic vertical SSR relationships and selected panel', () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
-      'renderVerticalTabsFixture',
-    )
-
-    expect(markup).toContain('id="ssr-vertical-tabs"')
-    expect(markup).toContain('aria-orientation="vertical"')
-    expect(markup).toContain('id="ssr-vertical-tabs-other-0-trigger"')
-    expect(markup).toContain('aria-labelledby="ssr-vertical-tabs-other-0-trigger"')
-    expect(markup).toContain('Other panel')
-    expect(markup).not.toContain('Empty panel')
-  })
-
-  test('hydrates empty-value JSX without replacing nodes and handles first keyboard activation', async () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
-      'renderTabsFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverList = container.querySelector('[data-slot="list"]')
-    const serverFirstTrigger = container.querySelector('[role="tab"]')
-    const serverPanel = container.querySelector('[role="tabpanel"]')
-    const [value, setValue] = createSignal('')
-    const restoreHydrationState = installHydrationState()
-    const items = [
-      { label: 0, value: '', content: <span data-testid="empty-panel">Empty panel</span> },
-      {
-        label: 'Other',
-        value: 'other',
-        content: <span data-testid="other-panel">Other panel</span>,
-      },
-    ]
-
-    const dispose = hydrate(
-      () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={items} />,
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
-    expect(container.querySelector('[role="tab"]')).toBe(serverFirstTrigger)
-    expect(container.querySelector('[role="tabpanel"]')).toBe(serverPanel)
-
-    ;(serverFirstTrigger as HTMLElement).focus()
-    fireEvent.keyDown(serverFirstTrigger!, { key: 'ArrowRight' })
-    expect(container.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain(
-      'Other',
-    )
-    expect(container.querySelector('[data-testid="other-panel"]')?.textContent).toBe('Other panel')
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 
   test('keeps empty and all-disabled collections out of the tab order', () => {
     const empty = render(() => <Tabs items={[]} />)

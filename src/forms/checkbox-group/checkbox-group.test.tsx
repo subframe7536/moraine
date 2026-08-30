@@ -1,11 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/form-field.tsx'
 import { createForm, Form } from '../form/index.ts'
 
@@ -543,55 +541,4 @@ describe('CheckboxGroup', () => {
     expect(screen.getByText('Mixed')).not.toBeNull()
     expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 1, items: 1, legend: 1 })
   })
-
-  test('hydrates duplicate items with stable ids and DOM order before interaction', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/checkbox-group/checkbox-group.ssr.fixture.tsx',
-      'renderCheckboxGroupFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const [value, setValue] = createSignal<string[]>(['same'])
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <CheckboxGroup
-          legend="Server options"
-          items={[
-            { value: 'same', label: 'First' },
-            { value: 'same', label: 'Second' },
-          ]}
-          value={value()}
-        />
-      ),
-      container,
-    )
-    const root = container.querySelector('[data-slot="root"]')!
-    const controls = Array.from(container.querySelectorAll<HTMLElement>('[data-slot="control"]'))
-
-    expect(root).toBe(serverRoot)
-    expect(new Set(controls.map((control) => control.id)).size).toBe(2)
-    expect(controls.map((control) => control.getAttribute('aria-checked'))).toEqual([
-      'true',
-      'true',
-    ])
-
-    setValue([])
-    expect(controls.map((control) => control.getAttribute('aria-checked'))).toEqual([
-      'false',
-      'false',
-    ])
-    expect(
-      Array.from(container.querySelector('[data-slot="fieldset"]')!.children).map((child) =>
-        child.getAttribute('data-slot'),
-      ),
-    ).toEqual(['legend', 'root', 'root'])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

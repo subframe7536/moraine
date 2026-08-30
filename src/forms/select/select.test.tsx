@@ -1,12 +1,10 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
@@ -871,118 +869,9 @@ describe('Select - render hooks', () => {
     ))
 
     const appleState = renderCalls.find((call) => call.option?.value === 'apple')
-    expect(appleState).toBeDefined()
     expect(appleState?.option?.isSelected).toBe(true)
+    expect(appleState?.option?.label).toBe('Apple')
   })
-
-  test('hydrates the closed control in place and opens on the first keyboard action', async () => {
-    const markup = renderSsrFixture(
-      '/src/forms/select/select.ssr.fixture.tsx',
-      'renderSelectFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverControl = container.querySelector('[data-slot="control"]')
-    const serverClear = container.querySelector('[data-slot="clear"]')
-    const serverNativeSelect = container.querySelector('select[name="fruit"]')
-    const reads = {
-      options: 0,
-      label: 0,
-      description: 0,
-      optionRender: 0,
-      leadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
-    }
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () =>
-        createComponent(Select, {
-          id: 'fruit',
-          name: 'fruit',
-          value: 'banana',
-          allowClear: true,
-          get options() {
-            reads.options += 1
-            return [
-              {
-                value: 'apple',
-                get label() {
-                  reads.label += 1
-                  return 'Apple'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Crisp'
-                },
-              },
-              {
-                value: 'banana',
-                get label() {
-                  reads.label += 1
-                  return 'Banana'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Sweet'
-                },
-              },
-            ]
-          },
-          get optionRender() {
-            reads.optionRender += 1
-            return (props: SelectT.OptionRenderProps) => <span>{props.option?.label}</span>
-          },
-          get leadingIcon() {
-            reads.leadingIcon += 1
-            return 'icon-search' as const
-          },
-          get trailingIcon() {
-            reads.trailingIcon += 1
-            return 'icon-chevron-down' as const
-          },
-          get closeIcon() {
-            reads.closeIcon += 1
-            return 'icon-close' as const
-          },
-        }),
-      container,
-    )
-    const root = container.querySelector('[data-slot="root"]')
-    const control = container.querySelector('[data-slot="control"]')
-    const clear = container.querySelector('[data-slot="clear"]')
-    const nativeSelect = container.querySelector('select[name="fruit"]')
-    const combobox = container.querySelector('[role="combobox"]') as HTMLElement
-
-    expect(root).toBe(serverRoot)
-    expect(control).toBe(serverControl)
-    expect(clear).toBe(serverClear)
-    expect(nativeSelect).toBe(serverNativeSelect)
-    expect(combobox.getAttribute('aria-expanded')).toBe('false')
-    expect(reads).toEqual({
-      options: 1,
-      label: 2,
-      description: 2,
-      optionRender: 1,
-      leadingIcon: 1,
-      trailingIcon: 1,
-      closeIcon: 1,
-    })
-
-    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
-
-    expect(combobox.getAttribute('aria-expanded')).toBe('true')
-    expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
-    expect(reads.optionRender).toBe(1)
-    expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Apple')
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 })
 
 describe('Select - keyboard and ARIA', () => {

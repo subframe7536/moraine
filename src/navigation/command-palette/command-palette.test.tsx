@@ -4,9 +4,10 @@ import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Dialog } from '../../overlays/dialog/index.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 
 import { CommandPalette } from './command-palette.tsx'
-import type { CommandPaletteProps, CommandPaletteT } from './command-palette.tsx'
+import type { CommandPaletteT } from './command-palette.tsx'
 
 const body = () => within(document.body)
 
@@ -38,22 +39,6 @@ const GROUPS: CommandPaletteT.Group[] = [
     ],
   },
 ]
-
-async function finishExitMotion(): Promise<void> {
-  await Promise.resolve()
-  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
-  const overlays = Array.from(document.body.querySelectorAll('[data-slot="overlay"]'))
-
-  for (const content of contents) {
-    fireEvent.animationEnd(content)
-    fireEvent.transitionEnd(content)
-  }
-
-  for (const overlay of overlays) {
-    fireEvent.animationEnd(overlay)
-    fireEvent.transitionEnd(overlay)
-  }
-}
 
 describe('CommandPalette', () => {
   test('focuses the standalone input without a native autofocus attribute', async () => {
@@ -901,22 +886,5 @@ describe('CommandPalette', () => {
     expect(item.style.height).toBe('40px')
 
     fireEvent.scroll(listbox)
-  })
-
-  test('requires value in item type contract', () => {
-    // @ts-expect-error value is required
-    const item: CommandPaletteT.Item = { label: 'No value' }
-    expect(item).toBeDefined()
-  })
-
-  test('accepts arbitrary root props in the type contract', () => {
-    const props: CommandPaletteProps = { groups: [], open: true }
-    expect(props).toBeDefined()
-  })
-
-  test('rejects legacy item shortcut prop in type contract', () => {
-    // @ts-expect-error kbds has been removed in favor of custom trailing content
-    const item: CommandPaletteT.Item = { value: 'x', label: 'Legacy', kbds: ['⌘', 'K'] }
-    expect(item).toBeDefined()
   })
 })

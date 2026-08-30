@@ -1,29 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
 import { Sheet } from './sheet.tsx'
-import type { SheetProps } from './sheet.tsx'
-
-async function finishExitMotion(): Promise<void> {
-  await Promise.resolve()
-  const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
-  const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement | null
-
-  if (content) {
-    fireEvent.animationEnd(content)
-    fireEvent.transitionEnd(content)
-  }
-
-  if (overlay) {
-    fireEvent.animationEnd(overlay)
-    fireEvent.transitionEnd(overlay)
-  }
-}
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -319,108 +301,6 @@ describe('Sheet', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
-    const markup = renderSsrFixture(
-      '/src/overlays/sheet/sheet.ssr.fixture.tsx',
-      'renderSheetFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTriggers = container.querySelectorAll<HTMLButtonElement>('[data-slot="trigger"]')
-    const customTrigger = serverTriggers[0]!
-    const defaultTrigger = serverTriggers[1]!
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <>
-          <Sheet
-            side="left"
-            inset
-            transition={false}
-            title="Server title"
-            description="Server description"
-            header={<div data-testid="server-header">Server header</div>}
-            action={<div data-testid="server-action">Server action</div>}
-            body={<div data-testid="server-body">Server body</div>}
-            footer={<div data-testid="server-footer">Server footer</div>}
-            close={<span data-testid="server-close-icon">Close</span>}
-            ariaLabel="Server sheet"
-          >
-            {(props) => (
-              <button {...props} type="button">
-                Open custom sheet
-              </button>
-            )}
-          </Sheet>
-          <Sheet
-            side="right"
-            title="Default title"
-            description="Default description"
-            action={<div data-testid="default-action">Default action</div>}
-            body={<div data-testid="default-body">Default body</div>}
-            footer={<div data-testid="default-footer">Default footer</div>}
-            close={<span data-testid="default-close-icon">Close</span>}
-          >
-            {(props) => (
-              <button {...props} type="button">
-                Open default sheet
-              </button>
-            )}
-          </Sheet>
-        </>
-      ),
-      container,
-    )
-
-    expect(container.querySelectorAll('[data-slot="trigger"]')[0]).toBe(customTrigger)
-    expect(container.querySelectorAll('[data-slot="trigger"]')[1]).toBe(defaultTrigger)
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-
-    fireEvent.click(customTrigger)
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-    })
-    const content = document.body.querySelector('[data-slot="content"]')!
-    expect(content.getAttribute('data-side')).toBe('left')
-    expect(content.getAttribute('aria-label')).toBe('Server sheet')
-    expect(content.getAttribute('aria-labelledby')).toBeNull()
-    expect(content.getAttribute('aria-describedby')).toBeNull()
-    expect(document.body.querySelector('[data-testid="server-header"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-action"]')).toBeNull()
-    expect(document.body.querySelector('[data-testid="server-body"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-footer"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-close-icon"]')).toBeNull()
-
-    fireEvent.keyDown(content, { key: 'Escape' })
-    await finishExitMotion()
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-      expect(document.activeElement).toBe(customTrigger)
-    })
-
-    fireEvent.click(defaultTrigger)
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-    })
-    const defaultContent = document.body.querySelector('[data-slot="content"]')!
-    expectAriaReferencesToResolve(defaultContent)
-    expect(document.body.querySelector('[data-testid="default-action"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
-
-    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
-    await finishExitMotion()
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-      expect(document.activeElement).toBe(defaultTrigger)
-    })
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  })
-
   test('renders the trigger content as a native button root', () => {
     render(() => (
       <Sheet open body="Body">
@@ -635,9 +515,12 @@ describe('Sheet', () => {
     })
   })
 
-  test('allows a fully controlled overlay without a trigger', () => {
-    const props: SheetProps = { open: true, body: 'Body' }
-    expect(props).toBeDefined()
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => <Sheet open body="Body" />)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain('Body')
+    })
   })
 
   test('applies styles override to content', () => {

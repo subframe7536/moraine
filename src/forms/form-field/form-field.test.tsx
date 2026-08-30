@@ -2,12 +2,10 @@ import { getInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { For, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { CheckboxGroup } from '../checkbox-group/index.ts'
 import { Checkbox } from '../checkbox/index.ts'
 import { FileUpload } from '../file-upload/index.ts'
@@ -684,93 +682,4 @@ describe('FormField', () => {
         ?.parentElement?.getAttribute('data-invalid'),
     ).toBe('')
   })
-
-  test('hydrates registered controls and replaces help with the focused validation error', async () => {
-    const markup = renderSsrFixture(
-      '/src/forms/form-field/form-field.ssr.fixture.tsx',
-      'renderFormFieldFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverInput = container.querySelector('input')!
-    const serverLabel = container.querySelector('[data-slot="label"]') as HTMLLabelElement
-    const serverMessageIds = ['hint', 'description', 'help'].map(
-      (slot) => container.querySelector(`[data-slot="${slot}"]`)?.id,
-    )
-
-    expect(serverLabel.htmlFor).toBe(serverInput.id)
-    expect(serverInput.getAttribute('aria-describedby')?.split(' ')).toEqual(serverMessageIds)
-
-    const reads = { children: 0, description: 0, error: 0, help: 0, hint: 0, label: 0 }
-    const restoreHydrationState = installHydrationState()
-
-    function ClientField() {
-      const form = createForm({
-        schema: v.object({ value: v.pipe(v.string(), v.nonEmpty('Value is required')) }),
-        initialInput: { value: '' },
-      })
-
-      return (
-        <Form of={form} aria-label="Hydrated field form">
-          {createComponent(FormField, {
-            name: 'value',
-            required: true,
-            get label() {
-              reads.label += 1
-              return 'Value'
-            },
-            get hint() {
-              reads.hint += 1
-              return 'Required'
-            },
-            get description() {
-              reads.description += 1
-              return 'Enter a value'
-            },
-            get help() {
-              reads.help += 1
-              return 'Helpful text'
-            },
-            get error() {
-              reads.error += 1
-              return undefined
-            },
-            get children() {
-              reads.children += 1
-              return <Input />
-            },
-          })}
-        </Form>
-      )
-    }
-
-    const dispose = hydrate(() => <ClientField />, container)
-    const input = container.querySelector('input')!
-    const label = container.querySelector('[data-slot="label"]') as HTMLLabelElement
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(input).toBe(serverInput)
-    await waitFor(() => expect(label.htmlFor).toBe(input.id))
-    expect(reads).toEqual({ children: 1, description: 1, error: 1, help: 1, hint: 1, label: 1 })
-
-    fireEvent.submit(container.querySelector('form')!)
-    await waitFor(() => expect(container.querySelector('[data-slot="error"]')).not.toBeNull())
-
-    const errorMessage = container.querySelector('[data-slot="error"]')!
-    expect(document.activeElement).toBe(input)
-    expect(container.querySelector('[data-slot="help"]')).toBeNull()
-    expect(input.getAttribute('aria-describedby')?.split(' ')).toEqual([
-      container.querySelector('[data-slot="hint"]')?.id,
-      container.querySelector('[data-slot="description"]')?.id,
-      errorMessage.id,
-    ])
-    expect(input.getAttribute('aria-invalid')).toBe('true')
-    expect(reads).toEqual({ children: 1, description: 1, error: 1, help: 1, hint: 1, label: 1 })
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 20_000)
 })

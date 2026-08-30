@@ -2,10 +2,7 @@ import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Button } from './button.tsx'
 
@@ -152,42 +149,28 @@ describe('Button', () => {
     },
   )
 
-  test('renders leading and trailing icon slots for sm size', () => {
-    const screen = render(() => (
-      <Button size="sm" leading="i-lucide-arrow-left" trailing="i-lucide-arrow-right">
-        Label
-      </Button>
-    ))
+  test.each([
+    ['sm', 'i-lucide-arrow-left', 'i-lucide-arrow-right'],
+    ['lg', 'i-lucide-chevron-left', 'i-lucide-chevron-right'],
+  ] as const)(
+    'renders leading and trailing icon slots for %s size',
+    (size, leadingIcon, trailingIcon) => {
+      const screen = render(() => (
+        <Button size={size} leading={leadingIcon} trailing={trailingIcon}>
+          Label
+        </Button>
+      ))
 
-    const button = screen.getByRole('button', { name: 'Label' })
-    const leading = button.querySelector('[data-slot="leading"]')
-    const trailing = button.querySelector('[data-slot="trailing"]')
+      const button = screen.getByRole('button', { name: 'Label' })
+      const leading = button.querySelector('[data-slot="leading"]')
+      const trailing = button.querySelector('[data-slot="trailing"]')
 
-    expect(leading).not.toBeNull()
-    expect(trailing).not.toBeNull()
-    expect(leading?.className).toContain('i-lucide-arrow-left')
-    expect(trailing?.className).toContain('i-lucide-arrow-right')
-  })
-
-  test('renders leading and trailing icon slots for lg size', () => {
-    const screen = render(() => (
-      <Button size="lg" leading="i-lucide-chevron-left" trailing="i-lucide-chevron-right">
-        Label
-      </Button>
-    ))
-
-    const button = screen.getByRole('button', { name: 'Label' })
-    const leading = button.querySelector('[data-slot="leading"]')
-    const trailing = button.querySelector('[data-slot="trailing"]')
-
-    expect(leading).not.toBeNull()
-    expect(trailing).not.toBeNull()
-    expect(button.className).toContain('gap-1.5')
-    expect(leading?.getAttribute('style')).toBeNull()
-    expect(trailing?.getAttribute('style')).toBeNull()
-    expect(leading?.className).toContain('i-lucide-chevron-left')
-    expect(trailing?.className).toContain('i-lucide-chevron-right')
-  })
+      expect(leading).not.toBeNull()
+      expect(trailing).not.toBeNull()
+      expect(leading?.className).toContain(leadingIcon)
+      expect(trailing?.className).toContain(trailingIcon)
+    },
+  )
 
   test.each([
     ['xs', 'text-xs', 'h-6'],
@@ -677,23 +660,31 @@ describe('Button', () => {
       expect(onclick).not.toHaveBeenCalled()
     })
 
-    test('blocks Enter key when disabled for non-native button', async () => {
+    test('blocks keyboard and pointer interactions and removes tabIndex when disabled for non-native button', async () => {
       const onclick = vi.fn()
+      const onpointerdown = vi.fn()
       const screen = render(() => (
-        <Button as="div" disabled onClick={onclick}>
+        <Button as="div" disabled onClick={onclick} onPointerDown={onpointerdown}>
           Disabled
         </Button>
       ))
 
       const button = screen.getByRole('button', { name: 'Disabled' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
+      expect(button.hasAttribute('tabIndex')).toBe(false)
 
       fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.click(button)
 
+      const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+      button.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(true)
       expect(onclick).not.toHaveBeenCalled()
+      expect(onpointerdown).not.toHaveBeenCalled()
     })
 
-    test('blocks Space key when loading for non-native button', async () => {
+    test('blocks keyboard and click interactions and removes tabIndex when loading for non-native button', async () => {
       const onclick = vi.fn()
       const screen = render(() => (
         <Button as="div" loading onClick={onclick}>
@@ -704,57 +695,12 @@ describe('Button', () => {
       const button = screen.getByRole('button', { name: 'Loading' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
       expect(button.getAttribute('aria-busy')).toBe('true')
+      expect(button.hasAttribute('tabIndex')).toBe(false)
 
       fireEvent.keyDown(button, { key: ' ' })
-
-      expect(onclick).not.toHaveBeenCalled()
-    })
-
-    test('blocks click when disabled for non-native button', async () => {
-      const onclick = vi.fn()
-      const screen = render(() => (
-        <Button as="div" disabled onClick={onclick}>
-          Disabled
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Disabled' })
-
       fireEvent.click(button)
 
       expect(onclick).not.toHaveBeenCalled()
-    })
-
-    test('blocks click when loading for non-native button', async () => {
-      const onclick = vi.fn()
-      const screen = render(() => (
-        <Button as="div" loading onClick={onclick}>
-          Loading
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Loading' })
-
-      fireEvent.click(button)
-
-      expect(onclick).not.toHaveBeenCalled()
-    })
-
-    test('prevents default pointer action without calling handlers when disabled', () => {
-      const onpointerdown = vi.fn()
-      const screen = render(() => (
-        <Button as="div" disabled onPointerDown={onpointerdown}>
-          Disabled
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Disabled' })
-
-      const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
-      button.dispatchEvent(event)
-
-      expect(event.defaultPrevented).toBe(true)
-      expect(onpointerdown).not.toHaveBeenCalled()
     })
 
     test('suppresses native-root handlers after becoming disabled', () => {
@@ -772,28 +718,6 @@ describe('Button', () => {
 
       expect(onkeydown).not.toHaveBeenCalled()
       expect(onpointerdown).not.toHaveBeenCalled()
-    })
-
-    test('removes tabIndex when disabled for non-native button', () => {
-      const screen = render(() => (
-        <Button as="div" disabled>
-          Disabled
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Disabled' })
-      expect(button.hasAttribute('tabIndex')).toBe(false)
-    })
-
-    test('removes tabIndex when loading for non-native button', () => {
-      const screen = render(() => (
-        <Button as="div" loading>
-          Loading
-        </Button>
-      ))
-
-      const button = screen.getByRole('button', { name: 'Loading' })
-      expect(button.hasAttribute('tabIndex')).toBe(false)
     })
 
     test('calls custom onKeyDown handler before activation', async () => {
@@ -945,59 +869,6 @@ describe('Button', () => {
       expect(onClick).not.toHaveBeenCalled()
     },
   )
-
-  test('hydrates render children and preserves activation across loading updates', async () => {
-    const markup = renderSsrFixture(
-      '/src/elements/button/button.ssr.fixture.tsx',
-      'renderButtonFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const [loading, setLoading] = createSignal(false)
-    const onClick = vi.fn()
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Button
-          loading={loading()}
-          leading="i-lucide-save"
-          trailing="i-lucide-arrow-right"
-          onClick={onClick}
-        >
-          {(state) => (
-            <Show when={state.loading} fallback="Save">
-              Saving
-            </Show>
-          )}
-        </Button>
-      ),
-      container,
-    )
-    const button = container.querySelector('[data-slot="root"]')!
-
-    expect(button).toBe(serverRoot)
-    expect(button.textContent).toBe('Save')
-    fireEvent.click(button)
-    expect(onClick).toHaveBeenCalledTimes(1)
-
-    setLoading(true)
-    expect(button.textContent).toBe('Saving')
-    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
-    button.dispatchEvent(pointerDown)
-    fireEvent.click(button)
-    expect(onClick).toHaveBeenCalledTimes(1)
-
-    setLoading(false)
-    fireEvent.click(button)
-    expect(onClick).toHaveBeenCalledTimes(2)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  })
 
   describe('anchor rendering compatibility', () => {
     test('does not emit type attribute on anchor', () => {

@@ -1,12 +1,8 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
-
-import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture.tsx'
 import { Breadcrumb } from './breadcrumb.tsx'
 import type { BreadcrumbT } from './breadcrumb.tsx'
 
@@ -495,79 +491,4 @@ describe('Breadcrumb', () => {
     expect(screen.getByText('0')).not.toBeNull()
     expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(2)
   })
-
-  test('hydrates the default page branch without replacing the trail', async () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/breadcrumb/breadcrumb.ssr.fixture.tsx',
-      'renderBreadcrumbDefaultFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverList = container.querySelector('[data-slot="list"]')
-    const serverPage = container.querySelector('[data-slot="page"]')
-    const serverSeparator = container.querySelector('[data-slot="separator"]')
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Breadcrumb
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Current', href: '/current' },
-          ]}
-        />
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
-    expect(container.querySelector('[data-slot="page"]')).toBe(serverPage)
-    expect(container.querySelector('[data-slot="separator"]')).toBe(serverSeparator)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
-
-  test('hydrates a custom renderer without replacing the trail and preserves activation', async () => {
-    const markup = renderSsrFixture(
-      '/src/navigation/breadcrumb/breadcrumb.ssr.fixture.tsx',
-      'renderBreadcrumbFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const serverList = container.querySelector('[data-slot="list"]')
-    const serverFirstLink = container.querySelector('[data-slot="custom-link"]')
-    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Breadcrumb
-          aria-label="Fixture breadcrumbs"
-          itemRender={renderBreadcrumbItem}
-          items={[
-            { label: 0, href: '/zero', onClick },
-            { label: 'Current', href: '/current' },
-          ]}
-        />
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
-    expect(container.querySelector('[data-slot="custom-link"]')).toBe(serverFirstLink)
-    fireEvent.click(serverFirstLink!)
-    expect(onClick).toHaveBeenCalledTimes(1)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

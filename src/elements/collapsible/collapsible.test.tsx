@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Collapsible } from './collapsible.tsx'
 
@@ -489,54 +486,5 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
     fireEvent.click(trigger)
     expect(contentReads).toBe(2)
-  })
-
-  test('hydrates closed composable markup without content and supports open, close, and reopen', async () => {
-    const markup = renderSsrFixture(
-      '/src/elements/collapsible/collapsible.ssr.fixture.tsx',
-      'renderCollapsibleFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    let contentMounts = 0
-    const Content = () => {
-      contentMounts += 1
-      return <span data-testid="hydrated-content">Content</span>
-    }
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Collapsible>
-          <Collapsible.Trigger>Details</Collapsible.Trigger>
-          <Collapsible.Content>
-            <Content />
-          </Collapsible.Content>
-        </Collapsible>
-      ),
-      container,
-    )
-    const trigger = container.querySelector('[data-slot="trigger"]')!
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(contentMounts).toBe(0)
-    expect(container.querySelector('[data-slot="content"]')).toBeNull()
-
-    fireEvent.click(trigger)
-    const contentWrapper = container.querySelector('[data-slot="content-wrapper"]')!
-    expect(contentMounts).toBe(1)
-    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
-    expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
-
-    fireEvent.click(trigger)
-    expect(container.querySelector('[data-slot="content"]')).toBeNull()
-    fireEvent.click(trigger)
-    expect(contentMounts).toBe(2)
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
   })
 })

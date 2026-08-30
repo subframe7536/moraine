@@ -1,4 +1,6 @@
-import { inject } from 'vitest'
+import type { JSX } from 'solid-js'
+import { hydrate } from 'solid-js/web'
+import { inject, onTestFinished } from 'vitest'
 
 const ssrFixtures = (): Record<string, string> => inject('ssrFixtures')
 
@@ -47,5 +49,57 @@ export function installHydrationState(): () => void {
         delete hydrationGlobal._$HY
       }
     })
+  }
+}
+
+export interface HydrateFixtureResult {
+  container: HTMLElement
+  dispose: () => void
+  unmount: () => void
+}
+
+/**
+ * Mounts a pre-rendered SSR fixture into a container element and hydrates it with Solid.
+ * Automatically cleans up DOM and hydration state when the test completes or when unmount() is called.
+ */
+export function hydrateFixture(
+  modulePath: `/src/${string}`,
+  exportName: string,
+  renderApp: () => JSX.Element,
+): HydrateFixtureResult {
+  const markup = renderSsrFixture(modulePath, exportName)
+  const container = document.createElement('div')
+  container.innerHTML = markup
+  document.body.append(container)
+
+  const restoreHydrationState = installHydrationState()
+  const dispose = hydrate(renderApp, container)
+
+  let unmounted = false
+  const unmount = (): void => {
+    if (unmounted) {
+      return
+    }
+    unmounted = true
+    try {
+      dispose()
+    } finally {
+      container.remove()
+      restoreHydrationState()
+    }
+  }
+
+  try {
+    onTestFinished(() => {
+      unmount()
+    })
+  } catch {
+    // Outside test context
+  }
+
+  return {
+    container,
+    dispose,
+    unmount,
   }
 }

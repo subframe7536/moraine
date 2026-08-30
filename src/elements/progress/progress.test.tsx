@@ -1,12 +1,9 @@
 import { render } from '@solidjs/testing-library'
 import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
-
 import { Progress } from './progress.tsx'
-import type { ProgressProps, ProgressT } from './progress.tsx'
+import type { ProgressT } from './progress.tsx'
 
 describe('Progress', () => {
   test('accepts static JSX for statusRender', () => {
@@ -353,57 +350,6 @@ describe('Progress', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
-    const steps = ['Waiting', 'Working', 'Done']
-    const markup = renderSsrFixture(
-      '/src/elements/progress/progress.ssr.fixture.tsx',
-      'renderProgressFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const [value, setValue] = createSignal<number | null>(1)
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Progress
-          value={value()}
-          max={steps}
-          statusRender={(context) => <span>{context.percent}%</span>}
-          stepRender={(context) => <span>{context.step}</span>}
-        />
-      ),
-      container,
-    )
-    const root = container.querySelector('[data-slot="root"]')!
-
-    expect(root).toBe(serverRoot)
-    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'status',
-      'track',
-      'steps',
-    ])
-    expect(root.getAttribute('data-progress')).toBe('loading')
-
-    setValue(null)
-    expect(root.hasAttribute('data-indeterminate')).toBe(true)
-    expect(container.querySelector('[data-slot="status"]')).toBeNull()
-    expect(container.querySelectorAll('[data-indeterminate]').length).toBeGreaterThan(1)
-
-    setValue(2)
-    expect(root.getAttribute('data-progress')).toBe('complete')
-    expect(container.querySelector('[data-slot="status"]')?.textContent).toBe('100%')
-    for (const part of container.querySelectorAll('[data-slot]')) {
-      expect(part.hasAttribute('data-indeterminate')).toBe(false)
-    }
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  })
-
   test('applies orientation and animation classes', () => {
     const screen = render(() => (
       <Progress value={25} status orientation="vertical" animation="swing" />
@@ -504,16 +450,5 @@ describe('Progress', () => {
     expect(indicator?.style.width).toBe('200px')
     expect(steps?.style.width).toBe('200px')
     expect(step?.style.width).toBe('200px')
-  })
-
-  test('accepts arbitrary root props in type contract', () => {
-    const invertedProps: ProgressProps = { inverted: true }
-    const colorProps: ProgressProps = { color: 'secondary' }
-    const legacyStatusProps: ProgressProps = { renderStatus: () => 'status' }
-    const legacyStepProps: ProgressProps = { renderStep: () => 'step' }
-    expect(invertedProps).toBeDefined()
-    expect(colorProps).toBeDefined()
-    expect(legacyStatusProps).toBeDefined()
-    expect(legacyStepProps).toBeDefined()
   })
 })

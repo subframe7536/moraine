@@ -1,17 +1,14 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 import { FormField } from '../form-field/index.ts'
 import { createForm, Form } from '../form/index.ts'
 
 import { Textarea } from './textarea.tsx'
-import type { TextareaProps } from './textarea.tsx'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -313,11 +310,6 @@ describe('Textarea', () => {
     expect(footer?.style.width).toBe('200px')
   })
 
-  test('accepts arbitrary root props in type contract', () => {
-    const props: TextareaProps = { as: 'section' }
-    expect(props).toBeDefined()
-  })
-
   test('keeps the DOM and FormField aligned when a controlled edit is rejected', async () => {
     const [value, setValue] = createSignal('Locked')
     const onValueChange = vi.fn()
@@ -448,39 +440,4 @@ describe('Textarea', () => {
     expect(screen.getByText('Child')).not.toBeNull()
     expect(reads).toEqual({ children: 1, footer: 1, header: 1, modelModifiers: 1 })
   })
-
-  test('hydrates slots and initial value without replacing server nodes', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/textarea/textarea.ssr.fixture.tsx',
-      'renderTextareaFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]') as HTMLElement
-    const serverTextarea = container.querySelector('textarea') as HTMLTextAreaElement
-    const serverHeader = container.querySelector('[data-slot="header"]') as HTMLElement
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Textarea id="ssr-textarea" value="Server value" header={0} footer="Footer">
-          <span data-testid="child">Child</span>
-        </Textarea>
-      ),
-      container,
-    )
-
-    expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
-    expect(container.querySelector('textarea')).toBe(serverTextarea)
-    expect(container.querySelector('[data-slot="header"]')).toBe(serverHeader)
-    expect(serverTextarea.value).toBe('Server value')
-    expect(Array.from(serverRoot.children).map((child) => child.getAttribute('data-slot'))).toEqual(
-      ['header', 'input', null, 'footer'],
-    )
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })

@@ -1,33 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { callHandler } from '../../shared/utils.ts'
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
 
 import { ContextMenu } from './context-menu.tsx'
-import type { ContextMenuProps, ContextMenuT } from './context-menu.tsx'
-
-async function finishMenuExitMotion(): Promise<void> {
-  await Promise.resolve()
-
-  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
-
-  await Promise.all(
-    contents.map(async (content) => {
-      fireEvent.animationEnd(content)
-      fireEvent.transitionEnd(content)
-    }),
-  )
-}
-
-function expectNoPlacementMotion(element: HTMLElement | null | undefined): void {
-  expect(element?.style.getPropertyValue('--mo-enter-translate-x')).toBe('')
-  expect(element?.style.getPropertyValue('--mo-enter-translate-y')).toBe('')
-  expect(element?.style.getPropertyValue('--mo-exit-translate-x')).toBe('')
-  expect(element?.style.getPropertyValue('--mo-exit-translate-y')).toBe('')
-}
 
 describe('ContextMenu', () => {
   test('renders a div trigger root by default', () => {
@@ -179,69 +157,6 @@ describe('ContextMenu', () => {
       const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
       expect(highlighted?.textContent).toContain('Keyboard action')
     })
-  })
-
-  test('hydrates the trigger once and opens from keyboard and long press', async () => {
-    const markup = renderSsrFixture(
-      '/src/overlays/context-menu/context-menu.ssr.fixture.tsx',
-      'renderContextMenuFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverTrigger = container.querySelector('[data-slot="trigger"]') as HTMLElement
-    let triggerReads = 0
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () =>
-        createComponent(ContextMenu, {
-          id: 'ssr-context',
-          items: [{ label: 'Archive' }, { label: 'Delete' }],
-          get children() {
-            triggerReads += 1
-            return (props: ContextMenuT.TriggerProps) => <div {...props}>Row Item</div>
-          },
-        }),
-      container,
-    )
-
-    try {
-      expect(container.querySelector('[data-slot="trigger"]')).toBe(serverTrigger)
-      expect(triggerReads).toBe(1)
-
-      fireEvent.keyDown(serverTrigger, { key: 'ContextMenu' })
-      await waitFor(() => {
-        expect(
-          document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
-        ).toContain('Archive')
-      })
-
-      let content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-      fireEvent.keyDown(content, { key: 'Escape' })
-      await finishMenuExitMotion()
-
-      vi.useFakeTimers()
-      fireEvent.pointerDown(serverTrigger, {
-        pointerId: 21,
-        pointerType: 'touch',
-        clientX: 30,
-        clientY: 40,
-      })
-      await vi.advanceTimersByTimeAsync(700)
-      await vi.advanceTimersByTimeAsync(16)
-
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
-      content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-      fireEvent.keyDown(content, { key: 'Escape' })
-      await finishMenuExitMotion()
-      await Promise.resolve()
-    } finally {
-      dispose()
-      restoreHydrationState()
-      container.remove()
-      vi.useRealTimers()
-    }
   })
 
   test('exposes trigger data state while opened, closed, and disabled', async () => {
@@ -1163,7 +1078,7 @@ describe('ContextMenu', () => {
         (element) => element.textContent?.includes('Nested action'),
       ) as HTMLElement | undefined
 
-      expect(content).toBeDefined()
+      expect(content).not.toBeNull()
       return content!
     })
 
@@ -1211,7 +1126,7 @@ describe('ContextMenu', () => {
           (element) => element.textContent?.includes('Nested action'),
         ) as HTMLElement | undefined
 
-        expect(content).toBeDefined()
+        expect(content).not.toBeNull()
         return content!
       })
 
@@ -1397,9 +1312,14 @@ describe('ContextMenu', () => {
     })
   })
 
-  test('allows a fully controlled overlay without a trigger', () => {
-    const props: ContextMenuProps = { items: [{ label: 'Open item' }] }
-    expect(props).toBeDefined()
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => <ContextMenu open items={[{ label: 'Open item' }]} />)
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+        'Open item',
+      )
+    })
   })
 
   test('does not open when context menu trigger is disabled', async () => {

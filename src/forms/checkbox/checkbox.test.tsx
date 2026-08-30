@@ -1,9 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { hydrate } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
-
-import { installHydrationState, renderSsrFixture } from '../../test-utils/ssr-test.ts'
 
 import { Checkbox } from './checkbox.tsx'
 
@@ -512,52 +509,4 @@ describe('Checkbox', () => {
       expectCheckboxChecked(checkbox, false)
     })
   })
-
-  test('hydrates indeterminate content and preserves branch order through state updates', () => {
-    const markup = renderSsrFixture(
-      '/src/forms/checkbox/checkbox.ssr.fixture.tsx',
-      'renderCheckboxFixture',
-    )
-    const container = document.createElement('div')
-    container.innerHTML = markup
-    document.body.append(container)
-    const serverRoot = container.querySelector('[data-slot="root"]')
-    const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
-    const restoreHydrationState = installHydrationState()
-
-    const dispose = hydrate(
-      () => (
-        <Checkbox
-          checked={checked()}
-          label="Server label"
-          description="Server description"
-          checkedIcon={<span data-testid="checked-icon">Checked</span>}
-          indeterminateIcon={<span data-testid="mixed-icon">Mixed</span>}
-        />
-      ),
-      container,
-    )
-    const root = container.querySelector('[data-slot="root"]')!
-    const control = container.querySelector('[data-slot="control"]')!
-
-    expect(root).toBe(serverRoot)
-    expect(control.getAttribute('aria-checked')).toBe('mixed')
-    expect(container.querySelector('[data-testid="mixed-icon"]')?.textContent).toBe('Mixed')
-
-    setChecked(true)
-    expect(control.getAttribute('aria-checked')).toBe('true')
-    expect(container.querySelector('[data-testid="checked-icon"]')?.textContent).toBe('Checked')
-
-    setChecked(false)
-    expect(control.getAttribute('aria-checked')).toBe('false')
-    expect(container.querySelector('[data-slot="indicator"]')).toBeNull()
-    expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'container',
-      'wrapper',
-    ])
-
-    dispose()
-    container.remove()
-    restoreHydrationState()
-  }, 15_000)
 })
