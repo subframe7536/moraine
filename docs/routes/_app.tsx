@@ -20,6 +20,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const { theme, updateTheme } = useTheme()
   const [paletteOpen, setPaletteOpen] = createSignal(false)
   const [routingFromPath, setRoutingFromPath] = createSignal<string>()
+  const [mainEl, setMainEl] = createSignal<HTMLDivElement>()
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
@@ -41,7 +42,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }
 
     renderedPage = page
-    document.querySelector('[data-slot=main]')?.scrollTo({ top: 0 })
+    mainEl()?.scrollTo({ top: 0 })
     setCommittedPage(page)
   })
 
@@ -75,6 +76,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         />
       </Show>
       <SidebarFrame
+        mainRef={setMainEl}
         classes={{
           sidebar: 'border-none',
         }}

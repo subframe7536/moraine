@@ -45,8 +45,7 @@
 - [x] docs/ should become a production level docs site with a proper design system, navigation, search, landing page and other features, just like https://ui.shadcn.com/ or https://ui.nuxt.com. make [introduction](docs/pages/index.mdx) more useful.
   - [x] follow solid-file-router's default fs router path name resolution
   - [x] fix broken auto scroll to anchor
-- [ ] production barrel import optimize
-- [ ] add `mainRef` and `sidebarRef` prop on sidebarFrame component and auto scroll to top when switching page
+- [x] add `mainRef` and `sidebarRef` prop on sidebarFrame component and auto scroll to top when switching page in docs/
 - [ ] verify avatar loading and placeholder logic, correct avatar-group playground example
 - [ ] resizable drag not working well on mobile, always auto lose control
 - [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
@@ -54,6 +53,7 @@
 - [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
 - [ ] multi-select 's disable cause close icon shift, loading not working
 - [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
+- [ ] production barrel import optimize
 
 # V1
 

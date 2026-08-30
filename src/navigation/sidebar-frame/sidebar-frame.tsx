@@ -122,6 +122,15 @@ export namespace SidebarFrameT {
      */
     scrollThreshold?: number
     /**
+     * Callback ref for the main scroll container element (`data-slot="main"`).
+     * Useful for programmatic scrolling, e.g. scrolling to top on route change.
+     */
+    mainRef?: (el: HTMLDivElement) => void
+    /**
+     * Callback ref for the sidebar container element (`data-slot="sidebar"`).
+     */
+    sidebarRef?: (el: HTMLDivElement) => void
+    /**
      * Optional render function for sidebar header section.
      */
     sidebarHeaderRender?: ComponentOrElement<SidebarHeaderRenderProps>
@@ -268,6 +277,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'isMobile',
     'scrollThreshold',
+    'mainRef',
+    'sidebarRef',
     'sidebarHeaderRender',
     'sidebarBodyRender',
     'sidebarFooterRender',
@@ -348,6 +359,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
         },
         sidebar: (props) => (
           <div
+            ref={merged.sidebarRef}
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
             data-side={context.side}
@@ -394,6 +406,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
         ),
         main: (props) => (
           <div
+            ref={merged.mainRef}
             data-slot="main"
             {...props}
             style={{

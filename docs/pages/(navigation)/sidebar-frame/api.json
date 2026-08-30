@@ -98,6 +98,12 @@
         "description": "Controlled mobile mode state.\nWhen omitted, mobile state is resolved from `matchMedia`."
       },
       {
+        "name": "mainRef",
+        "required": false,
+        "type": "((el: HTMLDivElement) => void) | undefined",
+        "description": "Callback ref for the main scroll container element (`data-slot=\"main\"`).\nUseful for programmatic scrolling, e.g. scrolling to top on route change."
+      },
+      {
         "name": "mainRender",
         "required": true,
         "type": "ComponentOrElement<SidebarFrameT.MainRenderProps>",
@@ -137,6 +143,12 @@
         "required": false,
         "type": "ComponentOrElement<SidebarFrameT.SidebarHeaderRenderProps> | undefined",
         "description": "Optional render function for sidebar header section."
+      },
+      {
+        "name": "sidebarRef",
+        "required": false,
+        "type": "((el: HTMLDivElement) => void) | undefined",
+        "description": "Callback ref for the sidebar container element (`data-slot=\"sidebar\"`)."
       },
       {
         "name": "style",
