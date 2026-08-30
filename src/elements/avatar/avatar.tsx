@@ -24,9 +24,9 @@ import {
   avatarRootVariants,
 } from './avatar.class.ts'
 
-export type AvatarStatus = 'idle' | 'loading' | 'loaded' | 'error'
-
 export namespace AvatarT {
+  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
+
   export interface Slot<T = unknown> {
     /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
     root?: T
@@ -73,7 +73,7 @@ export namespace AvatarT {
     fallback?: IconT.Name
 
     /** Callback when the loading status of the avatar changes. */
-    onStatusChange?: (status: AvatarStatus) => void
+    onStatusChange?: (status: AvatarT.Status) => void
   }
 
   /** Props for the Avatar component. */
@@ -140,12 +140,12 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
-  const [status, setStatusSignal] = createSignal<AvatarStatus>('idle')
+  const [status, setStatusSignal] = createSignal<AvatarT.Status>('idle')
   const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 
-  let currentStatus: AvatarStatus = 'idle'
+  let currentStatus: AvatarT.Status = 'idle'
 
-  function setStatus(nextStatus: AvatarStatus): void {
+  function setStatus(nextStatus: AvatarT.Status): void {
     if (currentStatus === nextStatus) {
       return
     }

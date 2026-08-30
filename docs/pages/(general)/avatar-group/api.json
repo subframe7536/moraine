@@ -102,7 +102,7 @@
       {
         "name": "onStatusChange",
         "required": false,
-        "type": "((status: AvatarStatus) => void) | undefined",
+        "type": "((status: AvatarT.Status) => void) | undefined",
         "description": "Callback when the loading status of the avatar changes."
       },
       {
