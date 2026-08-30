@@ -196,7 +196,7 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     }
 
     refreshResizableHandleIntersections()
-    startResizableHandleDrag(registration, event, targetType)
+    startResizableHandleDrag(registration, event, targetType, currentTarget)
   }
 
   function onIntersectionMouseEnter(target: ResizableHandleIntersectionEdge): void {

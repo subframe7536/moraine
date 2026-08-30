@@ -1427,4 +1427,70 @@ describe('Resizable', () => {
     expect(innerHandle.getAttribute('data-cross')).toBeNull()
     expect(outerHandle.getAttribute('data-cross')).toBeNull()
   })
+  describe('mobile robustness', () => {
+    test('pointercancel stops drag immediately and emits correct final sizes', async () => {
+      const onResize = vi.fn()
+      const onResizeEnd = vi.fn()
+
+      const screen = render(() => (
+        <Resizable
+          onResize={onResize}
+          onResizeEnd={onResizeEnd}
+          panels={[{ content: 'Left' }, { content: 'Right' }]}
+        />
+      ))
+
+      await waitForLayoutInitialization()
+
+      const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+
+      // Begin drag and move 100px right
+      fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+      fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+
+      // Mid-drag size should be ~60% for left panel (moved 100px of 1000px root)
+      const sizesDuringDrag = onResize.mock.calls.at(-1)?.[0] as number[] | undefined
+      expect(sizesDuringDrag?.[0]).toBeCloseTo(600, 3)
+
+      // Mobile browser cancels the pointer (e.g. scroll gesture takes over)
+      fireEvent.pointerCancel(window, { pointerId: 1, clientX: 100, clientY: 0 })
+
+      // onResizeEnd should have been called
+      expect(onResizeEnd).toHaveBeenCalledTimes(1)
+
+      // No further resize events after cancel
+      const callsBefore = onResize.mock.calls.length
+
+      // Additional pointer moves after cancel should be no-ops
+      fireEvent.pointerMove(window, { pointerId: 1, clientX: 300, clientY: 0 })
+      expect(onResize.mock.calls.length).toBe(callsBefore)
+
+      // data-dragging should be cleared
+      expect(handle.getAttribute('data-dragging')).toBeNull()
+    })
+
+    test('incremental moves accumulate correctly across multiple pointermove events', async () => {
+      const onResize = vi.fn()
+
+      const screen = render(() => (
+        <Resizable onResize={onResize} panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      ))
+
+      await waitForLayoutInitialization()
+
+      const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+
+      // Drag in three incremental steps of 50px each (total 150px of 1000px root = 15%)
+      fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+      fireEvent.pointerMove(window, { pointerId: 1, clientX: 50, clientY: 0 })
+      fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+      fireEvent.pointerMove(window, { pointerId: 1, clientX: 150, clientY: 0 })
+      fireEvent.pointerUp(window, { pointerId: 1, clientX: 150, clientY: 0 })
+
+      // Final size should be 50% + 15% = 65% for the left panel
+      const finalSizes = onResize.mock.calls.at(-1)?.[0] as number[] | undefined
+      expect(finalSizes?.[0]).toBeCloseTo(650, 3)
+      expect(finalSizes?.[1]).toBeCloseTo(350, 3)
+    })
+  })
 })

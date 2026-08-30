@@ -35,11 +35,11 @@ export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
     },
     isMobile: {
       true: '',
-      false: 'w-64',
+      false: 'shrink-0 max-w-[45%] w-64',
     },
     variant: {
       default: '',
-      floating: 'ring-sidebar-border bg-sidebar rounded-lg ring-1 shadow-sm overflow-hidden',
+      floating: 'border border-border/80 rounded-lg bg-card shadow-sm overflow-hidden',
       inset: '',
     },
   },

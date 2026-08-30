@@ -72,6 +72,9 @@ interface DragSession {
   handles: DragHandleSnapshot[]
   startX: number
   startY: number
+  lastX: number
+  lastY: number
+  captureElement?: HTMLElement | null
   cleanup: () => void
 }
 
@@ -245,8 +248,10 @@ function onPointerMove(event: PointerEvent): void {
     event.preventDefault()
   }
 
-  const deltaX = event.clientX - dragSession.startX
-  const deltaY = event.clientY - dragSession.startY
+  const deltaX = event.clientX - dragSession.lastX
+  const deltaY = event.clientY - dragSession.lastY
+  dragSession.lastX = event.clientX
+  dragSession.lastY = event.clientY
 
   for (const dragHandle of dragSession.handles) {
     const deltaPx = isHorizontalOrientation(dragHandle.orientation) ? deltaX : deltaY
@@ -595,6 +600,7 @@ export function startResizableHandleDrag(
   handle: ResizableHandleRegistration,
   event: PointerEvent,
   target: ResizableHandleIntersectionTarget,
+  captureElement?: HTMLElement | null,
 ): void {
   if (event.cancelable) {
     event.preventDefault()
@@ -611,7 +617,22 @@ export function startResizableHandleDrag(
 
   const dragHandles = handles.map(createDragHandleSnapshot)
 
-  const cleanup =
+  // Attach pointer listeners to the capturing element when available.
+  // When setPointerCapture is active, mobile browsers route captured pointer
+  // events to the capturing element rather than bubbling them to window,
+  // so we must listen there for reliable move/up/cancel delivery.
+  // We also listen on window as a fallback (e.g. when capture is not supported
+  // or for contextmenu which bypasses pointer capture).
+  const cleanupCapture =
+    captureElement && typeof captureElement.addEventListener === 'function'
+      ? attachEventListenerMap(captureElement, {
+          pointermove: onPointerMove,
+          pointerup: clearDragSession,
+          pointercancel: clearDragSession,
+        })
+      : undefined
+
+  const cleanupWindow =
     typeof window === 'undefined'
       ? () => {}
       : attachEventListenerMap(window, {
@@ -625,7 +646,13 @@ export function startResizableHandleDrag(
     handles: dragHandles,
     startX: event.clientX,
     startY: event.clientY,
-    cleanup,
+    lastX: event.clientX,
+    lastY: event.clientY,
+    captureElement,
+    cleanup: () => {
+      cleanupCapture?.()
+      cleanupWindow()
+    },
   }
   lockDocumentTextSelection()
 

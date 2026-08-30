@@ -5,6 +5,7 @@ import { createStore } from 'solid-js/store'
 import {
   Button,
   FormField,
+  Icon,
   Input,
   InputNumber,
   Select,
@@ -279,15 +280,20 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
     <section class={DOCS_PLAYGROUND_CLASS}>
       <div class="flex flex-col md:flex-row md:items-stretch">
         <div class={DOCS_PLAYGROUND_PREVIEW_CLASS}>
-          <div class="max-w-full w-80">{props.children(values)}</div>
+          <div class="flex min-w-0 w-full items-center justify-center">
+            {props.children(values)}
+          </div>
         </div>
         <div
           class="p-4 border-t border-border/60 bg-muted/20 flex shrink-0 flex-col gap-3.5 w-full md:border-l md:border-t-0 lg:w-56 md:w-48"
           role="group"
           aria-label="Example controls"
         >
-          <div class="pb-2 border-b border-border/50 flex shrink-0 h-8 items-center justify-between">
-            <span class="text-xs text-foreground/90 tracking-tight font-semibold">Props</span>
+          <div class="pb-2.5 border-b border-border/60 flex shrink-0 h-8 items-center justify-between">
+            <span class="text-xs text-foreground/90 tracking-tight font-semibold flex gap-1.5 items-center">
+              <Icon name="i-lucide:sliders-horizontal" class="text-muted-foreground size-3.5" />
+              <span>Props</span>
+            </span>
             <Show when={hasChanges()}>
               <Button
                 type="button"

@@ -29,8 +29,6 @@ import type { SidebarFrameT } from 'moraine'
 
 ## Playground
 
-Interactive component preview with configurable props.
-
 <Playground
   controls={[
     {
@@ -58,42 +56,47 @@ Interactive component preview with configurable props.
 >
   {(props) => {
     return (
-      <div class="border border-border/60 rounded-2xl bg-background h-72 max-w-2xl w-full relative overflow-hidden">
+      <div class="border border-border/70 rounded-xl bg-background h-72 max-w-2xl w-full relative overflow-hidden">
         <SidebarFrame
           variant={props.variant}
           side={props.side}
+          classes={{
+            sidebarHeader: 'border-b border-border/60',
+          }}
           sidebarHeaderRender={() => (
-            <div class="p-3 border-b border-border/50 flex gap-2 items-center">
-              <Icon name="i-lucide:layers" class="text-primary size-4" />
+            <div class="p-2.5 flex gap-2 items-center">
+              <div class="size-6 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                <Icon name="i-lucide:layers" class="size-3.5" />
+              </div>
               <span class="text-xs text-foreground font-semibold">Workspace</span>
-              <Badge variant="outline" size="sm" class="ml-auto">
+              <Badge variant="outline" size="sm" class="ml-auto rounded-md">
                 Pro
               </Badge>
             </div>
           )}
           sidebarBodyRender={() => (
-            <div class="text-xs p-2 space-y-1">
-              <button class="text-primary font-medium px-2.5 py-1.5 rounded-lg bg-primary/10 flex gap-2 w-full items-center">
+            <div class="text-xs p-1.5 space-y-0.5">
+              <button class="text-primary font-medium px-2.5 py-1.5 rounded-md bg-primary/10 flex gap-2 w-full items-center">
                 <Icon name="i-lucide:layout-dashboard" class="size-3.5" />
                 <span>Overview</span>
               </button>
-              <button class="text-muted-foreground px-2.5 py-1.5 rounded-lg flex gap-2 w-full transition-colors items-center hover:text-foreground hover:bg-muted/40">
+              <button class="text-muted-foreground px-2.5 py-1.5 rounded-md flex gap-2 w-full transition-colors items-center hover:text-foreground hover:bg-muted/40">
                 <Icon name="i-lucide:folder-kanban" class="size-3.5" />
                 <span>Projects</span>
               </button>
-              <button class="text-muted-foreground px-2.5 py-1.5 rounded-lg flex gap-2 w-full transition-colors items-center hover:text-foreground hover:bg-muted/40">
+              <button class="text-muted-foreground px-2.5 py-1.5 rounded-md flex gap-2 w-full transition-colors items-center hover:text-foreground hover:bg-muted/40">
                 <Icon name="i-lucide:settings" class="size-3.5" />
                 <span>Settings</span>
               </button>
             </div>
           )}
           mainRender={() => (
-            <div class="p-4 space-y-3">
+            <div class="p-4 space-y-3 h-full overflow-y-auto">
               <h4 class="text-sm text-foreground font-semibold">Dashboard Analytics</h4>
               <p class="text-xs text-muted-foreground leading-relaxed">
                 Responsive sidebar shell with collapsible panels and mobile drawer integration.
               </p>
-              <Button size="sm" variant="outline" leading="i-lucide:plus">
+              <Button size="sm" variant="outline" class="rounded-md" leading="i-lucide:plus">
                 New Project
               </Button>
             </div>
@@ -134,6 +137,12 @@ SidebarFrame chooses a desktop resizable sidebar or mobile sheet according to it
 Use header and footer slots for persistent frame content. Side configuration affects placement, not the navigation semantics of the children you render.
 
 <Preview path="./slots-usage" />
+
+### Frame render
+
+Pass a custom `frameRender` function to customize the surrounding layout frame, inject full-width top navigation bars, or tailor desktop transitions using `FrameContext`.
+
+<Preview path="./frame-render" />
 
 ## Examples
 

@@ -117,7 +117,7 @@ export const Sidebar = (props: SidebarProps) => {
             href="/llms.txt"
             rel="alternate external"
             type="text/markdown"
-            class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-lg flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-sm flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
             <span class="truncate">llms.txt</span>
           </a>
@@ -132,7 +132,7 @@ export const SidebarHeader = (props: SidebarHeaderProps) => {
     <div
       class={cn(
         'px-4 flex shrink-0 h-13 items-center justify-between',
-        props.isMobile ? 'mt-1' : 'border-b border-border/60',
+        props.isMobile ? 'mt-1' : '',
       )}
     >
       <div class="flex gap-2.5 min-w-0 items-center">

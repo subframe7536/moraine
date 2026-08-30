@@ -47,7 +47,7 @@
   - [x] fix broken auto scroll to anchor
 - [x] add `mainRef` and `sidebarRef` prop on sidebarFrame component and auto scroll to top when switching page in docs/
 - [x] verify avatar loading and placeholder logic, correct avatar-group playground example
-- [ ] resizable drag not working well on mobile, always auto lose control
+- [x] resizable drag not working well on mobile, always auto lose control
 - [ ] fix docs/pages/(overlay)/sheet/index.mdx 's playground not working: click button but no overlay shows
 - [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
 - [ ] multi-select 's disable cause close icon shift, loading not working

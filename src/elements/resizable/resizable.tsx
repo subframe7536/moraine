@@ -648,6 +648,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
     if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
       drag = resetDragState(handleIndex, altKey)
+    } else {
+      // Incremental mode: base each resize step on the last committed sizes
+      // so that a per-frame delta accumulates correctly without position jumps.
+      drag.initialSizes = [...drag.lastSizes]
     }
 
     const nextSizes = normalizeSizes(
@@ -659,7 +663,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
         panels: resolvedPanels(),
       }),
     )
-    const currentSizes = drag.started ? drag.lastSizes : drag.initialSizes
+    const currentSizes = drag.lastSizes
 
     if (!hasSizeChange(currentSizes, nextSizes)) {
       return
