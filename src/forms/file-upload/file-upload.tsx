@@ -505,8 +505,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       dropzone: true,
       preview: true,
       size: 'md' as const,
-      icon: 'icon-upload' as IconT.Name,
-      fileIcon: 'icon-file' as IconT.Name,
+      icon: 'icon-upload' as const,
+      fileIcon: 'icon-file' as const,
     },
     local,
   )
@@ -870,9 +870,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
-      {...rest}
+      {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
-      component={(merged.as ?? 'div') as ValidComponent}
+      component={merged.as as any}
       style={{ ...merged.styles?.root, ...merged.style }}
       class={fileUploadRootVariants(
         {

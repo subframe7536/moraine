@@ -13,7 +13,7 @@ export interface FormFieldRuntimeState {
 }
 
 export interface FormFieldContextOptions {
-  error?: boolean | string | JSX.Element
+  error?: JSX.Element
   name?: string
   path?: RequiredPath
   field?: FieldStore
@@ -151,10 +151,10 @@ export function useFormField(
       return
     }
     if (type === 'blur') {
-      field.props.onBlur(event as Parameters<typeof field.props.onBlur>[0])
+      field.props.onBlur()
     }
     if (type === 'focus') {
-      field.props.onFocus(event as Parameters<typeof field.props.onFocus>[0])
+      field.props.onFocus()
     }
     if (type === 'change') {
       field.props.onChange(event as Parameters<typeof field.props.onChange>[0])

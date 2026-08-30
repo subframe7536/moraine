@@ -403,7 +403,7 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
   const edits: TextEdit[] = []
   walkAst(value.node, (current) => {
     if (current.type === 'TSLiteralType') {
-      const literal = (current as ESTree.TSLiteralType).literal
+      const literal = current.literal
       if (literal.type === 'Literal' && typeof literal.value === 'string') {
         edits.push({ start: literal.start, end: literal.end, text: JSON.stringify(literal.value) })
       }
@@ -413,7 +413,7 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
       return
     }
 
-    const reference = current as ESTree.TSTypeReference
+    const reference = current
     const name = entityNameToText(reference.typeName)
     if (!name) {
       return
@@ -689,7 +689,7 @@ class DeclarationAnalyzer {
     let variants: ESTree.TSTypeLiteral | undefined
     walkAst(annotation, (current) => {
       if (!variants && current.type === 'TSTypeLiteral') {
-        variants = current as ESTree.TSTypeLiteral
+        variants = current
       }
     })
     if (!variants) {

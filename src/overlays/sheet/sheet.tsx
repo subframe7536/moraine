@@ -104,7 +104,7 @@ export namespace SheetT {
      * Whether to show a close button, or a custom element to use as one.
      * @default true
      */
-    close?: boolean | JSX.Element
+    close?: JSX.Element
 
     /**
      * Custom element to render in the header slot.

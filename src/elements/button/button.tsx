@@ -149,7 +149,7 @@ export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const group = useContext(ButtonGroupContext)
-  const [local, rest] = splitProps(props as ButtonProps<T>, [
+  const [local, rest] = splitProps(props, [
     'as',
     'type',
     'variant',
@@ -168,7 +168,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<ElementFor<T>, MouseEvent>({
+  const { isLoading, onClick } = useLoadingAutoClick<ElementFor<T>>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
     get onClick() {
@@ -223,7 +223,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     rest,
   )
 
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolveChildren(() => local.children)
   const resolvedChildren = createMemo(() =>
     renderComponentOrElement(child() as ButtonT.Base['children'], {
       get loading() {

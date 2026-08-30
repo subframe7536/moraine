@@ -17,7 +17,7 @@ export function Autoresize() {
         rows={3}
         maxRows={8}
         value={post()}
-        onValueChange={(next) => setPost(String(next ?? ''))}
+        onValueChange={(next) => setPost(next ?? '')}
         placeholder="What's happening in your project?"
       />
       <div class="text-xs flex items-center justify-between">

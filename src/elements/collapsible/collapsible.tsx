@@ -222,7 +222,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         data-slot="root"
         {...dataAttrs()}
         {...rest}
-        style={{ ...(local.styles?.root as JSX.CSSProperties | undefined), ...local.style }}
+        style={{ ...local.styles?.root, ...local.style }}
         class={cn(COLLAPSIBLE_ROOT_CLASS, local.classes?.root, local.class)}
       >
         {local.children}

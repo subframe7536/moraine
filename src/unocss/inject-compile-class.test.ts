@@ -19,7 +19,7 @@ async function runTransform(source: string, id: string): Promise<string> {
   const transformer = transformerInjectCompileClass({
     trigger: TEST_TRIGGER,
     beforeTransform(code, nextId, context) {
-      variantGroupTransformer.transform(code, nextId, context)
+      void variantGroupTransformer.transform(code, nextId, context)
     },
   })
   const code = new MagicString(source)

@@ -16,15 +16,14 @@ function createRectElement(rect: {
 }): HTMLElement {
   const element = {} as HTMLElement
 
-  element.getBoundingClientRect = () =>
-    ({
-      ...rect,
-      height: rect.bottom - rect.top,
-      width: rect.right - rect.left,
-      x: rect.left,
-      y: rect.top,
-      toJSON: () => ({}),
-    }) as DOMRect
+  element.getBoundingClientRect = () => ({
+    ...rect,
+    height: rect.bottom - rect.top,
+    width: rect.right - rect.left,
+    x: rect.left,
+    y: rect.top,
+    toJSON: () => ({}),
+  })
 
   return element
 }

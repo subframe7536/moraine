@@ -54,7 +54,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant>
 }
 
 export type ListProps<
@@ -92,7 +92,7 @@ export function List<
       ref={(element: HTMLUListElement) => {
         setScrollElement(() => element)
         if (typeof local.ref === 'function') {
-          local.ref(element as unknown as TItemElement)
+          local.ref(element)
         }
       }}
       class={cn(local.class)}

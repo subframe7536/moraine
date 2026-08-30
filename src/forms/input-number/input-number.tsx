@@ -848,10 +848,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   const onControlContextMenu: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = (event) => {
-    const eventTarget = event.currentTarget as HTMLButtonElement
     const isTouchPointer = Object.values(pressStates).some(
       (state) =>
-        state.targetEl === eventTarget &&
+        state.targetEl === event.currentTarget &&
         (state.lastPointerType === 'touch' || state.lastPointerType === 'pen'),
     )
 

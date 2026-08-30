@@ -33,7 +33,7 @@ describe('Switch', () => {
     const switchInput = screen.getByRole('switch', { name: 'Marketing' })
 
     expectSwitchChecked(switchInput, false)
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
     expectSwitchChecked(switchInput, true)
   })
 
@@ -44,12 +44,12 @@ describe('Switch', () => {
       const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
       const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
-      await fireEvent.keyDown(switchInput, { key })
-      await fireEvent.keyUp(switchInput, { key })
+      fireEvent.keyDown(switchInput, { key })
+      fireEvent.keyUp(switchInput, { key })
 
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.click(switchInput, { detail: 0 })
+      fireEvent.click(switchInput, { detail: 0 })
 
       expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenLastCalledWith(true)
@@ -63,7 +63,7 @@ describe('Switch', () => {
     const switchInput = screen.getByRole('switch', { name: 'Disabled' })
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -89,7 +89,7 @@ describe('Switch', () => {
     const screen = render(() => <Switch checked label="Controlled" onChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Controlled' })
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith(false)
@@ -106,7 +106,7 @@ describe('Switch', () => {
 
     expect(switchInput.getAttribute('aria-readonly')).toBe('true')
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expectSwitchChecked(switchInput, true)
     expect(onChange).not.toHaveBeenCalled()
@@ -124,7 +124,7 @@ describe('Switch', () => {
       name: 'Readonly uncontrolled',
     })
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expectSwitchChecked(switchInput, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -142,7 +142,7 @@ describe('Switch', () => {
 
     expectSwitchChecked(switchInput, true)
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith(0)
@@ -173,7 +173,7 @@ describe('Switch', () => {
     const switchInput = screen.getByRole('switch', { name: 'Icon state' })
 
     expect(screen.getByTestId('unchecked-icon').textContent).toBe('U')
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
   })
 
@@ -191,7 +191,7 @@ describe('Switch', () => {
     expectSwitchChecked(switchInput, true)
     expect(new FormData(form).get('enabled')).toBe('yes')
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
 
     expectSwitchChecked(switchInput, false)
     expect(new FormData(form).has('enabled')).toBe(false)
@@ -214,7 +214,7 @@ describe('Switch', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const switchInput = screen.getByRole('switch', { name: 'Enabled' })
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
     expectSwitchChecked(switchInput, true)
     expect(onChange).toHaveBeenCalledTimes(1)
 
@@ -241,7 +241,7 @@ describe('Switch', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
-    await fireEvent.click(switchInput)
+    fireEvent.click(switchInput)
     expect(onChange).toHaveBeenCalledWith(1)
 
     form.reset()
@@ -293,7 +293,7 @@ describe('Switch', () => {
     const screen = render(() => <Switch label="Canceled" onChange={onChange} onClick={onClick} />)
     const switchInput = screen.getByRole('switch', { name: 'Canceled' })
 
-    await fireEvent.click(switchInput, { shiftKey: true })
+    fireEvent.click(switchInput, { shiftKey: true })
 
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(onClick.mock.calls[0]?.[0].shiftKey).toBe(true)

@@ -121,7 +121,7 @@ describe('Pagination', () => {
       />
     ))
 
-    await fireEvent.click(screen.getByText('3'))
+    fireEvent.click(screen.getByText('3'))
 
     expect(onPageChange).toHaveBeenCalledWith(3)
 
@@ -142,7 +142,7 @@ describe('Pagination', () => {
       />
     ))
 
-    await fireEvent.click(screen.getByText('3'))
+    fireEvent.click(screen.getByText('3'))
 
     expect(onPageChange).not.toHaveBeenCalled()
     expect(screen.getByLabelText('Page 2 of 5, current page')).not.toBeNull()
@@ -229,7 +229,7 @@ describe('Pagination', () => {
 
     expect(to.mock.calls.map(([page]) => page)).toEqual([1, 1, 2, 3, 3])
 
-    await fireEvent.click(screen.getByLabelText('Page 2 of 3, current page'))
+    fireEvent.click(screen.getByLabelText('Page 2 of 3, current page'))
     expect(onPageChange).not.toHaveBeenCalled()
     expect(to).toHaveBeenCalledTimes(5)
   })
@@ -327,7 +327,7 @@ describe('Pagination', () => {
       />
     ))
 
-    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement | null
+    const status = screen.container.querySelector('[data-slot="status"]')
     expect(status).not.toBeNull()
     expect(status?.getAttribute('role')).toBe('status')
     expect(status?.getAttribute('aria-live')).toBe('polite')
@@ -335,7 +335,7 @@ describe('Pagination', () => {
     expect(status?.className).toContain('sr-only')
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 5')
 
-    await fireEvent.click(screen.getByText('3'))
+    fireEvent.click(screen.getByText('3'))
 
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 3 of 5')
   })
@@ -437,7 +437,7 @@ describe('Pagination', () => {
     expect(container.querySelector('[data-slot="status"]')).toBe(serverStatus)
     expect(container.querySelectorAll('[data-slot="ellipsis"]')).toHaveLength(2)
 
-    await fireEvent.click(container.querySelector('[data-slot="next"]')!)
+    fireEvent.click(container.querySelector('[data-slot="next"]')!)
     expect(serverStatus?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
 
     dispose()

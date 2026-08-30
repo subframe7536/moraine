@@ -39,7 +39,7 @@ function createRect(input: RectInput): DOMRect {
     bottom,
     left,
     toJSON: () => ({}),
-  } as DOMRect
+  }
 }
 
 function createTestHandle(input: {
@@ -104,8 +104,8 @@ function createTestHandle(input: {
 }
 
 function createPointerEvent(type: string, init: MouseEventInit): PointerEvent {
-  const EventCtor = (globalThis.PointerEvent ?? MouseEvent) as typeof PointerEvent
-  return new EventCtor(type, init) as PointerEvent
+  const EventCtor = globalThis.PointerEvent ?? MouseEvent
+  return new EventCtor(type, init)
 }
 
 function createRootElement(): HTMLDivElement {

@@ -32,7 +32,7 @@ function getFileInput(container: HTMLElement): HTMLInputElement {
 }
 
 async function setInputFiles(input: HTMLInputElement, files: File[]): Promise<void> {
-  await fireEvent.change(input, {
+  fireEvent.change(input, {
     target: { files },
     currentTarget: { files },
   })
@@ -67,8 +67,8 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
     }
   }
 
-  await fireEvent.dragOver(target, { dataTransfer })
-  await fireEvent.drop(target, { dataTransfer })
+  fireEvent.dragOver(target, { dataTransfer })
+  fireEvent.drop(target, { dataTransfer })
 }
 
 describe('FileUpload', () => {
@@ -83,7 +83,7 @@ describe('FileUpload', () => {
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    await fireEvent.click(control)
+    fireEvent.click(control)
 
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
@@ -99,10 +99,10 @@ describe('FileUpload', () => {
     const input = getFileInput(screen.container)
     const inputClick = vi.spyOn(input, 'click').mockImplementation(() => undefined)
 
-    await fireEvent.click(control)
-    await fireEvent.keyDown(control, { key: 'Enter' })
-    await fireEvent.keyDown(control, { key: ' ' })
-    await fireEvent.keyDown(control, { key: 'Escape' })
+    fireEvent.click(control)
+    fireEvent.keyDown(control, { key: 'Enter' })
+    fireEvent.keyDown(control, { key: ' ' })
+    fireEvent.keyDown(control, { key: 'Escape' })
 
     expect(inputClick).toHaveBeenCalledTimes(3)
     expect(onKeyDown).toHaveBeenCalledTimes(3)
@@ -115,7 +115,7 @@ describe('FileUpload', () => {
     const canceledInput = getFileInput(canceled.container)
     const canceledClick = vi.spyOn(canceledInput, 'click').mockImplementation(() => undefined)
 
-    await fireEvent.click(canceled.getByRole('button', { name: 'File upload' }))
+    fireEvent.click(canceled.getByRole('button', { name: 'File upload' }))
     expect(canceledClick).not.toHaveBeenCalled()
     canceledClick.mockRestore()
 
@@ -124,8 +124,8 @@ describe('FileUpload', () => {
     const readOnlyClick = vi.spyOn(readOnlyInput, 'click').mockImplementation(() => undefined)
     const readOnlyControl = readOnly.getByRole('button', { name: 'File upload' })
 
-    await fireEvent.click(readOnlyControl)
-    await fireEvent.keyDown(readOnlyControl, { key: 'Enter' })
+    fireEvent.click(readOnlyControl)
+    fireEvent.keyDown(readOnlyControl, { key: 'Enter' })
     expect(readOnlyClick).not.toHaveBeenCalled()
     readOnlyClick.mockRestore()
   })
@@ -216,7 +216,7 @@ describe('FileUpload', () => {
 
     expect(base.className).not.toContain('scale-[')
 
-    await fireEvent.dragOver(base, {
+    fireEvent.dragOver(base, {
       dataTransfer: {
         files: [],
         items: [{ kind: 'file' }],
@@ -243,11 +243,11 @@ describe('FileUpload', () => {
     let removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
     expect(removeButtons.length).toBe(2)
 
-    await fireEvent.click(removeButtons[0]!)
+    fireEvent.click(removeButtons[0]!)
     expect(onValueChange).toHaveBeenLastCalledWith([second])
 
     removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
-    await fireEvent.click(removeButtons[0]!)
+    fireEvent.click(removeButtons[0]!)
     expect(onValueChange).toHaveBeenLastCalledWith([])
     expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(0)
   })
@@ -261,7 +261,7 @@ describe('FileUpload', () => {
     await setInputFiles(input, [file])
 
     const removeButton = screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement
-    await fireEvent.click(removeButton)
+    fireEvent.click(removeButton)
 
     expect(onValueChange).toHaveBeenNthCalledWith(1, file)
     expect(onValueChange).toHaveBeenNthCalledWith(2, null)
@@ -285,7 +285,7 @@ describe('FileUpload', () => {
       expect(screen.container.querySelector('[data-slot="files"]')).not.toBeNull()
 
       const removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
-      await fireEvent.click(removeButtons[0]!)
+      fireEvent.click(removeButtons[0]!)
 
       await waitFor(() => {
         expect(revokeObjectURL).toHaveBeenCalled()
@@ -394,11 +394,11 @@ describe('FileUpload', () => {
       dropEffect: 'none',
     }
 
-    await fireEvent.dragOver(control, { dataTransfer: nonFileTransfer })
+    fireEvent.dragOver(control, { dataTransfer: nonFileTransfer })
     expect(control.getAttribute('data-dragging')).toBeNull()
     expect(nonFileTransfer.dropEffect).toBe('none')
 
-    await fireEvent.dragOver(control, { dataTransfer: fileTransfer })
+    fireEvent.dragOver(control, { dataTransfer: fileTransfer })
     expect(control.getAttribute('data-dragging')).toBe('')
     expect(fileTransfer.dropEffect).toBe('copy')
 
@@ -409,7 +409,7 @@ describe('FileUpload', () => {
     fireEvent(control, nestedLeave)
     expect(control.getAttribute('data-dragging')).toBe('')
 
-    await fireEvent.dragLeave(control, { relatedTarget: document.body })
+    fireEvent.dragLeave(control, { relatedTarget: document.body })
     expect(control.getAttribute('data-dragging')).toBeNull()
   })
 
@@ -426,11 +426,11 @@ describe('FileUpload', () => {
       dropEffect: 'none',
     }
 
-    await fireEvent.dragOver(control, { dataTransfer: fileTransfer })
+    fireEvent.dragOver(control, { dataTransfer: fileTransfer })
     expect(control.getAttribute('data-dragging')).toBeNull()
     expect(fileTransfer.dropEffect).toBe('none')
 
-    await fireEvent.drop(control, {
+    fireEvent.drop(control, {
       dataTransfer: { files: [], items: [], types: ['text/plain'], dropEffect: 'none' },
     })
     expect(onValueChange).not.toHaveBeenCalled()
@@ -443,7 +443,7 @@ describe('FileUpload', () => {
     const file = createFile('repeat.txt')
 
     await setInputFiles(input, [file])
-    await fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
+    fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
     await setInputFiles(input, [file])
 
     expect(onValueChange).toHaveBeenCalledTimes(3)
@@ -469,14 +469,14 @@ describe('FileUpload', () => {
 
   test('applies style overrides for root and file slots', async () => {
     const screen = render(() => (
-      <FileUpload multiple styles={{ root: { width: '200px' }, file: { width: '200px' } } as any} />
+      <FileUpload multiple styles={{ root: { width: '200px' }, file: { width: '200px' } }} />
     ))
     const input = getFileInput(screen.container)
 
     await setInputFiles(input, [createFile('styled.txt')])
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const file = screen.container.querySelector('[data-slot="file"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const file = screen.container.querySelector<HTMLElement>('[data-slot="file"]')
 
     expect(root?.style.width).toBe('200px')
     expect(file?.style.width).toBe('200px')
@@ -648,13 +648,13 @@ describe('FileUpload', () => {
     const file = createFile('attachment.txt')
 
     await setInputFiles(getFileInput(screen.container), [file])
-    await fireEvent.submit(formElement)
+    fireEvent.submit(formElement)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ attachment: file })
 
     formElement.reset()
     await waitFor(() => expect(screen.container.querySelector('[data-slot="file"]')).toBeNull())
-    await fireEvent.submit(formElement)
+    fireEvent.submit(formElement)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
     expect(onSubmit.mock.calls[1]?.[0]).toEqual({ attachment: null })
   })
@@ -715,12 +715,11 @@ describe('FileUpload', () => {
 
     await waitFor(() => {
       expect(
-        (screen.container.querySelector('[data-slot="fileRemove"]') as HTMLButtonElement | null)
-          ?.disabled,
+        screen.container.querySelector<HTMLButtonElement>('[data-slot="fileRemove"]')?.disabled,
       ).toBe(true)
     })
 
-    await fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
+    fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
     await dropFiles(screen.getByRole('button', { name: 'File upload' }), [
       createFile('drop-blocked.txt'),
     ])

@@ -199,8 +199,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
   ])
   const local = mergeProps(
     {
-      orientation: 'horizontal' as ResizableOrientation,
-      keyboardDelta: '10%' as ResizableSize,
+      orientation: 'horizontal' as const,
+      keyboardDelta: '10%' as const,
       handle: true,
       handleAction: 'resize' as const,
     },
@@ -616,7 +616,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   function emitSizes(normalizedSizes: number[]): void {
     if (normalizedControlledSizes() === undefined) {
       setUncontrolledSizes(
-        normalizedSizes.map((size) => `${fixToPrecision(size * 100)}%` as ResizableSize),
+        normalizedSizes.map((size): ResizableSize => `${fixToPrecision(size * 100)}%`),
       )
     }
 

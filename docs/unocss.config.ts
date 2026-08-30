@@ -158,7 +158,7 @@ export default defineConfig<PresetWind4Theme>({
           )
         },
         beforeTransform(code, id, ctx) {
-          transformer.transform(code, id, ctx)
+          void transformer.transform(code, id, ctx)
         },
       },
     }),

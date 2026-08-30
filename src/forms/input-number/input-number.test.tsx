@@ -17,7 +17,7 @@ describe('InputNumber', () => {
   test('renders number input with increment and decrement controls', () => {
     const screen = render(() => <InputNumber defaultValue={1} placeholder="Qty" />)
 
-    expect(screen.getByRole('spinbutton')).not.toBeNull()
+    expect(screen.getByRole<HTMLInputElement>('spinbutton')).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
   })
@@ -28,7 +28,7 @@ describe('InputNumber', () => {
       <InputNumber defaultValue={0} onIncrementClick={[onIncrementClick, 'payload']} />
     ))
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
 
     expect(onIncrementClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
@@ -37,7 +37,7 @@ describe('InputNumber', () => {
     const disabledScreen = render(() => (
       <InputNumber defaultValue={1} required disabled placeholder="Qty" />
     ))
-    const disabledSpinbutton = disabledScreen.getByRole('spinbutton') as HTMLInputElement
+    const disabledSpinbutton = disabledScreen.getByRole<HTMLInputElement>('spinbutton')
     const disabledRoot = disabledScreen.container.querySelector('[data-slot="root"]')
 
     expect(disabledSpinbutton.required).toBe(true)
@@ -52,7 +52,7 @@ describe('InputNumber', () => {
     disabledScreen.unmount()
 
     const readOnlyScreen = render(() => <InputNumber defaultValue={1} readOnly />)
-    const readOnlySpinbutton = readOnlyScreen.getByRole('spinbutton') as HTMLInputElement
+    const readOnlySpinbutton = readOnlyScreen.getByRole<HTMLInputElement>('spinbutton')
     const readOnlyRoot = readOnlyScreen.container.querySelector('[data-slot="root"]')
 
     expect(readOnlySpinbutton.readOnly).toBe(true)
@@ -63,37 +63,37 @@ describe('InputNumber', () => {
 
   test('disables steppers at min and max boundaries', async () => {
     const maxScreen = render(() => <InputNumber defaultValue={10} minValue={0} maxValue={10} />)
-    const maxSpinbutton = maxScreen.getByRole('spinbutton') as HTMLInputElement
-    const maxIncrement = maxScreen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement
-    const maxDecrement = maxScreen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement
+    const maxSpinbutton = maxScreen.getByRole<HTMLInputElement>('spinbutton')
+    const maxIncrement = maxScreen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+    const maxDecrement = maxScreen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
 
     expect(maxIncrement.disabled).toBe(true)
     expect(maxDecrement.disabled).toBe(false)
 
-    await fireEvent.click(maxIncrement)
+    fireEvent.click(maxIncrement)
     expect(maxSpinbutton.value).toBe('10')
 
     maxScreen.unmount()
 
     const minScreen = render(() => <InputNumber defaultValue={0} minValue={0} maxValue={10} />)
-    const minSpinbutton = minScreen.getByRole('spinbutton') as HTMLInputElement
-    const minIncrement = minScreen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement
-    const minDecrement = minScreen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement
+    const minSpinbutton = minScreen.getByRole<HTMLInputElement>('spinbutton')
+    const minIncrement = minScreen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+    const minDecrement = minScreen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
 
     expect(minDecrement.disabled).toBe(true)
     expect(minIncrement.disabled).toBe(false)
 
-    await fireEvent.click(minDecrement)
+    fireEvent.click(minDecrement)
     expect(minSpinbutton.value).toBe('0')
   })
 
   test('reactively disables steppers after reaching a boundary', async () => {
     const screen = render(() => <InputNumber defaultValue={9} minValue={0} maxValue={10} />)
-    const incrementButton = screen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement
-    const decrementButton = screen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement
+    const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+    const decrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' })
 
     expect(incrementButton.disabled).toBe(false)
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
 
     expect(incrementButton.disabled).toBe(true)
     expect(decrementButton.disabled).toBe(false)
@@ -101,29 +101,29 @@ describe('InputNumber', () => {
 
   test('supports uncontrolled increment and decrement behavior', async () => {
     const screen = render(() => <InputNumber defaultValue={1} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
     expect(spinbutton.value).toBe('1')
 
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
 
-    await fireEvent.click(decrementButton)
+    fireEvent.click(decrementButton)
     expect(spinbutton.value).toBe('1')
   })
 
   test('supports ArrowUp and ArrowDown keyboard controls', async () => {
     const screen = render(() => <InputNumber defaultValue={5} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
 
-    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
     expect(spinbutton.value).toBe('6')
 
-    await fireEvent.keyDown(spinbutton, { key: 'ArrowDown' })
+    fireEvent.keyDown(spinbutton, { key: 'ArrowDown' })
     expect(spinbutton.value).toBe('5')
   })
 
@@ -138,9 +138,9 @@ describe('InputNumber', () => {
         <InputNumber defaultValue={value} step={step} onRawValueChange={onRawValueChange} />
       ))
 
-      await fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Increment' }))
 
-      expect((screen.getByRole('spinbutton') as HTMLInputElement).value).toBe(expected)
+      expect(screen.getByRole<HTMLInputElement>('spinbutton').value).toBe(expected)
       expect(onRawValueChange).toHaveBeenLastCalledWith(Number(expected))
     },
   )
@@ -148,10 +148,10 @@ describe('InputNumber', () => {
   test('steps from parseable dirty text when a controlled value lags', async () => {
     const onRawValueChange = vi.fn()
     const screen = render(() => <InputNumber value={0} onRawValueChange={onRawValueChange} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    await fireEvent.input(spinbutton, { target: { value: '7.5' } })
-    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    fireEvent.input(spinbutton, { target: { value: '7.5' } })
+    fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
 
     expect(onRawValueChange).toHaveBeenLastCalledWith(8.5)
     expect(spinbutton.value).toBe('7.5')
@@ -169,10 +169,10 @@ describe('InputNumber', () => {
         onRawValueChange={onRawValueChange}
       />
     ))
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
-    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
     const wheelEvent = new WheelEvent('wheel', {
       bubbles: true,
       cancelable: true,
@@ -188,27 +188,27 @@ describe('InputNumber', () => {
 
   test('supports PageUp and PageDown using largeStep', async () => {
     const screen = render(() => <InputNumber defaultValue={0} step={4} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
 
-    await fireEvent.keyDown(spinbutton, { key: 'PageUp' })
+    fireEvent.keyDown(spinbutton, { key: 'PageUp' })
     expect(spinbutton.value).toBe('40')
 
-    await fireEvent.keyDown(spinbutton, { key: 'PageDown' })
+    fireEvent.keyDown(spinbutton, { key: 'PageDown' })
     expect(spinbutton.value).toBe('0')
   })
 
   test('supports Home and End keyboard shortcuts for min and max', async () => {
     const screen = render(() => <InputNumber defaultValue={20} minValue={-100} maxValue={100} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
 
-    await fireEvent.keyDown(spinbutton, { key: 'End' })
+    fireEvent.keyDown(spinbutton, { key: 'End' })
     expect(spinbutton.value).toBe('100')
 
-    await fireEvent.keyDown(spinbutton, { key: 'Home' })
+    fireEvent.keyDown(spinbutton, { key: 'Home' })
     expect(spinbutton.value).toBe('-100')
   })
 
@@ -217,7 +217,7 @@ describe('InputNumber', () => {
     const screen = render(() => (
       <InputNumber defaultValue={20} onRawValueChange={onRawValueChange} />
     ))
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const homeEvent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Home' })
     const endEvent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'End' })
 
@@ -235,10 +235,10 @@ describe('InputNumber', () => {
     const screen = render(() => (
       <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
     ))
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    await fireEvent.input(spinbutton, { target: { value: '7.' } })
-    await fireEvent.keyDown(spinbutton, { key: 'Enter' })
+    fireEvent.input(spinbutton, { target: { value: '7.' } })
+    fireEvent.keyDown(spinbutton, { key: 'Enter' })
 
     expect(spinbutton.value).toBe('7')
     expect(onRawValueChange).toHaveBeenCalledOnce()
@@ -247,7 +247,7 @@ describe('InputNumber', () => {
 
   test('does not change value with wheel by default', () => {
     const screen = render(() => <InputNumber defaultValue={5} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
 
@@ -265,7 +265,7 @@ describe('InputNumber', () => {
 
   test('changes value with wheel when enabled and focused', () => {
     const screen = render(() => <InputNumber defaultValue={5} step={2} wheel />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     spinbutton.focus()
 
@@ -292,7 +292,7 @@ describe('InputNumber', () => {
 
   test('does not change value with enabled wheel when disabled or readOnly', () => {
     const disabledScreen = render(() => <InputNumber defaultValue={5} disabled wheel />)
-    const disabledSpinbutton = disabledScreen.getByRole('spinbutton') as HTMLInputElement
+    const disabledSpinbutton = disabledScreen.getByRole<HTMLInputElement>('spinbutton')
 
     disabledSpinbutton.focus()
 
@@ -309,7 +309,7 @@ describe('InputNumber', () => {
     disabledScreen.unmount()
 
     const readOnlyScreen = render(() => <InputNumber defaultValue={5} readOnly wheel />)
-    const readOnlySpinbutton = readOnlyScreen.getByRole('spinbutton') as HTMLInputElement
+    const readOnlySpinbutton = readOnlyScreen.getByRole<HTMLInputElement>('spinbutton')
 
     readOnlySpinbutton.focus()
 
@@ -326,7 +326,7 @@ describe('InputNumber', () => {
 
   test('does not cancel wheel events when unfocused or when deltaY is zero', () => {
     const screen = render(() => <InputNumber defaultValue={5} wheel />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const unfocusedEvent = new WheelEvent('wheel', {
       bubbles: true,
       cancelable: true,
@@ -350,7 +350,7 @@ describe('InputNumber', () => {
 
   test('exposes formatted spinbutton text and stepper relationships', () => {
     const screen = render(() => <InputNumber id="quantity" defaultValue={12.5} locale="de-DE" />)
-    const spinbutton = screen.getByRole('spinbutton')
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
@@ -362,12 +362,8 @@ describe('InputNumber', () => {
   test('makes readonly step controls unavailable', () => {
     const screen = render(() => <InputNumber defaultValue={5} readOnly />)
 
-    expect((screen.getByRole('button', { name: 'Increment' }) as HTMLButtonElement).disabled).toBe(
-      true,
-    )
-    expect((screen.getByRole('button', { name: 'Decrement' }) as HTMLButtonElement).disabled).toBe(
-      true,
-    )
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' }).disabled).toBe(true)
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Decrement' }).disabled).toBe(true)
   })
 
   test('serializes one native form value and honors disabled and readonly states', async () => {
@@ -377,12 +373,12 @@ describe('InputNumber', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('spinbutton') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('spinbutton')
 
     expect(input.value).toBe('4')
     expect(new FormData(form).getAll('quantity')).toEqual(['4'])
 
-    await fireEvent.input(input, { currentTarget: { value: '40' }, target: { value: '40' } })
+    fireEvent.input(input, { currentTarget: { value: '40' }, target: { value: '40' } })
 
     expect(input.value).toBe('40')
     expect(new FormData(form).getAll('quantity')).toEqual(['40'])
@@ -421,10 +417,10 @@ describe('InputNumber', () => {
         onChange={(value) => calls.push(`text:${value}`)}
       />
     ))
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     expect(spinbutton.value).toBe('13,5')
-    await fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
+    fireEvent.keyDown(spinbutton, { key: 'ArrowUp' })
 
     expect(calls).toEqual(['raw:14.5', 'text:14,5'])
   })
@@ -432,9 +428,9 @@ describe('InputNumber', () => {
   test('replaces dirty text when the explicit controlled value changes externally', async () => {
     const [value, setValue] = createSignal(5)
     const screen = render(() => <InputNumber value={value()} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    await fireEvent.input(spinbutton, { target: { value: '-' } })
+    fireEvent.input(spinbutton, { target: { value: '-' } })
     expect(spinbutton.value).toBe('-')
 
     setValue(8)
@@ -458,9 +454,9 @@ describe('InputNumber', () => {
         </Form>
       ),
     )
-    const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
+    const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
 
-    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(onRawValueChange).toHaveBeenCalledWith(7)
     expect(getInput(form)).toEqual({ quantity: 5 })
 
@@ -489,7 +485,7 @@ describe('InputNumber', () => {
         </Form>
       ),
     )
-    const spinbutton = screen.getByLabelText('Quantity') as HTMLInputElement
+    const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
 
     setInput(form, { path: ['quantity'], input: 6 })
 
@@ -512,10 +508,10 @@ describe('InputNumber', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
     setDefaultValue(9)
-    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
     form.reset()
@@ -542,9 +538,9 @@ describe('InputNumber', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    fireEvent.input(spinbutton, { target: { value: '7' } })
     expect(spinbutton.value).toBe('7')
 
     setValue(6)
@@ -565,9 +561,9 @@ describe('InputNumber', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
-    await fireEvent.input(spinbutton, { target: { value: '7' } })
+    fireEvent.input(spinbutton, { target: { value: '7' } })
     form.reset()
     await Promise.resolve()
 
@@ -579,10 +575,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 1,
         pointerType: 'mouse',
@@ -592,7 +588,7 @@ describe('InputNumber', () => {
 
       expect(Number(spinbutton.value)).toBeGreaterThan(1)
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 1,
         pointerType: 'mouse',
@@ -610,20 +606,20 @@ describe('InputNumber', () => {
 
   test('increments once on pointer press and release without hold repeat', async () => {
     const screen = render(() => <InputNumber defaultValue={0} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-    await fireEvent.pointerDown(incrementButton, {
+    fireEvent.pointerDown(incrementButton, {
       button: 0,
       pointerId: 3,
       pointerType: 'mouse',
     })
-    await fireEvent.pointerUp(incrementButton, {
+    fireEvent.pointerUp(incrementButton, {
       button: 0,
       pointerId: 3,
       pointerType: 'mouse',
     })
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
 
     expect(spinbutton.value).toBe('1')
   })
@@ -633,10 +629,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 4,
         pointerType: 'mouse',
@@ -646,7 +642,7 @@ describe('InputNumber', () => {
       const valueBeforeRelease = Number(spinbutton.value)
       expect(valueBeforeRelease).toBeGreaterThan(1)
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 4,
         pointerType: 'mouse',
@@ -663,10 +659,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 5,
         pointerType: 'mouse',
@@ -677,7 +673,7 @@ describe('InputNumber', () => {
       const valueBeforeCancel = Number(spinbutton.value)
       expect(valueBeforeCancel).toBeGreaterThan(1)
 
-      await fireEvent.pointerCancel(incrementButton, {
+      fireEvent.pointerCancel(incrementButton, {
         button: 0,
         pointerId: 5,
         pointerType: 'mouse',
@@ -697,10 +693,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 51,
         pointerType: 'mouse',
@@ -709,7 +705,7 @@ describe('InputNumber', () => {
       await vi.advanceTimersByTimeAsync(620)
 
       const valueBeforeCaptureLoss = Number(spinbutton.value)
-      await fireEvent.lostPointerCapture(incrementButton, {
+      fireEvent.lostPointerCapture(incrementButton, {
         pointerId: 51,
         pointerType: 'mouse',
       })
@@ -735,13 +731,13 @@ describe('InputNumber', () => {
         <InputNumber defaultValue={0} onRawValueChange={onRawValueChange} />
       ))
 
-      await fireEvent.pointerDown(screen.getByRole('button', { name: 'Increment' }), {
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Increment' }), {
         button: 0,
         pointerId: 61,
         pointerType: 'mouse',
       })
       const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-      await fireEvent.pointerDown(decrementButton, {
+      fireEvent.pointerDown(decrementButton, {
         button: 0,
         pointerId: 62,
         pointerType: 'mouse',
@@ -768,10 +764,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 6,
         pointerType: 'mouse',
@@ -782,7 +778,7 @@ describe('InputNumber', () => {
       const valueBeforeLeave = Number(spinbutton.value)
       expect(valueBeforeLeave).toBeGreaterThan(1)
 
-      await fireEvent.pointerLeave(incrementButton, {
+      fireEvent.pointerLeave(incrementButton, {
         button: 0,
         pointerId: 6,
         pointerType: 'mouse',
@@ -804,10 +800,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={0} repeatDelayMs={300} repeatIntervalMs={40} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 7,
         pointerType: 'mouse',
@@ -819,7 +815,7 @@ describe('InputNumber', () => {
       await vi.advanceTimersByTimeAsync(100)
       expect(Number(spinbutton.value)).toBeGreaterThan(1)
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 7,
         pointerType: 'mouse',
@@ -841,10 +837,10 @@ describe('InputNumber', () => {
           repeatThrottleMs={120}
         />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 8,
         pointerType: 'mouse',
@@ -855,7 +851,7 @@ describe('InputNumber', () => {
       expect(Number(spinbutton.value)).toBeGreaterThan(1)
       expect(Number(spinbutton.value)).toBeLessThan(5)
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 8,
         pointerType: 'mouse',
@@ -870,10 +866,10 @@ describe('InputNumber', () => {
 
     try {
       const screen = render(() => <InputNumber defaultValue={0} holdRepeat={false} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 9,
         pointerType: 'mouse',
@@ -882,12 +878,12 @@ describe('InputNumber', () => {
       await vi.advanceTimersByTimeAsync(1000)
       expect(spinbutton.value).toBe('0')
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 9,
         pointerType: 'mouse',
       })
-      await fireEvent.click(incrementButton)
+      fireEvent.click(incrementButton)
       expect(spinbutton.value).toBe('1')
     } finally {
       vi.useRealTimers()
@@ -902,16 +898,16 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={0} onIncrementClick={onIncrementClick} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 10,
         pointerType: 'mouse',
       })
       await vi.advanceTimersByTimeAsync(620)
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 10,
         pointerType: 'mouse',
@@ -929,7 +925,7 @@ describe('InputNumber', () => {
     const screen = render(() => <InputNumber defaultValue={0} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-    await fireEvent.pointerDown(incrementButton, {
+    fireEvent.pointerDown(incrementButton, {
       button: 0,
       pointerId: 11,
       pointerType: 'touch',
@@ -948,10 +944,10 @@ describe('InputNumber', () => {
   test('keeps controlled value while emitting onRawValueChange', async () => {
     const onRawValueChange = vi.fn()
     const screen = render(() => <InputNumber value={5} onRawValueChange={onRawValueChange} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
 
     expect(onRawValueChange.mock.calls.length).toBeGreaterThanOrEqual(1)
     expect(onRawValueChange).toHaveBeenLastCalledWith(6)
@@ -963,10 +959,10 @@ describe('InputNumber', () => {
 
   test('focuses the input after trigger clicks', async () => {
     const screen = render(() => <InputNumber defaultValue={0} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
 
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
 
     expect(document.activeElement).toBe(spinbutton)
   })
@@ -979,7 +975,7 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber autofocus autofocusDelay={100} disabled={disabled()} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       setDisabled(true)
       await vi.advanceTimersByTimeAsync(100)
@@ -995,10 +991,10 @@ describe('InputNumber', () => {
 
   test('uses vertical orientation behavior with both controls', async () => {
     const screen = render(() => <InputNumber orientation="vertical" defaultValue={1} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-    const controls = screen.container.querySelector('[data-slot="controls"]') as HTMLElement | null
+    const controls = screen.container.querySelector('[data-slot="controls"]')
 
     expect(incrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
       'icon-chevron-up',
@@ -1020,16 +1016,16 @@ describe('InputNumber', () => {
     expect(incrementButton.className).toContain('scale-80')
     expect(decrementButton.className).toContain('scale-80')
 
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
 
-    await fireEvent.click(decrementButton)
+    fireEvent.click(decrementButton)
     expect(spinbutton.value).toBe('1')
   })
 
   test('uses explicit horizontal orientation behavior with both controls', async () => {
     const screen = render(() => <InputNumber orientation="horizontal" defaultValue={1} />)
-    const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
@@ -1038,24 +1034,18 @@ describe('InputNumber', () => {
       'icon-minus',
     )
 
-    await fireEvent.click(incrementButton)
+    fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
 
-    await fireEvent.click(decrementButton)
+    fireEvent.click(decrementButton)
     expect(spinbutton.value).toBe('1')
   })
 
   test('lays out horizontal link controls as sibling slots instead of overlaying the input', () => {
     const incrementOnly = render(() => <InputNumber size="lg" decrement={false} />)
-    const incrementOnlyRoot = incrementOnly.container.querySelector(
-      '[data-slot="root"]',
-    ) as HTMLElement | null
-    const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="input"]',
-    ) as HTMLElement | null
-    const incrementOnlyButton = incrementOnly.container.querySelector(
-      '[data-slot="increment"]',
-    ) as HTMLElement | null
+    const incrementOnlyRoot = incrementOnly.container.querySelector('[data-slot="root"]')
+    const incrementOnlyBase = incrementOnly.container.querySelector('[data-slot="input"]')
+    const incrementOnlyButton = incrementOnly.container.querySelector('[data-slot="increment"]')
 
     expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
     expect(incrementOnlyButton?.getAttribute('data-variant')).toBe('link')
@@ -1070,12 +1060,8 @@ describe('InputNumber', () => {
     incrementOnly.unmount()
 
     const decrementOnly = render(() => <InputNumber size="lg" increment={false} />)
-    const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="input"]',
-    ) as HTMLElement | null
-    const decrementOnlyButton = decrementOnly.container.querySelector(
-      '[data-slot="decrement"]',
-    ) as HTMLElement | null
+    const decrementOnlyBase = decrementOnly.container.querySelector('[data-slot="input"]')
+    const decrementOnlyButton = decrementOnly.container.querySelector('[data-slot="decrement"]')
 
     expect(decrementOnlyButton?.getAttribute('data-variant')).toBe('link')
     expect(decrementOnlyButton?.className).toContain('w-9')
@@ -1091,12 +1077,8 @@ describe('InputNumber', () => {
     const incrementOnly = render(() => (
       <InputNumber size="sm" orientation="vertical" decrement={false} />
     ))
-    const incrementOnlyControls = incrementOnly.container.querySelector(
-      '[data-slot="controls"]',
-    ) as HTMLElement | null
-    const incrementOnlyBase = incrementOnly.container.querySelector(
-      '[data-slot="input"]',
-    ) as HTMLElement | null
+    const incrementOnlyControls = incrementOnly.container.querySelector('[data-slot="controls"]')
+    const incrementOnlyBase = incrementOnly.container.querySelector('[data-slot="input"]')
 
     expect(incrementOnlyControls?.className).toContain('w-8')
     expect(incrementOnlyControls?.className).toContain('pe-1')
@@ -1109,12 +1091,8 @@ describe('InputNumber', () => {
     const decrementOnly = render(() => (
       <InputNumber size="sm" orientation="vertical" increment={false} />
     ))
-    const decrementOnlyControls = decrementOnly.container.querySelector(
-      '[data-slot="controls"]',
-    ) as HTMLElement | null
-    const decrementOnlyBase = decrementOnly.container.querySelector(
-      '[data-slot="input"]',
-    ) as HTMLElement | null
+    const decrementOnlyControls = decrementOnly.container.querySelector('[data-slot="controls"]')
+    const decrementOnlyBase = decrementOnly.container.querySelector('[data-slot="input"]')
 
     expect(decrementOnlyControls?.className).toContain('w-8')
     expect(decrementOnlyControls?.className).toContain('pe-1')
@@ -1232,7 +1210,7 @@ describe('InputNumber', () => {
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
       const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
-      await fireEvent.pointerDown(incrementButton, {
+      fireEvent.pointerDown(incrementButton, {
         button: 0,
         pointerId: 101,
         pointerType: 'mouse',
@@ -1244,7 +1222,7 @@ describe('InputNumber', () => {
       await vi.advanceTimersByTimeAsync(620)
       expect(incrementButton.getAttribute('data-active')).toBe('')
 
-      await fireEvent.pointerUp(incrementButton, {
+      fireEvent.pointerUp(incrementButton, {
         button: 0,
         pointerId: 101,
         pointerType: 'mouse',
@@ -1265,7 +1243,7 @@ describe('InputNumber', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <InputNumber styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.style.width).toBe('200px')
   })
@@ -1276,10 +1254,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '-' } })
+      fireEvent.input(spinbutton, { target: { value: '-' } })
 
       expect(spinbutton.value).toBe('-')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1290,10 +1268,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '.' } })
+      fireEvent.input(spinbutton, { target: { value: '.' } })
 
       expect(spinbutton.value).toBe('.')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1304,10 +1282,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '-.' } })
+      fireEvent.input(spinbutton, { target: { value: '-.' } })
 
       expect(spinbutton.value).toBe('-.')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1318,10 +1296,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '12.' } })
+      fireEvent.input(spinbutton, { target: { value: '12.' } })
 
       expect(spinbutton.value).toBe('12.')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1332,10 +1310,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '12.5' } })
+      fireEvent.input(spinbutton, { target: { value: '12.5' } })
 
       expect(spinbutton.value).toBe('12.5')
       expect(onRawValueChange).toHaveBeenCalledWith(12.5)
@@ -1346,10 +1324,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '-42' } })
+      fireEvent.input(spinbutton, { target: { value: '-42' } })
 
       expect(spinbutton.value).toBe('-42')
       expect(onRawValueChange).toHaveBeenCalledWith(-42)
@@ -1357,13 +1335,13 @@ describe('InputNumber', () => {
 
     test('formats value on blur after partial input', async () => {
       const screen = render(() => <InputNumber defaultValue={5} />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '-' } })
+      fireEvent.input(spinbutton, { target: { value: '-' } })
       expect(spinbutton.value).toBe('-')
 
-      await fireEvent.blur(spinbutton)
+      fireEvent.blur(spinbutton)
       expect(spinbutton.value).toBe('5')
     })
 
@@ -1372,13 +1350,13 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '7.' } })
+      fireEvent.input(spinbutton, { target: { value: '7.' } })
       expect(spinbutton.value).toBe('7.')
 
-      await fireEvent.blur(spinbutton)
+      fireEvent.blur(spinbutton)
       expect(spinbutton.value).toBe('7')
       expect(onRawValueChange).toHaveBeenCalledWith(7)
     })
@@ -1390,10 +1368,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} locale="de-DE" onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '12,5' } })
+      fireEvent.input(spinbutton, { target: { value: '12,5' } })
 
       expect(onRawValueChange).toHaveBeenCalledWith(12.5)
     })
@@ -1403,10 +1381,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} locale="de-DE" onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: ',' } })
+      fireEvent.input(spinbutton, { target: { value: ',' } })
 
       expect(spinbutton.value).toBe(',')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1417,10 +1395,10 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} locale="de-DE" onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '12,' } })
+      fireEvent.input(spinbutton, { target: { value: '12,' } })
 
       expect(spinbutton.value).toBe('12,')
       expect(onRawValueChange).not.toHaveBeenCalled()
@@ -1428,7 +1406,7 @@ describe('InputNumber', () => {
 
     test('formats numbers with comma in de-DE locale', async () => {
       const screen = render(() => <InputNumber defaultValue={12.5} locale="de-DE" />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       expect(spinbutton.value).toBe('12,5')
     })
@@ -1438,17 +1416,17 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} locale="en-US" onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '12.5' } })
+      fireEvent.input(spinbutton, { target: { value: '12.5' } })
 
       expect(onRawValueChange).toHaveBeenCalledWith(12.5)
     })
 
     test('formats numbers with dot in en-US locale', async () => {
       const screen = render(() => <InputNumber defaultValue={12.5} locale="en-US" />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       expect(spinbutton.value).toBe('12.5')
     })
@@ -1458,26 +1436,26 @@ describe('InputNumber', () => {
       const screen = render(() => (
         <InputNumber defaultValue={5} locale="fr-FR" onRawValueChange={onRawValueChange} />
       ))
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       spinbutton.focus()
-      await fireEvent.input(spinbutton, { target: { value: '99,99' } })
+      fireEvent.input(spinbutton, { target: { value: '99,99' } })
 
       expect(onRawValueChange).toHaveBeenCalledWith(99.99)
     })
 
     test('increments and decrements preserve locale formatting', async () => {
       const screen = render(() => <InputNumber defaultValue={10.5} locale="de-DE" />)
-      const spinbutton = screen.getByRole('spinbutton') as HTMLInputElement
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
       const incrementButton = screen.getByRole('button', { name: 'Increment' })
       const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
       expect(spinbutton.value).toBe('10,5')
 
-      await fireEvent.click(incrementButton)
+      fireEvent.click(incrementButton)
       expect(spinbutton.value).toBe('11,5')
 
-      await fireEvent.click(decrementButton)
+      fireEvent.click(decrementButton)
       expect(spinbutton.value).toBe('10,5')
     })
   })

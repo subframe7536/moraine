@@ -269,7 +269,7 @@ function toDomRect(rect: OverlayMenuAnchorRect): DOMRect {
     x: rect.x,
     y: rect.y,
     toJSON: () => ({}),
-  } as DOMRect
+  }
 }
 
 export function createVirtualReference(

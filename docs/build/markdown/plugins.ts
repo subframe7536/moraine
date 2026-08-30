@@ -40,7 +40,7 @@ function getNodeProperties(node: HastNode): Record<string, unknown> {
   if (node.type !== 'element') {
     return {}
   }
-  return (node.properties ?? {}) as Record<string, unknown>
+  return node.properties ?? {}
 }
 
 function getClassValue(value: unknown): string {

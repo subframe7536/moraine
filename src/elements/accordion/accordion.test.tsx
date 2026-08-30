@@ -54,13 +54,13 @@ describe('Accordion', () => {
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
     expect(onChange).toHaveBeenCalledWith([])
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
@@ -76,7 +76,7 @@ describe('Accordion', () => {
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
@@ -91,7 +91,7 @@ describe('Accordion', () => {
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
 
-    await fireEvent.click(triggerTwo)
+    fireEvent.click(triggerTwo)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
@@ -105,10 +105,10 @@ describe('Accordion', () => {
 
     triggerOne.focus()
 
-    await fireEvent.keyDown(triggerOne, { key: 'Enter' })
+    fireEvent.keyDown(triggerOne, { key: 'Enter' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
 
-    await fireEvent.keyDown(triggerOne, { key: 'Enter' })
+    fireEvent.keyDown(triggerOne, { key: 'Enter' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
   })
 
@@ -122,22 +122,22 @@ describe('Accordion', () => {
 
     triggerOne.focus()
 
-    await fireEvent.keyDown(triggerOne, { key: ' ' })
+    fireEvent.keyDown(triggerOne, { key: ' ' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(onChange).not.toHaveBeenCalled()
 
-    await fireEvent.keyUp(triggerOne, { key: ' ' })
+    fireEvent.keyUp(triggerOne, { key: ' ' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
     expect(onChange).toHaveBeenCalledTimes(1)
 
-    await fireEvent.keyUp(triggerOne, { key: ' ' })
+    fireEvent.keyUp(triggerOne, { key: ' ' })
     expect(onChange).toHaveBeenCalledTimes(1)
 
-    await fireEvent.keyDown(triggerOne, { key: 'Enter' })
+    fireEvent.keyDown(triggerOne, { key: 'Enter' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(onChange).toHaveBeenCalledTimes(2)
 
-    await fireEvent.keyDown(triggerOne, { key: 'Enter', repeat: true })
+    fireEvent.keyDown(triggerOne, { key: 'Enter', repeat: true })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(onChange).toHaveBeenCalledTimes(2)
   })
@@ -150,7 +150,7 @@ describe('Accordion', () => {
 
     const secondTrigger = screen.getByRole('button', { name: 'Second' })
     secondTrigger.focus()
-    await fireEvent.click(secondTrigger)
+    fireEvent.click(secondTrigger)
 
     expect(secondTrigger.getAttribute('aria-expanded')).toBe('true')
 
@@ -215,7 +215,7 @@ describe('Accordion', () => {
 
     const outerOne = screen.getByRole('button', { name: 'Outer one' })
     outerOne.focus()
-    await fireEvent.keyDown(outerOne, { key: 'ArrowDown' })
+    fireEvent.keyDown(outerOne, { key: 'ArrowDown' })
 
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Outer two' }))
   })
@@ -263,7 +263,7 @@ describe('Accordion', () => {
     expect(labelReads).toBe(1)
     expect(contentReads).toBe(0)
 
-    await fireEvent.click(screen.getByRole('button', { name: 'One' }))
+    fireEvent.click(screen.getByRole('button', { name: 'One' }))
 
     expect(screen.getByText('Content one')).not.toBeNull()
     expect(labelReads).toBe(1)
@@ -290,22 +290,22 @@ describe('Accordion', () => {
 
     triggerOne.focus()
 
-    await fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
+    fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(triggerTwo)
 
-    await fireEvent.keyDown(triggerTwo, { key: 'ArrowDown' })
+    fireEvent.keyDown(triggerTwo, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(triggerThree)
 
-    await fireEvent.keyDown(triggerThree, { key: 'ArrowDown' })
+    fireEvent.keyDown(triggerThree, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(triggerOne)
 
-    await fireEvent.keyDown(triggerOne, { key: 'ArrowUp' })
+    fireEvent.keyDown(triggerOne, { key: 'ArrowUp' })
     expect(document.activeElement).toBe(triggerThree)
 
-    await fireEvent.keyDown(triggerThree, { key: 'Home' })
+    fireEvent.keyDown(triggerThree, { key: 'Home' })
     expect(document.activeElement).toBe(triggerOne)
 
-    await fireEvent.keyDown(triggerOne, { key: 'End' })
+    fireEvent.keyDown(triggerOne, { key: 'End' })
     expect(document.activeElement).toBe(triggerThree)
   })
 
@@ -317,12 +317,12 @@ describe('Accordion', () => {
 
     triggerOne.focus()
 
-    await fireEvent.keyDown(triggerOne, { key: 'ArrowUp' })
+    fireEvent.keyDown(triggerOne, { key: 'ArrowUp' })
     expect(document.activeElement).toBe(triggerOne)
 
     triggerThree.focus()
 
-    await fireEvent.keyDown(triggerThree, { key: 'ArrowDown' })
+    fireEvent.keyDown(triggerThree, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(triggerThree)
   })
 
@@ -345,10 +345,10 @@ describe('Accordion', () => {
 
     triggerOne.focus()
 
-    await fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
+    fireEvent.keyDown(triggerOne, { key: 'ArrowDown' })
     expect(document.activeElement).toBe(triggerThree)
 
-    await fireEvent.keyDown(triggerThree, { key: 'ArrowUp' })
+    fireEvent.keyDown(triggerThree, { key: 'ArrowUp' })
     expect(document.activeElement).toBe(triggerOne)
 
     const disabledScreen = render(() => <Accordion items={BASE_ITEMS} disabled />)
@@ -378,20 +378,20 @@ describe('Accordion', () => {
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
 
     const contentOne = screen.getByRole('region', { name: 'One' })
 
     expect(triggerOne.getAttribute('aria-controls')).toBe('settings-one-content')
     expect(contentOne.id).toBe('settings-one-content')
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
     expect(contentOne.getAttribute('data-closed')).toBe('')
 
-    await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
+    fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
   })
@@ -406,7 +406,7 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerTwo = screen.getByRole('button', { name: 'Two' })
 
-    await fireEvent.click(triggerTwo)
+    fireEvent.click(triggerTwo)
     await Promise.resolve()
 
     expect(onChange).toHaveBeenCalledTimes(1)
@@ -425,7 +425,7 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerTwo = screen.getByRole('button', { name: 'Two' })
 
-    await fireEvent.click(triggerTwo)
+    fireEvent.click(triggerTwo)
     await Promise.resolve()
 
     expect(onChange).toHaveBeenCalledTimes(1)
@@ -441,7 +441,7 @@ describe('Accordion', () => {
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
@@ -512,13 +512,13 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerTwo = screen.getByRole('button', { name: 'Two' })
 
-    await fireEvent.click(triggerTwo)
+    fireEvent.click(triggerTwo)
     await Promise.resolve()
 
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
     expect(onChange).not.toHaveBeenCalled()
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(onChange).toHaveBeenCalledWith(['one'])
@@ -564,7 +564,7 @@ describe('Accordion', () => {
       expect(screen.getByTestId('open-value').textContent).toBe('none')
       expect(screen.queryByRole('region', { name: 'One' })).toBeNull()
 
-      await fireEvent.click(triggerOne)
+      fireEvent.click(triggerOne)
       await Promise.resolve()
 
       const contentOne = screen.getByRole('region', { name: 'One' })
@@ -579,14 +579,14 @@ describe('Accordion', () => {
         expect(contentOne.getAttribute('style')).toContain('--mo-collapsible-content-height: 48px')
       })
 
-      await fireEvent.click(triggerOne)
+      fireEvent.click(triggerOne)
       await Promise.resolve()
 
       expect(screen.getByTestId('open-value').textContent).toBe('none')
       expect(contentOne.getAttribute('data-closed')).toBe('')
       expect(contentOne.hasAttribute('data-collapsed')).toBe(false)
 
-      await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
+      fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
       expect(screen.queryByRole('region', { name: 'One' })).toBeNull()
     } finally {
@@ -610,7 +610,7 @@ describe('Accordion', () => {
         )
       })
 
-      await fireEvent.click(triggerTwo)
+      fireEvent.click(triggerTwo)
       await Promise.resolve()
 
       const contentOne = screen.getByRole('region', { name: 'One' })
@@ -632,7 +632,7 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const contentOne = screen.getByRole('region', { name: 'One' })
 
-    await fireEvent.click(triggerOne)
+    fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
@@ -640,7 +640,7 @@ describe('Accordion', () => {
     expect(screen.container.querySelector('[data-collapsed]')).toBeNull()
     expect(screen.getByText('Content one')).not.toBeNull()
 
-    await fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
+    fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
     expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
     expect(screen.queryByText('Content one')).toBeNull()

@@ -182,8 +182,8 @@ describe('FormField', () => {
     )
 
     const input = screen.getByLabelText('Email')
-    await fireEvent.focus(input)
-    await fireEvent.blur(input)
+    fireEvent.focus(input)
+    fireEvent.blur(input)
     await waitFor(() => expect(screen.getByText('Invalid email')).not.toBeNull())
   })
 
@@ -207,7 +207,7 @@ describe('FormField', () => {
     )
 
     expect(screen.getByText('Manual error')).not.toBeNull()
-    await fireEvent.submit(screen.container.querySelector('form')!)
+    fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(screen.queryByText('Schema error')).toBeNull())
   })
 
@@ -291,7 +291,7 @@ describe('FormField', () => {
       </FormField>
     ))
 
-    const label = screen.getByText('Email') as HTMLLabelElement
+    const label = screen.getByText('Email')
 
     expect(label.className).toContain('before:')
     expect(label.className).toContain('after:content-none')
@@ -353,7 +353,7 @@ describe('FormField', () => {
         <Input />
       </FormField>
     ))
-    const inputs = screen.getAllByRole('textbox') as HTMLInputElement[]
+    const inputs = screen.getAllByRole('textbox')
     const label = screen.getByText('Values') as HTMLLabelElement
 
     expect(inputs[0]?.id).not.toBe(inputs[1]?.id)
@@ -439,7 +439,7 @@ describe('FormField', () => {
       ),
     )
 
-    await fireEvent.click(screen.getByRole('switch'))
+    fireEvent.click(screen.getByRole('switch'))
 
     await waitFor(() => expect(screen.getByText('Must stay enabled')).not.toBeNull())
     expect(screen.getByRole('switch').getAttribute('aria-invalid')).toBe('true')
@@ -548,8 +548,8 @@ describe('FormField', () => {
       </FormField>
     ))
 
-    expect((screen.getByText('Outer') as HTMLLabelElement).htmlFor).toBe('outer-control')
-    expect((screen.getByText('Inner') as HTMLLabelElement).htmlFor).toBe('inner-control')
+    expect(screen.getByText<HTMLLabelElement>('Outer').htmlFor).toBe('outer-control')
+    expect(screen.getByText<HTMLLabelElement>('Inner').htmlFor).toBe('inner-control')
   })
 
   test('tracks an initially present reactive path', async () => {
@@ -574,7 +574,7 @@ describe('FormField', () => {
     setName('second')
     expect(input.value).toBe('Second')
 
-    await fireEvent.input(input, { target: { value: 'Changed' } })
+    fireEvent.input(input, { target: { value: 'Changed' } })
     expect(getInput(form)).toEqual({ first: 'First', second: 'Changed' })
   })
 
@@ -597,7 +597,7 @@ describe('FormField', () => {
     const input = screen.getByLabelText('Late path') as HTMLInputElement
 
     setName('value')
-    await fireEvent.input(input, { target: { value: 'Changed' } })
+    fireEvent.input(input, { target: { value: 'Changed' } })
 
     expect(input.name).toBe('value')
     expect(getInput(form)).toEqual({ value: 'Stored' })
@@ -755,7 +755,7 @@ describe('FormField', () => {
     await waitFor(() => expect(label.htmlFor).toBe(input.id))
     expect(reads).toEqual({ children: 1, description: 1, error: 1, help: 1, hint: 1, label: 1 })
 
-    await fireEvent.submit(container.querySelector('form')!)
+    fireEvent.submit(container.querySelector('form')!)
     await waitFor(() => expect(container.querySelector('[data-slot="error"]')).not.toBeNull())
 
     const errorMessage = container.querySelector('[data-slot="error"]')!

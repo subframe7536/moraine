@@ -139,9 +139,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const badge = createMemo(() => merged.badge)
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
-  const rootAriaLabel = createMemo(
-    () => (rest as JSX.AriaAttributes)['aria-label'] as string | undefined,
-  )
+  const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
   const [status, setStatusSignal] = createSignal<AvatarStatus>('idle')
   const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
 

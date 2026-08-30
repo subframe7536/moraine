@@ -292,9 +292,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
           const statusRender = createMemo(() => merged.statusRender)
-          const shouldRenderStatus = createMemo(() =>
-            Boolean(merged.status || statusRender() !== undefined),
-          )
+          const shouldRenderStatus = createMemo(() => merged.status || statusRender() !== undefined)
 
           return (
             <Show when={shouldRenderStatus()}>

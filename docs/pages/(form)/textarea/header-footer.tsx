@@ -22,7 +22,7 @@ export function HeaderFooter() {
 
       <Textarea
         value={composerValue()}
-        onValueChange={(nextValue) => setComposerValue(String(nextValue ?? ''))}
+        onValueChange={(nextValue) => setComposerValue(nextValue ?? '')}
         placeholder="Write your message..."
         autoResize
         footer={

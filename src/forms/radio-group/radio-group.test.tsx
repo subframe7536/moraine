@@ -21,8 +21,8 @@ describe('RadioGroup', () => {
     ))
 
     expect(screen.getByText('Plan')).not.toBeNull()
-    expect(screen.getByRole('radio', { name: 'Basic' })).not.toBeNull()
-    expect(screen.getByRole('radio', { name: 'Pro' })).not.toBeNull()
+    expect(screen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })).not.toBeNull()
+    expect(screen.getByRole<HTMLInputElement>('radio', { name: 'Pro' })).not.toBeNull()
 
     const group = screen.getByRole('radiogroup')
     const label = screen.getByText('Plan')
@@ -37,7 +37,7 @@ describe('RadioGroup', () => {
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => <RadioGroup required disabled items={['Basic', 'Pro']} />)
     const disabledGroup = disabledScreen.getByRole('radiogroup')
-    const disabledRadio = disabledScreen.getByRole('radio', { name: 'Basic' }) as HTMLInputElement
+    const disabledRadio = disabledScreen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })
     const disabledControl = disabledScreen.container.querySelector('[data-slot="control"]')
     const disabledItem = disabledScreen.container.querySelector('[data-slot="item"]')
 
@@ -58,7 +58,7 @@ describe('RadioGroup', () => {
 
     const readOnlyScreen = render(() => <RadioGroup readOnly items={['Basic']} />)
     const readOnlyGroup = readOnlyScreen.getByRole('radiogroup')
-    const readOnlyRadio = readOnlyScreen.getByRole('radio', { name: 'Basic' }) as HTMLInputElement
+    const readOnlyRadio = readOnlyScreen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })
 
     expect(readOnlyGroup.getAttribute('aria-readonly')).toBe('true')
     expect(readOnlyGroup.getAttribute('data-readonly')).toBe('')
@@ -81,13 +81,13 @@ describe('RadioGroup', () => {
       <RadioGroup items={['A', 'B']} defaultValue="A" onChange={onChange} />
     ))
 
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
 
-    await fireEvent.click(radioB)
+    fireEvent.click(radioB)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith('B')
@@ -100,19 +100,19 @@ describe('RadioGroup', () => {
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onChange={onChange} />
     ))
 
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
-    const radioC = screen.getByRole('radio', { name: 'C' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+    const radioC = screen.getByRole<HTMLInputElement>('radio', { name: 'C' })
 
     radioA.focus()
 
-    await fireEvent.keyDown(radioA, { key: 'ArrowDown' })
+    fireEvent.keyDown(radioA, { key: 'ArrowDown' })
     expect(radioB.checked).toBe(true)
 
-    await fireEvent.keyDown(radioB, { key: 'End' })
+    fireEvent.keyDown(radioB, { key: 'End' })
     expect(radioC.checked).toBe(true)
 
-    await fireEvent.keyDown(radioC, { key: 'Home' })
+    fireEvent.keyDown(radioC, { key: 'Home' })
     expect(radioA.checked).toBe(true)
     expect(onChange).toHaveBeenCalledWith('B')
     expect(onChange).toHaveBeenCalledWith('C')
@@ -122,7 +122,7 @@ describe('RadioGroup', () => {
   test('selects with Space on keyup and ignores Enter', async () => {
     const onChange = vi.fn()
     const screen = render(() => <RadioGroup items={['A', 'B']} onChange={onChange} />)
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
 
     radioA.focus()
     const spaceDown = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: ' ' })
@@ -142,7 +142,7 @@ describe('RadioGroup', () => {
 
     onChange.mockClear()
     const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
-    screen.getByRole('radio', { name: 'B' }).dispatchEvent(enter)
+    screen.getByRole<HTMLInputElement>('radio', { name: 'B' }).dispatchEvent(enter)
 
     expect(enter.defaultPrevented).toBe(false)
     expect(onChange).not.toHaveBeenCalled()
@@ -153,11 +153,11 @@ describe('RadioGroup', () => {
     const screen = render(() => (
       <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onChange={onChange} />
     ))
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     radioA.focus()
-    await fireEvent.keyDown(radioA, { key: 'ArrowDown', shiftKey: true })
+    fireEvent.keyDown(radioA, { key: 'ArrowDown', shiftKey: true })
     expect(document.activeElement).toBe(radioB)
     expect(radioB.checked).toBe(true)
 
@@ -184,11 +184,11 @@ describe('RadioGroup', () => {
         items={['A', { value: 'B', label: 'B', disabled: true }, 'C']}
       />
     ))
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioC = screen.getByRole('radio', { name: 'C' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioC = screen.getByRole<HTMLInputElement>('radio', { name: 'C' })
 
     radioA.focus()
-    await fireEvent.keyDown(radioA, { key: 'ArrowLeft' })
+    fireEvent.keyDown(radioA, { key: 'ArrowLeft' })
 
     expect(document.activeElement).toBe(radioC)
     expect(radioC.checked).toBe(true)
@@ -217,10 +217,10 @@ describe('RadioGroup', () => {
     const onChange = vi.fn()
     const screen = render(() => <RadioGroup items={['A', 'B']} value="A" onChange={onChange} />)
 
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
-    await fireEvent.click(radioB)
+    fireEvent.click(radioB)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith('B')
@@ -248,10 +248,10 @@ describe('RadioGroup', () => {
         </Form>
       ),
     )
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
-    await fireEvent.click(radioB)
+    fireEvent.click(radioB)
     expect(onChange).toHaveBeenCalledWith('B')
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
@@ -285,7 +285,7 @@ describe('RadioGroup', () => {
 
     setInput(form, { path: ['plan'], input: 'B' })
 
-    expect((screen.getByRole('radio', { name: 'B' }) as HTMLInputElement).checked).toBe(true)
+    expect(screen.getByRole<HTMLInputElement>('radio', { name: 'B' }).checked).toBe(true)
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -305,14 +305,14 @@ describe('RadioGroup', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const radios = screen.getAllByRole('radio') as HTMLInputElement[]
+    const radios = screen.getAllByRole<HTMLInputElement>('radio')
 
     expect(new Set(radios.map((radio) => radio.id)).size).toBe(2)
     expect(radios.map((radio) => radio.checked)).toEqual([true, false])
     expect(new FormData(form).getAll('plan')).toEqual(['same'])
 
     radios[0]?.focus()
-    await fireEvent.keyDown(radios[0]!, { key: 'ArrowDown' })
+    fireEvent.keyDown(radios[0]!, { key: 'ArrowDown' })
 
     expect(document.activeElement).toBe(radios[1])
     expect(radios.map((radio) => radio.checked)).toEqual([true, false])
@@ -338,7 +338,7 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain(groupDescription.id)
 
     for (const name of ['Basic', 'Pro']) {
-      const radio = screen.getByRole('radio', { name })
+      const radio = screen.getByRole<HTMLInputElement>('radio', { name })
       const itemDescription = screen.getByText(`${name} description`)
       expect(radio.getAttribute('aria-labelledby')).toBe(screen.getByText(name).id)
       expect(radio.getAttribute('aria-describedby')).toContain(itemDescription.id)
@@ -353,13 +353,13 @@ describe('RadioGroup', () => {
       'C',
     ])
     const screen = render(() => <RadioGroup value="B" items={items()} />)
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     radioB.focus()
     setItems((current) => current.filter((item) => item !== 'B'))
     await Promise.resolve()
 
-    expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'A' }))
+    expect(document.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
   })
 
   test('applies horizontal table layout classes', () => {
@@ -420,7 +420,7 @@ describe('RadioGroup', () => {
       expect(firstItem.getAttribute('data-checked')).toBe('')
       expect(secondItem.getAttribute('data-checked')).toBeNull()
 
-      await fireEvent.click(secondItem)
+      fireEvent.click(secondItem)
 
       await waitFor(() => {
         expect(firstItem.getAttribute('data-checked')).toBeNull()
@@ -450,14 +450,14 @@ describe('RadioGroup', () => {
   test('selects option when clicking table item container', async () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
 
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
     const items = screen.container.querySelectorAll('[data-slot="item"]')
 
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
 
-    await fireEvent.click(items[1] as HTMLElement)
+    fireEvent.click(items[1] as HTMLElement)
 
     await waitFor(() => {
       expect(radioA.checked).toBe(false)
@@ -476,7 +476,7 @@ describe('RadioGroup', () => {
       />
     ))
 
-    await fireEvent.click(canceled.container.querySelectorAll('[data-slot="item"]')[1]!)
+    fireEvent.click(canceled.container.querySelectorAll('[data-slot="item"]')[1]!)
     expect(onChange).not.toHaveBeenCalled()
     canceled.unmount()
 
@@ -487,7 +487,7 @@ describe('RadioGroup', () => {
         onChange={onChange}
       />
     ))
-    await fireEvent.click(nested.getByRole('button', { name: 'Details' }))
+    fireEvent.click(nested.getByRole('button', { name: 'Details' }))
     expect(onChange).not.toHaveBeenCalled()
   })
 
@@ -506,13 +506,13 @@ describe('RadioGroup', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
 
     expect(form.checkValidity()).toBe(true)
     expect(new FormData(form).getAll('plan')).toEqual(['A'])
     setDefaultValue('B')
-    await fireEvent.click(radioB)
+    fireEvent.click(radioB)
     expect(new FormData(form).getAll('plan')).toEqual(['B'])
 
     form.reset()
@@ -545,14 +545,14 @@ describe('RadioGroup', () => {
   test('does not select option when clicking list item container', async () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} defaultValue="A" />)
 
-    const radioA = screen.getByRole('radio', { name: 'A' }) as HTMLInputElement
-    const radioB = screen.getByRole('radio', { name: 'B' }) as HTMLInputElement
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
     const items = screen.container.querySelectorAll('[data-slot="item"]')
 
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
 
-    await fireEvent.click(items[1] as HTMLElement)
+    fireEvent.click(items[1] as HTMLElement)
 
     await waitFor(() => {
       expect(radioA.checked).toBe(true)
@@ -567,12 +567,12 @@ describe('RadioGroup', () => {
     ))
 
     const group = screen.getByRole('radiogroup')
-    const dragons = screen.getByRole('radio', { name: 'Dragons' }) as HTMLInputElement
+    const dragons = screen.getByRole<HTMLInputElement>('radio', { name: 'Dragons' })
 
     expect(group.getAttribute('aria-readonly')).toBe('true')
     expect(dragons.checked).toBe(false)
 
-    await fireEvent.click(dragons)
+    fireEvent.click(dragons)
 
     expect(dragons.checked).toBe(false)
     expect(onChange).not.toHaveBeenCalled()
@@ -590,9 +590,9 @@ describe('RadioGroup', () => {
       />
     ))
 
-    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
 
     expect(item?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')
@@ -678,9 +678,7 @@ describe('RadioGroup', () => {
     )
     const root = container.querySelector('#plans')!
     const items = Array.from(container.querySelectorAll('[data-slot="item"]'))
-    const inputs = Array.from(
-      container.querySelectorAll('[data-slot="input"]'),
-    ) as HTMLInputElement[]
+    const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('[data-slot="input"]'))
 
     expect(root).toBe(serverRoot)
     expect(items).toEqual(serverItems)
@@ -697,7 +695,7 @@ describe('RadioGroup', () => {
     })
 
     inputs[1]?.focus()
-    await fireEvent.keyDown(inputs[1]!, { key: 'ArrowDown' })
+    fireEvent.keyDown(inputs[1]!, { key: 'ArrowDown' })
     expect(inputs.map((input) => input.checked)).toEqual([false, false, true])
     expect(document.activeElement).toBe(inputs[2])
 

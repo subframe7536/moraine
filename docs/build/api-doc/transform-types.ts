@@ -28,7 +28,7 @@ function collectAliasReferences(node: unknown, aliasNames: ReadonlySet<string>):
     if (current.type !== 'TSTypeReference') {
       return
     }
-    const typeName = entityNameToText((current as ESTree.TSTypeReference).typeName)
+    const typeName = entityNameToText(current.typeName)
     if (typeName && aliasNames.has(typeName)) {
       references.add(typeName)
     }
@@ -61,7 +61,7 @@ function addTypeReferenceEdits(
       return
     }
 
-    const reference = current as ESTree.TSTypeReference
+    const reference = current
     const typeName = entityNameToText(reference.typeName)
     if (
       genericParamName &&

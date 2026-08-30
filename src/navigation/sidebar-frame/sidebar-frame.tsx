@@ -282,8 +282,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   ])
   const merged = mergeProps(
     {
-      variant: 'default' as SidebarFrameT.Variant['variant'],
-      side: 'left' as SidebarFrameT.Variant['side'],
+      variant: 'default' as const,
+      side: 'left' as const,
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },

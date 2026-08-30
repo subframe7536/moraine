@@ -172,7 +172,7 @@ export function Dialog(props: DialogProps): JSX.Element {
     {
       overlay: true,
       close: true,
-      closeIcon: 'icon-close' as IconT.Name,
+      closeIcon: 'icon-close' as const,
       dismissible: true,
     },
     local,

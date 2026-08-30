@@ -249,7 +249,7 @@ describe('Tooltip', () => {
 
     const trigger = screen.getByText('Trigger').closest('[data-slot="trigger"]')!
 
-    await fireEvent.pointerEnter(trigger)
+    fireEvent.pointerEnter(trigger)
 
     expect(document.body.querySelector('[role=tooltip]')).toBeNull()
 
@@ -273,12 +273,12 @@ describe('Tooltip', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
-    await fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain('Mouse tooltip')
   })
@@ -303,13 +303,13 @@ describe('Tooltip', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     setDisabled(true)
     setDisabled(false)
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
 
@@ -318,8 +318,8 @@ describe('Tooltip', () => {
     const closingTooltip = document.body.querySelector('[role="tooltip"]')
     expect(closingTooltip?.hasAttribute('data-closed')).toBe(true)
     await Promise.resolve()
-    await fireEvent.animationEnd(closingTooltip!)
-    await fireEvent.transitionEnd(closingTooltip!)
+    fireEvent.animationEnd(closingTooltip!)
+    fireEvent.transitionEnd(closingTooltip!)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
   })
 
@@ -336,7 +336,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    await fireEvent.pointerLeave(screen.getByRole('button'), { pointerType: 'mouse' })
+    fireEvent.pointerLeave(screen.getByRole('button'), { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
 
     expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -370,12 +370,12 @@ describe('Tooltip', () => {
       </div>
     ))
 
-    await fireEvent.pointerEnter(screen.getByText('Rejected'), { pointerType: 'mouse' })
+    fireEvent.pointerEnter(screen.getByText('Rejected'), { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
     expect(onFirstOpenChange).toHaveBeenCalledTimes(1)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
 
-    await fireEvent.pointerEnter(screen.getByText('Second'), { pointerType: 'mouse' })
+    fireEvent.pointerEnter(screen.getByText('Second'), { pointerType: 'mouse' })
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
     await vi.advanceTimersByTimeAsync(99)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
@@ -395,7 +395,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    await fireEvent.pointerEnter(first.getByRole('button'), { pointerType: 'mouse' })
+    fireEvent.pointerEnter(first.getByRole('button'), { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(10)
     first.unmount()
 
@@ -408,7 +408,7 @@ describe('Tooltip', () => {
         )}
       </Tooltip>
     ))
-    await fireEvent.pointerEnter(second.getByRole('button'), { pointerType: 'mouse' })
+    fireEvent.pointerEnter(second.getByRole('button'), { pointerType: 'mouse' })
 
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
     await vi.advanceTimersByTimeAsync(49)
@@ -487,13 +487,13 @@ describe('Tooltip', () => {
     const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
     const firstButton = screen.getByText('First')
 
-    await fireEvent.pointerEnter(firstTrigger)
+    fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(600)
 
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('First tooltip')
 
-    await fireEvent.pointerLeave(firstTrigger)
-    await fireEvent.pointerEnter(secondTrigger)
+    fireEvent.pointerLeave(firstTrigger)
+    fireEvent.pointerEnter(secondTrigger)
     await Promise.resolve()
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')
@@ -541,15 +541,15 @@ describe('Tooltip', () => {
 
     const initialClass = getAlwaysContent().className
 
-    await fireEvent.pointerEnter(otherTrigger)
+    fireEvent.pointerEnter(otherTrigger)
     await vi.advanceTimersByTimeAsync(600)
-    await fireEvent.pointerLeave(otherTrigger)
-    await fireEvent.pointerEnter(alwaysTrigger)
+    fireEvent.pointerLeave(otherTrigger)
+    fireEvent.pointerEnter(alwaysTrigger)
 
     expect(getAlwaysContent().className).toBe(initialClass)
     expect(getAlwaysContent().className).not.toContain('data-expanded:animate-none')
 
-    await fireEvent.pointerLeave(alwaysTrigger)
+    fireEvent.pointerLeave(alwaysTrigger)
     await vi.advanceTimersByTimeAsync(200)
 
     expect(getAlwaysContent().className).toBe(initialClass)
@@ -583,7 +583,7 @@ describe('Tooltip', () => {
         element.textContent?.includes('Delayed tooltip'),
       )
 
-    await fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
+    fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
 
     expect(hasDelayedTooltip()).toBe(false)
 
@@ -620,12 +620,12 @@ describe('Tooltip', () => {
     const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
     const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
 
-    await fireEvent.pointerEnter(firstTrigger)
+    fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(600)
-    await fireEvent.pointerLeave(firstTrigger)
-    await fireEvent.pointerEnter(secondTrigger)
+    fireEvent.pointerLeave(firstTrigger)
+    fireEvent.pointerEnter(secondTrigger)
     await Promise.resolve()
-    await fireEvent.pointerLeave(secondTrigger)
+    fireEvent.pointerLeave(secondTrigger)
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')
     const activeTooltipClass = activeTooltip?.className
@@ -670,10 +670,10 @@ describe('Tooltip', () => {
     const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
     const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
 
-    await fireEvent.pointerEnter(firstTrigger)
+    fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(100)
-    await fireEvent.pointerLeave(firstTrigger)
-    await fireEvent.pointerEnter(secondTrigger)
+    fireEvent.pointerLeave(firstTrigger)
+    fireEvent.pointerEnter(secondTrigger)
 
     expect(document.body.querySelector('[role=tooltip]')).toBeNull()
 
@@ -712,7 +712,7 @@ describe('Tooltip', () => {
     expect(trigger).toBe(serverTrigger)
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
 
-    await fireEvent.focus(trigger)
+    fireEvent.focus(trigger)
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toContain(
       'Hydrated tooltip',

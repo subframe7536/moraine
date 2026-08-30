@@ -46,7 +46,7 @@ describe('Tabs', () => {
       />
     ))
 
-    await fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
 
     expect(onChange).toHaveBeenCalledWith('two')
 
@@ -98,7 +98,7 @@ describe('Tabs', () => {
     expect(screen.getAllByRole('tabpanel')).toHaveLength(1)
     expect(screen.getByRole('tabpanel').textContent).toBe('First panel')
 
-    await fireEvent.click(second)
+    fireEvent.click(second)
     expect(first.getAttribute('aria-selected')).toBe('true')
     expect(second.getAttribute('aria-selected')).toBe('false')
     expect(onChange).not.toHaveBeenCalled()
@@ -122,13 +122,13 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(two.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(two, { key: 'ArrowLeft' })
+    fireEvent.keyDown(two, { key: 'ArrowLeft' })
     expect(one.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(one, { key: 'ArrowLeft' })
+    fireEvent.keyDown(one, { key: 'ArrowLeft' })
     expect(three.getAttribute('aria-selected')).toBe('true')
   })
 
@@ -150,10 +150,10 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(one.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(one, { key: 'ArrowDown' })
+    fireEvent.keyDown(one, { key: 'ArrowDown' })
     expect(two.getAttribute('aria-selected')).toBe('true')
   })
 
@@ -174,10 +174,10 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'End' })
+    fireEvent.keyDown(one, { key: 'End' })
     expect(three.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(three, { key: 'Home' })
+    fireEvent.keyDown(three, { key: 'Home' })
     expect(one.getAttribute('aria-selected')).toBe('true')
   })
 
@@ -202,18 +202,18 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(two)
     expect(two.getAttribute('aria-selected')).toBe('false')
 
-    await fireEvent.keyDown(two, { key: 'ArrowRight' })
+    fireEvent.keyDown(two, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(three)
     expect(three.getAttribute('aria-selected')).toBe('false')
 
-    await fireEvent.keyDown(three, { key: 'Enter' })
+    fireEvent.keyDown(three, { key: 'Enter' })
     expect(three.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(three, { key: ' ' })
+    fireEvent.keyDown(three, { key: ' ' })
     expect(onChange).toHaveBeenCalledWith('three')
   })
 
@@ -235,11 +235,11 @@ describe('Tabs', () => {
 
     three.focus()
 
-    await fireEvent.keyDown(three, { key: 'ArrowRight' })
+    fireEvent.keyDown(three, { key: 'ArrowRight' })
     expect(three.getAttribute('aria-selected')).toBe('true')
 
     one.focus()
-    await fireEvent.keyDown(one, { key: 'ArrowLeft' })
+    fireEvent.keyDown(one, { key: 'ArrowLeft' })
     expect(one.getAttribute('aria-selected')).toBe('false')
     expect(screen.getByRole('tab', { name: 'Three' }).getAttribute('aria-selected')).toBe('true')
   })
@@ -310,9 +310,9 @@ describe('Tabs', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')
@@ -340,14 +340,14 @@ describe('Tabs', () => {
     two.focus()
 
     // In RTL, ArrowLeft moves forward (to the next item)
-    await fireEvent.keyDown(two, { key: 'ArrowLeft' })
+    fireEvent.keyDown(two, { key: 'ArrowLeft' })
     expect(three.getAttribute('aria-selected')).toBe('true')
 
     // In RTL, ArrowRight moves backward (to the previous item)
-    await fireEvent.keyDown(three, { key: 'ArrowRight' })
+    fireEvent.keyDown(three, { key: 'ArrowRight' })
     expect(two.getAttribute('aria-selected')).toBe('true')
 
-    await fireEvent.keyDown(two, { key: 'ArrowRight' })
+    fireEvent.keyDown(two, { key: 'ArrowRight' })
     expect(one.getAttribute('aria-selected')).toBe('true')
   })
 
@@ -369,11 +369,11 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(three.getAttribute('aria-selected')).toBe('true')
     expect(two.getAttribute('aria-selected')).toBe('false')
 
-    await fireEvent.keyDown(three, { key: 'ArrowLeft' })
+    fireEvent.keyDown(three, { key: 'ArrowLeft' })
     expect(one.getAttribute('aria-selected')).toBe('true')
   })
 
@@ -399,7 +399,7 @@ describe('Tabs', () => {
 
     one.focus()
 
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(two)
     expect(two.getAttribute('tabindex')).toBe('0')
     expect(one.getAttribute('tabindex')).toBe('-1')
@@ -407,7 +407,7 @@ describe('Tabs', () => {
     expect(one.getAttribute('aria-selected')).toBe('true')
     expect(two.getAttribute('aria-selected')).toBe('false')
 
-    await fireEvent.keyDown(two, { key: 'Enter' })
+    fireEvent.keyDown(two, { key: 'Enter' })
     expect(two.getAttribute('aria-selected')).toBe('true')
     expect(two.getAttribute('tabindex')).toBe('0')
     expect(two.getAttribute('data-highlighted')).toBe(null)
@@ -443,7 +443,7 @@ describe('Tabs', () => {
       const screen = render(() => <Tabs items={ITEMS} defaultValue="overview" />)
       const settings = screen.getByRole('tab', { name: 'Settings' })
 
-      await fireEvent.click(settings)
+      fireEvent.click(settings)
       expect(settings.getAttribute('aria-selected')).toBe('true')
       expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
       screen.unmount()
@@ -472,7 +472,7 @@ describe('Tabs', () => {
       unobserve() {}
     }
 
-    globalThis.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
+    globalThis.ResizeObserver = MockResizeObserver
 
     try {
       const screen = render(() => <Tabs items={ITEMS} defaultValue="overview" />)
@@ -482,7 +482,7 @@ describe('Tabs', () => {
       expect(firstObserver.observed).toContain(screen.getByRole('tab', { name: 'Overview' }))
       expect(firstObserver.observed).toContain(screen.getByRole('tablist'))
 
-      await fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+      fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
       await Promise.resolve()
 
       expect(firstObserver.disconnect).toHaveBeenCalledTimes(1)
@@ -539,7 +539,7 @@ describe('Tabs', () => {
     const one = screen.getByRole('tab', { name: 'One' })
 
     one.focus()
-    await fireEvent.keyDown(one, { key: 'ArrowRight' })
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Two' }))
 
     setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!])
@@ -666,7 +666,7 @@ describe('Tabs', () => {
     expect(container.querySelector('[role="tabpanel"]')).toBe(serverPanel)
 
     ;(serverFirstTrigger as HTMLElement).focus()
-    await fireEvent.keyDown(serverFirstTrigger!, { key: 'ArrowRight' })
+    fireEvent.keyDown(serverFirstTrigger!, { key: 'ArrowRight' })
     expect(container.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain(
       'Other',
     )

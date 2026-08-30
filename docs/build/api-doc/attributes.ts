@@ -590,9 +590,8 @@ export class SourceSlotAnalyzer {
 
     walkAst(declaration, (node) => {
       if (node.type === 'JSXOpeningElement') {
-        const opening = node as ESTree.JSXOpeningElement
-        const candidates = getSlotCandidates(opening)
-        const attributes = getJsxAttributes(opening)
+        const candidates = getSlotCandidates(node)
+        const attributes = getJsxAttributes(node)
         if (candidates.length > 0) {
           for (const slotName of candidates) {
             const metadata = slots.get(slotName) ?? createSlotMetadata()
@@ -607,7 +606,7 @@ export class SourceSlotAnalyzer {
                 metadata.dataAttributes.add(name)
               }
             }
-            for (const match of nodeText(resolvedModule.source, opening).matchAll(
+            for (const match of nodeText(resolvedModule.source, node).matchAll(
               /--[A-Za-z_][\w-]*/g,
             )) {
               metadata.cssVariables.add(match[0])
@@ -615,7 +614,7 @@ export class SourceSlotAnalyzer {
             slots.set(slotName, metadata)
           }
         }
-        const componentName = getJsxComponentName(opening.name)
+        const componentName = getJsxComponentName(node.name)
         if (componentName) {
           componentReferences.push({ name: componentName, overrideSlots: candidates })
         }

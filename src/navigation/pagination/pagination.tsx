@@ -238,18 +238,18 @@ export function Pagination(props: PaginationProps): JSX.Element {
   const merged = mergeProps(
     {
       'aria-label': 'Pagination',
-      role: 'navigation' as JSX.HTMLAttributes<HTMLElement>['role'],
+      role: 'navigation' as const,
       itemsPerPage: 10,
       total: 0,
       siblingCount: 2,
       showControls: true,
-      size: 'md' as PaginationProps['size'],
-      variant: 'ghost' as PaginationVariant,
-      activeVariant: 'outline' as PaginationVariant,
-      controlVariant: 'ghost' as PaginationVariant,
-      prevIcon: 'icon-chevron-left' as IconT.Name,
-      nextIcon: 'icon-chevron-right' as IconT.Name,
-      ellipsisIcon: 'icon-ellipsis' as IconT.Name,
+      size: 'md' as const,
+      variant: 'ghost' as const,
+      activeVariant: 'outline' as const,
+      controlVariant: 'ghost' as const,
+      prevIcon: 'icon-chevron-left' as const,
+      nextIcon: 'icon-chevron-right' as const,
+      ellipsisIcon: 'icon-ellipsis' as const,
       defaultPage: 1,
     },
     local,
@@ -322,7 +322,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     type?: 'button'
     disabled?: boolean
   } => {
-    const disabled = Boolean(merged.disabled || isEdge)
+    const disabled = Boolean(merged.disabled) || isEdge
     const href = disabled ? undefined : merged.to?.(target)
     return href ? { as: 'a' as const, href, rel } : { type: 'button' as const, disabled }
   }

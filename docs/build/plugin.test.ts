@@ -196,12 +196,15 @@ describe('docsBuildPlugin', () => {
       })
 
       const apiModule = await server.pluginContainer.load('\0moraine-api-doc')
-      expect(String(apiModule)).toContain('"button"')
+      const apiCode = typeof apiModule === 'string' ? apiModule : apiModule?.code
+      expect(apiCode).toContain('"button"')
 
       const expressiveCodeCss = await server.pluginContainer.load(
         '\0moraine-docs-expressive-code.css',
       )
-      expect(String(expressiveCodeCss)).toContain(':root.dark')
+      const cssCode =
+        typeof expressiveCodeCss === 'string' ? expressiveCodeCss : expressiveCodeCss?.code
+      expect(cssCode).toContain(':root.dark')
 
       const previewModule = await server.transformRequest(
         '/pages/(general)/button/basic-example.tsx?preview',

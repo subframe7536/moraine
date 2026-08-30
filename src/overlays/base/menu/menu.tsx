@@ -521,7 +521,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               props.classes?.itemLeading,
             )}
           >
-            <Icon name={contentProps.item.icon as IconT.Name} />
+            <Icon name={contentProps.item.icon} />
           </span>
         </Show>
 
@@ -1368,7 +1368,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             return
           }
 
-          if (!event.currentTarget.contains(event.target as Node)) {
+          if (!event.currentTarget.contains(event.target)) {
             return
           }
 
@@ -1407,7 +1407,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     {
       gutter: 0,
       overflowPadding: 4,
-      placement: 'bottom-start' as OverlayMenuPlacement,
+      placement: 'bottom-start' as const,
       preventScroll: true,
     },
     props,

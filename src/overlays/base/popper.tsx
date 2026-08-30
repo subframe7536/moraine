@@ -329,7 +329,7 @@ export function Popper(props: PopperProps): JSX.Element {
       modal: false,
       overlap: false,
       overflowPadding: 4,
-      placement: 'bottom' as PopperPlacement,
+      placement: 'bottom' as const,
       restoreFocusOnClose: true,
       sameWidth: false,
       shift: 0,
@@ -355,7 +355,7 @@ export function Popper(props: PopperProps): JSX.Element {
   )
   const contentPresence = useTransitionPresence({ open: isOpen })
   const contentMounted = createMemo(
-    () => contentPresence.present() || Boolean(merged.forceMount && !merged.disabled),
+    () => contentPresence.present() || (merged.forceMount && !merged.disabled),
   )
 
   function setOpen(nextOpen: boolean): void {

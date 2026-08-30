@@ -27,13 +27,14 @@ export function installHydrationState(): () => void {
   const hydrationGlobal = globalThis as HydrationGlobal
   const previous = hydrationGlobal._$HY
 
-  hydrationGlobal._$HY = {
+  const state: HydrationState = {
     completed: new WeakSet<Node>(),
     done: false,
     events: [],
     fe: () => undefined,
     r: {},
   }
+  hydrationGlobal._$HY = state
 
   return () => {
     if (previous) {
@@ -41,6 +42,10 @@ export function installHydrationState(): () => void {
       return
     }
 
-    delete hydrationGlobal._$HY
+    queueMicrotask(() => {
+      if (hydrationGlobal._$HY === state) {
+        delete hydrationGlobal._$HY
+      }
+    })
   }
 }

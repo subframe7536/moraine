@@ -194,7 +194,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       collapsible: true,
       loopFocus: true,
       unmountOnHide: true,
-      trailing: 'icon-chevron-down' as IconT.Name,
+      trailing: 'icon-chevron-down',
     },
     local,
   )
@@ -579,7 +579,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   data-slot="content"
                   style={{
                     '--mo-collapsible-content-height': `${contentHeight()}px`,
-                    ...(merged.styles?.content as JSX.CSSProperties | undefined),
+                    ...merged.styles?.content,
                   }}
                   class={cn(ACCORDION_CONTENT_CLASS, merged.classes?.content)}
                   {...contentDataAttrs()}

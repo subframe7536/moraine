@@ -38,7 +38,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'wrapperRef',
   ])
   const context = useCollapsibleContext()
-  const customAs = createMemo(() => local.as as ValidComponent | undefined)
+  const customAs = createMemo(() => local.as)
   const unmount = createMemo(() => local.unmountOnHide ?? context.unmountOnHide())
   const forceMount = createMemo(() => Boolean(local.forceMount))
   const transition = createMemo(() => context.transition())
@@ -109,10 +109,10 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               fallback={
                 <div
                   data-slot="content"
-                  style={innerStyle() as JSX.CSSProperties | undefined}
+                  style={innerStyle()}
                   class={cn(context.classes?.content, local.class)}
                   ref={(el) => handleInnerRef(el)}
-                  {...(rest as JSX.HTMLAttributes<HTMLDivElement>)}
+                  {...rest}
                 >
                   {children()}
                 </div>
@@ -121,11 +121,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               {(as) => (
                 <Dynamic
                   data-slot="content"
-                  component={as()}
+                  {...(rest as Record<string, unknown>)}
+                  component={as() as ValidComponent}
                   style={innerStyle()}
                   class={cn(context.classes?.content, local.class)}
                   ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
-                  {...rest}
                 >
                   {children()}
                 </Dynamic>

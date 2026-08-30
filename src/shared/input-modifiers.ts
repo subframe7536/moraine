@@ -19,10 +19,10 @@ export type ModifierValue<M extends ModelModifiers | undefined> =
   | (M extends { empty: 'undefined' } ? undefined : never)
 
 export function applyInputModifiers<T>(value: string, modelModifiers?: ModelModifiers): T {
-  let nextValue: unknown = value
+  let nextValue: string | number | null | undefined = value
 
-  if (modelModifiers?.trim) {
-    nextValue = String(nextValue ?? '').trim()
+  if (modelModifiers?.trim && typeof nextValue === 'string') {
+    nextValue = nextValue.trim()
   }
 
   if (modelModifiers?.number && nextValue !== '') {

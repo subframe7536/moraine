@@ -143,15 +143,13 @@ export function entityNameToText(node: unknown): string | undefined {
     return undefined
   }
   if (node.type === 'TSQualifiedName') {
-    const qualified = node as ESTree.TSQualifiedName
-    const left = entityNameToText(qualified.left)
-    const right = entityNameToText(qualified.right)
+    const left = entityNameToText(node.left)
+    const right = entityNameToText(node.right)
     return left && right ? `${left}.${right}` : undefined
   }
   if (node.type === 'MemberExpression') {
-    const member = node as ESTree.MemberExpression
-    const object = entityNameToText(member.object)
-    const property = entityNameToText(member.property)
+    const object = entityNameToText(node.object)
+    const property = entityNameToText(node.property)
     return object && property ? `${object}.${property}` : undefined
   }
   return undefined

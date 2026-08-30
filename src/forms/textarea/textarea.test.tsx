@@ -100,8 +100,8 @@ describe('Textarea', () => {
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
     const focusSpy = vi.spyOn(textarea, 'focus')
 
-    await fireEvent.pointerDown(screen.getByText('Header content'), { button: 0 })
-    await fireEvent.pointerDown(screen.getByText('Footer content'), { button: 0 })
+    fireEvent.pointerDown(screen.getByText('Header content'), { button: 0 })
+    fireEvent.pointerDown(screen.getByText('Footer content'), { button: 0 })
 
     expect(focusSpy).toHaveBeenCalledTimes(2)
   })
@@ -125,8 +125,8 @@ describe('Textarea', () => {
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
     const focusSpy = vi.spyOn(textarea, 'focus')
 
-    await fireEvent.pointerDown(screen.getByTestId('header-button'), { button: 0 })
-    await fireEvent.pointerDown(screen.getByTestId('footer-button'), { button: 0 })
+    fireEvent.pointerDown(screen.getByTestId('header-button'), { button: 0 })
+    fireEvent.pointerDown(screen.getByTestId('footer-button'), { button: 0 })
 
     expect(focusSpy).toHaveBeenCalledTimes(0)
   })
@@ -175,36 +175,36 @@ describe('Textarea', () => {
     const [trimInput, lazyInput, preserveInput, nullableInput, optionalInput] =
       screen.getAllByRole('textbox')
 
-    await fireEvent.input(trimInput!, {
+    fireEvent.input(trimInput!, {
       target: { value: ' value  ' },
       currentTarget: { value: ' value  ' },
     })
     expect(onTrim).toHaveBeenLastCalledWith('value')
 
-    await fireEvent.input(lazyInput!, {
+    fireEvent.input(lazyInput!, {
       target: { value: 'lazy' },
       currentTarget: { value: 'lazy' },
     })
     expect(onLazy).toHaveBeenCalledTimes(0)
-    await fireEvent.change(lazyInput!, {
+    fireEvent.change(lazyInput!, {
       target: { value: 'lazy' },
       currentTarget: { value: 'lazy' },
     })
     expect(onLazy).toHaveBeenLastCalledWith('lazy')
 
-    await fireEvent.input(preserveInput!, {
+    fireEvent.input(preserveInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
     expect(onPreserve).toHaveBeenLastCalledWith('')
 
-    await fireEvent.input(nullableInput!, {
+    fireEvent.input(nullableInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
     expect(onNullable).toHaveBeenLastCalledWith(null)
 
-    await fireEvent.input(optionalInput!, {
+    fireEvent.input(optionalInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
@@ -215,7 +215,7 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea modelModifiers={{ trim: true, lazy: true }} />)
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
 
-    await fireEvent.change(textarea, {
+    fireEvent.change(textarea, {
       target: { value: 'value  ' },
       currentTarget: { value: 'value  ' },
     })
@@ -249,7 +249,7 @@ describe('Textarea', () => {
       configurable: true,
       value: 120,
     })
-    await fireEvent.input(resizable, {
+    fireEvent.input(resizable, {
       target: { value: 'a' },
       currentTarget: { value: 'a' },
     })
@@ -259,7 +259,7 @@ describe('Textarea', () => {
       configurable: true,
       value: 200,
     })
-    await fireEvent.input(maxLimited, {
+    fireEvent.input(maxLimited, {
       target: { value: 'b' },
       currentTarget: { value: 'b' },
     })
@@ -337,7 +337,7 @@ describe('Textarea', () => {
     )
     const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
 
-    await fireEvent.input(textarea, { target: { value: 'Rejected' } })
+    fireEvent.input(textarea, { target: { value: 'Rejected' } })
 
     expect(onValueChange).toHaveBeenCalledWith('Rejected')
     expect(textarea.value).toBe('Locked')

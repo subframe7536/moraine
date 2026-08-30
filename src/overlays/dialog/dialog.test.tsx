@@ -32,13 +32,14 @@ function TestModal(props: TestModalProps): JSX.Element {
     <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
       <ModalTriggerRenderer children={trigger()} />
       <Show when={content()}>
-        <Modal.Content overlay={props.overlay} contentRender={content()!} />
+        <Modal.Content overlay={props.overlay} contentRender={content()} />
       </Show>
     </Modal>
   )
 }
 
 async function finishExitMotion(): Promise<void> {
+  await Promise.resolve()
   const contents = Array.from(
     document.body.querySelectorAll('[data-slot="content"]'),
   ) as HTMLElement[]
@@ -47,13 +48,13 @@ async function finishExitMotion(): Promise<void> {
   ) as HTMLElement[]
 
   for (const content of contents) {
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
   }
 
   for (const overlay of overlays) {
-    await fireEvent.animationEnd(overlay)
-    await fireEvent.transitionEnd(overlay)
+    fireEvent.animationEnd(overlay)
+    fireEvent.transitionEnd(overlay)
   }
 }
 
@@ -217,7 +218,7 @@ describe('Modal', () => {
 
     expect(document.body.querySelector('[data-testid="content-close"]')).not.toBeNull()
 
-    await fireEvent.click(document.body.querySelector('[data-testid="content-close"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="content-close"]')!)
     await finishExitMotion()
 
     await waitFor(() => {
@@ -438,7 +439,7 @@ describe('Modal', () => {
     expect(container.querySelectorAll('[data-slot="trigger"]')[1]).toBe(defaultTrigger)
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(customTrigger)
+    fireEvent.click(customTrigger)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
@@ -451,14 +452,14 @@ describe('Modal', () => {
     expect(document.body.querySelector('[data-testid="server-footer"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="server-close-icon"]')).toBeNull()
 
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
     await finishExitMotion()
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       expect(document.activeElement).toBe(customTrigger)
     })
 
-    await fireEvent.click(defaultTrigger)
+    fireEvent.click(defaultTrigger)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
@@ -466,7 +467,7 @@ describe('Modal', () => {
     expectAriaReferencesToResolve(defaultContent)
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
 
-    await fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
     await finishExitMotion()
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
@@ -510,14 +511,14 @@ describe('Modal', () => {
 
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(screen.getByText('Open modal'))
+    fireEvent.click(screen.getByText('Open modal'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
     const closeButton = document.body.querySelector('[data-slot="close"]') as HTMLElement
-    await fireEvent.click(closeButton)
+    fireEvent.click(closeButton)
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
@@ -559,16 +560,16 @@ describe('Modal', () => {
       </Dialog>
     ))
 
-    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
 
     const input = (await waitFor(() =>
       document.body.querySelector('[data-slot="input"]'),
     )) as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Settings' } })
+    fireEvent.input(input, { target: { value: 'Settings' } })
 
     expect(input.value).toBe('Settings')
 
-    await fireEvent.keyDown(input, { key: 'Escape' })
+    fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
       expect(input.value).toBe('Settings')
@@ -583,7 +584,7 @@ describe('Modal', () => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
     })
 
-    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
@@ -728,7 +729,7 @@ describe('Modal', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -755,7 +756,7 @@ describe('Modal', () => {
     ))
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -787,7 +788,7 @@ describe('Modal', () => {
     expect(window.getSelection()?.toString()).toContain('Dialog title')
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await finishExitMotion()
 
@@ -820,7 +821,7 @@ describe('Modal', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     await finishExitMotion()
 
@@ -966,7 +967,7 @@ describe('Modal', () => {
 
     const innerContent = contents[contents.length - 1] as HTMLElement
     innerContent.focus()
-    await fireEvent.keyDown(innerContent, { key: 'Escape' })
+    fireEvent.keyDown(innerContent, { key: 'Escape' })
 
     await finishExitMotion()
 
@@ -1015,7 +1016,7 @@ describe('Modal', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
 
     const innerButton = document.body.querySelector('[data-testid="inner-button"]')!
-    await fireEvent.pointerDown(innerButton)
+    fireEvent.pointerDown(innerButton)
 
     expect(onOuterChange).not.toHaveBeenCalled()
     expect(onInnerChange).not.toHaveBeenCalled()

@@ -104,7 +104,7 @@ describe('Popper primitives', () => {
     ))
 
     expect(instances).toBe(0)
-    await fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
+    fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
 
     await waitFor(() => {
       expect(instances).toBe(1)
@@ -143,7 +143,7 @@ describe('Popper primitives', () => {
     expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false')
     expect(document.body.style.overflow).toBe('')
 
-    await fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
   })
 
@@ -253,7 +253,7 @@ describe('Popper primitives', () => {
       </>
     ))
 
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -282,7 +282,7 @@ describe('Popper primitives', () => {
       </Popper>
     ))
 
-    await fireEvent.pointerDown(outside, { button: 2 })
+    fireEvent.pointerDown(outside, { button: 2 })
     expect(onOpenChange).not.toHaveBeenCalled()
 
     const event = new KeyboardEvent('keydown', {
@@ -309,9 +309,9 @@ describe('Popper primitives', () => {
       </Popper>
     ))
 
-    await fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
+    fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
     expect(onOpenChange).not.toHaveBeenCalled()
-    await fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
     outside.remove()
@@ -327,11 +327,11 @@ describe('Popper primitives', () => {
     ))
     const content = document.body.querySelector('input')!
 
-    await fireEvent.compositionStart(content)
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.compositionStart(content)
+    fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).not.toHaveBeenCalled()
-    await fireEvent.compositionEnd(content)
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.compositionEnd(content)
+    fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
   })
@@ -351,7 +351,7 @@ describe('Popper primitives', () => {
     ))
 
     await Promise.resolve()
-    await fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(document, { key: 'Escape' })
 
     expect(document.body.style.overflow).toBe('')
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
@@ -532,7 +532,7 @@ describe('Popper primitives', () => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       expect(document.body.style.overflow).toBe('')
     })
-    await fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
   })
 
@@ -562,8 +562,8 @@ describe('Popper primitives', () => {
     ))
 
     expect(contentRenderReads).toBe(1)
-    await fireEvent.click(screen.getByRole('button'))
-    await fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button'))
     expect(contentRenderReads).toBe(1)
   })
 

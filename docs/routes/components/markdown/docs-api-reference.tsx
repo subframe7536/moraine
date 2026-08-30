@@ -587,8 +587,8 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
               input: 'font-mono text-xs',
             }}
             onChange={(value) => {
-              if (value !== null) {
-                setSelectedSlotName(String(value))
+              if (typeof value === 'string') {
+                setSelectedSlotName(value)
               }
             }}
           />

@@ -314,7 +314,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               merged.classes?.thumb,
             )}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
-            aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min!}
+            aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
             aria-orientation={merged.orientation}
@@ -353,7 +353,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               min={slider.getThumbMinValue(thumbIndex)}
               max={slider.getThumbMaxValue(thumbIndex)}
               step={slider.definedStep() ?? 'any'}
-              value={slider.currentValues()[thumbIndex] ?? merged.min!}
+              value={slider.currentValues()[thumbIndex] ?? merged.min}
               required={field.required()}
               disabled={field.disabled()}
               readOnly={merged.readOnly}

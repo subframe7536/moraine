@@ -287,9 +287,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   })
   const [createdTags, setCreatedTags] = createSignal<NormalizedOption<Item>[]>([])
   const [isComposing, setIsComposing] = createSignal(false)
-  const selectedValues = createMemo(() =>
-    normalizeSelectedValues((rawSelectedValues() ?? []) as TItem[]),
-  )
+  const selectedValues = createMemo(() => normalizeSelectedValues(rawSelectedValues() ?? []))
 
   const isAtMaxCount = createMemo(() =>
     props.maxCount === undefined ? false : selectedValues().length >= props.maxCount,
@@ -422,8 +420,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       label: normalized,
       key: normalized,
       disabled: false,
-      raw: { label: normalized, value: normalized as TItem } as Item,
-      renderItem: { label: normalized, value: normalized as TItem } as Item,
+      raw: { label: normalized, value: normalized as TItem },
+      renderItem: { label: normalized, value: normalized as TItem },
     }
 
     setCreatedTags((prev) => [...prev, option])
@@ -461,7 +459,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       return false
     }
 
-    const text = String(value ?? api.inputValue()).trim()
+    const text = (value ?? api.inputValue()).trim()
     if (!text) {
       return false
     }
@@ -790,7 +788,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                             <button
                               type="button"
                               data-slot="tagRemove"
-                              aria-label={`Remove ${option.label}`}
+                              aria-label={`Remove ${option.key}`}
                               style={props.styles?.tagRemove}
                               class={cn(
                                 'p-0.5 outline-none border-0 bg-transparent flex shrink-0 cursor-pointer items-center justify-center -ms-1',

@@ -134,7 +134,7 @@ function normalizeLeafOption<TItems extends BaseSelectItems<TItems>>(
   valueOccurrences: Map<string, number>,
   resolvedItem?: TItems,
 ): NormalizedOption<TItems> {
-  const renderItem = resolvedItem ?? ({ ...option } as TItems)
+  const renderItem = resolvedItem ?? { ...option }
   const value = renderItem.value ?? ''
   const label = renderItem.label
   const serializedValue = String(value)
@@ -150,7 +150,7 @@ function normalizeLeafOption<TItems extends BaseSelectItems<TItems>>(
     key,
     disabled: Boolean(renderItem.disabled),
     raw: option,
-    renderItem: renderItem as TItems,
+    renderItem,
   }
 }
 
@@ -170,7 +170,7 @@ export function normalizeOptions<TItems extends BaseSelectItems<TItems>>(
       }
     }
 
-    return normalizeLeafOption(option, valueOccurrences, renderItem as TItems)
+    return normalizeLeafOption(option, valueOccurrences, renderItem)
   })
 }
 

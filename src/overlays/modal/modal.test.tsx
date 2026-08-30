@@ -37,11 +37,11 @@ describe('Modal primitives', () => {
 
     expect(trigger).toBe(triggerElement)
     expect(trigger.className).toBe('flat-trigger')
-    expect((trigger as HTMLElement).style.color).toBe('red')
+    expect(trigger.style.color).toBe('red')
     expect(trigger.getAttribute('data-slot')).toBe('trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -57,7 +57,7 @@ describe('Modal primitives', () => {
         <Modal.Content contentRender={<span>Content</span>} />
       </Modal>
     ))
-    const trigger = screen.getByTestId('trigger') as HTMLButtonElement
+    const trigger = screen.getByTestId<HTMLButtonElement>('trigger')
 
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.type).toBe('button')
@@ -65,7 +65,7 @@ describe('Modal primitives', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
@@ -92,8 +92,8 @@ describe('Modal primitives', () => {
       </>
     ))
 
-    await fireEvent.click(screen.getByTestId('disabled-trigger'))
-    await fireEvent.click(screen.getByTestId('canceled-trigger'))
+    fireEvent.click(screen.getByTestId('disabled-trigger'))
+    fireEvent.click(screen.getByTestId('canceled-trigger'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
@@ -131,7 +131,7 @@ describe('Modal primitives', () => {
     expect(buttonTrigger.tagName).toBe('BUTTON')
     expect(buttonTrigger.className).toContain('border')
 
-    await fireEvent.keyDown(divTrigger, { key: 'Enter' })
+    fireEvent.keyDown(divTrigger, { key: 'Enter' })
 
     expect(document.body.textContent).toContain('Div content')
     screen.unmount()
@@ -168,7 +168,7 @@ describe('Modal primitives', () => {
 
     expect(trigger).toBe(serverTrigger)
     expect(mounts).toBe(0)
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(mounts).toBe(1)
     expect(document.body.querySelector('[data-testid="hydrated-content"]')).not.toBeNull()
 
@@ -195,7 +195,7 @@ describe('Modal primitives', () => {
     const screen = render(() => <Modal defaultOpen onOpenChange={onOpenChange} />)
     await Promise.resolve()
 
-    await fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(document, { key: 'Escape' })
 
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
     expect(document.body.style.overflow).toBe('auto')
@@ -216,7 +216,7 @@ describe('Modal primitives', () => {
     expect(document.body.querySelector('[data-slot="overlay"]')).not.toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
 
-    await fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
   })
@@ -286,11 +286,11 @@ describe('Modal primitives', () => {
     expect(content.getAttribute('data-closed')).toBe('')
 
     await Promise.resolve()
-    await fireEvent.animationEnd(content)
+    fireEvent.animationEnd(content)
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     expect(onExitComplete).not.toHaveBeenCalled()
 
-    await fireEvent.animationEnd(overlay)
+    fireEvent.animationEnd(overlay)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
@@ -550,12 +550,12 @@ describe('Modal primitives', () => {
     await Promise.resolve()
     const editor = document.body.querySelector('[data-testid="editor"]')!
 
-    await fireEvent.compositionStart(editor)
-    await fireEvent.keyDown(editor, { key: 'Escape' })
+    fireEvent.compositionStart(editor)
+    fireEvent.keyDown(editor, { key: 'Escape' })
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    await fireEvent.compositionEnd(editor)
-    await fireEvent.keyDown(editor, { key: 'Escape' })
+    fireEvent.compositionEnd(editor)
+    fireEvent.keyDown(editor, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
   })
@@ -571,30 +571,30 @@ describe('Modal primitives', () => {
     ))
     await Promise.resolve()
 
-    await fireEvent.pointerDown(outside, {
+    fireEvent.pointerDown(outside, {
       pointerId: 1,
       pointerType: 'touch',
       clientX: 10,
       clientY: 10,
     })
     expect(onOpenChange).not.toHaveBeenCalled()
-    await fireEvent.pointerMove(outside, {
+    fireEvent.pointerMove(outside, {
       pointerId: 1,
       pointerType: 'touch',
       clientX: 30,
       clientY: 10,
     })
-    await fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    await fireEvent.pointerDown(outside, { pointerId: 2, pointerType: 'touch' })
-    await fireEvent.pointerDown(outside, { pointerId: 3, pointerType: 'touch' })
-    await fireEvent.pointerUp(outside, { pointerId: 2, pointerType: 'touch' })
-    await fireEvent.pointerUp(outside, { pointerId: 3, pointerType: 'touch' })
+    fireEvent.pointerDown(outside, { pointerId: 2, pointerType: 'touch' })
+    fireEvent.pointerDown(outside, { pointerId: 3, pointerType: 'touch' })
+    fireEvent.pointerUp(outside, { pointerId: 2, pointerType: 'touch' })
+    fireEvent.pointerUp(outside, { pointerId: 3, pointerType: 'touch' })
     expect(onOpenChange).not.toHaveBeenCalled()
 
-    await fireEvent.pointerDown(outside, { pointerId: 4, pointerType: 'touch' })
-    await fireEvent.pointerUp(outside, { pointerId: 4, pointerType: 'touch' })
+    fireEvent.pointerDown(outside, { pointerId: 4, pointerType: 'touch' })
+    fireEvent.pointerUp(outside, { pointerId: 4, pointerType: 'touch' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
     outside.remove()
@@ -612,7 +612,7 @@ describe('Modal primitives', () => {
     ))
     await Promise.resolve()
 
-    await fireEvent.pointerDown(outside, { button: 2 })
+    fireEvent.pointerDown(outside, { button: 2 })
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(onClosePrevent).not.toHaveBeenCalled()
@@ -649,8 +649,8 @@ describe('Modal primitives', () => {
     ))
     await Promise.resolve()
 
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
-    await fireEvent.keyDown(document.body.querySelector('[data-testid="inside"]')!, {
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.keyDown(document.body.querySelector('[data-testid="inside"]')!, {
       key: 'Escape',
     })
 
@@ -712,7 +712,7 @@ describe('Modal primitives', () => {
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     button.focus()
 
-    await fireEvent.pointerDown(button, { pointerType: 'mouse' })
+    fireEvent.pointerDown(button, { pointerType: 'mouse' })
     await Promise.resolve()
 
     expect(document.activeElement).toBe(content)
@@ -756,10 +756,11 @@ describe('Modal primitives', () => {
     await Promise.resolve()
     await Promise.resolve()
 
-    await fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
+    await Promise.resolve()
     const content = document.body.querySelector('[data-slot="content"]')!
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
 
     await waitFor(() => {
       expect(document.activeElement).toBe(previous)
@@ -795,26 +796,28 @@ describe('Modal primitives', () => {
     ))
 
     const outerTrigger = screen.getByTestId('outer-trigger')
-    await fireEvent.click(outerTrigger)
+    fireEvent.click(outerTrigger)
     await Promise.resolve()
     const innerTrigger = document.body.querySelector(
       '[data-testid="inner-trigger"]',
     ) as HTMLButtonElement
-    await fireEvent.click(innerTrigger)
+    fireEvent.click(innerTrigger)
     await Promise.resolve()
 
-    await fireEvent.click(document.body.querySelector('[data-testid="inner-close"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="inner-close"]')!)
+    await Promise.resolve()
     const innerContent = document.body.querySelectorAll('[data-slot="content"]')[1]!
-    await fireEvent.animationEnd(innerContent)
-    await fireEvent.transitionEnd(innerContent)
+    fireEvent.animationEnd(innerContent)
+    fireEvent.transitionEnd(innerContent)
     await waitFor(() => {
       expect(document.activeElement).toBe(innerTrigger)
     })
 
-    await fireEvent.click(document.body.querySelector('[data-testid="outer-close"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="outer-close"]')!)
+    await Promise.resolve()
     const outerContent = document.body.querySelector('[data-slot="content"]')!
-    await fireEvent.animationEnd(outerContent)
-    await fireEvent.transitionEnd(outerContent)
+    fireEvent.animationEnd(outerContent)
+    fireEvent.transitionEnd(outerContent)
     await waitFor(() => {
       expect(document.activeElement).toBe(outerTrigger)
     })
@@ -889,15 +892,16 @@ describe('Modal primitives', () => {
         />
       </Modal>
     ))
-    const trigger = screen.getByTestId('trigger') as HTMLButtonElement
-    await fireEvent.click(trigger)
+    const trigger = screen.getByTestId('trigger')
+    fireEvent.click(trigger)
     await Promise.resolve()
     setDisabled(true)
 
-    await fireEvent.click(document.body.querySelector('[data-testid="close-disabled"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="close-disabled"]')!)
+    await Promise.resolve()
     const content = document.body.querySelector('[data-slot="content"]')!
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
     await Promise.resolve()
 
     expect(document.activeElement).not.toBe(trigger)
@@ -921,14 +925,15 @@ describe('Modal primitives', () => {
       </Modal>
     ))
     const trigger = screen.getByTestId('removable-trigger')
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
     setShowTrigger(false)
 
-    await fireEvent.click(document.body.querySelector('[data-testid="close-removed"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="close-removed"]')!)
+    await Promise.resolve()
     const content = document.body.querySelector('[data-slot="content"]')!
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
     await Promise.resolve()
 
     expect(trigger.isConnected).toBe(false)
@@ -953,9 +958,9 @@ describe('Modal primitives', () => {
       </Modal>
     ))
     const trigger = screen.getByTestId('rapid-trigger')
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
-    await fireEvent.click(document.body.querySelector('[data-testid="rapid-close"]')!)
+    fireEvent.click(document.body.querySelector('[data-testid="rapid-close"]')!)
 
     setOpen(true)
     await Promise.resolve()
@@ -967,13 +972,13 @@ describe('Modal primitives', () => {
 
     setOpen(false)
     await Promise.resolve()
-    await fireEvent.animationEnd(reopenedContent)
-    await fireEvent.transitionEnd(reopenedContent)
+    fireEvent.animationEnd(reopenedContent)
+    fireEvent.transitionEnd(reopenedContent)
     expect(onExitComplete).not.toHaveBeenCalled()
 
     const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
-    await fireEvent.animationEnd(overlay)
-    await fireEvent.transitionEnd(overlay)
+    fireEvent.animationEnd(overlay)
+    fireEvent.transitionEnd(overlay)
     await waitFor(() => {
       expect(onExitComplete).toHaveBeenCalledOnce()
       expect(document.activeElement).toBe(trigger)
@@ -1018,7 +1023,7 @@ describe('Modal primitives', () => {
     ))
 
     expect(instances).toBe(0)
-    await fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
+    fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
 
     await waitFor(() => {
       expect(instances).toBe(1)

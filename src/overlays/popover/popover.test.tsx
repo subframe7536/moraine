@@ -18,8 +18,8 @@ async function finishExitMotion(
   await Promise.resolve()
 
   if (content) {
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
   }
 }
 
@@ -115,12 +115,12 @@ describe('Popover', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
-    await fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'touch' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'pen' })
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('Mouse content')
   })
@@ -145,13 +145,13 @@ describe('Popover', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.focus(trigger)
+    fireEvent.focus(trigger)
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
 
     onOpenChange.mockClear()
-    await fireEvent.click(trigger, { detail: 0 })
+    fireEvent.click(trigger, { detail: 0 })
     expect(onOpenChange).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
   })
@@ -178,13 +178,13 @@ describe('Popover', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     setMode('click')
     await vi.advanceTimersByTimeAsync(50)
     expect(onOpenChange).not.toHaveBeenCalled()
 
     setMode('hover')
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     setDisabled(true)
     setDisabled(false)
     await vi.advanceTimersByTimeAsync(50)
@@ -212,9 +212,9 @@ describe('Popover', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
-    await fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
 
     expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -241,9 +241,9 @@ describe('Popover', () => {
     ))
     const trigger = screen.getByRole('button')
 
-    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(25)
-    await fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
     await vi.advanceTimersByTimeAsync(50)
 
     expect(onOpenChange).toHaveBeenCalledTimes(1)
@@ -372,7 +372,7 @@ describe('Popover', () => {
     ).toBeNull()
 
     render(() => (
-      <Popover open content={null as never}>
+      <Popover open content={null}>
         {(props) => (
           <button {...props} type="button">
             Trigger
@@ -398,7 +398,7 @@ describe('Popover', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -430,7 +430,7 @@ describe('Popover', () => {
     ))
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -464,8 +464,8 @@ describe('Popover', () => {
     const outside = screen.getByTestId('outside')
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await fireEvent.pointerDown(outside)
-    await fireEvent.focusIn(outside)
+    fireEvent.pointerDown(outside)
+    fireEvent.focusIn(outside)
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -495,7 +495,7 @@ describe('Popover', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
@@ -529,7 +529,7 @@ describe('Popover', () => {
       </>
     ))
 
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
@@ -569,7 +569,7 @@ describe('Popover', () => {
     ).find((content) => content.textContent?.includes('Second content')) as HTMLElement
 
     secondContent.focus()
-    await fireEvent.keyDown(secondContent, { key: 'Escape' })
+    fireEvent.keyDown(secondContent, { key: 'Escape' })
     const closingContent = document.body.querySelector<HTMLElement>(
       '[data-slot="content"][data-closed]',
     )
@@ -734,7 +734,7 @@ describe('Popover', () => {
     expect(trigger).toBe(serverTrigger)
     expect(document.body.querySelector('[role="dialog"]')).toBeNull()
 
-    await fireEvent.focus(trigger)
+    fireEvent.focus(trigger)
     await vi.advanceTimersByTimeAsync(50)
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain(
       'Hydrated content',

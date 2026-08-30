@@ -19,7 +19,7 @@ async function runTransform(source: string, id: string): Promise<string> {
   const transformer = transformerInjectPrefix({
     prefix: TEST_PREFIX,
     beforeTransform(code, id, context) {
-      variantGroupTransformer.transform(code, id, context)
+      void variantGroupTransformer.transform(code, id, context)
     },
   })
   const code = new MagicString(source)

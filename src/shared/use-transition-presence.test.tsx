@@ -43,13 +43,15 @@ function installComputedStyle(
 ): void {
   vi.spyOn(window, 'getComputedStyle').mockImplementation(
     (element) =>
-      ({
-        animationDelay: '0s',
-        animationDuration: '0s',
-        animationName: 'none',
-        display: 'block',
-        ...values(element),
-      }) as CSSStyleDeclaration,
+      Object.assign(
+        {
+          animationDelay: '0s',
+          animationDuration: '0s',
+          animationName: 'none',
+          display: 'block',
+        },
+        values(element),
+      ) as CSSStyleDeclaration,
   )
 }
 

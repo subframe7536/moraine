@@ -74,7 +74,7 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
     if (
       nextMatchIndex === -1 &&
       nextSearch.length > 1 &&
-      [...nextSearch].every((value) => value === normalizedCharacter)
+      Array.from(nextSearch).every((value) => value === normalizedCharacter)
     ) {
       nextSearch = normalizedCharacter
       nextStartIndex = matchIndex + 1

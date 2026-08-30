@@ -27,7 +27,7 @@ describe('Input', () => {
         disabled
       />
     ))
-    const input = screen.getByPlaceholderText('Enter email') as HTMLInputElement
+    const input = screen.getByPlaceholderText<HTMLInputElement>('Enter email')
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(input.getAttribute('id')).toBe('email-input')
@@ -47,7 +47,7 @@ describe('Input', () => {
 
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Input readOnly />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(input.readOnly).toBe(true)
@@ -123,12 +123,8 @@ describe('Input', () => {
       </>
     ))
 
-    const leadingIcon = screen.container.querySelector(
-      '[data-slot="leading"] [data-slot="icon"]',
-    ) as HTMLElement | null
-    const trailingIcon = screen.container.querySelector(
-      '[data-slot="trailing"] [data-slot="icon"]',
-    ) as HTMLElement | null
+    const leadingIcon = screen.container.querySelector('[data-slot="leading"] [data-slot="icon"]')
+    const trailingIcon = screen.container.querySelector('[data-slot="trailing"] [data-slot="icon"]')
 
     expect(leadingIcon?.className).toContain('i-lucide-search')
     expect(trailingIcon?.className).toContain('i-lucide-at-sign')
@@ -204,9 +200,9 @@ describe('Input', () => {
     const screen = render(() => (
       <Input onValueChange={onValueChange} modelModifiers={{ trim: true }} />
     ))
-    const input = screen.getByRole('textbox')
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: ' test  ' },
       currentTarget: { value: ' test  ' },
     })
@@ -230,30 +226,30 @@ describe('Input', () => {
     ))
     const [lazyInput, preserveInput, nullableInput, optionalInput] = screen.getAllByRole('textbox')
 
-    await fireEvent.input(lazyInput!, {
+    fireEvent.input(lazyInput!, {
       target: { value: 'lazy' },
       currentTarget: { value: 'lazy' },
     })
     expect(lazyChange).toHaveBeenCalledTimes(0)
-    await fireEvent.change(lazyInput!, {
+    fireEvent.change(lazyInput!, {
       target: { value: 'lazy' },
       currentTarget: { value: 'lazy' },
     })
     expect(lazyChange).toHaveBeenLastCalledWith('lazy')
 
-    await fireEvent.input(preserveInput!, {
+    fireEvent.input(preserveInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
     expect(preserveChange).toHaveBeenLastCalledWith('')
 
-    await fireEvent.input(nullableInput!, {
+    fireEvent.input(nullableInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
     expect(nullableChange).toHaveBeenLastCalledWith(null)
 
-    await fireEvent.input(optionalInput!, {
+    fireEvent.input(optionalInput!, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
@@ -262,9 +258,9 @@ describe('Input', () => {
 
   test('syncs trimmed DOM value on change', async () => {
     const screen = render(() => <Input modelModifiers={{ trim: true, lazy: true }} />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.change(input, {
+    fireEvent.change(input, {
       target: { value: 'value  ' },
       currentTarget: { value: 'value  ' },
     })
@@ -276,10 +272,10 @@ describe('Input', () => {
     const onChange = vi.fn()
     const onBlur = vi.fn()
     const screen = render(() => <Input onChange={onChange} onBlur={onBlur} />)
-    const input = screen.getByRole('textbox')
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.change(input)
-    await fireEvent.blur(input)
+    fireEvent.change(input)
+    fireEvent.blur(input)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onBlur).toHaveBeenCalledTimes(1)
@@ -294,14 +290,14 @@ describe('Input', () => {
         onChange={(value) => calls.push(`change:${value}`)}
       />
     ))
-    const input = screen.getByRole('textbox')
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       isComposing: true,
       target: { value: '拼' },
       currentTarget: { value: '拼' },
     })
-    await fireEvent.change(input, {
+    fireEvent.change(input, {
       target: { value: '拼音' },
       currentTarget: { value: '拼音' },
     })
@@ -312,7 +308,7 @@ describe('Input', () => {
   test('does not publish programmatic value property changes without a native event', () => {
     const onValueChange = vi.fn()
     const screen = render(() => <Input onValueChange={onValueChange} />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
     input.value = 'Programmatic'
 
@@ -323,9 +319,9 @@ describe('Input', () => {
   test('rolls explicit controlled values back after input and caller cancellation', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: 'Requested' },
       currentTarget: { value: 'Requested' },
     })
@@ -342,7 +338,7 @@ describe('Input', () => {
         onValueChange={cancelledChange}
       />
     ))
-    const cancelledInput = cancelled.getByRole('textbox') as HTMLInputElement
+    const cancelledInput = cancelled.getByRole<HTMLInputElement>('textbox')
 
     cancelledInput.value = 'Cancelled'
     const cancelledEvent = new InputEvent('input', { bubbles: true, cancelable: true })
@@ -358,16 +354,16 @@ describe('Input', () => {
     const screen = render(() => (
       <Input value="Locked" modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
     ))
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: 'Draft' },
       currentTarget: { value: 'Draft' },
     })
     expect(input.value).toBe('Draft')
     expect(onValueChange).not.toHaveBeenCalled()
 
-    await fireEvent.change(input, {
+    fireEvent.change(input, {
       target: { value: 'Draft' },
       currentTarget: { value: 'Draft' },
     })
@@ -378,9 +374,9 @@ describe('Input', () => {
   test('accepts synchronous controlled updates from onValueChange', async () => {
     const [value, setValue] = createSignal('Initial')
     const screen = render(() => <Input value={value()} onValueChange={setValue} />)
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: 'Accepted' },
       currentTarget: { value: 'Accepted' },
     })
@@ -405,16 +401,16 @@ describe('Input', () => {
     const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
     const focus = vi.spyOn(input, 'focus')
 
-    await fireEvent.pointerDown(root, { button: 0 })
-    await fireEvent.pointerDown(screen.getByTestId('plain-text'), { button: 0 })
+    fireEvent.pointerDown(root, { button: 0 })
+    fireEvent.pointerDown(screen.getByTestId('plain-text'), { button: 0 })
     expect(focus).toHaveBeenCalledTimes(2)
 
-    await fireEvent.pointerDown(input, { button: 0 })
+    fireEvent.pointerDown(input, { button: 0 })
 
     for (const testId of ['nested-button', 'nested-link', 'nested-input']) {
-      await fireEvent.pointerDown(screen.getByTestId(testId), { button: 0 })
+      fireEvent.pointerDown(screen.getByTestId(testId), { button: 0 })
     }
-    await fireEvent.pointerDown(root, { button: 1 })
+    fireEvent.pointerDown(root, { button: 1 })
 
     expect(focus).toHaveBeenCalledTimes(2)
   })
@@ -424,10 +420,10 @@ describe('Input', () => {
       <Input onPointerDown={(event: PointerEvent) => event.preventDefault()} />
     ))
     const root = screen.container.querySelector('[data-slot="root"]')!
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
     const focus = vi.spyOn(input, 'focus')
 
-    await fireEvent.pointerDown(root, { button: 0 })
+    fireEvent.pointerDown(root, { button: 0 })
 
     expect(focus).not.toHaveBeenCalled()
   })
@@ -437,7 +433,7 @@ describe('Input', () => {
 
     try {
       const disposed = render(() => <Input autofocus autofocusDelay={20} />)
-      const disposedInput = disposed.getByRole('textbox') as HTMLInputElement
+      const disposedInput = disposed.getByRole<HTMLInputElement>('textbox')
       const disposedFocus = vi.spyOn(disposedInput, 'focus')
 
       disposed.unmount()
@@ -446,7 +442,7 @@ describe('Input', () => {
 
       const [disabled, setDisabled] = createSignal(false)
       const delayed = render(() => <Input autofocus autofocusDelay={20} disabled={disabled()} />)
-      const delayedInput = delayed.getByRole('textbox') as HTMLInputElement
+      const delayedInput = delayed.getByRole<HTMLInputElement>('textbox')
       const delayedFocus = vi.spyOn(delayedInput, 'focus')
 
       setDisabled(true)
@@ -454,7 +450,7 @@ describe('Input', () => {
       expect(delayedFocus).not.toHaveBeenCalled()
 
       const readonly = render(() => <Input autofocus autofocusDelay={20} readOnly />)
-      const readonlyInput = readonly.getByRole('textbox') as HTMLInputElement
+      const readonlyInput = readonly.getByRole<HTMLInputElement>('textbox')
       const readonlyFocus = vi.spyOn(readonlyInput, 'focus')
 
       vi.advanceTimersByTime(20)
@@ -487,11 +483,11 @@ describe('Input', () => {
       </form>
     ))
     const form = screen.container.querySelector('form')!
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
     expect(form.checkValidity()).toBe(true)
     setDefaultValue('Changed default')
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: '' },
       currentTarget: { value: '' },
     })
@@ -515,7 +511,7 @@ describe('Input', () => {
       </form>
     ))
     const form = screen.container.querySelector('form')!
-    const input = screen.getByRole('textbox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
     form.reset()
     await Promise.resolve()
@@ -543,9 +539,9 @@ describe('Input', () => {
         </Form>
       ),
     )
-    const input = screen.getByLabelText('Value') as HTMLInputElement
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: 'Rejected' },
       currentTarget: { value: 'Rejected' },
     })
@@ -574,7 +570,7 @@ describe('Input', () => {
         </Form>
       ),
     )
-    const input = screen.getByLabelText('Value') as HTMLInputElement
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
 
     setInput(form, { path: ['value'], input: 'External' })
 
@@ -626,16 +622,16 @@ describe('Input', () => {
     const screen = render(() => (
       <Input modelModifiers={{ number: number() }} onValueChange={onValueChange} />
     ))
-    const input = screen.getByRole('textbox')
+    const input = screen.getByRole<HTMLInputElement>('textbox')
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: '12' },
       currentTarget: { value: '12' },
     })
     expect(onValueChange).toHaveBeenLastCalledWith('12')
 
     setNumber(true)
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: '12' },
       currentTarget: { value: '12' },
     })
@@ -654,7 +650,7 @@ describe('Input', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <Input styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.style.width).toBe('200px')
   })
@@ -736,7 +732,7 @@ describe('Input', () => {
     setValue('Client value')
     await waitFor(() => expect(input.value).toBe('Client value'))
 
-    await fireEvent.input(input, {
+    fireEvent.input(input, {
       target: { value: 'Rejected value' },
       currentTarget: { value: 'Rejected value' },
     })

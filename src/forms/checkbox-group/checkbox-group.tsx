@@ -416,9 +416,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 disabled={item().disabled || field.disabled()}
                 readOnly={merged.readOnly}
                 indeterminate={item().indeterminate}
-                required={Boolean(
-                  field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex(),
-                )}
+                required={
+                  field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex()
+                }
                 size={field.size()}
                 variant={merged.variant === 'list' ? 'list' : 'card'}
                 indicator={merged.indicator}
@@ -436,7 +436,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                   ...merged.classes,
                 }}
                 styles={merged.styles}
-                onChange={(checked) => onItemCheckedChange(item().value, Boolean(checked))}
+                onChange={(checked) => onItemCheckedChange(item().value, checked)}
               />
             )
           }}

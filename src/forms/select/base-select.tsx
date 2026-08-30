@@ -301,6 +301,7 @@ function resolveSelectContentOrigin(
       return 'center left'
     case 'left':
       return 'center right'
+    case 'bottom':
     default:
       return 'top center'
   }
@@ -495,9 +496,7 @@ function useBaseSelectOverlay(options: {
   useOverlayInteraction({
     containsTarget: (node) => {
       const positioner = options.positionerElement()
-      return Boolean(
-        options.getControlElement()?.contains(node as Node) || positioner?.contains(node as Node),
-      )
+      return Boolean(options.getControlElement()?.contains(node) || positioner?.contains(node))
     },
     onPointerOutside: (event) => {
       if (event.defaultPrevented) {
@@ -607,7 +606,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const emptyRender = createMemo(() => merged.emptyRender)
   const virtualRender = createMemo(() => merged.virtualRender)
   const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'base-select-listbox')
-  const getOptionId = (key: string): string => `${listboxId()}-${encodeURIComponent(String(key))}`
+  const getOptionId = (key: string): string => `${listboxId()}-${encodeURIComponent(key)}`
 
   const field = useSelectField(() => ({
     id: merged.id,

@@ -185,7 +185,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     {
       size: 'md' as const,
       loading: false,
-      loadingIcon: 'icon-loading' as IconT.Name,
+      loadingIcon: 'icon-loading' as const,
       trueValue: true,
       falseValue: false,
       value: 'on',

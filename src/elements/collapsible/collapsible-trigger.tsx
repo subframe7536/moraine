@@ -33,7 +33,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     'ref',
   ])
   const context = useCollapsibleContext()
-  const customAs = createMemo(() => local.as as ValidComponent | undefined)
+  const customAs = createMemo(() => local.as)
   const tag = createMemo(() => customAs() ?? 'button')
   const disabled = () => Boolean(context.disabled() || local.disabled)
 
@@ -81,7 +81,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           id={context.triggerId()}
           data-slot="trigger"
           {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
-          style={style() as JSX.CSSProperties | undefined}
+          style={style()}
           class={cn(COLLAPSIBLE_TRIGGER_CLASS, context.classes?.trigger, local.class)}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
@@ -97,8 +97,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
         <Dynamic
           id={context.triggerId()}
           data-slot="trigger"
-          {...interactionProps}
-          component={as()}
+          {...(interactionProps as Record<string, unknown>)}
+          component={as() as ValidComponent}
           style={style()}
           class={cn(COLLAPSIBLE_TRIGGER_CLASS, context.classes?.trigger, local.class)}
           aria-controls={context.open() ? context.contentId() : undefined}

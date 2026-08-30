@@ -42,7 +42,7 @@ class MockResizeObserver {
         continue
       }
 
-      observer.callback([entry], observer as unknown as ResizeObserver)
+      observer.callback([entry], observer)
     }
   }
 }
@@ -60,7 +60,7 @@ function createRect(input: { top: number; right: number; bottom: number; left: n
     bottom,
     left,
     toJSON: () => ({}),
-  } as DOMRect
+  }
 }
 
 function setRect(element: Element, rect: DOMRect): void {
@@ -91,8 +91,7 @@ const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRec
 const originalResizeObserver = (globalThis as Record<string, unknown>).ResizeObserver
 
 beforeAll(() => {
-  ;(globalThis as Record<string, unknown>).ResizeObserver =
-    MockResizeObserver as unknown as typeof ResizeObserver
+  ;(globalThis as Record<string, unknown>).ResizeObserver = MockResizeObserver
 
   Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
     configurable: true,
@@ -231,13 +230,13 @@ describe('Resizable', () => {
     expect(handles[0]?.getAttribute('tabindex')).toBe('-1')
 
     const handle = handles[0] as HTMLElement
-    await fireEvent.mouseEnter(handle)
+    fireEvent.mouseEnter(handle)
     expect(handle.getAttribute('data-active')).toBeNull()
 
-    await fireEvent.keyDown(handle, { key: 'ArrowRight' })
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
 
     expect(onResize).not.toHaveBeenCalled()
     expect(handle.getAttribute('data-dragging')).toBeNull()
@@ -314,15 +313,15 @@ describe('Resizable', () => {
     expect(getStateHandle().getAttribute('data-can-collapse')).toBe('true')
     expect(getStateHandle().getAttribute('data-collapsed')).toBe('false')
 
-    await fireEvent.mouseEnter(divider)
+    fireEvent.mouseEnter(divider)
     expect(getStateHandle().getAttribute('data-active')).toBe('true')
 
-    await fireEvent.mouseLeave(divider)
+    fireEvent.mouseLeave(divider)
     expect(getStateHandle().getAttribute('data-active')).toBe('false')
 
-    await fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
     expect(getStateHandle().getAttribute('data-dragging')).toBe('true')
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 0, clientY: 0 })
     expect(getStateHandle().getAttribute('data-dragging')).toBe('false')
   })
 
@@ -353,9 +352,9 @@ describe('Resizable', () => {
       screen.container.querySelector('[data-slot="state-collapsed-label"]') as HTMLElement
 
     expect(getCollapsedLabel().textContent).toBe('expanded')
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expect(getCollapsedLabel().textContent).toBe('collapsed')
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expect(getCollapsedLabel().textContent).toBe('expanded')
   })
 
@@ -431,7 +430,7 @@ describe('Resizable', () => {
     })
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    await fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
     expect(events.map((event) => event.type)).toEqual(['start', 'resize', 'end'])
     expect(events[0]?.sizes).toEqual([500, 500])
@@ -463,7 +462,7 @@ describe('Resizable', () => {
     ))
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    await fireEvent.keyDown(handle, { key: 'ArrowLeft' })
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' })
 
     expect(onResizeStart).not.toHaveBeenCalled()
     expect(onResize).not.toHaveBeenCalled()
@@ -493,9 +492,9 @@ describe('Resizable', () => {
     })
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
 
     expect(events.map((event) => event.type)).toEqual(['start', 'resize', 'end'])
     expect(events[0]?.sizes).toEqual([400, 600])
@@ -526,9 +525,9 @@ describe('Resizable', () => {
     })
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
 
     const nextSizes = onResize.mock.calls.at(-1)?.[0] as number[] | undefined
     expect(onResize).toHaveBeenCalled()
@@ -654,9 +653,9 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
 
     expectPanelGrow(panels[0], 40)
     expectPanelGrow(panels[1], 60)
@@ -714,7 +713,7 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.keyDown(handle, { key: 'Enter' })
+    fireEvent.keyDown(handle, { key: 'Enter' })
 
     expect(onResize).not.toHaveBeenCalled()
     expectPanelGrow(panels[0], 30)
@@ -745,7 +744,7 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
 
     expect(onResize).not.toHaveBeenCalled()
     expectPanelGrow(panels[0], 30)
@@ -777,12 +776,12 @@ describe('Resizable', () => {
     expectPanelGrow(panels[0], 30)
     expect(panels[0]?.getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expectPanelGrow(panels[0], 10)
     expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
     expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expectPanelGrow(panels[0], 30)
     expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
     expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
@@ -808,10 +807,10 @@ describe('Resizable', () => {
     const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
     const panel = screen.container.querySelectorAll('[data-slot="panel"]')[0] as HTMLDivElement
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expect(panel.getAttribute('data-transitioning')).toBe('')
 
-    await fireEvent.transitionEnd(panel, { propertyName: 'flex-grow' })
+    fireEvent.transitionEnd(panel, { propertyName: 'flex-grow' })
     expect(panel.getAttribute('data-transitioning')).toBeNull()
   })
 
@@ -839,15 +838,15 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
     expectPanelGrow(panels[0], 30)
     expectPanelGrow(panels[1], 70)
 
-    await fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(divider, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
     expectPanelGrow(panels[0], 40)
     expectPanelGrow(panels[1], 60)
   })
@@ -919,12 +918,12 @@ describe('Resizable', () => {
 
     expectPanelGrow(panels[0], 32)
 
-    await fireEvent.click(toggle)
+    fireEvent.click(toggle)
     expectPanelGrow(panels[0], 10)
     expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
     expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
 
-    await fireEvent.click(toggle)
+    fireEvent.click(toggle)
     expectPanelGrow(panels[0], 32)
     expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
   })
@@ -947,7 +946,7 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
     expect(onHandleKeyDown).toHaveBeenCalledTimes(1)
     const context = onHandleKeyDown.mock.calls[0]?.[0] as {
@@ -983,7 +982,7 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
     expectPanelGrow(panels[0], 50)
     expectPanelGrow(panels[1], 50)
@@ -999,9 +998,9 @@ describe('Resizable', () => {
       '[data-slot="panel"]',
     ) as NodeListOf<HTMLDivElement>
 
-    await fireEvent.pointerDown(handleVisual, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerDown(handleVisual, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
 
     expectPanelGrow(panels[0], 60)
     expectPanelGrow(panels[1], 40)
@@ -1036,11 +1035,11 @@ describe('Resizable', () => {
     expectPanelGrow(panels[0], 10)
     expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
 
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 50, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 50, clientY: 0 })
     expectPanelGrow(panels[0], 15)
 
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 50, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 50, clientY: 0 })
     expectPanelGrow(panels[0], 20)
   })
 
@@ -1099,13 +1098,13 @@ describe('Resizable', () => {
     expect(panel.className).toContain('data-transitioning:transition-flex-grow')
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expect(panel.getAttribute('data-transitioning')).toBe('')
 
-    await fireEvent.transitionEnd(panel, { propertyName: 'flex-grow' })
+    fireEvent.transitionEnd(panel, { propertyName: 'flex-grow' })
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.click(handle)
+    fireEvent.click(handle)
     expect(panel.getAttribute('data-transitioning')).toBe('')
   })
 
@@ -1140,7 +1139,7 @@ describe('Resizable', () => {
 
     expect(getSidebar().getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.click(resizeButton)
+    fireEvent.click(resizeButton)
     expectPanelGrow(getSidebar(), 30)
     expect(getSidebar().getAttribute('data-transitioning')).toBeNull()
   })
@@ -1257,11 +1256,11 @@ describe('Resizable', () => {
     expect(outerHandle.getAttribute('data-active')).toBeNull()
     expect(innerHandle.getAttribute('data-active')).toBeNull()
 
-    await fireEvent.mouseEnter(crossTarget)
+    fireEvent.mouseEnter(crossTarget)
     expect(outerHandle.getAttribute('data-active')).toBe('')
     expect(innerHandle.getAttribute('data-active')).toBe('')
 
-    await fireEvent.mouseLeave(crossTarget)
+    fireEvent.mouseLeave(crossTarget)
     expect(outerHandle.getAttribute('data-active')).toBeNull()
     expect(innerHandle.getAttribute('data-active')).toBeNull()
   })
@@ -1307,13 +1306,13 @@ describe('Resizable', () => {
     })
 
     const shrinkButton = screen.container.querySelector('[data-slot="shrink"]') as HTMLButtonElement
-    await fireEvent.click(shrinkButton)
+    fireEvent.click(shrinkButton)
 
     const handles = screen.container.querySelectorAll('[data-slot="divider"]')
     expect(handles).toHaveLength(1)
 
     const handle = handles[0] as HTMLElement
-    await fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
     const nextSizes = onResize.mock.calls.at(-1)?.[0] as number[] | undefined
     expect(Array.isArray(nextSizes)).toBe(true)
@@ -1333,20 +1332,20 @@ describe('Resizable', () => {
     expect(panel.getAttribute('data-resizing')).toBeNull()
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.mouseEnter(handle)
+    fireEvent.mouseEnter(handle)
     expect(handle.getAttribute('data-active')).toBe('')
 
-    await fireEvent.mouseLeave(handle)
+    fireEvent.mouseLeave(handle)
     expect(handle.getAttribute('data-active')).toBeNull()
 
-    await fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
     expect(handle.getAttribute('data-active')).toBe('')
     expect(handle.getAttribute('data-dragging')).toBe('')
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
     expect(panel.getAttribute('data-resizing')).toBe('')
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 0, clientY: 0 })
     expect(handle.getAttribute('data-dragging')).toBeNull()
     expect(panel.getAttribute('data-resizing')).toBeNull()
     expect(panel.getAttribute('data-transitioning')).toBeNull()
@@ -1384,11 +1383,11 @@ describe('Resizable', () => {
 
     document.body.style.userSelect = 'text'
     const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
-    await fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
+    fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
     expect(document.body.style.userSelect).toBe('none')
 
-    await fireEvent.pointerMove(window, { pointerId: 1, clientX: 132, clientY: 110 })
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 132, clientY: 110 })
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 132, clientY: 110 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 132, clientY: 110 })
     expect(document.body.style.userSelect).toBe('text')
   })
 
@@ -1424,19 +1423,19 @@ describe('Resizable', () => {
 
     const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
 
-    await fireEvent.mouseEnter(crossTarget)
+    fireEvent.mouseEnter(crossTarget)
     expect(innerHandle.getAttribute('data-cross')).toBe('')
     expect(outerHandle.getAttribute('data-cross')).toBe('')
 
-    await fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
+    fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
     expect(innerHandle.getAttribute('data-cross')).toBe('')
     expect(outerHandle.getAttribute('data-cross')).toBe('')
 
-    await fireEvent.pointerUp(window, { pointerId: 1, clientX: 102, clientY: 80 })
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 102, clientY: 80 })
     expect(innerHandle.getAttribute('data-cross')).toBe('')
     expect(outerHandle.getAttribute('data-cross')).toBe('')
 
-    await fireEvent.mouseLeave(crossTarget)
+    fireEvent.mouseLeave(crossTarget)
     expect(innerHandle.getAttribute('data-cross')).toBeNull()
     expect(outerHandle.getAttribute('data-cross')).toBeNull()
   })

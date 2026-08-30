@@ -105,7 +105,7 @@ describe('Avatar', () => {
       expect(root?.getAttribute('data-status')).toBe('loaded')
     })
 
-    const image = screen.container.querySelector('[data-slot="image"]') as HTMLImageElement | null
+    const image = screen.container.querySelector('[data-slot="image"]')
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
     expect(image?.getAttribute('src')).toContain('/loaded.png')
     expect(image?.className).toContain('opacity-100')
@@ -503,15 +503,13 @@ describe('Avatar', () => {
       </>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const image = screen.container.querySelector('[data-slot="image"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const image = screen.container.querySelector<HTMLElement>('[data-slot="image"]')
     const fallback = Array.from(
       screen.container.querySelectorAll<HTMLElement>('[data-slot="fallback"]'),
     ).at(-1)
-    const fallbackIcon = screen.container.querySelector(
-      '[data-slot="fallbackIcon"]',
-    ) as HTMLElement | null
-    const badge = screen.container.querySelector('[data-slot="badge"]') as HTMLElement | null
+    const fallbackIcon = screen.container.querySelector<HTMLElement>('[data-slot="fallbackIcon"]')
+    const badge = screen.container.querySelector<HTMLElement>('[data-slot="badge"]')
 
     expect(root?.style.width).toBe('200px')
     expect(image?.style.width).toBe('200px')
@@ -533,9 +531,9 @@ describe('Avatar', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
-    const count = screen.container.querySelector('[data-slot="count"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
+    const count = screen.container.querySelector<HTMLElement>('[data-slot="count"]')
 
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')

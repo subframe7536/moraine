@@ -132,8 +132,8 @@ describe('Slider', () => {
     ))
     const verticalThumb = getThumbs(verticalScreen.container)[0]
 
-    await fireEvent.focus(verticalThumb as HTMLElement)
-    await fireEvent.keyDown(verticalThumb as HTMLElement, { key: 'ArrowDown' })
+    fireEvent.focus(verticalThumb as HTMLElement)
+    fireEvent.keyDown(verticalThumb as HTMLElement, { key: 'ArrowDown' })
 
     expect(verticalChange).toHaveBeenLastCalledWith(44)
 
@@ -143,8 +143,8 @@ describe('Slider', () => {
     ))
     const invertedThumb = getThumbs(invertedScreen.container)[0]
 
-    await fireEvent.focus(invertedThumb as HTMLElement)
-    await fireEvent.keyDown(invertedThumb as HTMLElement, { key: 'ArrowDown' })
+    fireEvent.focus(invertedThumb as HTMLElement)
+    fireEvent.keyDown(invertedThumb as HTMLElement, { key: 'ArrowDown' })
 
     expect(invertedChange).toHaveBeenLastCalledWith(46)
   })
@@ -169,7 +169,7 @@ describe('Slider', () => {
     mockPointerCapture(verticalTrack)
     mockTrackRect(verticalTrack)
 
-    await fireEvent.pointerDown(verticalTrack, {
+    fireEvent.pointerDown(verticalTrack, {
       button: 0,
       clientY: 0,
       pointerId: 1,
@@ -187,7 +187,7 @@ describe('Slider', () => {
     mockPointerCapture(invertedTrack)
     mockTrackRect(invertedTrack)
 
-    await fireEvent.pointerDown(invertedTrack, {
+    fireEvent.pointerDown(invertedTrack, {
       button: 0,
       clientY: 0,
       pointerId: 1,
@@ -205,12 +205,12 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
 
       expect(onValueChange).toHaveBeenLastCalledWith(44)
 
-      await fireEvent.keyDown(thumb, { key: 'ArrowLeft' })
+      fireEvent.keyDown(thumb, { key: 'ArrowLeft' })
 
       expect(onValueChange).toHaveBeenLastCalledWith(45)
     } finally {
@@ -225,12 +225,12 @@ describe('Slider', () => {
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-    await fireEvent.focus(thumb)
-    await fireEvent.keyDown(thumb, { key: 'PageUp' })
+    fireEvent.focus(thumb)
+    fireEvent.keyDown(thumb, { key: 'PageUp' })
 
     expect(onValueChange).toHaveBeenLastCalledWith(60)
 
-    await fireEvent.keyDown(thumb, { key: 'PageDown' })
+    fireEvent.keyDown(thumb, { key: 'PageDown' })
 
     expect(onValueChange).toHaveBeenLastCalledWith(50)
   })
@@ -248,15 +248,15 @@ describe('Slider', () => {
     expect(root.getAttribute('data-readonly')).toBe('')
     expect(thumb.getAttribute('aria-readonly')).toBe('true')
 
-    await fireEvent.focus(thumb)
-    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
-    await fireEvent.pointerDown(thumb, {
+    fireEvent.focus(thumb)
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    fireEvent.pointerDown(thumb, {
       button: 0,
       pointerId: 1,
       clientX: 50,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumb, {
+    fireEvent.pointerMove(thumb, {
       pointerId: 1,
       clientX: 80,
       clientY: 0,
@@ -274,14 +274,14 @@ describe('Slider', () => {
     ))
     const thumbs = getThumbs(screen.container)
 
-    await fireEvent.focus(thumbs[0] as HTMLElement)
-    await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(thumbs[0] as HTMLElement)
+    fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
     expect(onValueChange).toHaveBeenLastCalledWith(11)
     expect(onChange).not.toHaveBeenCalled()
     expect(typeof onValueChange.mock.calls[0]?.[0]).toBe('number')
 
-    await fireEvent.blur(thumbs[0] as HTMLElement)
+    fireEvent.blur(thumbs[0] as HTMLElement)
 
     expect(onChange).toHaveBeenLastCalledWith(11)
     expect(typeof onChange.mock.calls[0]?.[0]).toBe('number')
@@ -300,13 +300,13 @@ describe('Slider', () => {
     mockPointerCapture(thumb)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumb, {
+    fireEvent.pointerDown(thumb, {
       button: 0,
       pointerId: 1,
       clientX: 0,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumb, {
+    fireEvent.pointerMove(thumb, {
       pointerId: 1,
       clientX: 25,
       clientY: 0,
@@ -317,7 +317,7 @@ describe('Slider', () => {
     expect(input?.step).toBe('any')
     expect(onValueChange).toHaveBeenLastCalledWith(25)
 
-    await fireEvent.pointerUp(thumb, {
+    fireEvent.pointerUp(thumb, {
       pointerId: 1,
       clientX: 25,
       clientY: 0,
@@ -339,13 +339,13 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-label')).toBe('Thumb 1 of 2')
     expect(thumbs[1]?.getAttribute('aria-label')).toBe('Thumb 2 of 2')
 
-    await fireEvent.focus(thumbs[1] as HTMLElement)
-    await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
+    fireEvent.focus(thumbs[1] as HTMLElement)
+    fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
 
     expect(onValueChange).toHaveBeenLastCalledWith([20, 79])
     expect(Array.isArray(onValueChange.mock.calls[0]?.[0])).toBe(true)
 
-    await fireEvent.blur(thumbs[1] as HTMLElement)
+    fireEvent.blur(thumbs[1] as HTMLElement)
 
     expect(onChange).toHaveBeenLastCalledWith([20, 79])
     expect(Array.isArray(onChange.mock.calls[0]?.[0])).toBe(true)
@@ -356,8 +356,8 @@ describe('Slider', () => {
     const rightScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={rightChange} />)
     const rightThumbs = getThumbs(rightScreen.container)
 
-    await fireEvent.focus(rightThumbs[0] as HTMLElement)
-    await fireEvent.keyDown(rightThumbs[0] as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(rightThumbs[0] as HTMLElement)
+    fireEvent.keyDown(rightThumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
     expect(rightChange).toHaveBeenLastCalledWith([20, 21])
 
@@ -365,8 +365,8 @@ describe('Slider', () => {
     const leftScreen = render(() => <Slider defaultValue={[20, 20]} onValueChange={leftChange} />)
     const leftThumbs = getThumbs(leftScreen.container)
 
-    await fireEvent.focus(leftThumbs[0] as HTMLElement)
-    await fireEvent.keyDown(leftThumbs[0] as HTMLElement, { key: 'ArrowLeft' })
+    fireEvent.focus(leftThumbs[0] as HTMLElement)
+    fireEvent.keyDown(leftThumbs[0] as HTMLElement, { key: 'ArrowLeft' })
 
     expect(leftChange).toHaveBeenLastCalledWith([19, 20])
   })
@@ -379,18 +379,18 @@ describe('Slider', () => {
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumbs[0] as HTMLElement, {
+    fireEvent.pointerDown(thumbs[0] as HTMLElement, {
       button: 0,
       pointerId: 1,
       clientX: 20,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 60,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 70,
       clientY: 0,
@@ -402,7 +402,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
-    await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
+    fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 70,
       clientY: 0,
@@ -418,13 +418,13 @@ describe('Slider', () => {
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumbs[0] as HTMLElement, {
+    fireEvent.pointerDown(thumbs[0] as HTMLElement, {
       button: 0,
       pointerId: 1,
       clientX: 20,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 60,
       clientY: 0,
@@ -438,7 +438,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[1])
 
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 40,
       clientY: 0,
@@ -452,7 +452,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.className).toContain('hover:effect-fv')
     expect(document.activeElement).toBe(thumbs[0])
 
-    await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
+    fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 40,
       clientY: 0,
@@ -470,18 +470,18 @@ describe('Slider', () => {
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumbs[0] as HTMLElement, {
+    fireEvent.pointerDown(thumbs[0] as HTMLElement, {
       button: 0,
       pointerId: 1,
       clientX: 20,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 60,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 70,
       clientY: 0,
@@ -493,7 +493,7 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
     expect(document.activeElement).toBe(thumbs[0])
 
-    await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
+    fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 70,
       clientY: 0,
@@ -508,13 +508,13 @@ describe('Slider', () => {
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumbs[0] as HTMLElement, {
+    fireEvent.pointerDown(thumbs[0] as HTMLElement, {
       button: 0,
       pointerId: 1,
       clientX: 20,
       clientY: 0,
     })
-    await fireEvent.pointerMove(thumbs[0] as HTMLElement, {
+    fireEvent.pointerMove(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 30,
       clientY: 0,
@@ -523,7 +523,7 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('10')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('20')
 
-    await fireEvent.pointerUp(thumbs[0] as HTMLElement, {
+    fireEvent.pointerUp(thumbs[0] as HTMLElement, {
       pointerId: 1,
       clientX: 30,
       clientY: 0,
@@ -545,8 +545,8 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('10')
 
-    await fireEvent.focus(thumbs[0] as HTMLElement)
-    await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(thumbs[0] as HTMLElement)
+    fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
     expect(onValueChange).toHaveBeenLastCalledWith(11)
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('10')
@@ -560,8 +560,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('20')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('80')
 
-    await fireEvent.focus(thumbs[0] as HTMLElement)
-    await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(thumbs[0] as HTMLElement)
+    fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
     expect(onValueChange).toHaveBeenLastCalledWith([21, 80])
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('20')
@@ -588,8 +588,8 @@ describe('Slider', () => {
     const thumbBefore = thumbsBefore[0]
     expect(thumbBefore).toBeDefined()
 
-    await fireEvent.focus(thumbBefore as HTMLElement)
-    await fireEvent.keyDown(thumbBefore as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(thumbBefore as HTMLElement)
+    fireEvent.keyDown(thumbBefore as HTMLElement, { key: 'ArrowRight' })
 
     await waitFor(() => {
       expect(getThumbs(screen.container)[0]?.getAttribute('aria-valuenow')).toBe('11')
@@ -621,8 +621,8 @@ describe('Slider', () => {
     expect(firstThumbBefore).toBeDefined()
     expect(secondThumbBefore).toBeDefined()
 
-    await fireEvent.focus(firstThumbBefore as HTMLElement)
-    await fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(firstThumbBefore as HTMLElement)
+    fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
 
     await waitFor(() => {
       const [firstThumb, secondThumb] = getThumbs(screen.container)
@@ -657,8 +657,8 @@ describe('Slider', () => {
     expect(firstThumbBefore?.style.width).toBe('20px')
     expect(secondThumbBefore?.style.width).toBe('20px')
 
-    await fireEvent.focus(firstThumbBefore as HTMLElement)
-    await fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
+    fireEvent.focus(firstThumbBefore as HTMLElement)
+    fireEvent.keyDown(firstThumbBefore as HTMLElement, { key: 'ArrowRight' })
 
     await waitFor(() => {
       const [firstThumb, secondThumb] = getThumbs(screen.container)
@@ -755,7 +755,7 @@ describe('Slider', () => {
     expect(document.activeElement).toBe(thumb)
     expect(thumb.className).toContain('focus-visible:outline-(1 border primary-foreground)')
 
-    await fireEvent.pointerDown(thumb, {
+    fireEvent.pointerDown(thumb, {
       button: 0,
       clientX: 0,
       pointerId: 1,
@@ -773,13 +773,13 @@ describe('Slider', () => {
       ))
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
 
       expect(onValueChange).toHaveBeenLastCalledWith(51)
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+      fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
       expect(onChange).toHaveBeenLastCalledWith(51)
       expect(onChange).toHaveBeenCalledTimes(1)
@@ -790,11 +790,11 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'Home' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'Home' })
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.keyUp(thumb, { key: 'Home' })
+      fireEvent.keyUp(thumb, { key: 'Home' })
       expect(onChange).toHaveBeenLastCalledWith(0)
     })
 
@@ -803,11 +803,11 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'End' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'End' })
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.keyUp(thumb, { key: 'End' })
+      fireEvent.keyUp(thumb, { key: 'End' })
       expect(onChange).toHaveBeenLastCalledWith(100)
     })
 
@@ -816,11 +816,11 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'PageUp' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'PageUp' })
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.keyUp(thumb, { key: 'PageUp' })
+      fireEvent.keyUp(thumb, { key: 'PageUp' })
       expect(onChange).toHaveBeenCalledWith(60)
     })
 
@@ -829,11 +829,11 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
-      await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
-      await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
-      await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+      fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+      fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
       expect(onChange).toHaveBeenCalledTimes(2)
       expect(onChange).toHaveBeenNthCalledWith(1, 51)
@@ -845,10 +845,10 @@ describe('Slider', () => {
       const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-      await fireEvent.focus(thumb)
-      await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+      fireEvent.focus(thumb)
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
 
-      await fireEvent.blur(thumb)
+      fireEvent.blur(thumb)
 
       expect(onChange).toHaveBeenLastCalledWith(51)
     })
@@ -867,9 +867,9 @@ describe('Slider', () => {
       ))
       const thumbs = getThumbs(screen.container)
 
-      await fireEvent.focus(thumbs[1] as HTMLElement)
-      await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'Home' })
-      await fireEvent.keyUp(thumbs[1] as HTMLElement, { key: 'Home' })
+      fireEvent.focus(thumbs[1] as HTMLElement)
+      fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'Home' })
+      fireEvent.keyUp(thumbs[1] as HTMLElement, { key: 'Home' })
 
       await waitFor(() => {
         expect(onChange).toHaveBeenLastCalledWith([20, 30])
@@ -888,9 +888,9 @@ describe('Slider', () => {
       ))
       const thumbs = getThumbs(screen.container)
 
-      await fireEvent.focus(thumbs[0] as HTMLElement)
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'End' })
-      await fireEvent.keyUp(thumbs[0] as HTMLElement, { key: 'End' })
+      fireEvent.focus(thumbs[0] as HTMLElement)
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'End' })
+      fireEvent.keyUp(thumbs[0] as HTMLElement, { key: 'End' })
 
       await waitFor(() => {
         expect(onChange).toHaveBeenLastCalledWith([70, 80])
@@ -912,12 +912,12 @@ describe('Slider', () => {
       ;(thumbs[0] as HTMLElement).focus()
 
       for (let i = 0; i < 30; i++) {
-        await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+        fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
       }
 
       expect(onValueChange).toHaveBeenLastCalledWith([50, 50])
 
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
       expect(onValueChange).toHaveBeenLastCalledWith([50, 50])
       expect(document.activeElement).toBe(thumbs[1])
@@ -933,12 +933,12 @@ describe('Slider', () => {
       ;(thumbs[1] as HTMLElement).focus()
 
       for (let i = 0; i < 30; i++) {
-        await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
+        fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
       }
 
       expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('20')
 
-      await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
+      fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'ArrowLeft' })
 
       expect(onValueChange).toHaveBeenLastCalledWith([20, 20])
       expect(document.activeElement).toBe(thumbs[0])
@@ -954,7 +954,7 @@ describe('Slider', () => {
       ;(thumbs[0] as HTMLElement).focus()
 
       for (let i = 0; i < 35; i++) {
-        await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+        fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
       }
 
       expect(onValueChange).toHaveBeenLastCalledWith([52, 53])
@@ -969,7 +969,7 @@ describe('Slider', () => {
       const thumbs = getThumbs(screen.container)
 
       ;(thumbs[0] as HTMLElement).focus()
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowLeft' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowLeft' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('0')
       expect(onValueChange).not.toHaveBeenCalled()
@@ -984,7 +984,7 @@ describe('Slider', () => {
       const thumbs = getThumbs(screen.container)
 
       ;(thumbs[0] as HTMLElement).focus()
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
       expect(onValueChange).toHaveBeenLastCalledWith([50, 60])
@@ -996,12 +996,12 @@ describe('Slider', () => {
       const thumbs = getThumbs(screen.container)
 
       ;(thumbs[0] as HTMLElement).focus()
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
       expect(document.activeElement).toBe(thumbs[0])
 
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'PageUp' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
       expect(document.activeElement).toBe(thumbs[1])
@@ -1012,12 +1012,12 @@ describe('Slider', () => {
       const thumbs = getThumbs(screen.container)
 
       ;(thumbs[1] as HTMLElement).focus()
-      await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'PageDown' })
+      fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'PageDown' })
 
       expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('40')
       expect(document.activeElement).toBe(thumbs[1])
 
-      await fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'PageDown' })
+      fireEvent.keyDown(thumbs[1] as HTMLElement, { key: 'PageDown' })
 
       expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('40')
       expect(document.activeElement).toBe(thumbs[0])
@@ -1033,13 +1033,13 @@ describe('Slider', () => {
       ;(thumbs[0] as HTMLElement).focus()
 
       for (let i = 0; i < 30; i++) {
-        await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+        fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
       }
-      await fireEvent.keyUp(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+      fireEvent.keyUp(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
       const commitsBefore = onChange.mock.calls.length
 
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
       expect(document.activeElement).toBe(thumbs[1])
       expect(onChange).toHaveBeenCalledTimes(commitsBefore)
@@ -1053,7 +1053,7 @@ describe('Slider', () => {
 
       ;(thumbs[0] as HTMLElement).focus()
 
-      await fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
+      fireEvent.keyDown(thumbs[0] as HTMLElement, { key: 'ArrowRight' })
 
       expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('20')
       expect(document.activeElement).toBe(thumbs[1])
@@ -1073,18 +1073,18 @@ describe('Slider', () => {
       mockPointerCapture(thumb)
       mockTrackRect(track)
 
-      await fireEvent.pointerDown(thumb, {
+      fireEvent.pointerDown(thumb, {
         button: 0,
         pointerId: 1,
         clientX: 20,
         clientY: 0,
       })
-      await fireEvent.pointerMove(thumb, {
+      fireEvent.pointerMove(thumb, {
         pointerId: 1,
         clientX: 40,
         clientY: 0,
       })
-      await fireEvent.pointerMove(thumb, {
+      fireEvent.pointerMove(thumb, {
         pointerId: 1,
         clientX: 60,
         clientY: 0,
@@ -1093,7 +1093,7 @@ describe('Slider', () => {
       expect(onValueChange).toHaveBeenCalled()
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.pointerUp(thumb, {
+      fireEvent.pointerUp(thumb, {
         pointerId: 1,
         clientX: 60,
         clientY: 0,
@@ -1111,8 +1111,8 @@ describe('Slider', () => {
       mockPointerCapture(track)
       mockTrackRect(track)
 
-      await fireEvent.focus(thumbs[0] as HTMLElement)
-      await fireEvent.pointerDown(track, {
+      fireEvent.focus(thumbs[0] as HTMLElement)
+      fireEvent.pointerDown(track, {
         button: 0,
         pointerId: 1,
         clientX: 20,
@@ -1131,13 +1131,13 @@ describe('Slider', () => {
       mockPointerCapture(thumb)
       mockTrackRect(track)
 
-      await fireEvent.pointerDown(thumb, {
+      fireEvent.pointerDown(thumb, {
         button: 0,
         pointerId: 1,
         clientX: 20,
         clientY: 0,
       })
-      await fireEvent.pointerMove(thumb, {
+      fireEvent.pointerMove(thumb, {
         pointerId: 1,
         clientX: 45,
         clientY: 0,
@@ -1145,7 +1145,7 @@ describe('Slider', () => {
 
       expect(onChange).not.toHaveBeenCalled()
 
-      await fireEvent.pointerCancel(thumb, {
+      fireEvent.pointerCancel(thumb, {
         pointerId: 1,
         clientX: 45,
         clientY: 0,
@@ -1189,12 +1189,12 @@ describe('Slider', () => {
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
     expect(onValueChange).toHaveBeenCalledWith(21)
 
     setValue(60)
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
-    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+    fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -1208,11 +1208,11 @@ describe('Slider', () => {
     mockPointerCapture(thumb)
     mockTrackRect(track)
 
-    await fireEvent.pointerDown(thumb, { button: 0, clientX: 20, pointerId: 1 })
-    await fireEvent.pointerMove(thumb, { clientX: 40, pointerId: 1 })
+    fireEvent.pointerDown(thumb, { button: 0, clientX: 20, pointerId: 1 })
+    fireEvent.pointerMove(thumb, { clientX: 40, pointerId: 1 })
     setValue(60)
     await waitFor(() => expect(thumb.getAttribute('aria-valuenow')).toBe('60'))
-    await fireEvent.pointerUp(thumb, { clientX: 40, pointerId: 1 })
+    fireEvent.pointerUp(thumb, { clientX: 40, pointerId: 1 })
 
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -1225,8 +1225,8 @@ describe('Slider', () => {
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
-    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    fireEvent.keyUp(thumb, { key: 'ArrowRight' })
 
     expect(onValueChange).not.toHaveBeenCalled()
     expect(onChange).not.toHaveBeenCalled()
@@ -1242,8 +1242,8 @@ describe('Slider', () => {
     const firstThumb = getThumbs(screen.container)[0] as HTMLElement
 
     firstThumb.focus()
-    await fireEvent.keyDown(firstThumb, { key: 'ArrowRight' })
-    await fireEvent.keyUp(firstThumb, { key: 'ArrowRight' })
+    fireEvent.keyDown(firstThumb, { key: 'ArrowRight' })
+    fireEvent.keyUp(firstThumb, { key: 'ArrowRight' })
     expect(new FormData(form).getAll('range')).toEqual(['21', '80'])
 
     form.reset()
@@ -1262,8 +1262,8 @@ describe('Slider', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
-    await fireEvent.keyDown(thumb, { key: 'ArrowRight' })
-    await fireEvent.keyUp(thumb, { key: 'ArrowRight' })
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    fireEvent.keyUp(thumb, { key: 'ArrowRight' })
     form.reset()
     await Promise.resolve()
 
@@ -1277,7 +1277,7 @@ describe('Slider', () => {
     mockPointerCapture(thumb)
     const releasePointerCapture = vi.spyOn(thumb, 'releasePointerCapture')
 
-    await fireEvent.pointerDown(thumb, { button: 0, pointerId: 7 })
+    fireEvent.pointerDown(thumb, { button: 0, pointerId: 7 })
     screen.unmount()
 
     expect(releasePointerCapture).toHaveBeenCalledWith(7)

@@ -40,10 +40,10 @@ describe('Form', () => {
       ),
     )
 
-    expect((screen.getByLabelText('Email') as HTMLInputElement).value).toBe('initial@example.com')
-    await fireEvent.input(screen.getByLabelText('Email'), { target: { value: 'dev@example.com' } })
-    await fireEvent.click(screen.getByRole('switch'))
-    await fireEvent.submit(screen.container.querySelector('form')!)
+    expect(screen.getByLabelText<HTMLInputElement>('Email').value).toBe('initial@example.com')
+    fireEvent.input(screen.getByLabelText('Email'), { target: { value: 'dev@example.com' } })
+    fireEvent.click(screen.getByRole('switch'))
+    fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ email: 'dev@example.com', enabled: true })
@@ -72,8 +72,8 @@ describe('Form', () => {
     )
 
     const input = screen.getByLabelText('Email')
-    await fireEvent.focus(input)
-    await fireEvent.blur(input)
+    fireEvent.focus(input)
+    fireEvent.blur(input)
 
     await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
     expect(input.getAttribute('aria-invalid')).toBe('true')
@@ -99,7 +99,7 @@ describe('Form', () => {
     )
 
     await waitFor(() => {
-      expect((screen.getByLabelText('Value') as HTMLInputElement).value).toBe('Fallback')
+      expect(screen.getByLabelText<HTMLInputElement>('Value').value).toBe('Fallback')
     })
   })
 
@@ -121,7 +121,7 @@ describe('Form', () => {
       ),
     )
     const input = screen.getByLabelText('Email')
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
     expect(onSubmit).not.toHaveBeenCalled()
@@ -152,9 +152,9 @@ describe('Form', () => {
       ),
     )
     const formElement = screen.container.querySelector('form')!
-    const submitter = screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement
+    const submitter = screen.getByRole('button', { name: 'Save' })
 
-    await fireEvent.click(submitter)
+    fireEvent.click(submitter)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[1].submitter).toBe(submitter)
@@ -180,7 +180,7 @@ describe('Form', () => {
     )
     const formElement = screen.container.querySelector('form')!
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(form.errors).toEqual(['Submit failed']))
     expect(formElement.getAttribute('data-submitting')).toBeNull()
@@ -214,14 +214,14 @@ describe('Form', () => {
     )
     const input = screen.getByLabelText('Email') as HTMLInputElement
 
-    await fireEvent.input(input, { target: { value: 'invalid' } })
-    await fireEvent.blur(input)
-    await fireEvent.click(screen.getByRole('switch'))
+    fireEvent.input(input, { target: { value: 'invalid' } })
+    fireEvent.blur(input)
+    fireEvent.click(screen.getByRole('switch'))
     await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
     expect(form.isDirty).toBe(true)
     expect(form.isTouched).toBe(true)
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
 
     await waitFor(() => {
       expect(input.value).toBe('initial@example.com')
@@ -257,8 +257,8 @@ describe('Form', () => {
     )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
-    await fireEvent.input(input, { target: { value: 'Changed' } })
-    await fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    fireEvent.input(input, { target: { value: 'Changed' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
 
     expect(input.value).toBe('Changed')
     expect(getInput(form)).toEqual({ value: 'Changed' })
@@ -296,15 +296,15 @@ describe('Form', () => {
     )
     const [, secondForm] = forms
 
-    await fireEvent.input(screen.getByLabelText('First value'), { target: { value: 'Changed' } })
-    await fireEvent.click(screen.getByRole('button', { name: 'Submit first' }))
+    fireEvent.input(screen.getByLabelText('First value'), { target: { value: 'Changed' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Submit first' }))
 
     await waitFor(() => expect(firstSubmit).toHaveBeenCalledTimes(1))
     expect(firstSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Changed' })
     expect(secondSubmit).not.toHaveBeenCalled()
     expect(getInput(secondForm)).toEqual({ value: 'Second' })
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Submit second' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit second' }))
     await waitFor(() => expect(secondSubmit).toHaveBeenCalledTimes(1))
     expect(secondSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Second' })
   })
@@ -339,7 +339,7 @@ describe('Form', () => {
     expect(container.querySelector('form')).toBe(serverForm)
     expect((container.querySelector('input') as HTMLInputElement).value).toBe('Server value')
 
-    await fireEvent.click(container.querySelector('button')!)
+    fireEvent.click(container.querySelector('button')!)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Server value' })
 

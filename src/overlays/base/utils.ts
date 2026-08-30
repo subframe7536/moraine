@@ -229,15 +229,15 @@ export function acquireAriaHideOutside(
 
       const mutationTarget = record.target
       if (
-        mutationTarget instanceof Element &&
+        mutationTarget.nodeType === 1 &&
         [...hiddenElements].some((element) => element.contains(mutationTarget))
       ) {
         continue
       }
 
       for (const addedNode of record.addedNodes) {
-        if (addedNode instanceof Element) {
-          walk(addedNode)
+        if (addedNode.nodeType === 1) {
+          walk(addedNode as Element)
         }
       }
     }

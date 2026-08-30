@@ -22,7 +22,7 @@ describe('Icon', () => {
 
   test('applies numeric size as font-size in px', () => {
     const screen = render(() => <Icon name="i-lucide-search" size={18} />)
-    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLSpanElement | null
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
 
     expect(icon).not.toBeNull()
     expect(icon?.style.fontSize).toBe('18px')
@@ -34,7 +34,7 @@ describe('Icon', () => {
         <Icon name="i-lucide-search" />
       </div>
     ))
-    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLElement | null
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
 
     expect(icon).not.toBeNull()
     expect(icon?.style.fontSize).toBe('')
@@ -45,7 +45,7 @@ describe('Icon', () => {
     const screen = render(() => (
       <Icon name="i-lucide-search" size={18} style={{ 'font-size': '20px' }} />
     ))
-    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLElement | null
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
 
     expect(icon?.style.fontSize).toBe('20px')
   })
@@ -81,7 +81,7 @@ describe('Icon', () => {
     const screen = render(() => (
       <Icon name="i-lucide-search" id="my-icon" data-testid="icon-el" title="Search icon" />
     ))
-    const icon = screen.container.querySelector('[data-slot="icon"]') as HTMLSpanElement | null
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
 
     expect(icon).not.toBeNull()
     expect(icon?.id).toBe('my-icon')

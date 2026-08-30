@@ -208,9 +208,9 @@ describe('Badge', () => {
       </Badge>
     ))
 
-    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement | null
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
-    const remove = screen.container.querySelector('[data-slot="trailing"]') as HTMLElement | null
+    const tag = screen.container.querySelector<HTMLElement>('[data-slot="tag"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
+    const remove = screen.container.querySelector<HTMLElement>('[data-slot="trailing"]')
 
     expect(tag?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')

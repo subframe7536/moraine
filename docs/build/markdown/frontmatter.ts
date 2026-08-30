@@ -85,7 +85,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
       ...(typeof sidebar.badge === 'string' ? { badge: sidebar.badge.trim() } : {}),
     },
     search: { tags },
-  } as FrontmatterData
+  }
 }
 
 export function readFrontmatterData(source: string, id: string): FrontmatterData {

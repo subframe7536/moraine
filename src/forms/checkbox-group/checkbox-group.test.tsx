@@ -76,7 +76,7 @@ describe('CheckboxGroup', () => {
     expectCheckboxChecked(checkboxA, true)
     expectCheckboxChecked(checkboxB, false)
 
-    await fireEvent.click(checkboxB)
+    fireEvent.click(checkboxB)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
@@ -89,18 +89,18 @@ describe('CheckboxGroup', () => {
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
-    await fireEvent.keyDown(checkboxA, { key: ' ' })
-    await fireEvent.keyUp(checkboxA, { key: ' ' })
+    fireEvent.keyDown(checkboxA, { key: ' ' })
+    fireEvent.keyUp(checkboxA, { key: ' ' })
     expect(onChange).not.toHaveBeenCalled()
-    await fireEvent.click(checkboxA)
+    fireEvent.click(checkboxA)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A'])
     expectCheckboxChecked(checkboxA, true)
 
-    await fireEvent.keyDown(checkboxA, { key: ' ' })
-    await fireEvent.keyUp(checkboxA, { key: ' ' })
-    await fireEvent.click(checkboxA)
+    fireEvent.keyDown(checkboxA, { key: ' ' })
+    fireEvent.keyUp(checkboxA, { key: ' ' })
+    fireEvent.click(checkboxA)
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith([])
@@ -127,8 +127,8 @@ describe('CheckboxGroup', () => {
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
     const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
-    await fireEvent.click(checkboxA)
-    await fireEvent.keyDown(checkboxB, { key: ' ' })
+    fireEvent.click(checkboxA)
+    fireEvent.keyDown(checkboxB, { key: ' ' })
 
     expect(checkboxA.getAttribute('aria-disabled')).toBe('true')
     expect(checkboxB.getAttribute('aria-disabled')).toBe('true')
@@ -145,8 +145,8 @@ describe('CheckboxGroup', () => {
 
     expect(checkboxA.getAttribute('aria-readonly')).toBe('true')
 
-    await fireEvent.click(checkboxA)
-    await fireEvent.keyDown(checkboxA, { key: ' ' })
+    fireEvent.click(checkboxA)
+    fireEvent.keyDown(checkboxA, { key: ' ' })
 
     expectCheckboxChecked(checkboxA, false)
     expect(onChange).not.toHaveBeenCalled()
@@ -161,7 +161,7 @@ describe('CheckboxGroup', () => {
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
     const checkboxB = screen.getByRole('checkbox', { name: 'B' })
 
-    await fireEvent.click(checkboxB)
+    fireEvent.click(checkboxB)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
@@ -210,13 +210,13 @@ describe('CheckboxGroup', () => {
     expect(inputs.filter((input) => input.required)).toHaveLength(1)
     expect(form.checkValidity()).toBe(false)
 
-    await fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
 
     expect(inputs.every((input) => !input.required)).toBe(true)
     expect(form.checkValidity()).toBe(true)
     expect(new FormData(form).getAll('channels')).toEqual(['SMS'])
 
-    await fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
     expect(inputs.filter((input) => input.required)).toHaveLength(1)
     expect(form.checkValidity()).toBe(false)
   })
@@ -271,7 +271,7 @@ describe('CheckboxGroup', () => {
     expect(screen.getByText('First').getAttribute('for')).toBe(firstId)
     expect(screen.getByText('Second').getAttribute('for')).toBe(secondId)
 
-    await fireEvent.click(firstControl)
+    fireEvent.click(firstControl)
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['same'])
     expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
@@ -296,7 +296,7 @@ describe('CheckboxGroup', () => {
     expect(controls).toHaveLength(2)
     expect(controls[0]?.id).not.toBe(controls[1]?.id)
 
-    await fireEvent.click(controls[0]!)
+    fireEvent.click(controls[0]!)
 
     expect(new FormData(form).getAll('choices')).toEqual(['', ''])
   })
@@ -354,7 +354,7 @@ describe('CheckboxGroup', () => {
 
     expectCheckboxChecked(checkbox, false)
 
-    await fireEvent.click(item as HTMLElement)
+    fireEvent.click(item as HTMLElement)
 
     await waitFor(() => {
       expectCheckboxChecked(checkbox, true)
@@ -371,7 +371,7 @@ describe('CheckboxGroup', () => {
     expectCheckboxChecked(checkboxA, true)
     expectCheckboxChecked(checkboxB, false)
 
-    await fireEvent.click(items[1] as HTMLElement)
+    fireEvent.click(items[1] as HTMLElement)
 
     await waitFor(() => {
       expectCheckboxChecked(checkboxA, true)
@@ -414,11 +414,11 @@ describe('CheckboxGroup', () => {
       />
     ))
 
-    const item = screen.container.querySelector(
+    const item = screen.container.querySelector<HTMLElement>(
       '[data-slot="fieldset"] > [data-slot="root"]',
-    ) as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+    )
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
 
     expect(item?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')
@@ -441,8 +441,8 @@ describe('CheckboxGroup', () => {
     expectCheckboxChecked(checkboxB, false)
     expect(new FormData(form).getAll('choices')).toEqual(['A'])
 
-    await fireEvent.click(checkboxA)
-    await fireEvent.click(checkboxB)
+    fireEvent.click(checkboxA)
+    fireEvent.click(checkboxB)
 
     expect(new FormData(form).getAll('choices')).toEqual(['B'])
 
@@ -471,7 +471,7 @@ describe('CheckboxGroup', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
 
-    await fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
     expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
 
     setDefaultValue(['B'])
@@ -509,7 +509,7 @@ describe('CheckboxGroup', () => {
     )
 
     setValue(['B'])
-    await fireEvent.submit(screen.container.querySelector('form')!)
+    fireEvent.submit(screen.container.querySelector('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ choices: ['B'] })

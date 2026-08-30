@@ -84,11 +84,11 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     typeof merged.step === 'number' && merged.step > 0 ? merged.step : undefined,
   )
   const keyboardStep = createMemo(() => {
-    const range = merged.max! - merged.min!
+    const range = merged.max - merged.min
     return definedStep() ?? (range > 0 ? range / 100 : 1)
   })
   const pageSize = createMemo(() => {
-    let calcPageSize = (merged.max! - merged.min!) / 10
+    let calcPageSize = (merged.max - merged.min) / 10
     const step = definedStep()
     if (!step) {
       return calcPageSize
@@ -138,16 +138,16 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   })
   const dividerIndexes = createMemo(() => {
     const step = definedStep()
-    if (!merged.divider || !step || merged.max! <= merged.min!) {
+    if (!merged.divider || !step || merged.max <= merged.min) {
       return []
     }
 
-    const dividerCount = Math.floor((merged.max! - merged.min!) / step)
+    const dividerCount = Math.floor((merged.max - merged.min) / step)
     return Array.from({ length: Math.max(dividerCount - 1, 0) }, (_, index) => index + 1)
   })
   const getDividerStyle = (index: number): JSX.CSSProperties => {
     const { startEdge } = getSliderEdges()
-    const value = merged.min! + keyboardStep() * index
+    const value = merged.min + keyboardStep() * index
 
     return {
       [startEdge]: `${getValuePercent(value) * 100}%`,
@@ -219,21 +219,21 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       return [...values] as TValue
     }
 
-    return (values[0] ?? merged.min!) as TValue
+    return (values[0] ?? merged.min) as TValue
   }
 
   function getThumbMinValueFor(values: number[], index: number): number {
-    const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
+    const thumbGap = merged.minStepsBetweenThumbs * keyboardStep()
     return index === 0
-      ? merged.min!
-      : clamp((values[index - 1] ?? merged.min!) + thumbGap, merged.min!, merged.max!)
+      ? merged.min
+      : clamp((values[index - 1] ?? merged.min) + thumbGap, merged.min, merged.max)
   }
 
   function getThumbMaxValueFor(values: number[], index: number): number {
-    const thumbGap = merged.minStepsBetweenThumbs! * keyboardStep()
+    const thumbGap = merged.minStepsBetweenThumbs * keyboardStep()
     return index === values.length - 1
-      ? merged.max!
-      : clamp((values[index + 1] ?? merged.max!) - thumbGap, merged.min!, merged.max!)
+      ? merged.max
+      : clamp((values[index + 1] ?? merged.max) - thumbGap, merged.min, merged.max)
   }
 
   function getThumbMinValue(index: number): number {
@@ -247,7 +247,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   function getValueFromPointer(pointerPosition: number): number {
     const rect = trackElement()?.getBoundingClientRect()
     if (!rect) {
-      return merged.min!
+      return merged.min
     }
 
     const orientation = merged.orientation
@@ -256,16 +256,16 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     let output: [number, number] =
       orientation === 'vertical'
         ? merged.inverted
-          ? [merged.min!, merged.max!]
-          : [merged.max!, merged.min!]
+          ? [merged.min, merged.max]
+          : [merged.max, merged.min]
         : merged.inverted
-          ? [merged.max!, merged.min!]
-          : [merged.min!, merged.max!]
+          ? [merged.max, merged.min]
+          : [merged.min, merged.max]
 
     const value = linearScale(input, output)
     const offset = orientation === 'vertical' ? rect.top : rect.left
 
-    return clamp(value(pointerPosition - offset), merged.min!, merged.max!)
+    return clamp(value(pointerPosition - offset), merged.min, merged.max)
   }
 
   function startInteraction(index: number, event: PointerEvent): boolean {
@@ -320,8 +320,8 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     candidateValue: number,
   ): { nextIndex: number; nextValues: number[] } | undefined {
     const allowsThumbCrossing = merged.allowThumbCrossing && merged.minStepsBetweenThumbs === 0
-    const minValue = allowsThumbCrossing ? merged.min! : getThumbMinValueFor(values, index)
-    const maxValue = allowsThumbCrossing ? merged.max! : getThumbMaxValueFor(values, index)
+    const minValue = allowsThumbCrossing ? merged.min : getThumbMinValueFor(values, index)
+    const maxValue = allowsThumbCrossing ? merged.max : getThumbMaxValueFor(values, index)
     const step = definedStep()
     const nextValue = step
       ? snapValueToStep(candidateValue, minValue, maxValue, step)
@@ -341,7 +341,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       if (
         !hasMinStepsBetweenValues(
           getNextSortedValues(values, nextValue, index),
-          merged.minStepsBetweenThumbs! * keyboardStep(),
+          merged.minStepsBetweenThumbs * keyboardStep(),
         )
       ) {
         return undefined
@@ -545,14 +545,14 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
 
     const stepSize = isPageUp || isPageDown || event.shiftKey ? pageSize() : keyboardStep()
 
-    const oldValue = interactionValues()[index] ?? merged.min!
+    const oldValue = interactionValues()[index] ?? merged.min
     const candidateValue = oldValue + direction * stepSize
     applyThumbValue(index, candidateValue)
-    const newValue = interactionValues()[index] ?? merged.min!
+    const newValue = interactionValues()[index] ?? merged.min
 
     if (!merged.allowThumbCrossing && interactionValues().length > 1 && newValue === oldValue) {
       const atGlobalBoundary =
-        (direction > 0 && oldValue === merged.max!) || (direction < 0 && oldValue === merged.min!)
+        (direction > 0 && oldValue === merged.max) || (direction < 0 && oldValue === merged.min)
       if (!atGlobalBoundary) {
         const adjacentIndex = direction > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
@@ -606,16 +606,16 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function getValuePercent(value: number): number {
-    const range = merged.max! - merged.min!
+    const range = merged.max - merged.min
     if (range <= 0) {
       return 0
     }
 
-    return (value - merged.min!) / range
+    return (value - merged.min) / range
   }
 
   function getThumbValueText(index: number): string {
-    return String(currentValues()[index] ?? merged.min!)
+    return String(currentValues()[index] ?? merged.min)
   }
 
   return {

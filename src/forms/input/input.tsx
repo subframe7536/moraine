@@ -4,7 +4,6 @@ import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'so
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
@@ -220,7 +219,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       autocomplete: 'off',
       autofocusDelay: 0,
       variant: 'outlined' as InputVariantProps['variant'],
-      loadingIcon: 'icon-loading' as IconT.Name,
+      loadingIcon: 'icon-loading' as const,
     },
     local,
   )
@@ -400,7 +399,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         when={typeof props.value !== 'string'}
         fallback={<Icon name={props.value} class={props.loading && 'effect-loading'} />}
       >
-        {renderComponentOrElement(props.value as ComponentOrElement, {})}
+        {renderComponentOrElement(props.value, {})}
       </Show>
     )
   }

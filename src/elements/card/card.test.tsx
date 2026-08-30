@@ -1,5 +1,4 @@
 import { render } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
@@ -28,7 +27,7 @@ describe('Card', () => {
 
   test('renders header and footer only when provided', () => {
     const emptyScreen = render(() => (
-      <Card header={false as unknown as JSX.Element} footer={null as unknown as JSX.Element}>
+      <Card header={false} footer={null}>
         Body
       </Card>
     ))

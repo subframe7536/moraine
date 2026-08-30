@@ -20,12 +20,12 @@ describe('DocsPlayground', () => {
     expect(childrenReads).toBe(1)
     expect(screen.getByText('Button')).not.toBeNull()
 
-    await fireEvent.input(screen.getByRole('textbox', { name: 'Label' }), {
+    fireEvent.input(screen.getByRole('textbox', { name: 'Label' }), {
       target: { value: 'Save' },
     })
 
     expect(screen.getByText('Save')).not.toBeNull()
-    await fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
     expect(screen.getByText('Button')).not.toBeNull()
   })
 

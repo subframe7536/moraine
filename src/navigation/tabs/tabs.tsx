@@ -167,7 +167,7 @@ function normalizeItemValue(value: string | null | undefined, index: number): st
     return String(index)
   }
 
-  return String(value)
+  return value
 }
 
 /**

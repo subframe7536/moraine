@@ -136,7 +136,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               {...item}
               size={merged.size}
               rootSlot="item"
-              style={merged.styles?.item as JSX.CSSProperties | undefined}
+              style={merged.styles?.item}
               class={avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)}
               classes={merged.classes}
               styles={merged.styles}

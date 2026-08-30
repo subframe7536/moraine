@@ -275,7 +275,7 @@ describe('Breadcrumb', () => {
     ))
 
     const disabled = screen.getByText('Disabled').closest('[data-slot="link"]')
-    await fireEvent.click(disabled!)
+    fireEvent.click(disabled!)
 
     expect(disabled?.tagName).toBe('SPAN')
     expect(disabled?.getAttribute('role')).toBe('link')
@@ -563,7 +563,7 @@ describe('Breadcrumb', () => {
     expect(container.querySelector('[data-slot="root"]')).toBe(serverRoot)
     expect(container.querySelector('[data-slot="list"]')).toBe(serverList)
     expect(container.querySelector('[data-slot="custom-link"]')).toBe(serverFirstLink)
-    await fireEvent.click(serverFirstLink!)
+    fireEvent.click(serverFirstLink!)
     expect(onClick).toHaveBeenCalledTimes(1)
 
     dispose()

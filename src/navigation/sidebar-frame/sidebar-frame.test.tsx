@@ -20,7 +20,7 @@ function createMatchMediaMock(matches = false) {
 }
 
 beforeEach(() => {
-  window.matchMedia = createMatchMediaMock(false) as unknown as typeof window.matchMedia
+  window.matchMedia = createMatchMediaMock(false)
 })
 
 afterEach(() => {
@@ -100,7 +100,7 @@ describe('SidebarFrame', () => {
     expect(sidebar.className).toContain('opacity-100')
     expect(sidebar.className).toContain('w-64')
 
-    await fireEvent.click(screen.getByText('toggle desktop'))
+    fireEvent.click(screen.getByText('toggle desktop'))
 
     expect(sidebar.className).toContain('opacity-0')
     expect(sidebar.className).toContain('w-0')
@@ -201,7 +201,7 @@ describe('SidebarFrame', () => {
 
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(screen.getByText('toggle'))
+    fireEvent.click(screen.getByText('toggle'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -223,7 +223,7 @@ describe('SidebarFrame', () => {
     expect(screen.getByTestId('scroll-state').textContent).toBe('off')
 
     main.scrollTop = 20
-    await fireEvent.scroll(main)
+    fireEvent.scroll(main)
 
     expect(screen.getByTestId('scroll-state').textContent).toBe('on')
   })
@@ -231,7 +231,7 @@ describe('SidebarFrame', () => {
   test('prefers controlled isMobile over internal matchMedia', () => {
     const matchMedia = createMatchMediaMock(true)
 
-    window.matchMedia = matchMedia as unknown as typeof window.matchMedia
+    window.matchMedia = matchMedia
 
     const screen = render(() => <SidebarFrame {...createBaseProps()} isMobile={false} />)
 

@@ -29,7 +29,7 @@ function installResizeObserverMock(): ResizeObserverRecord[] {
       constructor(callback: ResizeObserverCallback) {
         records.push({
           disconnect: this.disconnect,
-          notify: () => callback([], this as ResizeObserver),
+          notify: () => callback([], this),
           observe: this.observe,
         })
       }

@@ -46,14 +46,12 @@ function queryAllBody(selector: string): NodeListOf<Element> {
 }
 
 async function finishSelectExitMotion(): Promise<void> {
-  const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
-  ) as HTMLElement[]
+  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
 
   await Promise.all(
     contents.map(async (content) => {
-      await fireEvent.animationEnd(content)
-      await fireEvent.transitionEnd(content)
+      fireEvent.animationEnd(content)
+      fireEvent.transitionEnd(content)
     }),
   )
 }
@@ -168,7 +166,7 @@ describe('Select - single mode', () => {
 
     expect(queryBody('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
@@ -179,8 +177,8 @@ describe('Select - single mode', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    await fireEvent.pointerDown(control, { button: 0 })
-    await fireEvent.click(control)
+    fireEvent.pointerDown(control, { button: 0 })
+    fireEvent.click(control)
 
     expect(control.className).toContain('focus-visible:effect-fv-border')
     expect(control.className).not.toContain('focus-within:effect-fv-border')
@@ -223,10 +221,10 @@ describe('Select - single mode', () => {
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
     const screen = render(() => <Select options={FRUITS} />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    const combobox = screen.getByRole('combobox') as HTMLElement
+    const combobox = screen.getByRole('combobox')
 
-    await fireEvent.pointerDown(control, { button: 0 })
-    await fireEvent.click(control)
+    fireEvent.pointerDown(control, { button: 0 })
+    fireEvent.click(control)
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
@@ -241,7 +239,7 @@ describe('Select - single mode', () => {
 
     expect(queryBody('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
@@ -252,7 +250,7 @@ describe('Select - single mode', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
 
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
@@ -266,7 +264,7 @@ describe('Select - single mode', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
 
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]') as HTMLElement | null
@@ -296,7 +294,7 @@ describe('Select - single mode', () => {
     render(() => <Select options={FRUITS} defaultOpen onChange={onChange} placeholder="Pick" />)
 
     const options = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(options[0]!)
+    fireEvent.click(options[0]!)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith('apple')
@@ -341,7 +339,7 @@ describe('Select - single mode', () => {
       'false',
     ])
 
-    await fireEvent.click(items[1]!)
+    fireEvent.click(items[1]!)
 
     expect(onChange).toHaveBeenCalledWith('1')
     expect(combobox.textContent).toBe('String one')
@@ -371,7 +369,7 @@ describe('Select - single mode', () => {
     expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual(['true', 'false'])
     expect(Array.from(nativeSelect.options).filter((option) => option.selected)).toHaveLength(1)
 
-    await fireEvent.click(items[1]!)
+    fireEvent.click(items[1]!)
 
     expect(screen.getByRole('combobox').textContent).toBe('First')
     expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual(['true', 'false'])
@@ -406,7 +404,7 @@ describe('Select - single mode', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     const action = screen.getByRole('button', { name: 'Clear selection' })
     const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
 
@@ -416,7 +414,7 @@ describe('Select - single mode', () => {
 
     input.focus()
     action.dispatchEvent(pointerDown)
-    await fireEvent.click(action)
+    fireEvent.click(action)
 
     expect(pointerDown.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(input)
@@ -435,7 +433,7 @@ describe('Select - single mode', () => {
       <Select options={FRUITS} value={value()} allowClear onChange={onChange} placeholder="Pick" />
     ))
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
 
     expect(screen.getByRole('combobox').textContent).toBe('Pick')
     expect(onChange).toHaveBeenCalledWith(null)
@@ -446,10 +444,10 @@ describe('Select - single mode', () => {
     const screen = render(() => (
       <Select options={FRUITS} value="apple" allowClear disabled onChange={onChange} />
     ))
-    const action = screen.getByRole('button', { name: 'Clear selection' }) as HTMLButtonElement
+    const action = screen.getByRole<HTMLButtonElement>('button', { name: 'Clear selection' })
 
     expect(action.disabled).toBe(true)
-    await fireEvent.click(action)
+    fireEvent.click(action)
 
     expect(screen.getByRole('combobox').textContent).toBe('Apple')
     expect(onChange).not.toHaveBeenCalled()
@@ -467,14 +465,14 @@ describe('Select - search', () => {
   test('input is editable when showSearch is true', () => {
     const screen = render(() => <Select options={FRUITS} search placeholder="Pick" />)
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
     expect(input.hasAttribute('readonly')).toBe(false)
   })
 
   test('leaves Space available for searchable text input', () => {
     const onChange = vi.fn()
     const screen = render(() => <Select options={FRUITS} search onChange={onChange} />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
     const event = new KeyboardEvent('keydown', {
       key: ' ',
       bubbles: true,
@@ -491,7 +489,7 @@ describe('Select - search', () => {
   test('opens menu when searchable input is clicked in control mode', async () => {
     const screen = render(() => <Select options={FRUITS} search placeholder="Search..." />)
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
 
     fireEvent.click(input)
 
@@ -502,14 +500,14 @@ describe('Select - search', () => {
 
   test('dismisses menu when searchable input is clicked again in control mode', async () => {
     const screen = render(() => <Select options={FRUITS} search placeholder="Search..." />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('true')
     })
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('false')
     })
@@ -521,8 +519,8 @@ describe('Select - search', () => {
       <Select options={FRUITS} search onSearch={onSearch} placeholder="Search..." />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'app' } })
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'app' } })
 
     expect(onSearch).toHaveBeenCalledWith('app')
   })
@@ -538,8 +536,8 @@ describe('Select - search', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'ap' } })
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'ap' } })
 
     await waitFor(() => {
       const items = queryAllBody('[data-slot="item"]')
@@ -553,8 +551,8 @@ describe('Select - search', () => {
       <Select options={FRUITS} search defaultOpen filterOption="endsWith" placeholder="Search..." />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'na' } })
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'na' } })
 
     await waitFor(() => {
       const items = queryAllBody('[data-slot="item"]')
@@ -630,7 +628,7 @@ describe('Select - groups', () => {
     expect(apple.className).toContain('item-prop')
     expect(apple.style.height).toBe('40px')
 
-    await fireEvent.click(apple)
+    fireEvent.click(apple)
 
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -734,7 +732,7 @@ describe('Select - groups', () => {
       expect(queryBody('[data-slot="item"]')?.textContent).toContain('Apple')
     })
 
-    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
 
     await waitFor(() => {
       const item = queryBody('[data-slot="item"]')
@@ -787,7 +785,7 @@ describe('Select - render hooks', () => {
     expect(instances.option).toBe(0)
     expect(reads).toEqual({ optionRender: 1, labelRender: 1 })
 
-    await fireEvent.click(screen.getByRole('combobox'))
+    fireEvent.click(screen.getByRole('combobox'))
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances.option).toBe(3)
@@ -813,9 +811,9 @@ describe('Select - render hooks', () => {
     const screen = render(() => (
       <Select options={jsxOptions} search defaultOpen placeholder="Pick" />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
 
-    await fireEvent.input(input, { target: { value: 'app' } })
+    fireEvent.input(input, { target: { value: 'app' } })
 
     await waitFor(() => {
       expect(queryBody('[data-slot="empty"]')).toBeNull()
@@ -974,7 +972,7 @@ describe('Select - render hooks', () => {
       closeIcon: 1,
     })
 
-    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
 
     expect(combobox.getAttribute('aria-expanded')).toBe('true')
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
@@ -1112,17 +1110,17 @@ describe('Select - keyboard and ARIA', () => {
         <button type="button">Next</button>
       </>
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
 
     input.focus()
-    await fireEvent.click(input)
+    fireEvent.click(input)
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('true')
     })
 
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
 
-    await fireEvent.keyDown(input, { key: ' ' })
+    fireEvent.keyDown(input, { key: ' ' })
 
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('false')
@@ -1148,9 +1146,9 @@ describe('Select - keyboard and ARIA', () => {
 
   test('opens with the selected option highlighted', async () => {
     const screen = render(() => <Select options={FRUITS} value="banana" placeholder="Pick" />)
-    const input = screen.getByRole('combobox') as HTMLElement
+    const input = screen.getByRole('combobox')
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
 
     await waitFor(() => {
       expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
@@ -1172,9 +1170,9 @@ describe('Select - keyboard and ARIA', () => {
         )}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLElement
+    const input = screen.getByRole('combobox')
 
-    await fireEvent.click(input)
+    fireEvent.click(input)
 
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('true')
@@ -1196,9 +1194,9 @@ describe('Select - keyboard and ARIA', () => {
 
     try {
       const screen = render(() => <Select options={FRUITS} value="banana" placeholder="Pick" />)
-      const input = screen.getByRole('combobox') as HTMLElement
+      const input = screen.getByRole('combobox')
 
-      await fireEvent.click(input)
+      fireEvent.click(input)
 
       await waitFor(() => {
         expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
@@ -1232,7 +1230,7 @@ describe('Select - keyboard and ARIA', () => {
 
   test('does not prevent Tab when menu is closed', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
 
     const tabEvent = new KeyboardEvent('keydown', {
       key: 'Tab',
@@ -1303,7 +1301,7 @@ describe('Select - form integration', () => {
     expect(form.querySelectorAll('select[name="fruit"]')).toHaveLength(1)
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1]!)
+    fireEvent.click(items[1]!)
 
     expect(new FormData(form).getAll('fruit')).toEqual(['banana'])
   })
@@ -1345,7 +1343,7 @@ describe('Select - form integration', () => {
     )!
 
     stringOption.selected = true
-    await fireEvent.change(nativeSelect)
+    fireEvent.change(nativeSelect)
 
     expect(screen.getByRole('combobox').textContent).toBe('String one')
     expect(onChange).toHaveBeenCalledOnce()
@@ -1364,7 +1362,7 @@ describe('Select - form integration', () => {
     const banana = Array.from(nativeSelect.options).find((option) => option.value === 'banana')!
 
     banana.selected = true
-    await fireEvent.change(nativeSelect)
+    fireEvent.change(nativeSelect)
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith('banana')
@@ -1387,7 +1385,7 @@ describe('Select - form integration', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith('banana')
@@ -1413,7 +1411,7 @@ describe('Select - form integration', () => {
       ),
     )
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
     expect(onChange).toHaveBeenCalledWith('banana')
     expect(screen.getByRole('combobox').textContent).toBe('Apple')
     expect(getInput(form)).toEqual({ fruit: 'apple' })
@@ -1468,7 +1466,7 @@ describe('Select - form integration', () => {
     const items = queryAllBody('[data-slot="item"]')
 
     setDefaultValue('banana')
-    await fireEvent.click(items[1]!)
+    fireEvent.click(items[1]!)
     expect(screen.getByRole('combobox').textContent).toBe('Banana')
 
     form.reset()
@@ -1515,7 +1513,7 @@ describe('Select - form integration', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
     form.reset()
     await Promise.resolve()
 
@@ -1541,7 +1539,7 @@ describe('Select - form integration', () => {
     const nativeSelect = form.querySelector('select[name="fruit"]') as HTMLSelectElement
 
     nativeSelect.options[0]!.selected = true
-    await fireEvent.change(nativeSelect)
+    fireEvent.change(nativeSelect)
 
     expect(screen.getByRole('combobox').textContent).toBe('Pick')
     expect(nativeSelect.value).toBe('')
@@ -1557,12 +1555,12 @@ describe('Select - form integration', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
     expect(form.checkValidity()).toBe(false)
     expect(input.name).toBe('')
     expect(input.required).toBe(false)
-    await fireEvent.input(input, { target: { value: 'not a fruit' } })
+    fireEvent.input(input, { target: { value: 'not a fruit' } })
 
     expect(form.checkValidity()).toBe(false)
     expect(new FormData(form).getAll('fruit')).toEqual([''])
@@ -1621,8 +1619,8 @@ describe('Select - empty state', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'zzzzz' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'zzzzz' } })
 
     await waitFor(() => {
       const emptyEl = queryBody('[data-testid="custom-empty"]')
@@ -1636,8 +1634,8 @@ describe('Select - empty state', () => {
       <Select options={FRUITS} search defaultOpen placeholder="Search..." />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'zzzzz' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'zzzzz' } })
 
     await waitFor(() => {
       const emptyEl = queryBody('[data-slot="empty"]')
@@ -1650,9 +1648,9 @@ describe('Select - empty state', () => {
       <Select search options={FRUITS} defaultOpen placeholder="Search..." />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'zzzzz' } })
-    await fireEvent.keyDown(input, { key: 'Escape' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'zzzzz' } })
+    fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('false')
@@ -1670,7 +1668,7 @@ describe('Select - popup behavior', () => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
     })
 
-    await fireEvent.keyDown(input, { key: 'Escape' })
+    fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
@@ -1697,7 +1695,7 @@ describe('Select - popup behavior', () => {
       expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
     })
 
-    await fireEvent.keyDown(input, { key: 'Escape' })
+    fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
@@ -1776,17 +1774,17 @@ describe('Select - scroll bottom', () => {
     })
 
     listbox.scrollTop = 70
-    await fireEvent.scroll(listbox)
-    await fireEvent.scroll(listbox)
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     expect(onScrollBottom).toHaveBeenCalledTimes(1)
 
     listbox.scrollTop = 20
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     listbox.scrollTop = 70
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     expect(onScrollBottom).toHaveBeenCalledTimes(2)
   })

@@ -138,7 +138,7 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    await fireEvent.click(screen.getByRole('button', { name: 'Open export options' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open export options' }))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -324,7 +324,7 @@ describe('ButtonGroup', () => {
       </ButtonGroup>
     ))
 
-    const group = screen.getByRole('group') as HTMLDivElement
+    const group = screen.getByRole('group')
     expect(group.id).toBe('actions')
     expect(group.className).toContain('root-override')
     expect(group.className).toContain('slot-override')

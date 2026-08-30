@@ -10,7 +10,6 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -20,7 +19,6 @@ import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
-  OverlayMenuPlacement,
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
@@ -102,9 +100,9 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const merged = mergeProps(
     {
       size: 'md' as const,
-      checkedIcon: 'icon-check' as IconT.Name,
-      submenuIcon: 'icon-chevron-right' as IconT.Name,
-      placement: 'bottom-start' as OverlayMenuPlacement,
+      checkedIcon: 'icon-check' as const,
+      submenuIcon: 'icon-chevron-right' as const,
+      placement: 'bottom-start' as const,
       gutter: 0,
     },
     local,

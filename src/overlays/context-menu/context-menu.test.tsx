@@ -12,14 +12,12 @@ import type { ContextMenuProps, ContextMenuT } from './context-menu.tsx'
 async function finishMenuExitMotion(): Promise<void> {
   await Promise.resolve()
 
-  const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
-  ) as HTMLElement[]
+  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
 
   await Promise.all(
     contents.map(async (content) => {
-      await fireEvent.animationEnd(content)
-      await fireEvent.transitionEnd(content)
+      fireEvent.animationEnd(content)
+      fireEvent.transitionEnd(content)
     }),
   )
 }
@@ -52,7 +50,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -73,7 +71,7 @@ describe('ContextMenu', () => {
     ))
 
     await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')
       expect(content).not.toBeNull()
       initialContent = content
       expect(content?.getAttribute('data-placement')).toBeNull()
@@ -90,7 +88,7 @@ describe('ContextMenu', () => {
     setPlacement('left-start')
 
     await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')
       expect(content?.getAttribute('data-placement')).toBeNull()
       expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content).toBe(initialContent)
@@ -111,7 +109,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -135,19 +133,19 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelectorAll('[data-slot="item"]').length).toBeGreaterThan(0)
     })
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-    await fireEvent.keyDown(content, { key: 'ArrowDown' })
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
 
     const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
     expect(highlighted).not.toBeNull()
 
-    await fireEvent.keyDown(highlighted!, { key: 'Enter' })
+    fireEvent.keyDown(highlighted!, { key: 'Enter' })
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
 
@@ -163,20 +161,19 @@ describe('ContextMenu', () => {
     ))
 
     const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]') as HTMLElement
-    trigger.getBoundingClientRect = () =>
-      ({
-        bottom: 40,
-        height: 20,
-        left: 10,
-        right: 110,
-        top: 20,
-        width: 100,
-        x: 10,
-        y: 20,
-        toJSON: () => ({}),
-      }) as DOMRect
+    trigger.getBoundingClientRect = () => ({
+      bottom: 40,
+      height: 20,
+      left: 10,
+      right: 110,
+      top: 20,
+      width: 100,
+      x: 10,
+      y: 20,
+      toJSON: () => ({}),
+    })
 
-    await fireEvent.keyDown(screen.getByText('Row Item'), { key: 'F10', shiftKey: true })
+    fireEvent.keyDown(screen.getByText('Row Item'), { key: 'F10', shiftKey: true })
 
     await waitFor(() => {
       const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
@@ -213,7 +210,7 @@ describe('ContextMenu', () => {
       expect(container.querySelector('[data-slot="trigger"]')).toBe(serverTrigger)
       expect(triggerReads).toBe(1)
 
-      await fireEvent.keyDown(serverTrigger, { key: 'ContextMenu' })
+      fireEvent.keyDown(serverTrigger, { key: 'ContextMenu' })
       await waitFor(() => {
         expect(
           document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
@@ -221,11 +218,11 @@ describe('ContextMenu', () => {
       })
 
       let content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-      await fireEvent.keyDown(content, { key: 'Escape' })
+      fireEvent.keyDown(content, { key: 'Escape' })
       await finishMenuExitMotion()
 
       vi.useFakeTimers()
-      await fireEvent.pointerDown(serverTrigger, {
+      fireEvent.pointerDown(serverTrigger, {
         pointerId: 21,
         pointerType: 'touch',
         clientX: 30,
@@ -236,7 +233,7 @@ describe('ContextMenu', () => {
 
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
       content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-      await fireEvent.keyDown(content, { key: 'Escape' })
+      fireEvent.keyDown(content, { key: 'Escape' })
       await finishMenuExitMotion()
       await Promise.resolve()
     } finally {
@@ -276,7 +273,7 @@ describe('ContextMenu', () => {
     expect(enabledTrigger.getAttribute('data-closed')).toBe('')
     expect(enabledTrigger.hasAttribute('data-expanded')).toBe(false)
 
-    await fireEvent.contextMenu(enabledScreen.getByText('Enabled Row'), {
+    fireEvent.contextMenu(enabledScreen.getByText('Enabled Row'), {
       clientX: 12,
       clientY: 18,
     })
@@ -359,7 +356,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'))
+    fireEvent.contextMenu(screen.getByText('Row Item'))
 
     expect(onContextMenu).toHaveBeenCalledTimes(1)
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -387,13 +384,13 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
       await vi.advanceTimersByTimeAsync(699)
-      await fireEvent.contextMenu(row)
+      fireEvent.contextMenu(row)
       await vi.advanceTimersByTimeAsync(1)
 
       expect(onOpenChange).not.toHaveBeenCalled()
@@ -424,22 +421,22 @@ describe('ContextMenu', () => {
     const row = screen.getByText('Row Item')
     expect(triggerRef).toHaveBeenCalledWith(row)
 
-    await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      const content = document.body.querySelector('[data-slot="content"]')
       expect(content).not.toBeNull()
       expect(document.activeElement).toBe(content)
     })
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-    await fireEvent.keyDown(content, { key: 'd' })
+    fireEvent.keyDown(content, { key: 'd' })
 
     expect(
       document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
     ).toContain('Duplicate')
 
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()
 
     await waitFor(() => {
@@ -454,7 +451,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.click(screen.getByText('Row Item'))
+    fireEvent.click(screen.getByText('Row Item'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
@@ -474,7 +471,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(enabledScreen.getByTestId('enabled-row'), {
+    fireEvent.contextMenu(enabledScreen.getByTestId('enabled-row'), {
       clientX: 12,
       clientY: 18,
     })
@@ -501,7 +498,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(disabledScreen.getByTestId('disabled-row'), {
+    fireEvent.contextMenu(disabledScreen.getByTestId('disabled-row'), {
       clientX: 24,
       clientY: 32,
     })
@@ -523,7 +520,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(true)
@@ -568,7 +565,7 @@ describe('ContextMenu', () => {
     ))
 
     const content = await waitFor(() => {
-      const element = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+      const element = document.body.querySelector('[data-slot="content"]')
       expect(element).not.toBeNull()
       return element!
     })
@@ -589,7 +586,7 @@ describe('ContextMenu', () => {
         </ContextMenu>
       ))
 
-      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+      fireEvent.pointerDown(screen.getByText('Row Item'), {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
@@ -618,13 +615,13 @@ describe('ContextMenu', () => {
       ))
       const row = screen.getByText('Row Item')
 
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerId: 1,
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerId: 2,
         pointerType: 'touch',
         clientX: 31,
@@ -657,7 +654,7 @@ describe('ContextMenu', () => {
         </ContextMenu>
       ))
 
-      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+      fireEvent.pointerDown(screen.getByText('Row Item'), {
         pointerId: 5,
         pointerType: 'touch',
         clientX: 21,
@@ -686,7 +683,7 @@ describe('ContextMenu', () => {
         </ContextMenu>
       ))
 
-      await fireEvent.pointerDown(screen.getByText('Row Item'), {
+      fireEvent.pointerDown(screen.getByText('Row Item'), {
         pointerId: 7,
         pointerType: 'touch',
         clientX: 21,
@@ -706,7 +703,7 @@ describe('ContextMenu', () => {
       expect(completingEvent.defaultPrevented).toBe(true)
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
 
-      await fireEvent.pointerDown(document.body, {
+      fireEvent.pointerDown(document.body, {
         pointerId: 8,
         pointerType: 'touch',
       })
@@ -728,31 +725,31 @@ describe('ContextMenu', () => {
       ))
       const row = screen.getByText('Row Item')
 
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerId: 9,
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
       await vi.advanceTimersByTimeAsync(700)
-      await fireEvent.contextMenu(row, { clientX: 21, clientY: 34 })
-      await fireEvent.pointerUp(row, { pointerId: 9, pointerType: 'touch' })
+      fireEvent.contextMenu(row, { clientX: 21, clientY: 34 })
+      fireEvent.pointerUp(row, { pointerId: 9, pointerType: 'touch' })
       await vi.advanceTimersByTimeAsync(16)
       expect(onOpenChange).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
 
-      await fireEvent.pointerDown(document.body, { pointerId: 10, pointerType: 'touch' })
+      fireEvent.pointerDown(document.body, { pointerId: 10, pointerType: 'touch' })
       await finishMenuExitMotion()
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerId: 11,
         pointerType: 'touch',
         clientX: 40,
         clientY: 50,
       })
       await vi.advanceTimersByTimeAsync(700)
-      await fireEvent.pointerUp(row, { pointerId: 11, pointerType: 'touch' })
+      fireEvent.pointerUp(row, { pointerId: 11, pointerType: 'touch' })
       await vi.advanceTimersByTimeAsync(1_000)
-      await fireEvent.contextMenu(row, { clientX: 40, clientY: 50 })
+      fireEvent.contextMenu(row, { clientX: 40, clientY: 50 })
 
       expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true, false])
     } finally {
@@ -772,14 +769,14 @@ describe('ContextMenu', () => {
       ))
       const row = screen.getByText('Row Item')
 
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerId: 12,
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
       await vi.advanceTimersByTimeAsync(700)
-      await fireEvent.contextMenu(row, { clientX: 60, clientY: 70 })
+      fireEvent.contextMenu(row, { clientX: 60, clientY: 70 })
 
       expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false])
     } finally {
@@ -804,7 +801,7 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
@@ -842,12 +839,12 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
-      await fireEvent.pointerUp(row, {
+      fireEvent.pointerUp(row, {
         pointerType: 'touch',
         cancelable: true,
       })
@@ -872,12 +869,12 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
-      await fireEvent.pointerMove(row, {
+      fireEvent.pointerMove(row, {
         pointerType: 'touch',
         clientX: 26,
         clientY: 37,
@@ -904,12 +901,12 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 21,
         clientY: 34,
       })
-      await fireEvent.pointerMove(row, {
+      fireEvent.pointerMove(row, {
         pointerType: 'touch',
         clientX: 40,
         clientY: 34,
@@ -931,7 +928,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -974,7 +971,7 @@ describe('ContextMenu', () => {
 
     const row = screen.getByText('Row Item')
 
-    await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -1008,13 +1005,13 @@ describe('ContextMenu', () => {
 
     const row = screen.getByText('Row Item')
 
-    await fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(row, { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
-    await fireEvent.pointerDown(row, { button: 0, pointerType: 'mouse' })
+    fireEvent.pointerDown(row, { button: 0, pointerType: 'mouse' })
 
     expect(row.closest('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe('false')
     expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
@@ -1032,7 +1029,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="overlay"]')).not.toBeNull()
@@ -1041,7 +1038,7 @@ describe('ContextMenu', () => {
     expect(document.body.style.overflow).toBe('hidden')
 
     const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
-    await fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
+    fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
     await finishMenuExitMotion()
 
     expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
@@ -1102,7 +1099,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.textContent).toContain('Nested action')
@@ -1159,7 +1156,7 @@ describe('ContextMenu', () => {
     })
 
     const subTrigger = rootContent.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
 
     const submenuContent = await waitFor(() => {
       const content = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
@@ -1205,7 +1202,7 @@ describe('ContextMenu', () => {
 
       const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
       const subTrigger = rootContent.querySelector('[data-slot="item"]') as HTMLElement
-      await fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
+      fireEvent.pointerMove(subTrigger, { pointerType: 'mouse' })
       await vi.advanceTimersByTimeAsync(100)
       await vi.advanceTimersByTimeAsync(16)
 
@@ -1273,16 +1270,14 @@ describe('ContextMenu', () => {
         expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(3)
       })
 
-      const contents = Array.from(
-        document.body.querySelectorAll('[data-slot="content"]'),
-      ) as HTMLElement[]
+      const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
       const [rootContent, middleContent, deepestContent] = contents as [
         HTMLElement,
         HTMLElement,
         HTMLElement,
       ]
 
-      await fireEvent.keyDown(rootContent, { key: 'Escape' })
+      fireEvent.keyDown(rootContent, { key: 'Escape' })
 
       await waitFor(() => {
         expect(closeOrder).toEqual([deepestContent.id, middleContent.id, rootContent.id])
@@ -1368,7 +1363,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="custom-Child-1"]')).not.toBeNull()
@@ -1394,7 +1389,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 10, clientY: 10 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 10, clientY: 10 })
 
     await waitFor(() => {
       expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
@@ -1418,13 +1413,13 @@ describe('ContextMenu', () => {
       ))
 
       const row = screen.getByText('Row Item')
-      await fireEvent.contextMenu(row, { clientX: 24, clientY: 32 })
+      fireEvent.contextMenu(row, { clientX: 24, clientY: 32 })
 
       await waitFor(() => {
         expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       })
 
-      await fireEvent.pointerDown(row, {
+      fireEvent.pointerDown(row, {
         pointerType: 'touch',
         clientX: 30,
         clientY: 42,
@@ -1460,17 +1455,17 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
 
     const checkboxItem = document.body.querySelector('[data-slot="item"]') as HTMLElement
     checkboxItem.focus()
-    await fireEvent.keyDown(checkboxItem, { key: 'Enter' })
+    fireEvent.keyDown(checkboxItem, { key: 'Enter' })
 
     const disabledItem = Array.from(document.body.querySelectorAll('[data-slot="item"]')).find(
       (el) => el.textContent?.includes('Disabled action'),
     ) as HTMLElement
 
-    await fireEvent.click(disabledItem)
+    fireEvent.click(disabledItem)
 
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
@@ -1511,25 +1506,23 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
 
-    const radioItems = Array.from(
-      document.body.querySelectorAll('[role="menuitemradio"]'),
-    ) as HTMLElement[]
+    const radioItems = Array.from(document.body.querySelectorAll('[role="menuitemradio"]'))
     const [nameItem, dateItem, disabledItem] = radioItems as [HTMLElement, HTMLElement, HTMLElement]
 
     expect(nameItem.getAttribute('aria-checked')).toBe('true')
     expect(dateItem.getAttribute('aria-checked')).toBe('false')
 
     dateItem.focus()
-    await fireEvent.keyDown(dateItem, { key: 'Enter' })
+    fireEvent.keyDown(dateItem, { key: 'Enter' })
 
     expect(nameItem.getAttribute('aria-checked')).toBe('false')
     expect(dateItem.getAttribute('aria-checked')).toBe('true')
     expect(onValueChange).toHaveBeenCalledWith('date')
 
     disabledItem.focus()
-    await fireEvent.keyDown(disabledItem, { key: 'Enter' })
+    fireEvent.keyDown(disabledItem, { key: 'Enter' })
 
     expect(disabledItem.getAttribute('aria-checked')).toBe('false')
     expect(dateItem.getAttribute('aria-checked')).toBe('true')
@@ -1543,7 +1536,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="itemLeading"]')).not.toBeNull()
@@ -1569,7 +1562,7 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
 
     await waitFor(() => {
       expect(document.body.querySelectorAll('[data-slot="content"]').length).toBeGreaterThanOrEqual(
@@ -1586,21 +1579,20 @@ describe('ContextMenu', () => {
       (content) => content.textContent?.includes('Nested action'),
     ) as HTMLElement
 
-    subContent.getBoundingClientRect = () =>
-      ({
-        bottom: 120,
-        height: 80,
-        left: 60,
-        right: 140,
-        top: 40,
-        width: 80,
-        x: 60,
-        y: 40,
-        toJSON: () => ({}),
-      }) as DOMRect
+    subContent.getBoundingClientRect = () => ({
+      bottom: 120,
+      height: 80,
+      left: 60,
+      right: 140,
+      top: 40,
+      width: 80,
+      x: 60,
+      y: 40,
+      toJSON: () => ({}),
+    })
 
-    await fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
-    await fireEvent.pointerEnter(sibling, { clientX: 80, clientY: 80, pointerType: 'mouse' })
+    fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+    fireEvent.pointerEnter(sibling, { clientX: 80, clientY: 80, pointerType: 'mouse' })
 
     expect(sibling.hasAttribute('data-highlighted')).toBe(false)
     expect(subTrigger.getAttribute('data-expanded')).toBe('')
@@ -1629,7 +1621,7 @@ describe('ContextMenu', () => {
         </ContextMenu>
       ))
 
-      await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
+      fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 16, clientY: 16 })
 
       await waitFor(() => {
         expect(document.body.textContent).toContain('Nested action')
@@ -1644,21 +1636,20 @@ describe('ContextMenu', () => {
         (content) => content.textContent?.includes('Nested action'),
       ) as HTMLElement
 
-      firstContent.getBoundingClientRect = () =>
-        ({
-          bottom: 120,
-          height: 80,
-          left: 60,
-          right: 140,
-          top: 40,
-          width: 80,
-          x: 60,
-          y: 40,
-          toJSON: () => ({}),
-        }) as DOMRect
+      firstContent.getBoundingClientRect = () => ({
+        bottom: 120,
+        height: 80,
+        left: 60,
+        right: 140,
+        top: 40,
+        width: 80,
+        x: 60,
+        y: 40,
+        toJSON: () => ({}),
+      })
 
-      await fireEvent.pointerLeave(firstTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
-      await fireEvent.pointerEnter(secondTrigger, {
+      fireEvent.pointerLeave(firstTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+      fireEvent.pointerEnter(secondTrigger, {
         clientX: 80,
         clientY: 80,
         pointerType: 'mouse',
@@ -1698,13 +1689,13 @@ describe('ContextMenu', () => {
       </ContextMenu>
     ))
 
-    await fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 12, clientY: 18 })
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')
     expect(content?.style.width).toBe('200px')
     expect(content?.style.getPropertyValue('--mo-enter-translate-x')).toBe('1rem')
     expect(content?.style.getPropertyValue('--mo-enter-translate-y')).toBe('2rem')

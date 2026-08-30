@@ -52,7 +52,7 @@ export namespace FormFieldT {
     /**
      * The current error for the field.
      */
-    error?: boolean | string | JSX.Element
+    error?: JSX.Element
   }
 
   export interface Slot<T = unknown> {
@@ -132,7 +132,7 @@ export namespace FormFieldT {
     /**
      * Custom error message or force error state.
      */
-    error?: boolean | string | JSX.Element
+    error?: JSX.Element
 
     /**
      * Hint text shown near the label.
@@ -357,14 +357,11 @@ export function FormField<
 
   function renderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
-    const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(
-      body() as FormFieldT.Base<TSchema, T>['children'],
-      {
-        get error() {
-          return resolvedError()
-        },
+    const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
+      get error() {
+        return resolvedError()
       },
-    )
+    })
 
     return (
       <Dynamic
@@ -477,7 +474,7 @@ export function FormField<
               style={merged.styles?.error}
               class={cn('text-destructive', merged.classes?.error)}
             >
-              {resolvedError() as JSX.Element}
+              {resolvedError()}
             </div>
           </Show>
         </div>

@@ -309,8 +309,7 @@ function createColorVariableDeclarations(options: {
 
     for (const key of Object.keys(schemaEntry)) {
       if (key === 'hover' || key === 'active') {
-        const state = key as MoraineColorState
-        const stateValue = configuredGroup[state]
+        const stateValue = configuredGroup[key]
 
         if (
           stateValue !== undefined &&
@@ -319,13 +318,13 @@ function createColorVariableDeclarations(options: {
           typeof stateValue !== 'function'
         ) {
           throw new TypeError(
-            `[preset-moraine] ${color}.${state} must be a CSS string, percentage, or resolver function.`,
+            `[preset-moraine] ${color}.${key} must be a CSS string, percentage, or resolver function.`,
           )
         }
 
         const value = resolveColorStateValue({
           adjustment:
-            state === 'hover'
+            key === 'hover'
               ? options.adjustment.hoverAdjustment
               : options.adjustment.activeAdjustment,
           base,
@@ -333,13 +332,13 @@ function createColorVariableDeclarations(options: {
           foreground,
           foregroundReference,
           selector: options.selector,
-          state,
+          state: key,
           theme: options.theme,
           value: stateValue as MoraineColorStateValue | undefined,
         })
 
         if (value !== undefined) {
-          declarations.push(`${getColorVariableName(color, state)}: ${value};`)
+          declarations.push(`${getColorVariableName(color, key)}: ${value};`)
         }
         continue
       }

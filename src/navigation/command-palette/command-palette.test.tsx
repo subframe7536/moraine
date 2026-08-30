@@ -40,21 +40,18 @@ const GROUPS: CommandPaletteT.Group[] = [
 ]
 
 async function finishExitMotion(): Promise<void> {
-  const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
-  ) as HTMLElement[]
-  const overlays = Array.from(
-    document.body.querySelectorAll('[data-slot="overlay"]'),
-  ) as HTMLElement[]
+  await Promise.resolve()
+  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
+  const overlays = Array.from(document.body.querySelectorAll('[data-slot="overlay"]'))
 
   for (const content of contents) {
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
   }
 
   for (const overlay of overlays) {
-    await fireEvent.animationEnd(overlay)
-    await fireEvent.transitionEnd(overlay)
+    fireEvent.animationEnd(overlay)
+    fireEvent.transitionEnd(overlay)
   }
 }
 
@@ -83,27 +80,21 @@ describe('CommandPalette', () => {
     render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
 
     await waitFor(() => {
-      const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
-      ) as HTMLElement[]
+      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
       expect(trailing.some((el) => el.classList.contains('gap-1'))).toBe(true)
     })
 
     render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
 
     await waitFor(() => {
-      const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
-      ) as HTMLElement[]
+      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
       expect(trailing.some((el) => el.classList.contains('gap-1.5'))).toBe(true)
     })
 
     render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {
-      const trailing = Array.from(
-        document.body.querySelectorAll('[data-slot="itemTrailing"]'),
-      ) as HTMLElement[]
+      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
       expect(trailing.some((el) => el.classList.contains('gap-2'))).toBe(true)
     })
   })
@@ -174,7 +165,7 @@ describe('CommandPalette', () => {
     await waitFor(() => body().getByText('Action'))
 
     const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
-    await fireEvent.click(item)
+    fireEvent.click(item)
 
     expect(onItemSelect).toHaveBeenCalledTimes(1)
     expect(onSelect).toHaveBeenCalledWith(selectedItem)
@@ -210,7 +201,7 @@ describe('CommandPalette', () => {
     item.dispatchEvent(mouseEvent)
     item.dispatchEvent(touchEvent)
     item.dispatchEvent(penEvent)
-    await fireEvent.click(item)
+    fireEvent.click(item)
 
     expect(mouseEvent.defaultPrevented).toBe(true)
     expect(touchEvent.defaultPrevented).toBe(false)
@@ -251,7 +242,7 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => body().getByText('Action'))
-    await fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
 
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onClose).not.toHaveBeenCalled()
@@ -276,9 +267,9 @@ describe('CommandPalette', () => {
       />
     ))
 
-    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = body().getByPlaceholderText('Search...')
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onSelect).toHaveBeenCalledTimes(1)
   })
@@ -337,14 +328,14 @@ describe('CommandPalette', () => {
     ))
 
     expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
-    await fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
       expect(document.activeElement).toBe(document.body.querySelector('[data-slot="input"]'))
     })
 
-    await fireEvent.click(document.body.querySelector('[data-slot="close"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="close"]') as HTMLElement)
     await finishExitMotion()
 
     await waitFor(() => {
@@ -450,9 +441,9 @@ describe('CommandPalette', () => {
     render(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
 
     await waitFor(() => {
-      expect(
-        (document.body.querySelector('[data-slot="empty"]') as HTMLElement | null)?.style.width,
-      ).toBe('200px')
+      expect(document.body.querySelector<HTMLElement>('[data-slot="empty"]')?.style.width).toBe(
+        '200px',
+      )
     })
   })
 
@@ -511,8 +502,8 @@ describe('CommandPalette', () => {
   test('keeps the list unchanged on Backspace with an empty input', async () => {
     render(() => <CommandPalette groups={GROUPS} />)
 
-    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
-    await fireEvent.keyDown(input, { key: 'Backspace' })
+    const input = body().getByPlaceholderText('Search...')
+    fireEvent.keyDown(input, { key: 'Backspace' })
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
@@ -690,11 +681,9 @@ describe('CommandPalette', () => {
     render(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      const input = body().getByPlaceholderText('Search...') as HTMLInputElement
-      const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement | null
-      const activeItem = document.body.querySelector(
-        '[data-slot="item"][data-highlighted]',
-      ) as HTMLElement | null
+      const input = body().getByPlaceholderText('Search...')
+      const listbox = document.body.querySelector('[data-slot="listbox"]')
+      const activeItem = document.body.querySelector('[data-slot="item"][data-highlighted]')
 
       expect(input.getAttribute('role')).toBe('combobox')
       expect(input.getAttribute('aria-controls')).toBe(listbox?.id)
@@ -723,17 +712,17 @@ describe('CommandPalette', () => {
       />
     ))
 
-    const input = body().getByPlaceholderText('Search...') as HTMLInputElement
+    const input = body().getByPlaceholderText('Search...')
     input.focus()
     await waitFor(() => {
       expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(1)
       expect(document.body.querySelector('[role="option"]')?.textContent).toContain('New File')
     })
 
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
 
     await waitFor(() => {
-      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      const option = document.body.querySelector('[role="option"]')
       expect(option?.textContent).toContain('Open Folder')
       expect(option?.getAttribute('data-index')).toBe('2')
       expect(option?.getAttribute('aria-posinset')).toBe('2')
@@ -772,7 +761,7 @@ describe('CommandPalette', () => {
     render(() => <CommandPalette groups={GROUPS} size="lg" />)
 
     await waitFor(() => {
-      const option = document.body.querySelector('[role="option"]') as HTMLElement | null
+      const option = document.body.querySelector('[role="option"]')
       expect(option?.className).toContain('text-sm')
       expect(option?.className).toContain('min-h-8')
     })
@@ -894,7 +883,7 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const input = body().getByLabelText('Command Search') as HTMLInputElement
+      const input = body().getByLabelText<HTMLInputElement>('Command Search')
 
       expect(input.name).toBe('command-search')
       expect(input.getAttribute('data-track')).toBe('command-input')
@@ -911,7 +900,7 @@ describe('CommandPalette', () => {
     expect(item.className).toContain('item-prop')
     expect(item.style.height).toBe('40px')
 
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
   })
 
   test('requires value in item type contract', () => {

@@ -16,12 +16,7 @@ export function renderComponentOrElement<TProps extends object>(
   props: TProps,
 ): JSX.Element {
   if (typeof value === 'function') {
-    const mountComponent = createComponent as unknown as <TComponentProps extends object>(
-      component: (componentProps: TComponentProps) => JSX.Element,
-      componentProps: TComponentProps,
-    ) => JSX.Element
-
-    return mountComponent(value, props)
+    return createComponent(value, props)
   }
 
   return value

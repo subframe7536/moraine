@@ -6,7 +6,7 @@ export function InputStates() {
   const token = 'moraine_sec_9f823a10bc47e'
 
   const copyToken = () => {
-    navigator.clipboard?.writeText(token)
+    void navigator.clipboard?.writeText(token)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

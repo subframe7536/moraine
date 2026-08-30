@@ -10,7 +10,6 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -129,8 +128,8 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   const merged = mergeProps(
     {
       size: 'md' as const,
-      checkedIcon: 'icon-check' as IconT.Name,
-      submenuIcon: 'icon-chevron-right' as IconT.Name,
+      checkedIcon: 'icon-check',
+      submenuIcon: 'icon-chevron-right',
       placement: 'right-start' as const,
       gutter: 0,
       shift: 4,

@@ -2,7 +2,7 @@ import { cls } from 'cls-variant'
 import type { ClassValueArray } from 'cls-variant'
 import { cvaFactory } from 'cls-variant/cva'
 import type { CvaFunction } from 'cls-variant/cva'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
 
 /**
@@ -66,17 +66,17 @@ export interface HandlerCallResult<R = unknown> {
   result: R | undefined
 }
 
-export function callHandler<T, E extends Event, R = unknown>(
+export function callHandler<_T = any, E extends Event = Event, R = unknown>(
   event: E,
-  handler: JSX.EventHandlerUnion<T, E, any> | undefined,
+  handler: unknown,
 ): HandlerCallResult<R> {
   let result: R | undefined
 
   if (handler) {
     if (typeof handler === 'function') {
       result = (handler as (event: E) => R)(event)
-    } else {
-      result = (handler[0] as (data: T, event: E) => R)(handler[1] as T, event)
+    } else if (Array.isArray(handler) && typeof handler[0] === 'function') {
+      result = (handler[0] as (data: unknown, event: E) => R)(handler[1], event)
     }
   }
 

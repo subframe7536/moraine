@@ -61,7 +61,7 @@ describe('Collapsible', () => {
     expect(root?.hasAttribute('data-closed')).toBe(true)
     expect(screen.queryByTestId('content')).toBeNull()
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(root?.hasAttribute('data-expanded')).toBe(true)
@@ -70,7 +70,7 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
     expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(screen.queryByTestId('content')).toBeNull()
     expect(root?.hasAttribute('data-closed')).toBe(true)
   })
@@ -111,11 +111,11 @@ describe('Collapsible', () => {
 
     expect(root?.hasAttribute('data-closed')).toBe(true)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
     expect(root?.hasAttribute('data-expanded')).toBe(true)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
     expect(root?.hasAttribute('data-closed')).toBe(true)
   })
@@ -126,7 +126,7 @@ describe('Collapsible', () => {
     const trigger = screen.getByTestId('trigger-control')
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(root?.hasAttribute('data-expanded')).toBe(true)
@@ -138,8 +138,8 @@ describe('Collapsible', () => {
     const screen = renderCollapsible({ defaultOpen: false, onOpenChange })
     const trigger = screen.getByTestId('trigger-control')
 
-    await fireEvent.click(trigger)
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     expect(onOpenChange.mock.calls).toEqual([[true], [false]])
   })
@@ -154,7 +154,7 @@ describe('Collapsible', () => {
     const trigger = screen.getByTestId('trigger-control')
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(root?.hasAttribute('data-closed')).toBe(true)
@@ -174,7 +174,7 @@ describe('Collapsible', () => {
 
     setDisabled(true)
     expect(trigger.hasAttribute('disabled')).toBe(true)
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
@@ -215,7 +215,7 @@ describe('Collapsible', () => {
     setOpen(false)
     expect(wrapper.getAttribute('data-closed')).toBe('')
     setOpen(true)
-    await fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
 
     expect(screen.getByTestId('content')).not.toBeNull()
     expect(wrapper.getAttribute('data-expanded')).toBe('')
@@ -240,7 +240,7 @@ describe('Collapsible', () => {
     expect(outer.getAttribute('aria-expanded')).toBe('true')
     expect(inner.getAttribute('aria-expanded')).toBe('false')
 
-    await fireEvent.click(inner)
+    fireEvent.click(inner)
     expect(outer.getAttribute('aria-expanded')).toBe('true')
     expect(inner.getAttribute('aria-expanded')).toBe('true')
   })
@@ -257,7 +257,7 @@ describe('Collapsible', () => {
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     const contentWrapper = screen.container.querySelector(
@@ -266,7 +266,7 @@ describe('Collapsible', () => {
 
     expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
@@ -282,7 +282,7 @@ describe('Collapsible', () => {
     expect(contentWrapper.className).not.toContain('transition-[height]')
     expect(contentWrapper.className).not.toContain('duration-200')
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
@@ -298,14 +298,14 @@ describe('Collapsible', () => {
     expect(contentWrapper.className).toContain('data-expanded:animate-accordion-down')
     expect(contentWrapper.className).toContain('data-closed:animate-accordion-up')
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
     expect(contentWrapper.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
-    await fireEvent.animationEnd(contentWrapper, { animationName: 'accordion-up' })
+    fireEvent.animationEnd(contentWrapper, { animationName: 'accordion-up' })
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
@@ -340,9 +340,9 @@ describe('Collapsible', () => {
       },
     })
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')
@@ -382,12 +382,12 @@ describe('Collapsible', () => {
     expect(trigger.className).toContain('custom-div-trigger')
 
     // Enter key activates
-    await fireEvent.keyDown(trigger, { key: 'Enter' })
+    fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(screen.getByTestId('keyboard-content')).not.toBeNull()
 
     // Space key activates on keyUp
-    await fireEvent.keyDown(trigger, { key: ' ' })
-    await fireEvent.keyUp(trigger, { key: ' ' })
+    fireEvent.keyDown(trigger, { key: ' ' })
+    fireEvent.keyUp(trigger, { key: ' ' })
     expect(screen.queryByTestId('keyboard-content')).toBeNull()
   })
 
@@ -408,7 +408,7 @@ describe('Collapsible', () => {
     expect(wrapper.getAttribute('data-closed')).toBe('')
 
     const trigger = screen.getByRole('button', { name: 'Keep Mounted Trigger' })
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(wrapper.getAttribute('data-expanded')).toBe('')
     expect(screen.getByTestId('unmount-false-content')).not.toBeNull()
   })
@@ -480,14 +480,14 @@ describe('Collapsible', () => {
     expect(triggerReads).toBe(1)
     expect(contentReads).toBe(0)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(triggerReads).toBe(1)
     expect(contentReads).toBe(1)
     expect(screen.getByTestId('lazy-composable-content')).not.toBeNull()
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(contentReads).toBe(2)
   })
 
@@ -524,15 +524,15 @@ describe('Collapsible', () => {
     expect(contentMounts).toBe(0)
     expect(container.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     const contentWrapper = container.querySelector('[data-slot="content-wrapper"]')!
     expect(contentMounts).toBe(1)
     expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
     expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(container.querySelector('[data-slot="content"]')).toBeNull()
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     expect(contentMounts).toBe(2)
 
     dispose()

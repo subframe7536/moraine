@@ -1,7 +1,6 @@
 import type {
   FormProps as FormischFormProps,
   FormSchema,
-  FormStore,
   SubmitEventHandler,
 } from '@formisch/solid'
 import { Form as FormischForm, reset as resetForm } from '@formisch/solid'
@@ -68,7 +67,7 @@ export function Form<TSchema extends FormSchema>(props: FormProps<TSchema>): JSX
   }
 
   return (
-    <FormProvider value={local.of as FormStore}>
+    <FormProvider value={local.of}>
       <FormischForm
         {...formProps}
         of={local.of}

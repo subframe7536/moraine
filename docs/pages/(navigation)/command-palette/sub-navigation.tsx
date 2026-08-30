@@ -78,6 +78,7 @@ export function SubNavigation() {
         return CREATE_GROUPS
       case 'share':
         return SHARE_GROUPS
+      case 'root':
       default:
         return ROOT_GROUPS
     }

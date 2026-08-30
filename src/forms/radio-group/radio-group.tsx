@@ -437,7 +437,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     >
       <For each={normalizedItems()}>
         {(item) => {
-          const disabled = createMemo(() => Boolean(item.disabled || field.disabled()))
+          const disabled = createMemo(() => item.disabled || field.disabled())
           const selected = createMemo(() => isSelected(item))
 
           onCleanup(() => {

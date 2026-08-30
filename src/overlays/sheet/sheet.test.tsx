@@ -10,17 +10,18 @@ import { Sheet } from './sheet.tsx'
 import type { SheetProps } from './sheet.tsx'
 
 async function finishExitMotion(): Promise<void> {
+  await Promise.resolve()
   const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
   const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement | null
 
   if (content) {
-    await fireEvent.animationEnd(content)
-    await fireEvent.transitionEnd(content)
+    fireEvent.animationEnd(content)
+    fireEvent.transitionEnd(content)
   }
 
   if (overlay) {
-    await fireEvent.animationEnd(overlay)
-    await fireEvent.transitionEnd(overlay)
+    fireEvent.animationEnd(overlay)
+    fireEvent.transitionEnd(overlay)
   }
 }
 
@@ -309,7 +310,7 @@ describe('Sheet', () => {
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
     })
-    await fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
     screen.unmount()
@@ -377,7 +378,7 @@ describe('Sheet', () => {
     expect(container.querySelectorAll('[data-slot="trigger"]')[1]).toBe(defaultTrigger)
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(customTrigger)
+    fireEvent.click(customTrigger)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
@@ -392,14 +393,14 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-testid="server-footer"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="server-close-icon"]')).toBeNull()
 
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
     await finishExitMotion()
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
       expect(document.activeElement).toBe(customTrigger)
     })
 
-    await fireEvent.click(defaultTrigger)
+    fireEvent.click(defaultTrigger)
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
@@ -408,7 +409,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-testid="default-action"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
 
-    await fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
     await finishExitMotion()
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
@@ -503,14 +504,14 @@ describe('Sheet', () => {
 
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
 
-    await fireEvent.click(screen.getByText('Open sheet'))
+    fireEvent.click(screen.getByText('Open sheet'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
     const closeButton = document.body.querySelector('[data-slot="close"]') as HTMLElement
-    await fireEvent.click(closeButton)
+    fireEvent.click(closeButton)
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
@@ -566,7 +567,7 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -593,7 +594,7 @@ describe('Sheet', () => {
     ))
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await fireEvent.pointerDown(screen.getByTestId('outside'))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
@@ -623,7 +624,7 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
     content.focus()
-    await fireEvent.keyDown(content, { key: 'Escape' })
+    fireEvent.keyDown(content, { key: 'Escape' })
 
     await finishExitMotion()
 

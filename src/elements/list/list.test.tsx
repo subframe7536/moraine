@@ -27,7 +27,7 @@ describe('List', () => {
 
     expect(screen.getByRole('list').textContent).toBe('Engineer')
 
-    await fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button'))
 
     expect(screen.getByRole('list').textContent).toBe('Designer')
   })
@@ -157,7 +157,7 @@ describe('List', () => {
 
     const list = screen.getByRole('list')
     Object.defineProperty(list, 'scrollTop', { configurable: true, value: 1440 })
-    await fireEvent.scroll(list)
+    fireEvent.scroll(list)
 
     expect(screen.getByText('Result 41').getAttribute('data-index')).toBe('40')
   })

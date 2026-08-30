@@ -264,9 +264,9 @@ describe('Stepper', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')

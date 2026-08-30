@@ -49,7 +49,7 @@ describe('Button', () => {
     ))
     const button = screen.getByTestId('save')
 
-    await fireEvent.pointerDown(button)
+    fireEvent.pointerDown(button)
 
     expect(onPointerDown).toHaveBeenCalledTimes(1)
     expect(button.getAttribute('data-slot')).toBe('save')
@@ -65,10 +65,10 @@ describe('Button', () => {
     const screen = render(() => <Button {...handlers}>Events</Button>)
     const button = screen.getByRole('button', { name: 'Events' })
 
-    await fireEvent.pointerUp(button)
-    await fireEvent.pointerCancel(button)
-    await fireEvent.pointerLeave(button)
-    await fireEvent.contextMenu(button)
+    fireEvent.pointerUp(button)
+    fireEvent.pointerCancel(button)
+    fireEvent.pointerLeave(button)
+    fireEvent.contextMenu(button)
 
     expect(handlers.onPointerUp).toHaveBeenCalledTimes(1)
     expect(handlers.onPointerCancel).toHaveBeenCalledTimes(1)
@@ -96,7 +96,7 @@ describe('Button', () => {
       </Button>
     ))
 
-    await fireEvent.click(screen.getByRole('link', { name: 'Docs' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Docs' }))
 
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
@@ -288,10 +288,10 @@ describe('Button', () => {
       </Button>
     ))
 
-    const button = screen.getByRole('button', { name: 'Label' }) as HTMLElement
-    const leading = button.querySelector('[data-slot="leading"]') as HTMLElement | null
-    const label = button.querySelector('[data-slot="label"]') as HTMLElement | null
-    const trailing = button.querySelector('[data-slot="trailing"]') as HTMLElement | null
+    const button = screen.getByRole('button', { name: 'Label' })
+    const leading = button.querySelector<HTMLElement>('[data-slot="leading"]')
+    const label = button.querySelector<HTMLElement>('[data-slot="label"]')
+    const trailing = button.querySelector<HTMLElement>('[data-slot="trailing"]')
 
     expect(leading?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')
@@ -477,7 +477,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Submit' })
-    await fireEvent.click(button)
+    fireEvent.click(button)
 
     expect(onclick).toHaveBeenCalledTimes(1)
     await waitFor(() => {
@@ -531,7 +531,7 @@ describe('Button', () => {
     expect(button.textContent).toBe('Submit')
     expect(children).toHaveBeenCalledTimes(1)
 
-    await fireEvent.click(button)
+    fireEvent.click(button)
 
     await waitFor(() => {
       expect(button.textContent).toBe('Submitting')
@@ -555,7 +555,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Sync' })
-    await fireEvent.click(button)
+    fireEvent.click(button)
 
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(button.hasAttribute('data-loading')).toBe(false)
@@ -571,7 +571,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Busy' })
-    await fireEvent.click(button)
+    fireEvent.click(button)
 
     expect(button.hasAttribute('disabled')).toBe(true)
     expect(onClick).not.toHaveBeenCalled()
@@ -591,7 +591,7 @@ describe('Button', () => {
       expect(button.getAttribute('role')).toBe('button')
       expect(button.getAttribute('tabIndex')).toBe('0')
 
-      await fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.keyDown(button, { key: 'Enter' })
 
       expect(onclick).toHaveBeenCalledTimes(1)
     })
@@ -612,7 +612,7 @@ describe('Button', () => {
       expect(keyDown.defaultPrevented).toBe(true)
       expect(onclick).not.toHaveBeenCalled()
 
-      await fireEvent.keyUp(button, { key: ' ' })
+      fireEvent.keyUp(button, { key: ' ' })
       expect(onclick).toHaveBeenCalledTimes(1)
     })
 
@@ -625,7 +625,7 @@ describe('Button', () => {
       ))
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyUp(button, { key: ' ' })
+      fireEvent.keyUp(button, { key: ' ' })
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -639,7 +639,7 @@ describe('Button', () => {
       ))
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyDown(button, { key: 'Enter', shiftKey: true, metaKey: true })
+      fireEvent.keyDown(button, { key: 'Enter', shiftKey: true, metaKey: true })
 
       expect(onclick).toHaveBeenCalledTimes(1)
       expect(onclick.mock.calls[0]?.[0]).toMatchObject({ shiftKey: true, metaKey: true, detail: 0 })
@@ -653,9 +653,9 @@ describe('Button', () => {
         </Button>
       ))
 
-      await fireEvent.keyDown(screen.getByTestId('nested'), { key: 'Enter' })
-      await fireEvent.keyDown(screen.getByTestId('nested'), { key: ' ' })
-      await fireEvent.keyUp(screen.getByTestId('nested'), { key: ' ' })
+      fireEvent.keyDown(screen.getByTestId('nested'), { key: 'Enter' })
+      fireEvent.keyDown(screen.getByTestId('nested'), { key: ' ' })
+      fireEvent.keyUp(screen.getByTestId('nested'), { key: ' ' })
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -670,9 +670,9 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyDown(button, { key: 'a' })
-      await fireEvent.keyDown(button, { key: 'Escape' })
-      await fireEvent.keyDown(button, { key: 'Tab' })
+      fireEvent.keyDown(button, { key: 'a' })
+      fireEvent.keyDown(button, { key: 'Escape' })
+      fireEvent.keyDown(button, { key: 'Tab' })
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -688,7 +688,7 @@ describe('Button', () => {
       const button = screen.getByRole('button', { name: 'Disabled' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
 
-      await fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.keyDown(button, { key: 'Enter' })
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -705,7 +705,7 @@ describe('Button', () => {
       expect(button.getAttribute('aria-disabled')).toBe('true')
       expect(button.getAttribute('aria-busy')).toBe('true')
 
-      await fireEvent.keyDown(button, { key: ' ' })
+      fireEvent.keyDown(button, { key: ' ' })
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -720,7 +720,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Disabled' })
 
-      await fireEvent.click(button)
+      fireEvent.click(button)
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -735,7 +735,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Loading' })
 
-      await fireEvent.click(button)
+      fireEvent.click(button)
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -807,7 +807,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.keyDown(button, { key: 'Enter' })
 
       expect(onkeydown).toHaveBeenCalledTimes(1)
       expect(onclick).toHaveBeenCalledTimes(1)
@@ -824,7 +824,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Click me' })
 
-      await fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.keyDown(button, { key: 'Enter' })
 
       expect(onkeydown).toHaveBeenCalledTimes(1)
       expect(onclick).not.toHaveBeenCalled()
@@ -843,8 +843,8 @@ describe('Button', () => {
       ))
       const keyDownButton = keyDownScreen.getByRole('button', { name: 'Keydown canceled' })
 
-      await fireEvent.keyDown(keyDownButton, { key: ' ' })
-      await fireEvent.keyUp(keyDownButton, { key: ' ' })
+      fireEvent.keyDown(keyDownButton, { key: ' ' })
+      fireEvent.keyUp(keyDownButton, { key: ' ' })
       expect(onClickFromKeyDown).not.toHaveBeenCalled()
 
       const onClickFromKeyUp = vi.fn()
@@ -859,8 +859,8 @@ describe('Button', () => {
       ))
       const keyUpButton = keyUpScreen.getByRole('button', { name: 'Keyup canceled' })
 
-      await fireEvent.keyDown(keyUpButton, { key: ' ' })
-      await fireEvent.keyUp(keyUpButton, { key: ' ' })
+      fireEvent.keyDown(keyUpButton, { key: ' ' })
+      fireEvent.keyUp(keyUpButton, { key: ' ' })
       expect(onClickFromKeyUp).not.toHaveBeenCalled()
     })
 
@@ -873,8 +873,8 @@ describe('Button', () => {
       ))
       const button = screen.getByRole('button', { name: 'Ordered' })
 
-      await fireEvent.keyDown(button, { key: ' ' })
-      await fireEvent.keyUp(button, { key: ' ' })
+      fireEvent.keyDown(button, { key: ' ' })
+      fireEvent.keyUp(button, { key: ' ' })
 
       expect(order).toEqual(['keyup', 'click'])
     })
@@ -892,7 +892,7 @@ describe('Button', () => {
 
     expect(button.tagName).toBe('SPAN')
     expect(button.getAttribute('tabindex')).toBe('0')
-    await fireEvent.keyDown(button, { key: 'Enter' })
+    fireEvent.keyDown(button, { key: 'Enter' })
     expect(onclick).toHaveBeenCalledTimes(1)
   })
 
@@ -939,7 +939,7 @@ describe('Button', () => {
       expect(root.getAttribute('role')).toBeNull()
       const keyDown = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
       root.dispatchEvent(keyDown)
-      await fireEvent.keyUp(root, { key: ' ' })
+      fireEvent.keyUp(root, { key: ' ' })
 
       expect(keyDown.defaultPrevented).toBe(false)
       expect(onClick).not.toHaveBeenCalled()
@@ -980,18 +980,18 @@ describe('Button', () => {
 
     expect(button).toBe(serverRoot)
     expect(button.textContent).toBe('Save')
-    await fireEvent.click(button)
+    fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(1)
 
     setLoading(true)
     expect(button.textContent).toBe('Saving')
     const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
     button.dispatchEvent(pointerDown)
-    await fireEvent.click(button)
+    fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(1)
 
     setLoading(false)
-    await fireEvent.click(button)
+    fireEvent.click(button)
     expect(onClick).toHaveBeenCalledTimes(2)
 
     dispose()
@@ -1038,7 +1038,7 @@ describe('Button', () => {
       expect(button.getAttribute('role')).toBe('button')
       expect(button.getAttribute('tabIndex')).toBe('0')
 
-      await fireEvent.keyDown(button, { key: 'Enter' })
+      fireEvent.keyDown(button, { key: 'Enter' })
 
       expect(onclick).toHaveBeenCalledTimes(1)
     })
@@ -1053,7 +1053,7 @@ describe('Button', () => {
 
       const anchor = screen.getByRole('link', { name: 'Disabled Link' })
 
-      await fireEvent.click(anchor)
+      fireEvent.click(anchor)
 
       expect(onclick).not.toHaveBeenCalled()
     })
@@ -1068,7 +1068,7 @@ describe('Button', () => {
 
       const anchor = screen.getByRole('link', { name: 'Loading Link' })
 
-      await fireEvent.click(anchor)
+      fireEvent.click(anchor)
 
       expect(onclick).not.toHaveBeenCalled()
     })

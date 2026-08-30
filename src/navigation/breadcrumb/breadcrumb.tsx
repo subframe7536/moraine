@@ -180,9 +180,9 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   ])
   const merged = mergeProps(
     {
-      separator: 'icon-chevron-right' as IconT.Name,
+      separator: 'icon-chevron-right' as const,
       wrap: true,
-      size: 'md' as BreadcrumbT.Base['size'],
+      size: 'md' as const,
       'aria-label': 'breadcrumb',
     },
     local,
@@ -215,7 +215,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
-            const isDisabled = createMemo(() => Boolean(item.disabled || isCurrent()))
+            const isDisabled = createMemo(() => Boolean(item.disabled) || isCurrent())
             const leading = createMemo(() => item.icon)
             const label = createMemo(() => item.label)
             const hasLabel = createMemo(() => {

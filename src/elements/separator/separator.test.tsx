@@ -158,7 +158,7 @@ describe('Separator', () => {
     const screen = render(() => (
       <Separator classes={{ root: 'root-override' }} styles={{ root: { width: '200px' } }} />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.className).toContain('root-override')
     expect(root?.style.width).toBe('200px')

@@ -28,14 +28,12 @@ function queryAllBody(selector: string): NodeListOf<Element> {
 }
 
 async function finishSelectExitMotion(): Promise<void> {
-  const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
-  ) as HTMLElement[]
+  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
 
   await Promise.all(
     contents.map(async (content) => {
-      await fireEvent.animationEnd(content)
-      await fireEvent.transitionEnd(content)
+      fireEvent.animationEnd(content)
+      fireEvent.transitionEnd(content)
     }),
   )
 }
@@ -98,7 +96,7 @@ describe('MultiSelect', () => {
     ).toEqual(['Apple', 'dragonfruit'])
     expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'dragonfruit'])
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
     expect(onChange).toHaveBeenCalledWith(['apple', 'dragonfruit', 'banana'])
   })
@@ -137,13 +135,13 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect search options={FRUITS} value={['apple']} onChange={onChange} />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole('combobox')
     const remove = screen.getByRole('button', { name: 'Remove Apple' })
     input.focus()
 
     const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
     remove.dispatchEvent(pointerDown)
-    await fireEvent.click(remove)
+    fireEvent.click(remove)
 
     expect(pointerDown.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(input)
@@ -159,13 +157,13 @@ describe('MultiSelect', () => {
     const tag = screen.container.querySelector('[data-slot="tag"]')!
 
     expect(tag.querySelector('button')).toBeNull()
-    await fireEvent.click(tag.querySelector('[data-slot="tagRemove"]')!)
+    fireEvent.click(tag.querySelector('[data-slot="tagRemove"]')!)
     expect(onChange).not.toHaveBeenCalled()
   })
 
   test('focuses the input when the selected tag label is pressed', () => {
     const screen = render(() => <MultiSelect search options={FRUITS} value={['apple']} />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     const label = screen.container.querySelector('[data-slot="tag"] [data-slot="label"]')!
 
     label.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
@@ -178,7 +176,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     input.focus()
     input.setSelectionRange(0, 0)
     const event = new KeyboardEvent('keydown', {
@@ -205,14 +203,14 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.input(input, { target: { value: 'query' } })
+    fireEvent.input(input, { target: { value: 'query' } })
     input.setSelectionRange(0, 5)
-    await fireEvent.keyDown(input, { key: 'Backspace' })
-    await fireEvent.input(input, { target: { value: '' } })
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    fireEvent.input(input, { target: { value: '' } })
     input.setSelectionRange(0, 0)
-    await fireEvent.keyDown(input, { key: 'Delete' })
+    fireEvent.keyDown(input, { key: 'Delete' })
 
     expect(onChange).not.toHaveBeenCalled()
 
@@ -227,9 +225,9 @@ describe('MultiSelect', () => {
         onChange={disabledOnChange}
       />
     ))
-    const disabledInput = disabledScreen.getByRole('combobox') as HTMLInputElement
+    const disabledInput = disabledScreen.getByRole<HTMLInputElement>('combobox')
     disabledInput.setSelectionRange(0, 0)
-    await fireEvent.keyDown(disabledInput, { key: 'Backspace' })
+    fireEvent.keyDown(disabledInput, { key: 'Backspace' })
 
     expect(disabledOnChange).not.toHaveBeenCalled()
   })
@@ -244,7 +242,7 @@ describe('MultiSelect', () => {
         onChange={onChange}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     input.setSelectionRange(0, 0)
 
     input.dispatchEvent(
@@ -259,7 +257,7 @@ describe('MultiSelect', () => {
     render(() => <MultiSelect options={FRUITS} defaultOpen onChange={onChange} />)
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[0]!)
+    fireEvent.click(items[0]!)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
@@ -282,7 +280,7 @@ describe('MultiSelect', () => {
       ),
     )
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
@@ -301,7 +299,7 @@ describe('MultiSelect', () => {
       <MultiSelect options={FRUITS} value={value()} defaultOpen onChange={onChange} />
     ))
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
@@ -360,7 +358,7 @@ describe('MultiSelect', () => {
     const combobox = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     combobox.focus()
 
-    await fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
 
     await waitFor(() => {
       const item = queryBody('[data-slot="item"]')
@@ -385,7 +383,7 @@ describe('MultiSelect', () => {
     ))
 
     const items = queryAllBody('[data-slot="item"]')
-    await fireEvent.click(items[1]!)
+    fireEvent.click(items[1]!)
 
     expect(onChange).not.toHaveBeenCalled()
   })
@@ -411,8 +409,8 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'custom,' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'custom,' } })
 
     expect(onChange).toHaveBeenCalledWith(['custom'])
     await waitFor(() => {
@@ -433,8 +431,8 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Apple,ba' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Apple,ba' } })
 
     expect(onChange).toHaveBeenCalledWith(['apple'])
     expect(onSearch).toHaveBeenLastCalledWith('ba')
@@ -455,9 +453,9 @@ describe('MultiSelect', () => {
         onSearch={onSearch}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.input(input, { target: { value: 'custom:value::Apple::tail' } })
+    fireEvent.input(input, { target: { value: 'custom:value::Apple::tail' } })
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['custom:value', 'apple'])
@@ -470,15 +468,15 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect search options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.compositionStart(input)
-    await fireEvent.input(input, { target: { value: 'custom,' } })
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: 'custom,' } })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('custom,')
 
-    await fireEvent.compositionEnd(input)
+    fireEvent.compositionEnd(input)
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['custom'])
@@ -498,8 +496,8 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'banana,' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'banana,' } })
 
     expect(onChange).not.toHaveBeenCalled()
     await waitFor(() => {
@@ -513,9 +511,9 @@ describe('MultiSelect', () => {
       <MultiSelect search options={FRUITS} defaultOpen allowCreate onChange={onChange} />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onChange).toHaveBeenCalledWith(['Dragonfruit'])
     expect(input.value).toBe('')
@@ -535,9 +533,9 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('Dragonfruit')
@@ -549,9 +547,9 @@ describe('MultiSelect', () => {
       <MultiSelect search options={FRUITS} defaultOpen onChange={onChange} />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('Dragonfruit')
@@ -570,9 +568,9 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Banana' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Banana' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('Banana')
@@ -584,9 +582,9 @@ describe('MultiSelect', () => {
       <MultiSelect search options={FRUITS} defaultOpen onChange={onChange} />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'Cherry' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'Cherry' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('Cherry')
@@ -608,8 +606,8 @@ describe('MultiSelect', () => {
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     const combobox = screen.container.querySelector('input[role="combobox"]') as HTMLElement
 
-    await fireEvent.pointerDown(control, { button: 0 })
-    await fireEvent.click(control)
+    fireEvent.pointerDown(control, { button: 0 })
+    fireEvent.click(control)
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
@@ -622,8 +620,8 @@ describe('MultiSelect', () => {
     const screen = render(() => <MultiSelect options={FRUITS} placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    await fireEvent.pointerDown(control, { button: 0 })
-    await fireEvent.click(control)
+    fireEvent.pointerDown(control, { button: 0 })
+    fireEvent.click(control)
 
     expect(control.className).toContain('focus-visible:effect-fv-border')
     expect(control.className).not.toContain('focus-within:effect-fv-border')
@@ -652,14 +650,14 @@ describe('MultiSelect', () => {
     const screen = render(() => <MultiSelect options={FRUITS} onChange={onChange} />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
-    await fireEvent.click(trigger)
+    fireEvent.click(trigger)
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
     })
 
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    await fireEvent.keyDown(control, { key: 'ArrowDown' })
-    await fireEvent.keyDown(control, { key: 'Enter' })
+    fireEvent.keyDown(control, { key: 'ArrowDown' })
+    fireEvent.keyDown(control, { key: 'Enter' })
 
     expect(onChange).toHaveBeenCalledWith(['banana'])
   })
@@ -677,15 +675,15 @@ describe('MultiSelect', () => {
   test('when menu is open, Tab toggles focused item', async () => {
     const onChange = vi.fn()
     const screen = render(() => <MultiSelect options={FRUITS} search onChange={onChange} />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
     input.focus()
-    await fireEvent.click(input)
+    fireEvent.click(input)
     await waitFor(() => {
       expect(input.getAttribute('aria-expanded')).toBe('true')
     })
 
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
 
     const tabEvent = new KeyboardEvent('keydown', {
       key: 'Tab',
@@ -710,12 +708,12 @@ describe('MultiSelect', () => {
     const nextButton = screen.getByRole('button', { name: 'Next' })
 
     control.focus()
-    await fireEvent.click(control)
+    fireEvent.click(control)
     await waitFor(() => {
       expect(control.getAttribute('aria-expanded')).toBe('true')
     })
 
-    await fireEvent.keyDown(control, { key: 'ArrowDown' })
+    fireEvent.keyDown(control, { key: 'ArrowDown' })
     const tabEvent = new KeyboardEvent('keydown', {
       key: 'Tab',
       bubbles: true,
@@ -734,13 +732,13 @@ describe('MultiSelect', () => {
     const screen = render(() => <MultiSelect options={FRUITS} onChange={onChange} />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    await fireEvent.click(control)
+    fireEvent.click(control)
     await waitFor(() => {
       expect(control.getAttribute('aria-expanded')).toBe('true')
     })
 
-    await fireEvent.keyDown(control, { key: 'ArrowDown' })
-    await fireEvent.keyDown(control, { key: ' ' })
+    fireEvent.keyDown(control, { key: 'ArrowDown' })
+    fireEvent.keyDown(control, { key: ' ' })
 
     expect(onChange).toHaveBeenCalledWith(['banana'])
   })
@@ -755,13 +753,13 @@ describe('MultiSelect', () => {
         placeholder="Pick"
       />
     ))
-    const input = screen.getByRole('combobox')
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
     await waitFor(() => {
       expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
     })
 
-    await fireEvent.keyDown(input, { key: 'Escape' })
+    fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
@@ -789,8 +787,8 @@ describe('MultiSelect', () => {
       />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'xyznonexistent' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'xyznonexistent' } })
 
     await waitFor(() => {
       expect(receivedEmptyOption).toBe(true)
@@ -803,8 +801,8 @@ describe('MultiSelect', () => {
       <MultiSelect search options={FRUITS} defaultOpen placeholder="Search..." />
     ))
 
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    await fireEvent.input(input, { target: { value: 'xyznonexistent' } })
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'xyznonexistent' } })
 
     await waitFor(() => {
       const emptyNode = queryBody('[data-slot="empty"]')
@@ -894,7 +892,7 @@ describe('MultiSelect', () => {
     expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
     expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
 
-    await fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
+    fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
@@ -1024,13 +1022,13 @@ describe('MultiSelect', () => {
       closeIcon: 1,
     })
 
-    await fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)
+    fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)
 
     expect(container.querySelector('[data-slot="tag"]')).toBeNull()
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith([])
 
-    await fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
 
     expect(input.getAttribute('aria-expanded')).toBe('true')
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
@@ -1060,8 +1058,8 @@ describe('MultiSelect', () => {
     const form = screen.container.querySelector('form') as HTMLFormElement
     const items = queryAllBody('[data-slot="item"]')
 
-    await fireEvent.click(items[1]!)
-    await fireEvent.click(items[0]!)
+    fireEvent.click(items[1]!)
+    fireEvent.click(items[0]!)
 
     expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
     expect(form.querySelectorAll('select[name="fruits"]')).toHaveLength(1)
@@ -1098,7 +1096,7 @@ describe('MultiSelect', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
     const nativeSelect = form.querySelector('select[name="fruits"]') as HTMLSelectElement
 
     expect(nativeSelect.multiple).toBe(true)
@@ -1106,8 +1104,8 @@ describe('MultiSelect', () => {
     expect(form.checkValidity()).toBe(false)
     expect(input.name).toBe('')
     expect(input.required).toBe(false)
-    await fireEvent.input(input, { target: { value: 'dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    fireEvent.input(input, { target: { value: 'dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(form.checkValidity()).toBe(true)
     expect(new FormData(form).getAll('fruits')).toEqual(['dragonfruit'])
@@ -1129,7 +1127,7 @@ describe('MultiSelect', () => {
       <MultiSelect options={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
     ))
 
-    const action = screen.container.querySelector('[data-slot="clear"]') as HTMLElement | null
+    const action = screen.container.querySelector('[data-slot="clear"]')
     expect(action).not.toBeNull()
     expect(action?.getAttribute('aria-label')).toBe('Clear selection')
     expect(action?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
@@ -1213,9 +1211,9 @@ describe('MultiSelect', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
 
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
     expect(input.value).toBe('')
@@ -1243,7 +1241,7 @@ describe('MultiSelect', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
 
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
     expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
@@ -1266,7 +1264,7 @@ describe('MultiSelect', () => {
       />
     ))
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
 
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
     expect(onChange).toHaveBeenCalledOnce()
@@ -1285,9 +1283,9 @@ describe('MultiSelect', () => {
         onChange={onChange}
       />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.input(input, { target: { value: 'Apple,Apple,Cherry,' } })
+    fireEvent.input(input, { target: { value: 'Apple,Apple,Cherry,' } })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(input.value).toBe('')
@@ -1298,9 +1296,9 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect search disabled options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
     ))
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
-    await fireEvent.input(input, { target: { value: 'custom,' } })
+    fireEvent.input(input, { target: { value: 'custom,' } })
 
     expect(onChange).not.toHaveBeenCalled()
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
@@ -1323,11 +1321,11 @@ describe('MultiSelect', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole('combobox') as HTMLInputElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
 
     setDefaultValue(['banana'])
-    await fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    await fireEvent.keyDown(input, { key: 'Enter' })
+    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'Dragonfruit'])
 
     form.reset()
@@ -1384,7 +1382,7 @@ describe('MultiSelect', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
 
-    await fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
     form.reset()
     await Promise.resolve()
 
@@ -1423,17 +1421,17 @@ describe('MultiSelect - scroll bottom', () => {
     })
 
     listbox.scrollTop = 70
-    await fireEvent.scroll(listbox)
-    await fireEvent.scroll(listbox)
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     expect(onScrollBottom).toHaveBeenCalledTimes(1)
 
     listbox.scrollTop = 20
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     listbox.scrollTop = 70
-    await fireEvent.scroll(listbox)
+    fireEvent.scroll(listbox)
 
     expect(onScrollBottom).toHaveBeenCalledTimes(2)
   })
