@@ -308,11 +308,19 @@ export function FormField<
       ),
     ]
 
-    return {
-      'aria-invalid': hasNonEmptyJsxContent(resolvedError()) || undefined,
-      'aria-labelledby': showLabel() ? `${ariaId()}-label` : undefined,
-      'aria-describedby': describedBy.length > 0 ? describedBy.join(' ') : undefined,
+    const attrs: Record<string, string | boolean | undefined> = {}
+
+    if (hasNonEmptyJsxContent(resolvedError())) {
+      attrs['aria-invalid'] = 'true'
     }
+    if (showLabel()) {
+      attrs['aria-labelledby'] = `${ariaId()}-label`
+    }
+    if (describedBy.length > 0) {
+      attrs['aria-describedby'] = describedBy.join(' ')
+    }
+
+    return attrs
   })
   const fieldContextValue: FormFieldContextOptions = {
     get error() {

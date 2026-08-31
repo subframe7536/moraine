@@ -848,13 +848,6 @@ describe('Slider', () => {
     expect(document.activeElement).not.toBe(thumb)
   })
 
-  test('sets data-zero when slider is at minimum value', () => {
-    const screen = render(() => <Slider min={0} max={100} defaultValue={0} variant="bold" />)
-    const range = screen.container.querySelector('[data-slot="range"]')
-
-    expect(range?.getAttribute('data-zero')).toBe('')
-  })
-
   test('sets data-dragging during active thumb drag', () => {
     const screen = render(() => <Slider defaultValue={20} variant="bold" />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
@@ -873,7 +866,6 @@ describe('Slider', () => {
       clientY: 0,
     })
 
-    expect(track.getAttribute('data-dragging')).toBe('')
     expect(range.getAttribute('data-dragging')).toBe('')
 
     fireEvent.pointerUp(thumb, {

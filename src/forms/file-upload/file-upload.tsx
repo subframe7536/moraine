@@ -514,6 +514,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   const description = createMemo(() => merged.description)
   const dropzone = createMemo(() => merged.dropzone)
   const preview = createMemo(() => merged.preview)
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = useId(() => merged.id, 'file-upload')
   const field = useFormField(
@@ -523,6 +524,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
@@ -537,7 +539,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   const [dragging, setDragging] = createSignal(false)
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
 
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
   const controlAriaAttrs = createMemo(() => {
@@ -546,6 +547,13 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
     if (describedBy) {
       attrs['aria-describedby'] = describedBy
+    }
+    if (!attrs['aria-labelledby']) {
+      if (label()) {
+        attrs['aria-labelledby'] = labelId()
+      } else {
+        attrs['aria-label'] = 'File upload'
+      }
     }
 
     return attrs
@@ -899,9 +907,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
               merged.classes?.control,
             )}
             disabled={field.disabled()}
-            aria-disabled={field.disabled() || readOnly() ? true : undefined}
-            aria-labelledby={label() ? labelId() : undefined}
-            aria-label={label() ? undefined : 'File upload'}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
             onBlur={(event) => field.emit('blur', event)}
@@ -914,9 +919,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         <div
           role="button"
           tabIndex={field.disabled() ? undefined : 0}
-          aria-disabled={field.disabled() || readOnly() ? true : undefined}
-          aria-labelledby={label() ? labelId() : undefined}
-          aria-label={label() ? undefined : 'File upload'}
           {...controlAriaAttrs()}
           data-slot="control"
           style={merged.styles?.control}
@@ -956,8 +958,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           const files = Array.from(event.currentTarget.files ?? [])
           processIncomingFiles(files)
         }}
-        aria-labelledby={label() ? labelId() : undefined}
-        aria-label={label() ? undefined : 'File upload'}
         {...controlAriaAttrs()}
       />
 

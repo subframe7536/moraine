@@ -212,6 +212,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = useId(() => merged.id, 'checkbox')
 
@@ -222,6 +223,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       bind: merged.formFieldBind,
@@ -330,7 +332,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
   const checkboxAriaAttrs = createMemo(() => {
@@ -339,6 +340,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
     if (describedBy) {
       attrs['aria-describedby'] = describedBy
+    }
+    if (!attrs['aria-labelledby'] && label()) {
+      attrs['aria-labelledby'] = labelId()
     }
 
     return attrs
@@ -510,10 +514,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          aria-required={field.required() || undefined}
-          aria-disabled={field.disabled() || undefined}
-          aria-readonly={readOnly() || undefined}
-          aria-labelledby={label() ? labelId() : undefined}
           style={merged.styles?.control}
           class={checkboxBaseVariants(
             { size: field.size() },

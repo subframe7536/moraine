@@ -190,6 +190,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   })
   const controlledValue = createMemo(() => merged.value)
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const groupId = useId(() => merged.id, 'radio-group')
   const field = useFormField(
@@ -199,6 +200,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       bind: false,
@@ -207,7 +209,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       initialValue: initialDefaultValue,
     }),
   )
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const [uncontrolledValue, setUncontrolledValue] = createSignal(initialDefaultValue)
   const selectedValue = createMemo(() => {
     const value = controlledValue()
@@ -418,9 +419,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       id={groupId()}
       role="radiogroup"
       aria-orientation={orientation()}
-      aria-required={field.required() || undefined}
-      aria-disabled={field.disabled() || undefined}
-      aria-readonly={readOnly() || undefined}
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
       class={radioGroupRootVariants(

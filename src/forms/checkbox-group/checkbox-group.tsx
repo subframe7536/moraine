@@ -370,8 +370,10 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         data-slot="fieldset"
         disabled={field.disabled()}
         style={merged.styles?.fieldset}
-        aria-labelledby={legend() ? legendId() : undefined}
-        aria-required={field.required() || undefined}
+        aria-labelledby={
+          (field.ariaAttrs()['aria-labelledby'] as string | undefined) ??
+          (legend() ? legendId() : undefined)
+        }
         class={checkboxGroupFieldsetVariants(
           {
             orientation: merged.orientation,

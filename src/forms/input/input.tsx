@@ -227,6 +227,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const trailing = createMemo(() => merged.trailing)
   const loadingIcon = createMemo(() => merged.loadingIcon)
   const modelModifiers = createMemo(() => merged.modelModifiers)
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(
@@ -236,6 +237,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
@@ -290,7 +292,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const isTrailingLoading = createMemo(() =>
     Boolean(merged.loading && loadingTarget() === 'trailing'),
   )
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
@@ -448,9 +449,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         readOnly={readOnly()}
         autocomplete={merged.autocomplete}
         maxLength={merged.maxLength}
-        aria-required={field.required() || undefined}
-        aria-disabled={field.disabled() || undefined}
-        aria-readonly={readOnly() || undefined}
         data-slot="input"
         style={merged.styles?.input}
         class={inputInputVariants(

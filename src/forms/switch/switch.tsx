@@ -199,6 +199,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
   const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = useId(() => merged.id, 'switch')
   const field = useFormField(
@@ -208,6 +209,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       size: merged.size,
       disabled: merged.disabled || merged.loading,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
@@ -286,8 +288,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
-
   const switchAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], showDescription() ? descriptionId() : undefined]
@@ -296,6 +296,9 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
     if (describedBy) {
       attrs['aria-describedby'] = describedBy
+    }
+    if (!attrs['aria-labelledby'] && showLabel()) {
+      attrs['aria-labelledby'] = labelId()
     }
 
     return attrs
@@ -412,10 +415,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-slot="track"
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
-        aria-required={field.required() || undefined}
-        aria-disabled={field.disabled() || undefined}
-        aria-readonly={readOnly() || undefined}
-        aria-labelledby={showLabel() ? labelId() : undefined}
         {...switchAriaAttrs()}
         style={merged.styles?.track}
         class={switchTrackVariants(

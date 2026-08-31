@@ -262,6 +262,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: Boolean(merged.readOnly),
     }),
     () => ({
       defaultId: generatedId(),
@@ -495,9 +496,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         disabled={field.disabled()}
         readOnly={merged.readOnly}
         maxLength={merged.maxLength}
-        aria-required={field.required() || undefined}
-        aria-disabled={field.disabled() || undefined}
-        aria-readonly={merged.readOnly || undefined}
         data-slot="input"
         style={merged.styles?.input}
         class={textareaBaseVariants(

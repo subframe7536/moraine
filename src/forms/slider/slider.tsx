@@ -169,6 +169,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: Boolean(merged.readOnly),
     }),
     () => ({
       defaultId: generatedId(),
@@ -326,9 +327,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 ? 'Thumb'
                 : `Thumb ${thumbIndex + 1} of ${slider.currentValues().length}`
             }
-            aria-required={field.required() || undefined}
-            aria-disabled={field.disabled() || undefined}
-            aria-readonly={merged.readOnly || undefined}
+            {...field.ariaAttrs()}
             onPointerDown={(event) => {
               slider.onThumbPointerDown(thumbIndex, event)
             }}
@@ -363,9 +362,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               tabIndex={field.disabled() ? undefined : -1}
               aria-valuetext={slider.getThumbValueText(thumbIndex)}
               aria-orientation={merged.orientation}
-              aria-required={field.required() || undefined}
-              aria-disabled={field.disabled() || undefined}
-              aria-readonly={merged.readOnly || undefined}
               {...field.ariaAttrs()}
             />
           </div>

@@ -455,6 +455,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return initialDefaultValue
   })
 
+  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const generatedId = useId(() => merged.id, 'input-number')
   const field = useFormField(
     () => ({
@@ -463,6 +464,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       size: merged.size,
       disabled: merged.disabled,
       required: local.required,
+      readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
@@ -505,7 +507,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const maxValue = createMemo(() => merged.maxValue ?? Number.MAX_SAFE_INTEGER)
   const stepValue = createMemo(() => merged.step ?? 1)
   const largeStepValue = createMemo(() => merged.largeStep ?? stepValue() * 10)
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const currentValue = createMemo(() => clamp(resolvedValue() ?? 0, minValue(), maxValue()))
   const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
@@ -1100,9 +1101,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         required={field.required()}
         disabled={field.disabled()}
         readOnly={readOnly()}
-        aria-required={field.required() || undefined}
-        aria-disabled={field.disabled() || undefined}
-        aria-readonly={readOnly() || undefined}
         aria-valuemin={minValue()}
         aria-valuemax={maxValue()}
         aria-valuenow={currentValue()}

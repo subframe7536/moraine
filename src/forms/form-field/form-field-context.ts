@@ -35,6 +35,7 @@ export interface UseFormFieldProps {
   size?: FormFieldSize
   disabled?: boolean
   required?: boolean
+  readOnly?: boolean
 }
 
 export interface UseFormFieldOptions {
@@ -52,6 +53,7 @@ export interface UseFormFieldReturn {
   size: Accessor<FormFieldSize>
   disabled: Accessor<boolean>
   required: Accessor<boolean>
+  readOnly: Accessor<boolean>
   invalid: Accessor<boolean>
   ariaAttrs: Accessor<Record<string, string | boolean | undefined>>
   runtimeState: Accessor<FormFieldRuntimeState>
@@ -95,6 +97,7 @@ export function useFormField(
   const size = createMemo(() => fieldProps().size ?? formField?.size ?? options().defaultSize)
   const disabled = createMemo(() => Boolean(fieldProps().disabled))
   const required = createMemo(() => fieldProps().required ?? Boolean(formField?.required))
+  const readOnly = createMemo(() => Boolean(fieldProps().readOnly))
   const invalid = createMemo(() => {
     const error = formField?.error
     return error !== undefined && error !== null && error !== false && error !== ''
@@ -134,11 +137,29 @@ export function useFormField(
   })
 
   const ariaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
-    if (!formField) {
-      return options().defaultAriaAttrs ?? {}
+    const fromFormField = formField?.ariaAttrs?.() ?? options().defaultAriaAttrs ?? {}
+    const attrs: Record<string, string | boolean | undefined> = {}
+
+    if (invalid()) {
+      attrs['aria-invalid'] = 'true'
+    }
+    if (required()) {
+      attrs['aria-required'] = 'true'
+    }
+    if (disabled()) {
+      attrs['aria-disabled'] = 'true'
+    }
+    if (readOnly()) {
+      attrs['aria-readonly'] = 'true'
+    }
+    if (fromFormField['aria-describedby']) {
+      attrs['aria-describedby'] = fromFormField['aria-describedby']
+    }
+    if (fromFormField['aria-labelledby']) {
+      attrs['aria-labelledby'] = fromFormField['aria-labelledby']
     }
 
-    return formField.ariaAttrs?.() ?? {}
+    return attrs
   })
 
   function setFormValue(value: unknown): void {
@@ -168,6 +189,7 @@ export function useFormField(
     size,
     disabled,
     required,
+    readOnly,
     invalid,
     ariaAttrs,
     runtimeState,
