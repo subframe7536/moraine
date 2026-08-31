@@ -256,12 +256,6 @@ describe('colors', () => {
       'bg-destructive-active',
     ])
 
-    expect(css).toMatchInlineSnapshot()
-    expect(css).not.toContain('-focus')
-  })
-
-  test('border/ring/input tokens resolve', async () => {
-    const css = await compileCSS(['border-border', 'ring-ring', 'bg-input'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .bg-accent-hover {
@@ -296,14 +290,11 @@ describe('colors', () => {
       }
       "
     `)
+    expect(css).not.toContain('-focus')
   })
-})
 
-// ─── Border Radius ────────────────────────────────────────────────────
-
-describe('border radius', () => {
-  test('rounded-lg uses var(--radius)', async () => {
-    const css = await compileCSS(['rounded-lg'])
+  test('border/ring/input tokens resolve', async () => {
+    const css = await compileCSS(['border-border', 'ring-ring', 'bg-input'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .border-border {
@@ -314,6 +305,27 @@ describe('border radius', () => {
       }
       .ring-ring {
         --tw-ring-color: var(--ring);
+      }
+      @layer base {
+        :root, :host {
+          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
+          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      }
+      "
+    `)
+  })
+})
+
+// ─── Border Radius ────────────────────────────────────────────────────
+
+describe('border radius', () => {
+  test('rounded-lg uses var(--radius)', async () => {
+    const css = await compileCSS(['rounded-lg'])
+    expect(css).toMatchInlineSnapshot(`
+      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .rounded-lg {
+        border-radius: var(--radius);
       }
       @layer base {
         :root, :host {
@@ -910,12 +922,48 @@ describe('z-index', () => {
 describe('animations', () => {
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
-    expect(css).toMatchInlineSnapshot()
+    expect(css).toMatchInlineSnapshot(`
+      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .animate-mo-enter {
+        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
+      }
+      @layer base {
+        :root, :host {
+          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
+          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      }
+      @keyframes mo-enter {
+        from {
+          opacity: var(--mo-enter-opacity, 1);
+          transform: translate3d(var(--mo-enter-translate-x, 0), var(--mo-enter-translate-y, 0), 0) scale(var(--mo-enter-scale, 1)) rotate(var(--mo-enter-rotate, 0));
+        }
+      }
+      "
+    `)
   })
 
   test('animate-mo-exit uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-exit'])
-    expect(css).toMatchInlineSnapshot()
+    expect(css).toMatchInlineSnapshot(`
+      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .animate-mo-exit {
+        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
+      }
+      @layer base {
+        :root, :host {
+          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
+          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      }
+      @keyframes mo-exit {
+        to {
+          opacity: var(--mo-exit-opacity, 1);
+          transform: translate3d(var(--mo-exit-translate-x, 0), var(--mo-exit-translate-y, 0), 0) scale(var(--mo-exit-scale, 1)) rotate(var(--mo-exit-rotate, 0));
+        }
+      }
+      "
+    `)
   })
 
   test('mo-enter keyframe uses CSS variable transforms', async () => {
@@ -966,46 +1014,6 @@ describe('animations', () => {
 
   test('looping animations use shared duration and easing', async () => {
     const css = await compileCSS(['animate-carousel', 'animate-swing', 'animate-elastic'])
-    expect(css).toMatchInlineSnapshot()
-  })
-
-  test('spin animation uses shared duration and linear easing', async () => {
-    const css = await compileCSS(['animate-spin'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .animate-spin {
-        animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      "
-    `)
-  })
-
-  test('standard transition utilities use shared enter tokens', async () => {
-    const css = await compileCSS([
-      'transition',
-      'transition-all',
-      'transition-colors',
-      'transition-opacity',
-      'transition-transform',
-      'transition-mo-enter',
-      'transition-mo-exit',
-    ])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-carousel {
@@ -1048,6 +1056,80 @@ describe('animations', () => {
         }
         100% {
           transform: translateX(100%) scaleX(0.9);
+        }
+      }
+      "
+    `)
+  })
+
+  test('spin animation uses shared duration and linear easing', async () => {
+    const css = await compileCSS(['animate-spin'])
+    expect(css).toMatchInlineSnapshot(`
+      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .animate-spin {
+        animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
+      }
+      @layer base {
+        :root, :host {
+          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
+          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      "
+    `)
+  })
+
+  test('standard transition utilities use shared enter tokens', async () => {
+    const css = await compileCSS([
+      'transition',
+      'transition-all',
+      'transition-colors',
+      'transition-opacity',
+      'transition-transform',
+      'transition-mo-enter',
+      'transition-mo-exit',
+    ])
+    expect(css).toMatchInlineSnapshot(`
+      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .transition {
+        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      }
+      .transition-all {
+        transition-property: all;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      }
+      .transition-colors {
+        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      }
+      .transition-opacity {
+        transition-property: opacity;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      }
+      .transition-transform {
+        transition-property: transform, translate, scale, rotate;
+        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      }
+      @layer base {
+        :root, :host {
+          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
+          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
       }
       "
@@ -1129,30 +1211,8 @@ describe('font families', () => {
     const css = await compileCSS(['font-sans'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .transition {
-        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-all {
-        transition-property: all;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-colors {
-        transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-opacity {
-        transition-property: opacity;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
-      }
-      .transition-transform {
-        transition-property: transform, translate, scale, rotate;
-        transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-        transition-duration: var(--tw-duration, var(--default-transition-duration));
+      .font-sans {
+        font-family: var(--font-sans);
       }
       @layer base {
         :root, :host {
