@@ -433,7 +433,6 @@ describe('Tabs', () => {
 
   test('renders and selects tabs when ResizeObserver is unavailable', async () => {
     const originalResizeObserver = globalThis.ResizeObserver
-    // oxlint-disable-next-line no-dynamic-delete
     delete (globalThis as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
 
     try {

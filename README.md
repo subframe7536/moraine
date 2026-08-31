@@ -14,7 +14,7 @@ Full guide and examples: https://ui.subf.dev
 1. Install `moraine` in a Solid project
 
 ```bash
-bun add moraine solid-js
+npm add moraine solid-js
 ```
 
 2. Setup Styles
@@ -52,19 +52,19 @@ function App() {
 
 ```bash
 # Install dependencies
-bun install
+nub install
 
 # Start development build
-bun run dev
+nub run dev
 
 # Run tests
-bun run test
+nub run test
 
 # Start docs development server
-bun run docs
+nub run docs
 
 # Run format, lint and type check
-bun run qa
+nub run qa
 ```
 
 ## License

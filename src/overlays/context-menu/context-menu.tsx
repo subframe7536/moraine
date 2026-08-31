@@ -412,7 +412,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     const pointerId = event.pointerId
     const pointerType = event.pointerType
 
-    // oxlint-disable-next-line subf/solid-reactivity -- The delayed commit must read the latest disabled and controlled props.
+    // oxlint-disable-next-line subf/solid-reactivity
     longPressTimeoutId = window.setTimeout(() => {
       longPressTimeoutId = 0
       if (initiatingPointerId !== pointerId) {

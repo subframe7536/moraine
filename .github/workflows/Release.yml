@@ -17,20 +17,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: nubjs/setup-nub@v0
         with:
-          bun-version: 1.3.13
+          nub-version: 0.7.5
 
-      # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
-        run: bun install -g npm@11
-
-      - run: bun ci
-      - run: npm publish
+      - run: nub ci
+      - run: nub publish --provenance --no-git-checks
       - name: Trigger Cloudflare Pages build
         run: curl -d "" ${PAGES_BUILD_HOOK_URL}
         env:
           PAGES_BUILD_HOOK_URL: ${{ secrets.PAGES_BUILD_HOOK_URL }}
-      - run: bunx changelogithub
+      - run: nubx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

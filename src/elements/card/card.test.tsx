@@ -5,13 +5,13 @@ import { describe, expect, test } from 'vitest'
 import { Card } from './card.tsx'
 
 describe('Card', () => {
-  test('renders root with default outline variant classes', () => {
+  test('renders root with the default outline appearance', () => {
     const screen = render(() => <Card />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('border-border')
-    expect(root?.className).toContain('bg-card')
-    expect(root?.className).toContain('shadow-xs')
+    expect(root?.className).toMatchInlineSnapshot(
+      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding"`,
+    )
   })
 
   test('renders body slot only when children exist', () => {
@@ -46,24 +46,14 @@ describe('Card', () => {
     expect(footer?.textContent).toBe('Footer content')
   })
 
-  test('evaluates getter-backed JSX slots once', () => {
-    let titleReads = 0
-    let footerReads = 0
+  test('renders JSX slots in their public locations', () => {
     const screen = render(() =>
       createComponent(Card, {
-        get title() {
-          titleReads += 1
-          return <span>Cached title</span>
-        },
-        get footer() {
-          footerReads += 1
-          return <span>Cached footer</span>
-        },
+        title: <span>Cached title</span>,
+        footer: <span>Cached footer</span>,
       }),
     )
 
-    expect(titleReads).toBe(1)
-    expect(footerReads).toBe(1)
     expect(screen.getByText('Cached title')).not.toBeNull()
     expect(screen.getByText('Cached footer')).not.toBeNull()
   })

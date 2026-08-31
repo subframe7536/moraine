@@ -188,11 +188,11 @@ also assert in a production browser that the hydrated node still exists under it
 
 Run:
 
-```powershell
-bun run test <focused-test-files>
-bun run qa
-bun run test
-bun run docs:preview
+```sh
+nub run test <focused-test-files>
+nub run qa
+nub run test
+nub run docs:preview
 ```
 
 Use a real browser against the production preview. Listen for both uncaught exceptions and error-level console messages. Verify the new component's docs route and representative shared routes, at minimum `/`, `/button`, `/dialog`, and `/form-field` when shared component infrastructure changed.
@@ -212,7 +212,7 @@ Do not manually edit `dist`. Run `git diff --check` and confirm no unintended de
 
 If production hydration fails:
 
-1. Rebuild unminified with `bun x vite build docs --minify false`.
+1. Rebuild unminified with `nubx vite build docs --minify false`.
 2. Break at Solid's `getNextElement` and inspect the first non-Solid stack frame.
 3. When available, use this conditional breakpoint:
 

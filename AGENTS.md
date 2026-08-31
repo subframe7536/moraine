@@ -7,27 +7,89 @@ Current stage: pre-alpha. breaking change allowed.
 
 ## Essential Commands
 
-Use `bun` for all package management and script execution.
+Use `nub` for package management and script execution. Prefer `nub` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
 
 ### Build & Development
 
-- `bun run build` - Build the library using tsdown (outputs to dist/).
-- `bun run dev` - Build in watch mode for development.
-- `bun run docs` - Start the dev Vite server on port 3000.
-- `bun run typecheck` - Run TypeScript type checking.
+- `nub run build` - Build the library using tsdown (outputs to dist/).
+- `nub run dev` - Build in watch mode for development.
+- `nub run docs` - Start the dev Vite server on port 3000.
+- `nub run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
 
-- `bun run lint` - Run oxlint with fix (fast linter based on oxc).
-- `bun run format` - Format code using oxfmt.
-- `bun run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
+- `nub run lint` - Run oxlint with fix (fast linter based on oxc).
+- `nub run format` - Format code using oxfmt.
+- `nub run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
 
 ### Testing
 
-- `bun run test` - Run all tests in once.
-- `bun run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
-- `bun run test <test-file>` - Run a single test file (e.g., `bun run test button.test.tsx`).
+- `nub run test` - Run all tests in once.
+- `nub run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
+- `nub run test <test-file>` - Run a single test file (e.g., `nub run test button.test.tsx`).
 - **Note:** Tests use `jsdom` environment.
+
+## Source Structure
+
+The `src` directory is organized by component role and shared infrastructure:
+
+```text
+src/
+├── index.ts             # Public package entry point; re-exports all components and utilities.
+├── utils.ts              # Public utility entry point.
+├── elements/             # Basic, non-form UI elements.
+│   ├── accordion/         # Accordion primitives.
+│   ├── avatar/            # Avatar and fallback display.
+│   ├── badge/             # Badge styles and component.
+│   ├── button/            # Button and button-like interactions.
+│   ├── card/              # Card layout primitives.
+│   ├── collapsible/       # Collapsible content primitives.
+│   ├── icon/              # Icon rendering helpers and component.
+│   ├── kbd/               # Keyboard shortcut display.
+│   ├── list/              # List and list-item primitives.
+│   ├── progress/          # Progress indicators.
+│   ├── resizable/         # Resizable panels and interaction hooks.
+│   └── separator/         # Visual separators.
+├── forms/                 # Form controls and form-state integration.
+│   ├── checkbox/          # Checkbox control.
+│   ├── checkbox-group/    # Checkbox group control.
+│   ├── file-upload/       # File upload control and dropzone behavior.
+│   ├── form/              # Form root, submission, and context.
+│   ├── form-field/        # Field labels, descriptions, errors, and context.
+│   ├── input/             # Text input control.
+│   ├── input-number/      # Numeric input control.
+│   ├── radio-group/       # Radio group control.
+│   ├── select/             # Select, multi-select, and shared select behavior.
+│   ├── slider/             # Slider control and slider hooks.
+│   ├── switch/             # Switch control.
+│   ├── textarea/           # Textarea control.
+│   └── shared/             # Form-specific hooks and helpers.
+├── navigation/            # Navigation and page-organization components.
+│   ├── breadcrumb/         # Breadcrumb navigation.
+│   ├── command-palette/    # Command palette behavior and presentation.
+│   ├── pagination/         # Pagination controls.
+│   ├── sidebar-frame/      # Responsive sidebar layout.
+│   ├── stepper/            # Step-based navigation.
+│   └── tabs/               # Tab navigation.
+├── overlays/              # Layered, floating, and dismissible UI.
+│   ├── base/               # Shared overlay and menu behavior.
+│   ├── context-menu/       # Context menu.
+│   ├── dialog/             # Dialog primitives.
+│   ├── dropdown-menu/      # Dropdown menu.
+│   ├── modal/              # Modal composition.
+│   ├── popover/            # Popover.
+│   ├── sheet/              # Side or bottom sheet.
+│   └── tooltip/            # Tooltip.
+├── shared/                # Reusable internals that are not public components.
+│   ├── style/              # Shared style tokens, animations, and icon styles.
+│   ├── testing/            # Shared testing helpers.
+│   └── type-test/           # Type-level compatibility tests.
+├── test-utils/             # SSR, owner, overlay, and global test utilities.
+├── unocss/                 # UnoCSS integration and preset helpers.
+└── tailwind/               # Tailwind integration and generated style helpers.
+```
+
+Component directories normally contain the implementation (`{component}.tsx`), styles (`{component}.class.ts`), tests, and an `index.ts` barrel. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is reused by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.
 
 ## Style Implementation Details
 

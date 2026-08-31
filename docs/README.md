@@ -108,7 +108,7 @@ new component pages become discoverable without a second directory to maintain.
 - `solid({ ssr: true })`
 - `fileRouter({ pagesDir: 'routes', mdx: createDocsMdxOptions(projectRoot), ssg: { id: 'app' } })`
 
-`bun run docs:build` emits the prerendered site under `docs/dist/client`.
+`nub run docs:build` emits the prerendered site under `docs/dist/client`.
 
 ## Verification
 
@@ -116,18 +116,18 @@ Run focused checks while changing the relevant area, then run the complete produ
 
 ```bash
 # Focused checks, selected for the area being changed.
-bun run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
-bun run test sidebar.test.tsx docs-command-palette.test.tsx
-bun run test docs/build/previews/coverage.test.ts docs/build/previews/source.test.ts
+nub run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
+nub run test sidebar.test.tsx docs-command-palette.test.tsx
+nub run test docs/build/previews/coverage.test.ts docs/build/previews/source.test.ts
 
 # Repository and SSG gates.
-bun run test
-bun run qa
-bun run docs:build
+nub run test
+nub run qa
+nub run docs:build
 git diff --check
 
 # Production browser verification after the SSG build.
-bun run docs:preview
+nub run docs:preview
 ```
 
 Use the preview to verify the route, responsive, keyboard, theme, reduced-motion, example-control, and
