@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { useSlider } from './hook/index.ts'
 import { Slider } from './slider.tsx'
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
@@ -716,20 +717,107 @@ describe('Slider', () => {
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
     expect(track?.className).toContain('h-$s-size')
-    expect(track?.className).toContain('var-slider-18')
-    expect(range?.className).toContain('rounded')
+    expect(track?.className).toContain('var-slider-bold-24-16-4')
+    expect(track?.className).toContain('rounded-sm')
+    expect(track?.className).toContain('bg-input')
+    expect(range?.className).toContain('rounded-[inherit]')
+    expect(range?.className).toContain('bg-primary')
     expect(range?.className).toContain('z-raised')
+    expect(range?.className).toContain('after:')
     expect(divider?.className).toContain('w-px')
-    expect(divider?.className).not.toContain('opacity-0')
-    expect(thumb?.className).toContain('bg-primary-foreground')
+    expect(thumb?.className).toContain('opacity-0')
+    expect(thumb?.className).toContain('h-full')
+    expect(thumb?.className).toContain('top-0')
     expect(thumb?.className).toContain('z-control')
-    expect(thumb?.className).not.toContain('cursor-pointer')
-    expect(thumb?.className).toContain('focus-visible:outline-(1 border primary-foreground)')
-    expect(thumb?.className).toContain('rounded-sm')
-    expect(thumb?.className).toContain('h-3')
-    expect(thumb?.className).toContain('w-1')
+    expect(thumb?.className).toContain('cursor-grab')
     expect(thumb?.className).toContain('-translate-x-1/2')
-    expect(thumb?.className).not.toContain('hover:effect-fv')
+  })
+
+  test('applies distinct border radius and heights across bold sizes', () => {
+    const sm = render(() => <Slider variant="bold" size="sm" />)
+    const md = render(() => <Slider variant="bold" size="md" />)
+    const lg = render(() => <Slider variant="bold" size="lg" />)
+
+    const smTrack = sm.container.querySelector('[data-slot="track"]')
+    const mdTrack = md.container.querySelector('[data-slot="track"]')
+    const lgTrack = lg.container.querySelector('[data-slot="track"]')
+
+    expect(smTrack?.className).toContain('var-slider-bold-20-14-3')
+    expect(smTrack?.className).toContain('rounded-xs')
+
+    expect(mdTrack?.className).toContain('var-slider-bold-24-16-4')
+    expect(mdTrack?.className).toContain('rounded-sm')
+
+    expect(lgTrack?.className).toContain('var-slider-bold-28-18-5')
+    expect(lgTrack?.className).toContain('rounded-md')
+  })
+
+  test('dividerIndexes is reactive when step, divider, or bounds change', async () => {
+    const [step, setStep] = createSignal<number | undefined>(2)
+    const [divider, setDivider] = createSignal(true)
+    const [max, setMax] = createSignal(10)
+
+    const screen = render(() => <Slider min={0} max={max()} step={step()} divider={divider()} />)
+
+    let dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+    expect(dividers).toHaveLength(4)
+
+    setStep(5)
+    await waitFor(() => {
+      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      expect(dividers).toHaveLength(1)
+      expect((dividers[0] as HTMLElement).style.left).toBe('50%')
+    })
+
+    setMax(20)
+    await waitFor(() => {
+      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      expect(dividers).toHaveLength(3)
+      expect((dividers[0] as HTMLElement).style.left).toBe('25%')
+    })
+
+    setDivider(false)
+    await waitFor(() => {
+      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      expect(dividers).toHaveLength(0)
+    })
+  })
+
+  test('useSlider.dividerIndexes reacts when step increases', async () => {
+    const [step, setStep] = createSignal<number | undefined>(0)
+    let sliderResult!: ReturnType<typeof useSlider>
+
+    render(() => {
+      sliderResult = useSlider({
+        min: 0,
+        max: 100,
+        get step() {
+          return step()
+        },
+        minStepsBetweenThumbs: 0,
+        allowThumbCrossing: true,
+        orientation: 'horizontal',
+        inverted: false,
+      })
+      return <div>{sliderResult.dividerIndexes().join(',')}</div>
+    })
+
+    expect(sliderResult.dividerIndexes()).toEqual([])
+
+    setStep(25)
+    await waitFor(() => {
+      expect(sliderResult.dividerIndexes()).toEqual([1, 2, 3])
+    })
+
+    setStep(50)
+    await waitFor(() => {
+      expect(sliderResult.dividerIndexes()).toEqual([1])
+    })
+
+    setStep(10)
+    await waitFor(() => {
+      expect(sliderResult.dividerIndexes()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    })
   })
 
   test('centers bold range thumbs on their target values', () => {
@@ -742,7 +830,7 @@ describe('Slider', () => {
     expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
   })
 
-  test('clears pointer focus from bold thumb while keeping keyboard focus styling', async () => {
+  test('clears pointer focus from bold thumb on pointer down', async () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
     const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement
     mockPointerCapture(thumb)
@@ -750,7 +838,6 @@ describe('Slider', () => {
     thumb.focus()
 
     expect(document.activeElement).toBe(thumb)
-    expect(thumb.className).toContain('focus-visible:outline-(1 border primary-foreground)')
 
     fireEvent.pointerDown(thumb, {
       button: 0,
@@ -759,6 +846,44 @@ describe('Slider', () => {
     })
 
     expect(document.activeElement).not.toBe(thumb)
+  })
+
+  test('sets data-zero when slider is at minimum value', () => {
+    const screen = render(() => <Slider min={0} max={100} defaultValue={0} variant="bold" />)
+    const range = screen.container.querySelector('[data-slot="range"]')
+
+    expect(range?.getAttribute('data-zero')).toBe('')
+  })
+
+  test('sets data-dragging during active thumb drag', () => {
+    const screen = render(() => <Slider defaultValue={20} variant="bold" />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+
+    expect(track.getAttribute('data-dragging')).toBeNull()
+    expect(range.getAttribute('data-dragging')).toBeNull()
+
+    fireEvent.pointerDown(thumb, {
+      button: 0,
+      pointerId: 1,
+      clientX: 20,
+      clientY: 0,
+    })
+
+    expect(track.getAttribute('data-dragging')).toBe('')
+    expect(range.getAttribute('data-dragging')).toBe('')
+
+    fireEvent.pointerUp(thumb, {
+      pointerId: 1,
+      clientX: 20,
+      clientY: 0,
+    })
+
+    expect(track.getAttribute('data-dragging')).toBeNull()
+    expect(range.getAttribute('data-dragging')).toBeNull()
   })
 
   describe('commit semantics', () => {

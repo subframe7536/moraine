@@ -138,7 +138,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   })
   const dividerIndexes = createMemo(() => {
     const step = definedStep()
-    if (!merged.divider || !step || merged.max <= merged.min) {
+    if (!step || merged.max <= merged.min) {
       return []
     }
 

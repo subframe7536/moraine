@@ -73,6 +73,12 @@
       "cssVariables": [],
       "dataAttributes": [
         {
+          "name": "data-dragging",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
           "name": "data-orientation",
           "required": false,
           "type": "string | undefined",

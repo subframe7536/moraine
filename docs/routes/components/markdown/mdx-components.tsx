@@ -3,7 +3,7 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, lazy, Show, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Tabs } from '../../../../src/index.ts'
+import { Kbd, Tabs } from '../../../../src/index.ts'
 
 import { DocsCodeBlock, DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
 import { DocsPlayground as Playground } from './docs-playground.tsx'
@@ -45,6 +45,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
   button: (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
   label: (props: JSX.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props} />,
+  kbd: (props: JSX.IntrinsicElements['kbd']) => (
+    <Kbd variant="outline" value={props.children as any} />
+  ),
 
   Playground,
 

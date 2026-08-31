@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, mergeProps, onMount, splitProps } from 'solid-js'
+import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -248,6 +248,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         <div
           data-slot="range"
           data-orientation={merged.orientation}
+          data-dragging={slider.dragging() ? '' : undefined}
           style={{
             ...slider.rangeStyle(),
             ...merged.styles?.range,
@@ -262,22 +263,24 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           )}
         />
 
-        <For each={slider.dividerIndexes()}>
-          {(dividerIndex) => (
-            <div
-              data-slot="divider"
-              data-orientation={merged.orientation}
-              style={{ ...slider.getDividerStyle(dividerIndex), ...merged.styles?.divider }}
-              class={sliderDividerVariants(
-                {
-                  orientation: merged.orientation,
-                  variant: merged.variant,
-                },
-                merged.classes?.divider,
-              )}
-            />
-          )}
-        </For>
+        <Show when={merged.divider}>
+          <For each={slider.dividerIndexes()}>
+            {(dividerIndex) => (
+              <div
+                data-slot="divider"
+                data-orientation={merged.orientation}
+                style={{ ...slider.getDividerStyle(dividerIndex), ...merged.styles?.divider }}
+                class={sliderDividerVariants(
+                  {
+                    orientation: merged.orientation,
+                    variant: merged.variant,
+                  },
+                  merged.classes?.divider,
+                )}
+              />
+            )}
+          </For>
+        </Show>
       </div>
 
       <For each={Array.from({ length: slider.currentValues().length }, (_, index) => index)}>

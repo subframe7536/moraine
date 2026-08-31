@@ -51,6 +51,9 @@ import type { SliderT } from 'moraine'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0, inputType: 'number' },
+    { kind: 'switch', prop: 'divider', label: 'Divider', defaultValue: false },
+    { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
   ]}
@@ -58,18 +61,29 @@ import type { SliderT } from 'moraine'
   {(props) => {
     const [value, setValue] = createSignal(65)
     return (
-      <div class="space-y-3">
-        <div class="text-xs text-muted-foreground flex items-center justify-between">
-          <span>Volume level</span>
-          <span class="text-foreground font-medium font-mono">{value()}%</span>
+      <div
+        class={
+          props.vertical ? 'flex flex-col items-center gap-3 h-56' : 'space-y-3 w-full max-w-sm'
+        }
+      >
+        <div
+          class={`text-xs text-muted-foreground flex items-center justify-between ${
+            props.vertical ? 'flex-col gap-1' : 'w-full'
+          }`}
+        >
+          <span>Volume</span>
+          <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
         </div>
         <Slider
           value={value()}
           onValueChange={(val) => {
             if (typeof val === 'number') setValue(val)
           }}
+          orientation={props.vertical ? 'vertical' : 'horizontal'}
           variant={props.variant}
           size={props.size}
+          step={props.step}
+          divider={props.divider}
           disabled={props.disabled}
           inverted={props.inverted}
         />
@@ -95,6 +109,12 @@ root
 Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onChange` for controlled state; `onValueChange` is useful when the application needs immediate updates during drag.
 
 <Preview path="./values" />
+
+### Step and dividers
+
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `divider` to render visual tick marks at each step interval across the track rail.
+
+<Preview path="./step-divider" />
 
 ### Keyboard and forms
 

@@ -635,6 +635,15 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         }),
       ],
       [
+        /var-slider-bold-([\d.]+)-([\d.]+)-([\d.]+)/,
+        ([, size, len, offset]) => ({
+          '--s-size': `${size}px`,
+          '--s-len': `${len}px`,
+          '--s-offset': `${offset}px`,
+          '--s-pos': `max(${offset}px, calc(100% - ${Number(offset) * 2}px))`,
+        }),
+      ],
+      [
         /var-slider-([\d.]+)/,
         ([, num]) => ({
           '--s-size': `${num}px`,

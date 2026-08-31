@@ -15,7 +15,7 @@ export function ControlledSingle() {
   }
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-md space-y-3">
+    <div class="p-4 b-(1 border) rounded-xl max-w-md w-full space-y-2">
       <div class="flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <Button
@@ -32,7 +32,7 @@ export function ControlledSingle() {
         <span class="text-xs text-primary font-mono font-semibold">{volume()}%</span>
       </div>
 
-      <Slider value={volume()} min={0} max={100} step={1} onValueChange={setVolume} />
+      <Slider value={volume()} min={0} max={100} step={1} onValueChange={setVolume} class="mb-2" />
     </div>
   )
 }
