@@ -394,7 +394,6 @@ describe('Select - single mode', () => {
           defaultOpen
           defaultValue="apple"
           allowClear
-          loading
           closeIcon="icon-x"
           onChange={onChange}
           onClear={onClear}
@@ -407,7 +406,6 @@ describe('Select - single mode', () => {
     const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
 
     expect(action.querySelector('[data-slot="icon"]')?.className).toContain('icon-x')
-    expect(action.querySelector('[data-slot="icon"]')?.className).not.toContain('icon-loading')
     expect(action.className).toContain('hover:bg-muted-hover')
 
     input.focus()
@@ -422,6 +420,19 @@ describe('Select - single mode', () => {
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(null)
     expect(onClear).toHaveBeenCalledOnce()
+  })
+
+  test('shows loading icon when loading is true even if selection is not empty and allowClear is true', () => {
+    const screen = render(() => (
+      <Select options={FRUITS} defaultValue="apple" loading allowClear placeholder="Pick" />
+    ))
+
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    expect(trigger).not.toBeNull()
+    expect(trigger?.getAttribute('data-loading')).toBe('')
+    expect(trigger?.className).toContain('icon-loading')
+    expect(trigger?.className).toContain('effect-loading')
+    expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
   test('keeps a controlled value until the parent accepts clear', async () => {

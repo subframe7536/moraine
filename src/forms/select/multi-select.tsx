@@ -712,10 +712,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             ? 0
             : Math.max(0, selectedOptions().length - props.maxTagCount),
         )
+        const isActionLoading = createMemo(() => Boolean(props.loading))
         const isClearAction = createMemo(() =>
-          Boolean(props.allowClear && selectedOptions().length > 0),
+          Boolean(!isActionLoading() && props.allowClear && selectedOptions().length > 0),
         )
-        const isActionLoading = createMemo(() => Boolean(props.loading && !isClearAction()))
 
         return (
           <div
@@ -782,42 +782,39 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           {option.label}
                         </span>
 
-                        <Show
-                          when={api.field.disabled()}
-                          fallback={
-                            <button
-                              type="button"
-                              data-slot="tagRemove"
-                              aria-label={`Remove ${option.key}`}
-                              style={props.styles?.tagRemove}
-                              class={cn(
-                                'p-0.5 outline-none border-0 bg-transparent flex shrink-0 cursor-pointer items-center justify-center -ms-1',
-                                props.classes?.tagRemove,
-                              )}
-                              onPointerDown={(event) => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                api.focusInput()
-                              }}
-                              onClick={(event) => {
-                                event.stopPropagation()
-                                onClose()
-                              }}
-                            >
-                              <Icon
-                                name={closeIcon()}
-                                class="opacity-50 size-[1.25em] hover:opacity-100"
-                              />
-                            </button>
-                          }
+                        <button
+                          type="button"
+                          data-slot="tagRemove"
+                          aria-label={`Remove ${option.key}`}
+                          style={props.styles?.tagRemove}
+                          disabled={api.field.disabled()}
+                          tabIndex={-1}
+                          class={cn(
+                            'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1',
+                            api.field.disabled() ? 'pointer-events-none' : 'cursor-pointer',
+                            props.classes?.tagRemove,
+                          )}
+                          onPointerDown={(event) => {
+                            if (api.field.disabled()) {
+                              return
+                            }
+                            event.preventDefault()
+                            event.stopPropagation()
+                            api.focusInput()
+                          }}
+                          onClick={(event) => {
+                            if (api.field.disabled()) {
+                              return
+                            }
+                            event.stopPropagation()
+                            onClose()
+                          }}
                         >
                           <Icon
                             name={closeIcon()}
-                            slotName="tagRemove"
-                            style={props.styles?.tagRemove}
-                            class={cn('opacity-50 size-[1.25em]', props.classes?.tagRemove)}
+                            class={cn('opacity-50', !api.field.disabled() && 'hover:opacity-100')}
                           />
-                        </Show>
+                        </button>
                       </span>
                     </Show>
                   )
@@ -883,20 +880,33 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             <button
               type="button"
               data-slot={isClearAction() ? 'clear' : 'trigger'}
-              aria-label={isClearAction() ? 'Clear selection' : 'Open dropdown menu'}
+              aria-label={
+                isActionLoading()
+                  ? 'Loading'
+                  : isClearAction()
+                    ? 'Clear selection'
+                    : 'Open dropdown menu'
+              }
               aria-busy={isActionLoading() || undefined}
               data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
               class={cn(
-                'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center',
                 isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
-                isActionLoading() ? 'cursor-wait' : 'cursor-pointer',
+                isActionLoading()
+                  ? 'cursor-wait pointer-events-none'
+                  : api.field.disabled()
+                    ? 'pointer-events-none'
+                    : 'cursor-pointer',
                 props.classes?.trigger,
                 isClearAction() ? props.classes?.clear : undefined,
               )}
               style={isClearAction() ? props.styles?.clear : props.styles?.trigger}
-              disabled={api.field.disabled()}
+              disabled={api.field.disabled() || isActionLoading()}
               onPointerDown={(event) => {
+                if (api.field.disabled() || isActionLoading()) {
+                  return
+                }
                 event.preventDefault()
                 event.stopPropagation()
                 api.focusInput()
@@ -904,7 +914,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               onClick={(event) => {
                 event.stopPropagation()
 
-                if (props.loading && !isClearAction()) {
+                if (api.field.disabled() || isActionLoading()) {
                   return
                 }
 
@@ -924,7 +934,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       ? (closeIcon() ?? 'icon-close')
                       : (trailingIcon() ?? 'icon-chevron-down')
                 }
-                class="text-muted-foreground opacity-80 data-loading:effect-loading"
+                class={cn(
+                  'text-muted-foreground opacity-80',
+                  isActionLoading() && 'effect-loading',
+                )}
                 data-loading={isActionLoading() ? '' : undefined}
               />
             </button>

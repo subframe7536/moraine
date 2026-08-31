@@ -316,10 +316,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       )}
     >
       {(api) => {
+        const isActionLoading = createMemo(() => Boolean(props.loading))
         const isClearAction = createMemo(() =>
-          Boolean(props.allowClear && getCurrentValue(api) !== null),
+          Boolean(!isActionLoading() && props.allowClear && getCurrentValue(api) !== null),
         )
-        const isActionLoading = createMemo(() => Boolean(props.loading && !isClearAction()))
 
         return (
           <div

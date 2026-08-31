@@ -147,10 +147,37 @@ describe('MultiSelect', () => {
       <MultiSelect options={FRUITS} value={['apple']} disabled onChange={onChange} />
     ))
     const tag = screen.container.querySelector('[data-slot="tag"]')!
+    const removeButton = tag.querySelector('button[data-slot="tagRemove"]') as HTMLButtonElement
 
-    expect(tag.querySelector('button')).toBeNull()
-    fireEvent.click(tag.querySelector('[data-slot="tagRemove"]')!)
+    expect(removeButton).not.toBeNull()
+    expect(removeButton.disabled).toBe(true)
+    expect(removeButton.className).toContain('pointer-events-none')
+    expect(removeButton.className).toContain('-ms-1')
+    expect(removeButton.className).toContain('p-0.5')
+    fireEvent.click(removeButton)
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('preserves tag remove button layout and classes when toggling disabled', () => {
+    const [isDisabled, setIsDisabled] = createSignal(false)
+    const screen = render(() => (
+      <MultiSelect options={FRUITS} value={['apple']} disabled={isDisabled()} />
+    ))
+    const tag = screen.container.querySelector('[data-slot="tag"]')!
+    const removeButton = () =>
+      tag.querySelector('button[data-slot="tagRemove"]') as HTMLButtonElement
+
+    expect(removeButton().disabled).toBe(false)
+    expect(removeButton().className).toContain('cursor-pointer')
+    expect(removeButton().className).toContain('-ms-1')
+    expect(removeButton().className).toContain('p-0.5')
+
+    setIsDisabled(true)
+
+    expect(removeButton().disabled).toBe(true)
+    expect(removeButton().className).toContain('pointer-events-none')
+    expect(removeButton().className).toContain('-ms-1')
+    expect(removeButton().className).toContain('p-0.5')
   })
 
   test('focuses the input when the selected tag label is pressed', () => {
@@ -973,17 +1000,46 @@ describe('MultiSelect', () => {
     expect(new FormData(form).has('fruits')).toBe(false)
   })
 
-  test('shows clear action instead of loading icon when selection is not empty', () => {
+  test('shows loading icon when loading is true even if selection is not empty and allowClear is true', () => {
     const screen = render(() => (
       <MultiSelect options={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
     ))
 
-    const action = screen.container.querySelector('[data-slot="clear"]')
-    expect(action).not.toBeNull()
-    expect(action?.getAttribute('aria-label')).toBe('Clear selection')
-    expect(action?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
-    expect(action?.querySelector('[data-slot="icon"]')?.className).not.toContain('icon-loading')
-    expect(action?.className).toContain('hover:bg-muted-hover')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    expect(trigger).not.toBeNull()
+    expect(trigger?.getAttribute('aria-label')).toBe('Loading')
+    expect(trigger?.getAttribute('aria-busy')).toBe('true')
+    expect(trigger?.hasAttribute('data-loading')).toBe(true)
+    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('icon-loading')
+    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('effect-loading')
+    expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
+  })
+
+  test('transitions between loading indicator and clear action when loading changes', () => {
+    const [isLoading, setIsLoading] = createSignal(true)
+    const screen = render(() => (
+      <MultiSelect
+        options={FRUITS}
+        value={['apple']}
+        loading={isLoading()}
+        allowClear
+        placeholder="Pick"
+      />
+    ))
+
+    expect(
+      screen.container.querySelector('[data-slot="trigger"]')?.getAttribute('aria-label'),
+    ).toBe('Loading')
+    expect(
+      screen.container.querySelector('[data-slot="trigger"] [data-slot="icon"]')?.className,
+    ).toContain('icon-loading')
+
+    setIsLoading(false)
+
+    const clearAction = screen.container.querySelector('[data-slot="clear"]')
+    expect(clearAction).not.toBeNull()
+    expect(clearAction?.getAttribute('aria-label')).toBe('Clear selection')
+    expect(clearAction?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
   })
 
   test('aligns control padding with the tag gap and removes trigger hover background', () => {
@@ -1016,7 +1072,6 @@ describe('MultiSelect', () => {
     expect(tag.className).toContain('text-sm')
     expect(tag.className).toContain('leading-tight')
     expect(tagRemove.className).toContain('p-0.5')
-    expect(tagRemove.querySelector('[data-slot="icon"]')?.className).toContain('size-[1.25em]')
     expect(input.className).not.toContain('h-6')
     expect(input.className).not.toContain('leading-$s-m')
     expect(input.className).toContain('text-sm')

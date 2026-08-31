@@ -49,7 +49,7 @@
 - [x] verify avatar loading and placeholder logic, correct avatar-group playground example
 - [x] resizable drag not working well on mobile, always auto lose control
 - [x] fix docs/pages/(overlay)/sheet/index.mdx 's playground not working: click button but no overlay shows
-- [ ] multi-select 's disable cause close icon shift, loading not working
+- [x] multi-select 's disable cause close icon shift, loading not working
 - [ ] click registery button in [form-field example](<docs/pages/(form)/form-field/index.mdx>), all required input should render invalid ring, but select and textarea does not
 - [ ] cleanup duplicate aria attributes setup in form components: `field.ariaAttrs()` and manually setup `aria-invalid`, `aria-required`, `aria-describedby`, etc. in the control
 - [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
