@@ -20,8 +20,8 @@ search:
     ]
 ---
 
-import { Button, createForm, Input, Switch } from '@src'
-import { Show, createComponent, createSignal } from 'solid-js'
+import { Button, createForm, Input, Select, Switch, Textarea } from '@src'
+import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
 ## Import
@@ -67,53 +67,212 @@ export function NotificationForm() {
 ## Playground
 
 <Playground
-  controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'required', label: 'Required', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'showDescription', label: 'Description', defaultValue: true },
+    { kind: 'switch', prop: 'showHint', label: 'Hint', defaultValue: true },
+    { kind: 'switch', prop: 'showHelp', label: 'Help text', defaultValue: false },
+  ]}
 >
   {(props) => {
-    const LoginSchema = v.object({
-      email: v.pipe(v.string(), v.email('Enter a valid email address.')),
-      password: v.pipe(v.string(), v.minLength(6, 'Password must be at least 6 characters.')),
-      remember: v.boolean(),
+    const ProfileSchema = v.object({
+      username: v.pipe(v.string(), v.minLength(3, 'Username must be at least 3 characters.')),
+      role: v.pipe(v.string(), v.nonEmpty('Please select a role.')),
+      bio: v.optional(v.string()),
+      notifications: v.boolean(),
     })
 
-    const [success, setSuccess] = createSignal(false)
+    const [submitted, setSubmitted] = createSignal(null)
     const form = createForm({
-      schema: LoginSchema,
-      initialInput: { email: '', password: '', remember: true },
+      schema: ProfileSchema,
+      initialInput: { username: '', role: '', bio: '', notifications: true },
     })
+
+    const ROLE_OPTIONS = [
+      { label: 'Developer', value: 'dev' },
+      { label: 'Designer', value: 'designer' },
+      { label: 'Product Manager', value: 'pm' },
+      { label: 'Other', value: 'other' },
+    ]
+
+    const handleSubmit = (values) => {
+      setSubmitted(values)
+    }
 
     return (
-      <div class="space-y-4 max-w-sm">
+      <div class="max-w-lg w-full">
         {createComponent(form.Form, {
-          onSubmit: () => setSuccess(true),
-          class: 'space-y-4 max-w-sm',
+          onSubmit: handleSubmit,
+          class: 'w-full',
           get children() {
             return [
               createComponent(form.Field, {
-                name: 'email',
-                label: 'Email',
-                required: true,
+                name: 'username',
+                label: 'Username',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? (props.required ? 'Required' : undefined) : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your unique public handle.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Visible to all members in workspace.' : undefined
+                },
                 get children() {
-                  return <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
+                  return (
+                    <Input
+                      placeholder="alex_dev"
+                      disabled={props.disabled}
+                      leading="i-lucide:user"
+                    />
+                  )
                 },
               }),
               createComponent(form.Field, {
-                name: 'password',
-                label: 'Password',
-                required: true,
+                name: 'role',
+                label: 'Role',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? 'Team' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your primary function on the team.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Used to configure team permissions.' : undefined
+                },
                 get children() {
-                  return <Input type="password" placeholder="••••••••" disabled={props.disabled} leading="i-lucide:lock" />
+                  return (
+                    <Select
+                      options={ROLE_OPTIONS}
+                      placeholder="Select a role"
+                      disabled={props.disabled}
+                      allowClear
+                    />
+                  )
                 },
               }),
               createComponent(form.Field, {
-                name: 'remember',
+                name: 'bio',
+                label: 'About',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? 'Optional' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Brief introduction for your profile.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Markdown is supported.' : undefined
+                },
                 get children() {
-                  return <Switch label="Remember me on this device" disabled={props.disabled} />
+                  return (
+                    <Textarea
+                      placeholder="Tell us about yourself..."
+                      rows={2}
+                      disabled={props.disabled}
+                    />
+                  )
                 },
               }),
-              <Button type="submit" class="w-full" disabled={props.disabled}>Sign in</Button>,
-              <Show when={success()}>
-                <p class="text-xs text-primary font-medium text-center">Successfully signed in!</p>
+              createComponent(form.Field, {
+                name: 'notifications',
+                label: props.orientation === 'horizontal' ? 'Alerts' : undefined,
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get children() {
+                  return (
+                    <Switch
+                      label="Email notifications"
+                      description={
+                        props.showDescription
+                          ? 'Receive periodic digests and security updates'
+                          : undefined
+                      }
+                      disabled={props.disabled}
+                    />
+                  )
+                },
+              }),
+              <div class="flex gap-2 justify-end pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size={props.size}
+                  disabled={props.disabled || form.isSubmitting}
+                  onClick={() => {
+                    form.reset()
+                    setSubmitted(null)
+                  }}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  size={props.size}
+                  loading={form.isSubmitting}
+                  disabled={props.disabled || form.isSubmitting}
+                >
+                  Save Profile
+                </Button>
+              </div>,
+              <Show when={submitted()}>
+                {(data) => (
+                  <div class="mt-4 p-3 border border-border/80 rounded-lg bg-muted/40 text-xs font-mono">
+                    <p class="text-primary font-medium mb-1">Form Submitted:</p>
+                    <pre class="overflow-x-auto text-foreground whitespace-pre-wrap">
+                      {JSON.stringify(data(), null, 2)}
+                    </pre>
+                  </div>
+                )}
               </Show>,
             ]
           },

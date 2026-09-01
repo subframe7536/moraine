@@ -8,7 +8,7 @@ export const INPUT_VARIANT = {
 export const TEXT_SIZE_VARIANT = {
   sm: 'text-xs',
   md: 'text-sm',
-  lg: 'text-sm',
+  lg: 'text-base',
 } as const
 
 export const REQUIRED_MARK_VARIANT = {
@@ -23,7 +23,7 @@ export const FLEX_ORIENTATION_VARIANT = {
 export const CHECKABLE_CONTAINER_SIZE_VARIANT = {
   sm: 'h-4',
   md: 'h-5',
-  lg: 'h-5',
+  lg: 'h-6',
 } as const
 
 export const CHECKABLE_BASE_SIZE_VARIANT = {

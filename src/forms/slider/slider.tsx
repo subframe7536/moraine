@@ -155,7 +155,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
-      size: 'md' as const,
       inverted: false,
     },
     local,

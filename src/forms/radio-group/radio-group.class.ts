@@ -89,7 +89,7 @@ export const radioGroupBaseVariants = cva(
   },
 )
 
-export const radioGroupWrapperVariants = cva('w-full', {
+export const radioGroupWrapperVariants = cva('flex flex-col gap-0.5 w-full', {
   defaultVariants: {
     indicator: 'start',
   },

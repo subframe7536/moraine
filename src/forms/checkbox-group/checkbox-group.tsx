@@ -247,7 +247,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     {
       orientation: 'vertical' as const,
       variant: 'list' as const,
-      size: 'md' as const,
       defaultValue: [] as string[],
     },
     local,

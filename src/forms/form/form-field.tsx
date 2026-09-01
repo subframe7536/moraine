@@ -23,9 +23,14 @@ import type { FormFieldContextOptions } from './form-context.ts'
 import { FormFieldProvider } from './form-context.ts'
 import type { FormFieldVariantProps } from './form-field.class.ts'
 import {
+  FORM_FIELD_DESCRIPTION_CLASS,
+  FORM_FIELD_ERROR_CLASS,
+  FORM_FIELD_HELP_CLASS,
+  FORM_FIELD_HINT_CLASS,
+  FORM_FIELD_LABEL_WRAPPER_CLASS,
+  FORM_FIELD_WRAPPER_CLASS,
   formFieldContainerVariants,
   formFieldLabelVariants,
-  formFieldRootVariants,
   formFieldSizeVariants,
 } from './form-field.class.ts'
 
@@ -388,11 +393,9 @@ export function FormField<
         {...rest}
         component={merged.as as any}
         style={{ ...merged.styles?.root, ...merged.style }}
-        class={formFieldRootVariants(
-          {
-            orientation: merged.orientation,
-          },
-          formFieldSizeVariants({ size: merged.size }),
+        class={formFieldSizeVariants(
+          { size: merged.size },
+          merged.orientation === 'horizontal' && 'gap-x-2 grid grid-cols-4 items-baseline',
           merged.classes?.root,
           merged.class,
         )}
@@ -401,7 +404,8 @@ export function FormField<
           data-slot="wrapper"
           style={merged.styles?.wrapper}
           class={cn(
-            merged.orientation === 'horizontal' && 'text-end col-span-1',
+            FORM_FIELD_WRAPPER_CLASS,
+            merged.orientation === 'horizontal' && 'text-end col-span-1 items-end',
             merged.classes?.wrapper,
           )}
         >
@@ -410,7 +414,7 @@ export function FormField<
               data-slot="labelWrapper"
               style={merged.styles?.labelWrapper}
               class={cn(
-                'flex gap-1 items-center',
+                FORM_FIELD_LABEL_WRAPPER_CLASS,
                 merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
                 merged.classes?.labelWrapper,
               )}
@@ -436,7 +440,11 @@ export function FormField<
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
                   style={merged.styles?.hint}
-                  class={cn('text-muted-foreground ms-1', merged.classes?.hint)}
+                  class={formFieldSizeVariants(
+                    { size: merged.size },
+                    FORM_FIELD_HINT_CLASS,
+                    merged.classes?.hint,
+                  )}
                 >
                   {hint()}
                 </span>
@@ -449,7 +457,11 @@ export function FormField<
               id={`${ariaId()}-description`}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
+              class={formFieldSizeVariants(
+                { size: merged.size },
+                FORM_FIELD_DESCRIPTION_CLASS,
+                merged.classes?.description,
+              )}
             >
               {description()}
             </p>
@@ -458,16 +470,13 @@ export function FormField<
 
         <div
           data-slot="container"
-          class={
-            showLabel() || showDescription() || merged.orientation === 'horizontal'
-              ? formFieldContainerVariants(
-                  {
-                    orientation: merged.orientation,
-                  },
-                  merged.classes?.container,
-                )
-              : cn(merged.classes?.container)
-          }
+          class={formFieldContainerVariants(
+            {
+              orientation: merged.orientation,
+              hasText: showLabel() || showDescription(),
+            },
+            merged.classes?.container,
+          )}
         >
           {fieldChildren}
 
@@ -479,7 +488,11 @@ export function FormField<
                   id={`${ariaId()}-help`}
                   data-slot="help"
                   style={merged.styles?.help}
-                  class={cn('text-muted-foreground', merged.classes?.help)}
+                  class={formFieldSizeVariants(
+                    { size: merged.size },
+                    FORM_FIELD_HELP_CLASS,
+                    merged.classes?.help,
+                  )}
                 >
                   {help()}
                 </div>
@@ -490,7 +503,11 @@ export function FormField<
               id={`${ariaId()}-error`}
               data-slot="error"
               style={merged.styles?.error}
-              class={cn('text-destructive', merged.classes?.error)}
+              class={formFieldSizeVariants(
+                { size: merged.size },
+                FORM_FIELD_ERROR_CLASS,
+                merged.classes?.error,
+              )}
             >
               {resolvedError()}
             </div>

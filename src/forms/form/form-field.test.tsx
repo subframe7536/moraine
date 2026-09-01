@@ -296,12 +296,12 @@ describe('FormField', () => {
   })
 
   test.each([
-    ['sm', 'text-xs', 'h-7', 'py-1'],
-    ['md', 'text-sm', 'h-8', 'py-1.5'],
-    ['lg', 'text-sm', 'h-9', 'py-2'],
+    ['sm', 'text-xs', 'h-7', 'py-1', 'text-xs'],
+    ['md', 'text-sm', 'h-8', 'py-1.5', 'text-sm'],
+    ['lg', 'text-base', 'h-9', 'py-2', 'text-base'],
   ] as const)(
     'propagates %s size to field content and messages',
-    (size, fieldText, height, padding) => {
+    (size, fieldText, height, padding, subtextSize) => {
       const screen = render(() => (
         <FormField size={size} label="Name" description="Description" help="Help">
           <Input />
@@ -311,18 +311,73 @@ describe('FormField', () => {
       const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
       const inputRoot = screen.container.querySelector('[data-slot="root"] [data-slot="root"]')
       const input = screen.container.querySelector('[data-slot="input"]')
+      const description = screen.container.querySelector('[data-slot="description"]')
+      const help = screen.container.querySelector('[data-slot="help"]')
 
       expect(root.className).toContain(fieldText)
       expect(inputRoot?.className).toContain(height)
       expect(input?.className).toContain(padding)
-      expect(screen.container.querySelector('[data-slot="description"]')?.className).not.toContain(
-        'text-sm',
-      )
-      expect(screen.container.querySelector('[data-slot="help"]')?.className).not.toContain(
-        'text-sm',
-      )
+      expect(description?.className).toContain(subtextSize)
+      expect(help?.className).toContain(subtextSize)
     },
   )
+
+  test.each([
+    ['sm', 'h-4 w-7', 'size-3', 'text-xs'],
+    ['md', 'h-4.5 w-8', 'size-3.5', 'text-sm'],
+    ['lg', 'h-5.5 w-10', 'size-4.5', 'text-base'],
+  ] as const)(
+    'propagates %s size to Switch child control',
+    (size, trackClass, thumbClass, wrapperClass) => {
+      const screen = render(() => (
+        <FormField size={size} label="Notifications">
+          <Switch label="Email alerts" description="Receive updates" />
+        </FormField>
+      ))
+
+      const track = screen.container.querySelector('[data-slot="track"]')
+      const thumb = screen.container.querySelector('[data-slot="thumb"]')
+      const switchWrapper = screen.container.querySelector(
+        '[data-slot="track"] ~ [data-slot="wrapper"]',
+      )
+
+      expect(track?.className).toContain(trackClass)
+      expect(thumb?.className).toContain(thumbClass)
+      expect(switchWrapper?.className).toContain(wrapperClass)
+    },
+  )
+
+  test('allows Switch to override FormField size with explicit size prop', () => {
+    const screen = render(() => (
+      <FormField size="sm" label="Notifications">
+        <Switch size="lg" label="Email alerts" />
+      </FormField>
+    ))
+
+    const track = screen.container.querySelector('[data-slot="track"]')
+    const thumb = screen.container.querySelector('[data-slot="thumb"]')
+
+    expect(track?.className).toContain('h-5.5 w-10')
+    expect(thumb?.className).toContain('size-4.5')
+  })
+
+  test.each([
+    ['sm', 'size-3.5', 'text-xs'],
+    ['md', 'size-4', 'text-sm'],
+    ['lg', 'size-4.5', 'text-base'],
+  ] as const)('propagates %s size to Checkbox child control', (size, boxClass, textClass) => {
+    const screen = render(() => (
+      <FormField size={size} label="Agree">
+        <Checkbox label="Terms" description="I agree" />
+      </FormField>
+    ))
+
+    const control = screen.container.querySelector('[data-slot="control"]')
+    const desc = screen.container.querySelector('[data-slot="description"]')
+
+    expect(control?.className).toContain(boxClass)
+    expect(desc?.className).toContain(textClass)
+  })
 
   test('inherits required state while allowing an explicit control override', () => {
     const screen = render(() => (
@@ -681,5 +736,60 @@ describe('FormField', () => {
         .querySelector('[data-slot="input"]')
         ?.parentElement?.getAttribute('data-invalid'),
     ).toBe('')
+  })
+
+  test('applies unified spacing and typography classes across slots', () => {
+    const screen = render(() => (
+      <FormField
+        label="Email"
+        hint="Optional"
+        description="We never share email"
+        help="Enter valid email"
+        error="Invalid"
+      >
+        <Input />
+      </FormField>
+    ))
+
+    const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+    const labelWrapper = screen.container.querySelector('[data-slot="labelWrapper"]')
+    const hint = screen.container.querySelector('[data-slot="hint"]')
+    const description = screen.container.querySelector('[data-slot="description"]')
+    const container = screen.container.querySelector('[data-slot="container"]')
+    const error = screen.container.querySelector('[data-slot="error"]')
+
+    expect(wrapper?.className).toContain('flex')
+    expect(wrapper?.className).toContain('flex-col')
+    expect(wrapper?.className).toContain('gap-1')
+
+    expect(labelWrapper?.className).toContain('gap-1.5')
+    expect(hint?.className).toContain('text-sm')
+    expect(hint?.className).toContain('text-muted-foreground')
+    expect(hint?.className).not.toContain('ms-1')
+
+    expect(description?.className).toContain('text-sm')
+    expect(description?.className).toContain('text-muted-foreground')
+    expect(description?.className).toContain('leading-normal')
+
+    expect(container?.className).toContain('mt-1.5')
+    expect(container?.className).toContain('gap-1.5')
+
+    expect(error?.className).toContain('text-sm')
+    expect(error?.className).toContain('text-destructive')
+    expect(error?.className).toContain('font-medium')
+  })
+
+  test('omits top margin on container when label and description are absent in vertical layout', () => {
+    const screen = render(() => (
+      <FormField>
+        <Input />
+      </FormField>
+    ))
+
+    const container = screen.container.querySelector('[data-slot="container"]')
+    expect(container?.className).toContain('flex')
+    expect(container?.className).toContain('flex-col')
+    expect(container?.className).toContain('gap-1.5')
+    expect(container?.className).not.toContain('mt-0')
   })
 })

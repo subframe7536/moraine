@@ -1,6 +1,6 @@
 ## Fix
 
-- [ ] unify form spacing: title, description, hint, label, control, help, error, and field gap
+- [x] unify form spacing: title, description, hint, label, control, help, error, and field gap
 - [ ] for boolean state of classes, do not setup new variant in cva(), use `? 'XXX' : 'XXX'` instead
 - [ ] production barrel import optimize
 

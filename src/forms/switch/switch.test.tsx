@@ -263,7 +263,7 @@ describe('Switch', () => {
     expect(input?.className).toContain('peer')
     expect(track?.className).toContain('focus-visible:effect-fv-border')
     expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
-    expect(track?.className).toContain('w-9')
+    expect(track?.className).toContain('w-10')
     expect(wrapper?.className).toContain('ms-2.5')
     expect(wrapper?.className).toContain('text-base')
     expect(screen.getByText('Classes').className).toContain('select-none')
@@ -343,4 +343,33 @@ describe('Switch', () => {
       uncheckedIcon: 1,
     })
   })
+
+  test('applies default md size variants when rendered standalone', () => {
+    const screen = render(() => <Switch label="Default size" description="Helper" />)
+    const track = screen.container.querySelector('[data-slot="track"]')
+    const thumb = screen.container.querySelector('[data-slot="thumb"]')
+    const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+
+    expect(track?.className).toContain('h-4.5 w-8')
+    expect(thumb?.className).toContain('size-3.5')
+    expect(wrapper?.className).toContain('text-sm')
+  })
+
+  test.each([
+    ['sm', 'h-4 w-7', 'size-3', 'text-xs'],
+    ['md', 'h-4.5 w-8', 'size-3.5', 'text-sm'],
+    ['lg', 'h-5.5 w-10', 'size-4.5', 'text-base'],
+  ] as const)(
+    'applies explicit %s size variant classes',
+    (size, trackClass, thumbClass, wrapperClass) => {
+      const screen = render(() => <Switch size={size} label="Size test" description="Helper" />)
+      const track = screen.container.querySelector('[data-slot="track"]')
+      const thumb = screen.container.querySelector('[data-slot="thumb"]')
+      const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+
+      expect(track?.className).toContain(trackClass)
+      expect(thumb?.className).toContain(thumbClass)
+      expect(wrapper?.className).toContain(wrapperClass)
+    },
+  )
 })

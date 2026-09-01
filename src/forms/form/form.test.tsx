@@ -303,4 +303,24 @@ describe('Form', () => {
     await waitFor(() => expect(secondSubmit).toHaveBeenCalledTimes(1))
     expect(secondSubmit.mock.calls[0]?.[0]).toEqual({ value: 'Second' })
   })
+
+  test('applies default field gap on form root', () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="value" label="Value">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    const formElement = screen.container.querySelector('form')
+    expect(formElement?.className).toContain('space-y-4')
+  })
 })

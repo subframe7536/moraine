@@ -1228,7 +1228,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           ...toStyleObject(virtualProps?.style),
         }}
         class={selectItemVariants(
-          { size: merged.size },
+          { size: field.size() },
           merged.classes?.item,
           itemAttributes()?.class,
           virtualProps?.class,

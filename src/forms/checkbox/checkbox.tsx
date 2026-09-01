@@ -3,6 +3,7 @@ import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -198,7 +199,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   ])
   const merged = mergeProps(
     {
-      size: 'md' as const,
       variant: 'list' as const,
       indicator: 'start' as const,
       checkedIcon: 'icon-check' as const,
@@ -601,7 +601,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               id={descriptionId()}
               data-slot="description"
               style={merged.styles?.description}
-              class={cn('text-muted-foreground', merged.classes?.description)}
+              class={cn(
+                TEXT_SIZE_VARIANT[field.size()],
+                'text-muted-foreground leading-normal',
+                merged.classes?.description,
+              )}
             >
               {description()}
             </p>

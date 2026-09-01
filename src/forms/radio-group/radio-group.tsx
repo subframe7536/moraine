@@ -13,6 +13,7 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
@@ -171,7 +172,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       orientation: 'vertical' as const,
       variant: 'list' as const,
       indicator: 'start' as const,
-      size: 'md' as const,
     },
     local,
   )
@@ -592,7 +592,11 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       id={item.descriptionId}
                       data-slot="description"
                       style={merged.styles?.description}
-                      class={cn('text-muted-foreground', merged.classes?.description)}
+                      class={cn(
+                        TEXT_SIZE_VARIANT[field.size()],
+                        'text-muted-foreground leading-normal',
+                        merged.classes?.description,
+                      )}
                     >
                       {item.description}
                     </p>

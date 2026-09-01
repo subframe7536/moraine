@@ -504,7 +504,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       multiple: false,
       dropzone: true,
       preview: true,
-      size: 'md' as const,
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },

@@ -378,7 +378,7 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
     expect(firstItem?.className).toContain('not-first-of-type:-ms-px')
     expect(firstInput?.className).toContain('peer')
-    expect(firstContainer?.className).toContain('h-5')
+    expect(firstContainer?.className).toContain('h-6')
     expect(firstBase?.className).toContain('peer-focus-visible:effect-fv-border')
   })
 

@@ -1,1 +1,1 @@
-export const FORM_ROOT_CLASS = 'w-full data-submitting:opacity-80'
+export const FORM_ROOT_CLASS = 'w-full space-y-4 data-submitting:opacity-80'

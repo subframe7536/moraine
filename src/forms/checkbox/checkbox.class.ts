@@ -57,7 +57,7 @@ export const checkboxContainerVariants = cva('flex items-center', {
   },
 })
 
-export const checkboxWrapperVariants = cva('w-full', {
+export const checkboxWrapperVariants = cva('flex flex-col gap-0.5 w-full', {
   defaultVariants: {
     indicator: 'start',
     size: 'md',
