@@ -1,4 +1,4 @@
-import { Button, Dialog, FormField, Input, Textarea } from '@src'
+import { Button, Dialog, Input, Textarea } from '@src'
 
 export function Basic() {
   return (
@@ -8,18 +8,21 @@ export function Basic() {
         description="Make changes to your public profile and workspace handle."
         body={
           <div class="py-2 space-y-4">
-            <FormField label="Full Name">
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium">Full Name</label>
               <Input defaultValue="Alex Morgan" />
-            </FormField>
-            <FormField label="Public Handle">
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium">Public Handle</label>
               <Input defaultValue="alex.morgan" leading="@" />
-            </FormField>
-            <FormField label="Bio">
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium">Bio</label>
               <Textarea
                 rows={3}
                 defaultValue="Product engineer building modern web applications with SolidJS."
               />
-            </FormField>
+            </div>
           </div>
         }
         footer={

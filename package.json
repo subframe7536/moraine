@@ -68,7 +68,7 @@
     "cls-variant": "^1.2.0"
   },
   "devDependencies": {
-    "@expressive-code/plugin-line-numbers": "^0.42.0",
+    "@expressive-code/plugin-line-numbers": "0.42.0",
     "@iconify-json/lucide": "^1.2.127",
     "@iconify/tailwind": "1.2.0",
     "@rolldown/pluginutils": "*",
@@ -88,7 +88,7 @@
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.10.5",
     "satteri-expressive-code": "^0.1.24",
-    "solid-file-router": "^0.7.2",
+    "solid-file-router": "^0.7.3",
     "solid-toaster": "^0.1.7",
     "tailwindcss": "^4.3.2",
     "tsdown": "^0.22.14",

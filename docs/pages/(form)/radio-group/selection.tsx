@@ -1,4 +1,4 @@
-import { FormField, RadioGroup } from '@src'
+import { RadioGroup } from '@src'
 import { createSignal } from 'solid-js'
 
 const PLAN_OPTIONS = [
@@ -16,9 +16,7 @@ export function Selection() {
 
   return (
     <div class="max-w-md w-full space-y-3">
-      <FormField label="Subscription tier">
-        <RadioGroup items={PLAN_OPTIONS} value={plan()} onChange={setPlan} />
-      </FormField>
+      <RadioGroup items={PLAN_OPTIONS} value={plan()} onChange={setPlan} />
       <p class="text-xs text-muted-foreground">
         Active plan: <span class="text-foreground font-medium">{plan()}</span>
       </p>

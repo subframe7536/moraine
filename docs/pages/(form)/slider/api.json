@@ -199,12 +199,6 @@
         "defaultValue": "true"
       },
       {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom content to render inside the slider root container."
-      },
-      {
         "name": "class",
         "required": false,
         "type": "SlotClassValue",

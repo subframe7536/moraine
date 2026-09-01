@@ -1,4 +1,4 @@
-import { FormField, MultiSelect } from '@src'
+import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -26,15 +26,13 @@ export function LargeCollections() {
 
   return (
     <div class="max-w-md w-full">
-      <FormField label="Technology Stack" description="Grouped tags with multi-selection support.">
-        <MultiSelect
-          placeholder="Choose technologies..."
-          options={TECH_GROUPS}
-          value={selected()}
-          onChange={setSelected}
-          allowClear
-        />
-      </FormField>
+      <MultiSelect
+        placeholder="Choose technologies..."
+        options={TECH_GROUPS}
+        value={selected()}
+        onChange={setSelected}
+        allowClear
+      />
     </div>
   )
 }

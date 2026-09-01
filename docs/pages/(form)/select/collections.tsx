@@ -1,4 +1,4 @@
-import { FormField, Select } from '@src'
+import { Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 
@@ -34,18 +34,13 @@ export function Collections() {
 
   return (
     <div class="max-w-sm w-full">
-      <FormField
-        label="Deployment Region"
-        description="Choose the closest primary region for low latency."
-      >
-        <Select<string>
-          search
-          options={REGIONS}
-          value={region()}
-          onChange={(val) => val && setRegion(val)}
-          placeholder="Select a region..."
-        />
-      </FormField>
+      <Select<string>
+        search
+        options={REGIONS}
+        value={region()}
+        onChange={(val) => val && setRegion(val)}
+        placeholder="Select a region..."
+      />
     </div>
   )
 }

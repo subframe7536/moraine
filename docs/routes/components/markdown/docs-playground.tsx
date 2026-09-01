@@ -4,7 +4,6 @@ import { createStore } from 'solid-js/store'
 
 import {
   Button,
-  FormField,
   Icon,
   Input,
   InputNumber,
@@ -213,13 +212,17 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
 
   function renderInputControl(control: DocsPlaygroundInputControl, controlId: string): JSX.Element {
     return (
-      <FormField id={controlId} label={control.label} size="sm">
+      <div class="flex flex-col gap-1.5">
+        <label for={controlId} class="text-xs text-muted-foreground font-medium">
+          {control.label}
+        </label>
         <Input
           id={controlId}
+          size="sm"
           value={values[control.prop] as InputT.Value}
           onValueChange={(value) => setValues(control.prop, value)}
         />
-      </FormField>
+      </div>
     )
   }
 
@@ -228,13 +231,17 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
     controlId: string,
   ): JSX.Element {
     return (
-      <FormField id={controlId} label={control.label} size="sm">
+      <div class="flex flex-col gap-1.5">
+        <label for={controlId} class="text-xs text-muted-foreground font-medium">
+          {control.label}
+        </label>
         <InputNumber
           id={controlId}
+          size="sm"
           value={values[control.prop] as InputT.Value}
           onRawValueChange={(value) => setValues(control.prop, value)}
         />
-      </FormField>
+      </div>
     )
   }
 
@@ -243,9 +250,13 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
     controlId: string,
   ): JSX.Element {
     return (
-      <FormField id={controlId} label={control.label} size="sm">
+      <div class="flex flex-col gap-1.5">
+        <label for={controlId} class="text-xs text-muted-foreground font-medium">
+          {control.label}
+        </label>
         <Select
           id={controlId}
+          size="sm"
           options={[...control.options]}
           search={false}
           value={values[control.prop] as string | number}
@@ -255,7 +266,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
             }
           }}
         />
-      </FormField>
+      </div>
     )
   }
 
@@ -264,15 +275,13 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
     controlId: string,
   ): JSX.Element {
     return (
-      <FormField id={controlId} label={control.label} size="sm">
-        <SwitchComp
-          id={controlId}
-          label={control.label}
-          size="sm"
-          checked={values[control.prop]}
-          onChange={(value) => setValues(control.prop, value)}
-        />
-      </FormField>
+      <SwitchComp
+        id={controlId}
+        label={control.label}
+        size="sm"
+        checked={values[control.prop]}
+        onChange={(value) => setValues(control.prop, value)}
+      />
     )
   }
 

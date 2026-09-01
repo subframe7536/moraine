@@ -1,4 +1,4 @@
-import { CheckboxGroup, FormField } from '@src'
+import { CheckboxGroup } from '@src'
 
 const ROLE_OPTIONS = [
   { label: 'Read repository', value: 'read' },
@@ -9,13 +9,7 @@ const ROLE_OPTIONS = [
 export function FormBehavior() {
   return (
     <div class="max-w-md">
-      <FormField
-        label="Role permissions"
-        description="Assigned permissions for the selected team members."
-        required
-      >
-        <CheckboxGroup name="permissions" items={ROLE_OPTIONS} defaultValue={['read']} />
-      </FormField>
+      <CheckboxGroup name="permissions" items={ROLE_OPTIONS} defaultValue={['read']} />
     </div>
   )
 }

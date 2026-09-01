@@ -22,7 +22,7 @@ importers:
         version: 1.9.15
     devDependencies:
       '@expressive-code/plugin-line-numbers':
-        specifier: ^0.42.0
+        specifier: 0.42.0
         version: 0.42.0
       '@iconify-json/lucide':
         specifier: ^1.2.127
@@ -82,8 +82,8 @@ importers:
         specifier: ^0.1.24
         version: 0.1.24(satteri@0.10.5)
       solid-file-router:
-        specifier: ^0.7.2
-        version: 0.7.2(@babel/core@7.29.7)(@solidjs/router@1.0.0(solid-js@1.9.15))(solid-js@1.9.15)(tinyglobby@0.2.17)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
+        specifier: ^0.7.3
+        version: 0.7.3(@babel/core@7.29.7)(@solidjs/router@1.0.0(solid-js@1.9.15))(solid-js@1.9.15)(tinyglobby@0.2.17)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
       solid-toaster:
         specifier: ^0.1.7
         version: 0.1.7(solid-js@1.9.15)
@@ -1828,8 +1828,8 @@ packages:
   siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
 
-  solid-file-router@0.7.2:
-    resolution: {integrity: sha512-galpx+ZwRTe/OzJL3wKywoz2EC2VWUJrbsUn7D/dZ4EKBKht+zW7nDxn3Tjk69GZQHx19ENSnVH9cr/nKsyBzw==}
+  solid-file-router@0.7.3:
+    resolution: {integrity: sha512-Vq5M640Ld3jLI+gcopj4OdUdq51Ax0SLRPgAn+J5oAC7WPJhvwk8ANCQutBCKGGPj2yxtWfg/r3U3KAat96HFg==}
     peerDependencies:
       '@babel/core': ^7.29.7
       '@solidjs/router': ^1
@@ -3678,7 +3678,7 @@ snapshots:
 
   siginfo@2.0.0: {}
 
-  solid-file-router@0.7.2(@babel/core@7.29.7)(@solidjs/router@1.0.0(solid-js@1.9.15))(solid-js@1.9.15)(tinyglobby@0.2.17)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0):
+  solid-file-router@0.7.3(@babel/core@7.29.7)(@solidjs/router@1.0.0(solid-js@1.9.15))(solid-js@1.9.15)(tinyglobby@0.2.17)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0):
     dependencies:
       '@babel/core': 7.29.7
       '@solidjs/router': 1.0.0(solid-js@1.9.15)

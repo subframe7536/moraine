@@ -1,4 +1,4 @@
-import { FormField, RadioGroup } from '@src'
+import { RadioGroup } from '@src'
 import type { RadioGroupT } from '@src'
 import { For } from 'solid-js'
 
@@ -17,10 +17,9 @@ export function IndicatorPositions() {
     <div class="gap-4 grid lg:grid-cols-3 sm:grid-cols-2">
       <For each={INDICATORS}>
         {(indicator) => (
-          <div class="p-4 b-(1 border) rounded-lg">
-            <FormField label={`Indicator ${indicator}`}>
-              <RadioGroup items={ITEMS} variant="card" indicator={indicator} defaultValue="pro" />
-            </FormField>
+          <div class="p-4 b-(1 border) rounded-lg space-y-2">
+            <p class="text-sm font-medium">Indicator: {indicator}</p>
+            <RadioGroup items={ITEMS} variant="card" indicator={indicator} defaultValue="pro" />
           </div>
         )}
       </For>

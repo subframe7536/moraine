@@ -1,4 +1,4 @@
-import { FormField, RadioGroup } from '@src'
+import { RadioGroup } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ControlledDisabled() {
@@ -6,24 +6,22 @@ export function ControlledDisabled() {
 
   return (
     <div class="max-w-xl space-y-3">
-      <FormField label="Plan selector">
-        <RadioGroup
-          items={[
-            {
-              value: 'starter',
-              label: 'Starter (Legacy)',
-              description: 'For personal projects',
-              disabled: true,
-            },
-            { value: 'pro', label: 'Pro', description: 'For teams and scaling' },
-            { value: 'enterprise', label: 'Enterprise', description: 'For regulated workloads' },
-          ]}
-          value={value()}
-          onChange={setValue}
-          variant="table"
-          orientation="horizontal"
-        />
-      </FormField>
+      <RadioGroup
+        items={[
+          {
+            value: 'starter',
+            label: 'Starter (Legacy)',
+            description: 'For personal projects',
+            disabled: true,
+          },
+          { value: 'pro', label: 'Pro', description: 'For teams and scaling' },
+          { value: 'enterprise', label: 'Enterprise', description: 'For regulated workloads' },
+        ]}
+        value={value()}
+        onChange={setValue}
+        variant="table"
+        orientation="horizontal"
+      />
       <p class="text-xs text-muted-foreground">Current plan: {value()}</p>
     </div>
   )

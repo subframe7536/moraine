@@ -1,4 +1,4 @@
-import { FormField, Textarea } from '@src'
+import { Textarea } from '@src'
 import { createSignal } from 'solid-js'
 
 export function NativeBehavior() {
@@ -6,9 +6,7 @@ export function NativeBehavior() {
 
   return (
     <div class="max-w-md w-full space-y-3">
-      <FormField label="Biography">
-        <Textarea value={bio()} onValueChange={setBio} rows={3} />
-      </FormField>
+      <Textarea value={bio()} onValueChange={setBio} rows={3} />
       <p class="text-xs text-muted-foreground">
         Length: <span class="text-foreground font-mono">{bio().length}</span> characters
       </p>
