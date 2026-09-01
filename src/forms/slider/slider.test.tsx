@@ -830,6 +830,22 @@ describe('Slider', () => {
     expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
   })
 
+  test('renders both thumb indicators on bold range slider', () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
+    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+
+    expect(range.className).toContain('before:')
+    expect(range.className).toContain('after:')
+  })
+
+  test('renders only one thumb indicator on bold single slider', () => {
+    const screen = render(() => <Slider variant="bold" defaultValue={40} />)
+    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+
+    expect(range.className).not.toContain('before:')
+    expect(range.className).toContain('after:')
+  })
+
   test('clears pointer focus from bold thumb on pointer down', async () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
     const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement
@@ -1395,5 +1411,28 @@ describe('Slider', () => {
     screen.unmount()
 
     expect(releasePointerCapture).toHaveBeenCalledWith(7)
+  })
+
+  test('renders children inside slider root', () => {
+    const screen = render(() => (
+      <Slider defaultValue={20}>
+        <span data-testid="slider-child">Custom Child</span>
+      </Slider>
+    ))
+
+    expect(screen.getByTestId('slider-child')).not.toBeNull()
+  })
+
+  test('reflects data-dragging on root during pointer interaction', () => {
+    const screen = render(() => <Slider defaultValue={20} />)
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    mockPointerCapture(track)
+
+    expect(root.hasAttribute('data-dragging')).toBe(false)
+    fireEvent.pointerDown(track, { button: 0, clientX: 50, pointerId: 1 })
+    expect(root.hasAttribute('data-dragging')).toBe(true)
+    fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
+    expect(root.hasAttribute('data-dragging')).toBe(false)
   })
 })

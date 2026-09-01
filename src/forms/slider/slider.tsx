@@ -211,6 +211,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       role="group"
       data-slot="root"
       data-orientation={merged.orientation}
+      data-dragging={slider.dragging() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
@@ -259,6 +260,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               orientation: merged.orientation,
               variant: merged.variant,
               inverted: merged.inverted,
+              multiple: slider.currentValues().length > 1,
             },
             merged.classes?.range,
           )}
@@ -367,6 +369,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           </div>
         )}
       </For>
+
+      {rest.children as JSX.Element}
     </div>
   )
 }

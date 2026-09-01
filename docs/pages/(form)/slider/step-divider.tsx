@@ -34,6 +34,7 @@ export function StepDivider() {
           </span>
         </div>
         <Slider
+          defaultValue={[20, 60]}
           value={range()}
           min={0}
           max={100}

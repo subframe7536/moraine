@@ -20,6 +20,12 @@
           "description": "Present when the component, slot, or item is disabled."
         },
         {
+          "name": "data-dragging",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
@@ -191,6 +197,12 @@
         "type": "boolean | undefined",
         "description": "Whether dragging can continue across another thumb when there is no minimum gap.",
         "defaultValue": "true"
+      },
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Custom content to render inside the slider root container."
       },
       {
         "name": "class",

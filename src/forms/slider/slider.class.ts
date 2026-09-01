@@ -56,6 +56,7 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised
     orientation: 'horizontal',
     variant: 'default',
     inverted: false,
+    multiple: false,
   },
   variants: {
     orientation: {
@@ -67,6 +68,10 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised
       bold: 'rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100) data-dragging:transition-none',
     },
     inverted: {
+      true: '',
+      false: '',
+    },
+    multiple: {
       true: '',
       false: '',
     },
@@ -95,6 +100,38 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised
       inverted: true,
       variant: 'bold',
       class: 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-pos)',
+    },
+    {
+      orientation: 'horizontal',
+      inverted: false,
+      variant: 'bold',
+      multiple: true,
+      class:
+        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-offset)',
+    },
+    {
+      orientation: 'horizontal',
+      inverted: true,
+      variant: 'bold',
+      multiple: true,
+      class:
+        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-offset)',
+    },
+    {
+      orientation: 'vertical',
+      inverted: false,
+      variant: 'bold',
+      multiple: true,
+      class:
+        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-offset)',
+    },
+    {
+      orientation: 'vertical',
+      inverted: true,
+      variant: 'bold',
+      multiple: true,
+      class:
+        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-offset)',
     },
   ],
 })
