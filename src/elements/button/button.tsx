@@ -2,6 +2,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { EFFECT_LOADING_CLASS, LABEL_TRUNCATE_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -264,7 +265,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             style={local.styles?.leading}
             class={cn(
               local.classes?.leading,
-              isLeadingLoading() && ['effect-loading', local.classes?.loading],
+              isLeadingLoading() && [EFFECT_LOADING_CLASS, local.classes?.loading],
             )}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
@@ -275,7 +276,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         <span
           data-slot="label"
           style={local.styles?.label}
-          class={cn('min-w-0 truncate', local.classes?.label)}
+          class={cn(LABEL_TRUNCATE_CLASS, local.classes?.label)}
         >
           {resolvedChildren()}
         </span>
@@ -289,7 +290,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             style={local.styles?.trailing}
             class={cn(
               local.classes?.trailing,
-              isTrailingLoading() && ['effect-loading', local.classes?.loading],
+              isTrailingLoading() && [EFFECT_LOADING_CLASS, local.classes?.loading],
             )}
           />
         )}

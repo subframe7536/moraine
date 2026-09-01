@@ -109,6 +109,9 @@ export const avatarGroupCountVariants = cva(
   },
 )
 
+export const AVATAR_BADGE_ICON_CLASS = 'text-[0.75em]'
+export const AVATAR_GROUP_ROOT_CLASS = 'inline-flex flex-row-reverse justify-end'
+
 export type AvatarVariantProps = VariantProps<typeof avatarRootVariants> &
   VariantProps<typeof avatarBadgeVariants>
 export type AvatarGroupVariantProps = VariantProps<typeof avatarRootVariants>

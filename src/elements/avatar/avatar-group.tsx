@@ -5,7 +5,11 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn } from '../../shared/utils.ts'
 
 import type { AvatarGroupVariantProps } from './avatar.class.ts'
-import { avatarGroupCountVariants, avatarGroupItemVariants } from './avatar.class.ts'
+import {
+  AVATAR_GROUP_ROOT_CLASS,
+  avatarGroupCountVariants,
+  avatarGroupItemVariants,
+} from './avatar.class.ts'
 import { AvatarFace } from './avatar.tsx'
 import type { AvatarT } from './avatar.tsx'
 
@@ -118,7 +122,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
         data-slot="root"
         {...rest}
         style={{ ...merged.styles?.root, ...merged.style }}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
+        class={cn(AVATAR_GROUP_ROOT_CLASS, merged.classes?.root, merged.class)}
       >
         <Show when={hiddenCount() > 0}>
           <span

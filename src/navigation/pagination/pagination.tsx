@@ -12,6 +12,7 @@ import {
   PAGINATION_CONTROL_LABEL_CLASS,
   PAGINATION_ELLIPSIS_CLASS,
   PAGINATION_ITEM_CLASS,
+  PAGINATION_LINK_CLASS,
   PAGINATION_LIST_CLASS,
   PAGINATION_NEXT_CLASS,
   PAGINATION_PREV_CLASS,
@@ -426,7 +427,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    class={cn('outline-none', merged.classes?.link)}
+                    class={cn(PAGINATION_LINK_CLASS, merged.classes?.link)}
                     onClick={(event) => selectPage(item, event)}
                     {...getControlProps(item, false)}
                   >

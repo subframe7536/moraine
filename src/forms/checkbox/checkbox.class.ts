@@ -5,7 +5,6 @@ import {
   CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
   CHECKABLE_WRAPPER_ALIGN_VARIANT,
-  REQUIRED_MARK_VARIANT,
   TEXT_SIZE_VARIANT,
 } from '../../shared/cva-common.class.ts'
 import { cva } from '../../shared/utils.ts'
@@ -68,11 +67,10 @@ export const checkboxWrapperVariants = cva('flex flex-col gap-0.5 w-full', {
   },
 })
 
-export const checkboxLabelVariants = cva('text-foreground font-medium block select-none', {
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
-  },
-})
+export const CHECKBOX_LABEL_CLASS = 'text-foreground font-medium block select-none'
+export const CHECKBOX_INDICATOR_CLASS =
+  'text-primary-foreground bg-primary flex size-full items-center justify-center'
+export const CHECKBOX_ICON_CLASS = 'shrink-0 size-full'
 
 type CheckboxRootVariantProps = Omit<
   VariantProps<typeof checkboxRootVariants>,

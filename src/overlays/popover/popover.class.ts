@@ -19,4 +19,6 @@ export const popoverContentVariants = cva(
   },
 )
 
+export const POPOVER_BODY_CLASS = 'max-h-$mo-popper-content-available-height overflow-auto'
+
 export type PopoverContentVariantProps = VariantProps<typeof popoverContentVariants>

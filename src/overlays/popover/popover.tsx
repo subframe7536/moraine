@@ -7,7 +7,7 @@ import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { popoverContentVariants } from './popover.class.ts'
+import { POPOVER_BODY_CLASS, popoverContentVariants } from './popover.class.ts'
 import type { PopoverContentVariantProps } from './popover.class.ts'
 
 type PopoverMode = 'click' | 'hover'
@@ -249,10 +249,7 @@ export function Popover(props: PopoverProps): JSX.Element {
           <div
             data-slot="body"
             style={merged.styles?.body}
-            class={cn(
-              'max-h-$mo-popper-content-available-height overflow-auto',
-              merged.classes?.body,
-            )}
+            class={cn(POPOVER_BODY_CLASS, merged.classes?.body)}
           >
             {content()}
           </div>

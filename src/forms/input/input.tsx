@@ -3,6 +3,7 @@ import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'so
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
+import { EFFECT_LOADING_CLASS } from '../../shared/cva-common.class.ts'
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -398,7 +399,9 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     return (
       <Show
         when={typeof props.value !== 'string'}
-        fallback={<Icon name={props.value} class={props.loading && 'effect-loading'} />}
+        fallback={
+          <Icon name={props.value} class={props.loading ? EFFECT_LOADING_CLASS : undefined} />
+        }
       >
         {renderComponentOrElement(props.value, {})}
       </Show>

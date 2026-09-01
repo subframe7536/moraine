@@ -12,16 +12,17 @@ export const tooltipContentVariants = cva(
         top: 'mb-$mo-popper-content-overflow-padding animate-tooltip-side-top',
         bottom: 'mt-$mo-popper-content-overflow-padding animate-tooltip-side-bottom',
       },
-      invert: {
-        true: 'text-background bg-foreground',
-        false: 'text-foreground surface-overlay bg-background shadow-sm',
-      },
     },
     defaultVariants: {
       side: 'top',
-      invert: false,
     },
   },
 )
 
-export type TooltipVariantProps = VariantProps<typeof tooltipContentVariants>
+export const TOOLTIP_INVERT_CLASS = 'text-background bg-foreground'
+export const TOOLTIP_DEFAULT_COLOR_CLASS = 'text-foreground surface-overlay bg-background shadow-sm'
+export const TOOLTIP_TEXT_CLASS = 'leading-4 text-pretty'
+
+export type TooltipVariantProps = VariantProps<typeof tooltipContentVariants> & {
+  invert?: boolean
+}

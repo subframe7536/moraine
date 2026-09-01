@@ -70,7 +70,7 @@ export namespace TextareaT {
     footer?: T
   }
 
-  export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'autoresize'>
+  export type Variant = Pick<TextareaVariantProps, 'size' | 'variant'>
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -501,8 +501,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         class={textareaBaseVariants(
           {
             size: field.size(),
-            autoresize: merged.autoResize,
           },
+          merged.autoResize ? 'resize-none' : 'resize-y',
           merged.classes?.input,
         )}
         onInput={onInput}

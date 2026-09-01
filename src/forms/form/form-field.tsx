@@ -13,6 +13,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
+import { REQUIRED_MARK_CLASS } from '../../shared/cva-common.class.ts'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -23,14 +24,20 @@ import type { FormFieldContextOptions } from './form-context.ts'
 import { FormFieldProvider } from './form-context.ts'
 import type { FormFieldVariantProps } from './form-field.class.ts'
 import {
+  FORM_FIELD_CONTAINER_CLASS,
   FORM_FIELD_DESCRIPTION_CLASS,
   FORM_FIELD_ERROR_CLASS,
   FORM_FIELD_HELP_CLASS,
   FORM_FIELD_HINT_CLASS,
+  FORM_FIELD_HORIZONTAL_CONTAINER_CLASS,
+  FORM_FIELD_HORIZONTAL_REQUIRED_MARK_CLASS,
+  FORM_FIELD_HORIZONTAL_WRAPPER_CLASS,
+  FORM_FIELD_LABEL_BETWEEN_ALIGN_CLASS,
+  FORM_FIELD_LABEL_CLASS,
+  FORM_FIELD_LABEL_RIGHT_ALIGN_CLASS,
   FORM_FIELD_LABEL_WRAPPER_CLASS,
+  FORM_FIELD_VERTICAL_SPACING_CLASS,
   FORM_FIELD_WRAPPER_CLASS,
-  formFieldContainerVariants,
-  formFieldLabelVariants,
   formFieldSizeVariants,
 } from './form-field.class.ts'
 
@@ -405,7 +412,7 @@ export function FormField<
           style={merged.styles?.wrapper}
           class={cn(
             FORM_FIELD_WRAPPER_CLASS,
-            merged.orientation === 'horizontal' && 'text-end col-span-1 items-end',
+            merged.orientation === 'horizontal' && FORM_FIELD_HORIZONTAL_WRAPPER_CLASS,
             merged.classes?.wrapper,
           )}
         >
@@ -415,7 +422,9 @@ export function FormField<
               style={merged.styles?.labelWrapper}
               class={cn(
                 FORM_FIELD_LABEL_WRAPPER_CLASS,
-                merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
+                merged.orientation === 'horizontal'
+                  ? FORM_FIELD_LABEL_RIGHT_ALIGN_CLASS
+                  : FORM_FIELD_LABEL_BETWEEN_ALIGN_CLASS,
                 merged.classes?.labelWrapper,
               )}
             >
@@ -424,11 +433,12 @@ export function FormField<
                 for={resolvedLabelTargetId()}
                 data-slot="label"
                 style={merged.styles?.label}
-                class={formFieldLabelVariants(
-                  {
-                    required: merged.required ? true : undefined,
-                    orientation: merged.orientation,
-                  },
+                class={cn(
+                  FORM_FIELD_LABEL_CLASS,
+                  merged.required &&
+                    (merged.orientation === 'horizontal'
+                      ? FORM_FIELD_HORIZONTAL_REQUIRED_MARK_CLASS
+                      : REQUIRED_MARK_CLASS),
                   merged.classes?.label,
                 )}
               >
@@ -470,11 +480,11 @@ export function FormField<
 
         <div
           data-slot="container"
-          class={formFieldContainerVariants(
-            {
-              orientation: merged.orientation,
-              hasText: showLabel() || showDescription(),
-            },
+          class={cn(
+            FORM_FIELD_CONTAINER_CLASS,
+            merged.orientation === 'horizontal'
+              ? FORM_FIELD_HORIZONTAL_CONTAINER_CLASS
+              : (showLabel() || showDescription()) && FORM_FIELD_VERTICAL_SPACING_CLASS,
             merged.classes?.container,
           )}
         >

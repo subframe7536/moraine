@@ -22,9 +22,13 @@ import { cn } from '../../shared/utils.ts'
 
 import {
   SIDEBAR_FRAME_BODY_CLASS,
+  SIDEBAR_FRAME_BORDER_LEFT_CLASS,
+  SIDEBAR_FRAME_BORDER_RIGHT_CLASS,
   SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
+  SIDEBAR_FRAME_DESKTOP_WIDTH_CLASS,
   SIDEBAR_FRAME_FOOTER_CLASS,
   SIDEBAR_FRAME_HEADER_CLASS,
+  SIDEBAR_FRAME_PANEL_CLASS,
   SIDEBAR_FRAME_ROOT_CLASS,
   sidebarFrameDesktopLayoutVariants,
   sidebarFrameMainVariants,
@@ -241,7 +245,7 @@ export function SidebarFrameSheetResizableRender(
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
+                    class: cn(SIDEBAR_FRAME_PANEL_CLASS, ctx.resizablePanelOptions?.class),
                   },
                   {
                     content: <ctx.main />,
@@ -254,7 +258,7 @@ export function SidebarFrameSheetResizableRender(
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
+                    class: cn(SIDEBAR_FRAME_PANEL_CLASS, ctx.resizablePanelOptions?.class),
                   },
                 ]
           }
@@ -370,7 +374,14 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               ...merged.styles?.sidebar,
             }}
             class={sidebarFrameSidebarVariants(
-              { variant: merged.variant, side: merged.side, isMobile: resolvedIsMobile() },
+              { variant: merged.variant },
+              !resolvedIsMobile() && [
+                SIDEBAR_FRAME_DESKTOP_WIDTH_CLASS,
+                merged.variant === 'default' &&
+                  (merged.side === 'right'
+                    ? SIDEBAR_FRAME_BORDER_LEFT_CLASS
+                    : SIDEBAR_FRAME_BORDER_RIGHT_CLASS),
+              ],
               props.classes,
               merged.classes?.sidebar,
             )}
@@ -413,8 +424,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               ...props.styles,
               ...merged.styles?.main,
             }}
-            class={cn(
-              sidebarFrameMainVariants({ variant: merged.variant }),
+            class={sidebarFrameMainVariants(
+              { variant: merged.variant },
               props.classes,
               merged.classes?.main,
             )}

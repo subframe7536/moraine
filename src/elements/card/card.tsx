@@ -17,6 +17,7 @@ import {
   CARD_HEADER_CLASS,
   CARD_HEADER_COMPACT_CLASS,
   CARD_HEADER_DEFAULT_CLASS,
+  CARD_HEADER_WITH_ACTION_CLASS,
   CARD_ROOT_CLASS,
   CARD_TITLE_CLASS,
 } from './card.class.ts'
@@ -139,7 +140,7 @@ export function Card(props: CardProps): JSX.Element {
           class={cn(
             CARD_HEADER_CLASS,
             !header() && (props.compact ? CARD_HEADER_COMPACT_CLASS : CARD_HEADER_DEFAULT_CLASS),
-            action() && 'grid-cols-[1fr_auto]',
+            action() && CARD_HEADER_WITH_ACTION_CLASS,
             props.classes?.header,
           )}
         >

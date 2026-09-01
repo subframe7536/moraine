@@ -1,3 +1,4 @@
+import { CLOSE_BUTTON_TOP_RIGHT_CLASS } from '@src/shared/cva-common.class.ts'
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
@@ -15,7 +16,7 @@ import type { ModalProps } from '../modal/modal.tsx'
 
 import {
   DIALOG_BODY_CLASS,
-  DIALOG_CLOSE_CLASS,
+  DIALOG_CLOSE_PE_CLASS,
   DIALOG_CONTENT_CLASS,
   DIALOG_CONTENT_FULLSCREEN_CLASS,
   DIALOG_CONTENT_SCROLLABLE_CLASS,
@@ -217,7 +218,11 @@ export function Dialog(props: DialogProps): JSX.Element {
           <div
             data-slot="wrapper"
             style={merged.styles?.wrapper}
-            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', merged.classes?.wrapper)}
+            class={cn(
+              DIALOG_WRAPPER_CLASS,
+              merged.close && DIALOG_CLOSE_PE_CLASS,
+              merged.classes?.wrapper,
+            )}
           >
             <Show when={hasJsxContent(title())}>
               <h2
@@ -250,7 +255,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             size="icon-sm"
             variant="ghost"
             style={merged.styles?.close}
-            class={[DIALOG_CLOSE_CLASS, merged.classes?.close]}
+            class={[CLOSE_BUTTON_TOP_RIGHT_CLASS, merged.classes?.close]}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />

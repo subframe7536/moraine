@@ -1,3 +1,4 @@
+import { CLOSE_BUTTON_TOP_RIGHT_CLASS } from '@src/shared/cva-common.class.ts'
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
@@ -12,7 +13,7 @@ import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
 import { Modal } from '../modal/modal.tsx'
 import type { ModalProps, ModalT } from '../modal/modal.tsx'
 
-import { sheetContentVariants } from './sheet.class.ts'
+import { SHEET_INSET_CLASS, SHEET_NON_INSET_CLASS, sheetContentVariants } from './sheet.class.ts'
 import type { SheetVariantProps } from './sheet.class.ts'
 
 export namespace SheetT {
@@ -234,8 +235,8 @@ export function Sheet(props: SheetProps): JSX.Element {
         class={sheetContentVariants(
           {
             side: merged.side,
-            inset: merged.inset,
           },
+          merged.inset ? SHEET_INSET_CLASS : SHEET_NON_INSET_CLASS,
           !merged.transition &&
             'transition-none data-expanded:animate-none data-closed:animate-none',
           merged.classes?.content,
@@ -301,7 +302,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           variant="ghost"
                           size="icon-sm"
                           style={merged.styles?.close}
-                          class={['absolute top-4 right-4', merged.classes?.close]}
+                          class={[CLOSE_BUTTON_TOP_RIGHT_CLASS, merged.classes?.close]}
                           onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>

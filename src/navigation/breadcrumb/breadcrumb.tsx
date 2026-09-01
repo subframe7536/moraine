@@ -13,12 +13,12 @@ import {
   BREADCRUMB_DISABLED_CLASS,
   BREADCRUMB_ITEM_CLASS,
   BREADCRUMB_LINK_CLASS,
+  BREADCRUMB_LIST_CLASS,
   BREADCRUMB_PAGE_CLASS,
   BREADCRUMB_ROOT_CLASS,
   BREADCRUMB_SEPARATOR_CLASS,
   BREADCRUMB_TRUNCATE_CLASS,
   breadcrumbSizeVariants,
-  breadcrumbListVariants,
 } from './breadcrumb.class.ts'
 import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
 
@@ -210,7 +210,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       <ol
         data-slot="list"
         style={merged.styles?.list}
-        class={breadcrumbListVariants({ wrap: merged.wrap }, merged.classes?.list)}
+        class={cn(
+          BREADCRUMB_LIST_CLASS,
+          merged.wrap ? 'flex-wrap' : 'flex-nowrap overflow-hidden',
+          merged.classes?.list,
+        )}
       >
         <For each={items()}>
           {(item, index) => {

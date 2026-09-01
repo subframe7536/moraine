@@ -10,6 +10,7 @@ import { cn, useId } from '../../shared/utils.ts'
 
 import type { StepperVariantProps } from './stepper.class.ts'
 import {
+  STEPPER_CONTENT_CLASS,
   stepperContainerVariants,
   stepperDescriptionVariants,
   stepperHeaderVariants,
@@ -477,7 +478,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               data-selected=""
               data-slot="content"
               style={merged.styles?.content}
-              class={cn('w-full', entry.item.class, merged.classes?.content)}
+              class={cn(STEPPER_CONTENT_CLASS, entry.item.class, merged.classes?.content)}
             >
               {entry.item.content}
             </div>

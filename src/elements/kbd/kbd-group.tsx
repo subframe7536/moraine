@@ -7,7 +7,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn } from '../../shared/utils.ts'
 
 import type { KbdGroupVariantProps } from './kbd.class.ts'
-import { kbdGroupVariants } from './kbd.class.ts'
+import { KBD_GROUP_CHORD_CLASS, KBD_GROUP_DIVIDER_CLASS, kbdGroupVariants } from './kbd.class.ts'
 import { Kbd } from './kbd.tsx'
 import type { KbdT } from './kbd.tsx'
 
@@ -107,7 +107,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               <Show when={groupIndex() > 0}>
                 <span
                   data-slot="sequenceDivider"
-                  class={cn('text-muted-foreground', local.classes?.sequenceDivider)}
+                  class={cn(KBD_GROUP_DIVIDER_CLASS, local.classes?.sequenceDivider)}
                   style={local.styles?.sequenceDivider}
                 >
                   {resolveDivider(local.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
@@ -115,7 +115,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               </Show>
               <span
                 data-slot="chord"
-                class={cn('inline-flex gap-1 items-center', props.classes?.chord)}
+                class={cn(KBD_GROUP_CHORD_CLASS, props.classes?.chord)}
                 style={props.styles?.chord}
               >
                 <For each={items}>
@@ -132,7 +132,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                       <Show when={index() < items.length - 1}>
                         <span
                           data-slot="divider"
-                          class={cn('text-muted-foreground', props.classes?.divider)}
+                          class={cn(KBD_GROUP_DIVIDER_CLASS, props.classes?.divider)}
                           style={props.styles?.divider}
                         >
                           {resolveDivider(local.dividerRender, { index: index() }, '+')}

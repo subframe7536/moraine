@@ -13,12 +13,14 @@ import {
 
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
+import { TRUNCATE_CLASS } from '../../shared/cva-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { cn, useId } from '../../shared/utils.ts'
 
 import {
+  TABS_CONTENT_CLASS,
   tabsIndicatorVariants,
   TABS_LEADING_CLASS,
   tabsListVariants,
@@ -502,7 +504,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                   <span
                     data-slot="label"
                     style={merged.styles?.label}
-                    class={cn('truncate', merged.classes?.label)}
+                    class={cn(TRUNCATE_CLASS, merged.classes?.label)}
                   >
                     {item.label}
                   </span>
@@ -527,7 +529,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-selected=""
                 data-slot="content"
                 style={merged.styles?.content}
-                class={cn('text-sm outline-none w-full', merged.classes?.content)}
+                class={cn(TABS_CONTENT_CLASS, merged.classes?.content)}
               >
                 {item.content}
               </div>

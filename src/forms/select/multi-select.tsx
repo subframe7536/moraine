@@ -3,6 +3,7 @@ import { For, Show, createMemo, createSignal, splitProps, untrack } from 'solid-
 
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
+import { EFFECT_LOADING_CLASS, LABEL_TRUNCATE_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -19,12 +20,18 @@ import { BaseSelect } from './base-select.tsx'
 import type { BaseSelectT } from './base-select.tsx'
 import type { SelectControlVariantProps } from './select.class.ts'
 import {
-  selectControlVariants,
-  selectInputVariants,
+  MULTI_SELECT_CLEAR_BUTTON_CLASS,
+  MULTI_SELECT_TAG_DELETE_CLASS,
+  MULTI_SELECT_TAGS_WRAPPER_CLASS,
+  SELECT_ACTION_ICON_CLASS,
+  SELECT_CLEAR_ACTION_CLASS,
+  SELECT_CONTROL_POINTER_CLASS,
+  SELECT_CONTROL_SEARCH_CLASS,
+  SELECT_LEADING_ICON_CLASS,
   multiSelectTagOverflowVariants,
   multiSelectTagVariants,
-  SELECT_CLEAR_ACTION_CLASS,
-  SELECT_LEADING_ICON_CLASS,
+  selectControlVariants,
+  selectInputVariants,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -729,8 +736,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 variant: props.variant,
                 size: api.field.size(),
                 mode: 'multi',
-                search: api.isSearchable(),
               },
+              api.isSearchable() ? SELECT_CONTROL_SEARCH_CLASS : SELECT_CONTROL_POINTER_CLASS,
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -749,10 +756,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             <div
               data-slot="tagsContainer"
               style={props.styles?.tagsContainer}
-              class={cn(
-                'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-                props.classes?.tagsContainer,
-              )}
+              class={cn(MULTI_SELECT_TAGS_WRAPPER_CLASS, props.classes?.tagsContainer)}
             >
               <For each={visibleTagOptions()}>
                 {(option) => {
@@ -778,7 +782,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           api.focusInput()
                         }}
                       >
-                        <span data-slot="label" class="min-w-0 truncate">
+                        <span data-slot="label" class={LABEL_TRUNCATE_CLASS}>
                           {option.label}
                         </span>
 
@@ -790,7 +794,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           disabled={api.field.disabled()}
                           tabIndex={-1}
                           class={cn(
-                            'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1',
+                            MULTI_SELECT_TAG_DELETE_CLASS,
                             api.field.disabled() ? 'pointer-events-none' : 'cursor-pointer',
                             props.classes?.tagRemove,
                           )}
@@ -891,7 +895,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
               class={cn(
-                'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center',
+                MULTI_SELECT_CLEAR_BUTTON_CLASS,
                 isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
                 isActionLoading()
                   ? 'cursor-wait pointer-events-none'
@@ -934,10 +938,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       ? (closeIcon() ?? 'icon-close')
                       : (trailingIcon() ?? 'icon-chevron-down')
                 }
-                class={cn(
-                  'text-muted-foreground opacity-80',
-                  isActionLoading() && 'effect-loading',
-                )}
+                class={cn(SELECT_ACTION_ICON_CLASS, isActionLoading() && EFFECT_LOADING_CLASS)}
                 data-loading={isActionLoading() ? '' : undefined}
               />
             </button>

@@ -72,4 +72,11 @@ export const resizableCrossTargetVariants = cva(
   },
 )
 
+export const RESIZABLE_PANEL_CLASS =
+  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none'
+export const RESIZABLE_HANDLE_ACTIVE_CLASS = 'active:cursor-pointer hover:cursor-pointer'
+export const RESIZABLE_HANDLE_SEPARATOR_CLASS = 'bg-border flex shrink-0'
+export const RESIZABLE_HANDLE_HORIZONTAL_CLASS = 'h-1 w-6'
+export const RESIZABLE_HANDLE_VERTICAL_CLASS = 'h-6 w-1'
+
 export type ResizableVariantProps = VariantProps<typeof resizableRootVariants>

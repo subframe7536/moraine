@@ -19,4 +19,8 @@ export const buttonGroupVariants = cva(
   },
 )
 
+export const BUTTON_GROUP_SEPARATOR_CLASS = 'bg-input shrink-0 self-stretch'
+export const BUTTON_GROUP_SEPARATOR_HORIZONTAL_CLASS = 'h-full w-px'
+export const BUTTON_GROUP_SEPARATOR_VERTICAL_CLASS = 'h-px w-full'
+
 export type ButtonGroupLayoutVariantProps = VariantProps<typeof buttonGroupVariants>

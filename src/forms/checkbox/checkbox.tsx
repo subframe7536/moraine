@@ -3,7 +3,11 @@ import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
+import {
+  MUTED_DESCRIPTION_CLASS,
+  REQUIRED_MARK_CLASS,
+  TEXT_SIZE_VARIANT,
+} from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -20,10 +24,12 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxVariantProps } from './checkbox.class.ts'
 import {
+  CHECKBOX_ICON_CLASS,
+  CHECKBOX_INDICATOR_CLASS,
+  CHECKBOX_LABEL_CLASS,
   checkboxBaseVariants,
   checkboxCardPaddingVariants,
   checkboxContainerVariants,
-  checkboxLabelVariants,
   checkboxRootVariants,
   checkboxWrapperVariants,
 } from './checkbox.class.ts'
@@ -539,17 +545,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             <span
               data-slot="indicator"
               style={merged.styles?.indicator}
-              class={cn(
-                'text-primary-foreground bg-primary flex size-full items-center justify-center',
-                merged.classes?.indicator,
-              )}
+              class={cn(CHECKBOX_INDICATOR_CLASS, merged.classes?.indicator)}
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon name={activeIcon()} class={cn('shrink-0 size-full', merged.classes?.icon)} />
+              <Icon name={activeIcon()} class={cn(CHECKBOX_ICON_CLASS, merged.classes?.icon)} />
             </span>
           </Show>
         </button>
@@ -576,8 +579,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   id={labelId()}
                   data-slot="label"
                   style={merged.styles?.label}
-                  class={checkboxLabelVariants(
-                    { required: field.required() },
+                  class={cn(
+                    CHECKBOX_LABEL_CLASS,
+                    field.required() && REQUIRED_MARK_CLASS,
                     merged.classes?.label,
                   )}
                 >
@@ -589,7 +593,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 id={labelId()}
                 data-slot="label"
                 style={merged.styles?.label}
-                class={checkboxLabelVariants({ required: field.required() }, merged.classes?.label)}
+                class={cn(
+                  CHECKBOX_LABEL_CLASS,
+                  field.required() && REQUIRED_MARK_CLASS,
+                  merged.classes?.label,
+                )}
               >
                 {label()}
               </p>
@@ -603,7 +611,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               style={merged.styles?.description}
               class={cn(
                 TEXT_SIZE_VARIANT[field.size()],
-                'text-muted-foreground leading-normal',
+                MUTED_DESCRIPTION_CLASS,
                 merged.classes?.description,
               )}
             >

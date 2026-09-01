@@ -17,7 +17,12 @@ import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { tooltipContentVariants } from './tooltip.class.ts'
+import {
+  TOOLTIP_DEFAULT_COLOR_CLASS,
+  TOOLTIP_INVERT_CLASS,
+  TOOLTIP_TEXT_CLASS,
+  tooltipContentVariants,
+} from './tooltip.class.ts'
 import type { TooltipVariantProps } from './tooltip.class.ts'
 
 export namespace TooltipT {
@@ -392,7 +397,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         data-slot="content"
         style={merged.styles?.content}
         class={tooltipContentVariants(
-          { side: resolvedSide(), invert: merged.invert },
+          { side: resolvedSide() },
+          merged.invert ? TOOLTIP_INVERT_CLASS : TOOLTIP_DEFAULT_COLOR_CLASS,
           shouldUseInstantMotion()
             ? 'data-expanded:animate-none data-closed:animate-none'
             : undefined,
@@ -404,7 +410,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
           <span
             data-slot="text"
             style={merged.styles?.text}
-            class={cn('leading-4 text-pretty', merged.classes?.text)}
+            class={cn(TOOLTIP_TEXT_CLASS, merged.classes?.text)}
           >
             {text()}
           </span>

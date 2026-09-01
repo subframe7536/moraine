@@ -8,3 +8,4 @@ export const MODAL_CONTENT_CLASS =
 
 export const MODAL_CONTENT_DEFAULT_CLASS =
   'max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2'
+export const MODAL_OVERLAY_SCROLL_CLASS = 'p-4 overflow-y-auto'

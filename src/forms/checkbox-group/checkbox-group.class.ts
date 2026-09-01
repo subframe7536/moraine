@@ -3,7 +3,6 @@ import type { VariantProps } from 'cls-variant'
 import {
   CARD_PADDING_SIZE_VARIANT,
   FLEX_ORIENTATION_VARIANT,
-  REQUIRED_MARK_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
   TEXT_SIZE_VARIANT,
 } from '../../shared/cva-common.class.ts'
@@ -24,7 +23,6 @@ export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-1
   },
   variants: {
     size: TEXT_SIZE_VARIANT,
-    required: REQUIRED_MARK_VARIANT,
   },
 })
 
@@ -34,6 +32,9 @@ export const checkboxGroupItemVariants = cva('', {
     tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,
   },
 })
+
+export const CHECKBOX_GROUP_ROOT_CLASS = 'relative'
+
 export type CheckboxGroupVariantProps = VariantProps<typeof checkboxGroupFieldsetVariants> &
   VariantProps<typeof checkboxGroupLegendVariants> & {
     variant?: 'list' | 'card' | 'table'

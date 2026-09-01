@@ -37,6 +37,9 @@ export const kbdGroupVariants = cva('inline-flex gap-1 items-center', {
   },
 })
 
+export const KBD_GROUP_CHORD_CLASS = 'inline-flex gap-1 items-center'
+export const KBD_GROUP_DIVIDER_CLASS = 'text-muted-foreground'
+
 export type KbdVariantProps = VariantProps<typeof kbdRootVariants>
 export type KbdGroupVariantProps = VariantProps<typeof kbdRootVariants> &
   VariantProps<typeof kbdGroupVariants>

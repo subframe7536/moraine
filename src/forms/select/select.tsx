@@ -3,6 +3,7 @@ import { Show, createMemo, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
+import { EFFECT_LOADING_CLASS } from '../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -19,11 +20,15 @@ import { BaseSelect } from './base-select.tsx'
 import type { BaseSelectT } from './base-select.tsx'
 import type { SelectControlVariantProps } from './select.class.ts'
 import {
-  selectControlVariants,
-  selectInputVariants,
+  SELECT_ACTION_ICON_CLASS,
   SELECT_CLEAR_ACTION_CLASS,
+  SELECT_CLEAR_BUTTON_CLASS,
+  SELECT_CONTROL_POINTER_CLASS,
+  SELECT_CONTROL_SEARCH_CLASS,
   SELECT_LEADING_ICON_CLASS,
   SELECT_TRIGGER_ICON_CLASS,
+  selectControlVariants,
+  selectInputVariants,
 } from './select.class.ts'
 import {
   createEmptyRenderer,
@@ -333,8 +338,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 variant: props.variant,
                 size: api.field.size(),
                 mode: 'single',
-                search: api.isSearchable(),
               },
+              api.isSearchable() ? SELECT_CONTROL_SEARCH_CLASS : SELECT_CONTROL_POINTER_CLASS,
               props.classes?.control,
             )}
             {...api.controlProps()}
@@ -402,7 +407,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   data-loading={isActionLoading() ? '' : undefined}
                   class={cn(
                     SELECT_TRIGGER_ICON_CLASS,
-                    isActionLoading() ? 'effect-loading' : undefined,
+                    isActionLoading() ? EFFECT_LOADING_CLASS : undefined,
                     props.classes?.trigger,
                   )}
                   style={props.styles?.trigger}
@@ -415,7 +420,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 aria-label="Clear selection"
                 tabIndex={-1}
                 class={cn(
-                  'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                  SELECT_CLEAR_BUTTON_CLASS,
                   SELECT_CLEAR_ACTION_CLASS,
                   props.classes?.trigger,
                   props.classes?.clear,
@@ -435,7 +440,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   clearSelection(api)
                 }}
               >
-                <Icon name={closeIcon() ?? 'icon-close'} class="text-muted-foreground opacity-80" />
+                <Icon name={closeIcon() ?? 'icon-close'} class={SELECT_ACTION_ICON_CLASS} />
               </button>
             </Show>
           </div>

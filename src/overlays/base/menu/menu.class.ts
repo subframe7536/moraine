@@ -41,3 +41,16 @@ export const overlayMenuContentVariants = cva(
     },
   },
 )
+
+export const OVERLAY_MENU_ITEM_ICON_CLASS =
+  'inline-flex shrink-0 size-4 items-center justify-center [&_svg]:size-4'
+export const OVERLAY_MENU_ITEM_WRAPPER_CLASS = 'flex flex-1 flex-col gap-0.5 min-w-0'
+export const OVERLAY_MENU_ITEM_DESCRIPTION_CLASS = 'text-xs text-muted-foreground truncate'
+export const OVERLAY_MENU_ITEM_TRAILING_CLASS =
+  'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end'
+export const OVERLAY_MENU_ITEM_INDICATOR_CLASS =
+  'flex size-4 pointer-events-none items-center end-2 justify-center absolute'
+export const OVERLAY_MENU_LABEL_CLASS =
+  'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex'
+export const OVERLAY_MENU_SEPARATOR_CLASS = 'my-1 bg-border h-px -mx-1'
+export const OVERLAY_MENU_BACKDROP_CLASS = 'inset-0 fixed z-overlay'

@@ -31,6 +31,8 @@ import {
   validateOverlayTrigger,
 } from '../base/trigger.ts'
 
+import { DROPDOWN_MENU_CONTENT_CLASS } from './dropdown-menu.class.ts'
+
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
   export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
@@ -278,7 +280,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         }}
         classes={{
           ...merged.classes,
-          content: cn('min-w-32', merged.classes?.content),
+          content: cn(DROPDOWN_MENU_CONTENT_CLASS, merged.classes?.content),
         }}
         styles={merged.styles}
         size={merged.size}

@@ -131,4 +131,6 @@ export const stepperDescriptionVariants = cva('text-muted-foreground leading-nor
   },
 })
 
+export const STEPPER_CONTENT_CLASS = 'w-full'
+
 export type StepperVariantProps = VariantProps<typeof stepperItemVariants>

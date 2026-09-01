@@ -100,5 +100,6 @@ export const tabsTriggerVariants = cva(
 )
 
 export const TABS_LEADING_CLASS = 'inline-flex shrink-0 items-center justify-center'
+export const TABS_CONTENT_CLASS = 'text-sm outline-none w-full'
 
 export type TabsVariantProps = VariantProps<typeof tabsTriggerVariants>

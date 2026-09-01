@@ -12,20 +12,8 @@ export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 export const BREADCRUMB_SEPARATOR_CLASS =
   'text-muted-foreground inline-flex shrink-0 items-center justify-center'
 
-export const breadcrumbListVariants = cva(
-  'text-sm text-muted-foreground flex gap-1.5 break-words items-center',
-  {
-    variants: {
-      wrap: {
-        true: 'flex-wrap',
-        false: 'flex-nowrap overflow-hidden',
-      },
-    },
-    defaultVariants: {
-      wrap: true,
-    },
-  },
-)
+export const BREADCRUMB_LIST_CLASS =
+  'text-sm text-muted-foreground flex gap-1.5 break-words items-center'
 
 export const breadcrumbSizeVariants = cva('', {
   variants: {
@@ -40,4 +28,6 @@ export const breadcrumbSizeVariants = cva('', {
   },
 })
 
-export type BreadcrumbVariantProps = VariantProps<typeof breadcrumbListVariants>
+export type BreadcrumbVariantProps = VariantProps<typeof breadcrumbSizeVariants> & {
+  wrap?: boolean
+}

@@ -2,12 +2,18 @@ import { Show, createSignal, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
 import { Icon } from '../../../elements/icon/index.ts'
+import { TRUNCATE_CLASS } from '../../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 import { cn, useId } from '../../../shared/utils.ts'
 import { useFormField } from '../../form/form-context.ts'
 import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context.ts'
+import {
+  SELECT_EMPTY_CLASS,
+  SELECT_ITEM_DESCRIPTION_CLASS,
+  SELECT_ITEM_INDICATOR_CLASS,
+} from '../select.class.ts'
 
 import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types.ts'
 
@@ -248,7 +254,7 @@ export function renderDefaultSelectOption<TItem>(
     return (
       <div
         data-slot="empty"
-        class={cn('text-sm text-muted-foreground p-2 text-center', options.classes?.empty)}
+        class={cn(SELECT_EMPTY_CLASS, options.classes?.empty)}
         style={options.styles?.empty}
       >
         No options
@@ -260,7 +266,7 @@ export function renderDefaultSelectOption<TItem>(
     <span
       data-slot="itemLabel"
       style={options.styles?.itemLabel}
-      class={cn('truncate', options.classes?.itemLabel)}
+      class={cn(TRUNCATE_CLASS, options.classes?.itemLabel)}
     >
       <Show when={options.labelRender !== undefined} fallback={option.label}>
         {renderComponentOrElement(options.labelRender, { option })}
@@ -279,7 +285,7 @@ export function renderDefaultSelectOption<TItem>(
               <span
                 data-slot="itemDescription"
                 style={options.styles?.itemDescription}
-                class={cn('text-xs text-muted-foreground block', options.classes?.itemDescription)}
+                class={cn(SELECT_ITEM_DESCRIPTION_CLASS, options.classes?.itemDescription)}
               >
                 {description()}
               </span>
@@ -292,10 +298,7 @@ export function renderDefaultSelectOption<TItem>(
         <span
           data-slot="itemTrailing"
           style={options.styles?.itemTrailing}
-          class={cn(
-            'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
-            options.classes?.itemTrailing,
-          )}
+          class={cn(SELECT_ITEM_INDICATOR_CLASS, options.classes?.itemTrailing)}
         >
           <Icon name="icon-check" />
         </span>

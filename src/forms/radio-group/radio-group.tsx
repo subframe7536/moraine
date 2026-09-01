@@ -13,7 +13,11 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
+import {
+  CHECKABLE_LABEL_CLASS,
+  MUTED_DESCRIPTION_CLASS,
+  TEXT_SIZE_VARIANT,
+} from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
@@ -536,8 +540,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     <div
                       data-slot="indicator"
                       style={merged.styles?.indicator}
-                      class={cn(
-                        radioGroupIndicatorVariants({ size: field.size() }),
+                      class={radioGroupIndicatorVariants(
+                        { size: field.size() },
                         merged.classes?.indicator,
                       )}
                       data-checked={selected() ? '' : undefined}
@@ -569,7 +573,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                           id={item.labelId}
                           data-slot="label"
                           style={merged.styles?.label}
-                          class={cn('text-foreground font-medium block', merged.classes?.label)}
+                          class={cn(CHECKABLE_LABEL_CLASS, merged.classes?.label)}
                         >
                           {item.label}
                         </p>
@@ -580,7 +584,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         for={item.inputId}
                         data-slot="label"
                         style={merged.styles?.label}
-                        class={cn('text-foreground font-medium block', merged.classes?.label)}
+                        class={cn(CHECKABLE_LABEL_CLASS, merged.classes?.label)}
                       >
                         {item.label}
                       </label>
@@ -594,7 +598,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       style={merged.styles?.description}
                       class={cn(
                         TEXT_SIZE_VARIANT[field.size()],
-                        'text-muted-foreground leading-normal',
+                        MUTED_DESCRIPTION_CLASS,
                         merged.classes?.description,
                       )}
                     >

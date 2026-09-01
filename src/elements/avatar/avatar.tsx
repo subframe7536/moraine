@@ -17,6 +17,7 @@ import { Icon } from '../icon/index.ts'
 
 import type { AvatarVariantProps } from './avatar.class.ts'
 import {
+  AVATAR_BADGE_ICON_CLASS,
   AVATAR_IMAGE_CLASS,
   avatarBadgeVariants,
   avatarFallbackIconVariants,
@@ -278,7 +279,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
               merged.classes?.badge,
             )}
           >
-            <Icon name={badge()} class="text-[0.75em]" />
+            <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}
       </Show>

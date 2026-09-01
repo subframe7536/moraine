@@ -55,8 +55,6 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised
   defaultVariants: {
     orientation: 'horizontal',
     variant: 'default',
-    inverted: false,
-    multiple: false,
   },
   variants: {
     orientation: {
@@ -67,74 +65,37 @@ export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised
       default: 'rounded-full',
       bold: 'rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100) data-dragging:transition-none',
     },
-    inverted: {
-      true: '',
-      false: '',
-    },
-    multiple: {
-      true: '',
-      false: '',
-    },
   },
-  compoundVariants: [
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      class: 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-pos)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      class: 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-pos)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      class: 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-pos)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      class: 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-pos)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-offset)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-offset)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-offset)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-offset)',
-    },
-  ],
 })
+
+export function resolveSliderRangeBoldClass(
+  orientation: 'horizontal' | 'vertical',
+  inverted: boolean,
+  multiple: boolean,
+): string {
+  const isH = orientation === 'horizontal'
+  const afterPos = isH
+    ? inverted
+      ? 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-pos)'
+      : 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-pos)'
+    : inverted
+      ? 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-pos)'
+      : 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-pos)'
+
+  if (!multiple) {
+    return afterPos
+  }
+
+  const beforePos = isH
+    ? inverted
+      ? 'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-offset)'
+      : 'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-offset)'
+    : inverted
+      ? 'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-offset)'
+      : 'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-offset)'
+
+  return `${afterPos} ${beforePos}`
+}
 
 export const sliderDividerVariants = cva('pointer-events-none absolute', {
   defaultVariants: {
@@ -177,20 +138,10 @@ export const sliderDividerVariants = cva('pointer-events-none absolute', {
 
 export const sliderThumbVariants = cva('shrink-0 block select-none absolute z-control touch-none', {
   defaultVariants: {
-    orientation: 'horizontal',
-    inverted: false,
     size: 'md',
     variant: 'default',
   },
   variants: {
-    orientation: {
-      horizontal: '',
-      vertical: '',
-    },
-    inverted: {
-      true: '',
-      false: '',
-    },
     size: {
       sm: '',
       md: '',
@@ -206,56 +157,33 @@ export const sliderThumbVariants = cva('shrink-0 block select-none absolute z-co
     { size: 'sm', variant: 'default', class: 'size-3' },
     { size: 'md', variant: 'default', class: 'size-3.5' },
     { size: 'lg', variant: 'default', class: 'size-4' },
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'default',
-      class: '-translate-x-1/2',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'default',
-      class: 'translate-x-1/2',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'default',
-      class: 'translate-y-1/2',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'default',
-      class: '-translate-y-1/2',
-    },
-    // Bold directional hit targets
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      class: 'h-full top-0 -translate-x-1/2 w-$s-size',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      class: 'h-full top-0 translate-x-1/2 w-$s-size',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      class: 'w-full left-0 translate-y-1/2 h-$s-size',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      class: 'w-full left-0 -translate-y-1/2 h-$s-size',
-    },
   ],
 })
 
-export type SliderVariantProps = VariantProps<typeof sliderThumbVariants>
+export function resolveSliderThumbOffsetClass(
+  orientation: 'horizontal' | 'vertical',
+  inverted: boolean,
+  variant: 'default' | 'bold' = 'default',
+): string {
+  if (variant === 'bold') {
+    return orientation === 'horizontal'
+      ? inverted
+        ? 'h-full top-0 translate-x-1/2 w-$s-size'
+        : 'h-full top-0 -translate-x-1/2 w-$s-size'
+      : inverted
+        ? 'w-full left-0 -translate-y-1/2 h-$s-size'
+        : 'w-full left-0 translate-y-1/2 h-$s-size'
+  }
+  return orientation === 'horizontal'
+    ? inverted
+      ? 'translate-x-1/2'
+      : '-translate-x-1/2'
+    : inverted
+      ? '-translate-y-1/2'
+      : 'translate-y-1/2'
+}
+
+export type SliderVariantProps = VariantProps<typeof sliderThumbVariants> & {
+  orientation?: 'horizontal' | 'vertical'
+  inverted?: boolean
+}

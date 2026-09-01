@@ -13,7 +13,12 @@ import { cn } from '../../shared/utils.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonGroupLayoutVariantProps } from './button-group.class.ts'
-import { buttonGroupVariants } from './button-group.class.ts'
+import {
+  BUTTON_GROUP_SEPARATOR_CLASS,
+  BUTTON_GROUP_SEPARATOR_HORIZONTAL_CLASS,
+  BUTTON_GROUP_SEPARATOR_VERTICAL_CLASS,
+  buttonGroupVariants,
+} from './button-group.class.ts'
 import type { ButtonVariantProps } from './button.class.ts'
 
 export namespace ButtonGroupT {
@@ -112,8 +117,10 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
                     }
                     aria-hidden="true"
                     class={cn(
-                      'bg-input shrink-0 self-stretch',
-                      local.orientation === 'horizontal' ? 'h-full w-px' : 'h-px w-full',
+                      BUTTON_GROUP_SEPARATOR_CLASS,
+                      local.orientation === 'horizontal'
+                        ? BUTTON_GROUP_SEPARATOR_HORIZONTAL_CLASS
+                        : BUTTON_GROUP_SEPARATOR_VERTICAL_CLASS,
                       local.classes?.separator,
                     )}
                     style={local.styles?.separator}

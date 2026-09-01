@@ -38,10 +38,15 @@ import {
 } from './hook/index.ts'
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
 import {
+  RESIZABLE_HANDLE_ACTIVE_CLASS,
+  RESIZABLE_HANDLE_GRIP_CLASS,
+  RESIZABLE_HANDLE_HORIZONTAL_CLASS,
+  RESIZABLE_HANDLE_SEPARATOR_CLASS,
+  RESIZABLE_HANDLE_VERTICAL_CLASS,
+  RESIZABLE_PANEL_CLASS,
   resizableCrossTargetVariants,
   resizableHandleVariants,
   resizableRootVariants,
-  RESIZABLE_HANDLE_GRIP_CLASS,
 } from './resizable.class.ts'
 import type { ResizableVariantProps } from './resizable.class.ts'
 
@@ -854,11 +859,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
-                class={cn(
-                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
-                  local.classes?.panel,
-                  panelItem().class,
-                )}
+                class={cn(RESIZABLE_PANEL_CLASS, local.classes?.panel, panelItem().class)}
                 style={{
                   'flex-grow': size(),
                   'flex-shrink': 1,
@@ -925,10 +926,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       onClick={onHandleClick}
                       class={cn(
                         RESIZABLE_HANDLE_GRIP_CLASS,
-                        handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
+                        handleCollapseAction() && RESIZABLE_HANDLE_ACTIVE_CLASS,
                         !local.handleRender && [
-                          'bg-border flex shrink-0',
-                          orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
+                          RESIZABLE_HANDLE_SEPARATOR_CLASS,
+                          orientation() === 'vertical'
+                            ? RESIZABLE_HANDLE_HORIZONTAL_CLASS
+                            : RESIZABLE_HANDLE_VERTICAL_CLASS,
                         ],
                         local.classes?.handle,
                       )}

@@ -7,7 +7,6 @@ export const sheetContentVariants = cva(
   {
     defaultVariants: {
       side: 'right',
-      inset: false,
     },
     variants: {
       side: {
@@ -17,12 +16,13 @@ export const sheetContentVariants = cva(
         bottom: 'border-t border-border h-auto animate-sheet-side-bottom inset-x-0 bottom-0',
         left: 'border-r border-border h-full w-3/4 animate-sheet-side-left inset-y-0 left-0 sm:max-w-sm',
       },
-      inset: {
-        true: 'sm:(m-4 border border-border rounded-2xl)',
-        false: 'rounded-none',
-      },
     },
   },
 )
 
-export type SheetVariantProps = VariantProps<typeof sheetContentVariants>
+export const SHEET_INSET_CLASS = 'sm:(m-4 border border-border rounded-2xl)'
+export const SHEET_NON_INSET_CLASS = 'rounded-none'
+
+export type SheetVariantProps = VariantProps<typeof sheetContentVariants> & {
+  inset?: boolean
+}

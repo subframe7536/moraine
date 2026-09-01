@@ -21,7 +21,7 @@ import type { IconT } from '../../../elements/icon/index.ts'
 import { KbdGroup } from '../../../elements/kbd/index.ts'
 import { List } from '../../../elements/list/index.ts'
 import type { ListProps } from '../../../elements/list/index.ts'
-import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class.ts'
+import { OVERLAY_POSITIONER_CLASS, TRUNCATE_CLASS } from '../../../shared/cva-common.class.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
 import type { ElementProps } from '../../../shared/types.ts'
@@ -40,7 +40,18 @@ import {
   resolveOverlayMenuSide,
 } from '../utils.ts'
 
-import { overlayMenuContentVariants, overlayMenuItemVariants } from './menu.class.ts'
+import {
+  OVERLAY_MENU_BACKDROP_CLASS,
+  OVERLAY_MENU_ITEM_DESCRIPTION_CLASS,
+  OVERLAY_MENU_ITEM_ICON_CLASS,
+  OVERLAY_MENU_ITEM_INDICATOR_CLASS,
+  OVERLAY_MENU_ITEM_TRAILING_CLASS,
+  OVERLAY_MENU_ITEM_WRAPPER_CLASS,
+  OVERLAY_MENU_LABEL_CLASS,
+  OVERLAY_MENU_SEPARATOR_CLASS,
+  overlayMenuContentVariants,
+  overlayMenuItemVariants,
+} from './menu.class.ts'
 import type { OverlayMenuItemVariantProps } from './menu.class.ts'
 import {
   createPointerGraceIntent,
@@ -516,10 +527,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           <span
             data-slot="itemLeading"
             style={props.styles?.itemLeading}
-            class={cn(
-              'inline-flex shrink-0 size-4 items-center justify-center [&_svg]:size-4',
-              props.classes?.itemLeading,
-            )}
+            class={cn(OVERLAY_MENU_ITEM_ICON_CLASS, props.classes?.itemLeading)}
           >
             <Icon name={contentProps.item.icon} />
           </span>
@@ -529,13 +537,13 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           <span
             data-slot="itemWrapper"
             style={props.styles?.itemWrapper}
-            class={cn('flex flex-1 flex-col gap-0.5 min-w-0', props.classes?.itemWrapper)}
+            class={cn(OVERLAY_MENU_ITEM_WRAPPER_CLASS, props.classes?.itemWrapper)}
           >
             <Show when={contentProps.item.label}>
               <span
                 data-slot="itemLabel"
                 style={props.styles?.itemLabel}
-                class={cn('truncate', props.classes?.itemLabel)}
+                class={cn(TRUNCATE_CLASS, props.classes?.itemLabel)}
               >
                 {contentProps.item.label}
               </span>
@@ -545,7 +553,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               <span
                 data-slot="itemDescription"
                 style={props.styles?.itemDescription}
-                class={cn('text-xs text-muted-foreground truncate', props.classes?.itemDescription)}
+                class={cn(OVERLAY_MENU_ITEM_DESCRIPTION_CLASS, props.classes?.itemDescription)}
               >
                 {contentProps.item.description}
               </span>
@@ -556,10 +564,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <span
           data-slot="itemTrailing"
           style={props.styles?.itemTrailing}
-          class={cn(
-            'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end',
-            props.classes?.itemTrailing,
-          )}
+          class={cn(OVERLAY_MENU_ITEM_TRAILING_CLASS, props.classes?.itemTrailing)}
         >
           <Show when={contentProps.hasChildren}>
             <Icon name={props.submenuIcon} class={props.classes?.itemSub} />
@@ -585,10 +590,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             <span
               data-slot="itemIndicator"
               style={props.styles?.itemIndicator}
-              class={cn(
-                'flex size-4 pointer-events-none items-center end-2 justify-center absolute',
-                props.classes?.itemIndicator,
-              )}
+              class={cn(OVERLAY_MENU_ITEM_INDICATOR_CLASS, props.classes?.itemIndicator)}
             >
               <Icon name={props.checkedIcon} />
             </span>
@@ -1262,10 +1264,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             id={groupLabelId()}
             data-slot="label"
             style={props.styles?.label}
-            class={cn(
-              'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
-              props.classes?.label,
-            )}
+            class={cn(OVERLAY_MENU_LABEL_CLASS, props.classes?.label)}
           >
             {groupLabel()}
           </div>
@@ -1279,7 +1278,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
                   data-slot="separator"
                   role="separator"
                   style={props.styles?.separator}
-                  class={cn('my-1 bg-border h-px -mx-1', props.classes?.separator)}
+                  class={cn(OVERLAY_MENU_SEPARATOR_CLASS, props.classes?.separator)}
                 />
               </Match>
 
@@ -1559,7 +1558,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           <div
             data-slot="overlay"
             style={merged.styles?.overlay}
-            class={cn('inset-0 fixed z-overlay', merged.classes?.overlay)}
+            class={cn(OVERLAY_MENU_BACKDROP_CLASS, merged.classes?.overlay)}
           />
         </Show>
         <OverlayMenuLayer<TItem>

@@ -5,3 +5,4 @@ export const PAGINATION_ELLIPSIS_CLASS = 'flex size-9 items-center justify-cente
 export const PAGINATION_PREV_CLASS = 'ps-2!'
 export const PAGINATION_NEXT_CLASS = 'pe-2!'
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
+export const PAGINATION_LINK_CLASS = 'outline-none'

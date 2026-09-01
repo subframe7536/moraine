@@ -27,6 +27,7 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { FileUploadVariantProps } from './file-upload.class.ts'
 import {
+  FILE_UPLOAD_IMAGE_CLASS,
   fileUploadBaseVariants,
   fileUploadDescriptionVariants,
   fileUploadFileVariants,
@@ -900,8 +901,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             class={fileUploadBaseVariants(
               {
                 size: field.size(),
-                dropzone: false,
               },
+              'border-solid',
               field.disabled() && 'bg-muted/32',
               merged.classes?.control,
             )}
@@ -926,8 +927,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           class={fileUploadBaseVariants(
             {
               size: field.size(),
-              dropzone: true,
             },
+            'border-dashed',
             field.disabled() && 'bg-muted/32',
             merged.classes?.control,
           )}
@@ -1004,7 +1005,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
                       />
                     }
                   >
-                    {(url) => <img src={url()} alt={file.name} class="size-full object-cover" />}
+                    {(url) => <img src={url()} alt={file.name} class={FILE_UPLOAD_IMAGE_CLASS} />}
                   </Show>
                 </span>
 

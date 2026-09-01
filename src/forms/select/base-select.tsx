@@ -35,7 +35,14 @@ import type {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SelectControlVariantProps } from './select.class.ts'
-import { selectContentVariants, selectItemVariants } from './select.class.ts'
+import {
+  SELECT_VIEWPORT_CLASS,
+  SELECT_GROUP_CLASS,
+  SELECT_GROUP_LABEL_CLASS,
+  SELECT_ROOT_CLASS,
+  selectContentVariants,
+  selectItemVariants,
+} from './select.class.ts'
 import {
   flattenOptions,
   normalizeOptions,
@@ -1290,16 +1297,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             ...merged.styles?.group,
             ...toStyleObject(virtualProps?.style),
           }}
-          class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group, virtualProps?.class)}
+          class={cn(SELECT_GROUP_CLASS, merged.classes?.group, virtualProps?.class)}
         >
           <span
             id={labelId}
             data-slot="label"
             style={merged.styles?.label}
-            class={cn(
-              'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-              merged.classes?.label,
-            )}
+            class={cn(SELECT_GROUP_LABEL_CLASS, merged.classes?.label)}
           >
             {entry.label}
           </span>
@@ -1348,16 +1352,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         role="group"
         aria-labelledby={groupLabelId}
         style={merged.styles?.group}
-        class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
+        class={cn(SELECT_GROUP_CLASS, merged.classes?.group)}
       >
         <span
           id={groupLabelId}
           data-slot="label"
           style={merged.styles?.label}
-          class={cn(
-            'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-            merged.classes?.label,
-          )}
+          class={cn(SELECT_GROUP_LABEL_CLASS, merged.classes?.label)}
         >
           {option.label}
         </span>
@@ -1374,7 +1375,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-required={field.required() ? '' : undefined}
       {...rest}
       style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
+      class={cn(SELECT_ROOT_CLASS, merged.classes?.root, merged.class)}
     >
       <select
         ref={(element) => {
@@ -1506,7 +1507,8 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     ...toStyleObject(merged.listboxProps?.style),
                   }}
                   class={cn(
-                    'm-0 p-1 outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
+                    'm-0 p-1 outline-none',
+                    SELECT_VIEWPORT_CLASS,
                     merged.classes?.listbox,
                     merged.listboxProps?.class,
                   )}

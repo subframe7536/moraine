@@ -10,6 +10,7 @@ import {
   untrack,
 } from 'solid-js'
 
+import { REQUIRED_MARK_CLASS } from '../../shared/cva-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
@@ -26,6 +27,7 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
 import {
+  CHECKBOX_GROUP_ROOT_CLASS,
   checkboxGroupFieldsetVariants,
   checkboxGroupItemVariants,
   checkboxGroupLegendVariants,
@@ -358,7 +360,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       id={`${groupId()}-root`}
       data-slot="root"
       style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('relative', merged.classes?.root, merged.class)}
+      class={cn(CHECKBOX_GROUP_ROOT_CLASS, merged.classes?.root, merged.class)}
       {...rest}
     >
       <fieldset
@@ -390,8 +392,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
             class={checkboxGroupLegendVariants(
               {
                 size: field.size(),
-                required: field.required(),
               },
+              field.required() && REQUIRED_MARK_CLASS,
               merged.classes?.legend,
             )}
           >

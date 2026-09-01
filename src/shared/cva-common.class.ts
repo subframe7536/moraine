@@ -11,9 +11,7 @@ export const TEXT_SIZE_VARIANT = {
   lg: 'text-base',
 } as const
 
-export const REQUIRED_MARK_VARIANT = {
-  true: "after:(text-destructive ms-0.5 content-['*'])",
-} as const
+export const REQUIRED_MARK_CLASS = "after:(text-destructive ms-0.5 content-['*'])"
 
 export const FLEX_ORIENTATION_VARIANT = {
   horizontal: 'flex-row',
@@ -53,4 +51,11 @@ export const CARD_PADDING_SIZE_VARIANT = {
   md: 'p-3.5',
   lg: 'p-4',
 } as const
+
+export const EFFECT_LOADING_CLASS = 'effect-loading'
+export const LABEL_TRUNCATE_CLASS = 'min-w-0 truncate'
+export const TRUNCATE_CLASS = 'truncate'
+export const MUTED_DESCRIPTION_CLASS = 'text-muted-foreground leading-normal'
+export const CHECKABLE_LABEL_CLASS = 'text-foreground font-medium block'
+export const CLOSE_BUTTON_TOP_RIGHT_CLASS = 'absolute top-4 right-4'
 export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'

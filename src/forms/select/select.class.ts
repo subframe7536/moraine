@@ -9,6 +9,13 @@ const SELECT_TEXT_SIZE = {
   lg: 'text-base',
 } as const
 
+export const SELECT_CONTROL_SEARCH_CLASS =
+  'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid'
+export const SELECT_CONTROL_POINTER_CLASS =
+  'cursor-pointer focus-visible:effect-fv-border focus-visible:data-invalid:effect-invalid'
+
+export const SELECT_VIEWPORT_CLASS = 'max-h-$mo-popper-content-available-height overflow-y-auto'
+
 export const selectControlVariants = cva(
   'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:effect-invalid data-disabled:effect-dis data-invalid:ring-3 focus-visible:ring-3',
   {
@@ -22,11 +29,6 @@ export const selectControlVariants = cva(
       mode: {
         single: '',
         multi: 'px-1.5',
-      },
-      search: {
-        true: 'cursor-text focus-within:effect-fv-border focus-within:data-invalid:effect-invalid',
-        false:
-          'cursor-pointer focus-visible:effect-fv-border focus-visible:data-invalid:effect-invalid',
       },
     },
     compoundVariants: [
@@ -117,5 +119,23 @@ export const selectContentVariants = cva(
     },
   },
 )
+
+export const SELECT_ROOT_CLASS = 'inline-flex h-fit w-full relative'
+export const SELECT_GROUP_CLASS = '[&:not(:first-child)]:mt-1.5'
+export const SELECT_GROUP_LABEL_CLASS =
+  'text-xs text-muted-foreground font-medium px-2 py-1.5 block'
+export const MULTI_SELECT_TAGS_WRAPPER_CLASS =
+  'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none'
+export const MULTI_SELECT_TAG_DELETE_CLASS =
+  'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1'
+export const MULTI_SELECT_CLEAR_BUTTON_CLASS =
+  'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center'
+export const SELECT_CLEAR_BUTTON_CLASS =
+  'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center'
+export const SELECT_ACTION_ICON_CLASS = 'text-muted-foreground opacity-80'
+export const SELECT_EMPTY_CLASS = 'text-sm text-muted-foreground p-2 text-center'
+export const SELECT_ITEM_DESCRIPTION_CLASS = 'text-xs text-muted-foreground block'
+export const SELECT_ITEM_INDICATOR_CLASS =
+  'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute'
 
 export type SelectControlVariantProps = VariantProps<typeof selectControlVariants>

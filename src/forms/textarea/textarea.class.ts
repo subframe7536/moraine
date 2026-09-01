@@ -22,17 +22,12 @@ export const textareaBaseVariants = cva(
   {
     defaultVariants: {
       size: 'md',
-      autoresize: false,
     },
     variants: {
       size: {
         sm: 'text-xs leading-4 px-2 py-1 min-h-14',
         md: 'text-sm leading-5 px-2.5 py-1.5 min-h-16',
         lg: 'text-base leading-6 px-3 py-2 min-h-18',
-      },
-      autoresize: {
-        true: 'resize-none',
-        false: 'resize-y',
       },
     },
   },

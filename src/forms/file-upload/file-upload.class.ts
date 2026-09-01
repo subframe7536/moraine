@@ -21,17 +21,12 @@ export const fileUploadBaseVariants = cva(
   {
     defaultVariants: {
       size: 'md',
-      dropzone: true,
     },
     variants: {
       size: {
         sm: 'text-xs px-3 py-2.5 gap-2 min-h-24',
         md: 'text-sm px-4 py-3 gap-2 min-h-28',
         lg: 'text-sm px-4.5 py-3.5 gap-2.5 min-h-32',
-      },
-      dropzone: {
-        true: 'border-dashed',
-        false: 'border-solid',
       },
     },
   },
@@ -179,5 +174,7 @@ export const fileUploadRemoveVariants = cva(
     },
   },
 )
+
+export const FILE_UPLOAD_IMAGE_CLASS = 'size-full object-cover'
 
 export type FileUploadVariantProps = VariantProps<typeof fileUploadBaseVariants>

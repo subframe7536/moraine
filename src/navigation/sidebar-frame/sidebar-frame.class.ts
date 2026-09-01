@@ -27,38 +27,17 @@ export const sidebarFrameDesktopLayoutVariants = cva('flex h-full min-h-0', {
   },
 })
 
+export const SIDEBAR_FRAME_DESKTOP_WIDTH_CLASS = 'shrink-0 max-w-[45%] w-64'
+
 export const sidebarFrameSidebarVariants = cva('flex flex-col h-full min-h-0', {
   variants: {
-    side: {
-      left: '',
-      right: '',
-    },
-    isMobile: {
-      true: '',
-      false: 'shrink-0 max-w-[45%] w-64',
-    },
     variant: {
       default: '',
       floating: 'border border-border/80 rounded-lg bg-card shadow-sm overflow-hidden',
       inset: '',
     },
   },
-  compoundVariants: [
-    {
-      variant: 'default',
-      isMobile: false,
-      side: 'left',
-      class: 'border-r border-border',
-    },
-    {
-      variant: 'default',
-      isMobile: false,
-      side: 'right',
-      class: 'border-l border-border',
-    },
-  ],
   defaultVariants: {
-    side: 'left',
     variant: 'default',
   },
 })
@@ -75,5 +54,9 @@ export const sidebarFrameMainVariants = cva('flex-1 h-full min-h-0 min-w-0 overf
     },
   },
 })
+
+export const SIDEBAR_FRAME_PANEL_CLASS = 'rm-side-b'
+export const SIDEBAR_FRAME_BORDER_RIGHT_CLASS = 'border-r border-border'
+export const SIDEBAR_FRAME_BORDER_LEFT_CLASS = 'border-l border-border'
 
 export type SidebarFrameVariantProps = VariantProps<typeof sidebarFrameDesktopLayoutVariants>

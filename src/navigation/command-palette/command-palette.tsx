@@ -12,15 +12,23 @@ import { useSelectableCollectionNavigation } from '../../shared/use-selectable-c
 import { callHandler, cn, useId } from '../../shared/utils.ts'
 
 import {
+  COMMAND_PALETTE_CLOSE_CLASS,
   COMMAND_PALETTE_EMPTY_CLASS,
+  COMMAND_PALETTE_FOOTER_CLASS,
   COMMAND_PALETTE_GROUP_CLASS,
   COMMAND_PALETTE_INPUT_CLASS,
   COMMAND_PALETTE_INPUT_WRAPPER_CLASS,
+  COMMAND_PALETTE_ITEM_CLASS,
+  COMMAND_PALETTE_ITEM_DESCRIPTION_CLASS,
+  COMMAND_PALETTE_ITEM_ICON_CLASS,
+  COMMAND_PALETTE_ITEM_LABEL_CLASS,
+  COMMAND_PALETTE_ITEM_WRAPPER_CLASS,
   COMMAND_PALETTE_LABEL_CLASS,
   COMMAND_PALETTE_LIST_CLASS,
   COMMAND_PALETTE_ROOT_CLASS,
+  COMMAND_PALETTE_SEARCH_ICON_CLASS,
+  COMMAND_PALETTE_SEARCH_INPUT_CLASS,
   COMMAND_PALETTE_TRAILING_CLASS,
-  COMMAND_PALETTE_ITEM_CLASS,
 } from './command-palette.class.ts'
 
 export namespace CommandPaletteT {
@@ -686,7 +694,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         <span
           data-slot="itemDescription"
           style={merged.styles?.itemDescription}
-          class={cn('text-xs text-muted-foreground truncate', merged.classes?.itemDescription)}
+          class={cn(COMMAND_PALETTE_ITEM_DESCRIPTION_CLASS, merged.classes?.itemDescription)}
         >
           {item.item.description}
         </span>
@@ -709,10 +717,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               <span
                 data-slot="itemLeading"
                 style={merged.styles?.itemLeading}
-                class={cn(
-                  'text-muted-foreground shrink-0 [&_svg]:size-4',
-                  merged.classes?.itemLeading,
-                )}
+                class={cn(COMMAND_PALETTE_ITEM_ICON_CLASS, merged.classes?.itemLeading)}
               >
                 {renderComponentOrElement(item.item.leadingRender, itemContext)}
               </span>
@@ -722,7 +727,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               data-slot="itemWrapper"
               style={merged.styles?.itemWrapper}
               class={cn(
-                'text-start flex flex-1 flex-col min-w-0',
+                COMMAND_PALETTE_ITEM_WRAPPER_CLASS,
                 descriptionPosition() === 'trailing' && 'flex-row gap-2 items-baseline',
                 merged.classes?.itemWrapper,
               )}
@@ -731,7 +736,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 data-slot="itemLabel"
                 style={merged.styles?.itemLabel}
                 class={cn(
-                  'min-w-0 truncate items-baseline',
+                  COMMAND_PALETTE_ITEM_LABEL_CLASS,
                   descriptionPosition() === 'trailing' && 'flex flex-1 gap-2',
                   merged.classes?.itemLabel,
                 )}
@@ -857,10 +862,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           style={merged.styles?.search}
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
-          class={cn(
-            'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:effect-loading',
-            merged.classes?.search,
-          )}
+          class={cn(COMMAND_PALETTE_SEARCH_ICON_CLASS, merged.classes?.search)}
         />
 
         <input
@@ -871,7 +873,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           data-slot="input"
           style={merged.styles?.input}
           class={cn(
-            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
+            COMMAND_PALETTE_SEARCH_INPUT_CLASS,
             COMMAND_PALETTE_INPUT_CLASS,
             merged.classes?.input,
           )}
@@ -904,10 +906,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             type="button"
             data-slot="close"
             style={merged.styles?.close}
-            class={cn(
-              'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:text-foreground',
-              merged.classes?.close,
-            )}
+            class={cn(COMMAND_PALETTE_CLOSE_CLASS, merged.classes?.close)}
             onClick={() => {
               merged.onClose?.()
             }}
@@ -1027,7 +1026,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         <div
           data-slot="footer"
           style={merged.styles?.footer}
-          class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
+          class={cn(COMMAND_PALETTE_FOOTER_CLASS, merged.classes?.footer)}
         >
           {renderComponentOrElement(merged.footerRender, getContext())}
         </div>

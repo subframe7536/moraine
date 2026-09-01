@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
+import { LABEL_TRUNCATE_CLASS } from '../../shared/cva-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
@@ -118,7 +119,7 @@ export function Badge(props: BadgeProps): JSX.Element {
         <span
           data-slot="label"
           style={local.styles?.label}
-          class={cn('min-w-0 truncate', local.classes?.label)}
+          class={cn(LABEL_TRUNCATE_CLASS, local.classes?.label)}
         >
           {resolvedChildren()}
         </span>

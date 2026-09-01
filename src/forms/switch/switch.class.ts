@@ -47,4 +47,10 @@ export const switchWrapperVariants = cva('flex flex-col gap-0.5', {
   },
 })
 
+export const SWITCH_ROOT_CLASS = 'flex flex-row'
+export const SWITCH_THUMB_ICON_CLASS =
+  'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading'
+export const SWITCH_LABEL_CLASS =
+  'text-foreground leading-tight font-medium block cursor-pointer select-none'
+
 export type SwitchVariantProps = VariantProps<typeof switchTrackVariants>

@@ -25,6 +25,7 @@ import {
   MODAL_CONTENT_CLASS,
   MODAL_CONTENT_DEFAULT_CLASS,
   MODAL_OVERLAY_CLASS,
+  MODAL_OVERLAY_SCROLL_CLASS,
 } from './modal.class.ts'
 
 type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
@@ -421,7 +422,7 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
       style={props.overlayStyle}
       class={cn(
         props.overlayClass ?? MODAL_OVERLAY_CLASS,
-        props.overlayScroll && 'p-4 overflow-y-auto',
+        props.overlayScroll && MODAL_OVERLAY_SCROLL_CLASS,
       )}
     >
       {content}

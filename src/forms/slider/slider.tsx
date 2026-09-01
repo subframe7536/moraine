@@ -16,6 +16,8 @@ import type {
 import { useSlider } from './hook/index.ts'
 import type { SliderVariantProps } from './slider.class.ts'
 import {
+  resolveSliderRangeBoldClass,
+  resolveSliderThumbOffsetClass,
   sliderDividerVariants,
   sliderRangeVariants,
   sliderRootVariants,
@@ -258,9 +260,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {
               orientation: merged.orientation,
               variant: merged.variant,
-              inverted: merged.inverted,
-              multiple: slider.currentValues().length > 1,
             },
+            merged.variant === 'bold' &&
+              resolveSliderRangeBoldClass(
+                merged.orientation,
+                merged.inverted,
+                slider.currentValues().length > 1,
+              ),
             merged.classes?.range,
           )}
         />
@@ -311,11 +317,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             }}
             class={sliderThumbVariants(
               {
-                inverted: merged.inverted,
-                orientation: merged.orientation,
                 size: field.size(),
                 variant: merged.variant,
               },
+              resolveSliderThumbOffsetClass(merged.orientation, merged.inverted, merged.variant),
               merged.classes?.thumb,
             )}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
