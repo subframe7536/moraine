@@ -5,8 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { Input } from './input.tsx'
 
@@ -529,11 +528,11 @@ describe('Input', () => {
           initialInput: { value: 'Locked' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Value">
+        <form.Form>
+          <form.Field name="value" label="Value">
             <Input value={value()} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText<HTMLInputElement>('Value')
@@ -560,11 +559,11 @@ describe('Input', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Value">
+        <form.Form>
+          <form.Field name="value" label="Value">
             <Input onValueChange={onValueChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText<HTMLInputElement>('Value')

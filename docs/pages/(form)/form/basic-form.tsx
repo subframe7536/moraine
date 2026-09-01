@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import { createSignal, Show } from 'solid-js'
 import * as v from 'valibot'
 
@@ -12,18 +12,17 @@ export function BasicForm() {
 
   return (
     <div class="max-w-md w-full space-y-4">
-      <Form
-        of={form}
+      <form.Form
         onSubmit={(values) => {
           setSubmitted(values.username)
         }}
         class="space-y-4"
       >
-        <FormField<typeof schema> name="username" label="Username" required>
+        <form.Field name="username" label="Username" required>
           <Input placeholder="Enter username" />
-        </FormField>
+        </form.Field>
         <Button type="submit">Save Profile</Button>
-      </Form>
+      </form.Form>
       <Show when={submitted()}>
         <p class="text-xs text-muted-foreground">
           Profile saved for user: <span class="text-foreground font-medium">{submitted()}</span>

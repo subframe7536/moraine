@@ -1,20 +1,18 @@
-import { Button, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 
 export function ManualError() {
   const [error, setError] = createSignal<string | undefined>('Personal access token has expired.')
-  const [token, setToken] = createSignal('ghp_9f823a10bc47e')
-
-  const handleInput = (val: string) => {
-    setToken(val)
-    if (error()) {
-      setError(undefined)
-    }
-  }
+  const form = createForm({
+    schema: v.object({ token: v.string() }),
+    initialInput: { token: 'ghp_9f823a10bc47e' },
+  })
 
   return (
     <div class="max-w-md w-full space-y-4">
-      <FormField
+      <form.Field
+        name="token"
         label="Personal Access Token"
         hint="Fine-grained permissions"
         description="Required to synchronize remote repositories."
@@ -23,11 +21,14 @@ export function ManualError() {
       >
         <Input
           type="password"
-          value={token()}
-          onInput={(e) => handleInput(e.currentTarget.value)}
+          onInput={() => {
+            if (error()) {
+              setError(undefined)
+            }
+          }}
           placeholder="Enter new token..."
         />
-      </FormField>
+      </form.Field>
 
       <div class="flex gap-2">
         <Button

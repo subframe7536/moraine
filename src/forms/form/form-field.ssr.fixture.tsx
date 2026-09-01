@@ -1,10 +1,9 @@
 import { renderToString } from 'solid-js/web'
 import * as v from 'valibot'
 
-import { createForm, Form } from '../form/index.ts'
 import { Input } from '../input/index.ts'
 
-import { FormField } from './form-field.tsx'
+import { createForm } from './form.tsx'
 
 export function renderFormFieldFixture(): string {
   function ServerField() {
@@ -14,8 +13,8 @@ export function renderFormFieldFixture(): string {
     })
 
     return (
-      <Form of={form} aria-label="Hydrated field form">
-        <FormField
+      <form.Form aria-label="Hydrated field form">
+        <form.Field
           name="value"
           required
           label="Value"
@@ -24,8 +23,8 @@ export function renderFormFieldFixture(): string {
           help="Helpful text"
         >
           <Input />
-        </FormField>
-      </Form>
+        </form.Field>
+      </form.Form>
     )
   }
 

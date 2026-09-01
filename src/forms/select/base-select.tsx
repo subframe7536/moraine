@@ -26,12 +26,12 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
-import type { UseFormFieldReturn } from '../form-field/form-field-context.ts'
+import type { UseFormFieldReturn } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SelectControlVariantProps } from './select.class.ts'

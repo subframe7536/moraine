@@ -5,11 +5,10 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
 import { Input } from '../input/index.ts'
 import { Switch } from '../switch/index.ts'
 
-import { createForm, Form } from './index.ts'
+import { createForm } from './index.ts'
 
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),
@@ -26,15 +25,15 @@ describe('Form', () => {
           initialInput: { email: 'initial@example.com', enabled: false },
         }),
       (form) => (
-        <Form of={form} onSubmit={onSubmit}>
-          <FormField name="email" label="Email">
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="email" label="Email">
             <Input />
-          </FormField>
-          <FormField name="enabled" label="Enabled">
+          </form.Field>
+          <form.Field name="enabled" label="Enabled">
             <Switch />
-          </FormField>
+          </form.Field>
           <Button type="submit">Save</Button>
-        </Form>
+        </form.Form>
       ),
     )
 
@@ -56,16 +55,15 @@ describe('Form', () => {
           validate: 'blur',
         }),
       (form) => (
-        <Form
-          of={form}
+        <form.Form
           aria-label="Settings"
           classes={{ root: 'root-override' }}
           styles={{ root: { width: '200px' } }}
         >
-          <FormField name="email" label="Email">
+          <form.Field name="email" label="Email">
             <Input />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -88,11 +86,11 @@ describe('Form', () => {
           initialInput: {},
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Value">
+        <form.Form>
+          <form.Field name="value" label="Value">
             <Input defaultValue="Fallback" />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -110,12 +108,12 @@ describe('Form', () => {
           initialInput: { email: '', enabled: false },
         }),
       (form) => (
-        <Form of={form} onSubmit={onSubmit}>
-          <FormField name="email" label="Email">
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="email" label="Email">
             <Input />
-          </FormField>
+          </form.Field>
           <Button type="submit">Save</Button>
-        </Form>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText('Email')
@@ -142,11 +140,11 @@ describe('Form', () => {
           initialInput: { email: 'dev@example.com', enabled: false },
         }),
       (form) => (
-        <Form of={form} onSubmit={onSubmit}>
+        <form.Form onSubmit={onSubmit}>
           <Button type="submit" name="intent" value="save">
             Save
           </Button>
-        </Form>
+        </form.Form>
       ),
     )
     const formElement = screen.container.querySelector('form')!
@@ -171,9 +169,9 @@ describe('Form', () => {
           initialInput: { email: 'dev@example.com', enabled: false },
         }),
       (form) => (
-        <Form of={form} onSubmit={() => Promise.reject(new Error('Submit failed'))}>
+        <form.Form onSubmit={() => Promise.reject(new Error('Submit failed'))}>
           <Button type="submit">Save</Button>
-        </Form>
+        </form.Form>
       ),
     )
     const formElement = screen.container.querySelector('form')!
@@ -194,20 +192,19 @@ describe('Form', () => {
           validate: 'blur',
         }),
       (form) => (
-        <Form
-          of={form}
+        <form.Form
           onReset={() => {
             resetSnapshots.push({ dirty: form.isDirty, input: getInput(form) })
           }}
         >
-          <FormField name="email" label="Email">
+          <form.Field name="email" label="Email">
             <Input />
-          </FormField>
-          <FormField name="enabled" label="Enabled">
+          </form.Field>
+          <form.Field name="enabled" label="Enabled">
             <Switch />
-          </FormField>
+          </form.Field>
           <Button type="reset">Reset</Button>
-        </Form>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText('Email') as HTMLInputElement
@@ -245,12 +242,12 @@ describe('Form', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <Form of={form} onReset={(event) => event.preventDefault()}>
-          <FormField name="value" label="Value">
+        <form.Form onReset={(event) => event.preventDefault()}>
+          <form.Field name="value" label="Value">
             <Input />
-          </FormField>
+          </form.Field>
           <Button type="reset">Reset</Button>
-        </Form>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText('Value') as HTMLInputElement
@@ -277,18 +274,18 @@ describe('Form', () => {
       ],
       ([firstForm, secondForm]) => (
         <>
-          <Form of={firstForm} onSubmit={firstSubmit} aria-label="First form">
-            <FormField name="value" label="First value">
+          <firstForm.Form onSubmit={firstSubmit} aria-label="First form">
+            <firstForm.Field name="value" label="First value">
               <Input />
-            </FormField>
+            </firstForm.Field>
             <Button type="submit">Submit first</Button>
-          </Form>
-          <Form of={secondForm} onSubmit={secondSubmit} aria-label="Second form">
-            <FormField name="value" label="Second value">
+          </firstForm.Form>
+          <secondForm.Form onSubmit={secondSubmit} aria-label="Second form">
+            <secondForm.Field name="value" label="Second value">
               <Input />
-            </FormField>
+            </secondForm.Field>
             <Button type="submit">Submit second</Button>
-          </Form>
+          </secondForm.Form>
         </>
       ),
     )

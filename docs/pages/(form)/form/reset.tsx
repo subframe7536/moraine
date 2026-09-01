@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -9,10 +9,10 @@ export function Reset() {
   const form = createForm({ schema, initialInput: { name: 'Draft document' } })
 
   return (
-    <Form of={form} onReset={() => setResetCount((count) => count + 1)} class="max-w-sm space-y-4">
-      <FormField<typeof schema> name="name" label="Name">
+    <form.Form onReset={() => setResetCount((count) => count + 1)} class="max-w-sm space-y-4">
+      <form.Field name="name" label="Name">
         <Input />
-      </FormField>
+      </form.Field>
       <div class="flex gap-2">
         <Button type="submit">Submit</Button>
         <Button type="reset" variant="outline">
@@ -20,6 +20,6 @@ export function Reset() {
         </Button>
       </div>
       <p class="text-sm text-muted-foreground">Reset events: {resetCount()}</p>
-    </Form>
+    </form.Form>
   )
 }

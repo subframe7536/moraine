@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import * as v from 'valibot'
 
 const schema = v.object({
@@ -17,10 +17,10 @@ export function SubmissionReset() {
 
   return (
     <div class="max-w-md w-full">
-      <Form of={form} onSubmit={handleSubmit} class="space-y-4">
-        <FormField<typeof schema> name="email" label="Contact Email" required>
+      <form.Form onSubmit={handleSubmit} class="space-y-4">
+        <form.Field name="email" label="Contact Email" required>
           <Input placeholder="admin@example.com" />
-        </FormField>
+        </form.Field>
         <div class="flex gap-2">
           <Button type="submit" loading={form.isSubmitting}>
             Submit Changes
@@ -29,7 +29,7 @@ export function SubmissionReset() {
             Reset
           </Button>
         </div>
-      </Form>
+      </form.Form>
     </div>
   )
 }

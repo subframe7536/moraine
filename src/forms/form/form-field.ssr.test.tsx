@@ -4,10 +4,9 @@ import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-utils/ssr-test.ts'
-import { createForm, Form } from '../form/index.ts'
 import { Input } from '../input/index.ts'
 
-import { FormField } from './form-field.tsx'
+import { createForm } from './form.tsx'
 
 describe('FormField SSR Hydration', () => {
   test('hydrates registered controls and replaces help with the focused validation error', async () => {
@@ -20,9 +19,9 @@ describe('FormField SSR Hydration', () => {
       })
 
       return (
-        <Form of={form} aria-label="Hydrated field form">
-          {createComponent(FormField, {
-            name: 'value',
+        <form.Form aria-label="Hydrated field form">
+          {createComponent(form.Field, {
+            name: 'value' as const,
             required: true,
             get label() {
               reads.label += 1
@@ -49,12 +48,12 @@ describe('FormField SSR Hydration', () => {
               return <Input />
             },
           })}
-        </Form>
+        </form.Form>
       )
     }
 
     const { container } = hydrateFixture(
-      '/src/forms/form-field/form-field.ssr.fixture.tsx',
+      '/src/forms/form/form-field.ssr.fixture.tsx',
       'renderFormFieldFixture',
       () => <ClientField />,
     )

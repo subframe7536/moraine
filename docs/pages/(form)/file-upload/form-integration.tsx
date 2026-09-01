@@ -1,4 +1,4 @@
-import { Button, createForm, FileUpload, Form, FormField } from '@src'
+import { Button, createForm, FileUpload } from '@src'
 import type { FileUploadT } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
@@ -20,16 +20,16 @@ export function FormIntegration() {
   })
 
   return (
-    <Form of={form}>
+    <form.Form>
       <div class="max-w-xl space-y-4">
-        <FormField
+        <form.Field
           name="attachment"
           label="Attachment"
           description="Upload at least one file before submit."
           required
         >
           <FileUpload id="demo-attachment-upload" onValueChange={updateFormAttachment} />
-        </FormField>
+        </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">
             Validate
@@ -39,6 +39,6 @@ export function FormIntegration() {
           </p>
         </div>
       </div>
-    </Form>
+    </form.Form>
   )
 }

@@ -1,4 +1,4 @@
-import { Button, Checkbox, createForm, Form, FormField, Input, Select, Textarea } from '@src'
+import { Button, Checkbox, createForm, Input, Select, Textarea } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -17,14 +17,14 @@ export function MixedFields() {
   })
 
   return (
-    <Form of={form} onSubmit={() => setSubmitted(true)} class="max-w-sm space-y-4">
-      <FormField<typeof schema> name="name" label="Project name" required>
+    <form.Form onSubmit={() => setSubmitted(true)} class="max-w-sm space-y-4">
+      <form.Field name="name" label="Project name" required>
         <Input placeholder="Documentation refresh" />
-      </FormField>
-      <FormField<typeof schema> name="description" label="Description" required>
+      </form.Field>
+      <form.Field name="description" label="Description" required>
         <Textarea placeholder="Project description" />
-      </FormField>
-      <FormField<typeof schema> name="visibility" label="Visibility" required>
+      </form.Field>
+      <form.Field name="visibility" label="Visibility" required>
         <Select
           placeholder="Select visibility"
           options={[
@@ -32,14 +32,14 @@ export function MixedFields() {
             { label: 'Team', value: 'team' },
           ]}
         />
-      </FormField>
-      <FormField<typeof schema> name="terms" required>
+      </form.Field>
+      <form.Field name="terms" required>
         <Checkbox label="I accept the terms and conditions" />
-      </FormField>
+      </form.Field>
       <Button type="submit">Create project</Button>
       <Show when={submitted()}>
         <p class="text-success text-sm">Project created.</p>
       </Show>
-    </Form>
+    </form.Form>
   )
 }

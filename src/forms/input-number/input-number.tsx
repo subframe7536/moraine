@@ -16,13 +16,13 @@ import type { IconT } from '../../elements/icon/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'

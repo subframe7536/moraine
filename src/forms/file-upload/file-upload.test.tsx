@@ -4,8 +4,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/form-field.tsx'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { FileUpload } from './file-upload.tsx'
 
@@ -628,11 +627,11 @@ describe('FileUpload', () => {
           initialInput: { attachment: null },
         }),
       (form) => (
-        <Form of={form} onSubmit={onSubmit}>
-          <FormField name="attachment" label="Attachment">
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="attachment" label="Attachment">
             <FileUpload />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const formElement = screen.container.querySelector('form') as HTMLFormElement

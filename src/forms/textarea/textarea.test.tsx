@@ -5,8 +5,7 @@ import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { Textarea } from './textarea.tsx'
 
@@ -320,11 +319,11 @@ describe('Textarea', () => {
           initialInput: { value: 'Locked' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Value">
+        <form.Form>
+          <form.Field name="value" label="Value">
             <Textarea value={value()} onValueChange={onValueChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement
@@ -360,11 +359,11 @@ describe('Textarea', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Value">
+        <form.Form>
+          <form.Field name="value" label="Value">
             <Textarea autoResize={autoResize()} rows={rows()} maxRows={maxRows()} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const textarea = screen.getByLabelText('Value') as HTMLTextAreaElement

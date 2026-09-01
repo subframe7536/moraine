@@ -1,24 +1,37 @@
 ---
 title: Form
-description: A type-safe Formisch form wrapper with Valibot schemas, form-store context, validation, and submission state.
+description: Type-safe Formisch form management with Valibot schemas, bound form and field components, real-time validation, and accessible feedback.
 sidebar:
   order: 1
 search:
-  tags: [Formisch, validation, submit, store, Valibot, form container, schemas]
+  tags:
+    [
+      Formisch,
+      validation,
+      submit,
+      store,
+      Valibot,
+      form container,
+      schemas,
+      FormField,
+      field,
+      label,
+      error,
+    ]
 ---
 
-import { Button, createForm, Form, FormField, Input, Switch } from '@src'
-import { Show, createSignal } from 'solid-js'
+import { Button, createForm, FormField, Input, Switch } from '@src'
+import { Show, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 ## Import
 
 ```tsx
-import { createForm, Form, FormField, Input, Switch } from 'moraine'
-import type { FormT } from 'moraine'
+import { createForm, Input, Button, Switch } from 'moraine'
+import type { FormT, FormFieldT } from 'moraine'
 ```
 
-Define a schema, create a Formisch store with `createForm`, and pass it to `Form`:
+Define a schema, instantiate the form with `createForm`, and render `<form.Form>` and `<form.Field>`:
 
 ```tsx
 export function NotificationForm() {
@@ -28,26 +41,28 @@ export function NotificationForm() {
   })
 
   return (
-    <Form of={form} onSubmit={(output) => console.log(output)}>
-      <FormField name="email" label="Email Address">
+    <form.Form onSubmit={(output) => console.log(output)}>
+      <form.Field name="email" label="Email Address">
         <Input leading="i-lucide:mail" />
-      </FormField>
-      <FormField name="enabled" label="Enable Notifications">
+      </form.Field>
+      <form.Field name="enabled" label="Enable Notifications">
         <Switch />
-      </FormField>
+      </form.Field>
       <Button type="submit">Save Changes</Button>
-    </Form>
+    </form.Form>
   )
 }
 ```
 
 ## Features
 
-- **Formisch + Standard Schema**: `createForm` provides the reactive store and schema validation used by Moraine form controls.
-- **Form Context**: `Form` provides its store to nested `FormField` components so controls can bind values, validation metadata, and field events.
-- **Submission State**: Formisch manages submission state; Moraine mirrors `of.isSubmitting` as `data-submitting` on the form root for styling or coordination.
-- **Nested Paths**: Formisch field names can target nested and array values supported by the store.
-- **Native Reset Coordination**: Moraine coordinates native form reset with Formisch so control state returns to the store snapshot.
+- **Bound Form Instance**: `createForm` creates a reactive Formisch store and attaches pre-bound `<form.Form>` and `<form.Field>` components.
+- **Type-Safe Field Paths**: `<form.Field>` automatically infers its schema and provides autocomplete for flat and nested paths (`['profile', 'email']`) without manual generics.
+- **Formisch + Standard Schema**: Integrates reactive validation and input management with Valibot, Zod, or Standard Schema.
+- **Automated ARIA & Accessible Feedback**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`, `role="alert"`) with child controls.
+- **Flexible Field Layouts**: Vertical by default, with `orientation="horizontal"` for 1-to-3 grid column layouts.
+- **Submission & Reset Coordination**: Tracks `form.isSubmitting`, mirrors `data-submitting` on the root, and handles native reset events.
+- **Custom Control Render Prop**: Child render function receives `{ error, invalid, size, disabled, required }`.
 
 ## Playground
 
@@ -68,21 +83,42 @@ export function NotificationForm() {
     })
 
     return (
-      <Form of={form} onSubmit={() => setSuccess(true)} class="space-y-4 max-w-sm">
-        <FormField name="email" label="Email" required>
-          <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
-        </FormField>
-        <FormField name="password" label="Password" required>
-          <Input type="password" placeholder="••••••••" disabled={props.disabled} leading="i-lucide:lock" />
-        </FormField>
-        <FormField name="remember">
-          <Switch label="Remember me on this device" disabled={props.disabled} />
-        </FormField>
-        <Button type="submit" class="w-full" disabled={props.disabled}>Sign in</Button>
-        <Show when={success()}>
-          <p class="text-xs text-primary font-medium text-center">Successfully signed in!</p>
-        </Show>
-      </Form>
+      <div class="space-y-4 max-w-sm">
+        {createComponent(form.Form, {
+          onSubmit: () => setSuccess(true),
+          class: 'space-y-4 max-w-sm',
+          get children() {
+            return [
+              createComponent(form.Field, {
+                name: 'email',
+                label: 'Email',
+                required: true,
+                get children() {
+                  return <Input placeholder="alex@example.com" disabled={props.disabled} leading="i-lucide:mail" />
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'password',
+                label: 'Password',
+                required: true,
+                get children() {
+                  return <Input type="password" placeholder="••••••••" disabled={props.disabled} leading="i-lucide:lock" />
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'remember',
+                get children() {
+                  return <Switch label="Remember me on this device" disabled={props.disabled} />
+                },
+              }),
+              <Button type="submit" class="w-full" disabled={props.disabled}>Sign in</Button>,
+              <Show when={success()}>
+                <p class="text-xs text-primary font-medium text-center">Successfully signed in!</p>
+              </Show>,
+            ]
+          },
+        })}
+      </div>
     )
 
 }}
@@ -92,25 +128,59 @@ export function NotificationForm() {
 ## Anatomy
 
 ```text
-root (<form> managed by Formisch)
-└── composed fields and controls
+form.Form (<form> root managed by Formisch)
+└── form.Field (field layout & ARIA wrapper)
+    ├── wrapper (label, required indicator, hint, description)
+    │   ├── labelWrapper
+    │   │   ├── label (form control label)
+    │   │   ├── required (asterisk indicator)
+    │   │   └── hint (optional badge/subtext)
+    │   └── description (helper text)
+    └── container (child controls, help message, error alert)
+        ├── {children} (input, select, textarea, etc.)
+        ├── help (supplemental help note)
+        └── error (validation error message with role="alert")
 ```
 
-`Form` does not automatically disable child controls during submission. Use the form store's submission state when your application needs that behavior.
+`<form.Form>` does not automatically disable child controls during submission. Use `form.isSubmitting` when your application needs that behavior.
 
 ## Usage
 
-### Creating and submitting a form
+### Basic form and submission
 
-Create the Formisch store with `createForm`, then pass it through `of`. The submit callback receives the schema output only after successful validation. `Form` provides that store to descendant `FormField` components; it does not automatically disable controls or choose a loading UI while a submission is pending.
+Create the form with `createForm`, then render `<form.Form>` and `<form.Field>`. The submit handler receives the validated schema output.
 
 <Preview path="./basic-form" />
 
-### Submission and reset
+### Field labels and messages
 
-Read `form.isSubmitting` in application code to derive button loading or disabled state. Native reset events are coordinated with Formisch: a `type="reset"` button restores the store input and metadata snapshot unless an `onReset` handler prevents the event.
+Configure `label`, `hint`, `description`, `help`, and `required` indicators on `<form.Field>`. Supported Moraine controls automatically link with helper descriptions and error messages via deterministic ARIA attributes.
 
-<Preview path="./submission-reset" />
+<Preview path="./labels-messages" />
+
+### Horizontal layout
+
+Set `orientation="horizontal"` to switch from the default stacked layout to a side-by-side grid arrangement, common in settings panels and administrative consoles.
+
+<Preview path="./horizontal-layout" />
+
+### Nested and array paths
+
+Target nested object and array fields by supplying path tuples (for example, `['profile', 'email']`) to the `name` prop. Path types are fully validated and autocompleted based on your schema.
+
+<Preview path="./nested-path" />
+
+### Submission and loading state
+
+Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
+
+<Preview path="./async-submit" />
+
+### Reset and state restoration
+
+Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+
+<Preview path="./reset" />
 
 ### Keyboard interaction
 
@@ -118,18 +188,26 @@ Read `form.isSubmitting` in application code to derive button loading or disable
 
 ## Examples
 
-### Validation
+### Schema validation
+
+Formisch validates fields according to schema rules and updates errors in real-time or upon submission, linking error messages directly to the associated controls.
 
 <Preview path="./validation" />
 
-### Async submit
+### Manual and server errors
 
-<Preview path="./async-submit" />
+Pass application or server-returned error strings directly to `<form.Field error={...}>` to force an error state or display external validation messages.
 
-### Reset
+<Preview path="./manual-error" />
 
-<Preview path="./reset" />
+### Render context
 
-### Mixed fields
+Provide a render function as child to `<form.Field>` to access live field context `{ error, invalid, size, disabled, required }` for dynamically customizing child controls.
+
+<Preview path="./render-context" />
+
+### Mixed form controls
+
+Compose multiple Moraine controls—such as `Input`, `Textarea`, `Select`, and `Checkbox`—within a single schema-validated form.
 
 <Preview path="./mixed-fields" />

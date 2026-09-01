@@ -145,22 +145,6 @@
       "sourcePath": "src/forms/file-upload/file-upload.tsx"
     },
     {
-      "key": "form",
-      "name": "Form",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Styled Formisch form that provides its store to Moraine form fields.",
-      "sourcePath": "src/forms/form/form.tsx"
-    },
-    {
-      "key": "form-field",
-      "name": "FormField",
-      "category": "forms",
-      "polymorphic": true,
-      "description": "Form field wrapper providing label, description, and validation message layout.",
-      "sourcePath": "src/forms/form-field/form-field.tsx"
-    },
-    {
       "key": "input",
       "name": "Input",
       "category": "forms",

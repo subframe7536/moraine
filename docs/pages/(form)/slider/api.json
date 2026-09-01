@@ -139,12 +139,6 @@
       ],
       "ariaAttributes": [
         {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
-        },
-        {
           "name": "aria-label",
           "required": false,
           "type": "boolean | string | undefined",
@@ -155,18 +149,6 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Communicates horizontal or vertical orientation."
-        },
-        {
-          "name": "aria-readonly",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control value cannot be changed by the user."
-        },
-        {
-          "name": "aria-required",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that user input is required."
         },
         {
           "name": "aria-valuemax",

@@ -6,8 +6,8 @@ import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 import { cn, useId } from '../../../shared/utils.ts'
-import { useFormField } from '../../form-field/form-field-context.ts'
-import type { FormFieldSize, UseFormFieldReturn } from '../../form-field/form-field-context.ts'
+import { useFormField } from '../../form/form-context.ts'
+import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context.ts'
 
 import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types.ts'
 

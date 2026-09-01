@@ -13,7 +13,7 @@ import type {
   FormIdentityOptions,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 
 import { BaseSelect } from './base-select.tsx'
 import type { BaseSelectT } from './base-select.tsx'

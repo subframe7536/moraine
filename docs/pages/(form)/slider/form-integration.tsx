@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Slider } from '@src'
+import { Button, createForm, Slider } from '@src'
 import type { SliderT } from '@src'
 import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
@@ -19,11 +19,11 @@ export function FormIntegration() {
   })
 
   return (
-    <Form of={form}>
+    <form.Form>
       <div class="max-w-xl space-y-4">
-        <FormField name="volume" label="Volume" description="Keep it at least 20.">
+        <form.Field name="volume" label="Volume" description="Keep it at least 20.">
           <Slider value={formState().volume} onValueChange={updateFormVolume} />
-        </FormField>
+        </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">
             Validate
@@ -31,6 +31,6 @@ export function FormIntegration() {
           <p class="text-xs text-muted-foreground">Current volume: {formState().volume}</p>
         </div>
       </div>
-    </Form>
+    </form.Form>
   )
 }

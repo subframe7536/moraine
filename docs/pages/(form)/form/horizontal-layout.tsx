@@ -1,17 +1,27 @@
-import { FormField, Input, Select } from '@src'
+import { createForm, Input, Select } from '@src'
+import * as v from 'valibot'
 
 export function HorizontalLayout() {
+  const form = createForm({
+    schema: v.object({
+      displayName: v.string(),
+      role: v.string(),
+    }),
+    initialInput: { displayName: '', role: '' },
+  })
+
   return (
     <div class="mx-auto max-w-2xl w-full space-y-4">
-      <FormField
+      <form.Field
+        name="displayName"
         orientation="horizontal"
         label="Display Name"
         description="Public name shown in activity feeds."
       >
         <Input placeholder="Moraine Team" />
-      </FormField>
+      </form.Field>
 
-      <FormField orientation="horizontal" label="Default Role" required>
+      <form.Field name="role" orientation="horizontal" label="Default Role" required>
         <Select
           options={[
             { label: 'Developer', value: 'developer' },
@@ -20,7 +30,7 @@ export function HorizontalLayout() {
           ]}
           placeholder="Select role"
         />
-      </FormField>
+      </form.Field>
     </div>
   )
 }

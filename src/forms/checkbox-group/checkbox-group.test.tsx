@@ -4,8 +4,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/form-field.tsx'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { CheckboxGroup } from './checkbox-group.tsx'
 
@@ -498,11 +497,11 @@ describe('CheckboxGroup', () => {
           initialInput: { choices: [] },
         }),
       (form) => (
-        <Form of={form} onSubmit={onSubmit}>
-          <FormField name="choices" label="Choices">
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="choices" label="Choices">
             <CheckboxGroup items={['A', 'B']} value={value()} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 

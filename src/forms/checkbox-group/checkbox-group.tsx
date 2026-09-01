@@ -14,14 +14,14 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn, useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
 import { Checkbox } from '../checkbox/index.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'

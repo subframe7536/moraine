@@ -4,14 +4,14 @@ import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useId } from '../../shared/utils.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 
 import { useSlider } from './hook/index.ts'
 import type { SliderVariantProps } from './slider.class.ts'

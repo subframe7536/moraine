@@ -26,12 +26,6 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "aria-required",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that user input is required."
         }
       ]
     },
@@ -104,30 +98,6 @@
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Accessibility attribute forwarded by the rendered component."
-        },
-        {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
-        },
-        {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "aria-readonly",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control value cannot be changed by the user."
-        },
-        {
-          "name": "aria-required",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that user input is required."
         },
         {
           "name": "role",

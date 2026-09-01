@@ -2,10 +2,9 @@ import { renderToString } from 'solid-js/web'
 import * as v from 'valibot'
 
 import { Button } from '../../elements/button/index.ts'
-import { FormField } from '../form-field/index.ts'
 import { Input } from '../input/index.ts'
 
-import { createForm, Form } from './index.ts'
+import { createForm } from './index.ts'
 
 export function renderFormFixture(): string {
   function ServerForm() {
@@ -15,12 +14,12 @@ export function renderFormFixture(): string {
     })
 
     return (
-      <Form of={form} aria-label="Hydrated form">
-        <FormField name="value" label="Value">
+      <form.Form aria-label="Hydrated form">
+        <form.Field name="value" label="Value">
           <Input />
-        </FormField>
+        </form.Field>
         <Button type="submit">Submit</Button>
-      </Form>
+      </form.Form>
     )
   }
 

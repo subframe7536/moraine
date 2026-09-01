@@ -16,13 +16,13 @@ import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { FileUploadVariantProps } from './file-upload.class.ts'

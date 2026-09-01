@@ -195,7 +195,7 @@ nub run test
 nub run docs:preview
 ```
 
-Use a real browser against the production preview. Listen for both uncaught exceptions and error-level console messages. Verify the new component's docs route and representative shared routes, at minimum `/`, `/button`, `/dialog`, and `/form-field` when shared component infrastructure changed.
+Use a real browser against the production preview. Listen for both uncaught exceptions and error-level console messages. Verify the new component's docs route and representative shared routes, at minimum `/`, `/button`, `/dialog`, and `/form` when shared component infrastructure changed.
 
 Reload at mobile, tablet, and desktop widths. Responsive branches can consume different hydration
 keys and expose a mismatch only at one breakpoint.

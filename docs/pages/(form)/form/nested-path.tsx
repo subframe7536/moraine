@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import * as v from 'valibot'
 
 export function NestedPath() {
@@ -13,16 +13,16 @@ export function NestedPath() {
   })
 
   return (
-    <Form of={form} class="mx-auto max-w-xl w-full space-y-4">
-      <FormField name={['profile', 'name']} label="Profile Name" required>
+    <form.Form class="mx-auto max-w-xl w-full space-y-4">
+      <form.Field name={['profile', 'name']} label="Profile Name" required>
         <Input placeholder="Moraine Team" />
-      </FormField>
+      </form.Field>
 
-      <FormField name={['profile', 'email']} label="Profile Email" required>
+      <form.Field name={['profile', 'email']} label="Profile Email" required>
         <Input type="email" placeholder="team@acme.dev" />
-      </FormField>
+      </form.Field>
 
       <Button type="submit">Save Profile</Button>
-    </Form>
+    </form.Form>
   )
 }

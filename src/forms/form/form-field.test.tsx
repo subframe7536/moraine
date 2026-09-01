@@ -9,7 +9,6 @@ import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { CheckboxGroup } from '../checkbox-group/index.ts'
 import { Checkbox } from '../checkbox/index.ts'
 import { FileUpload } from '../file-upload/index.ts'
-import { createForm, Form } from '../form/index.ts'
 import { InputNumber } from '../input-number/index.ts'
 import { Input } from '../input/index.ts'
 import { RadioGroup } from '../radio-group/index.ts'
@@ -19,8 +18,9 @@ import { Slider } from '../slider/index.ts'
 import { Switch } from '../switch/index.ts'
 import { Textarea } from '../textarea/index.ts'
 
-import { FormField } from './form-field.tsx'
 import type { FormFieldProps, FormFieldT } from './form-field.tsx'
+import { FormField } from './form-field.tsx'
+import { createForm } from './form.tsx'
 
 const TypedFormSchema = v.object({
   email: v.string(),
@@ -171,11 +171,11 @@ describe('FormField', () => {
           validate: 'blur',
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name={['users', 0, 'email']} label="Email">
+        <form.Form>
+          <form.Field name={['users', 0, 'email']} label="Email">
             <Input />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -193,14 +193,14 @@ describe('FormField', () => {
           initialInput: { value: '' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="value" label="Manual" error="Manual error">
+        <form.Form>
+          <form.Field name="value" label="Manual" error="Manual error">
             <Input />
-          </FormField>
-          <FormField name="value" label="Suppressed" error={false}>
+          </form.Field>
+          <form.Field name="value" label="Suppressed" error={false}>
             <Input />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -429,11 +429,11 @@ describe('FormField', () => {
           validate: 'change',
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="enabled" label="Enabled">
+        <form.Form>
+          <form.Field name="enabled" label="Enabled">
             <Switch />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -559,11 +559,11 @@ describe('FormField', () => {
           initialInput: { first: 'First', second: 'Second' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name={name()} label="Value">
+        <form.Form>
+          <form.Field name={name()} label="Value">
             <Input />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText('Value') as HTMLInputElement
@@ -585,11 +585,11 @@ describe('FormField', () => {
           initialInput: { value: 'Stored' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name={name()} label="Late path">
+        <form.Form>
+          <form.Field name={name() as any} label="Late path">
             <Input defaultValue="Standalone" />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const input = screen.getByLabelText('Late path') as HTMLInputElement

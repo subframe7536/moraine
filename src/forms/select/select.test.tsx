@@ -5,8 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
 import type { SelectT } from './select.tsx'
@@ -1303,11 +1302,11 @@ describe('Select - form integration', () => {
           initialInput: { fruit: 'apple' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="fruit" label="Fruit">
+        <form.Form>
+          <form.Field name="fruit" label="Fruit">
             <Select options={FRUITS} value={value()} onChange={onChange} defaultOpen />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -1334,11 +1333,11 @@ describe('Select - form integration', () => {
           initialInput: { fruit: 'apple' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="fruit" label="Fruit">
+        <form.Form>
+          <form.Field name="fruit" label="Fruit">
             <Select options={FRUITS} onChange={onChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 

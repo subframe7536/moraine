@@ -5,8 +5,8 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { FormField } from '../form/form-field.tsx'
+import { createForm } from '../form/index.ts'
 
 import { RadioGroup } from './radio-group.tsx'
 
@@ -239,11 +239,11 @@ describe('RadioGroup', () => {
           initialInput: { plan: 'A' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="plan" label="Plan">
+        <form.Form>
+          <form.Field name="plan" label="Plan">
             <RadioGroup value={value()} items={['A', 'B']} onChange={onChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
@@ -273,11 +273,11 @@ describe('RadioGroup', () => {
           initialInput: { plan: 'A' },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="plan" label="Plan">
+        <form.Form>
+          <form.Field name="plan" label="Plan">
             <RadioGroup items={['A', 'B']} onChange={onChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 

@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import * as v from 'valibot'
 
 export function RenderContext() {
@@ -10,12 +10,12 @@ export function RenderContext() {
   })
 
   return (
-    <Form of={form} class="mx-auto max-w-xl w-full space-y-4">
-      <FormField name="releaseTitle" label="Release Title" required>
+    <form.Form class="mx-auto max-w-xl w-full space-y-4">
+      <form.Field name="releaseTitle" label="Release Title" required>
         {(props) => <Input placeholder={props.error ? 'Title is required' : 'v2.14.0'} />}
-      </FormField>
+      </form.Field>
 
       <Button type="submit">Create Draft</Button>
-    </Form>
+    </form.Form>
   )
 }

@@ -7,13 +7,13 @@ import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 

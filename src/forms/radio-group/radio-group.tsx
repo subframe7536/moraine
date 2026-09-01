@@ -17,14 +17,14 @@ import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { callRef, cn, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form-field/form-field-context.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../form-field/form-options.ts'
+} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { RadioGroupVariantProps } from './radio-group.class.ts'

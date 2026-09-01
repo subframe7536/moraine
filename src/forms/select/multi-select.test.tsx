@@ -5,8 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
@@ -291,11 +290,11 @@ describe('MultiSelect', () => {
           initialInput: { fruits: ['apple'] },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="fruits" label="Fruits">
+        <form.Form>
+          <form.Field name="fruits" label="Fruits">
             <MultiSelect options={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 
@@ -338,11 +337,11 @@ describe('MultiSelect', () => {
           initialInput: { fruits: ['apple'] },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="fruits" label="Fruits">
+        <form.Form>
+          <form.Field name="fruits" label="Fruits">
             <MultiSelect options={FRUITS} onChange={onChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
 

@@ -54,8 +54,7 @@ src/
 │   ├── checkbox/          # Checkbox control.
 │   ├── checkbox-group/    # Checkbox group control.
 │   ├── file-upload/       # File upload control and dropzone behavior.
-│   ├── form/              # Form root, submission, and context.
-│   ├── form-field/        # Field labels, descriptions, errors, and context.
+│   ├── form/              # Form root, field wrapper, submission, and context.
 │   ├── input/             # Text input control.
 │   ├── input-number/      # Numeric input control.
 │   ├── radio-group/       # Radio group control.

@@ -1,4 +1,4 @@
-import { Button, createForm, Form, FormField, Input } from '@src'
+import { Button, createForm, Input } from '@src'
 import { Show, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -18,16 +18,16 @@ export function AsyncSubmit() {
   }
 
   return (
-    <Form of={form} onSubmit={handleSubmit} class="max-w-sm space-y-4">
-      <FormField<typeof schema> name="title" label="Draft title" required>
+    <form.Form onSubmit={handleSubmit} class="max-w-sm space-y-4">
+      <form.Field name="title" label="Draft title" required>
         <Input placeholder="Quarterly update" />
-      </FormField>
+      </form.Field>
       <Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>
         Save draft
       </Button>
       <Show when={saved()}>
         <p class="text-success text-sm">Saved.</p>
       </Show>
-    </Form>
+    </form.Form>
   )
 }

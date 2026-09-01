@@ -2,11 +2,11 @@ import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/
 import { useField } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
 import {
-  Show,
   children as resolveChildren,
   createMemo,
   createSignal,
   mergeProps,
+  Show,
   splitProps,
   untrack,
 } from 'solid-js'
@@ -18,10 +18,9 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
-import { useFormContext } from '../form/form-context.ts'
 
-import type { FormFieldContextOptions } from './form-field-context.ts'
-import { FormFieldProvider } from './form-field-context.ts'
+import type { FormFieldContextOptions } from './form-context.ts'
+import { FormFieldProvider } from './form-context.ts'
 import type { FormFieldVariantProps } from './form-field.class.ts'
 import {
   formFieldContainerVariants,
@@ -91,6 +90,7 @@ export namespace FormFieldT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Item {}
+
   /**
    * Base props for the FormField component.
    */
@@ -108,6 +108,11 @@ export namespace FormFieldT {
      * Unique identifier for the form field.
      */
     id?: string
+
+    /**
+     * Form store to bind field state. Provided automatically by `<form.Field>`.
+     */
+    form?: FormStore<TSchema extends FormSchema ? TSchema : any>
 
     /**
      * The name of the field (key in form state).
@@ -175,9 +180,10 @@ export function FormField<
   TSchema extends FormSchema | undefined = undefined,
   T extends ValidComponent = 'div',
 >(props: FormFieldProps<TSchema, T>): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as FormFieldProps<any, any>, [
     'as',
     'id',
+    'form',
     'name',
     'label',
     'description',
@@ -193,6 +199,7 @@ export function FormField<
     'class',
     'style',
   ])
+
   type MergedProps = FormFieldT.Base<TSchema, T> &
     FormFieldT.Variant & {
       classes?: FormFieldT.Classes
@@ -200,6 +207,7 @@ export function FormField<
       class?: string
       style?: JSX.CSSProperties
     }
+
   const merged = mergeProps(
     {
       as: 'div' as T,
@@ -209,15 +217,17 @@ export function FormField<
     },
     local,
   ) as MergedProps
+
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
   const hint = createMemo(() => merged.hint)
   const help = createMemo(() => merged.help)
   const error = createMemo(() => merged.error)
 
-  const formContext = useFormContext()
+  // oxlint-disable-next-line subf/solid-reactivity -- Initial form store reference is captured at setup.
+  const activeForm = local.form
 
-  const ariaId = useId(() => merged.id, 'form-field')
+  const ariaId = useId(() => local.id, 'form-field')
   const [registeredControls, setRegisteredControls] = createSignal<
     { id: () => string; bind: () => boolean; key: symbol }[]
   >([])
@@ -230,9 +240,9 @@ export function FormField<
   })
   const initialPath = untrack(fieldPath)
   const field =
-    formContext && initialPath
+    activeForm && initialPath
       ? // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks its getter config.
-        (useField as unknown as LooseUseField)(formContext, () => ({
+        (useField as unknown as LooseUseField)(activeForm, () => ({
           path: fieldPath() as RequiredPath,
         }))
       : undefined
@@ -412,7 +422,7 @@ export function FormField<
                 style={merged.styles?.label}
                 class={formFieldLabelVariants(
                   {
-                    required: merged.required,
+                    required: merged.required ? true : undefined,
                     orientation: merged.orientation,
                   },
                   merged.classes?.label,

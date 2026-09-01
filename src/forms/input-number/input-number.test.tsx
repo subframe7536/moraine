@@ -5,8 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form-field/index.ts'
-import { createForm, Form } from '../form/index.ts'
+import { createForm } from '../form/index.ts'
 
 import { InputNumber } from './input-number.tsx'
 import type { InputNumberT } from './input-number.tsx'
@@ -453,11 +452,11 @@ describe('InputNumber', () => {
           initialInput: { quantity: 5 },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="quantity" label="Quantity">
+        <form.Form>
+          <form.Field name="quantity" label="Quantity">
             <InputNumber value={value()} onRawValueChange={onRawValueChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')
@@ -484,11 +483,11 @@ describe('InputNumber', () => {
           initialInput: { quantity: 4 },
         }),
       (form) => (
-        <Form of={form}>
-          <FormField name="quantity" label="Quantity">
+        <form.Form>
+          <form.Field name="quantity" label="Quantity">
             <InputNumber onRawValueChange={onRawValueChange} />
-          </FormField>
-        </Form>
+          </form.Field>
+        </form.Form>
       ),
     )
     const spinbutton = screen.getByLabelText<HTMLInputElement>('Quantity')

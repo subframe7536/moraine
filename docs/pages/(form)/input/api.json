@@ -20,26 +20,7 @@
       "description": "Native text input element.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
-        },
-        {
-          "name": "aria-readonly",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control value cannot be changed by the user."
-        },
-        {
-          "name": "aria-required",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that user input is required."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "leading",

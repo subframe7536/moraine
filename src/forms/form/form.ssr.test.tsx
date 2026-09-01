@@ -4,10 +4,9 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { hydrateFixture } from '../../test-utils/ssr-test.ts'
-import { FormField } from '../form-field/index.ts'
 import { Input } from '../input/index.ts'
 
-import { createForm, Form } from './index.ts'
+import { createForm } from './index.ts'
 
 describe('Form SSR Hydration', () => {
   test('hydrates the same form and submits through the client-owned store', async () => {
@@ -20,12 +19,12 @@ describe('Form SSR Hydration', () => {
       })
 
       return (
-        <Form of={form} onSubmit={onSubmit} aria-label="Hydrated form">
-          <FormField name="value" label="Value">
+        <form.Form onSubmit={onSubmit} aria-label="Hydrated form">
+          <form.Field name="value" label="Value">
             <Input />
-          </FormField>
+          </form.Field>
           <Button type="submit">Submit</Button>
-        </Form>
+        </form.Form>
       )
     }
 
