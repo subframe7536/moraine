@@ -12,6 +12,7 @@ import type {
 import { cn } from '../../shared/utils'
 
 export namespace ListT {
+  export interface Slot<_T = unknown> {}
   export type Variant = never
   export type Classes = never
   export type Styles = never
@@ -54,7 +55,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, Classes, Styles>
 }
 
 export type ListProps<

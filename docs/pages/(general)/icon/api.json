@@ -19,7 +19,7 @@
       {
         "name": "classes",
         "required": false,
-        "type": "never | undefined"
+        "type": "IconT.Classes | undefined"
       },
       {
         "name": "name",
@@ -53,7 +53,7 @@
       {
         "name": "styles",
         "required": false,
-        "type": "never | undefined"
+        "type": "IconT.Styles | undefined"
       }
     ],
     "inherited": []

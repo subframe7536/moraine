@@ -1,20 +1,16 @@
 import type { JSX } from 'solid-js'
 import { createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
 
 import type { SeparatorVariantProps } from './separator.class'
 import { separatorVariants } from './separator.class'
 
 export namespace SeparatorT {
-  export interface Slot<T = unknown> {
-    /** Separator line. */
-    root?: T
-  }
-
+  export interface Slot<_T = unknown> {}
   export type Variant = SeparatorVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
 
   export interface Item {}
   /**
@@ -52,8 +48,6 @@ export function Separator(props: SeparatorProps): JSX.Element {
     'orientation',
     'size',
     'type',
-    'classes',
-    'styles',
     'class',
     'style',
     'children',
@@ -77,14 +71,13 @@ export function Separator(props: SeparatorProps): JSX.Element {
       aria-orientation={orientation()}
       aria-hidden={merged.decorative ? true : undefined}
       {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
+      style={merged.style}
       class={separatorVariants(
         {
           orientation: orientation(),
           size: merged.size,
           type: merged.type,
         },
-        merged.classes?.root,
         merged.class,
       )}
     />

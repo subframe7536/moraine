@@ -42,6 +42,8 @@ export namespace CollapsibleT {
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
+    never,
+    never,
     never
   >
 
@@ -62,7 +64,13 @@ export namespace CollapsibleT {
     children?: JSX.Element
   }
 
-  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<T, ContentBase<T>, never>
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ContentBase<T>,
+    never,
+    never,
+    never
+  >
 
   export interface Slot<T = unknown> {
     /**

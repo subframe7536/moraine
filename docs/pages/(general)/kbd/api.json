@@ -7,22 +7,7 @@
     "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
     "sourcePath": "src/elements/kbd/kbd.tsx"
   },
-  "slots": [
-    {
-      "name": "root",
-      "description": "Keyboard keycap element.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
-    }
-  ],
+  "slots": [],
   "props": {
     "own": [
       {

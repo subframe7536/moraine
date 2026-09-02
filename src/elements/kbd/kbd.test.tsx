@@ -81,23 +81,14 @@ describe('Kbd', () => {
     }
   })
 
-  test('supports a custom slot, class, style, and root slot overrides', () => {
+  test('supports a custom slot, class, and style overrides', () => {
     const view = render(() => (
-      <Kbd
-        value="K"
-        slotName="shortcut"
-        class="shortcut-class"
-        style={{ width: '200px' }}
-        classes={{ root: 'root-class' }}
-        styles={{ root: { height: '20px' } }}
-      />
+      <Kbd value="K" slotName="shortcut" class="shortcut-class" style={{ width: '200px' }} />
     ))
     const root = view.container.querySelector('[data-slot="shortcut"]') as HTMLElement | null
 
     expect(root?.className).toContain('shortcut-class')
-    expect(root?.className).toContain('root-class')
     expect(root?.style.width).toBe('200px')
-    expect(root?.style.height).toBe('20px')
   })
 })
 

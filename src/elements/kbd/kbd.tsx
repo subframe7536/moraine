@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
 
 import type { KbdVariantProps } from './kbd.class'
 import { kbdRootVariants } from './kbd.class'
@@ -37,13 +37,10 @@ const KBD_KEY_ALIASES = {
 } as const satisfies Record<string, KbdKeyAlias>
 
 export namespace KbdT {
-  export interface Slot<T = unknown> {
-    /** Keyboard keycap element. */
-    root?: T
-  }
+  export interface Slot<_T = unknown> {}
   export type Variant = KbdVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
   export type BuiltinKbds = keyof typeof KBD_KEY_ALIASES
   export type Key = BuiltinKbds | (string & {})
 
@@ -78,8 +75,6 @@ export function Kbd(props: KbdProps): JSX.Element {
     'slotName',
     'size',
     'variant',
-    'classes',
-    'styles',
     'class',
     'style',
   ])
@@ -101,10 +96,9 @@ export function Kbd(props: KbdProps): JSX.Element {
             size: local.size,
             variant: local.variant,
           },
-          local.classes?.root,
           local.class,
         )}
-        style={{ ...local.styles?.root, ...local.style }}
+        style={local.style}
       >
         {text()}
       </kbd>

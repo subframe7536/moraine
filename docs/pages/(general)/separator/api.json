@@ -7,41 +7,7 @@
     "description": "Visual divider with configurable orientation, style, and border type.",
     "sourcePath": "src/elements/separator/separator.tsx"
   },
-  "slots": [
-    {
-      "name": "root",
-      "description": "Separator line.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        },
-        {
-          "name": "aria-orientation",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Communicates horizontal or vertical orientation."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
-    }
-  ],
+  "slots": [],
   "props": {
     "own": [
       {

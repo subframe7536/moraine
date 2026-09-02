@@ -85,7 +85,7 @@ describe('Separator', () => {
   })
 
   test('uses root color inheritance for the line', () => {
-    const screen = render(() => <Separator classes={{ root: 'text-primary' }} />)
+    const screen = render(() => <Separator class="text-primary" />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toContain('text-primary')
@@ -110,9 +110,7 @@ describe('Separator', () => {
   })
 
   test('applies root class and style overrides', () => {
-    const screen = render(() => (
-      <Separator classes={{ root: 'root-override' }} styles={{ root: { width: '200px' } }} />
-    ))
+    const screen = render(() => <Separator class="root-override" style={{ width: '200px' }} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.className).toContain('root-override')

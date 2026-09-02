@@ -55,11 +55,7 @@ describe('Form', () => {
           validate: 'blur',
         }),
       (form) => (
-        <form.Form
-          aria-label="Settings"
-          classes={{ root: 'root-override' }}
-          styles={{ root: { width: '200px' } }}
-        >
+        <form.Form aria-label="Settings" class="root-override" style={{ width: '200px' }}>
           <form.Field name="email" label="Email">
             <Input />
           </form.Field>

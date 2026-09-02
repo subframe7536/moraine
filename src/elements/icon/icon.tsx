@@ -41,7 +41,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export type Props = BaseProps<'div', Base, Variant>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**

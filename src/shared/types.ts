@@ -68,8 +68,8 @@ export type BaseProps<
   TElement extends ValidComponent,
   Base,
   Variant,
-  Classes = never,
-  Styles = never,
+  Classes,
+  Styles,
 > = TElement extends Tags
   ? MoraineTypeConfig extends { enableRootAutocomplete: true }
     ? Override<StrictedAttributes<TElement>, ComponentBaseProps<Base, Variant, Classes, Styles>>

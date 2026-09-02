@@ -14,7 +14,7 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { createComponent, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
 import { callHandler, cn } from '../../shared/utils'
 
 import type { FormFieldProps } from './form-field'
@@ -29,14 +29,10 @@ export namespace FormT {
 
   export type ValidationMode = FormischValidationMode
 
-  export interface Slot<T = unknown> {
-    /** Native form element managed by Formisch. */
-    root?: T
-  }
-
+  export interface Slot<_T = unknown> {}
   export type Variant = never
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
   export interface Item {}
 
   export interface Base<TSchema extends FormSchema = FormSchema> extends Omit<
@@ -68,15 +64,7 @@ interface InternalFormProps<TSchema extends FormSchema> extends FormT.Props<TSch
 }
 
 function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const [local, formProps] = splitProps(props, [
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'of',
-    'onSubmit',
-    'onReset',
-  ])
+  const [local, formProps] = splitProps(props, ['class', 'style', 'of', 'onSubmit', 'onReset'])
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const { defaultPrevented } = callHandler(event, local.onReset)
@@ -95,8 +83,8 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
-      style={{ ...local.styles?.root, ...local.style }}
-      class={cn(FORM_ROOT_CLASS, local.classes?.root, local.class)}
+      style={local.style}
+      class={cn(FORM_ROOT_CLASS, local.class)}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
     />
