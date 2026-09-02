@@ -46,9 +46,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "nub run docs:dev",
-    "docs": "nub run docs:dev",
-    "docs:dev": "nub run build && vite serve docs",
+    "dev": "nub run build && vite serve docs --configLoader runner",
     "docs:build": "nub run build && vite build docs",
     "docs:preview": "nub run docs:build && vite preview docs --outDir dist/client",
     "test": "vitest --run",

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import uno from '@subf/unocss/vite'
 import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import type { UserConfig } from 'vite'
+import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
 import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build/index'
@@ -18,7 +19,7 @@ const site = {
   siteUrl: 'https://ui.subf.dev/',
 }
 
-const config = {
+export default defineConfig({
   plugins: [
     docsBuildPlugin({ projectRoot }) as unknown,
     uno(unocfg) as unknown,
@@ -96,6 +97,4 @@ const config = {
       },
     },
   },
-} as unknown as UserConfig
-
-export default config
+})

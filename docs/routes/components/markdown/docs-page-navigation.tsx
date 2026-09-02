@@ -67,7 +67,7 @@ export function DocsPageNavigation(props: { currentPageKey: string }) {
   return (
     <nav
       aria-label="Documentation pagination"
-      class="mt-12 pt-6 border-t border-border/80 gap-3 grid sm:grid-cols-2"
+      class="mt-12 pt-6 border-t border-border/80 gap-6 grid sm:grid-cols-2"
     >
       <Show when={adjacent().previous}>
         {(page) => <DocsPageNavigationCard direction="previous" page={page()} />}
