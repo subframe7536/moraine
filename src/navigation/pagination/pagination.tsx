@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button/index.ts'
-import type { ButtonProps } from '../../elements/button/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import { Button } from '../../elements/button/index'
+import type { ButtonProps } from '../../elements/button/index'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
 
 import {
   PAGINATION_CONTROL_LABEL_CLASS,
@@ -16,7 +16,7 @@ import {
   PAGINATION_NEXT_CLASS,
   PAGINATION_PREV_CLASS,
   PAGINATION_ROOT_CLASS,
-} from './pagination.class.ts'
+} from './pagination.class'
 
 type PaginationVariant = ButtonProps['variant']
 

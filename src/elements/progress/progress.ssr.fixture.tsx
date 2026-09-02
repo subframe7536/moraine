@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Progress } from './progress.tsx'
+import { Progress } from './progress'
 
 const STEPS = ['Waiting', 'Working', 'Done']
 

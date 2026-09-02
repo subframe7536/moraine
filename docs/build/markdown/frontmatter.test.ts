@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { parseFrontmatterData } from './frontmatter.ts'
+import { parseFrontmatterData } from './frontmatter'
 
 const VALID_FRONTMATTER = `
 title: Button

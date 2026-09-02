@@ -1,6 +1,6 @@
 import { createContext } from 'solid-js'
 
-import type { ButtonVariantProps } from './button.class.ts'
+import type { ButtonVariantProps } from './button.class'
 
 export interface ButtonGroupContextValue {
   readonly size: ButtonVariantProps['size']

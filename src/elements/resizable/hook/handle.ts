@@ -10,13 +10,13 @@ import {
   registerResizableHandle,
   startResizableHandleDrag,
   updateResizableHandleIntersectionHoverState,
-} from './manager.ts'
+} from './manager'
 import type {
   ResizableHandleIntersectionEdge,
   ResizableHandleIntersectionTarget,
   ResizableHandleRegistration,
-} from './manager.ts'
-import type { ResizableOrientation } from './types.ts'
+} from './manager'
+import type { ResizableOrientation } from './types'
 
 const HANDLE_STATE_HOVERED = 1 << 0
 const HANDLE_STATE_FOCUSED = 1 << 1

@@ -1,4 +1,4 @@
-export { Avatar, resolveFallbackText } from './avatar.tsx'
-export type { AvatarProps, AvatarT } from './avatar.tsx'
-export { AvatarGroup } from './avatar-group.tsx'
-export type { AvatarGroupProps, AvatarGroupT } from './avatar-group.tsx'
+export { Avatar, resolveFallbackText } from './avatar'
+export type { AvatarProps, AvatarT } from './avatar'
+export { AvatarGroup } from './avatar-group'
+export type { AvatarGroupProps, AvatarGroupT } from './avatar-group'

@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Collapsible } from './collapsible.tsx'
+import { Collapsible } from './collapsible'
 
 export function renderCollapsibleFixture(): string {
   return renderToString(() => (

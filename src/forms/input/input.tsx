@@ -1,31 +1,31 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import type { IconT } from '../../elements/icon/index'
+import { Icon } from '../../elements/icon/index'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { callHandler, useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+} from '../shared/form-options'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
-import type { InputVariantProps } from './input.class.ts'
+import type { InputVariantProps } from './input.class'
 import {
   inputInputVariants,
   inputLeadingVariants,
   inputRootVariants,
   inputTrailingVariants,
-} from './input.class.ts'
+} from './input.class'
 
 export namespace InputT {
   export type Value = string | number | undefined

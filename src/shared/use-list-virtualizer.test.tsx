@@ -2,8 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { RowProps } from './use-list-virtualizer.tsx'
-import { useListVirtualizer } from './use-list-virtualizer.tsx'
+import type { RowProps } from './use-list-virtualizer'
+import { useListVirtualizer } from './use-list-virtualizer'
 
 describe('useListVirtualizer', () => {
   test('defers scroll-element attachment and client rows until after the hydration microtask', async () => {

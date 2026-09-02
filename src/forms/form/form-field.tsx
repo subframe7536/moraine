@@ -13,15 +13,15 @@ import {
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn, useId } from '../../shared/utils'
 
-import type { FormFieldContextOptions } from './form-context.ts'
-import { FormFieldProvider } from './form-context.ts'
-import type { FormFieldVariantProps } from './form-field.class.ts'
+import type { FormFieldContextOptions } from './form-context'
+import { FormFieldProvider } from './form-context'
+import type { FormFieldVariantProps } from './form-field.class'
 import {
   FORM_FIELD_DESCRIPTION_CLASS,
   FORM_FIELD_ERROR_CLASS,
@@ -32,7 +32,7 @@ import {
   formFieldContainerVariants,
   formFieldLabelVariants,
   formFieldSizeVariants,
-} from './form-field.class.ts'
+} from './form-field.class'
 
 export namespace FormFieldT {
   type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]

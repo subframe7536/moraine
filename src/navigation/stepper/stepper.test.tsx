@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Stepper } from './stepper.tsx'
+import { Stepper } from './stepper'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {

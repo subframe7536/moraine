@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { FileUpload } from './file-upload.tsx'
+import { FileUpload } from './file-upload'
 
 export function renderFileUploadFixture(): string {
   return renderToString(() => (

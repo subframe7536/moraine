@@ -11,21 +11,21 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import type { IconT } from '../../elements/icon/index'
+import { Icon } from '../../elements/icon/index'
+import { HiddenInput } from '../../shared/hidden-input'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { callHandler, useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { FileUploadVariantProps } from './file-upload.class.ts'
+import type { FileUploadVariantProps } from './file-upload.class'
 import {
   fileUploadBaseVariants,
   fileUploadDescriptionVariants,
@@ -40,7 +40,7 @@ import {
   fileUploadRootVariants,
   fileUploadSizeVariants,
   fileUploadWrapperVariants,
-} from './file-upload.class.ts'
+} from './file-upload.class'
 
 type FileError =
   | 'TOO_MANY_FILES'

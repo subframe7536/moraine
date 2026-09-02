@@ -4,11 +4,11 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { FormField } from '../form/form-field.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { FormField } from '../form/form-field'
+import { createForm } from '../form/index'
 
-import { RadioGroup } from './radio-group.tsx'
+import { RadioGroup } from './radio-group'
 
 describe('RadioGroup', () => {
   test('renders radio options with form-field label and no legacy wrappers', () => {

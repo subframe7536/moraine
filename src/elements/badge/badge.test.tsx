@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Badge } from './badge.tsx'
+import { Badge } from './badge'
 
 describe('Badge', () => {
   test('renders default badge semantics and label', () => {

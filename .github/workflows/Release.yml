@@ -27,6 +27,6 @@ jobs:
         run: curl -d "" ${PAGES_BUILD_HOOK_URL}
         env:
           PAGES_BUILD_HOOK_URL: ${{ secrets.PAGES_BUILD_HOOK_URL }}
-      - run: nubx changelogithub
+      - run: nubx changelogithub -y
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

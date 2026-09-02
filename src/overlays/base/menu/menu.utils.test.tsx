@@ -6,7 +6,7 @@ import {
   isPointInPointerGraceIntent,
   onLayerKeyDown,
   useOverlayMenuLayerState,
-} from './menu.utils.ts'
+} from './menu.utils'
 
 function createRectElement(rect: {
   bottom: number

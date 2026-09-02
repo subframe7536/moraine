@@ -2,22 +2,22 @@ import path from 'node:path'
 
 import type { MdxOptions } from 'solid-file-router/plugin'
 
-import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
-import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
-import { resolveDocsPageContext } from '../core/paths.ts'
-import { createDocsRouteInfo } from '../routes.ts'
+import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load'
+import { getApiReferenceTocEntries } from '../api-doc/reference-sections'
+import { resolveDocsPageContext } from '../core/paths'
+import { createDocsRouteInfo } from '../routes'
 
-import { createMdxCodeTabsPlugin } from './code-tabs.ts'
-import { validateFrontmatterData } from './frontmatter.ts'
+import { createMdxCodeTabsPlugin } from './code-tabs'
+import { validateFrontmatterData } from './frontmatter'
 import {
   createDocsCodePlugin,
   createDocsHastPlugin,
   DOCS_MDX_FEATURES,
   DOCS_ON_THIS_PAGE_DATA_KEY,
-} from './plugins.ts'
-import type { OnThisPageEntryLiteral } from './plugins.ts'
-import { createMdxPreviewsPlugin } from './previews.ts'
-import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
+} from './plugins'
+import type { OnThisPageEntryLiteral } from './plugins'
+import { createMdxPreviewsPlugin } from './previews'
+import type { DocsRouteMetadata, FrontmatterData } from './types'
 
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
   return path.resolve(projectRoot, 'docs', sourcePath)

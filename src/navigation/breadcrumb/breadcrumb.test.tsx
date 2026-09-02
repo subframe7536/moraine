@@ -3,8 +3,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Breadcrumb } from './breadcrumb.tsx'
-import type { BreadcrumbT } from './breadcrumb.tsx'
+import { Breadcrumb } from './breadcrumb'
+import type { BreadcrumbT } from './breadcrumb'
 
 describe('Breadcrumb', () => {
   test('uses default root aria-label', () => {

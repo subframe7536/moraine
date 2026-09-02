@@ -2,11 +2,11 @@ import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { finishMenuExitMotion } from '../../test-utils/overlay-test'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { DropdownMenu } from './dropdown-menu.tsx'
-import type { DropdownMenuT } from './dropdown-menu.tsx'
+import { DropdownMenu } from './dropdown-menu'
+import type { DropdownMenuT } from './dropdown-menu'
 
 describe('DropdownMenu SSR Hydration', () => {
   test('hydrates the trigger once and opens on the first keyboard action', async () => {

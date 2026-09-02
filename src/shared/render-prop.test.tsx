@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderComponentOrElement } from './render-prop.ts'
+import { renderComponentOrElement } from './render-prop'
 
 describe('renderComponentOrElement', () => {
   test('returns static JSX unchanged', () => {

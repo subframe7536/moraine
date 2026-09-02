@@ -6,7 +6,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { clearApiDocCache, loadApiDocIndex } from './load.ts'
+import { clearApiDocCache, loadApiDocIndex } from './load'
 
 const tempProjects: string[] = []
 

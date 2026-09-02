@@ -9,16 +9,16 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { KbdGroup } from '../../elements/kbd/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { cn, useId } from '../../shared/utils.ts'
-import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { KbdGroup } from '../../elements/kbd/index'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { cn, useId } from '../../shared/utils'
+import { Popper, resolveOverlayMenuSide } from '../base/index'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index'
+import type { OverlayTriggerProps } from '../base/trigger'
 
-import { tooltipContentVariants } from './tooltip.class.ts'
-import type { TooltipVariantProps } from './tooltip.class.ts'
+import { tooltipContentVariants } from './tooltip.class'
+import type { TooltipVariantProps } from './tooltip.class'
 
 export namespace TooltipT {
   export interface Slot<T = unknown> {

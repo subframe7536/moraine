@@ -1,8 +1,8 @@
 import { render, screen } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { KbdGroup } from './kbd-group.tsx'
-import { Kbd } from './kbd.tsx'
+import { Kbd } from './kbd'
+import { KbdGroup } from './kbd-group'
 
 describe('Kbd', () => {
   test('renders a keycap in the root slot', () => {

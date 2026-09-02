@@ -1,7 +1,7 @@
 import { createRoot } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createTypeahead } from './typeahead.ts'
+import { createTypeahead } from './typeahead'
 
 describe('createTypeahead', () => {
   test('cycles repeated Unicode characters, skips disabled items, and resets after the timeout', () => {

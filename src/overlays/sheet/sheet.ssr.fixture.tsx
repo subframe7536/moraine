@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Sheet } from './sheet.tsx'
+import { Sheet } from './sheet'
 
 export function renderSheetFixture(): string {
   return renderToString(() => (

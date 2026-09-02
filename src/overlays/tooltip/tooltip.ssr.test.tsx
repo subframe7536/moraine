@@ -1,9 +1,9 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Tooltip } from './tooltip.tsx'
+import { Tooltip } from './tooltip'
 
 describe('Tooltip SSR Hydration', () => {
   test('hydrates closed JSX and opens it from keyboard focus', async () => {

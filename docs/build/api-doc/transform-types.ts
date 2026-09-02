@@ -1,6 +1,6 @@
 import type { ESTree } from 'vite'
 
-import { entityNameToText, nodeText, parseTypeScript, walkAst } from './ast.ts'
+import { entityNameToText, nodeText, parseTypeScript, walkAst } from './ast'
 
 interface GenericAliasInfo {
   node: ESTree.TSTypeAliasDeclaration

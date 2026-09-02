@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { DropdownMenu } from './dropdown-menu.tsx'
+import { DropdownMenu } from './dropdown-menu'
 
 export function renderDropdownMenuFixture(): string {
   return renderToString(() => (

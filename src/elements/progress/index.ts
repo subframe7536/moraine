@@ -1,1 +1,1 @@
-export * from './progress.tsx'
+export * from './progress'

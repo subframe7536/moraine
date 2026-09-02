@@ -3,8 +3,8 @@ import { createGenerator, presetIcons, presetWind3, presetWind4 } from '@subf/un
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
-import { presetMoraine, resolvePresetThemeOptions } from './theme.ts'
-import type { PresetThemeOptions } from './theme.ts'
+import { presetMoraine, resolvePresetThemeOptions } from './theme'
+import type { PresetThemeOptions } from './theme'
 
 vi.mock('./shared.ts', async () => {
   const actual = await vi.importActual('./shared.ts')

@@ -10,12 +10,12 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
-import { OverlayMenu } from '../base/menu/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
+import { OverlayMenu } from '../base/menu/index'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
@@ -23,13 +23,13 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+} from '../base/menu/index'
+import type { OverlayTriggerProps } from '../base/trigger'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
   validateOverlayTrigger,
-} from '../base/trigger.ts'
+} from '../base/trigger'
 
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}

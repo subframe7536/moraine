@@ -1,15 +1,15 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import { List } from '../../elements/list/index.ts'
-import type { ListProps, ListT } from '../../elements/list/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import { List } from '../../elements/list/index'
+import type { ListProps, ListT } from '../../elements/list/index'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { callHandler, cn, useId } from '../../shared/utils'
 
 import {
   COMMAND_PALETTE_EMPTY_CLASS,
@@ -21,7 +21,7 @@ import {
   COMMAND_PALETTE_ROOT_CLASS,
   COMMAND_PALETTE_TRAILING_CLASS,
   COMMAND_PALETTE_ITEM_CLASS,
-} from './command-palette.class.ts'
+} from './command-palette.class'
 
 export namespace CommandPaletteT {
   export type DescriptionPosition = 'bottom' | 'trailing'

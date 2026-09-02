@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { ProgressVariantProps } from './progress.class.ts'
+import type { ProgressVariantProps } from './progress.class'
 import {
   progressBaseVariants,
   progressIndicatorVariants,
@@ -13,7 +13,7 @@ import {
   progressStatusVariants,
   progressStepVariants,
   progressStepsVariants,
-} from './progress.class.ts'
+} from './progress.class'
 
 export namespace ProgressT {
   export interface StatusRenderProps {

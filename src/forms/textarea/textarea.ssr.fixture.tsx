@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Textarea } from './textarea.tsx'
+import { Textarea } from './textarea'
 
 export function renderTextareaFixture(): string {
   return renderToString(() => (

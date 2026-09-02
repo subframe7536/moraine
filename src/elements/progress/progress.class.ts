@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
-import { cva } from '../../shared/utils.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const progressRootVariants = cva('gap-2 relative', {
   defaultVariants: {

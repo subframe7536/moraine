@@ -4,11 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import {
-  generateApiDoc,
-  normalizePathForComparison,
-  shouldIncludeInheritedGroup,
-} from './extract.ts'
+import { generateApiDoc, normalizePathForComparison, shouldIncludeInheritedGroup } from './extract'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-api-doc-'))

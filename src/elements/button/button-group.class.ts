@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const buttonGroupVariants = cva(
   'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',

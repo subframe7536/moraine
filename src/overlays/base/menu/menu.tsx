@@ -16,21 +16,21 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { Icon } from '../../../elements/icon/index.ts'
-import type { IconT } from '../../../elements/icon/index.ts'
-import { KbdGroup } from '../../../elements/kbd/index.ts'
-import { List } from '../../../elements/list/index.ts'
-import type { ListProps } from '../../../elements/list/index.ts'
-import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class.ts'
-import type { ComponentOrElement } from '../../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../../shared/render-prop.ts'
-import type { ElementProps } from '../../../shared/types.ts'
-import { useControllableValue } from '../../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../../shared/use-event-listener.ts'
-import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
-import { callHandler, cn, useId } from '../../../shared/utils.ts'
-import { useFloatingPosition } from '../floating.ts'
-import { useOverlayInteraction } from '../interaction.ts'
+import { Icon } from '../../../elements/icon/index'
+import type { IconT } from '../../../elements/icon/index'
+import { KbdGroup } from '../../../elements/kbd/index'
+import { List } from '../../../elements/list/index'
+import type { ListProps } from '../../../elements/list/index'
+import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import { renderComponentOrElement } from '../../../shared/render-prop'
+import type { ElementProps } from '../../../shared/types'
+import { useControllableValue } from '../../../shared/use-controllable-value'
+import { useEventListener } from '../../../shared/use-event-listener'
+import { useTransitionPresence } from '../../../shared/use-transition-presence'
+import { callHandler, cn, useId } from '../../../shared/utils'
+import { useFloatingPosition } from '../floating'
+import { useOverlayInteraction } from '../interaction'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -38,10 +38,10 @@ import {
   getFocusableElements,
   resolveDirection,
   resolveOverlayMenuSide,
-} from '../utils.ts'
+} from '../utils'
 
-import { overlayMenuContentVariants, overlayMenuItemVariants } from './menu.class.ts'
-import type { OverlayMenuItemVariantProps } from './menu.class.ts'
+import { overlayMenuContentVariants, overlayMenuItemVariants } from './menu.class'
+import type { OverlayMenuItemVariantProps } from './menu.class'
 import {
   createPointerGraceIntent,
   createVirtualReference,
@@ -52,13 +52,13 @@ import {
   onLayerKeyDown,
   resolveMenuGroups,
   useOverlayMenuLayerState,
-} from './menu.utils.ts'
+} from './menu.utils'
 import type {
   OverlayMenuAnchorRect,
   OverlayMenuCloseOptions,
   OverlayMenuFocusStrategy,
   OverlayMenuLayerState,
-} from './menu.utils.ts'
+} from './menu.utils'
 import type {
   OverlayMenuSharedClasses,
   OverlayMenuSharedItem,
@@ -66,9 +66,9 @@ import type {
   OverlayMenuContentSlot,
   OverlayMenuPlacement,
   OverlayMenuSharedStyles,
-} from './types.ts'
+} from './types'
 
-export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils.ts'
+export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils'
 
 /** Shared overlay menu props used by the shell, root wrappers, and layers. */
 interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {

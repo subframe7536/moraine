@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { resolvePanels } from './panel.ts'
+import { resolvePanels } from './panel'
 import {
   RESIZE_FLAG_BOTH,
   RESIZE_FLAG_FOLLOWING,
@@ -10,7 +10,7 @@ import {
   resizeFromHandle,
   resizePanelToSize,
   toggleHandleNearestPanel,
-} from './resize.ts'
+} from './resize'
 
 const ROOT_SIZE = 1000
 

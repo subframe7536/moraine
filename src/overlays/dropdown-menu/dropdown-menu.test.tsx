@@ -2,9 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
+import { finishMenuExitMotion } from '../../test-utils/overlay-test'
 
-import { DropdownMenu } from './dropdown-menu.tsx'
+import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
   test('applies top-level class and style to trigger', () => {

@@ -3,14 +3,14 @@ import type { Component, JSX } from 'solid-js'
 import { createMemo, lazy, Show, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Kbd, Tabs } from '../../../../src/index.ts'
+import { Kbd, Tabs } from '../../../../src/index'
 
-import { DocsCodeBlock, DocsCodeBlock as DocsCodeBlockView } from './docs-code-block.tsx'
-import { DocsPlayground as Playground } from './docs-playground.tsx'
-import { IntroComponents } from './intro-components.tsx'
-import { Markdown } from './markdown.tsx'
-import type { DocsMdxCodeTabItem } from './markdown.tsx'
-import { ToastHosts } from './toast-hosts.tsx'
+import { DocsCodeBlock, DocsCodeBlock as DocsCodeBlockView } from './docs-code-block'
+import { DocsPlayground as Playground } from './docs-playground'
+import { IntroComponents } from './intro-components'
+import { Markdown } from './markdown'
+import type { DocsMdxCodeTabItem } from './markdown'
+import { ToastHosts } from './toast-hosts'
 
 const DOCS_INSTALL_TABS_ROOT_CLASS =
   'my-3 gap-0 border border-border/60 rounded-xl bg-card/40 overflow-hidden'

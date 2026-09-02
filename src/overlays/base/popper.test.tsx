@@ -2,9 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Popper } from './popper.tsx'
-import type { PopperContentContext, PopperPlacement } from './popper.tsx'
-import type { OverlayTriggerProps } from './trigger.ts'
+import { Popper } from './popper'
+import type { PopperContentContext, PopperPlacement } from './popper'
+import type { OverlayTriggerProps } from './trigger'
 
 describe('Popper primitives', () => {
   test('resolves trigger children getter once', () => {

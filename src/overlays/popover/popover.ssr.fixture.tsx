@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Popover } from './popover.tsx'
+import { Popover } from './popover'
 
 export function renderPopoverFixture(): string {
   return renderToString(() => (

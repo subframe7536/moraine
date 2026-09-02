@@ -2,9 +2,9 @@ import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import { createSignal, onCleanup, untrack } from 'solid-js'
 
-import { createTypeahead } from '../../../shared/typeahead.ts'
-import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation.ts'
-import { focusWithoutScrolling } from '../utils.ts'
+import { createTypeahead } from '../../../shared/typeahead'
+import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation'
+import { focusWithoutScrolling } from '../utils'
 
 export function getOverlayMenuTextValue(item: {
   label?: JSX.Element

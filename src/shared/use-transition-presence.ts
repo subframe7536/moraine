@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 
-import { attachEventListener } from './use-event-listener.ts'
+import { attachEventListener } from './use-event-listener'
 
 export interface UseTransitionPresenceOptions {
   open: Accessor<boolean>

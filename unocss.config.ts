@@ -4,10 +4,10 @@ import {
   transformerVariantGroup,
   presetIcons,
   defineConfig,
-  presetCompletion,
+  // presetCompletion,
 } from '@subf/unocss'
 
-import { presetMoraine } from './src/unocss/index.ts'
+import { presetMoraine } from './src/unocss/index'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [
@@ -18,7 +18,7 @@ export default defineConfig<PresetWind4Theme>({
     presetMoraine({
       enableComponentLayer: true,
     }),
-    presetCompletion(),
+    // presetCompletion(),
   ],
   transformers: [transformerVariantGroup()],
   content: {

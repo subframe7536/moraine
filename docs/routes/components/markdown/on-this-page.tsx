@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from '@solidjs/router'
 import { For, Show } from 'solid-js'
 
-import { useTableOfContents } from '../../hooks/use-table-of-contents.ts'
-import type { OnThisPageEntry } from '../../hooks/use-table-of-contents.ts'
+import { useTableOfContents } from '../../hooks/use-table-of-contents'
+import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 function getOnThisPageIndentStyle(level: number) {
   const indentLevel = Math.max(0, level - 1)

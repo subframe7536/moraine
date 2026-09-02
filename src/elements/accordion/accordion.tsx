@@ -11,13 +11,13 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callRef, cn, useId } from '../../shared/utils.ts'
-import { Icon } from '../icon/index.ts'
-import type { IconT } from '../icon/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useDisclosureState } from '../../shared/use-disclosure-state'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callRef, cn, useId } from '../../shared/utils'
+import { Icon } from '../icon/index'
+import type { IconT } from '../icon/index'
 
 import {
   ACCORDION_CONTENT_CLASS,
@@ -29,7 +29,7 @@ import {
   ACCORDION_ROOT_CLASS,
   ACCORDION_TRAILING_CLASS,
   ACCORDION_TRIGGER_CLASS,
-} from './accordion.class.ts'
+} from './accordion.class'
 
 export namespace AccordionT {
   export interface Slot<T = unknown> {

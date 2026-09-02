@@ -4,11 +4,11 @@ import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { Select } from './select.tsx'
-import type { SelectT } from './select.tsx'
+import { Select } from './select'
+import type { SelectT } from './select'
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },

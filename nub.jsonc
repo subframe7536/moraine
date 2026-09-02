@@ -4,6 +4,6 @@
       "strategy": "global-virtual-store",
       "eject": ["solid-file-router"],
     },
-    "publicHoist": ["@types/*", "*oxlint*", "@unocss/core"],
+    "publicHoist": ["@types/*", "*oxlint*"],
   },
 }

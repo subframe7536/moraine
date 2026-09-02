@@ -2,11 +2,11 @@ import { fireEvent, waitFor } from '@solidjs/testing-library'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
-import { Input } from '../input/index.ts'
+import { Button } from '../../elements/button/index'
+import { hydrateFixture } from '../../test-utils/ssr-test'
+import { Input } from '../input/index'
 
-import { createForm } from './index.ts'
+import { createForm } from './index'
 
 describe('Form SSR Hydration', () => {
   test('hydrates the same form and submits through the client-owned store', async () => {

@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const stepperRootVariants = cva('flex gap-2', {
   defaultVariants: {

@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const popoverContentVariants = cva(
   'text-popover-foreground outline-none surface-overlay rounded-md bg-popover flex flex-col gap-4 max-w-90 w-72 origin-$mo-popper-content-transform-origin relative z-floating data-closed:animate-popover-out data-expanded:animate-popover-in motion-reduce:animate-none',

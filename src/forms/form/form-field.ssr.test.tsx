@@ -3,10 +3,10 @@ import { createComponent } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
-import { Input } from '../input/index.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
+import { Input } from '../input/index'
 
-import { createForm } from './form.tsx'
+import { createForm } from './form'
 
 describe('FormField SSR Hydration', () => {
   test('hydrates registered controls and replaces help with the focused validation error', async () => {

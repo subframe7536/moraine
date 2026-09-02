@@ -8,13 +8,13 @@ import {
   createMemo,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
 
-import { ButtonGroupContext } from './button-group-context.ts'
-import type { ButtonGroupLayoutVariantProps } from './button-group.class.ts'
-import { buttonGroupVariants } from './button-group.class.ts'
-import type { ButtonVariantProps } from './button.class.ts'
+import { ButtonGroupContext } from './button-group-context'
+import type { ButtonGroupLayoutVariantProps } from './button-group.class'
+import { buttonGroupVariants } from './button-group.class'
+import type { ButtonVariantProps } from './button.class'
 
 export namespace ButtonGroupT {
   export interface Slot<T = unknown> {

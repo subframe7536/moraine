@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Card } from './card.tsx'
+import { Card } from './card'
 
 describe('Card', () => {
   test('renders root with the default outline appearance', () => {

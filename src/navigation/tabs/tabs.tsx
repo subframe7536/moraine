@@ -11,12 +11,12 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { cn, useId } from '../../shared/utils'
 
 import {
   tabsIndicatorVariants,
@@ -24,8 +24,8 @@ import {
   tabsListVariants,
   tabsRootVariants,
   tabsTriggerVariants,
-} from './tabs.class.ts'
-import type { TabsVariantProps } from './tabs.class.ts'
+} from './tabs.class'
+import type { TabsVariantProps } from './tabs.class'
 
 export namespace TabsT {
   export interface Slot<T = unknown> {

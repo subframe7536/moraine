@@ -4,10 +4,10 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { Textarea } from './textarea.tsx'
+import { Textarea } from './textarea'
 
 afterEach(() => {
   vi.useRealTimers()

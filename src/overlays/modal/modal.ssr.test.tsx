@@ -1,10 +1,10 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { Button } from '../../elements/button/index'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Modal } from './modal.tsx'
+import { Modal } from './modal'
 
 describe('Modal SSR Hydration', () => {
   test('hydrates the polymorphic trigger and defers closed content', () => {

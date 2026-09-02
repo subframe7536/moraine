@@ -1,5 +1,5 @@
-import { clamp, fixToPrecision, nearlyEqual, normalizeSizeVector, resolveSize } from './size.ts'
-import type { ResizableResolvedPanel, ResizableSize } from './types.ts'
+import { clamp, fixToPrecision, nearlyEqual, normalizeSizeVector, resolveSize } from './size'
+import type { ResizableResolvedPanel, ResizableSize } from './types'
 
 interface IndexSpan {
   start: number

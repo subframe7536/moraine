@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Progress } from './progress.tsx'
+import { Progress } from './progress'
 
 describe('Progress SSR Hydration', () => {
   test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {

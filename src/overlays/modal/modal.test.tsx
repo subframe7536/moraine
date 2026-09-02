@@ -2,12 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { pushOverlayLayer } from '../base/overlay-stack.ts'
-import { getFocusableElements } from '../base/utils.ts'
+import { Button } from '../../elements/button/index'
+import { pushOverlayLayer } from '../base/overlay-stack'
+import { getFocusableElements } from '../base/utils'
 
-import { ModalTriggerRenderer } from './modal-trigger.tsx'
-import { Modal } from './modal.tsx'
+import { Modal } from './modal'
+import { ModalTriggerRenderer } from './modal-trigger'
 
 describe('Modal primitives', () => {
   test('forwards flat callback trigger props and honors canceled clicks', async () => {

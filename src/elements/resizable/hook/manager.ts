@@ -1,6 +1,6 @@
-import { attachEventListenerMap } from '../../../shared/use-event-listener.ts'
+import { attachEventListenerMap } from '../../../shared/use-event-listener'
 
-import type { ResizableOrientation } from './types.ts'
+import type { ResizableOrientation } from './types'
 
 export const RESIZABLE_HANDLE_TARGET_HANDLE = 0 as const
 export const RESIZABLE_HANDLE_TARGET_START = 1 as const

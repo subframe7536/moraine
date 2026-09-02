@@ -1,6 +1,6 @@
 import YAML from 'yaml'
 
-import type { FrontmatterData } from './types.ts'
+import type { FrontmatterData } from './types'
 
 type FrontmatterRecord = Record<string, unknown>
 

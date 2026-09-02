@@ -3,10 +3,10 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { CheckboxGroup } from './checkbox-group.tsx'
+import { CheckboxGroup } from './checkbox-group'
 
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))

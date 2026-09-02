@@ -10,19 +10,19 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
-import type { IconT } from '../icon/index.ts'
-import { Icon } from '../icon/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
+import type { IconT } from '../icon/index'
+import { Icon } from '../icon/index'
 
-import type { AvatarVariantProps } from './avatar.class.ts'
+import type { AvatarVariantProps } from './avatar.class'
 import {
   AVATAR_IMAGE_CLASS,
   avatarBadgeVariants,
   avatarFallbackIconVariants,
   avatarFallbackVariants,
   avatarRootVariants,
-} from './avatar.class.ts'
+} from './avatar.class'
 
 export namespace AvatarT {
   export type Status = 'idle' | 'loading' | 'loaded' | 'error'

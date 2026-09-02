@@ -1,25 +1,25 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import type { IconT } from '../../elements/icon/index'
+import { Icon } from '../../elements/icon/index'
+import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { HiddenInput } from '../../shared/hidden-input'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, cn, useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { SwitchVariantProps } from './switch.class.ts'
-import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class.ts'
+import type { SwitchVariantProps } from './switch.class'
+import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {

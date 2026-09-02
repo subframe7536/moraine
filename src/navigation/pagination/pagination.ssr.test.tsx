@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 
-import { Pagination } from './pagination.tsx'
+import { Pagination } from './pagination'
 
 describe('Pagination SSR Hydration', () => {
   test('renders deterministic single-page SSR markup', () => {

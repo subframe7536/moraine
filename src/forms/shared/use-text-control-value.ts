@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, untrack } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { applyInputModifiers } from '../../shared/input-modifiers.ts'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import { applyInputModifiers } from '../../shared/input-modifiers'
 
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
 type TextControlValue = string | number | undefined

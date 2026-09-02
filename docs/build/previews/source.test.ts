@@ -1,9 +1,9 @@
 import { parse } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
-import { PREVIEW_PARSE_OPTIONS } from './ast.ts'
-import { transformPreviewModule } from './module.ts'
-import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source.ts'
+import { PREVIEW_PARSE_OPTIONS } from './ast'
+import { transformPreviewModule } from './module'
+import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source'
 
 async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program

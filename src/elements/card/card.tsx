@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
 
 import {
   CARD_ACTION_CLASS,
@@ -19,7 +19,7 @@ import {
   CARD_HEADER_DEFAULT_CLASS,
   CARD_ROOT_CLASS,
   CARD_TITLE_CLASS,
-} from './card.class.ts'
+} from './card.class'
 
 export namespace CardT {
   export interface Slot<T = unknown> {

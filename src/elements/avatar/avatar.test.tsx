@@ -2,8 +2,8 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { AvatarGroup } from './avatar-group.tsx'
-import { Avatar } from './avatar.tsx'
+import { Avatar } from './avatar'
+import { AvatarGroup } from './avatar-group'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 

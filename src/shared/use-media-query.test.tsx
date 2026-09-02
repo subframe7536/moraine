@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { createMediaQuery } from './use-media-query.ts'
+import { createMediaQuery } from './use-media-query'
 
 const originalMatchMedia = window.matchMedia
 

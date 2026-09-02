@@ -1,1 +1,1 @@
-export * from './command-palette.tsx'
+export * from './command-palette'

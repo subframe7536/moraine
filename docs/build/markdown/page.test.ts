@@ -2,7 +2,7 @@
 
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDocsMdxOptions } from './page.ts'
+import { createDocsMdxOptions } from './page'
 
 const BUTTON_API_DOC = {
   component: {

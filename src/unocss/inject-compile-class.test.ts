@@ -2,7 +2,7 @@ import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
-import { injectCompileClassTrigger, transformerInjectCompileClass } from './inject-compile-class.ts'
+import { injectCompileClassTrigger, transformerInjectCompileClass } from './inject-compile-class'
 
 const TEST_TRIGGER = ':uno-test:'
 

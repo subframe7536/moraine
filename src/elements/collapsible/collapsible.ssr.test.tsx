@@ -1,9 +1,9 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Collapsible } from './collapsible.tsx'
+import { Collapsible } from './collapsible'
 
 describe('Collapsible SSR Hydration', () => {
   test('hydrates closed composable markup without content and supports open, close, and reopen', () => {

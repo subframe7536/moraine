@@ -6,7 +6,7 @@ import {
   attachEventListenerMap,
   useEventListener,
   useEventListenerMap,
-} from './use-event-listener.ts'
+} from './use-event-listener'
 
 function createTarget() {
   return {

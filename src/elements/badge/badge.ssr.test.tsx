@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Badge } from './badge.tsx'
+import { Badge } from './badge'
 
 describe('Badge SSR Hydration', () => {
   test('hydrates stable slot order', () => {

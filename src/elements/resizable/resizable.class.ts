@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { FLEX_ORIENTATION_VARIANT } from '../../shared/cva-common.class.ts'
-import { cva } from '../../shared/utils.ts'
+import { FLEX_ORIENTATION_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const resizableRootVariants = cva('flex h-full min-h-0 min-w-0 w-full', {
   defaultVariants: {

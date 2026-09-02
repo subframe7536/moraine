@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Tooltip } from './tooltip.tsx'
+import { Tooltip } from './tooltip'
 
 export function renderTooltipFixture(): string {
   return renderToString(() => (

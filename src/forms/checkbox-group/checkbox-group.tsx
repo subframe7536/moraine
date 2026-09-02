@@ -10,26 +10,26 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
-import type { CheckboxProps } from '../checkbox/checkbox.tsx'
-import { Checkbox } from '../checkbox/index.ts'
-import { useFormField } from '../form/form-context.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn, useId } from '../../shared/utils'
+import type { CheckboxProps } from '../checkbox/checkbox'
+import { Checkbox } from '../checkbox/index'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
+import type { CheckboxGroupVariantProps } from './checkbox-group.class'
 import {
   checkboxGroupFieldsetVariants,
   checkboxGroupItemVariants,
   checkboxGroupLegendVariants,
-} from './checkbox-group.class.ts'
+} from './checkbox-group.class'
 
 export namespace CheckboxGroupT {
   export interface Slot<T = unknown> {

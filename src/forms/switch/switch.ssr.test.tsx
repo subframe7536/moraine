@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Switch } from './switch.tsx'
+import { Switch } from './switch'
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))

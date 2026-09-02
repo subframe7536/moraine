@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { RadioGroup } from './radio-group.tsx'
+import { RadioGroup } from './radio-group'
 
 export function renderRadioGroupFixture(): string {
   return renderToString(() => (

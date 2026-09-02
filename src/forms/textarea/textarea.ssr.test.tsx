@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Textarea } from './textarea.tsx'
+import { Textarea } from './textarea'
 
 describe('Textarea SSR Hydration', () => {
   test('hydrates slots and initial value without replacing server nodes', () => {

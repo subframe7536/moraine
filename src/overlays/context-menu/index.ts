@@ -1,1 +1,1 @@
-export * from './context-menu.tsx'
+export * from './context-menu'

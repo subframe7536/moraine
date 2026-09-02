@@ -1,7 +1,7 @@
 import { Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { Button } from './button.tsx'
+import { Button } from './button'
 
 export function renderButtonFixture(): string {
   return renderToString(() => (

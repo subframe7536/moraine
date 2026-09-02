@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { useDisclosureState } from './use-disclosure-state.ts'
+import { useDisclosureState } from './use-disclosure-state'
 
 function setScrollHeight(element: HTMLElement, getValue: () => number): void {
   Object.defineProperty(element, 'scrollHeight', {

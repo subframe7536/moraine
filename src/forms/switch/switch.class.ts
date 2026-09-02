@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const switchTrackVariants = cva(
   'p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-xs transition-[color,background-color,box-shadow] items-center focus-visible:effect-fv-border data-invalid:effect-invalid data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80',

@@ -2,20 +2,15 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Icon, Input, Select, cn } from '../../../../src/index.ts'
-import { createMediaQuery } from '../../../../src/shared/use-media-query.ts'
-import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections.ts'
-import type {
-  ApiAttributeDoc,
-  ComponentDoc,
-  PropDoc,
-  SlotDoc,
-} from '../../../build/api-doc/types.ts'
+import { Badge, Icon, Input, Select, cn } from '../../../../src/index'
+import { createMediaQuery } from '../../../../src/shared/use-media-query'
+import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections'
+import type { ApiAttributeDoc, ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from '../../../build/markdown/shared.class.ts'
+} from '../../../build/markdown/shared.class'
 
 export interface PropsTableProps {
   sections: PropsTableSection[]

@@ -14,12 +14,12 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { createComponent, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, cn } from '../../shared/utils.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { callHandler, cn } from '../../shared/utils'
 
-import type { FormFieldProps } from './form-field.tsx'
-import { FormField } from './form-field.tsx'
-import { FORM_ROOT_CLASS } from './form.class.ts'
+import type { FormFieldProps } from './form-field'
+import { FormField } from './form-field'
+import { FORM_ROOT_CLASS } from './form.class'
 
 export namespace FormT {
   export interface Instance<TSchema extends FormSchema = FormSchema> extends FormStore<TSchema> {

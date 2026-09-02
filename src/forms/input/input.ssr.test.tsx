@@ -2,9 +2,9 @@ import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Input } from './input.tsx'
+import { Input } from './input'
 
 describe('Input SSR Hydration', () => {
   test('hydrates controlled value and slot order without replacing server nodes', async () => {

@@ -10,14 +10,14 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { callHandler, callRef } from '../../shared/utils.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { validateOverlayTrigger } from '../base/trigger.ts'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callHandler, callRef } from '../../shared/utils'
+import type { OverlayTriggerProps } from '../base/trigger'
+import { validateOverlayTrigger } from '../base/trigger'
 
-import { useModalContext } from './modal-context.ts'
-import type { ModalT } from './modal.tsx'
+import type { ModalT } from './modal'
+import { useModalContext } from './modal-context'
 
 type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]

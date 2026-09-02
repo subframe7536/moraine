@@ -2,14 +2,14 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
-import { useOverlayInteraction } from '../base/interaction.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { cn, useId } from '../../shared/utils'
+import { useOverlayInteraction } from '../base/interaction'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
@@ -17,15 +17,15 @@ import {
   focusWithoutScrolling,
   focusTrigger,
   trapFocusInContainer,
-} from '../base/utils.ts'
+} from '../base/utils'
 
-import { ModalProvider, useModalContext } from './modal-context.ts'
-import { ModalTrigger } from './modal-trigger.tsx'
+import { ModalProvider, useModalContext } from './modal-context'
+import { ModalTrigger } from './modal-trigger'
 import {
   MODAL_CONTENT_CLASS,
   MODAL_CONTENT_DEFAULT_CLASS,
   MODAL_OVERLAY_CLASS,
-} from './modal.class.ts'
+} from './modal.class'
 
 type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]

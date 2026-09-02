@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Slider } from './slider.tsx'
+import { Slider } from './slider'
 
 function getThumbs(root: Element): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>('[data-slot="thumb"]'))

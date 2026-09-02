@@ -6,13 +6,8 @@ import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import type { UserConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import {
-  createDocsMdxOptions,
-  docsBuildPlugin,
-  llmsTxtPlugin,
-  siteMetaPlugin,
-} from './build/index.ts'
-import unocfg from './unocss.config.ts'
+import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build/index'
+import unocfg from './unocss.config'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')

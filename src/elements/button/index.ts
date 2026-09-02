@@ -1,2 +1,2 @@
-export * from './button.tsx'
-export * from './button-group.tsx'
+export * from './button'
+export * from './button-group'

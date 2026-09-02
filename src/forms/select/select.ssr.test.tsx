@@ -2,10 +2,10 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Select } from './select.tsx'
-import type { SelectT } from './select.tsx'
+import { Select } from './select'
+import type { SelectT } from './select'
 
 describe('Select SSR Hydration', () => {
   test('hydrates the closed control in place and opens on the first keyboard action', () => {

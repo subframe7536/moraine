@@ -8,8 +8,8 @@ import {
   FLEX_ORIENTATION_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
   TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class.ts'
-import { cva } from '../../shared/utils.ts'
+} from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const radioGroupRootVariants = cva('flex relative', {
   defaultVariants: {

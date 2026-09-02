@@ -1,27 +1,27 @@
 import type { JSX } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { HiddenInput } from '../../shared/hidden-input'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
-import { useSlider } from './hook/index.ts'
-import type { SliderVariantProps } from './slider.class.ts'
+import { useSlider } from './hook/index'
+import type { SliderVariantProps } from './slider.class'
 import {
   sliderDividerVariants,
   sliderRangeVariants,
   sliderRootVariants,
   sliderThumbVariants,
   sliderTrackVariants,
-} from './slider.class.ts'
+} from './slider.class'
 
 export namespace SliderT {
   export type Value = number | number[]

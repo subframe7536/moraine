@@ -3,16 +3,16 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { CommandPalette } from '../../navigation/command-palette/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { Modal } from '../modal/index.ts'
-import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
-import type { ModalT } from '../modal/modal.tsx'
+import { Button } from '../../elements/button/index'
+import { CommandPalette } from '../../navigation/command-palette/index'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import type { OverlayTriggerProps } from '../base/trigger'
+import { Modal } from '../modal/index'
+import type { ModalT } from '../modal/modal'
+import { ModalTriggerRenderer } from '../modal/modal-trigger'
 
-import { Dialog } from './dialog.tsx'
+import { Dialog } from './dialog'
 
 interface TestModalProps {
   defaultOpen?: boolean

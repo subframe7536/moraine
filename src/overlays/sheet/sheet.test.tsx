@@ -2,10 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import type { OverlayTriggerProps } from '../base/trigger'
 
-import { Sheet } from './sheet.tsx'
+import { Sheet } from './sheet'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {

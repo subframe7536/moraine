@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal, Show } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Button } from './button.tsx'
+import { Button } from './button'
 
 describe('Button SSR Hydration', () => {
   test('hydrates render children and preserves activation across loading updates', () => {

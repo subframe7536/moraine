@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { CheckboxGroup } from './checkbox-group.tsx'
+import { CheckboxGroup } from './checkbox-group'
 
 describe('CheckboxGroup SSR Hydration', () => {
   test('hydrates duplicate items with stable ids and DOM order before interaction', () => {

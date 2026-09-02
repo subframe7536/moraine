@@ -1,1 +1,1 @@
-export * from './badge.tsx'
+export * from './badge'

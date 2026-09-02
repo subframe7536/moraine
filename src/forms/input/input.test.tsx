@@ -4,10 +4,10 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { Input } from './input.tsx'
+import { Input } from './input'
 
 describe('Input', () => {
   test('renders base attributes', () => {

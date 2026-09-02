@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Input } from './input.tsx'
+import { Input } from './input'
 
 export function renderInputFixture(): string {
   return renderToString(() => (

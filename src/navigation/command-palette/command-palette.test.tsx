@@ -3,11 +3,11 @@ import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Dialog } from '../../overlays/dialog/index.ts'
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
+import { Dialog } from '../../overlays/dialog/index'
+import { finishExitMotion } from '../../test-utils/overlay-test'
 
-import { CommandPalette } from './command-palette.tsx'
-import type { CommandPaletteT } from './command-palette.tsx'
+import { CommandPalette } from './command-palette'
+import type { CommandPaletteT } from './command-palette'
 
 const body = () => within(document.body)
 

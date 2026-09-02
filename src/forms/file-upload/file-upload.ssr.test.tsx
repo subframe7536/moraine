@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { FileUpload } from './file-upload.tsx'
+import { FileUpload } from './file-upload'
 
 describe('FileUpload SSR Hydration', () => {
   test('hydrates the empty dropzone and preserves root identity across branch changes', () => {

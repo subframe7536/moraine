@@ -1,7 +1,7 @@
 import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import { useControllableValue } from './use-controllable-value.ts'
+import { useControllableValue } from './use-controllable-value'
 
 describe('useControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {

@@ -11,10 +11,10 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callRef, cn, useId } from '../../shared/utils.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { callRef, cn, useId } from '../../shared/utils'
 
 import {
   collapsePanel,
@@ -35,15 +35,15 @@ import {
   resizePanelToSize,
   toggleHandleNearestPanel,
   useResizableHandle,
-} from './hook/index.ts'
-import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
+} from './hook/index'
+import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index'
 import {
   resizableCrossTargetVariants,
   resizableHandleVariants,
   resizableRootVariants,
   RESIZABLE_HANDLE_GRIP_CLASS,
-} from './resizable.class.ts'
-import type { ResizableVariantProps } from './resizable.class.ts'
+} from './resizable.class'
+import type { ResizableVariantProps } from './resizable.class'
 
 export namespace ResizableT {
   export interface HandleRenderProps {

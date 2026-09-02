@@ -6,8 +6,8 @@ import path from 'node:path'
 
 import { describe, expect, test, vi } from 'vitest'
 
-import { resolveDocsPageContext } from './core/paths.ts'
-import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
+import { resolveDocsPageContext } from './core/paths'
+import { createDocsRouteInfo, scanDocsRoutes } from './routes'
 
 vi.mock('virtual:routes', () => ({
   routeInfo: {
@@ -59,7 +59,7 @@ search:
 
 describe('docs route metadata', () => {
   test('retains valid pages while dropping malformed optional section entries', async () => {
-    const { getDocsPages } = await import('../routes/docs-route.ts')
+    const { getDocsPages } = await import('../routes/docs-route')
 
     expect(getDocsPages()).toMatchObject([
       {

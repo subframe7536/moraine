@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Switch } from './switch.tsx'
+import { Switch } from './switch'
 
 export function renderSwitchFixture(): string {
   return renderToString(() => (

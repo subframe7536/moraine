@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { Button, cn } from '../../../../src/index.ts'
+import { Button, cn } from '../../../../src/index'
 
 const DOCS_CODE_BLOCK_ROOT_CLASS =
   '[&_.expressive-code_.copy_button]:size-6! [&_.expressive-code_.copy_button]:border! [&_.expressive-code_.copy_button]:border-border! [&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code_.copy_button]:bg-background/85! [&_.expressive-code_.copy_button]:shadow-xs! [&_.expressive-code_.copy_button]:backdrop-blur-sm! [&_.expressive-code_.copy_button:hover]:bg-muted! [&_.expressive-code_.copy_button:hover]:text-foreground! [&_.expressive-code_.copy_button:active]:scale-95! [&_.expressive-code_.copy_button:focus-visible]:outline-none! [&_.expressive-code_.copy_button:focus-visible]:ring-2! [&_.expressive-code_.copy_button:focus-visible]:ring-ring! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-2! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-background! [&_.expressive-code_.copy_button::after]:m-1! [&_.expressive-code_.copy_button::before]:hidden! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:-translate-y-1/2!'

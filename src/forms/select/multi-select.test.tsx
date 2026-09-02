@@ -4,11 +4,11 @@ import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
+import { MultiSelect } from './multi-select'
+import type { MultiSelectProps, MultiSelectT } from './multi-select'
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },

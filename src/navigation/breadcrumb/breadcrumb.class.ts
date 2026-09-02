@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const BREADCRUMB_ROOT_CLASS = 'min-w-0 relative'
 export const BREADCRUMB_ITEM_CLASS = 'inline-flex items-center gap-1'

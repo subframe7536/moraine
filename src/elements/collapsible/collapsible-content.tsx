@@ -2,14 +2,11 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { callRef, cn } from '../../shared/utils.ts'
+import { callRef, cn } from '../../shared/utils'
 
-import { useCollapsibleContext } from './collapsible-context.ts'
-import {
-  COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
-  COLLAPSIBLE_CONTENT_CLASS,
-} from './collapsible.class.ts'
-import type { CollapsibleT } from './collapsible.tsx'
+import type { CollapsibleT } from './collapsible'
+import { useCollapsibleContext } from './collapsible-context'
+import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS, COLLAPSIBLE_CONTENT_CLASS } from './collapsible.class'
 
 type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]

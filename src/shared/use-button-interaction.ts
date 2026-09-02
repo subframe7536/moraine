@@ -1,7 +1,7 @@
 import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
-import { callHandler } from './utils.ts'
+import { callHandler } from './utils'
 
 export interface UseButtonInteractionOptions<T extends HTMLElement = HTMLElement> {
   disabled: Accessor<boolean>

@@ -4,13 +4,13 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import { Button, Icon, Progress, SidebarFrame, Switch, cn } from '../../src/index.ts'
+import { Button, Icon, Progress, SidebarFrame, Switch, cn } from '../../src/index'
 
-import { DocsCommandPalette } from './components/layout/docs-command-palette.tsx'
-import { Sidebar, SidebarHeader } from './components/layout/sidebar.tsx'
-import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components.tsx'
-import { getDocsPages } from './docs-route.ts'
-import { useTheme } from './hooks/use-theme.ts'
+import { DocsCommandPalette } from './components/layout/docs-command-palette'
+import { Sidebar, SidebarHeader } from './components/layout/sidebar'
+import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
+import { getDocsPages } from './docs-route'
+import { useTheme } from './hooks/use-theme'
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()

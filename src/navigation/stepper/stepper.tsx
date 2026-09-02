@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { cn, useId } from '../../shared/utils'
 
-import type { StepperVariantProps } from './stepper.class.ts'
+import type { StepperVariantProps } from './stepper.class'
 import {
   stepperContainerVariants,
   stepperDescriptionVariants,
@@ -19,7 +19,7 @@ import {
   stepperTitleVariants,
   stepperTriggerVariants,
   stepperWrapperVariants,
-} from './stepper.class.ts'
+} from './stepper.class'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 

@@ -7,8 +7,8 @@ import {
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
-} from '../shared/style/animations.ts'
-import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
+} from '../shared/style/animations'
+import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -16,11 +16,11 @@ import {
   MORAINE_SHADOW,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../shared/style/theme.ts'
+} from '../shared/style/theme'
 
-import { transformerInjectCompileClass } from './inject-compile-class.ts'
-import { transformerInjectPrefix } from './inject-prefix.ts'
-import type { TransformerInjectPrefixOption } from './inject-prefix.ts'
+import { transformerInjectCompileClass } from './inject-compile-class'
+import { transformerInjectPrefix } from './inject-prefix'
+import type { TransformerInjectPrefixOption } from './inject-prefix'
 
 export { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS }
 

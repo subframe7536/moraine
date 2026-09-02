@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Tabs } from './tabs.tsx'
+import { Tabs } from './tabs'
 
 const ITEMS = [
   { label: 0, value: '', content: <span data-testid="empty-panel">Empty panel</span> },

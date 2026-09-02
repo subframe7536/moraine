@@ -1,8 +1,8 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../../elements/button/index.ts'
+import { Button } from '../../elements/button/index'
 
-import { Modal } from './modal.tsx'
+import { Modal } from './modal'
 
 export function renderModalFixture(): string {
   return renderToString(() => (

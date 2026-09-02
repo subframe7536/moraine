@@ -2,11 +2,11 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { DropdownMenu } from '../../overlays/dropdown-menu/index.ts'
-import { Popover } from '../../overlays/popover/index.ts'
+import { DropdownMenu } from '../../overlays/dropdown-menu/index'
+import { Popover } from '../../overlays/popover/index'
 
-import { ButtonGroup } from './button-group.tsx'
-import { Button } from './button.tsx'
+import { Button } from './button'
+import { ButtonGroup } from './button-group'
 
 describe('ButtonGroup', () => {
   test('renders related buttons with group semantics and joined horizontal edges', () => {

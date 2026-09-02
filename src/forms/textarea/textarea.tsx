@@ -11,29 +11,29 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { callHandler, useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+} from '../shared/form-options'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
-import type { TextareaVariantProps } from './textarea.class.ts'
+import type { TextareaVariantProps } from './textarea.class'
 import {
   textareaBaseVariants,
   textareaFooterVariants,
   textareaHeaderVariants,
   textareaRootVariants,
-} from './textarea.class.ts'
+} from './textarea.class'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {

@@ -1,1 +1,1 @@
-export * from './use-slider.ts'
+export * from './use-slider'

@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
-import { Icon } from '../icon/index.ts'
-import type { IconT } from '../icon/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
+import { Icon } from '../icon/index'
+import type { IconT } from '../icon/index'
 
-import type { BadgeVariantProps } from './badge.class.ts'
-import { badgeVariants } from './badge.class.ts'
+import type { BadgeVariantProps } from './badge.class'
+import { badgeVariants } from './badge.class'
 
 export namespace BadgeT {
   export interface Slot<T = unknown> {

@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { getDocsExpressiveCodeAssets, renderDocsCodeHtml } from './expressive-code.ts'
+import { getDocsExpressiveCodeAssets, renderDocsCodeHtml } from './expressive-code'
 
 describe('docs expressive code renderer', () => {
   test('renders source code with frames, copy support and line numbers', async () => {

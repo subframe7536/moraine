@@ -1,10 +1,10 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Sheet } from './sheet.tsx'
+import { Sheet } from './sheet'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {

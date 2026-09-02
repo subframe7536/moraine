@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Collapsible } from './collapsible.tsx'
+import { Collapsible } from './collapsible'
 
 function renderCollapsible(props?: {
   open?: boolean

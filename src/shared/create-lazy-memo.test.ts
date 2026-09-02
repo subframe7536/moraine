@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import { createLazyMemo } from './create-lazy-memo.ts'
+import { createLazyMemo } from './create-lazy-memo'
 
 describe('createLazyMemo', () => {
   it('defers evaluation and caches the memo result', () => {

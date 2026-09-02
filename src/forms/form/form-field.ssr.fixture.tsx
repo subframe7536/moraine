@@ -1,9 +1,9 @@
 import { renderToString } from 'solid-js/web'
 import * as v from 'valibot'
 
-import { Input } from '../input/index.ts'
+import { Input } from '../input/index'
 
-import { createForm } from './form.tsx'
+import { createForm } from './form'
 
 export function renderFormFieldFixture(): string {
   function ServerField() {

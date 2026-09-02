@@ -3,13 +3,10 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import {
-  ARIA_ATTRIBUTE_DESCRIPTIONS,
-  DATA_ATTRIBUTE_DESCRIPTIONS,
-} from '../markdown/descriptions.ts'
+import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions'
 
-import { getIdentifierName, nodeText, parseTypeScript, walkAst } from './ast.ts'
-import type { ApiAttributeDoc, SlotDefinitionDoc, SlotDoc } from './types.ts'
+import { getIdentifierName, nodeText, parseTypeScript, walkAst } from './ast'
+import type { ApiAttributeDoc, SlotDefinitionDoc, SlotDoc } from './types'
 
 interface SlotMetadata {
   cssVariables: Set<string>

@@ -1,7 +1,7 @@
-import { renderDocsCodeHtml } from '../core/expressive-code.ts'
-import { parsePreviewCode } from '../previews/ast.ts'
-import { transformPreviewModule } from '../previews/module.ts'
-import { transformPreviewSourceModule } from '../previews/source.ts'
+import { renderDocsCodeHtml } from '../core/expressive-code'
+import { parsePreviewCode } from '../previews/ast'
+import { transformPreviewModule } from '../previews/module'
+import { transformPreviewSourceModule } from '../previews/source'
 
 function isPreviewRequest(id: string): boolean {
   return id.includes('?preview')

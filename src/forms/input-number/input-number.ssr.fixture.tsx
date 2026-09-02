@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { InputNumber } from './input-number.tsx'
+import { InputNumber } from './input-number'
 
 export function renderInputNumberFixture(): string {
   return renderToString(() => <InputNumber id="horizontal-number" value={12.5} locale="de-DE" />)

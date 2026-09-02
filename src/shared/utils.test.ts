@@ -1,7 +1,7 @@
 import { createRoot } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { callRef, useId } from './utils.ts'
+import { callRef, useId } from './utils'
 
 describe('callRef', () => {
   test('ignores element-valued refs', () => {

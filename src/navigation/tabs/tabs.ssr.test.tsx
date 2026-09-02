@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 
-import { Tabs } from './tabs.tsx'
+import { Tabs } from './tabs'
 
 describe('Tabs SSR Hydration', () => {
   test('renders deterministic vertical SSR relationships and selected panel', () => {

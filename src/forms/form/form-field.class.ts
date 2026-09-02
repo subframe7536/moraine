@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
-import { cva } from '../../shared/utils.ts'
+import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 export const formFieldSizeVariants = cva('', {
   defaultVariants: {

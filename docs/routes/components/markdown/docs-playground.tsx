@@ -10,8 +10,8 @@ import {
   Select,
   Switch as SwitchComp,
   useId,
-} from '../../../../src/index.ts'
-import type { InputT } from '../../../../src/index.ts'
+} from '../../../../src/index'
+import type { InputT } from '../../../../src/index'
 
 export type DocsPlaygroundControlValue = string | number | boolean
 

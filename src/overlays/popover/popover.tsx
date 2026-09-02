@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
-import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
+import { Popper, resolveOverlayMenuSide } from '../base/index'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index'
+import type { OverlayTriggerProps } from '../base/trigger'
 
-import { popoverContentVariants } from './popover.class.ts'
-import type { PopoverContentVariantProps } from './popover.class.ts'
+import { popoverContentVariants } from './popover.class'
+import type { PopoverContentVariantProps } from './popover.class'
 
 type PopoverMode = 'click' | 'hover'
 

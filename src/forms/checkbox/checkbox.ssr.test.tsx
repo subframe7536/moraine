@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Checkbox } from './checkbox.tsx'
+import { Checkbox } from './checkbox'
 
 describe('Checkbox SSR Hydration', () => {
   test('hydrates indeterminate content and preserves branch order through state updates', () => {

@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { SeparatorVariantProps } from './separator.class.ts'
-import { separatorVariants } from './separator.class.ts'
+import type { SeparatorVariantProps } from './separator.class'
+import { separatorVariants } from './separator.class'
 
 export namespace SeparatorT {
   export interface Slot<T = unknown> {

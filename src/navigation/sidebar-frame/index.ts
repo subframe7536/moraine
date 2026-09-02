@@ -1,1 +1,1 @@
-export * from './sidebar-frame.tsx'
+export * from './sidebar-frame'

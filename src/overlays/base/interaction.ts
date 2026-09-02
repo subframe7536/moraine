@@ -1,11 +1,11 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, onCleanup } from 'solid-js'
 
-import { useEventListenerMap } from '../../shared/use-event-listener.ts'
+import { useEventListenerMap } from '../../shared/use-event-listener'
 
-import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack.ts'
-import type { OverlayStackEntry } from './overlay-stack.ts'
-import { createCompositionState, createOutsidePressHandlers, isComposingKeyEvent } from './utils.ts'
+import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack'
+import type { OverlayStackEntry } from './overlay-stack'
+import { createCompositionState, createOutsidePressHandlers, isComposingKeyEvent } from './utils'
 
 export interface OverlayInteractionContext {
   entry: OverlayStackEntry

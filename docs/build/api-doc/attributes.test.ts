@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { SourceSlotAnalyzer } from './attributes.ts'
+import { SourceSlotAnalyzer } from './attributes'
 
 describe('SourceSlotAnalyzer', () => {
   test('collects attributes by runtime slot and merges local components', async () => {

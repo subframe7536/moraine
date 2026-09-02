@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useLoadingAutoClick } from './use-loading-auto.ts'
+import { useLoadingAutoClick } from './use-loading-auto'
 
 function deferred(): {
   promise: Promise<void>

@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Accordion } from './accordion.tsx'
-import type { AccordionT } from './accordion.tsx'
+import { Accordion } from './accordion'
+import type { AccordionT } from './accordion'
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {

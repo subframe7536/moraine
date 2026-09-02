@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { RadioGroup } from './radio-group.tsx'
+import { RadioGroup } from './radio-group'
 
 describe('RadioGroup SSR Hydration', () => {
   test('hydrates item identity, descriptions, checked state, and the first keyboard action', () => {

@@ -1,1 +1,1 @@
-export * from './stepper.tsx'
+export * from './stepper'

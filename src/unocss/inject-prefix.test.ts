@@ -2,7 +2,7 @@ import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
 import { describe, expect, test, vi } from 'vitest'
 
-import { transformerInjectPrefix, prefixClassList } from './inject-prefix.ts'
+import { transformerInjectPrefix, prefixClassList } from './inject-prefix'
 
 const TEST_PREFIX = 'mo-'
 

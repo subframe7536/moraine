@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
-import { cva } from '../../shared/utils.ts'
+import { INPUT_VARIANT } from '../../shared/cva-common.class'
+import { cva } from '../../shared/utils'
 
 const SELECT_TEXT_SIZE = {
   sm: 'text-xs',

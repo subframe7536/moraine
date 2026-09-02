@@ -1,5 +1,5 @@
-import { parsePreviewCode as defaultParsePreviewCode } from './ast.ts'
-import type { ParsePreviewCode, ProgramNode } from './ast.ts'
+import { parsePreviewCode as defaultParsePreviewCode } from './ast'
+import type { ParsePreviewCode, ProgramNode } from './ast'
 
 interface QueryResult {
   name?: string

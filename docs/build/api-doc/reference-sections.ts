@@ -1,4 +1,4 @@
-import type { ComponentDoc } from './types.ts'
+import type { ComponentDoc } from './types'
 
 export interface ApiReferenceTocEntry {
   id: string

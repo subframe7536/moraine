@@ -1,8 +1,8 @@
 import { Show, createMemo } from 'solid-js'
 
-import { Button, cn } from '../../../../src/index.ts'
-import { getDocsPages } from '../../docs-route.ts'
-import type { DocsPageEntry } from '../../docs-route.ts'
+import { Button, cn } from '../../../../src/index'
+import { getDocsPages } from '../../docs-route'
+import type { DocsPageEntry } from '../../docs-route'
 
 interface AdjacentDocsPages {
   previous?: DocsPageEntry

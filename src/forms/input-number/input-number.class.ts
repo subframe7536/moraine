@@ -1,7 +1,7 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
-import { inputRootVariants } from '../input/input.class.ts'
+import { cva } from '../../shared/utils'
+import { inputRootVariants } from '../input/input.class'
 
 export const inputNumberRootVariants = inputRootVariants
 

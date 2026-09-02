@@ -1,7 +1,7 @@
 import { render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { DocsCodeBlock } from './docs-code-block.tsx'
+import { DocsCodeBlock } from './docs-code-block'
 
 describe('DocsCodeBlock', () => {
   test('renders plain variant with small copy button classes on root container', () => {

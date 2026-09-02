@@ -1,10 +1,10 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture.tsx'
-import { Breadcrumb } from './breadcrumb.tsx'
+import { Breadcrumb } from './breadcrumb'
+import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture'
 
 describe('Breadcrumb SSR Hydration', () => {
   test('hydrates the default page branch without replacing the trail', () => {

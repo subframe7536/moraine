@@ -98,9 +98,9 @@ export interface DocsCodeRenderOptions {
   stickyCopyButton?: boolean
 }
 
-function findDirectChildByClass(parent: Element, className: string): Element | undefined {
+function findDirectChildByClass(parent: Element, className: string): any {
   return parent.children.find(
-    (child): child is Element =>
+    (child: Element): child is Element =>
       child.type === 'element' && getClassNames(child).includes(className),
   )
 }

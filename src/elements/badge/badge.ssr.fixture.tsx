@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Badge } from './badge.tsx'
+import { Badge } from './badge'
 
 export function renderBadgeFixture(): string {
   return renderToString(() => (

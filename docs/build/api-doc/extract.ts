@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { toKebabCase } from '../core/strings.ts'
+import { toKebabCase } from '../core/strings'
 
 import {
   entityNameToText,
@@ -12,9 +12,9 @@ import {
   nodeText,
   parseTypeScript,
   walkAst,
-} from './ast.ts'
-import { SourceSlotAnalyzer } from './attributes.ts'
-import { preprocessGenericTypeAliases } from './transform-types.ts'
+} from './ast'
+import { SourceSlotAnalyzer } from './attributes'
+import { preprocessGenericTypeAliases } from './transform-types'
 import type {
   ComponentDoc,
   ComponentIndexEntry,
@@ -23,7 +23,7 @@ import type {
   ItemDoc,
   PropDoc,
   SlotDefinitionDoc,
-} from './types.ts'
+} from './types'
 
 type DeclarationNode = ESTree.TSInterfaceDeclaration | ESTree.TSTypeAliasDeclaration
 type DeclareFunctionNode = ESTree.Function

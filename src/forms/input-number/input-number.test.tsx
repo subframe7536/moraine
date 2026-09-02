@@ -4,11 +4,11 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createForm } from '../form/index'
 
-import { InputNumber } from './input-number.tsx'
-import type { InputNumberT } from './input-number.tsx'
+import { InputNumber } from './input-number'
+import type { InputNumberT } from './input-number'
 
 describe('InputNumber', () => {
   test('renders number input with spinbutton semantics and increment/decrement controls', async () => {

@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cls-variant'
 
-import { cva } from '../../shared/utils.ts'
+import { cva } from '../../shared/utils'
 
 export const badgeVariants = cva(
   'leading-normal font-medium border inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',

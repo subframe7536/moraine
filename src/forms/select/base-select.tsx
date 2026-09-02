@@ -12,42 +12,42 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { List } from '../../elements/list/index.ts'
-import type { ListProps, ListT } from '../../elements/list/index.ts'
-import { useFloatingPosition } from '../../overlays/base/floating.ts'
-import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { createTypeahead } from '../../shared/typeahead.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
-import type { UseFormFieldReturn } from '../form/form-context.ts'
+import type { IconT } from '../../elements/icon/index'
+import { List } from '../../elements/list/index'
+import type { ListProps, ListT } from '../../elements/list/index'
+import { useFloatingPosition } from '../../overlays/base/floating'
+import { useOverlayInteraction } from '../../overlays/base/interaction'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { createTypeahead } from '../../shared/typeahead'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callHandler, cn, useId } from '../../shared/utils'
+import type { UseFormFieldReturn } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { SelectControlVariantProps } from './select.class.ts'
-import { selectContentVariants, selectItemVariants } from './select.class.ts'
+import type { SelectControlVariantProps } from './select.class'
+import { selectContentVariants, selectItemVariants } from './select.class'
 import {
   flattenOptions,
   normalizeOptions,
   useSelectField,
   useSelectMenuControl,
-} from './shared/index.ts'
+} from './shared/index'
 import type {
   BaseSelectItems,
   NormalizedGroup,
   NormalizedOption,
   SelectFilterMode,
-} from './shared/index.ts'
+} from './shared/index'
 
 export namespace BaseSelectT {
   export type Value = string | number

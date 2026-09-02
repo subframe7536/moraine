@@ -1,19 +1,19 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { Button } from '../../elements/index.ts'
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { hasJsxContent } from '../../shared/jsx-content.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
-import { Modal } from '../modal/modal.tsx'
-import type { ModalProps, ModalT } from '../modal/modal.tsx'
+import { Icon } from '../../elements/icon/index'
+import { Button } from '../../elements/index'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { hasJsxContent } from '../../shared/jsx-content'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn, useId } from '../../shared/utils'
+import type { OverlayTriggerProps } from '../base/trigger'
+import { Modal } from '../modal/modal'
+import type { ModalProps, ModalT } from '../modal/modal'
+import { ModalTriggerRenderer } from '../modal/modal-trigger'
 
-import { sheetContentVariants } from './sheet.class.ts'
-import type { SheetVariantProps } from './sheet.class.ts'
+import { sheetContentVariants } from './sheet.class'
+import type { SheetVariantProps } from './sheet.class'
 
 export namespace SheetT {
   export interface Slot<T = unknown> {

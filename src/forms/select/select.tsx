@@ -1,37 +1,37 @@
 import type { Component, JSX } from 'solid-js'
 import { Show, createMemo, untrack } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { cn } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { cn } from '../../shared/utils'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
-import { BaseSelect } from './base-select.tsx'
-import type { BaseSelectT } from './base-select.tsx'
-import type { SelectControlVariantProps } from './select.class.ts'
+import { BaseSelect } from './base-select'
+import type { BaseSelectT } from './base-select'
+import type { SelectControlVariantProps } from './select.class'
 import {
   selectControlVariants,
   selectInputVariants,
   SELECT_CLEAR_ACTION_CLASS,
   SELECT_LEADING_ICON_CLASS,
   SELECT_TRIGGER_ICON_CLASS,
-} from './select.class.ts'
+} from './select.class'
 import {
   createEmptyRenderer,
   findNormalizedOptionByValue,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
-} from './shared/index.ts'
-import type { NormalizedOption } from './shared/index.ts'
+} from './shared/index'
+import type { NormalizedOption } from './shared/index'
 
 export namespace SelectT {
   export type Value = string | number

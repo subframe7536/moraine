@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Slider } from './slider.tsx'
+import { Slider } from './slider'
 
 export function renderSliderFixture(): string {
   return renderToString(() => (

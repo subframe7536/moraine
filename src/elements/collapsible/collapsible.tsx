@@ -1,17 +1,17 @@
 import type { JSX, ValidComponent } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useDisclosureState } from '../../shared/use-disclosure-state'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { cn, useId } from '../../shared/utils'
 
-import { CollapsibleContent } from './collapsible-content.tsx'
-import type { CollapsibleContext } from './collapsible-context.ts'
-import { CollapsibleProvider } from './collapsible-context.ts'
-import { CollapsibleTrigger } from './collapsible-trigger.tsx'
-import { COLLAPSIBLE_ROOT_CLASS } from './collapsible.class.ts'
+import { CollapsibleContent } from './collapsible-content'
+import type { CollapsibleContext } from './collapsible-context'
+import { CollapsibleProvider } from './collapsible-context'
+import { CollapsibleTrigger } from './collapsible-trigger'
+import { COLLAPSIBLE_ROOT_CLASS } from './collapsible.class'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]

@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Separator } from './separator.tsx'
+import { Separator } from './separator'
 
 describe('Separator', () => {
   test('renders a single root element with default semantics and horizontal orientation', () => {

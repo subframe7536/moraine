@@ -2,10 +2,10 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectT } from './multi-select.tsx'
+import { MultiSelect } from './multi-select'
+import type { MultiSelectT } from './multi-select'
 
 describe('MultiSelect SSR Hydration', () => {
   test('hydrates in place, removes a tag, and opens on the first ArrowDown', () => {

@@ -12,7 +12,7 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
-import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load.ts'
+import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
 import type {
   ApiAttributeDoc,
   ComponentDoc,
@@ -20,17 +20,17 @@ import type {
   ItemDoc,
   PropDoc,
   SlotDoc,
-} from './api-doc/types.ts'
-import { resolveDocsPageContext } from './core/paths.ts'
-import { readFrontmatterData } from './markdown/frontmatter.ts'
-import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx.ts'
-import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
-import { resolvePreviewFile } from './markdown/previews.ts'
-import { parsePreviewCode } from './previews/ast.ts'
-import { resolvePreviewExportName } from './previews/module.ts'
-import { resolvePreviewComponentSource } from './previews/source.ts'
-import type { DocsRouteEntry } from './routes.ts'
-import { scanDocsRoutes } from './routes.ts'
+} from './api-doc/types'
+import { resolveDocsPageContext } from './core/paths'
+import { readFrontmatterData } from './markdown/frontmatter'
+import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx'
+import { DOCS_MDX_FEATURES } from './markdown/plugins'
+import { resolvePreviewFile } from './markdown/previews'
+import { parsePreviewCode } from './previews/ast'
+import { resolvePreviewExportName } from './previews/module'
+import { resolvePreviewComponentSource } from './previews/source'
+import type { DocsRouteEntry } from './routes'
+import { scanDocsRoutes } from './routes'
 
 export interface LlmsTxtPluginOptions {
   projectRoot: string

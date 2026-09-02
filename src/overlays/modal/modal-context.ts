@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import type { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
 export interface ModalContext {
   open: Accessor<boolean>

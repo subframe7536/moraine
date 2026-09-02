@@ -1,9 +1,9 @@
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Separator } from './separator.tsx'
+import { Separator } from './separator'
 
 describe('Separator SSR Hydration', () => {
   test('hydrates the single separator root without reordering nodes', () => {

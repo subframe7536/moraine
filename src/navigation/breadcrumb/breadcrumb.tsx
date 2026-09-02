@@ -2,12 +2,12 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { cn } from '../../shared/utils'
 
 import {
   BREADCRUMB_DISABLED_CLASS,
@@ -19,8 +19,8 @@ import {
   BREADCRUMB_TRUNCATE_CLASS,
   breadcrumbSizeVariants,
   breadcrumbListVariants,
-} from './breadcrumb.class.ts'
-import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
+} from './breadcrumb.class'
+import type { BreadcrumbVariantProps } from './breadcrumb.class'
 
 export namespace BreadcrumbT {
   /**

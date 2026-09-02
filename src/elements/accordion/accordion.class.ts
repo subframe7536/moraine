@@ -1,4 +1,4 @@
-import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS } from '../collapsible/collapsible.class.ts'
+import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS } from '../collapsible/collapsible.class'
 
 export const ACCORDION_ROOT_CLASS = 'flex flex-col w-full'
 

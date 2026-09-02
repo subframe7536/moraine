@@ -4,7 +4,7 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from './button.tsx'
+import { Button } from './button'
 
 function createDeferred() {
   let resolve: (() => void) | undefined

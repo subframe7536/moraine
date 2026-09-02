@@ -2,10 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useListVirtualizer } from '../../utils.ts'
+import { useListVirtualizer } from '../../utils'
 
-import type { ListT } from './list.tsx'
-import { List } from './list.tsx'
+import type { ListT } from './list'
+import { List } from './list'
 
 describe('List', () => {
   test('accepts static JSX for itemRender', () => {

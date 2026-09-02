@@ -2,8 +2,8 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { BaseProps } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
+import type { BaseProps } from '../../shared/types'
+import { cn } from '../../shared/utils'
 
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>

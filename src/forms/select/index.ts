@@ -1,2 +1,2 @@
-export * from './select.tsx'
-export * from './multi-select.tsx'
+export * from './select'
+export * from './multi-select'

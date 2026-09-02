@@ -12,25 +12,25 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 
-import { useFloatingPosition } from './floating.ts'
-import { useOverlayInteraction } from './interaction.ts'
-import type { OverlayTriggerProps } from './trigger.ts'
-import { validateOverlayTrigger } from './trigger.ts'
+import { useFloatingPosition } from './floating'
+import { useOverlayInteraction } from './interaction'
+import type { OverlayTriggerProps } from './trigger'
+import { validateOverlayTrigger } from './trigger'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
   focusContent,
   focusTrigger,
   trapFocusInContainer,
-} from './utils.ts'
+} from './utils'
 
 export type PopperPlacement = Placement
 

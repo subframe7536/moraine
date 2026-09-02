@@ -2,9 +2,9 @@ import { waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { InputNumber } from './input-number.tsx'
+import { InputNumber } from './input-number'
 
 describe('InputNumber SSR Hydration', () => {
   test('hydrates a formatted controlled value without replacing horizontal nodes', async () => {

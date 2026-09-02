@@ -2,7 +2,7 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { DocsPlayground, normalizeDocsPlaygroundControls } from './docs-playground.tsx'
+import { DocsPlayground, normalizeDocsPlaygroundControls } from './docs-playground'
 
 describe('DocsPlayground', () => {
   test('calls the render prop once and updates its control values', async () => {

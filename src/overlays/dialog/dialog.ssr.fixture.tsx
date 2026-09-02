@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Dialog } from './dialog.tsx'
+import { Dialog } from './dialog'
 
 export function renderDialogFixture(): string {
   return renderToString(() => (

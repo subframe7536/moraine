@@ -2,11 +2,11 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { setPopperTestPlacementAccessor } from '../base/popper'
 
-import { Popover } from './popover.tsx'
-import type { PopoverT } from './popover.tsx'
+import { Popover } from './popover'
+import type { PopoverT } from './popover'
 
 let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined

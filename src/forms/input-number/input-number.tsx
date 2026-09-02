@@ -11,28 +11,28 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { Icon } from '../../elements/icon/index'
+import type { IconT } from '../../elements/icon/index'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, useId } from '../../shared/utils'
+import { useFormField } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
+import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class'
 import {
   inputNumberBaseVariants,
   inputNumberControlButtonVariants,
   inputNumberControlColumnVariants,
   inputNumberRootVariants,
   resolveInputNumberAlign,
-} from './input-number.class.ts'
+} from './input-number.class'
 
 type ControlKind = 'increment' | 'decrement'
 type PointerType = 'mouse' | 'touch' | 'pen'

@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Checkbox } from './checkbox.tsx'
+import { Checkbox } from './checkbox'
 
 export function renderCheckboxFixture(): string {
   return renderToString(() => (

@@ -1,7 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
-import { Breadcrumb } from './breadcrumb.tsx'
-import type { BreadcrumbT } from './breadcrumb.tsx'
+import { Breadcrumb } from './breadcrumb'
+import type { BreadcrumbT } from './breadcrumb'
 
 export function renderBreadcrumbItem(context: BreadcrumbT.ItemRenderProps) {
   return (

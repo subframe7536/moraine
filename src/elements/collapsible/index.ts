@@ -1,1 +1,1 @@
-export * from './collapsible.tsx'
+export * from './collapsible'

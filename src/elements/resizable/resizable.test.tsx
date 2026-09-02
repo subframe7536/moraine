@@ -3,7 +3,7 @@ import { createSignal } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
-import { Resizable } from './resizable.tsx'
+import { Resizable } from './resizable'
 
 type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -1159,7 +1159,7 @@ describe('Resizable', () => {
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
-    const { refreshResizableHandleIntersections } = await import('./hook/manager.ts')
+    const { refreshResizableHandleIntersections } = await import('./hook/manager')
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
@@ -1201,7 +1201,7 @@ describe('Resizable', () => {
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
-    const { refreshResizableHandleIntersections } = await import('./hook/manager.ts')
+    const { refreshResizableHandleIntersections } = await import('./hook/manager')
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
@@ -1235,7 +1235,7 @@ describe('Resizable', () => {
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
-    const { refreshResizableHandleIntersections } = await import('./hook/manager.ts')
+    const { refreshResizableHandleIntersections } = await import('./hook/manager')
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
@@ -1365,7 +1365,7 @@ describe('Resizable', () => {
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
-    const { refreshResizableHandleIntersections } = await import('./hook/manager.ts')
+    const { refreshResizableHandleIntersections } = await import('./hook/manager')
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
@@ -1405,7 +1405,7 @@ describe('Resizable', () => {
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
 
-    const { refreshResizableHandleIntersections } = await import('./hook/manager.ts')
+    const { refreshResizableHandleIntersections } = await import('./hook/manager')
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
