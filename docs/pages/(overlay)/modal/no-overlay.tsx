@@ -6,9 +6,8 @@ export function NoOverlay() {
       <Modal.Trigger as={Button} variant="outline">
         Open without backdrop
       </Modal.Trigger>
-      <Modal.Content
-        ariaLabel="Modal without a backdrop"
-        contentRender={(context) => (
+      <Modal.Content ariaLabel="Modal without a backdrop">
+        {(context) => (
           <div class="p-4 gap-4 grid">
             <p class="text-sm text-foreground">
               Set overlay to false when the host surface provides context.
@@ -18,7 +17,7 @@ export function NoOverlay() {
             </Button>
           </div>
         )}
-      />
+      </Modal.Content>
     </Modal>
   )
 }

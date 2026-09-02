@@ -1,5 +1,13 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  splitProps,
+  untrack,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createLazyMemo } from '../../shared/create-lazy-memo'
@@ -8,7 +16,7 @@ import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { cn, useId } from '../../shared/utils'
+import { callHandler, callRef, cn, useId } from '../../shared/utils'
 import { useOverlayInteraction } from '../base/interaction'
 import {
   acquireAriaHideOutside,
@@ -75,6 +83,12 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
+  export interface Slot<_T = unknown> {}
+  export type Variant = never
+  export type Classes = never
+  export type Styles = never
+  export interface Item {}
+
   export type Props = Base
 
   export type TriggerBase<T extends ValidComponent = 'button'> = {
@@ -101,13 +115,12 @@ export namespace ModalT {
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
-    never
+    Variant,
+    Classes,
+    Styles
   >
 
-  export interface ContentProps {
-    /** Receives the mounted content element and `undefined` when it unmounts. */
-    ref?: (element: HTMLDivElement | undefined) => void
-
+  export interface ContentBase {
     /** Whether to render the modal overlay element. */
     overlay?: boolean
 
@@ -124,10 +137,7 @@ export namespace ModalT {
     overlayStyle?: JSX.CSSProperties
 
     /** Component or element rendered inside the modal content surface. */
-    contentRender: ComponentOrElement<ContentContext>
-
-    /** Additional attributes applied to the modal content element. */
-    contentAttributes?: Record<string, string | number | boolean | undefined>
+    children: ComponentOrElement<ContentContext>
 
     /** Accessible name used when no visible label is available. */
     ariaLabel?: string
@@ -137,16 +147,9 @@ export namespace ModalT {
 
     /** Id of the element that describes the modal content. */
     ariaDescribedBy?: string
-
-    /**
-     * Class applied to the modal content element.
-     * When omitted, the default popup transition class is applied.
-     */
-    class?: string
-
-    /** Style applied to the modal content element. */
-    style?: JSX.CSSProperties
   }
+
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
 }
 
 /** Props for the Modal component. */
@@ -393,9 +396,31 @@ export function Modal(props: ModalProps): JSX.Element {
 }
 
 function ModalContent(props: ModalT.ContentProps): JSX.Element {
+  type RuntimeProps = ModalT.ContentBase & {
+    class?: string
+    style?: JSX.CSSProperties | string
+    ref?: (element: HTMLDivElement | undefined) => void
+    onKeyDown?: JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent>
+  } & Record<string, unknown>
+
+  const [local, rest] = splitProps(props as RuntimeProps, [
+    'ref',
+    'overlay',
+    'overlayScroll',
+    'overlayRef',
+    'overlayClass',
+    'overlayStyle',
+    'children',
+    'ariaLabel',
+    'ariaLabelledBy',
+    'ariaDescribedBy',
+    'class',
+    'style',
+    'onKeyDown',
+  ])
   const context = useModalContext()
-  const contentRender = createLazyMemo(() => props.contentRender)
-  const overlayScroll = createMemo(() => Boolean(props.overlayScroll && props.overlay))
+  const children = createLazyMemo(() => local.children)
+  const overlayScroll = createMemo(() => Boolean(local.overlayScroll && local.overlay))
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))
   const presence = context.presence
@@ -403,6 +428,10 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
   onCleanup(unregisterContent)
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
+    callHandler(event, local.onKeyDown)
+    if (event.defaultPrevented) {
+      return
+    }
     trapFocusInContainer(event, context.contentElement())
   }
 
@@ -412,16 +441,16 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
       {...presence.dataAttrs()}
       ref={(element) => {
         const unregister = presence.registerElement(element)
-        props.overlayRef?.(element)
+        local.overlayRef?.(element)
         onCleanup(() => {
           unregister()
-          props.overlayRef?.(undefined)
+          local.overlayRef?.(undefined)
         })
       }}
-      style={props.overlayStyle}
+      style={local.overlayStyle}
       class={cn(
-        props.overlayClass ?? MODAL_OVERLAY_CLASS,
-        props.overlayScroll && 'p-4 overflow-y-auto',
+        local.overlayClass ?? MODAL_OVERLAY_CLASS,
+        local.overlayScroll && 'p-4 overflow-y-auto',
       )}
     >
       {content}
@@ -430,33 +459,33 @@ function ModalContent(props: ModalT.ContentProps): JSX.Element {
 
   const renderContent = (): JSX.Element => (
     <div
-      {...props.contentAttributes}
+      {...rest}
       {...presence.dataAttrs()}
       ref={(element) => {
         const unregister = presence.registerElement(element)
         context.setContentElement(element)
-        props.ref?.(element)
+        callRef(local.ref, element)
         onCleanup(() => {
           unregister()
           if (context.contentElement() === element) {
             context.setContentElement(undefined)
-            props.ref?.(undefined)
+            callRef(local.ref, undefined)
           }
         })
       }}
       id={context.contentId()}
       role="dialog"
       aria-modal="true"
-      aria-label={props.ariaLabel}
-      aria-labelledby={props.ariaLabelledBy}
-      aria-describedby={props.ariaDescribedBy}
+      aria-label={local.ariaLabel}
+      aria-labelledby={local.ariaLabelledBy}
+      aria-describedby={local.ariaDescribedBy}
       tabIndex={-1}
       data-slot="content"
-      style={props.style}
-      class={props.class ?? `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`}
+      style={local.style}
+      class={local.class ?? `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`}
       onKeyDown={onContentKeyDown}
     >
-      {renderComponentOrElement(contentRender(), {
+      {renderComponentOrElement(children(), {
         close: () => context.updateOpen(false),
       })}
     </div>

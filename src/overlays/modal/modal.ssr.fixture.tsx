@@ -10,7 +10,9 @@ export function renderModalFixture(): string {
       <Modal.Trigger as={Button} variant="outline">
         Open modal
       </Modal.Trigger>
-      <Modal.Content contentRender={<span data-testid="hydrated-content">Content</span>} />
+      <Modal.Content>
+        <span data-testid="hydrated-content">Content</span>
+      </Modal.Content>
     </Modal>
   ))
 }

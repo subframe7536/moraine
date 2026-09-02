@@ -227,7 +227,7 @@ export function Sheet(props: SheetProps): JSX.Element {
         overlay={merged.overlay}
         overlayClass={cn(merged.classes?.overlay)}
         overlayStyle={merged.styles?.overlay}
-        contentAttributes={{ 'data-side': merged.side }}
+        data-side={merged.side}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
@@ -241,7 +241,8 @@ export function Sheet(props: SheetProps): JSX.Element {
           merged.classes?.content,
         )}
         style={merged.styles?.content}
-        contentRender={(props: ModalT.ContentContext): JSX.Element => (
+      >
+        {(props: ModalT.ContentContext): JSX.Element => (
           <>
             <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div
@@ -342,7 +343,7 @@ export function Sheet(props: SheetProps): JSX.Element {
             </Show>
           </>
         )}
-      />
+      </Modal.Content>
     </Modal>
   )
 }

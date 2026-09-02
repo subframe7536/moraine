@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
+import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index'
@@ -28,7 +28,9 @@ describe('Modal primitives', () => {
             </button>
           )}
         </ModalTriggerRenderer>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     const trigger = screen.getByRole('button', { name: 'Open modal' })
@@ -52,7 +54,9 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal onOpenChange={onOpenChange}>
         <Modal.Trigger data-testid="trigger">Open modal</Modal.Trigger>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     const trigger = screen.getByTestId<HTMLButtonElement>('trigger')
@@ -79,13 +83,17 @@ describe('Modal primitives', () => {
           <Modal.Trigger disabled data-testid="disabled-trigger">
             Disabled
           </Modal.Trigger>
-          <Modal.Content contentRender={<span>Disabled content</span>} />
+          <Modal.Content>
+            <span>Disabled content</span>
+          </Modal.Content>
         </Modal>
         <Modal onOpenChange={onOpenChange}>
           <Modal.Trigger onClick={(event) => event.preventDefault()} data-testid="canceled-trigger">
             Canceled
           </Modal.Trigger>
-          <Modal.Content contentRender={<span>Canceled content</span>} />
+          <Modal.Content>
+            <span>Canceled content</span>
+          </Modal.Content>
         </Modal>
       </>
     ))
@@ -110,13 +118,17 @@ describe('Modal primitives', () => {
           >
             Open with keyboard
           </Modal.Trigger>
-          <Modal.Content contentRender={<span>Div content</span>} />
+          <Modal.Content>
+            <span>Div content</span>
+          </Modal.Content>
         </Modal>
         <Modal>
           <Modal.Trigger as={Button} variant="outline" data-testid="button-trigger">
             Open with Button
           </Modal.Trigger>
-          <Modal.Content contentRender={<span>Button content</span>} />
+          <Modal.Content>
+            <span>Button content</span>
+          </Modal.Content>
         </Modal>
       </>
     ))
@@ -138,7 +150,9 @@ describe('Modal primitives', () => {
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content ariaLabel="Named modal" contentRender={<span>Content</span>} />
+        <Modal.Content ariaLabel="Named modal">
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -166,7 +180,9 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content overlay contentRender={<span>Content</span>} />
+        <Modal.Content overlay>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -182,7 +198,9 @@ describe('Modal primitives', () => {
   test('applies the shared dialog overlay classes by default', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay contentRender={<span>Content</span>} />
+        <Modal.Content overlay>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -202,7 +220,9 @@ describe('Modal primitives', () => {
   test('applies the default popup transition classes to custom modal content', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -217,7 +237,9 @@ describe('Modal primitives', () => {
   test('replaces the default content classes when a custom class is provided', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content class="custom-content" contentRender={<span>Content</span>} />
+        <Modal.Content class="custom-content">
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -230,7 +252,9 @@ describe('Modal primitives', () => {
     const onExitComplete = vi.fn()
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Content overlay contentRender={<span>Content</span>} />
+        <Modal.Content overlay>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -263,7 +287,9 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal open onExitComplete={onExitComplete}>
         <Show when={showContent()}>
-          <Modal.Content contentRender={<span>Content</span>} />
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
         </Show>
       </Modal>
     ))
@@ -278,7 +304,9 @@ describe('Modal primitives', () => {
   test('does not render an overlay by default', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -298,8 +326,9 @@ describe('Modal primitives', () => {
           overlayClass="custom-overlay"
           overlayStyle={{ opacity: '0.4' }}
           ref={contentRef}
-          contentRender={<span>Content</span>}
-        />
+        >
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -323,7 +352,9 @@ describe('Modal primitives', () => {
   test('can contain the content inside a scrolling overlay', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay overlayScroll contentRender={<span>Content</span>} />
+        <Modal.Content overlay overlayScroll>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -341,7 +372,9 @@ describe('Modal primitives', () => {
     document.body.append(background)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
 
@@ -363,11 +396,15 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <Modal defaultOpen>
-          <Modal.Content contentRender={<span data-testid="outer-content">Outer</span>} />
+          <Modal.Content>
+            <span data-testid="outer-content">Outer</span>
+          </Modal.Content>
         </Modal>
         <Show when={showInner()}>
           <Modal defaultOpen>
-            <Modal.Content contentRender={<span data-testid="inner-content">Inner</span>} />
+            <Modal.Content>
+              <span data-testid="inner-content">Inner</span>
+            </Modal.Content>
           </Modal>
         </Show>
       </>
@@ -403,7 +440,9 @@ describe('Modal primitives', () => {
   test('keeps a registered descendant overlay portal exposed to assistive technology', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content contentRender={<span>Outer</span>} />
+        <Modal.Content>
+          <span>Outer</span>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -442,11 +481,15 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <Modal defaultOpen>
-          <Modal.Content contentRender={<span>Outer</span>} />
+          <Modal.Content>
+            <span>Outer</span>
+          </Modal.Content>
         </Modal>
         <Show when={showInner()}>
           <Modal defaultOpen>
-            <Modal.Content contentRender={<span>Inner</span>} />
+            <Modal.Content>
+              <span>Inner</span>
+            </Modal.Content>
           </Modal>
         </Show>
       </>
@@ -480,7 +523,9 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -502,7 +547,9 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content contentRender={<input data-testid="editor" />} />
+        <Modal.Content>
+          <input data-testid="editor" />
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -524,7 +571,9 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -565,7 +614,9 @@ describe('Modal primitives', () => {
     const onClosePrevent = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange} onClosePrevent={onClosePrevent}>
-        <Modal.Content contentRender={<span>Content</span>} />
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -591,17 +642,15 @@ describe('Modal primitives', () => {
           Outside
         </button>
         <Modal open onOpenChange={onOpenChange}>
-          <Modal.Content
-            contentRender={
-              <button
-                type="button"
-                data-testid="inside"
-                onKeyDown={(event) => event.preventDefault()}
-              >
-                Inside
-              </button>
-            }
-          />
+          <Modal.Content>
+            <button
+              type="button"
+              data-testid="inside"
+              onKeyDown={(event) => event.preventDefault()}
+            >
+              Inside
+            </button>
+          </Modal.Content>
         </Modal>
       </>
     ))
@@ -621,18 +670,16 @@ describe('Modal primitives', () => {
     document.body.append(outside)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content
-          contentRender={
-            <>
-              <button type="button" data-testid="first">
-                First
-              </button>
-              <button type="button" data-testid="second">
-                Second
-              </button>
-            </>
-          }
-        />
+        <Modal.Content>
+          <>
+            <button type="button" data-testid="first">
+              First
+            </button>
+            <button type="button" data-testid="second">
+              Second
+            </button>
+          </>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -652,15 +699,15 @@ describe('Modal primitives', () => {
     const [showButton, setShowButton] = createSignal(true)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content
-          contentRender={() => (
+        <Modal.Content>
+          {() => (
             <Show when={showButton()} fallback={<span>Remaining content</span>}>
               <button type="button" data-testid="remove" onPointerDown={() => setShowButton(false)}>
                 Remove
               </button>
             </Show>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -702,13 +749,13 @@ describe('Modal primitives', () => {
     previous.focus()
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content
-          contentRender={(context) => (
+        <Modal.Content>
+          {(context) => (
             <button type="button" data-testid="close" onClick={context.close}>
               Close
             </button>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -731,25 +778,25 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal>
         <Modal.Trigger data-testid="outer-trigger">Open outer</Modal.Trigger>
-        <Modal.Content
-          contentRender={(outerContext) => (
+        <Modal.Content>
+          {(outerContext) => (
             <>
               <button type="button" data-testid="outer-close" onClick={outerContext.close}>
                 Close outer
               </button>
               <Modal>
                 <Modal.Trigger data-testid="inner-trigger">Open inner</Modal.Trigger>
-                <Modal.Content
-                  contentRender={(innerContext) => (
+                <Modal.Content>
+                  {(innerContext) => (
                     <button type="button" data-testid="inner-close" onClick={innerContext.close}>
                       Close inner
                     </button>
                   )}
-                />
+                </Modal.Content>
               </Modal>
             </>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
 
@@ -785,24 +832,22 @@ describe('Modal primitives', () => {
   test('focuses the first enabled control and loops Tab at both content boundaries', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content
-          contentRender={
-            <>
-              <button type="button" disabled>
-                Disabled
-              </button>
-              <div aria-hidden="true">
-                <button type="button">Hidden</button>
-              </div>
-              <button type="button" data-testid="first-enabled">
-                First enabled
-              </button>
-              <button type="button" data-testid="last-enabled">
-                Last enabled
-              </button>
-            </>
-          }
-        />
+        <Modal.Content>
+          <>
+            <button type="button" disabled>
+              Disabled
+            </button>
+            <div aria-hidden="true">
+              <button type="button">Hidden</button>
+            </div>
+            <button type="button" data-testid="first-enabled">
+              First enabled
+            </button>
+            <button type="button" data-testid="last-enabled">
+              Last enabled
+            </button>
+          </>
+        </Modal.Content>
       </Modal>
     ))
     await Promise.resolve()
@@ -841,13 +886,13 @@ describe('Modal primitives', () => {
         <Modal.Trigger disabled={disabled()} data-testid="trigger">
           Open
         </Modal.Trigger>
-        <Modal.Content
-          contentRender={(context) => (
+        <Modal.Content>
+          {(context) => (
             <button type="button" data-testid="close-disabled" onClick={context.close}>
               Close
             </button>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
     const trigger = screen.getByTestId('trigger')
@@ -873,13 +918,13 @@ describe('Modal primitives', () => {
         <Show when={showTrigger()}>
           <Modal.Trigger data-testid="removable-trigger">Open</Modal.Trigger>
         </Show>
-        <Modal.Content
-          contentRender={(context) => (
+        <Modal.Content>
+          {(context) => (
             <button type="button" data-testid="close-removed" onClick={context.close}>
               Close
             </button>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
     const trigger = screen.getByTestId('removable-trigger')
@@ -905,14 +950,13 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
         <Modal.Trigger data-testid="rapid-trigger">Open</Modal.Trigger>
-        <Modal.Content
-          overlay
-          contentRender={(context) => (
+        <Modal.Content overlay>
+          {(context) => (
             <button type="button" data-testid="rapid-close" onClick={context.close}>
               Close
             </button>
           )}
-        />
+        </Modal.Content>
       </Modal>
     ))
     const trigger = screen.getByTestId('rapid-trigger')
@@ -963,6 +1007,23 @@ describe('Modal primitives', () => {
     expect(childrenReads).toBe(1)
   })
 
+  test('resolves content children getter once', () => {
+    let childrenReads = 0
+
+    render(() => (
+      <Modal defaultOpen>
+        {createComponent(Modal.Content, {
+          get children() {
+            childrenReads += 1
+            return <span>Content</span>
+          },
+        })}
+      </Modal>
+    ))
+
+    expect(childrenReads).toBe(1)
+  })
+
   test('does not instantiate closed content and mounts it once after opening', async () => {
     let instances = 0
 
@@ -970,12 +1031,12 @@ describe('Modal primitives', () => {
       <Modal>
         <Modal.Trigger>Open</Modal.Trigger>
         <Show when={true}>
-          <Modal.Content
-            contentRender={() => {
+          <Modal.Content>
+            {() => {
               instances += 1
               return <span>Content</span>
             }}
-          />
+          </Modal.Content>
         </Show>
       </Modal>
     ))

@@ -10,10 +10,8 @@ export function Controlled() {
         Open controlled modal
       </Button>
       <Modal open={open()} onOpenChange={setOpen}>
-        <Modal.Content
-          overlay
-          ariaLabel="Controlled modal"
-          contentRender={(context) => (
+        <Modal.Content overlay ariaLabel="Controlled modal">
+          {(context) => (
             <div class="p-4 gap-4 grid">
               <p class="text-sm text-foreground">
                 The parent owns the open state through onOpenChange.
@@ -23,7 +21,7 @@ export function Controlled() {
               </Button>
             </div>
           )}
-        />
+        </Modal.Content>
       </Modal>
     </div>
   )

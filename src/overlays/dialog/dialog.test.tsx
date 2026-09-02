@@ -31,7 +31,7 @@ function TestModal(props: TestModalProps): JSX.Element {
     <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
       <ModalTriggerRenderer children={trigger()} />
       <Show when={content()}>
-        <Modal.Content overlay={props.overlay} contentRender={content()} />
+        <Modal.Content overlay={props.overlay}>{content()}</Modal.Content>
       </Show>
     </Modal>
   )

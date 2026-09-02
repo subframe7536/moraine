@@ -100,7 +100,7 @@ export interface DocsCodeRenderOptions {
 
 function findDirectChildByClass(parent: Element, className: string): any {
   return parent.children.find(
-    (child: Element): child is Element =>
+    (child: any): child is Element =>
       child.type === 'element' && getClassNames(child).includes(className),
   )
 }

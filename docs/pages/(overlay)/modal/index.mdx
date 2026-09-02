@@ -40,10 +40,8 @@ import type { ModalT } from 'moraine'
         <Modal.Trigger as={Button} variant="outline">
           Open Modal
         </Modal.Trigger>
-        <Modal.Content
-          overlay={props.overlay}
-          ariaLabel={props.ariaLabel}
-          contentRender={(context) => (
+        <Modal.Content overlay={props.overlay} ariaLabel={props.ariaLabel}>
+          {(context) => (
             <div class="p-5 gap-4 grid">
               <div>
                 <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
@@ -59,7 +57,7 @@ import type { ModalT } from 'moraine'
               </div>
             </div>
           )}
-        />
+        </Modal.Content>
       </Modal>
     )
   }}
@@ -73,7 +71,7 @@ Modal (state provider)
 └── Modal.Content (portal)
     ├── overlay (optional)
     └── content
-        └── contentRender ({ close })
+        └── children ({ close })
 ```
 
 - `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.

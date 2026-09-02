@@ -56,6 +56,7 @@ export namespace DialogT {
     footer?: T
   }
 
+  export type Variant = never
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -133,7 +134,7 @@ export namespace DialogT {
    * Props for the Dialog component.
    */
   export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, never, Classes, Styles>
+  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
 }
 
 /**
@@ -288,7 +289,8 @@ export function Dialog(props: DialogProps): JSX.Element {
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
-        contentRender={(context) => {
+      >
+        {(context) => {
           const hasHeader = () =>
             hasCustomHeader() ||
             hasJsxContent(title()) ||
@@ -341,7 +343,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             </>
           )
         }}
-      />
+      </Modal.Content>
     </Modal>
   )
 }

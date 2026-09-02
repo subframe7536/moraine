@@ -22,7 +22,9 @@ describe('Modal SSR Hydration', () => {
           <Modal.Trigger as={Button} variant="outline">
             Open modal
           </Modal.Trigger>
-          <Modal.Content contentRender={<Content />} />
+          <Modal.Content>
+            <Content />
+          </Modal.Content>
         </Modal>
       ),
     )

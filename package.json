@@ -118,6 +118,13 @@
       "optional": true
     }
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "nub",
+      "version": "^0.7.5",
+      "onFail": "ignore"
+    }
+  },
   "inlinedDependencies": {
     "valibot": "1.4.2"
   }

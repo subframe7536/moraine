@@ -13,10 +13,8 @@ export function ModalLifecycle() {
         onOpenChange={setOpen}
         onExitComplete={() => setLog('Exit transition fully completed')}
       >
-        <Modal.Content
-          overlay
-          ariaLabel="Lifecycle Monitored"
-          contentRender={(context) => (
+        <Modal.Content overlay ariaLabel="Lifecycle Monitored">
+          {(context) => (
             <div class="p-6 b-(1 border) rounded-xl bg-background max-w-sm w-full shadow-xl space-y-4">
               <h3 class="text-base font-semibold">Lifecycle Monitored</h3>
               <p class="text-xs text-muted-foreground">
@@ -29,7 +27,7 @@ export function ModalLifecycle() {
               </div>
             </div>
           )}
-        />
+        </Modal.Content>
       </Modal>
       <p class="text-xs text-muted-foreground">
         Lifecycle log: <span class="text-foreground font-mono">{log()}</span>

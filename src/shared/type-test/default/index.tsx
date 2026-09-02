@@ -34,7 +34,9 @@ modalContentContext.close()
 ;<Button as={CustomRoot} required="yes" />
 ;<List items={[1, 2]} itemRender={(context) => context.item} />
 ;<Modal defaultOpen>
-  <Modal.Content overlay ariaLabel="Type fixture" contentRender="Modal content" />
+  <Modal.Content overlay ariaLabel="Type fixture">
+    Modal content
+  </Modal.Content>
 </Modal>
 
 ;<Dialog data-testid="dialog-trigger">

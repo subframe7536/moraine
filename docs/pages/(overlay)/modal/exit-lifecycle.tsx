@@ -14,10 +14,8 @@ export function ExitLifecycle() {
         onOpenChange={setOpen}
         onExitComplete={() => setExitCount((count) => count + 1)}
       >
-        <Modal.Content
-          overlay
-          ariaLabel="Exit lifecycle example"
-          contentRender={({ close }) => (
+        <Modal.Content overlay ariaLabel="Exit lifecycle example">
+          {({ close }) => (
             <div class="p-5 rounded-xl bg-card shadow-xl">
               <p class="text-sm mb-4">
                 Close this modal and watch the count update after exit motion.
@@ -25,7 +23,7 @@ export function ExitLifecycle() {
               <Button onClick={close}>Close</Button>
             </div>
           )}
-        />
+        </Modal.Content>
       </Modal>
     </div>
   )
