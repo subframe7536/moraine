@@ -40,8 +40,8 @@ inheritance rule during the migration.
   and merges its class/default props directly. This is the concrete pattern
   later plans must refactor so provider values sit before composition and
   instance values.
-- `PRD.md:501-656` defines the provider types and deep merge behavior.
-  `PRD.md:646-690` is the normative precedence contract:
+- `PRD.md §3.5.1–§3.5.2` defines the provider types and deep merge behavior.
+  `PRD.md §3.5.4` is the normative precedence contract:
   recipe defaults → outer/inner provider defaults → composition context →
   instance for design props; root classes/styles also insert provider general
   values before provider root-slot values; instance root slot precedes top-level
@@ -103,7 +103,7 @@ barrels, rather than hard-coding a list that silently drifts.
 Create `src/shared/provider/moraine-provider.tsx`. Import all package-root
 component namespace types as type-only imports and implement
 `ComponentDefaultStyle<V, C, S>` and `MoraineConfig` according to the full key
-list above and `PRD.md:505-550`. Preserve component namespaces as the public
+list above and `PRD.md §3.5.1`. Preserve component namespaces as the public
 type source; do not introduce duplicate top-level component type exports.
 
 `ComponentDefaultStyle` must expose `defaultProps`, general root `class` and
@@ -165,7 +165,11 @@ test the provider in real Solid ownership:
   type fixtures;
 - use a small test consumer to demonstrate the exact class/style chain:
   recipe/default → outer/inner provider general → outer/inner root slot →
-  composition → instance slot → instance root.
+  composition → instance slot → instance root;
+- assert `resolveComponentStyle` reproduces the precedence table (§3.5.3): for a
+  multi-slot recipe, feed a provider/group/instance/stateCls/baseStyle and check the
+  emitted root/slot class and style order matches the documented table. This test is
+  the guard that keeps the single resolver and the table in sync.
 
 The test consumer may be local to the test file; do not prematurely modify
 `Button` or another public component in this plan.

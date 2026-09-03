@@ -45,9 +45,9 @@ navigation, accessibility, or SSR behavior.
 - `src/unocss/theme.ts:100-175,540-585` currently generates semantic
   animation shortcuts. Plans 001/005 replace them with explicit source
   constants and retain only engine-level `animate-mo-enter/exit` support.
-- `PRD.md:570-580` assigns `ModalTrigger` and `ModalTriggerRenderer` to
+- `PRD.md §3.5.1` assigns `ModalTrigger` and `ModalTriggerRenderer` to
   `modal`; select/menu internals to their root owners; sidebar render strategy
-  components to `sidebarFrame`. `PRD.md:646-690` is the binding class/style
+  components to `sidebarFrame`. `PRD.md §3.5.4` is the binding class/style
   precedence rule.
 
 Overlay root `class`/`style` often target the trigger while content is a named
@@ -185,3 +185,9 @@ the final class/style argument order at every trigger and floating slot, not
 only the rendered output. Keep semantic animation behavior visible in source:
 the engine should provide animation primitives, while the component owns its
 state selector and offset variables.
+
+Use the shared `resolveComponentStyle` helper (§3.5.3) for every trigger and
+floating slot, passing `stateCls` for open/closed animation state classes and
+`baseStyle` for the popover/menu/sheet side offset CSS variables. Do not re-roll
+the ordering inline — verify with a review-time regex that no
+`slots().root(`/`slots().<slot>(` chain appears outside `resolveComponentStyle`.

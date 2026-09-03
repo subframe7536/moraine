@@ -28,7 +28,7 @@ repeatable checks and prevents a partial migration from shipping.
 
 ## Current state
 
-- `PRD.md:1015-1048` defines 12 acceptance criteria and the verification
+- `PRD.md §6` defines 12 acceptance criteria and the verification
   matrix. It requires zero legacy structural shortcuts only under `src/`; docs
   are deliberately excluded because their UnoCSS authoring syntax remains.
 - Current source contains legacy tokens in class modules and engine
@@ -94,6 +94,12 @@ assert no `cva`, `extendCN`, `cls-variant`, Wind3 API, `tw3.css`, `tw4.css`,
 variant-result cache, LRU, or `O(1)` claim is exposed. Assert all 36 class
 modules are either a `recipe` user when variant-bearing or static `*_CLASS`
 constants when not.
+
+Add the Single Resolver Audit: scan `src/**/*.tsx` (excluding `resolveComponentStyle`
+itself) and fail with the file/line on any `slots().root(` or `slots().<slot>(`
+class/style ordering chain — every component must route precedence through
+`resolveComponentStyle` (§3.5.3). Also assert the shared test that compares
+`resolveComponentStyle` output to the §3.5.4 precedence table runs in this suite.
 
 **Verify**: `nub run test test/acceptance/style-system.test.ts` → exit 0 and
 the audit prints no prohibited match.

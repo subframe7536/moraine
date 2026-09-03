@@ -25,6 +25,7 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
 ## 2. Core Objectives & Architectural Decisions
 
 ### 2.1. Supported Engines & Breaking Changes
+
 - **Tailwind CSS v4:** First-class support via standard utility syntax.
 - **UnoCSS:** First-class support through `@subf/unocss` with `presetWind4()` and Moraine's `presetMoraine()`.
 - **Tailwind CSS v3:** **Explicitly dropped**. All legacy v3 configurations, preflights, peer dependency ranges, and CSS bundles (`tw3.css`) are removed.
@@ -35,9 +36,10 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
   - **Standalone `icon.css` Runtime Asset Retained (Plan A):** `tsdown.config.ts` generates one lightweight `icon.css` asset containing SVG mask rules for internal `DEFAULT_ICON_SHORTCUTS` (Lucide icons). It is an optional browser runtime asset, comparable to an icon font or sprite sheet. It is **not** part of the component styling pipeline, does not register Moraine theme tokens, and does not replace the required Tailwind plugin or UnoCSS preset. Consumers using `@iconify/tailwind` or UnoCSS `presetIcons()` omit it.
 
 ### 2.2. Override Architecture Decision: Runtime `cn` vs. CSS Cascade Layers
+
 - **Current Model:** `presetMoraine` with `enableComponentLayer` compiled component utilities into internal prefixed or hashed classes inside the `mo-component` layer with order `-1` vs consumer layer `1`.
 - **New Model:** Component layer injection is **deprecated and removed**. Specificity management is transferred to **JavaScript runtime class conflict resolution via [`shadcn-ui/cn`](https://github.com/shadcn-ui/cn)**.
-- **Rationale:** 
+- **Rationale:**
   - Standardizes Moraine with the modern Tailwind ecosystem (shadcn, Radix/Base UI).
   - Eliminates the need for custom AST transformers (`transformerInjectPrefix`, `transformerInjectCompileClass`).
   - Ensures that a later recognized utility in the same modifier and utility group (`px-5`) replaces an earlier conflicting utility (`px-3`) before the class attribute is written.
@@ -55,6 +57,7 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
 `cn` does **not** generate CSS, scan source files, load `moraine/tailwind`, install UnoCSS presets, expand Moraine/UnoCSS shortcuts, validate that a token exists in the consumer theme, or supersede the CSS cascade between different elements or stylesheets. Arbitrary selectors and arbitrary properties are preserved and merged only to the extent supported by `cn`'s Tailwind-compatible parser. Consequently, engine registration, static token migration, and consumer source configuration remain independent required parts of this refactor.
 
 ### 2.3. AGENTS.md Alignment & Syntax Scope
+
 - `AGENTS.md` previously mandated UnoCSS variant groups (`hover:(bg-red-500 text-white)`).
 - **Rule Updated for Component Source (`src/`):** `AGENTS.md` now explicitly mandates **standard flat Tailwind utility syntax** (`hover:bg-red-500 hover:text-white`) and strictly forbids parenthesized variant groups in component code (`src/`) so all library classes can be scanned natively by Tailwind v4 and resolved by `cn`.
 - **Docs Preservation Scope (`docs/`):** The documentation application in `docs/` is built with UnoCSS and **preserves `transformerVariantGroup`** as well as UnoCSS-specific syntax (variant groups, markdown shortcuts, custom UnoCSS directives) in `docs/unocss.config.ts` and documentation pages.
@@ -66,6 +69,7 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
 ### 3.1. Runtime Class Resolution (`cn` & In-House `recipe`)
 
 #### 1. Custom `cn` Instance via `cn/config` (`src/shared/utils.ts`)
+
 To ensure that Moraine's semantic tokens participate in runtime conflict resolution (e.g. `z-10` overriding `z-floating`, or `opacity-100` overriding `opacity-64`), `cn` is configured using `createCn`:
 
 ```ts
@@ -74,15 +78,7 @@ import { createCn } from 'cn/config'
 export const cn = createCn({
   extend: {
     classGroups: {
-      z: [
-        'z-base',
-        'z-raised',
-        'z-control',
-        'z-sticky',
-        'z-resize',
-        'z-overlay',
-        'z-floating',
-      ],
+      z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
       opacity: ['opacity-64'],
     },
   },
@@ -143,6 +139,17 @@ export interface SlotRecipeOptions<S extends string, V extends VariantSchema> {
   compoundVariants?: Array<SlotCompoundVariant<S, V>>
   defaultVariants?: VariantSelection<V>
 }
+
+> **Note — canonical recipe type shape (source of truth).** This PRD type block is
+> the normative definition; `plans/001-object-only-style-runtime.md` reuses it verbatim
+> rather than re-declaring a divergent shape. Two clarifications bind both documents:
+> 1. **Variant value keys are always string keys**, never `boolean`, because object keys in
+>    TypeScript cannot be `boolean`. Boolean variants are expressed at the *call site* via
+>    `VariantSelection<V>`, and select the string keys `'true'` / `'false'`.
+> 2. **`SlotClasses<S>` is definitionally `Partial<Record<S[number], ClassValue>>`** — the
+>    `Partial<Record<S[number], ClassValue>>` form used by the implementation is the exact
+>    expansion of `SlotClasses<S>` (given `S extends string`, `S[number]` is `S`). Any
+>    divergence in the implementation must be reconciled here, not silently re-shaped.
 
 export type SlotFn = (...extraClasses: ClassValue[]) => string | undefined
 
@@ -334,8 +341,7 @@ The 12 named shortcuts in `src/unocss/theme.ts`, semantic animation shortcuts, a
 export const FOCUS_VISIBLE_RING =
   'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
 
-export const HOVER_RING =
-  'hover:outline-none hover:ring-3 hover:ring-ring/50'
+export const HOVER_RING = 'hover:outline-none hover:ring-3 hover:ring-ring/50'
 
 export const FOCUS_VISIBLE_RING_BORDER =
   'focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
@@ -353,14 +359,11 @@ export const DATA_FOCUSED_RING_BORDER =
  * 2. Disabled State Presets
  * Replaces: 'effect-dis'
  */
-export const DISABLED_EFFECT =
-  'disabled:opacity-64 disabled:pointer-events-none'
+export const DISABLED_EFFECT = 'disabled:opacity-64 disabled:pointer-events-none'
 
-export const ARIA_DISABLED_EFFECT =
-  'aria-disabled:opacity-64 aria-disabled:pointer-events-none'
+export const ARIA_DISABLED_EFFECT = 'aria-disabled:opacity-64 aria-disabled:pointer-events-none'
 
-export const DATA_DISABLED_EFFECT =
-  'data-disabled:opacity-64 data-disabled:pointer-events-none'
+export const DATA_DISABLED_EFFECT = 'data-disabled:opacity-64 data-disabled:pointer-events-none'
 
 export const INTERACTION_DISABLED =
   'disabled:opacity-64 disabled:pointer-events-none aria-disabled:opacity-64 aria-disabled:pointer-events-none data-disabled:opacity-64 data-disabled:pointer-events-none'
@@ -389,31 +392,25 @@ export const DATA_FOCUSED_DATA_INVALID_BORDER =
  * Replaces: 'effect-loading'
  * Note: LOADING_SPINNER applies strictly to the icon/spinner slot, NOT the root control.
  */
-export const LOADING_SPINNER =
-  'cursor-wait opacity-80 animate-spin'
+export const LOADING_SPINNER = 'cursor-wait opacity-80 animate-spin'
 
-export const ROOT_LOADING =
-  'aria-busy:cursor-wait data-loading:cursor-wait'
+export const ROOT_LOADING = 'aria-busy:cursor-wait data-loading:cursor-wait'
 
 /**
  * 5. Surface & Layout Presets
  * Replaces: 'surface-overlay', 'hidden-hitless', 'rm-side-b'
  */
-export const SURFACE_OVERLAY =
-  'border border-border shadow-md'
+export const SURFACE_OVERLAY = 'border border-border shadow-md'
 
-export const HIDDEN_HITLESS =
-  'opacity-0 pointer-events-none'
+export const HIDDEN_HITLESS = 'opacity-0 pointer-events-none'
 
-export const RM_SIDE_BORDER =
-  '[&>[data-slot=sidebar]]:border-0!'
+export const RM_SIDE_BORDER = '[&>[data-slot=sidebar]]:border-0!'
 
 /**
  * 6. Element Style Presets
  * Replaces: 'style-placeholder', 'style-input-number', 'style-accordion-content', 'transition-bg'
  */
-export const STYLE_PLACEHOLDER =
-  'placeholder:text-muted-foreground placeholder:select-none'
+export const STYLE_PLACEHOLDER = 'placeholder:text-muted-foreground placeholder:select-none'
 
 export const STYLE_INPUT_NUMBER =
   '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
@@ -421,58 +418,42 @@ export const STYLE_INPUT_NUMBER =
 export const STYLE_ACCORDION_CONTENT =
   '[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4'
 
-export const TRANSITION_BG =
-  '[transition-property:background-color]'
+export const TRANSITION_BG = '[transition-property:background-color]'
 
 /**
  * 7. Semantic Animation Presets
  * Replaces UnoCSS-only animate-{target}-{phase/side} shortcuts in src/.
  * These constants expand to utilities registered by the required engine integration.
  */
-export const OVERLAY_ENTER =
-  'data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0]'
-export const OVERLAY_EXIT =
-  'data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0]'
+export const OVERLAY_ENTER = 'data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0]'
+export const OVERLAY_EXIT = 'data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0]'
 export const POPUP_ENTER =
   'data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0] data-expanded:[--mo-enter-scale:0.95]'
 export const POPUP_EXIT =
   'data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0] data-closed:[--mo-exit-scale:0.95]'
 
-export const MENU_SIDE_TOP =
-  '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
-export const MENU_SIDE_RIGHT =
-  '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
-export const MENU_SIDE_BOTTOM =
-  '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
-export const MENU_SIDE_LEFT =
-  '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
+export const MENU_SIDE_TOP = '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
+export const MENU_SIDE_RIGHT = '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
+export const MENU_SIDE_BOTTOM = '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
+export const MENU_SIDE_LEFT = '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
 
-export const POPOVER_SIDE_TOP =
-  '[--mo-enter-translate-y:0.5rem] [--mo-exit-translate-y:0.5rem]'
-export const POPOVER_SIDE_RIGHT =
-  '[--mo-enter-translate-x:-0.5rem] [--mo-exit-translate-x:-0.5rem]'
+export const POPOVER_SIDE_TOP = '[--mo-enter-translate-y:0.5rem] [--mo-exit-translate-y:0.5rem]'
+export const POPOVER_SIDE_RIGHT = '[--mo-enter-translate-x:-0.5rem] [--mo-exit-translate-x:-0.5rem]'
 export const POPOVER_SIDE_BOTTOM =
   '[--mo-enter-translate-y:-0.5rem] [--mo-exit-translate-y:-0.5rem]'
-export const POPOVER_SIDE_LEFT =
-  '[--mo-enter-translate-x:0.5rem] [--mo-exit-translate-x:0.5rem]'
+export const POPOVER_SIDE_LEFT = '[--mo-enter-translate-x:0.5rem] [--mo-exit-translate-x:0.5rem]'
 
-export const TOOLTIP_SIDE_TOP =
-  '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
+export const TOOLTIP_SIDE_TOP = '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
 export const TOOLTIP_SIDE_RIGHT =
   '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
 export const TOOLTIP_SIDE_BOTTOM =
   '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
-export const TOOLTIP_SIDE_LEFT =
-  '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
+export const TOOLTIP_SIDE_LEFT = '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
 
-export const SHEET_SIDE_TOP =
-  '[--mo-enter-translate-y:-2.5rem] [--mo-exit-translate-y:-2.5rem]'
-export const SHEET_SIDE_RIGHT =
-  '[--mo-enter-translate-x:2.5rem] [--mo-exit-translate-x:2.5rem]'
-export const SHEET_SIDE_BOTTOM =
-  '[--mo-enter-translate-y:2.5rem] [--mo-exit-translate-y:2.5rem]'
-export const SHEET_SIDE_LEFT =
-  '[--mo-enter-translate-x:-2.5rem] [--mo-exit-translate-x:-2.5rem]'
+export const SHEET_SIDE_TOP = '[--mo-enter-translate-y:-2.5rem] [--mo-exit-translate-y:-2.5rem]'
+export const SHEET_SIDE_RIGHT = '[--mo-enter-translate-x:2.5rem] [--mo-exit-translate-x:2.5rem]'
+export const SHEET_SIDE_BOTTOM = '[--mo-enter-translate-y:2.5rem] [--mo-exit-translate-y:2.5rem]'
+export const SHEET_SIDE_LEFT = '[--mo-enter-translate-x:-2.5rem] [--mo-exit-translate-x:-2.5rem]'
 ```
 
 The implementation defines the corresponding popover, tooltip, and sheet side constants using their existing offsets and directions. Every `animate-overlay-*`, `animate-popup-*`, `animate-menu-*`, `animate-popover-*`, `animate-tooltip-*`, and `animate-sheet-*` occurrence in `src/` is replaced by explicit `animate-mo-enter`/`animate-mo-exit` utilities plus CSS-variable constants. The semantic shortcut definitions are then removed from `presetMoraine`; they remain neither hidden engine behavior nor an undocumented compatibility layer.
@@ -483,30 +464,30 @@ The implementation defines the corresponding popover, tooltip, and sheet side co
 
 All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS regex rules is mapped to standard Tailwind utility syntax across all 36 `.class.ts` files and all component `.tsx` files in `src/` (**`docs/` is excluded and preserves `transformerVariantGroup` and UnoCSS syntax**):
 
-| Non-Standard / UnoCSS Token | Standard Tailwind Replacement | Scope |
-| :--- | :--- | :--- |
-| `b-1`, `b` | `border` | `accordion`, `button`, `card`, `file-upload`, etc. |
-| `b-t`, `b-[trblxy]` | `border-t`, etc. | `separator.class.ts` |
-| `b-b-2`, `b-border`, `b-transparent` | `border-b-2`, `border-border`, `border-transparent` | `accordion`, `card`, `select` |
-| `content-empty` | `content-['']` | `avatar`, `resizable`, `slider` |
-| `not-dark:bg-clip-padding` | `[html:not(.dark)_&]:bg-clip-padding` | `card.class.ts`, `slider.class.ts` |
-| `not-last:border-(b b-border)` | `[&:not(:last-child)]:border-b [&:not(:last-child)]:border-border` | `accordion.class.ts` |
-| `not-first-of-type:-ms-px` | `[&:not(:first-of-type)]:-ms-px` | `cva-common.class.ts`, `checkbox-group`, `radio-group` |
-| `h-$mo-collapsible-content-height` | `h-[var(--mo-collapsible-content-height)]` | `accordion`, `collapsible` |
-| `origin-$mo-popper-...` | `origin-[var(--mo-popper-content-transform-origin)]` | `select`, `menu`, `popover`, `tooltip` |
-| `var-progress-{n}` | Root `style` injection via `progressStyleVars` (`--p-size`) | `progress.class.ts` & `progress.tsx` |
-| `var-slider-{n}` | Root `style` injection via `sliderStyleVars` (`--s-size`) | `slider.class.ts` & `slider.tsx` |
-| `var-slider-bold-{size}-{len}-{off}`| Root `style` injection via `sliderStyleVars` (`--s-size`, `--s-len`, `--s-offset`, `--s-pos`) | `slider.class.ts` & `slider.tsx` |
-| `var-stepper-{s}-{x}-{g}-{p}` | Root `style` injection via `stepperStyleVars` (`--st-size`, `--st-sep-x`, `--st-sep-top`, `--st-gap`, `--st-pt`) | `stepper.class.ts` & `stepper.tsx` |
-| `hover:(bg-red-500 text-white)` | `hover:bg-red-500 hover:text-white` | All 36 `.class.ts` files and `.tsx` files in `src/` |
-| `after:(content-empty absolute ...)` | `after:content-[''] after:absolute ...` | `avatar`, `resizable`, `slider` in `src/` |
-| `ring-3px` | `ring-3` | Focus presets |
-| `animate-overlay-{in,out}` | `OVERLAY_ENTER`, `OVERLAY_EXIT` | `modal` |
-| `animate-popup-{in,out}` | `POPUP_ENTER`, `POPUP_EXIT` | `modal`, `dialog` |
-| `animate-menu-{in,out,side-*}` | Explicit `animate-mo-*` and `MENU_SIDE_*` constants | `select`, `dropdown-menu`, `context-menu` |
-| `animate-popover-{in,out,side-*}` | Explicit `animate-mo-*` and `POPOVER_SIDE_*` constants | `popover` |
-| `animate-tooltip-{in,out,side-*}` | Explicit `animate-mo-*` and `TOOLTIP_SIDE_*` constants | `tooltip` |
-| `animate-sheet-{in,out,side-*}` | Explicit `animate-mo-*` and `SHEET_SIDE_*` constants | `sheet` |
+| Non-Standard / UnoCSS Token          | Standard Tailwind Replacement                                                                                    | Scope                                                  |
+| :----------------------------------- | :--------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------- |
+| `b-1`, `b`                           | `border`                                                                                                         | `accordion`, `button`, `card`, `file-upload`, etc.     |
+| `b-t`, `b-[trblxy]`                  | `border-t`, etc.                                                                                                 | `separator.class.ts`                                   |
+| `b-b-2`, `b-border`, `b-transparent` | `border-b-2`, `border-border`, `border-transparent`                                                              | `accordion`, `card`, `select`                          |
+| `content-empty`                      | `content-['']`                                                                                                   | `avatar`, `resizable`, `slider`                        |
+| `not-dark:bg-clip-padding`           | `[html:not(.dark)_&]:bg-clip-padding`                                                                            | `card.class.ts`, `slider.class.ts`                     |
+| `not-last:border-(b b-border)`       | `[&:not(:last-child)]:border-b [&:not(:last-child)]:border-border`                                               | `accordion.class.ts`                                   |
+| `not-first-of-type:-ms-px`           | `[&:not(:first-of-type)]:-ms-px`                                                                                 | `cva-common.class.ts`, `checkbox-group`, `radio-group` |
+| `h-$mo-collapsible-content-height`   | `h-[var(--mo-collapsible-content-height)]`                                                                       | `accordion`, `collapsible`                             |
+| `origin-$mo-popper-...`              | `origin-[var(--mo-popper-content-transform-origin)]`                                                             | `select`, `menu`, `popover`, `tooltip`                 |
+| `var-progress-{n}`                   | Root `style` injection via `progressStyleVars` (`--p-size`)                                                      | `progress.class.ts` & `progress.tsx`                   |
+| `var-slider-{n}`                     | Root `style` injection via `sliderStyleVars` (`--s-size`)                                                        | `slider.class.ts` & `slider.tsx`                       |
+| `var-slider-bold-{size}-{len}-{off}` | Root `style` injection via `sliderStyleVars` (`--s-size`, `--s-len`, `--s-offset`, `--s-pos`)                    | `slider.class.ts` & `slider.tsx`                       |
+| `var-stepper-{s}-{x}-{g}-{p}`        | Root `style` injection via `stepperStyleVars` (`--st-size`, `--st-sep-x`, `--st-sep-top`, `--st-gap`, `--st-pt`) | `stepper.class.ts` & `stepper.tsx`                     |
+| `hover:(bg-red-500 text-white)`      | `hover:bg-red-500 hover:text-white`                                                                              | All 36 `.class.ts` files and `.tsx` files in `src/`    |
+| `after:(content-empty absolute ...)` | `after:content-[''] after:absolute ...`                                                                          | `avatar`, `resizable`, `slider` in `src/`              |
+| `ring-3px`                           | `ring-3`                                                                                                         | Focus presets                                          |
+| `animate-overlay-{in,out}`           | `OVERLAY_ENTER`, `OVERLAY_EXIT`                                                                                  | `modal`                                                |
+| `animate-popup-{in,out}`             | `POPUP_ENTER`, `POPUP_EXIT`                                                                                      | `modal`, `dialog`                                      |
+| `animate-menu-{in,out,side-*}`       | Explicit `animate-mo-*` and `MENU_SIDE_*` constants                                                              | `select`, `dropdown-menu`, `context-menu`              |
+| `animate-popover-{in,out,side-*}`    | Explicit `animate-mo-*` and `POPOVER_SIDE_*` constants                                                           | `popover`                                              |
+| `animate-tooltip-{in,out,side-*}`    | Explicit `animate-mo-*` and `TOOLTIP_SIDE_*` constants                                                           | `tooltip`                                              |
+| `animate-sheet-{in,out,side-*}`      | Explicit `animate-mo-*` and `SHEET_SIDE_*` constants                                                             | `sheet`                                                |
 
 ---
 
@@ -527,6 +508,7 @@ All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS r
 ```
 
 #### Native Button vs. Polymorphic Control Semantics
+
 - **Solid Reactivity Rule:** In accordance with `AGENTS.md`, class expressions are not memoized (`createMemo` is not used for classes); they are evaluated in-place.
 - **Performance Realization:** By keeping `loading`, `disabled`, and `active` out of recipe variants, state changes update reactive DOM attributes without recomputing design-variant class selection solely because an interaction state changed. No constant-time or cache-based performance guarantee is made.
 - **Native `<button>`:** Uses native `disabled={isDisabledOrLoading()}`, `aria-busy={isLoading() ? true : undefined}`, `data-disabled={isDisabledOrLoading() ? '' : undefined}`, and `data-loading={isLoading() ? '' : undefined}`.
@@ -537,6 +519,7 @@ All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS r
 ### 3.5. Global Theming via `MoraineProvider`
 
 #### 1. Configuration Types (`src/shared/provider/moraine-provider.tsx`)
+
 ```ts
 import type { JSX } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
@@ -558,29 +541,65 @@ export interface ComponentDefaultStyle<
 export interface MoraineConfig {
   accordion?: ComponentDefaultStyle<AccordionT.Variant, AccordionT.Classes, AccordionT.Styles>
   avatar?: ComponentDefaultStyle<AvatarT.Variant, AvatarT.Classes, AvatarT.Styles>
-  avatarGroup?: ComponentDefaultStyle<AvatarGroupT.Variant, AvatarGroupT.Classes, AvatarGroupT.Styles>
+  avatarGroup?: ComponentDefaultStyle<
+    AvatarGroupT.Variant,
+    AvatarGroupT.Classes,
+    AvatarGroupT.Styles
+  >
   badge?: ComponentDefaultStyle<BadgeT.Variant, BadgeT.Classes, BadgeT.Styles>
   button?: ComponentDefaultStyle<ButtonT.Variant, ButtonT.Classes, ButtonT.Styles>
-  buttonGroup?: ComponentDefaultStyle<ButtonGroupT.Variant, ButtonGroupT.Classes, ButtonGroupT.Styles>
+  buttonGroup?: ComponentDefaultStyle<
+    ButtonGroupT.Variant,
+    ButtonGroupT.Classes,
+    ButtonGroupT.Styles
+  >
   card?: ComponentDefaultStyle<CardT.Variant, CardT.Classes, CardT.Styles>
   checkbox?: ComponentDefaultStyle<CheckboxT.Variant, CheckboxT.Classes, CheckboxT.Styles>
-  checkboxGroup?: ComponentDefaultStyle<CheckboxGroupT.Variant, CheckboxGroupT.Classes, CheckboxGroupT.Styles>
-  collapsible?: ComponentDefaultStyle<CollapsibleT.Variant, CollapsibleT.Classes, CollapsibleT.Styles>
-  commandPalette?: ComponentDefaultStyle<CommandPaletteT.Variant, CommandPaletteT.Classes, CommandPaletteT.Styles>
-  contextMenu?: ComponentDefaultStyle<ContextMenuT.Variant, ContextMenuT.Classes, ContextMenuT.Styles>
+  checkboxGroup?: ComponentDefaultStyle<
+    CheckboxGroupT.Variant,
+    CheckboxGroupT.Classes,
+    CheckboxGroupT.Styles
+  >
+  collapsible?: ComponentDefaultStyle<
+    CollapsibleT.Variant,
+    CollapsibleT.Classes,
+    CollapsibleT.Styles
+  >
+  commandPalette?: ComponentDefaultStyle<
+    CommandPaletteT.Variant,
+    CommandPaletteT.Classes,
+    CommandPaletteT.Styles
+  >
+  contextMenu?: ComponentDefaultStyle<
+    ContextMenuT.Variant,
+    ContextMenuT.Classes,
+    ContextMenuT.Styles
+  >
   dialog?: ComponentDefaultStyle<DialogT.Variant, DialogT.Classes, DialogT.Styles>
-  dropdownMenu?: ComponentDefaultStyle<DropdownMenuT.Variant, DropdownMenuT.Classes, DropdownMenuT.Styles>
+  dropdownMenu?: ComponentDefaultStyle<
+    DropdownMenuT.Variant,
+    DropdownMenuT.Classes,
+    DropdownMenuT.Styles
+  >
   fileUpload?: ComponentDefaultStyle<FileUploadT.Variant, FileUploadT.Classes, FileUploadT.Styles>
   form?: ComponentDefaultStyle<FormT.Variant, FormT.Classes, FormT.Styles>
   formField?: ComponentDefaultStyle<FormFieldT.Variant, FormFieldT.Classes, FormFieldT.Styles>
   icon?: ComponentDefaultStyle<IconT.Variant, IconT.Classes, IconT.Styles>
   input?: ComponentDefaultStyle<InputT.Variant, InputT.Classes, InputT.Styles>
-  inputNumber?: ComponentDefaultStyle<InputNumberT.Variant, InputNumberT.Classes, InputNumberT.Styles>
+  inputNumber?: ComponentDefaultStyle<
+    InputNumberT.Variant,
+    InputNumberT.Classes,
+    InputNumberT.Styles
+  >
   kbd?: ComponentDefaultStyle<KbdT.Variant, KbdT.Classes, KbdT.Styles>
   kbdGroup?: ComponentDefaultStyle<KbdGroupT.Variant, KbdGroupT.Classes, KbdGroupT.Styles>
   list?: ComponentDefaultStyle<ListT.Variant, ListT.Classes, ListT.Styles>
   modal?: ComponentDefaultStyle<ModalT.Variant, ModalT.Classes, ModalT.Styles>
-  multiSelect?: ComponentDefaultStyle<MultiSelectT.Variant, MultiSelectT.Classes, MultiSelectT.Styles>
+  multiSelect?: ComponentDefaultStyle<
+    MultiSelectT.Variant,
+    MultiSelectT.Classes,
+    MultiSelectT.Styles
+  >
   pagination?: ComponentDefaultStyle<PaginationT.Variant, PaginationT.Classes, PaginationT.Styles>
   popover?: ComponentDefaultStyle<PopoverT.Variant, PopoverT.Classes, PopoverT.Styles>
   progress?: ComponentDefaultStyle<ProgressT.Variant, ProgressT.Classes, ProgressT.Styles>
@@ -589,7 +608,11 @@ export interface MoraineConfig {
   select?: ComponentDefaultStyle<SelectT.Variant, SelectT.Classes, SelectT.Styles>
   separator?: ComponentDefaultStyle<SeparatorT.Variant, SeparatorT.Classes, SeparatorT.Styles>
   sheet?: ComponentDefaultStyle<SheetT.Variant, SheetT.Classes, SheetT.Styles>
-  sidebarFrame?: ComponentDefaultStyle<SidebarFrameT.Variant, SidebarFrameT.Classes, SidebarFrameT.Styles>
+  sidebarFrame?: ComponentDefaultStyle<
+    SidebarFrameT.Variant,
+    SidebarFrameT.Classes,
+    SidebarFrameT.Styles
+  >
   slider?: ComponentDefaultStyle<SliderT.Variant, SliderT.Classes, SliderT.Styles>
   stepper?: ComponentDefaultStyle<StepperT.Variant, StepperT.Classes, StepperT.Styles>
   switch?: ComponentDefaultStyle<SwitchT.Variant, SwitchT.Classes, SwitchT.Styles>
@@ -603,18 +626,19 @@ All runtime style APIs are object-only. `SlotStyleValue`, component `style`, slo
 
 Every public styled component must be covered. A standalone public component with its own `ComponentT` namespace receives its own provider key, including `AvatarGroup`, `KbdGroup`, `Form`, and `Icon`. Public composition primitives without independent style schemas inherit their owner's block:
 
-| Public component | Provider ownership |
-| :--- | :--- |
-| `CollapsibleTrigger`, `CollapsibleContent` | `collapsible`; their slots are represented in `CollapsibleT.Classes` and `CollapsibleT.Styles` |
-| `ModalTrigger`, `ModalTriggerRenderer` | `modal`; trigger slots are represented in `ModalT.Classes` and `ModalT.Styles` |
-| `AvatarFace` | `avatar` |
-| `createForm()` bound `Form` and `Field` components | `form` and `formField`, respectively |
-| `SidebarFrameSheetOnlyRender`, `SidebarFrameSheetResizableRender` | `sidebarFrame`; these are render strategies, not independent provider scopes |
-| Select/menu internal primitives not exported from the package root | Their public owning component (`select`, `multiSelect`, `dropdownMenu`, or `contextMenu`) |
+| Public component                                                   | Provider ownership                                                                             |
+| :----------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| `CollapsibleTrigger`, `CollapsibleContent`                         | `collapsible`; their slots are represented in `CollapsibleT.Classes` and `CollapsibleT.Styles` |
+| `ModalTrigger`, `ModalTriggerRenderer`                             | `modal`; trigger slots are represented in `ModalT.Classes` and `ModalT.Styles`                 |
+| `AvatarFace`                                                       | `avatar`                                                                                       |
+| `createForm()` bound `Form` and `Field` components                 | `form` and `formField`, respectively                                                           |
+| `SidebarFrameSheetOnlyRender`, `SidebarFrameSheetResizableRender`  | `sidebarFrame`; these are render strategies, not independent provider scopes                   |
+| Select/menu internal primitives not exported from the package root | Their public owning component (`select`, `multiSelect`, `dropdownMenu`, or `contextMenu`)      |
 
 The implementation must maintain a checked inventory from every package-root component export to exactly one provider key. Components that intentionally expose no variant or slot overrides use `never` for those generic parameters but still support root `class` and object `style` when their public API already exposes them.
 
 #### 2. Deep Per-Key Merging for Nested Providers
+
 Nested providers do not overwrite whole component blocks; they reactively deep-merge `defaultProps`, `classes`, and `styles`. The closest provider wins per property; unspecified child keys inherit from the parent. Class values are combined through `cn`, while object styles are shallow-merged per slot and CSS property.
 
 The context value is an accessor so replacing a provider config or changing reactive values inside it propagates without remounting descendants:
@@ -628,9 +652,7 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   const parent = useContext(MoraineConfigContext)
   const config = createMemo(() => mergeMoraineConfig(parent(), props.config))
   return (
-    <MoraineConfigContext.Provider value={config}>
-      {props.children}
-    </MoraineConfigContext.Provider>
+    <MoraineConfigContext.Provider value={config}>{props.children}</MoraineConfigContext.Provider>
   )
 }
 
@@ -679,21 +701,123 @@ export function mergeComponentStyle<
 }
 ```
 
-#### 3. Inheritance and Override Precedence
+`mergeComponentStyle` / `mergeMoraineConfig` are used by `MoraineProvider` to **deep-merge provider configs** only.
+Per-component consumption is handled by **one** resolver below, so the class/style ordering can never drift between
+components or between the helper and the precedence contract.
+
+#### 3. Unified Per-Component Resolver (`resolveComponentStyle`)
+
+To eliminate the drift risk of each component hand-writing its own `provider → group → instance` chain, every public
+component MUST route its class/style resolution through `resolveComponentStyle` (in `src/shared/provider/moraine-provider.tsx`),
+never re-implement the ordering inline. The precedence table in the next section and this resolver are the **same** ordering;
+this helper is the single runtime encoding of that table, and the shared test must assert the helper equals the table.
+
+```ts
+import type { JSX } from 'solid-js'
+import type { SlotFns } from '../style/recipe'
+import type { SlotClassValue, SlotStyleValue } from '../types'
+
+export interface ComponentStyleInputs<S extends string, V extends Record<string, unknown>> {
+  /** Recipe slot functions for this instance. */
+  slots: SlotFns<S>
+  /** Provider overrides (already deep-merged outer → inner). */
+  provider?: ComponentDefaultStyle<
+    V, Partial<Record<S, SlotClassValue>>, Partial<Record<S, SlotStyleValue>>
+  >
+  /** Composition context (e.g. ButtonGroup). Sits between provider and instance. */
+  group?: Partial<ComponentDefaultStyle<
+    V, Partial<Record<S, SlotClassValue>>, Partial<Record<S, SlotStyleValue>>
+  >>
+  /** Instance props (class/classes/style/styles only). */
+  instance?: Partial<ComponentDefaultStyle<
+    V, Partial<Record<S, SlotClassValue>>, Partial<Record<S, SlotStyleValue>>
+  >>
+  /** Per-slot state classes (e.g. `{ leading: LOADING_SPINNER }`). */
+  stateCls?: Partial<Record<S, SlotClassValue>>
+  /** Component-generated CSS variables (e.g. `defineStyleVars` output). */
+  baseStyle?: JSX.CSSProperties
+}
+
+export interface ResolvedComponentStyle<S extends string> {
+  rootClass: () => string | undefined
+  rootStyle: () => JSX.CSSProperties
+  slotClass: (slot: S) => string | undefined
+  slotStyle: (slot: S) => JSX.CSSProperties | undefined
+}
+
+/**
+ * The single normative chain resolver.
+ *
+ * Ordering (weakest → strongest) matches the Inheritance and Override
+ * Precedence table exactly:
+ *   class: recipe slots → provider.class → provider.classes[slot]
+ *          → group.class → group.classes[slot] → stateCls[slot]
+ *          → instance.classes[slot] → instance.class (root only)
+ *   style: baseStyle → provider.style → provider.styles[slot]
+ *          → group.style → group.styles[slot] → instance.styles[slot]
+ *          → instance.style (root only)
+ */
+export function resolveComponentStyle<S extends string, V extends Record<string, unknown>>(
+  inputs: ComponentStyleInputs<S, V>,
+): ResolvedComponentStyle<S> {
+  return {
+    rootClass: () =>
+      inputs.slots.root(
+        inputs.provider?.class,
+        inputs.provider?.classes?.root,
+        inputs.group?.class,
+        inputs.group?.classes?.root,
+        inputs.stateCls?.root,
+        inputs.instance?.classes?.root,
+        inputs.instance?.class,
+      ),
+    rootStyle: () => ({
+      ...inputs.baseStyle,
+      ...inputs.provider?.style,
+      ...inputs.provider?.styles?.root,
+      ...inputs.group?.style,
+      ...inputs.group?.styles?.root,
+      ...inputs.instance?.styles?.root,
+      ...inputs.instance?.style,
+    }),
+    slotClass: (slot) =>
+      inputs.slots[slot](<
+        inputs.provider?.classes?.[slot],
+        inputs.group?.classes?.[slot],
+        inputs.stateCls?.[slot],
+        inputs.instance?.classes?.[slot],
+      >),
+    slotStyle: (slot) => ({
+      ...inputs.provider?.styles?.[slot],
+      ...inputs.group?.styles?.[slot],
+      ...inputs.instance?.styles?.[slot],
+    }),
+  }
+}
+```
+
+> **Single-source rule:** components must call `resolveComponentStyle` and may not splice in an ad-hoc ordering.
+> A review-time check (regex on `src/**/*.tsx` for direct `slots().root(` / `slot(...)` chains outside
+> `resolveComponentStyle`) is part of the acceptance gate. If a new precedence tier is ever needed, it is added to
+> this helper and to the table together — never to a lone component.
+
+#### 4. Inheritance and Override Precedence
 
 Resolution is defined independently for design props, classes, and object styles. In every sequence below, the rightmost defined value wins:
 
-| Surface | Precedence, weakest → strongest |
-| :--- | :--- |
-| Design props such as `variant` and `size` | recipe `defaultVariants` → provider `defaultProps` chain (outer → inner) → composition context such as `ButtonGroup` → component instance prop |
-| Root class | recipe base/selected/compound classes → provider general `class` chain (outer → inner) → provider `classes.root` chain (outer → inner) → composition context → instance `classes.root` → instance `class` |
-| Non-root slot class | recipe base/selected/compound classes → provider slot chain (outer → inner) → composition context slot → instance slot |
-| Root style | generated component CSS variables/default runtime style → provider general `style` chain (outer → inner) → provider `styles.root` chain (outer → inner) → composition context → instance `styles.root` → instance `style` |
-| Non-root slot style | component default runtime style → provider slot chain (outer → inner) → composition context slot → instance slot |
+| Surface                                   | Precedence, weakest → strongest                                                                                                                                                                                           |
+| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Design props such as `variant` and `size` | recipe `defaultVariants` → provider `defaultProps` chain (outer → inner) → composition context such as `ButtonGroup` → component instance prop                                                                            |
+| Root class                                | recipe base/selected/compound classes → provider general `class` chain (outer → inner) → provider `classes.root` chain (outer → inner) → composition context → instance `classes.root` → instance `class`                 |
+| Non-root slot class                       | recipe base/selected/compound classes → provider slot chain (outer → inner) → composition context slot → instance slot                                                                                                    |
+| Root style                                | generated component CSS variables/default runtime style → provider general `style` chain (outer → inner) → provider `styles.root` chain (outer → inner) → composition context → instance `styles.root` → instance `style` |
+| Non-root slot style                       | component default runtime style → provider slot chain (outer → inner) → composition context slot → instance slot                                                                                                          |
 
 Provider values are defaults and global overrides, not locks. An instance always remains able to override a provider value. A composition context sits between provider and instance so a `ButtonGroup` can establish local defaults while an individual `Button` can opt out. State styling is expressed through `data-*`, `aria-*`, and native pseudo-class selectors in the recipe/presets; it does not become a provider `defaultProp`. If an instance deliberately supplies a conflicting class with the same modifier chain, normal last-wins `cn` semantics apply.
 
-#### 4. Component Adoption Pattern
+The table above is implemented by `resolveComponentStyle` (§3.5.3), which is the only place components read this ordering.
+
+#### 5. Component Adoption Pattern
 
 Components preserve their base slot classes and variant definitions via `recipe`, then apply the precedence contract above:
 
@@ -710,53 +834,41 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   // 2. Runtime multi-slot recipe resolution:
   const slots = () => buttonRecipe({ variant: variant(), size: size() })
 
-  // 3. Deterministic Root Class Precedence:
-  const rootClass = () =>
-    slots().root(
-      provider()?.class,
-      provider()?.classes?.root,
-      group?.class,
-      props.classes?.root,
-      props.class,
-    )
-
-  // 4. Deterministic Slot Class Precedence (Base Slot Classes NEVER Dropped):
-  const leadingClass = () =>
-    slots().leading(
-      provider()?.classes?.leading,
-      group?.classes?.leading,
-      isLeadingLoading() && LOADING_SPINNER,
-      props.classes?.leading,
-    )
-
-  // 5. Deterministic Slot Style Precedence:
-  const rootStyle = () => ({
-    ...provider()?.style,
-    ...provider()?.styles?.root,
-    ...group?.styles?.root,
-    ...props.styles?.root,
-    ...props.style,
+  // 3. All class/style ordering is delegated to the single resolver (§3.5.3).
+  //    Base slot classes are never dropped; instance `class`/`style` are strongest.
+  const { rootClass, rootStyle, slotClass, slotStyle } = resolveComponentStyle({
+    slots: slots(),
+    provider: provider(),
+    group,
+    instance: props,
+    stateCls: { leading: isLeadingLoading() ? LOADING_SPINNER : undefined },
   })
 
-  // ...
+  // ... use rootClass(), rootStyle(), slotClass('leading'), slotStyle('leading')
 }
 ```
+
+> Each component family reads `rootClass()`, `slotClass(slot)`, `rootStyle()`, `slotStyle(slot)` from this single
+> resolver — do not rebuild a `provider → group → instance` chain in another component.
 
 ---
 
 ### 3.6. Dynamic Metric Variables & Root CSS Variable Engine (`src/shared/style/css-vars.ts`)
 
 #### 1. Architectural Problem: Non-Standard UnoCSS Regex vs. Compound Explosion
+
 In components with coupled physical geometry across multiple child slots (e.g. `slider`, `stepper`, `progress`):
+
 - `Slider`: `size` and `bold` variants dictate track thickness (`--s-size`), range indicator length (`--s-len`), indicator offset (`--s-offset`), and computed position (`--s-pos = max(off, calc(100% - off*2))`).
 - `Stepper`: `size` dictates indicator dimensions (`--st-size`), separator position (`--st-sep-x`, `--st-sep-top`), step gap (`--st-gap`), and label offset (`--st-pt`).
 
-To prevent child slots (`range`, `thumb`, `separator`) from duplicating `size × variant × orientation × inverted` compound conditions, CSS custom properties are used to decouple sub-element styles from top-level variants. However, Moraine previously relied on non-standard UnoCSS regex classes (`var-slider-bold-20-14-3`, `var-stepper-8-6-2-0.5`). 
+To prevent child slots (`range`, `thumb`, `separator`) from duplicating `size × variant × orientation × inverted` compound conditions, CSS custom properties are used to decouple sub-element styles from top-level variants. However, Moraine previously relied on non-standard UnoCSS regex classes (`var-slider-bold-20-14-3`, `var-stepper-8-6-2-0.5`).
 
 **Decision (Scheme B): Root Element CSS Variable Injection**.
 Rather than polluting HTML class strings with unwieldy arbitrary property classes (e.g. `[--s-size:20px] [--s-len:14px] [--s-offset:3px] [--s-pos:max(3px,calc(100%-6px))]`), dynamic metric variables are cleanly injected onto the Root element via `style`. Sub-elements (`track`, `range`, `thumb`) read these variables purely via standard utility classes (`h-[var(--s-size)]`, `after:w-[var(--s-offset)]`), completely eliminating compound variant explosion across child slots while keeping HTML `class` attributes 100% clean.
 
 #### 2. Generic Utilities: `defineStyleVars` & `formatCssVars` (`src/shared/style/css-vars.ts`)
+
 A dedicated, zero-dependency generic utility module declares and resolves variant-driven CSS custom properties with automatic prefixing and deterministic object-style precedence. It performs direct runtime resolution and does not cache variant combinations:
 
 ```ts
@@ -774,18 +886,11 @@ export type StyleVarRecord = Record<string, StyleVarValue>
  * formatCssVars({ size: '20px', len: '14px' }, 's')
  * // => { '--s-size': '20px', '--s-len': '14px' }
  */
-export function formatCssVars(
-  vars: StyleVarRecord,
-  prefix?: string,
-): JSX.CSSProperties {
+export function formatCssVars(vars: StyleVarRecord, prefix?: string): JSX.CSSProperties {
   const result: Record<string, string | number> = {}
   for (const [key, value] of Object.entries(vars)) {
     if (value !== undefined && value !== null) {
-      const varName = key.startsWith('--')
-        ? key
-        : prefix
-          ? `--${prefix}-${key}`
-          : `--${key}`
+      const varName = key.startsWith('--') ? key : prefix ? `--${prefix}-${key}` : `--${key}`
       result[varName] = value
     }
   }
@@ -840,9 +945,7 @@ export function defineStyleVars<V extends VariantSchema>(
       for (const [variantName, variantMap] of Object.entries(options.variants)) {
         const selectedValue = activeVariants[variantName]
         if (selectedValue !== undefined && selectedValue !== null) {
-          const selectedVars = (variantMap as Record<string, StyleVarRecord>)[
-            String(selectedValue)
-          ]
+          const selectedVars = (variantMap as Record<string, StyleVarRecord>)[String(selectedValue)]
           if (selectedVars) {
             Object.assign(resolved, selectedVars)
           }
@@ -878,6 +981,7 @@ export function defineStyleVars<V extends VariantSchema>(
 #### 3. Component Implementation Examples
 
 ##### A. Slider (`src/forms/slider/slider.class.ts` & `slider.tsx`)
+
 ```ts
 // 1. Definition in slider.class.ts
 export const sliderStyleVars = defineStyleVars({
@@ -932,14 +1036,33 @@ return (
 ```
 
 ##### B. Stepper (`src/navigation/stepper/stepper.class.ts`)
+
 ```ts
 export const stepperStyleVars = defineStyleVars({
   prefix: 'st',
   variants: {
     size: {
-      sm: { size: '2rem', 'sep-x': '1.5rem', 'sep-top': '2.0625rem', gap: '0.5rem', pt: '0.125rem' },
-      md: { size: '2.25rem', 'sep-x': '1.75rem', 'sep-top': '2.3125rem', gap: '0.625rem', pt: '0.25rem' },
-      lg: { size: '2.5rem', 'sep-x': '2rem', 'sep-top': '2.5625rem', gap: '0.75rem', pt: '0.375rem' },
+      sm: {
+        size: '2rem',
+        'sep-x': '1.5rem',
+        'sep-top': '2.0625rem',
+        gap: '0.5rem',
+        pt: '0.125rem',
+      },
+      md: {
+        size: '2.25rem',
+        'sep-x': '1.75rem',
+        'sep-top': '2.3125rem',
+        gap: '0.625rem',
+        pt: '0.25rem',
+      },
+      lg: {
+        size: '2.5rem',
+        'sep-x': '2rem',
+        'sep-top': '2.5625rem',
+        gap: '0.75rem',
+        pt: '0.375rem',
+      },
     },
   },
   defaultVariants: { size: 'md' },
@@ -952,27 +1075,27 @@ export const stepperStyleVars = defineStyleVars({
 
 Consumers upgrading from previous Moraine pre-alpha versions follow this migration guide:
 
-| Legacy Usage | New Standard Usage |
-| :--- | :--- |
-| `@import 'moraine/tw3.css';`<br/>`@import 'moraine/tw4.css';` | **Remove completely.** Choose one engine setup below. The engine compiles Moraine's published classes. |
-| Tailwind without `moraine/tailwind` | **Invalid.** Add `@plugin "moraine/tailwind"`; source scanning alone cannot register Moraine tokens or animations. |
-| `@source "moraine";` | **Remove.** `@source` accepts a path relative to the declaring stylesheet, not an npm package specifier. Point it at `node_modules/moraine/dist` using the correct relative path for the consumer project. |
-| Built-in Lucide Icons (`icon-*`) | **Runtime asset option:** import `moraine/icon.css`.<br/>**Engine-generated option:** configure `@iconify/tailwind` or UnoCSS `presetIcons()`. This choice is independent from component style generation. |
-| `import { extendCN } from 'moraine'`<br/>`extendCN(twMerge)` | **Remove completely**. Conflict resolution is handled built-in by Moraine's `cn` engine. |
-| `import { cva } from 'moraine'` or `moraine/utils` | **Remove completely.** There is no compatibility alias. Use `recipe({ ... })` and migrate compound variants to `{ variants: { ... }, class: ... }`. |
-| `style="color: red"` | **Convert to object syntax:** `style={{ color: 'red' }}`. This applies to root `style`, slot `styles`, provider values, and composition contexts. |
-| `presetMoraine({ enableComponentLayer: true })` | **Remove `enableComponentLayer`**. Component layering is deprecated; class deduplication happens at runtime via `cn`. |
-| `presetMoraine({ wind3: true })` | **Remove `wind3`**. Tailwind v3 support is dropped; use `presetWind4()`. |
+| Legacy Usage                                                  | New Standard Usage                                                                                                                                                                                         |
+| :------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@import 'moraine/tw3.css';`<br/>`@import 'moraine/tw4.css';` | **Remove completely.** Choose one engine setup below. The engine compiles Moraine's published classes.                                                                                                     |
+| Tailwind without `moraine/tailwind`                           | **Invalid.** Add `@plugin "moraine/tailwind"`; source scanning alone cannot register Moraine tokens or animations.                                                                                         |
+| `@source "moraine";`                                          | **Remove.** `@source` accepts a path relative to the declaring stylesheet, not an npm package specifier. Point it at `node_modules/moraine/dist` using the correct relative path for the consumer project. |
+| Built-in Lucide Icons (`icon-*`)                              | **Runtime asset option:** import `moraine/icon.css`.<br/>**Engine-generated option:** configure `@iconify/tailwind` or UnoCSS `presetIcons()`. This choice is independent from component style generation. |
+| `import { extendCN } from 'moraine'`<br/>`extendCN(twMerge)`  | **Remove completely**. Conflict resolution is handled built-in by Moraine's `cn` engine.                                                                                                                   |
+| `import { cva } from 'moraine'` or `moraine/utils`            | **Remove completely.** There is no compatibility alias. Use `recipe({ ... })` and migrate compound variants to `{ variants: { ... }, class: ... }`.                                                        |
+| `style="color: red"`                                          | **Convert to object syntax:** `style={{ color: 'red' }}`. This applies to root `style`, slot `styles`, provider values, and composition contexts.                                                          |
+| `presetMoraine({ enableComponentLayer: true })`               | **Remove `enableComponentLayer`**. Component layering is deprecated; class deduplication happens at runtime via `cn`.                                                                                      |
+| `presetMoraine({ wind3: true })`                              | **Remove `wind3`**. Tailwind v3 support is dropped; use `presetWind4()`.                                                                                                                                   |
 
 ### 4.1. Tailwind CSS v4 Consumer Configuration
 
 Assuming the consumer's main stylesheet is `src/app.css`, the minimal setup is:
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Optional runtime icon masks; unrelated to component utility generation. */
-@import "moraine/icon.css";
+@import 'moraine/icon.css';
 
 /* Required: registers Moraine tokens, keyframes, animations, and variants. */
 @plugin "moraine/tailwind";
@@ -984,6 +1107,14 @@ Assuming the consumer's main stylesheet is `src/app.css`, the minimal setup is:
 If the stylesheet lives at the project root, the source path is normally `./node_modules/moraine/dist`. Workspace and non-hoisted installations must use the path that resolves from that stylesheet to the installed package. The documentation must explain this relativity instead of presenting one path as universally canonical.
 
 Consumers using engine-generated icons omit the `icon.css` import and configure `@iconify/tailwind` separately. In both icon modes, `@plugin "moraine/tailwind"` remains mandatory.
+
+**Critical verification — do not stop at "the build succeeds."** The packed-package Tailwind fixture must assert that the
+**non-standard/semantic tokens actually emit CSS**, not merely that the compiler ran without error. A bare `@source` can
+discover a class string and still silently drop it if the supporting utility/variant/animation was never registered, and that
+silence is exactly the failure mode this refactor is meant to kill. Concretely the fixture must assert the generated stylesheet
+contains selectors/rules for at least: `[data-disabled]:opacity-64` (or `data-disabled` variant), `[data-expanded]:animate-mo-enter`
+and `[data-closed]:animate-mo-exit` (the custom animation utilities), a `data-focused`/`aria-invalid` variant rule, the `animate-mo-enter`
+keyframes block, and the `z-floating`/`opacity-64` custom tokens. If any of these is absent from the emitted CSS, the fixture fails.
 
 ### 4.2. UnoCSS Consumer Configuration
 
@@ -1003,6 +1134,11 @@ export default defineConfig({
 
 The filesystem glob is relative to the UnoCSS configuration's working directory and must be adjusted for workspace layouts. Consumers using UnoCSS `presetIcons()` configure it alongside these presets; consumers preferring the runtime asset import `moraine/icon.css` in application CSS instead. `presetMoraine()` remains mandatory in either case.
 
+**Critical verification — identical to §4.1.** The packed-package UnoCSS fixture must assert the emitted CSS contains the
+`[data-disabled]:opacity-64`/`data-focused`/`aria-invalid` variant rules, the `animate-mo-enter`/`animate-mo-exit` utilities and
+their keyframes, and the `z-floating`/`opacity-64` tokens. Fixture "success" is not compilation without error; it is the presence
+of those rules in the generated output.
+
 ---
 
 ## 5. Implementation Roadmap & Safe Execution Order
@@ -1010,6 +1146,7 @@ The filesystem glob is relative to the UnoCSS configuration's working directory 
 The roadmap is strictly ordered to ensure docs and tests never break mid-migration:
 
 ### Phase 1: Engine & Core Presets (Side-by-Side)
+
 1. Add `cn` package dependency to `package.json`.
 2. Implement custom `cn` instance in `src/shared/utils.ts` using `createCn` with custom `classGroups` (`z-base`..`z-floating`, `opacity-64`). Standard Tailwind `ring-3` is handled natively without custom extension.
 3. Implement the breaking, object-only in-house `recipe` API (multi-slot and atomic modes) and `VariantProps` in `src/shared/style/recipe.ts`. Do not expose a `cva` alias.
@@ -1018,12 +1155,14 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 6. Add unit test suites `src/shared/style/recipe.test.ts` and `src/shared/style/css-vars.test.ts` verifying multi-slot resolution, cross-slot compound variants including array matchers, atomic mode, variable prefixing, object-style precedence, and `cn` deduplication. Tests must not assert cache identity or constant-time behavior.
 
 ### Phase 2: Global Configuration Infrastructure
+
 1. Implement accessor-based `MoraineProvider`, `useMoraineConfig`, `mergeMoraineConfig`, and `mergeComponentStyle` in `src/shared/provider/moraine-provider.tsx`.
 2. Export `MoraineProvider` and `useMoraineConfig` from `src/shared/provider/index.ts`, `src/utils.ts`, and `src/index.ts`.
 3. Narrow `SlotStyleValue` and every component-specific `Styles` surface to object-only `JSX.CSSProperties`, including bound and composed component contexts.
 4. Add `src/shared/provider/moraine-provider.test.tsx` verifying reactive deep nested merging, the default/provider/context/instance precedence contract, slot overrides, and object-only styles.
 
 ### Phase 3: Class, Component TSX, Test & Docs Migration
+
 1. **Class Modules (36 files):** Audit and migrate all 36 `.class.ts` files to standard flat Tailwind syntax. Replace every existing `cva` variant resolver with the breaking `recipe({ ... })` schema, while keeping static-only modules as class constants in accordance with `AGENTS.md`. Consolidate fragmented multi-slot definitions (e.g. `file-upload`, `stepper`, `tabs`, `progress`, `checkbox`) and migrate dynamic dimensional tokens in `slider`, `stepper`, and `progress` to `defineStyleVars` on the root element.
 2. **Component TSX Files:** Replace inline shortcuts (`effect-loading`, `effect-dis`, `hidden-hitless`, `rm-side-b`, and all semantic animation shortcuts) with constants from `presets.ts`, consume recipe slot functions and root style variables, and migrate every runtime style surface to `JSX.CSSProperties` only.
 3. **Component Provider Integration:** Generate and check a package-root export inventory, then wire every public component to exactly one provider block. Include standalone keys for `AvatarGroup`, `KbdGroup`, `Form`, and `Icon`, plus documented owner inheritance for `CollapsibleTrigger`, `CollapsibleContent`, `ModalTrigger`, `ModalTriggerRenderer`, and `AvatarFace`.
@@ -1032,6 +1171,7 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 5. **Docs Verification & Shortcut Cleanup:** Verify `docs/` against updated library components. `docs/` explicitly preserves `transformerVariantGroup()` and UnoCSS-specific syntax (variant groups, markdown shortcuts) in `docs/unocss.config.ts` and documentation authoring. Only references to deleted library internal shortcuts (such as `effect-fv` in docs chrome) are updated to standard utilities or presets.
 
 ### Phase 4: Transformer & Build Artifact Deletion
+
 1. Delete `src/unocss/inject-compile-class.*`, `src/unocss/inject-prefix.*`, and `src/unocss/migrate-syntax.*`.
 2. Remove `extendCN` from `src/shared/utils.ts` and public exports.
 3. Remove `cls-variant` from `package.json`.
@@ -1049,6 +1189,7 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
    - Update `AGENTS.md` guidelines to replace all remaining references to `cva` with `recipe`.
 
 ### Phase 5: Verification & Quality Assurance
+
 1. Run static token audit gate strictly across `src/**/*.{ts,tsx}` (`docs/` is excluded as it intentionally uses UnoCSS with `transformerVariantGroup`).
 2. Run single-evaluation tracking tests on JSX-capable props (`build-ssr-safe-component` protocol).
 3. Build the documentation, start `nub run docs:preview`, wait for the HTTP endpoint to become healthy, run the smoke checks, and terminate the preview process. A manually running server is not itself a pass condition.
@@ -1061,14 +1202,14 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 The refactor is accepted only when all criteria below are satisfied:
 
 1. **Supported engines:** A packed/published-package fixture renders representative components correctly with Tailwind CSS v4, and a separate fixture does so with UnoCSS. Tailwind v3 configuration, exports, tests, and artifacts are absent.
-2. **Required consumer setup:** Tailwind documentation and fixtures load `moraine/tailwind` and scan the installed `moraine/dist` through a path that is demonstrably relative to the fixture stylesheet. UnoCSS documentation and fixtures load both `presetWind4()` and `presetMoraine()` and scan the installed distribution when needed.
+2. **Required consumer setup:** Tailwind documentation and fixtures load `moraine/tailwind` and scan the installed `moraine/dist` through a path that is demonstrably relative to the fixture stylesheet. UnoCSS documentation and fixtures load both `presetWind4()` and `presetMoraine()` and scan the installed distribution when needed. Both fixtures additionally assert that the **emitted CSS actually contains** the custom `data-*`/`aria-*` variant rules, the `animate-mo-enter`/`animate-mo-exit` utilities and their keyframes, and the `z-floating`/`opacity-64` tokens — not merely that the engine ran without throwing.
 3. **Component CSS ownership:** `dist/tw3.css` and `dist/tw4.css` do not exist. All component utility CSS is generated by the consumer's selected engine from statically discoverable published class strings.
 4. **Runtime icon boundary:** `dist/icon.css` exists, contains the expected Lucide mask selectors, and is documented as an optional runtime asset. Components style correctly without it; only built-in icon rendering is absent when no alternative icon engine is configured.
 5. **Class resolution:** Root and slot instance classes override conflicting provider and recipe classes according to the documented order. Non-conflicting classes are preserved. Tests cover modifier isolation, custom Moraine z-index values, opacity, ring width, arbitrary values, and unsupported-token preservation without claiming that `cn` generates or validates CSS.
 6. **Recipe breaking change:** No source, declaration, package export, or documentation reference exposes Moraine's former `cva` API. Every variant-bearing class module uses `recipe({ ... })`, static-only modules remain constants, and atomic/multi-slot modes, boolean variants, default variants, array compound matchers, and undefined/null selections behave as specified.
 7. **No recipe/style cache contract:** The implementation contains no variant-result `Map`/LRU cache in `recipe` or `defineStyleVars`, tests do not rely on referential identity, and public documentation contains no `O(1)` resolution claim.
 8. **Object-only runtime styles:** Public declarations reject string values for `style` and `styles`. Generated CSS variables, nested providers, composition contexts, and instance objects merge per CSS property in the documented order, with the instance value winning.
-9. **Provider coverage:** An automated inventory maps every package-root public component to exactly one standalone provider key or a documented owner component. Tests cover standalone components, owned composition primitives, nested providers, reactive provider updates, and instance opt-out/override behavior.
+9. **Provider coverage & single resolver:** An automated inventory maps every package-root public component to exactly one standalone provider key or a documented owner component. Tests cover standalone components, owned composition primitives, nested providers, reactive provider updates, and instance opt-out/override behavior. A source audit confirms every public component resolves its class/style chain through `resolveComponentStyle` — no component re-implements a `provider → group → instance` ordering inline, and a shared test asserts `resolveComponentStyle` reproduces the §3.5.4 precedence table.
 10. **Shortcut removal:** The source audit reports zero legacy structural shortcuts, semantic animation shortcuts, variant groups, `$` variable utilities, or legacy regex tokens in `src/**/*.{ts,tsx}`. `docs/` remains explicitly excluded and continues to support its own UnoCSS authoring syntax.
 11. **Behavior preservation:** Existing interaction, accessibility, SSR/hydration, and component tests pass after class migration. State attributes continue to drive loading, disabled, active, open, invalid, and orientation styling without becoming recipe variants.
 12. **Production validation:** `nub run test`, `nub run qa`, package build, both consumer fixtures, documentation production build, and the start/health-check/stop preview smoke test all pass without runtime, hydration, missing-CSS, or console errors.
@@ -1077,16 +1218,17 @@ The refactor is accepted only when all criteria below are satisfied:
 
 ## 7. Verification Gate & Test Matrix
 
-| Verification Check | Target / Tool | Pass Criteria |
-| :--- | :--- | :--- |
-| **Token Audit Gate** | Script strictly on `src/**/*.{ts,tsx}` | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`, `b-[trblxy]`, `content-empty`, `not-dark:`, `not-last:`, `not-first-of-type:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, semantic `animate-(?:overlay\|popup\|menu\|popover\|tooltip\|sheet)-(?:in\|out\|side-)`, and variant groups `\w+:\([^)]+\)`. (`docs/` is excluded.) |
-| **`recipe.test.ts`** | Vitest / Unit | Passes multi-slot anatomy, cross-slot compound variants and arrays, atomic mode, boolean/default/nullish variants, extra-class ordering, and `cn` merging; contains no cache-identity assertion. |
-| **`css-vars.test.ts`**| Vitest / Unit | Passes variable prefixing, variant and array compound matching, nullish filtering, and ordered object-style merging; type tests reject strings. |
-| **`moraine-provider.test.tsx`**| JSDOM / Unit | Passes outer/inner provider inheritance, reactive updates, composition-context precedence, slot overrides, and instance precedence over recipe defaults/providers. |
-| **Provider Export Inventory** | Package entry-point inspection | Every public component resolves to exactly one provider key or documented owner; no orphan or duplicate ownership remains. |
-| **Tailwind v4 Consumer Test** | Packed-package fixture / Tailwind v4 compiler | Fixture uses required `@plugin "moraine/tailwind"` plus a valid relative `@source` path to installed `moraine/dist`; representative tokens, animations, states, and overrides emit working CSS. |
-| **UnoCSS Consumer Test** | Packed-package fixture / UnoCSS generator | Fixture uses `presetWind4()` plus `presetMoraine()`, scans installed `moraine/dist`, and emits representative tokens, animations, states, and overrides. |
-| **SSR Single Evaluation** | Node SSR + JSDOM | Getter-backed JSX prop assertions verify props evaluate exactly once during SSR and hydration. |
-| **Build Artifact Gate (Plan A)** | Script on packed `dist/` | `icon.css` exists and contains expected mask selectors; `tw3.css` and `tw4.css` are absent; package exports match. |
-| **Icon Independence Test** | Both consumer fixtures | Components compile and retain layout/style with `icon.css` omitted; icon rendering works when either runtime masks or the engine icon integration is enabled. |
-| **SSG Production Preview** | Automated process smoke test | Build docs, start preview, wait for successful HTTP response, assert no browser/runtime/hydration errors, then terminate the process cleanly. |
+| Verification Check               | Target / Tool                                         | Pass Criteria                                                                                                                                                                                                                                                                                                                                                                                                      |
+| :------------------------------- | :---------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Token Audit Gate**             | Script strictly on `src/**/*.{ts,tsx}`                | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`, `b-[trblxy]`, `content-empty`, `not-dark:`, `not-last:`, `not-first-of-type:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, semantic `animate-(?:overlay\|popup\|menu\|popover\|tooltip\|sheet)-(?:in\|out\|side-)`, and variant groups `\w+:\([^)]+\)`. (`docs/` is excluded.) |
+| **`recipe.test.ts`**             | Vitest / Unit                                         | Passes multi-slot anatomy, cross-slot compound variants and arrays, atomic mode, boolean/default/nullish variants, extra-class ordering, and `cn` merging; contains no cache-identity assertion.                                                                                                                                                                                                                   |
+| **`css-vars.test.ts`**           | Vitest / Unit                                         | Passes variable prefixing, variant and array compound matching, nullish filtering, and ordered object-style merging; type tests reject strings.                                                                                                                                                                                                                                                                    |
+| **`moraine-provider.test.tsx`**  | JSDOM / Unit                                          | Passes outer/inner provider inheritance, reactive updates, composition-context precedence, slot overrides, and instance precedence over recipe defaults/providers.                                                                                                                                                                                                                                                 |
+| **Provider Export Inventory**    | Package entry-point inspection                        | Every public component resolves to exactly one provider key or documented owner; no orphan or duplicate ownership remains.                                                                                                                                                                                                                                                                                         |
+| **Single Resolver Audit**        | Regex on `src/**/*.tsx` + `moraine-provider.test.tsx` | No `slots().root(`/`slots().<slot>(` ordering chain exists outside `resolveComponentStyle`; the shared test asserts the resolver matches the §3.5.4 precedence table.                                                                                                                                                                                                                                              |
+| **Tailwind v4 Consumer Test**    | Packed-package fixture / Tailwind v4 compiler         | Fixture uses required `@plugin "moraine/tailwind"` plus a valid relative `@source` path to installed `moraine/dist`; representative tokens, animations, states, and overrides emit working CSS. **Fails unless the emitted stylesheet includes the `data-*`/`aria-*` variant rules, the `animate-mo-enter`/`animate-mo-exit` rules and their keyframes, and the `z-floating`/`opacity-64` tokens.**                |
+| **UnoCSS Consumer Test**         | Packed-package fixture / UnoCSS generator             | Fixture uses `presetWind4()` plus `presetMoraine()`, scans installed `moraine/dist`, and emits representative tokens, animations, states, and overrides. **Fails unless the emitted CSS includes the same `data-*`/`aria-*` variant rules, `animate-mo-*` rules/keyframes, and `z-floating`/`opacity-64` tokens as the Tailwind fixture.**                                                                         |
+| **SSR Single Evaluation**        | Node SSR + JSDOM                                      | Getter-backed JSX prop assertions verify props evaluate exactly once during SSR and hydration.                                                                                                                                                                                                                                                                                                                     |
+| **Build Artifact Gate (Plan A)** | Script on packed `dist/`                              | `icon.css` exists and contains expected mask selectors; `tw3.css` and `tw4.css` are absent; package exports match.                                                                                                                                                                                                                                                                                                 |
+| **Icon Independence Test**       | Both consumer fixtures                                | Components compile and retain layout/style with `icon.css` omitted; icon rendering works when either runtime masks or the engine icon integration is enabled.                                                                                                                                                                                                                                                      |
+| **SSG Production Preview**       | Automated process smoke test                          | Build docs, start preview, wait for successful HTTP response, assert no browser/runtime/hydration errors, then terminate the process cleanly.                                                                                                                                                                                                                                                                      |

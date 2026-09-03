@@ -126,8 +126,10 @@ in `package.json`, and set Tailwind peer dependency to `^4.0.0` (with appropriat
 optional metadata). Update `AGENTS.md` guidelines to replace all remaining references
 to `cva` with `recipe`.
 
-**Verify**: `nub run build` → exit 0; `Test-Path dist/icon.css` is `True` and
-`Test-Path dist/tw3.css`, `Test-Path dist/tw4.css` are both `False`.
+**Verify**: `nub run build` → exit 0; `[ -f dist/icon.css ]` is true and
+`[ ! -f dist/tw3.css ]` and `[ ! -f dist/tw4.css ]` are both true
+(`Test-Path`/PowerShell form is intentionally avoided so the command is portable
+across the project's POSIX shells/CI).
 
 ### Step 3: Test actual installed-consumer engine contracts
 
@@ -139,10 +141,16 @@ that consume a packed `moraine` tarball rather than source aliases:
 - Tailwind v4 fixture CSS includes `@plugin "moraine/tailwind"` and an
   `@source` path relative to its stylesheet resolving to installed
   `node_modules/moraine/dist`; assert representative component utilities,
-  theme tokens, data/aria variants, and animations compile.
+  theme tokens, data/aria variants, and animations compile. **Assert the emitted
+  stylesheet text actually contains**, not just that the compiler ran:
+  a `data-disabled`/`data-focused`/`aria-invalid` variant rule,
+  `animate-mo-enter`/`animate-mo-exit` rules plus their `@keyframes mo-enter`/`mo-exit`
+  blocks, and the `z-floating`/`opacity-64` tokens (PRD §4.1).
 - UnoCSS fixture loads `presetWind4()` and `presetMoraine()` plus filesystem
   content matching installed `dist/**/*.{mjs,jsx}`; assert the same essentials
-  generate.
+  generate. **Assert the same `data-*`/`aria-*` variant rules, `animate-mo-*`
+  rules/keyframes, and custom tokens are present in the generated output**
+  (PRD §4.2).
 
 In both fixtures prove components compile without importing `icon.css`; add
 separate checks that icon rendering CSS appears either from `moraine/icon.css`

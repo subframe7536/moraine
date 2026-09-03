@@ -45,7 +45,7 @@ consistent while preserving interaction and accessibility semantics.
 - `src/shared/cva-common.class.ts` provides reusable maps such as
   `TEXT_SIZE_VARIANT`; it was normalized in plan 001 and may be retained as
   named standard class maps if still useful.
-- `PRD.md:646-690` is the mandatory resolution order. State values such as
+- `PRD.md §3.5.4` is the mandatory resolution order. State values such as
   loading, disabled, active, invalid, and dragging remain DOM state/data/aria
   attributes or explicit preset classes; they do not become provider defaults.
 
@@ -128,7 +128,9 @@ preserving property-level last-wins order.
 ### Step 3: Adopt provider precedence in every scoped public component
 
 For each provider key in scope, read `useMoraineConfig()` reactively and apply
-the PRD ordering exactly:
+the PRD ordering via the single `resolveComponentStyle` helper (§3.5.3). Do NOT
+hand-write the provider/group/instance/recipe chain inline — that is the
+concrete drift the PRD's unified resolver exists to prevent:
 
 1. recipe default variants, then provider defaults (already outer-to-inner),
    then owning composition context, then explicit instance design prop;
@@ -136,6 +138,12 @@ the PRD ordering exactly:
    classes, instance slot class, then instance root `class` for root only;
 3. generated styles, provider general/root or slot styles, composition styles,
    instance slot styles, then instance root `style` for root only.
+
+`resolveComponentStyle` takes `{ slots, provider, group, instance, stateCls, baseStyle }`
+and returns `{ rootClass, rootStyle, slotClass, slotStyle }`; pass `stateCls` for
+per-slot dynamic state classes (e.g. leading loading spinner) and `baseStyle` for
+`defineStyleVars` output. A review-time regex (`\bslots\(\)\.(root|[a-z]+)\s*\(` outside
+`resolveComponentStyle`) must find no per-component ordering.
 
 `AvatarFace` inherits `avatar`; `CollapsibleTrigger` and `CollapsibleContent`
 inherit `collapsible`; bound `createForm()` Form/Field use `form`/`formField`;

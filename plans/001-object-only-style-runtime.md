@@ -43,10 +43,10 @@ unit and type coverage before component renderers are migrated in later plans.
 - `src/unocss/theme.ts:540-585` currently implements `effect-*`, semantic
   animation, `z-*`, and other component shortcuts. These must not remain as a
   hidden compatibility surface once `src/` uses standard classes.
-- `PRD.md:44-90` limits `cn` to runtime class normalization/conflict handling;
+- `PRD.md §3.1` limits `cn` to runtime class normalization/conflict handling;
   it must not claim to generate CSS, scan classes, load a plugin/preset, or
-  validate tokens. `PRD.md:95-353` specifies the `recipe(options)` overloads.
-- `PRD.md:722-908` specifies `formatCssVars` and `defineStyleVars`, including
+  validate tokens. `PRD.md §3.1.2` specifies the `recipe(options)` overloads.
+- `PRD.md §3.6.2` specifies `formatCssVars` and `defineStyleVars`, including
   nullish filtering, array compound matching, object-only styles, and no cache.
 
 Relevant existing conventions:
@@ -125,11 +125,15 @@ const _cn = createCn({
   },
 })
 
-export function cn(...classes: any[]): string | undefined {
+export function cn(...classes: ClassValue[]): string | undefined {
   return _cn(...classes) || undefined
 }
 ```
 Note: Standard Tailwind `ring-3` is a built-in utility and must NOT be added to `classGroups`.
+`ClassValue` is the union type from `./style/recipe` (string | number | bigint | boolean
+| undefined | null | `ClassValue[]` | `Record<string, unknown>`). Using it here instead of
+`any[]` keeps the new helper type-safe. This transitional signature is temporary: it is
+hardened in plan 005 once `SlotClassValue` is switched to recipe's `ClassValue`.
 Preserve `useId` unchanged.
 
 **CRITICAL SAFEGUARD FOR INTERNAL BRIDGE (PROTOTYPE LESSONS)**:
@@ -159,7 +163,9 @@ exit 0 with zero TypeScript errors.
 ### Step 2: Implement the incompatible `recipe(options)` API
 
 Create `src/shared/style/recipe.ts` using the exact object-only shapes from
-`PRD.md:95-353`:
+`PRD.md §3.1.2` (the PRD type block is the canonical source of truth; do not re-declare a
+divergent shape — see the "canonical recipe type shape" note `PRD.md` adds after
+`SlotRecipeOptions`):
 
 - atomic mode uses `{ base, variants, compoundVariants, defaultVariants }`;
 - multi-slot mode uses `{ slots, base, variants, compoundVariants,
@@ -196,7 +202,7 @@ listed behavior covered.
 
 ### Step 3: Implement object-only CSS-variable helpers
 
-Create `src/shared/style/css-vars.ts` following `PRD.md:722-908`. `formatCssVars`
+Create `src/shared/style/css-vars.ts` following `PRD.md §3.6.2`. `formatCssVars`
 must prefix keys with `--` or `--<prefix>-`, preserve already-prefixed keys,
 and omit only `null`/`undefined`. `defineStyleVars` must merge base variables,
 selected variant variables (filtering out `undefined`/`null` so `defaultVariants`
