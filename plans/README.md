@@ -9,7 +9,7 @@ and update its row after completion.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |---|---|---:|---:|---|---|
-| 001 | Add the object-only style runtime | P1 | L | — | TODO |
+| 001 | Add the object-only style runtime | P1 | L | — | DONE |
 | 002 | Add reactive global style configuration | P1 | L | 001 | TODO |
 | 003 | Migrate elements and form components | P1 | XL | 001, 002 | TODO |
 | 004 | Migrate navigation and overlay components | P1 | XL | 001, 002, 003 | TODO |

@@ -13,6 +13,7 @@ import {
   Popover,
   Sheet,
   Tooltip,
+  defineStyleVars,
 } from 'moraine'
 import type { AvatarGroupT, AvatarT, ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
@@ -103,3 +104,12 @@ const avatarGroupItem: AvatarGroupT.Item = { text: 'MR' }
 void avatarItem
 void avatarBase
 void avatarGroupItem
+
+// @ts-expect-error String root style is rejected
+;<Button style="color: red" />
+
+// @ts-expect-error String slot style is rejected
+;<Modal defaultOpen styles={{ content: 'color: red' }} />
+
+// @ts-expect-error String defineStyleVars extra styles are rejected
+defineStyleVars({ base: { size: '1px' } })({}, 'color: red')

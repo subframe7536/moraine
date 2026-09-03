@@ -17,6 +17,9 @@ importers:
       cls-variant:
         specifier: ^1.2.0
         version: 1.2.0
+      cn:
+        specifier: ^0.2.4
+        version: 0.2.4
       solid-js:
         specifier: ^1.9.15
         version: 1.9.15
@@ -1303,6 +1306,11 @@ packages:
 
   cls-variant@1.2.0:
     resolution: {integrity: sha512-lqm6rqQfzXKvjqhU4BafCAZknHOGTiQx7ovem4w2TDqxFiJOWvUw6GKezUCsTLgNXeFPLPghvuYWCUsDeSaTHA==}
+
+  cn@0.2.4:
+    resolution: {integrity: sha512-SzQvoh5FwizWtQg9+JueKdjWhlfCZMdu5DqNHm9q1wUlRVmKb9WXlepR9bTTbPwzEOyX1ujJ6lcCppmn3bNUCg==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
@@ -3138,6 +3146,8 @@ snapshots:
   character-entities-legacy@3.0.0: {}
 
   cls-variant@1.2.0: {}
+
+  cn@0.2.4: {}
 
   colorette@2.0.20: {}
 

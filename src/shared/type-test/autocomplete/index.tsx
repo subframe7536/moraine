@@ -11,6 +11,7 @@ import {
   Popover,
   Sheet,
   Tooltip,
+  defineStyleVars,
 } from 'moraine'
 import type { ModalT } from 'moraine'
 import type { Component, JSX } from 'solid-js'
@@ -104,3 +105,12 @@ modalContentContext.close()
 ;<Button as={CustomRoot} />
 // @ts-expect-error Required custom component props must be supplied in the callback.
 ;<Dialog>{(props) => <CustomRoot {...props} />}</Dialog>
+
+// @ts-expect-error String root style is rejected
+;<Button style="color: red" />
+
+// @ts-expect-error String slot style is rejected
+;<Modal defaultOpen styles={{ content: 'color: red' }} />
+
+// @ts-expect-error String defineStyleVars extra styles are rejected
+defineStyleVars({ base: { size: '1px' } })({}, 'color: red')

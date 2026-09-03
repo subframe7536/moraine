@@ -63,7 +63,8 @@
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
     "@formisch/solid": "1.0.0",
-    "cls-variant": "^1.2.0"
+    "cls-variant": "^1.2.0",
+    "cn": "^0.2.4"
   },
   "devDependencies": {
     "@expressive-code/plugin-line-numbers": "0.42.0",

@@ -1,9 +1,10 @@
 import { cls } from 'cls-variant'
-import type { ClassValueArray } from 'cls-variant'
 import { cvaFactory } from 'cls-variant/cva'
 import type { CvaFunction } from 'cls-variant/cva'
+import { createCn } from 'cn/config'
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
+import type { ClassValue } from './style/recipe.ts'
 
 /**
  * Generates a unique identifier for accessibility and form association.
@@ -46,6 +47,7 @@ export function useId(
 
   return resolvedId
 }
+
 type extendCNFunction = (clz: string) => string
 
 let __fn: extendCNFunction = (s) => s
@@ -53,8 +55,25 @@ export function extendCN(fn: extendCNFunction): void {
   __fn = fn
 }
 
-export function cn(...classes: ClassValueArray): string | undefined {
-  return __fn(cls(...classes)) || undefined
+const _cn = createCn({
+  extend: {
+    classGroups: {
+      z: [
+        'z-base',
+        'z-raised',
+        'z-control',
+        'z-sticky',
+        'z-resize',
+        'z-overlay',
+        'z-floating',
+      ],
+      opacity: ['opacity-64'],
+    },
+  },
+})
+
+export function cn(...classes: ClassValue[]): string | undefined {
+  return _cn(...(classes as any[])) || undefined
 }
 
 export const cva: CvaFunction = (...args) => {

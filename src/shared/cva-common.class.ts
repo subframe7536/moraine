@@ -12,7 +12,7 @@ export const TEXT_SIZE_VARIANT = {
 } as const
 
 export const REQUIRED_MARK_VARIANT = {
-  true: "after:(text-destructive ms-0.5 content-['*'])",
+  true: "after:text-destructive after:ms-0.5 after:content-['*']",
 } as const
 
 export const FLEX_ORIENTATION_VARIANT = {
@@ -44,8 +44,8 @@ export const CHECKABLE_WRAPPER_ALIGN_VARIANT = {
 } as const
 
 export const TABLE_EDGE_ORIENTATION_VARIANT = {
-  horizontal: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg not-first-of-type:-ms-px',
-  vertical: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg not-first-of-type:-mt-px',
+  horizontal: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
+  vertical: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
 } as const
 
 export const CARD_PADDING_SIZE_VARIANT = {
