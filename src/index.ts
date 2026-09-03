@@ -27,5 +27,11 @@ export type {
   VariantSchema,
   VariantSelection,
 } from './shared/style/recipe.ts'
+export { MoraineProvider, useMoraineConfig } from './shared/provider/index.ts'
+export type {
+  ComponentDefaultStyle,
+  MoraineConfig,
+  MoraineProviderProps,
+} from './shared/provider/index.ts'
 export type { MoraineTypeConfig } from './shared/types.ts'
 export { cn, cva, extendCN, useId } from './shared/utils.ts'

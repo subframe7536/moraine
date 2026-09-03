@@ -32,4 +32,18 @@ export * from './shared/use-loading-auto.ts'
 export * from './shared/use-media-query.ts'
 export * from './shared/use-selectable-collection-navigation.ts'
 export * from './shared/use-transition-presence.ts'
+export {
+  MoraineProvider,
+  mergeComponentStyle,
+  mergeMoraineConfig,
+  resolveComponentStyle,
+  useMoraineConfig,
+} from './shared/provider/index.ts'
+export type {
+  ComponentDefaultStyle,
+  ComponentStyleInputs,
+  MoraineConfig,
+  MoraineProviderProps,
+  ResolvedComponentStyle,
+} from './shared/provider/index.ts'
 export { cn, useId } from './shared/utils.ts'

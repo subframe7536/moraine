@@ -10,6 +10,7 @@ import {
   Icon,
   List,
   Modal,
+  MoraineProvider,
   Popover,
   Sheet,
   Tooltip,
@@ -113,3 +114,10 @@ void avatarGroupItem
 
 // @ts-expect-error String defineStyleVars extra styles are rejected
 defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
+
+// @ts-expect-error String style values on MoraineProvider config are rejected
+;<MoraineProvider config={{ button: { style: 'color: red' } }} />
+
+// @ts-expect-error String styles values on MoraineProvider config are rejected
+;<MoraineProvider config={{ button: { styles: { root: 'color: red' } } }} />
+
