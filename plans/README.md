@@ -11,8 +11,8 @@ and update its row after completion.
 | ---- | ------------------------------------------ | -------: | -----: | ------------- | ------ |
 | 001  | Add the object-only style runtime          |       P1 |      L | —             | DONE   |
 | 002  | Add reactive global style configuration    |       P1 |      L | 001           | DONE   |
-| 003  | Migrate elements and form components       |       P1 |     XL | 001, 002      | TODO   |
-| 004  | Migrate navigation and overlay components  |       P1 |     XL | 001, 002, 003 | TODO   |
+| 003  | Migrate elements and form components       |       P1 |     XL | 001, 002      | DONE   |
+| 004  | Migrate navigation and overlay components  |       P1 |     XL | 001, 002, 003 | DONE   |
 | 005  | Ship the v4-only consumer integration      |       P1 |      L | 003, 004      | TODO   |
 | 006  | Prove acceptance and retire legacy styling |       P1 |      M | 005           | TODO   |
 

@@ -19,10 +19,10 @@ function expectAriaReferencesToResolve(content: Element): void {
 
 describe('Sheet', () => {
   test.each([
-    ['left', 'left-0', 'animate-sheet-side-left'],
-    ['right', 'right-0', 'animate-sheet-side-right'],
-    ['top', 'top-0', 'animate-sheet-side-top'],
-    ['bottom', 'bottom-0', 'animate-sheet-side-bottom'],
+    ['left', 'left-0', '[--mo-enter-translate-x:-2.5rem]'],
+    ['right', 'right-0', '[--mo-enter-translate-x:2.5rem]'],
+    ['top', 'top-0', '[--mo-enter-translate-y:-2.5rem]'],
+    ['bottom', 'bottom-0', '[--mo-enter-translate-y:2.5rem]'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
     render(() => (
       <Sheet open side={side} body="Sheet body">
@@ -38,8 +38,8 @@ describe('Sheet', () => {
 
     expect(content?.getAttribute('data-side')).toBe(side)
     expect(content?.className).toContain(expectedClass)
-    expect(content?.className).toContain('data-expanded:animate-sheet-in')
-    expect(content?.className).toContain('data-closed:animate-sheet-out')
+    expect(content?.className).toContain('data-expanded:animate-mo-enter')
+    expect(content?.className).toContain('data-closed:animate-mo-exit')
     expect(content?.className).toContain(sideClass)
   })
 
@@ -65,7 +65,7 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="content"]')
 
-    expect(content?.className).toContain('sm:(m-4 border border-border rounded-2xl)')
+    expect(content?.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content?.className).toContain(
       'transition-none data-expanded:animate-none data-closed:animate-none',
     )
@@ -280,7 +280,7 @@ describe('Sheet', () => {
     expect(content.getAttribute('data-side')).toBe('right')
     expect(content.className).toContain('right-0')
     expect(content.className).not.toContain('left-0')
-    expect(content.className).toContain('sm:(m-4 border border-border rounded-2xl)')
+    expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content.className).toContain(
       'transition-none data-expanded:animate-none data-closed:animate-none',
     )

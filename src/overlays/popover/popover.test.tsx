@@ -281,10 +281,10 @@ describe('Popover', () => {
   })
 
   test.each([
-    ['top-start', 'mb-$mo-popper-content-overflow-padding'],
-    ['right-start', 'ml-$mo-popper-content-overflow-padding'],
-    ['bottom-start', 'mt-$mo-popper-content-overflow-padding'],
-    ['left-start', 'mr-$mo-popper-content-overflow-padding'],
+    ['top-start', 'mb-[var(--mo-popper-content-overflow-padding)]'],
+    ['right-start', 'ml-[var(--mo-popper-content-overflow-padding)]'],
+    ['bottom-start', 'mt-[var(--mo-popper-content-overflow-padding)]'],
+    ['left-start', 'mr-[var(--mo-popper-content-overflow-padding)]'],
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
     setMockPlacement(placement)
 
@@ -679,18 +679,18 @@ describe('Popover', () => {
     })
 
     const initialContent = document.body.querySelector('[data-slot="content"]')
-    expect(initialContent?.className).toContain('data-expanded:animate-popover-in')
-    expect(initialContent?.className).toContain('data-closed:animate-popover-out')
-    expect(initialContent?.className).toContain('animate-popover-side-bottom')
-    expect(initialContent?.className).not.toContain('animate-popover-side-right')
+    expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(initialContent?.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(initialContent?.className).not.toContain('[--mo-enter-translate-x:-0.25rem]')
 
     setMockPlacement('right')
     setVersion(1)
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
-    expect(updatedContent?.className).toContain('data-expanded:animate-popover-in')
-    expect(updatedContent?.className).toContain('data-closed:animate-popover-out')
-    expect(updatedContent?.className).toContain('animate-popover-side-right')
-    expect(updatedContent?.className).not.toContain('animate-popover-side-bottom')
+    expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(updatedContent?.className).toContain('[--mo-enter-translate-x:-0.25rem]')
+    expect(updatedContent?.className).not.toContain('[--mo-enter-translate-y:-0.25rem]')
   })
 })

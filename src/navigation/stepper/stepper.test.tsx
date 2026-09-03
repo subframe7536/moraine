@@ -204,10 +204,10 @@ describe('Stepper', () => {
   test('uses stepper css variable helper classes for size and separator layout', () => {
     const screen = render(() => <Stepper items={ITEMS} size="lg" orientation="vertical" />)
 
-    const item = screen.container.querySelector('[data-slot="item"]')
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
     const separator = screen.container.querySelector('[data-slot="separator"]')
 
-    expect(item?.className).toContain('var-stepper-10-8-3-1')
+    expect(root?.style.getPropertyValue('--st-size')).toBe('calc(var(--spacing) * 10)')
     expect(separator?.className).toContain('bottom--3')
   })
 

@@ -10,12 +10,13 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { OverlayMenu } from '../base/menu/index'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useEventListener } from '../../shared/use-event-listener.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
@@ -23,13 +24,13 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+} from '../base/menu/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
   validateOverlayTrigger,
-} from '../base/trigger'
+} from '../base/trigger.ts'
 
 export namespace ContextMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
@@ -125,6 +126,9 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     'class',
     'style',
   ])
+  const moraine = useMoraineConfig()
+  const providerContextMenu = () => moraine().contextMenu
+
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -134,8 +138,23 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       gutter: 0,
       shift: 4,
     },
+    () => providerContextMenu()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerContextMenu()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
   const [uncontrolledOpen, setUncontrolledOpen] = createSignal(
     untrack(() => Boolean(merged.defaultOpen)),
   )
@@ -504,10 +523,10 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   const triggerRender = createMemo(() => merged.children)
   const userTriggerProps = mergeProps(rest, {
     get class() {
-      return cn(props.class)
+      return resolved.rootClass()
     },
     get style() {
-      return props.style
+      return resolved.rootStyle()
     },
   }) as Partial<OverlayTriggerProps>
   const triggerProps = mergeProps(
@@ -608,6 +627,23 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     }
   })
 
+  const menuClasses = new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        return resolved.slotClass(prop)
+      },
+    },
+  )
+  const menuStyles = new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        return resolved.slotStyle(prop)
+      },
+    },
+  )
+
   return (
     <>
       <Show when={triggerRender()}>
@@ -628,9 +664,9 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         autoFocusStrategy={autoFocusStrategy()}
         onContentPointerDown={onContentPointerDown}
         onContentContextMenu={onContentContextMenu}
-        classes={merged.classes}
-        styles={merged.styles}
-        size={merged.size}
+        classes={menuClasses}
+        styles={menuStyles}
+        size={merged.size ?? undefined}
         items={merged.items}
         checkedIcon={merged.checkedIcon}
         submenuIcon={merged.submenuIcon}

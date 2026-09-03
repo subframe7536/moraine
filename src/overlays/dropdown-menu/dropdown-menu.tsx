@@ -10,12 +10,13 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { OverlayMenu } from '../base/menu/index'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
   OverlayMenuItemVariantProps,
@@ -23,13 +24,13 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+} from '../base/menu/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
   validateOverlayTrigger,
-} from '../base/trigger'
+} from '../base/trigger.ts'
 
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
@@ -97,6 +98,9 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     'class',
     'style',
   ])
+  const moraine = useMoraineConfig()
+  const providerDropdownMenu = () => moraine().dropdownMenu
+
   const merged = mergeProps(
     {
       size: 'md' as const,
@@ -105,8 +109,24 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       placement: 'bottom-start' as const,
       gutter: 0,
     },
+    () => providerDropdownMenu()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerDropdownMenu()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   const resolvedId = useId(() => merged.id, 'dropdownmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   const [openState, setOpenState] = useControllableValue<boolean>({
@@ -121,10 +141,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const triggerRender = createMemo(() => merged.children)
   const userTriggerProps = mergeProps(rest, {
     get class() {
-      return cn(props.class)
+      return resolved.rootClass()
     },
     get style() {
-      return props.style
+      return resolved.rootStyle()
     },
   }) as Partial<OverlayTriggerProps>
   const triggerProps = mergeProps(
@@ -257,6 +277,26 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     commitOpen(true)
   }
 
+  const menuClasses = new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        if (prop === 'content') {
+          return cn('min-w-32', resolved.slotClass('content'))
+        }
+        return resolved.slotClass(prop)
+      },
+    },
+  )
+  const menuStyles = new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        return resolved.slotStyle(prop)
+      },
+    },
+  )
+
   return (
     <>
       <Show when={triggerRender()}>
@@ -276,12 +316,9 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onAutoFocusHandled={() => {
           setAutoFocusStrategy('none')
         }}
-        classes={{
-          ...merged.classes,
-          content: cn('min-w-32', merged.classes?.content),
-        }}
-        styles={merged.styles}
-        size={merged.size}
+        classes={menuClasses}
+        styles={menuStyles}
+        size={merged.size ?? undefined}
         items={merged.items}
         checkedIcon={merged.checkedIcon}
         submenuIcon={merged.submenuIcon}

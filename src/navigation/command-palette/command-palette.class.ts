@@ -11,4 +11,4 @@ export const COMMAND_PALETTE_LABEL_CLASS = 'text-muted-foreground px-2 py-1.5 te
 export const COMMAND_PALETTE_TRAILING_CLASS =
   'text-muted-foreground ml-auto flex shrink-0 gap-2 items-center text-xs tracking-widest'
 export const COMMAND_PALETTE_ITEM_CLASS =
-  'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:(opacity-50 pointer-events-none) [&_svg]:shrink-0 [&_svg]:size-4'
+  'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:opacity-50 data-disabled:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4'

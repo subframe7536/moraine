@@ -262,7 +262,7 @@ describe('Tabs', () => {
     expect(root?.className).toContain('flex-row')
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('transition')
-    expect(trigger?.className).toContain('focus-visible:effect-fv-border')
+    expect(trigger?.className).toContain('focus-visible:ring-ring/50')
     expect(trigger?.className).toContain('trigger-override')
     expect(content?.className).toContain('content-override')
   })

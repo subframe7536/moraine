@@ -11,21 +11,16 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { cn, useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { cn, useId } from '../../shared/utils.ts'
 
-import {
-  tabsIndicatorVariants,
-  TABS_LEADING_CLASS,
-  tabsListVariants,
-  tabsRootVariants,
-  tabsTriggerVariants,
-} from './tabs.class'
-import type { TabsVariantProps } from './tabs.class'
+import { tabsRecipe } from './tabs.class.ts'
+import type { TabsVariantProps } from './tabs.class.ts'
 
 export namespace TabsT {
   export interface Slot<T = unknown> {
@@ -191,14 +186,43 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
+  const config = useMoraineConfig()
+  const providerTabs = () => config().tabs
+
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
       variant: 'pill' as const,
       size: 'md' as const,
     },
+    () => providerTabs()?.defaultProps,
     local,
   )
+
+  const slots = createMemo(() =>
+    tabsRecipe({
+      orientation: merged.orientation,
+      variant: merged.variant,
+      size: merged.size,
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return providerTabs()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const rootId = useId(() => merged.id, 'tabs')
   const [requestedValue, setRequestedValue] = useControllableValue<string>({
@@ -400,39 +424,23 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={tabsRootVariants(
-        { orientation: merged.orientation },
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       {...rest}
     >
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
-        aria-orientation={merged.orientation}
+        aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        style={merged.styles?.list}
-        class={tabsListVariants(
-          {
-            orientation: merged.orientation,
-            variant: merged.variant,
-          },
-          merged.classes?.list,
-        )}
+        style={resolved.slotStyle('list')}
+        class={resolved.slotClass('list')}
       >
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...indicatorStyle(), ...merged.styles?.indicator }}
-          class={tabsIndicatorVariants(
-            {
-              orientation: merged.orientation,
-              variant: merged.variant,
-            },
-            merged.classes?.indicator,
-          )}
+          style={{ ...indicatorStyle(), ...resolved.slotStyle('indicator') }}
+          class={resolved.slotClass('indicator')}
         />
 
         <For each={normalizedItems()}>
@@ -470,29 +478,22 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                style={merged.styles?.trigger}
-                class={tabsTriggerVariants(
-                  {
-                    orientation: merged.orientation,
-                    variant: merged.variant,
-                    size: merged.size,
-                  },
-                  merged.classes?.trigger,
-                )}
+                style={resolved.slotStyle('trigger')}
+                class={resolved.slotClass('trigger')}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
                 }}
                 onFocus={() => setHighlightedKey(item.instanceKey)}
                 onKeyDown={(event) => {
-                  onNavigationKeyDown(event, item.instanceKey, merged.orientation)
+                  onNavigationKeyDown(event, item.instanceKey, merged.orientation ?? 'horizontal')
                 }}
               >
                 <Show when={item.icon}>
                   <span
                     data-slot="leading"
-                    style={merged.styles?.leading}
-                    class={cn(TABS_LEADING_CLASS, merged.classes?.leading)}
+                    style={resolved.slotStyle('leading')}
+                    class={resolved.slotClass('leading')}
                   >
                     <Icon name={item.icon} />
                   </span>
@@ -501,8 +502,8 @@ export function Tabs(props: TabsProps): JSX.Element {
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
                   <span
                     data-slot="label"
-                    style={merged.styles?.label}
-                    class={cn('truncate', merged.classes?.label)}
+                    style={resolved.slotStyle('label')}
+                    class={cn('truncate', resolved.slotClass('label'))}
                   >
                     {item.label}
                   </span>
@@ -526,8 +527,8 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
-                style={merged.styles?.content}
-                class={cn('text-sm outline-none w-full', merged.classes?.content)}
+                style={resolved.slotStyle('content')}
+                class={resolved.slotClass('content')}
               >
                 {item.content}
               </div>

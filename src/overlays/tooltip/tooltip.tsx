@@ -9,16 +9,17 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { KbdGroup } from '../../elements/kbd/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { cn, useId } from '../../shared/utils'
-import { Popper, resolveOverlayMenuSide } from '../base/index'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+import { KbdGroup } from '../../elements/kbd/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { tooltipContentVariants } from './tooltip.class'
-import type { TooltipVariantProps } from './tooltip.class'
+import { tooltipContentVariants } from './tooltip.class.ts'
+import type { TooltipVariantProps } from './tooltip.class.ts'
 
 export namespace TooltipT {
   export interface Slot<T = unknown> {
@@ -194,6 +195,9 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     'class',
     'style',
   ])
+  const moraine = useMoraineConfig()
+  const providerTooltip = () => moraine().tooltip
+
   const merged = mergeProps(
     {
       placement: 'top' as const,
@@ -201,14 +205,30 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       closeDelay: 200,
       instantOpenDelay: 300,
     },
+    () => providerTooltip()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerTooltip()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return cn(props.class)
+      return resolved.rootClass()
     },
     get style() {
-      return props.style
+      return resolved.rootStyle()
     },
   }) as Partial<OverlayTriggerProps>
   const tooltipId = useId(() => merged.id, 'tooltip')
@@ -390,21 +410,21 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     return (
       <div
         data-slot="content"
-        style={merged.styles?.content}
+        style={resolved.slotStyle('content')}
         class={tooltipContentVariants(
           { side: resolvedSide(), invert: merged.invert },
           shouldUseInstantMotion()
             ? 'data-expanded:animate-none data-closed:animate-none'
             : undefined,
-          merged.classes?.content,
+          resolved.slotClass('content'),
         )}
         {...context.contentProps}
       >
         <Show when={typeof text() === 'string'} fallback={text()}>
           <span
             data-slot="text"
-            style={merged.styles?.text}
-            class={cn('leading-4 text-pretty', merged.classes?.text)}
+            style={resolved.slotStyle('text')}
+            class={cn('leading-4 text-pretty', resolved.slotClass('text'))}
           >
             {text()}
           </span>
@@ -416,8 +436,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              class={cn(text() && 'rounded-sm relative z-floating isolate', merged.classes?.kbds)}
-              classes={{ item: merged.classes?.kbd }}
+              style={resolved.slotStyle('kbds')}
+              class={cn(
+                text() && 'rounded-sm relative z-floating isolate',
+                resolved.slotClass('kbds'),
+              )}
+              classes={{ item: resolved.slotClass('kbd') }}
+              styles={{ item: resolved.slotStyle('kbd') }}
             />
           )}
         </Show>

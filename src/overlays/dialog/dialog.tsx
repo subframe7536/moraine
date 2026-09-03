@@ -1,17 +1,18 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import { Button } from '../../elements/index'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { hasJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import type { OverlayTriggerProps } from '../base/trigger'
-import { Modal } from '../modal/modal'
-import type { ModalProps } from '../modal/modal'
-import { ModalTriggerRenderer } from '../modal/modal-trigger'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Button } from '../../elements/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn, useId } from '../../shared/utils.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
+import { Modal } from '../modal/modal.tsx'
+import type { ModalProps } from '../modal/modal.tsx'
 
 import {
   DIALOG_BODY_CLASS,
@@ -24,7 +25,7 @@ import {
   DIALOG_HEADER_CLASS,
   DIALOG_TITLE_CLASS,
   DIALOG_WRAPPER_CLASS,
-} from './dialog.class'
+} from './dialog.class.ts'
 
 export namespace DialogT {
   export interface Slot<T = unknown> {
@@ -169,6 +170,9 @@ export function Dialog(props: DialogProps): JSX.Element {
     'class',
     'style',
   ])
+  const moraine = useMoraineConfig()
+  const providerDialog = () => moraine().dialog
+
   const merged = mergeProps(
     {
       overlay: true,
@@ -178,6 +182,21 @@ export function Dialog(props: DialogProps): JSX.Element {
     },
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerDialog()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   const title = createLazyMemo(() => merged.title)
   const description = createLazyMemo(() => merged.description)
   const header = createLazyMemo(() => merged.header)
@@ -187,10 +206,10 @@ export function Dialog(props: DialogProps): JSX.Element {
   const triggerRender = createMemo(() => merged.children)
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return cn(props.class)
+      return resolved.rootClass()
     },
     get style() {
-      return props.style
+      return resolved.rootStyle()
     },
   }) as Partial<OverlayTriggerProps>
   const rootId = useId(() => merged.id, 'dialog')
@@ -217,15 +236,15 @@ export function Dialog(props: DialogProps): JSX.Element {
         <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
           <div
             data-slot="wrapper"
-            style={merged.styles?.wrapper}
-            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', merged.classes?.wrapper)}
+            style={resolved.slotStyle('wrapper')}
+            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', resolved.slotClass('wrapper'))}
           >
             <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
-                style={merged.styles?.title}
-                class={cn(DIALOG_TITLE_CLASS, merged.classes?.title)}
+                style={resolved.slotStyle('title')}
+                class={cn(DIALOG_TITLE_CLASS, resolved.slotClass('title'))}
               >
                 {title()}
               </h2>
@@ -235,8 +254,8 @@ export function Dialog(props: DialogProps): JSX.Element {
               <p
                 id={descriptionId()}
                 data-slot="description"
-                style={merged.styles?.description}
-                class={cn(DIALOG_DESCRIPTION_CLASS, merged.classes?.description)}
+                style={resolved.slotStyle('description')}
+                class={cn(DIALOG_DESCRIPTION_CLASS, resolved.slotClass('description'))}
               >
                 {description()}
               </p>
@@ -250,8 +269,8 @@ export function Dialog(props: DialogProps): JSX.Element {
             aria-label="Close"
             size="icon-sm"
             variant="ghost"
-            style={merged.styles?.close}
-            class={[DIALOG_CLOSE_CLASS, merged.classes?.close]}
+            style={resolved.slotStyle('close')}
+            class={[DIALOG_CLOSE_CLASS, resolved.slotClass('close')]}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -275,17 +294,17 @@ export function Dialog(props: DialogProps): JSX.Element {
       <Modal.Content
         overlay={merged.overlay}
         overlayScroll={overlayScroll()}
-        overlayClass={cn(merged.classes?.overlay)}
-        overlayStyle={merged.styles?.overlay}
+        overlayClass={resolved.slotClass('overlay')}
+        overlayStyle={resolved.slotStyle('overlay')}
         class={cn(
           merged.fullscreen
             ? DIALOG_CONTENT_FULLSCREEN_CLASS
             : overlayScroll()
               ? DIALOG_CONTENT_SCROLLABLE_CLASS
               : DIALOG_CONTENT_CLASS,
-          merged.classes?.content,
+          resolved.slotClass('content'),
         )}
-        style={merged.styles?.content}
+        style={resolved.slotStyle('content')}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
@@ -303,8 +322,8 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(h) => (
                   <div
                     data-slot="header"
-                    style={merged.styles?.header}
-                    class={cn(DIALOG_HEADER_CLASS, merged.classes?.header)}
+                    style={resolved.slotStyle('header')}
+                    class={cn(DIALOG_HEADER_CLASS, resolved.slotClass('header'))}
                   >
                     {h()}
                   </div>
@@ -315,13 +334,13 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(content) => (
                   <div
                     data-slot="body"
-                    style={merged.styles?.body}
+                    style={resolved.slotStyle('body')}
                     class={cn(
                       DIALOG_BODY_CLASS,
                       !overlayScroll() && 'overflow-y-auto',
                       !hasHeader() && 'pt-6',
                       hasJsxContent(footer()) ? 'pb-2' : 'pb-6',
-                      merged.classes?.body,
+                      resolved.slotClass('body'),
                     )}
                   >
                     {content()}
@@ -333,8 +352,8 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(f) => (
                   <div
                     data-slot="footer"
-                    style={merged.styles?.footer}
-                    class={cn(DIALOG_FOOTER_CLASS, merged.classes?.footer)}
+                    style={resolved.slotStyle('footer')}
+                    class={cn(DIALOG_FOOTER_CLASS, resolved.slotClass('footer'))}
                   >
                     {f()}
                   </div>

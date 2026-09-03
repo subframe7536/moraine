@@ -161,13 +161,13 @@ children/render props; preserve hydration ordering and portal behavior.
 
 ## Done criteria
 
-- [ ] `nub run test src/navigation src/overlays src/shared/style src/shared/provider` exits 0.
-- [ ] `nub run typecheck` and `nub run test:types` exit 0.
-- [ ] The scoped audit command from Step 2 emits no legacy styling tokens.
-- [ ] Provider keys and owner inheritance match the PRD inventory exactly.
-- [ ] Changed render-prop/children components pass the single-evaluation
+- [x] `nub run test src/navigation src/overlays src/shared/style src/shared/provider` exits 0.
+- [x] `nub run typecheck` and `nub run test:types` exit 0.
+- [x] The scoped audit command from Step 2 emits no legacy styling tokens.
+- [x] Provider keys and owner inheritance match the PRD inventory exactly.
+- [x] Changed render-prop/children components pass the single-evaluation
       SSR/hydration checks.
-- [ ] `plans/README.md` marks plan 004 DONE.
+- [x] `plans/README.md` marks plan 004 DONE.
 
 ## STOP conditions
 

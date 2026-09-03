@@ -221,7 +221,8 @@ describe('Breadcrumb', () => {
     expect(disabled?.className).toContain('link-override')
     expect(disabled?.getAttribute('aria-disabled')).toBe('true')
     expect(disabled?.getAttribute('href')).toBeNull()
-    expect(disabled?.className).toContain('aria-disabled:effect-dis')
+    expect(disabled?.className).toContain('aria-disabled:opacity-64')
+    expect(disabled?.className).toContain('aria-disabled:pointer-events-none')
     expect(separator?.className).toContain('separator-override')
   })
 

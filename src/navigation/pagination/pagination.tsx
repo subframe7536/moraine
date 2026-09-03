@@ -1,12 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button/index'
-import type { ButtonProps } from '../../elements/button/index'
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { Button } from '../../elements/button/index.ts'
+import type { ButtonProps } from '../../elements/button/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
 import {
   PAGINATION_CONTROL_LABEL_CLASS,
@@ -16,7 +17,7 @@ import {
   PAGINATION_NEXT_CLASS,
   PAGINATION_PREV_CLASS,
   PAGINATION_ROOT_CLASS,
-} from './pagination.class'
+} from './pagination.class.ts'
 
 type PaginationVariant = ButtonProps['variant']
 
@@ -48,7 +49,31 @@ export namespace PaginationT {
     ellipsis?: T
   }
 
-  export type Variant = never
+  export interface Variant {
+    /**
+     * Size of the pagination buttons.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg'
+
+    /**
+     * Visual variant for the page buttons.
+     * @default 'ghost'
+     */
+    variant?: PaginationVariant
+
+    /**
+     * Visual variant for the active page button.
+     * @default 'outline'
+     */
+    activeVariant?: PaginationVariant
+
+    /**
+     * Visual variant for the previous/next control buttons.
+     * @default 'ghost'
+     */
+    controlVariant?: PaginationVariant
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -103,30 +128,6 @@ export namespace PaginationT {
      * Whether the pagination is disabled.
      */
     disabled?: boolean
-
-    /**
-     * Size of the pagination buttons.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-
-    /**
-     * Visual variant for the page buttons.
-     * @default 'ghost'
-     */
-    variant?: PaginationVariant
-
-    /**
-     * Visual variant for the active page button.
-     * @default 'outline'
-     */
-    activeVariant?: PaginationVariant
-
-    /**
-     * Visual variant for the previous/next control buttons.
-     * @default 'ghost'
-     */
-    controlVariant?: PaginationVariant
 
     /**
      * Icon name for the previous button.
@@ -235,6 +236,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'class',
     'style',
   ])
+  const config = useMoraineConfig()
+  const providerPagination = () => config().pagination
+
   const merged = mergeProps(
     {
       'aria-label': 'Pagination',
@@ -252,8 +256,23 @@ export function Pagination(props: PaginationProps): JSX.Element {
       ellipsisIcon: 'icon-ellipsis' as const,
       defaultPage: 1,
     },
+    () => providerPagination()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerPagination()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const [internalPage, setInternalPage] = createSignal(
     normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
@@ -360,28 +379,28 @@ export function Pagination(props: PaginationProps): JSX.Element {
       data-slot="root"
       aria-label={merged['aria-label']}
       role={merged.role}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(PAGINATION_ROOT_CLASS, merged.classes?.root, merged.class)}
+      style={resolved.rootStyle()}
+      class={cn(PAGINATION_ROOT_CLASS, resolved.rootClass())}
       {...rest}
     >
       <ul
         data-slot="list"
-        style={merged.styles?.list}
-        class={cn(PAGINATION_LIST_CLASS, merged.classes?.list)}
+        style={resolved.slotStyle('list')}
+        class={cn(PAGINATION_LIST_CLASS, resolved.slotClass('list'))}
       >
         <Show when={merged.showControls}>
           <li
             data-slot="item"
-            style={merged.styles?.item}
-            class={cn(PAGINATION_ITEM_CLASS, merged.classes?.item)}
+            style={resolved.slotStyle('item')}
+            class={cn(PAGINATION_ITEM_CLASS, resolved.slotClass('item'))}
           >
             <Button
               data-slot="prev"
-              style={merged.styles?.prev}
+              style={resolved.slotStyle('prev')}
               variant={merged.controlVariant}
               size={getSize(merged.size, hasPrevText() ? merged.prevText : undefined)}
               aria-label={getPrevLabel()}
-              class={[hasPrevText() && PAGINATION_PREV_CLASS, merged.classes?.prev]}
+              class={[hasPrevText() && PAGINATION_PREV_CLASS, resolved.slotClass('prev')]}
               classes={{ label: hasPrevText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
@@ -400,11 +419,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="item"
-                style={merged.styles?.item}
+                style={resolved.slotStyle('item')}
                 aria-hidden={item < 0 ? true : undefined}
                 class={cn(
                   item < 0 ? PAGINATION_ELLIPSIS_CLASS : PAGINATION_ITEM_CLASS,
-                  merged.classes?.item,
+                  resolved.slotClass('item'),
                 )}
               >
                 <Show
@@ -412,21 +431,21 @@ export function Pagination(props: PaginationProps): JSX.Element {
                   fallback={
                     <Icon
                       slotName="ellipsis"
-                      style={merged.styles?.ellipsis}
+                      style={resolved.slotStyle('ellipsis')}
                       name={merged.ellipsisIcon}
-                      class={merged.classes?.ellipsis}
+                      class={resolved.slotClass('ellipsis')}
                     />
                   }
                 >
                   <Button
                     data-slot="link"
-                    style={merged.styles?.link}
+                    style={resolved.slotStyle('link')}
                     variant={isActive() ? merged.activeVariant : merged.variant}
                     size={getSize(merged.size)}
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    class={cn('outline-none', merged.classes?.link)}
+                    class={cn('outline-none', resolved.slotClass('link'))}
                     onClick={(event) => selectPage(item, event)}
                     {...getControlProps(item, false)}
                   >
@@ -441,16 +460,16 @@ export function Pagination(props: PaginationProps): JSX.Element {
         <Show when={merged.showControls}>
           <li
             data-slot="item"
-            style={merged.styles?.item}
-            class={cn(PAGINATION_ITEM_CLASS, merged.classes?.item)}
+            style={resolved.slotStyle('item')}
+            class={cn(PAGINATION_ITEM_CLASS, resolved.slotClass('item'))}
           >
             <Button
               data-slot="next"
-              style={merged.styles?.next}
+              style={resolved.slotStyle('next')}
               variant={merged.controlVariant}
               size={getSize(merged.size, hasNextText() ? merged.nextText : undefined)}
               aria-label={getNextLabel()}
-              class={[hasNextText() && PAGINATION_NEXT_CLASS, merged.classes?.next]}
+              class={[hasNextText() && PAGINATION_NEXT_CLASS, resolved.slotClass('next')]}
               classes={{ label: hasNextText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}

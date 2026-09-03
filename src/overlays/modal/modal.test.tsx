@@ -213,8 +213,8 @@ describe('Modal primitives', () => {
     expect(overlay?.className).toContain('supports-[backdrop-filter]:backdrop-blur-xs')
     expect(overlay?.className).not.toContain('supports-backdrop-filter:backdrop-blur-xs')
     expect(overlay?.className).toContain('backdrop-blur-xs')
-    expect(overlay?.className).toContain('data-closed:animate-overlay-out')
-    expect(overlay?.className).toContain('data-expanded:animate-overlay-in')
+    expect(overlay?.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay?.className).toContain('data-expanded:animate-mo-enter')
   })
 
   test('applies the default popup transition classes to custom modal content', () => {
@@ -230,8 +230,8 @@ describe('Modal primitives', () => {
     expect(content?.className).toContain('outline-none')
     expect(content?.className).toContain('w-full')
     expect(content?.className).toContain('z-floating')
-    expect(content?.className).toContain('data-closed:animate-popup-out')
-    expect(content?.className).toContain('data-expanded:animate-popup-in')
+    expect(content?.className).toContain('data-closed:animate-mo-exit')
+    expect(content?.className).toContain('data-expanded:animate-mo-enter')
   })
 
   test('replaces the default content classes when a custom class is provided', () => {

@@ -101,8 +101,8 @@ describe('Modal', () => {
     const content = document.body.querySelector('[data-slot="content"]')
     expect(content?.tagName).toBe('DIV')
     expect(content?.className).toContain('bg-popover')
-    expect(content?.className).toContain('surface-overlay')
-    expect(content?.className).toContain('data-expanded:animate-popup-in')
+    expect(content?.className).toContain('border-border')
+    expect(content?.className).toContain('data-expanded:animate-mo-enter')
     expect(content?.className).toContain('motion-reduce:animate-none')
   })
 

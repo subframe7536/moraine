@@ -371,7 +371,7 @@ describe('DropdownMenu', () => {
       expect(exitingContent).not.toBeNull()
       expect(exitingContent.getAttribute('data-closed')).toBe('')
       expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
-      expect(exitingContent.className).toContain('data-closed:animate-menu-out')
+      expect(exitingContent.className).toContain('data-closed:animate-mo-exit')
     })
 
     const positioner = content.closest('[data-slot="positioner"]') as HTMLElement
@@ -402,15 +402,15 @@ describe('DropdownMenu', () => {
 
     const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
-    expect(rootContent.className).toContain('mt-$mo-popper-content-overflow-padding')
-    expect(rootContent.className).toContain('data-expanded:animate-menu-in')
-    expect(rootContent.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent.className).toContain('mt-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent.getAttribute('data-side')).toBe('bottom')
     expect(rootContent.getAttribute('data-align')).toBe('start')
     expect(rootContent.getAttribute('data-placement')).toBeNull()
     expect(rootContent.getAttribute('data-motion')).toBeNull()
-    expect(rootContent.className).toContain('animate-menu-side-bottom')
-    expect(rootContent.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(rootContent.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(rootContent.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -485,16 +485,17 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mr-$mo-popper-content-overflow-padding')
-    expect(rootContent?.className).toContain('surface-overlay')
-    expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
-    expect(rootContent?.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent?.className).toContain('mr-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent?.className).toContain('border-border')
+    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-side')).toBe('left')
     expect(rootContent?.getAttribute('data-align')).toBe('start')
     expect(rootContent?.getAttribute('data-placement')).toBeNull()
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
-    expect(rootContent?.className).toContain('animate-menu-side-left')
-    expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(rootContent?.className).toContain('[--mo-enter-translate-x:0.25rem]')
+    expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

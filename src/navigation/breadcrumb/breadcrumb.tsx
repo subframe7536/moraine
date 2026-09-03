@@ -1,26 +1,23 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
 import {
   BREADCRUMB_DISABLED_CLASS,
-  BREADCRUMB_ITEM_CLASS,
   BREADCRUMB_LINK_CLASS,
   BREADCRUMB_PAGE_CLASS,
-  BREADCRUMB_ROOT_CLASS,
-  BREADCRUMB_SEPARATOR_CLASS,
   BREADCRUMB_TRUNCATE_CLASS,
-  breadcrumbSizeVariants,
-  breadcrumbListVariants,
-} from './breadcrumb.class'
-import type { BreadcrumbVariantProps } from './breadcrumb.class'
+  breadcrumbRecipe,
+} from './breadcrumb.class.ts'
+import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
 
 export namespace BreadcrumbT {
   /**
@@ -178,20 +175,20 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      separator: 'icon-chevron-right' as const,
-      wrap: true,
-      size: 'md' as const,
-      'aria-label': 'breadcrumb',
-    },
-    local,
-  )
+  const config = useMoraineConfig()
+  const providerBreadcrumb = () => config().breadcrumb
 
   type BreadcrumbSize = NonNullable<BreadcrumbT.Base['size']>
-  const size = createMemo<BreadcrumbSize>(() => merged.size ?? 'md')
-  const items = createMemo(() => merged.items ?? [])
-  const itemRender = createMemo(() => merged.itemRender)
+  const size = createMemo<BreadcrumbSize>(
+    () => local.size ?? providerBreadcrumb()?.defaultProps?.size ?? 'md',
+  )
+  const wrap = createMemo<boolean>(() =>
+    Boolean(local.wrap ?? providerBreadcrumb()?.defaultProps?.wrap ?? true),
+  )
+  const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
+
+  const items = createMemo(() => local.items ?? [])
+  const itemRender = createMemo(() => local.itemRender)
   const currentIndex = createMemo(() => {
     const resolvedItems = items()
     const explicitIndex = resolvedItems.findIndex((item) => item.active)
@@ -199,19 +196,34 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     return explicitIndex >= 0 ? explicitIndex : resolvedItems.length - 1
   })
 
+  const slots = createMemo(() => breadcrumbRecipe({ size: size(), wrap: wrap() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return providerBreadcrumb()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <nav
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      aria-label={merged['aria-label']}
+      style={resolved.rootStyle()}
+      aria-label={(rest['aria-label'] as string | undefined) ?? 'breadcrumb'}
       {...rest}
-      class={cn(BREADCRUMB_ROOT_CLASS, merged.classes?.root, merged.class)}
+      class={resolved.rootClass()}
     >
-      <ol
-        data-slot="list"
-        style={merged.styles?.list}
-        class={breadcrumbListVariants({ wrap: merged.wrap }, merged.classes?.list)}
-      >
+      <ol data-slot="list" style={resolved.slotStyle('list')} class={resolved.slotClass('list')}>
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
@@ -224,12 +236,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
             })
 
             const itemClass = createMemo(() =>
-              breadcrumbSizeVariants(
-                { size: size() },
+              cn(
                 isCurrent() ? BREADCRUMB_PAGE_CLASS : BREADCRUMB_LINK_CLASS,
-                !merged.wrap && BREADCRUMB_TRUNCATE_CLASS,
+                !wrap() && BREADCRUMB_TRUNCATE_CLASS,
                 !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
-                merged.classes?.link,
+                resolved.slotClass('link'),
               ),
             )
 
@@ -237,8 +248,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
               <>
                 <li
                   data-slot="item"
-                  style={merged.styles?.item}
-                  class={cn(BREADCRUMB_ITEM_CLASS, merged.classes?.item)}
+                  style={resolved.slotStyle('item')}
+                  class={resolved.slotClass('item')}
                 >
                   <Show
                     when={itemRender()}
@@ -246,7 +257,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       <Dynamic
                         component={isDisabled() ? 'span' : 'a'}
                         data-slot={isCurrent() ? 'page' : 'link'}
-                        style={merged.styles?.link}
+                        style={resolved.slotStyle('link')}
                         role={isDisabled() ? 'link' : undefined}
                         aria-disabled={isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
@@ -263,18 +274,18 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                             <Icon
                               name={icon()}
                               slotName="leading"
-                              style={merged.styles?.leading}
-                              class={merged.classes?.leading}
+                              style={resolved.slotStyle('leading')}
+                              class={resolved.slotClass('leading')}
                             />
                           )}
                         </Show>
                         <Show when={hasLabel()}>
                           <span
                             data-slot="label"
-                            style={merged.styles?.label}
+                            style={resolved.slotStyle('label')}
                             class={cn(
-                              !merged.wrap && BREADCRUMB_TRUNCATE_CLASS,
-                              merged.classes?.label,
+                              !wrap() && BREADCRUMB_TRUNCATE_CLASS,
+                              resolved.slotClass('label'),
                             )}
                           >
                             {label()}
@@ -306,12 +317,12 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                 <Show when={index() < items().length - 1}>
                   <li
                     data-slot="separator"
-                    style={merged.styles?.separator}
+                    style={resolved.slotStyle('separator')}
                     role="presentation"
                     aria-hidden="true"
-                    class={cn(BREADCRUMB_SEPARATOR_CLASS, merged.classes?.separator)}
+                    class={resolved.slotClass('separator')}
                   >
-                    <Icon name={merged.separator} />
+                    <Icon name={separator()} />
                   </li>
                 </Show>
               </>

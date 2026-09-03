@@ -222,19 +222,19 @@ describe('Tooltip', () => {
     })
 
     const initialContent = document.body.querySelector('[data-slot="content"]')
-    expect(initialContent?.className).toContain('data-expanded:animate-tooltip-in')
-    expect(initialContent?.className).toContain('data-closed:animate-tooltip-out')
-    expect(initialContent?.className).toContain('animate-tooltip-side-top')
-    expect(initialContent?.className).not.toContain('animate-tooltip-side-bottom')
+    expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(initialContent?.className).toContain('[--mo-enter-translate-y:0.25rem]')
+    expect(initialContent?.className).not.toContain('[--mo-enter-translate-y:-0.25rem]')
 
     setMockPlacement('bottom')
     setVersion(1)
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
-    expect(updatedContent?.className).toContain('data-expanded:animate-tooltip-in')
-    expect(updatedContent?.className).toContain('data-closed:animate-tooltip-out')
-    expect(updatedContent?.className).toContain('animate-tooltip-side-bottom')
-    expect(updatedContent?.className).not.toContain('animate-tooltip-side-top')
+    expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(updatedContent?.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(updatedContent?.className).not.toContain('[--mo-enter-translate-y:0.25rem]')
   })
 
   test('opens first hover after delay', async () => {
@@ -644,7 +644,7 @@ describe('Tooltip', () => {
     const closingTooltip = document.body.querySelector('[role=tooltip]')
 
     expect(closingTooltip?.getAttribute('data-closed')).toBe('')
-    expect(closingTooltip?.className).toContain('data-closed:animate-tooltip-out')
+    expect(closingTooltip?.className).toContain('data-closed:animate-mo-exit')
     expect(closingTooltip?.className).not.toContain('data-closed:animate-none')
   })
 

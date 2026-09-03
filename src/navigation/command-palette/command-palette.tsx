@@ -1,15 +1,16 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import { List } from '../../elements/list/index'
-import type { ListProps, ListT } from '../../elements/list/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { List } from '../../elements/list/index.ts'
+import type { ListProps, ListT } from '../../elements/list/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
 
 import {
   COMMAND_PALETTE_EMPTY_CLASS,
@@ -21,7 +22,7 @@ import {
   COMMAND_PALETTE_ROOT_CLASS,
   COMMAND_PALETTE_TRAILING_CLASS,
   COMMAND_PALETTE_ITEM_CLASS,
-} from './command-palette.class'
+} from './command-palette.class.ts'
 
 export namespace CommandPaletteT {
   export type DescriptionPosition = 'bottom' | 'trailing'
@@ -408,6 +409,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'class',
     'style',
   ])
+  const config = useMoraineConfig()
+  const providerCommandPalette = () => config().commandPalette
+
   const merged = mergeProps(
     {
       placeholder: 'Search...',
@@ -420,8 +424,23 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
+    () => providerCommandPalette()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerCommandPalette()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
@@ -685,8 +704,11 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <Show when={item.item.description}>
         <span
           data-slot="itemDescription"
-          style={merged.styles?.itemDescription}
-          class={cn('text-xs text-muted-foreground truncate', merged.classes?.itemDescription)}
+          style={resolved.slotStyle('itemDescription')}
+          class={cn(
+            'text-xs text-muted-foreground truncate',
+            resolved.slotClass('itemDescription'),
+          )}
         >
           {item.item.description}
         </span>
@@ -708,10 +730,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show when={item.item.leadingRender !== undefined}>
               <span
                 data-slot="itemLeading"
-                style={merged.styles?.itemLeading}
+                style={resolved.slotStyle('itemLeading')}
                 class={cn(
                   'text-muted-foreground shrink-0 [&_svg]:size-4',
-                  merged.classes?.itemLeading,
+                  resolved.slotClass('itemLeading'),
                 )}
               >
                 {renderComponentOrElement(item.item.leadingRender, itemContext)}
@@ -720,20 +742,20 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
             <span
               data-slot="itemWrapper"
-              style={merged.styles?.itemWrapper}
+              style={resolved.slotStyle('itemWrapper')}
               class={cn(
                 'text-start flex flex-1 flex-col min-w-0',
                 descriptionPosition() === 'trailing' && 'flex-row gap-2 items-baseline',
-                merged.classes?.itemWrapper,
+                resolved.slotClass('itemWrapper'),
               )}
             >
               <span
                 data-slot="itemLabel"
-                style={merged.styles?.itemLabel}
+                style={resolved.slotStyle('itemLabel')}
                 class={cn(
                   'min-w-0 truncate items-baseline',
                   descriptionPosition() === 'trailing' && 'flex flex-1 gap-2',
-                  merged.classes?.itemLabel,
+                  resolved.slotClass('itemLabel'),
                 )}
               >
                 <span class="truncate">{item.item.label ?? item.label}</span>
@@ -747,8 +769,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show when={item.item.trailingRender !== undefined}>
               <span
                 data-slot="itemTrailing"
-                style={merged.styles?.itemTrailing}
-                class={cn(COMMAND_PALETTE_TRAILING_CLASS, merged.classes?.itemTrailing)}
+                style={resolved.slotStyle('itemTrailing')}
+                class={cn(COMMAND_PALETTE_TRAILING_CLASS, resolved.slotClass('itemTrailing'))}
               >
                 {renderComponentOrElement(item.item.trailingRender, itemContext)}
               </span>
@@ -787,13 +809,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           virtualProps?.ref?.(element)
         }}
         style={{
-          ...merged.styles?.item,
+          ...resolved.slotStyle('item'),
           ...toStyleObject(itemAttributes()?.style),
           ...toStyleObject(virtualProps?.style),
         }}
         class={cn(
           COMMAND_PALETTE_ITEM_CLASS,
-          merged.classes?.item,
+          resolved.slotClass('item'),
           itemAttributes()?.class,
           virtualProps?.class,
         )}
@@ -842,24 +864,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   return (
     <div
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(COMMAND_PALETTE_ROOT_CLASS, merged.classes?.root, merged.class)}
+      style={resolved.rootStyle()}
+      class={cn(COMMAND_PALETTE_ROOT_CLASS, resolved.rootClass())}
       {...rest}
     >
       <div
         data-slot="inputWrapper"
-        style={merged.styles?.inputWrapper}
-        class={cn(COMMAND_PALETTE_INPUT_WRAPPER_CLASS, merged.classes?.inputWrapper)}
+        style={resolved.slotStyle('inputWrapper')}
+        class={cn(COMMAND_PALETTE_INPUT_WRAPPER_CLASS, resolved.slotClass('inputWrapper'))}
       >
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           slotName="search"
-          style={merged.styles?.search}
+          style={resolved.slotStyle('search')}
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
           class={cn(
-            'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:effect-loading',
-            merged.classes?.search,
+            'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
+            resolved.slotClass('search'),
           )}
         />
 
@@ -869,13 +891,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             setInputElement(el)
           }}
           data-slot="input"
-          style={merged.styles?.input}
+          style={resolved.slotStyle('input')}
           class={cn(
-            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
+            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:opacity-64 disabled:pointer-events-none',
             COMMAND_PALETTE_INPUT_CLASS,
-            merged.classes?.input,
+            resolved.slotClass('input'),
           )}
-
           role="combobox"
           aria-controls={listboxId()}
           aria-expanded="true"
@@ -903,10 +924,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <button
             type="button"
             data-slot="close"
-            style={merged.styles?.close}
+            style={resolved.slotStyle('close')}
             class={cn(
               'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:text-foreground',
-              merged.classes?.close,
+              resolved.slotClass('close'),
             )}
             onClick={() => {
               merged.onClose?.()
@@ -923,8 +944,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         fallback={
           <div
             data-slot="empty"
-            style={merged.styles?.empty}
-            class={cn(COMMAND_PALETTE_EMPTY_CLASS, merged.classes?.empty)}
+            style={resolved.slotStyle('empty')}
+            class={cn(COMMAND_PALETTE_EMPTY_CLASS, resolved.slotClass('empty'))}
           >
             <Show when={merged.emptyRender !== undefined} fallback="No results.">
               {renderComponentOrElement(merged.emptyRender, getContext())}
@@ -941,14 +962,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               fallback={
                 <div
                   data-slot="group"
-                  style={merged.styles?.group}
-                  class={cn(COMMAND_PALETTE_GROUP_CLASS, merged.classes?.group)}
+                  style={resolved.slotStyle('group')}
+                  class={cn(COMMAND_PALETTE_GROUP_CLASS, resolved.slotClass('group'))}
                 >
                   <Show when={(context.item as NormalizedGroup<TItem>).label}>
                     <span
                       data-slot="label"
-                      style={merged.styles?.label}
-                      class={cn(COMMAND_PALETTE_LABEL_CLASS, merged.classes?.label)}
+                      style={resolved.slotStyle('label')}
+                      class={cn(COMMAND_PALETTE_LABEL_CLASS, resolved.slotClass('label'))}
                     >
                       {(context.item as NormalizedGroup<TItem>).label}
                     </span>
@@ -977,20 +998,20 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   data-slot="group"
                   {...context.props}
                   style={{
-                    ...merged.styles?.group,
+                    ...resolved.slotStyle('group'),
                     ...toStyleObject(context.props?.style),
                   }}
                   class={cn(
                     'mt-2',
                     COMMAND_PALETTE_GROUP_CLASS,
-                    merged.classes?.group,
+                    resolved.slotClass('group'),
                     context.props?.class,
                   )}
                 >
                   <span
                     data-slot="label"
-                    style={merged.styles?.label}
-                    class={cn(COMMAND_PALETTE_LABEL_CLASS, merged.classes?.label)}
+                    style={resolved.slotStyle('label')}
+                    class={cn(COMMAND_PALETTE_LABEL_CLASS, resolved.slotClass('label'))}
                   >
                     {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
                   </span>
@@ -1012,12 +1033,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             callRef(merged.listboxProps?.ref, element)
           }}
           style={{
-            ...merged.styles?.listbox,
+            ...resolved.slotStyle('listbox'),
             ...toStyleObject(merged.listboxProps?.style),
           }}
           class={cn(
             COMMAND_PALETTE_LIST_CLASS,
-            merged.classes?.listbox,
+            resolved.slotClass('listbox'),
             merged.listboxProps?.class,
           )}
         />
@@ -1026,8 +1047,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <Show when={merged.footerRender !== undefined}>
         <div
           data-slot="footer"
-          style={merged.styles?.footer}
-          class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
+          style={resolved.slotStyle('footer')}
+          class={cn('text-sm text-muted-foreground p-3', resolved.slotClass('footer'))}
         >
           {renderComponentOrElement(merged.footerRender, getContext())}
         </div>

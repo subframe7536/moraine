@@ -1,4 +1,3 @@
-import type { ClassValue } from 'cls-variant'
 import type { JSX, Component, Accessor } from 'solid-js'
 import {
   Show,
@@ -11,32 +10,28 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Resizable } from '../../elements/resizable/index'
-import type { ResizableT } from '../../elements/resizable/index'
-import { Sheet } from '../../overlays/sheet/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { createMediaQuery } from '../../shared/use-media-query'
-import { cn } from '../../shared/utils'
+import { Resizable } from '../../elements/resizable/index.ts'
+import type { ResizableT } from '../../elements/resizable/index.ts'
+import { Sheet } from '../../overlays/sheet/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { createMediaQuery } from '../../shared/use-media-query.ts'
+import { cn } from '../../shared/utils.ts'
 
 import {
-  SIDEBAR_FRAME_BODY_CLASS,
   SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
-  SIDEBAR_FRAME_FOOTER_CLASS,
-  SIDEBAR_FRAME_HEADER_CLASS,
-  SIDEBAR_FRAME_ROOT_CLASS,
   sidebarFrameDesktopLayoutVariants,
-  sidebarFrameMainVariants,
-  sidebarFrameSidebarVariants,
-} from './sidebar-frame.class'
-import type { SidebarFrameVariantProps } from './sidebar-frame.class'
+  sidebarFrameRecipe,
+} from './sidebar-frame.class.ts'
+import type { SidebarFrameVariantProps } from './sidebar-frame.class.ts'
 
 export namespace SidebarFrameT {
   /**
    * Render context exposed to sidebar/main render functions.
    */
-  export interface BaseContext extends Variant {
+  export interface BaseContext extends Omit<Variant, 'isMobile'> {
     /**
      * Whether current viewport is treated as mobile.
      */
@@ -66,11 +61,15 @@ export namespace SidebarFrameT {
     /**
      * Processed sidebar block component.
      */
-    sidebar: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
+    sidebar: Component<{
+      classes?: SlotClassValue
+      styles?: JSX.CSSProperties
+      [x: string]: unknown
+    }>
     /**
      * Processed main block component.
      */
-    main: Component<{ classes?: ClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
+    main: Component<{ classes?: SlotClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
   }
 
   export type SidebarHeaderRenderProps = BaseContext
@@ -241,7 +240,10 @@ export function SidebarFrameSheetResizableRender(
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
+                    class: cn(
+                      '[&>[data-slot=sidebar]]:border-0!',
+                      ctx.resizablePanelOptions?.class,
+                    ),
                   },
                   {
                     content: <ctx.main />,
@@ -254,7 +256,10 @@ export function SidebarFrameSheetResizableRender(
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn('rm-side-b', ctx.resizablePanelOptions?.class),
+                    class: cn(
+                      '[&>[data-slot=sidebar]]:border-0!',
+                      ctx.resizablePanelOptions?.class,
+                    ),
                   },
                 ]
           }
@@ -291,6 +296,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
+  const config = useMoraineConfig()
+  const providerSidebarFrame = () => config().sidebarFrame
+
   const merged = mergeProps(
     {
       variant: 'default' as const,
@@ -298,6 +306,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },
+    () => providerSidebarFrame()?.defaultProps,
     local,
   )
 
@@ -317,11 +326,36 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     ),
   )
 
-  const resolvedIsMobile = createMemo(() => merged.isMobile ?? internalIsMobile())
+  const resolvedIsMobile = createMemo<boolean>(() => Boolean(merged.isMobile ?? internalIsMobile()))
 
   createEffect(() => {
     const isMobile = resolvedIsMobile()
     untrack(() => setOpen(!isMobile))
+  })
+
+  const slots = createMemo(() =>
+    sidebarFrameRecipe({
+      isMobile: resolvedIsMobile(),
+      side: merged.side,
+      variant: merged.variant,
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return providerSidebarFrame()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
   })
 
   const context: SidebarFrameT.BaseContext = {
@@ -339,12 +373,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   }
 
   return (
-    <div
-      data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(SIDEBAR_FRAME_ROOT_CLASS, merged.classes?.root, merged.class)}
-      {...rest}
-    >
+    <div data-slot="root" style={resolved.rootStyle()} class={resolved.rootClass()} {...rest}>
       {renderComponentOrElement(merged.frameRender, {
         isMobile: context.isMobile,
         scrolled: context.scrolled,
@@ -367,19 +396,15 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             {...props}
             style={{
               ...props.styles,
-              ...merged.styles?.sidebar,
+              ...resolved.slotStyle('sidebar'),
             }}
-            class={sidebarFrameSidebarVariants(
-              { variant: merged.variant, side: merged.side, isMobile: resolvedIsMobile() },
-              props.classes,
-              merged.classes?.sidebar,
-            )}
+            class={cn(resolved.slotClass('sidebar'), props.classes)}
           >
             <Show when={merged.sidebarHeaderRender !== undefined}>
               <div
                 data-slot="sidebarHeader"
-                style={merged.styles?.sidebarHeader}
-                class={cn(SIDEBAR_FRAME_HEADER_CLASS, merged.classes?.sidebarHeader)}
+                style={resolved.slotStyle('sidebarHeader')}
+                class={resolved.slotClass('sidebarHeader')}
               >
                 {renderComponentOrElement(merged.sidebarHeaderRender, context)}
               </div>
@@ -387,8 +412,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
 
             <div
               data-slot="sidebarBody"
-              style={merged.styles?.sidebarBody}
-              class={cn(SIDEBAR_FRAME_BODY_CLASS, merged.classes?.sidebarBody)}
+              style={resolved.slotStyle('sidebarBody')}
+              class={resolved.slotClass('sidebarBody')}
             >
               {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
@@ -396,8 +421,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             <Show when={merged.sidebarFooterRender !== undefined}>
               <div
                 data-slot="sidebarFooter"
-                style={merged.styles?.sidebarFooter}
-                class={cn(SIDEBAR_FRAME_FOOTER_CLASS, merged.classes?.sidebarFooter)}
+                style={resolved.slotStyle('sidebarFooter')}
+                class={resolved.slotClass('sidebarFooter')}
               >
                 {renderComponentOrElement(merged.sidebarFooterRender, context)}
               </div>
@@ -411,13 +436,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             {...props}
             style={{
               ...props.styles,
-              ...merged.styles?.main,
+              ...resolved.slotStyle('main'),
             }}
-            class={cn(
-              sidebarFrameMainVariants({ variant: merged.variant }),
-              props.classes,
-              merged.classes?.main,
-            )}
+            class={cn(resolved.slotClass('main'), props.classes)}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}

@@ -4,20 +4,21 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  mergeProps,
   onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createLazyMemo } from '../../shared/create-lazy-memo'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { useOverlayInteraction } from '../base/interaction'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { useOverlayInteraction } from '../base/interaction.ts'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
@@ -25,15 +26,15 @@ import {
   focusWithoutScrolling,
   focusTrigger,
   trapFocusInContainer,
-} from '../base/utils'
+} from '../base/utils.ts'
 
-import { ModalProvider, useModalContext } from './modal-context'
-import { ModalTrigger } from './modal-trigger'
+import { ModalProvider, useModalContext } from './modal-context.ts'
+import { ModalTrigger } from './modal-trigger.tsx'
 import {
   MODAL_CONTENT_CLASS,
   MODAL_CONTENT_DEFAULT_CLASS,
   MODAL_OVERLAY_CLASS,
-} from './modal.class'
+} from './modal.class.ts'
 
 type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
@@ -157,18 +158,26 @@ export type ModalProps = ModalT.Props
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
-  const rootId = useId(() => props.id, 'modal')
+  const merged = mergeProps(
+    {
+      dismissible: true,
+      preventScroll: true,
+    },
+    props,
+  )
+
+  const rootId = useId(() => merged.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
-    value: () => props.open,
-    defaultValue: () => props.defaultOpen ?? false,
+    value: () => merged.open,
+    defaultValue: () => merged.defaultOpen ?? false,
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const presence = useTransitionPresence({ open: () => Boolean(open()) })
   const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
   let nextContentRegistrationId = 0
-  const dismissible = createMemo(() => props.dismissible ?? true)
+  const dismissible = createMemo(() => merged.dismissible ?? true)
   const contentMounted = createMemo(() => contentRegistrations().size > 0)
   const isPresent = createMemo(() => contentMounted() && presence.present())
   const contentPresent = isPresent
@@ -184,7 +193,7 @@ export function Modal(props: ModalProps): JSX.Element {
     }
 
     setOpen(nextOpen)
-    props.onOpenChange?.(nextOpen)
+    merged.onOpenChange?.(nextOpen)
   }
 
   createEffect(() => {
@@ -203,7 +212,7 @@ export function Modal(props: ModalProps): JSX.Element {
     if (closeCycleActive && !presence.present()) {
       closeCycleActive = false
       hadOpenContent = false
-      props.onExitComplete?.()
+      merged.onExitComplete?.()
     }
   })
 
@@ -217,7 +226,7 @@ export function Modal(props: ModalProps): JSX.Element {
       focusContent(currentContent)
     })
 
-    const releaseScrollLock = props.preventScroll === false ? undefined : acquireBodyScrollLock()
+    const releaseScrollLock = merged.preventScroll === false ? undefined : acquireBodyScrollLock()
     onCleanup(() => {
       releaseScrollLock?.()
     })
@@ -321,7 +330,7 @@ export function Modal(props: ModalProps): JSX.Element {
       })
 
       if (!dismissible()) {
-        props.onClosePrevent?.()
+        merged.onClosePrevent?.()
       }
     },
     onEscape: (event) => {
@@ -336,7 +345,7 @@ export function Modal(props: ModalProps): JSX.Element {
       }
 
       event.preventDefault()
-      props.onClosePrevent?.()
+      merged.onClosePrevent?.()
     },
     onDeactivate: () => {
       const trigger = capturedTrigger
@@ -392,7 +401,7 @@ export function Modal(props: ModalProps): JSX.Element {
     isPresent,
   }
 
-  return <ModalProvider value={context}>{props.children}</ModalProvider>
+  return <ModalProvider value={context}>{merged.children}</ModalProvider>
 }
 
 function ModalContent(props: ModalT.ContentProps): JSX.Element {

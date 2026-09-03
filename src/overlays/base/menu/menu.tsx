@@ -467,7 +467,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     })
   })
 
-  function getItemClass(item: TItem, ...cls: ClassValueArray): string {
+  function getItemClass(item: TItem, ...cls: ClassValueArray): string | undefined {
     return overlayMenuItemVariants(
       {
         size: props.size,

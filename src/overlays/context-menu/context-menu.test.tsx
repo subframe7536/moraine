@@ -56,7 +56,7 @@ describe('ContextMenu', () => {
       expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content?.getAttribute('data-side')).toBe('right')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('animate-menu-side-right')
+      expect(content?.className).toContain('[--mo-enter-translate-x:-0.25rem]')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -72,7 +72,7 @@ describe('ContextMenu', () => {
       expect(content).toBe(initialContent)
       expect(content?.getAttribute('data-side')).toBe('left')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('animate-menu-side-left')
+      expect(content?.className).toContain('[--mo-enter-translate-x:0.25rem]')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'right top',
@@ -457,13 +457,13 @@ describe('ContextMenu', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
-    expect(content.className).toContain('ml-$mo-popper-content-overflow-padding')
-    expect(content.className).toContain('data-expanded:animate-menu-in')
-    expect(content.className).toContain('data-closed:animate-menu-out')
+    expect(content.className).toContain('ml-[var(--mo-popper-content-overflow-padding)]')
+    expect(content.className).toContain('data-expanded:animate-mo-enter')
+    expect(content.className).toContain('data-closed:animate-mo-exit')
     expect(content.getAttribute('data-motion')).toBeNull()
     expect(content.getAttribute('data-align')).toBe('start')
-    expect(content.className).toContain('animate-menu-side-right')
-    expect(content.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(content.className).toContain('[--mo-enter-translate-x:-0.25rem]')
+    expect(content.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
 
     await waitFor(() => {
       expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
@@ -487,7 +487,7 @@ describe('ContextMenu', () => {
 
     expect(content.getAttribute('data-side')).toBe('bottom')
     expect(content.getAttribute('data-align')).toBeNull()
-    expect(content.className).toContain('animate-menu-side-bottom')
+    expect(content.className).toContain('[--mo-enter-translate-y:-0.25rem]')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -866,7 +866,7 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
     const exitingContent = document.body.querySelector('[data-slot="content"][data-closed]')
     expect(exitingContent).not.toBeNull()
-    expect(exitingContent?.className).toContain('data-closed:animate-menu-out')
+    expect(exitingContent?.className).toContain('data-closed:animate-mo-exit')
 
     const positioner = exitingContent?.closest('[data-slot="positioner"]') as HTMLElement
     expect(positioner.style.visibility).toBe('visible')
@@ -1029,14 +1029,15 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mt-$mo-popper-content-overflow-padding')
-    expect(rootContent?.className).toContain('surface-overlay')
-    expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
-    expect(rootContent?.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent?.className).toContain('mt-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent?.className).toContain('border-border')
+    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.getAttribute('data-align')).toBe('start')
-    expect(rootContent?.className).toContain('animate-menu-side-bottom')
-    expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(rootContent?.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
@@ -1085,11 +1086,11 @@ describe('ContextMenu', () => {
     await waitFor(() => {
       expect(submenuContent.getAttribute('data-expanded')).toBe('')
     })
-    expect(submenuContent.className).toContain('data-expanded:animate-menu-in')
+    expect(submenuContent.className).toContain('data-expanded:animate-mo-enter')
     expect(submenuContent.getAttribute('data-motion')).toBeNull()
     expect(submenuContent.getAttribute('data-side')).toBe('right')
     expect(submenuContent.getAttribute('data-align')).toBe('start')
-    expect(submenuContent.className).toContain('animate-menu-side-right')
+    expect(submenuContent.className).toContain('[--mo-enter-translate-x:-0.25rem]')
     await waitFor(() => {
       expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -1134,7 +1135,7 @@ describe('ContextMenu', () => {
       expect(submenuContent.getAttribute('data-motion')).toBeNull()
       expect(submenuContent.getAttribute('data-side')).toBe('right')
       expect(submenuContent.getAttribute('data-align')).toBe('start')
-      expect(submenuContent.className).toContain('animate-menu-side-right')
+      expect(submenuContent.className).toContain('[--mo-enter-translate-x:-0.25rem]')
       await waitFor(() => {
         expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
           'left top',

@@ -1,14 +1,15 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import { Popper, resolveOverlayMenuSide } from '../base/index'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
+import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
+import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 
-import { popoverContentVariants } from './popover.class'
-import type { PopoverContentVariantProps } from './popover.class'
+import { popoverContentVariants } from './popover.class.ts'
+import type { PopoverContentVariantProps } from './popover.class.ts'
 
 type PopoverMode = 'click' | 'hover'
 
@@ -118,6 +119,9 @@ export function Popover(props: PopoverProps): JSX.Element {
     'class',
     'style',
   ])
+  const moraine = useMoraineConfig()
+  const providerPopover = () => moraine().popover
+
   const merged = mergeProps(
     {
       mode: 'click' as const,
@@ -126,14 +130,30 @@ export function Popover(props: PopoverProps): JSX.Element {
       closeDelay: 100,
       dismissible: true,
     },
+    () => providerPopover()?.defaultProps,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return providerPopover()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return cn(props.class)
+      return resolved.rootClass()
     },
     get style() {
-      return props.style
+      return resolved.rootStyle()
     },
   }) as Partial<OverlayTriggerProps>
 
@@ -241,17 +261,17 @@ export function Popover(props: PopoverProps): JSX.Element {
         aria-labelledby={context.contentProps['aria-labelledby']}
         aria-describedby={context.contentProps['aria-describedby']}
         data-slot="content"
-        style={merged.styles?.content}
-        class={popoverContentVariants({ side: resolvedSide() }, merged.classes?.content)}
+        style={resolved.slotStyle('content')}
+        class={popoverContentVariants({ side: resolvedSide() }, resolved.slotClass('content'))}
         {...context.contentProps}
       >
         <Show when={content() !== undefined && content() !== null}>
           <div
             data-slot="body"
-            style={merged.styles?.body}
+            style={resolved.slotStyle('body')}
             class={cn(
-              'max-h-$mo-popper-content-available-height overflow-auto',
-              merged.classes?.body,
+              'max-h-[var(--mo-popper-content-available-height)] overflow-auto',
+              resolved.slotClass('body'),
             )}
           >
             {content()}
