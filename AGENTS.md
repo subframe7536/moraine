@@ -97,8 +97,8 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 - Use `cva` from `src/shared/utils` to define variants.
 - Use `cn` from `src/shared/utils` to combine classes.
 - No need to create memo for classes, just write them inplace
-- State-based class should use pure class instead of adding a newn variant in cva
-- Use UnoCSS variant groups for cleaner code: `hover:(bg-red-500 text-white)` instead of `hover:bg-red-500 hover:text-white`.
+- State-based class should use pure class instead of adding a new variant in cva
+- Always use standard flat Tailwind CSS utility syntax (e.g. `hover:bg-red-500 hover:text-white`). NEVER use UnoCSS parenthesized variant groups (`hover:(...)`) in component code so classes are compatible with both Tailwind v4 and UnoCSS, and can be parsed by the `cn` conflict resolution engine.
 
 ## Code Style & Conventions
 
