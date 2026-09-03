@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import { Icon } from '../icon/index'
-import type { IconT } from '../icon/index'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { Icon } from '../icon/index.ts'
+import type { IconT } from '../icon/index.ts'
 
-import type { BadgeVariantProps } from './badge.class'
-import { badgeVariants } from './badge.class'
+import type { BadgeVariantProps } from './badge.class.ts'
+import { badgeRecipe } from './badge.class.ts'
 
 export namespace BadgeT {
   export interface Slot<T = unknown> {
@@ -65,6 +65,9 @@ export namespace BadgeT {
 export interface BadgeProps extends BadgeT.Props {}
 /** Compact label component with leading/trailing icon slots and variant styles. */
 export function Badge(props: BadgeProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().badge
+
   const [local, rest] = splitProps(props, [
     'size',
     'variant',
@@ -76,8 +79,12 @@ export function Badge(props: BadgeProps): JSX.Element {
     'trailing',
     'children',
   ])
-  const size = () => local.size ?? 'md'
-  const variant = () => local.variant ?? 'default'
+  const size = () =>
+    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<BadgeVariantProps['size']>
+  const variant = () =>
+    (local.variant ?? provider()?.defaultProps?.variant ?? 'default') as NonNullable<
+      BadgeVariantProps['variant']
+    >
 
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
@@ -87,29 +94,41 @@ export function Badge(props: BadgeProps): JSX.Element {
     return value === 0 || Boolean(value)
   })
 
+  const slots = createMemo(() => badgeRecipe({ size: size(), variant: variant() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <span
       data-slot="root"
       data-size={size()}
       data-variant={variant()}
       {...rest}
-      style={{ ...local.styles?.root, ...local.style }}
-      class={badgeVariants(
-        {
-          size: size(),
-          variant: variant(),
-        },
-        local.classes?.root,
-        local.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
     >
       <Show when={leading()}>
         {(leading) => (
           <Icon
             name={leading()}
             slotName="leading"
-            style={local.styles?.leading}
-            class={cn(local.classes?.leading)}
+            style={resolved.slotStyle('leading')}
+            class={resolved.slotClass('leading')}
           />
         )}
       </Show>
@@ -117,8 +136,8 @@ export function Badge(props: BadgeProps): JSX.Element {
       <Show when={hasChildren()}>
         <span
           data-slot="label"
-          style={local.styles?.label}
-          class={cn('min-w-0 truncate', local.classes?.label)}
+          style={resolved.slotStyle('label')}
+          class={resolved.slotClass('label')}
         >
           {resolvedChildren()}
         </span>
@@ -128,8 +147,8 @@ export function Badge(props: BadgeProps): JSX.Element {
         <Icon
           name={trailing()}
           slotName="trailing"
-          style={local.styles?.trailing}
-          class={cn(local.classes?.trailing)}
+          style={resolved.slotStyle('trailing')}
+          class={resolved.slotClass('trailing')}
         />
       </Show>
     </span>

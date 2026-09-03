@@ -1,10 +1,6 @@
 import type { JSX } from 'solid-js'
 import { createContext, createMemo, useContext } from 'solid-js'
 
-import type { SlotFn, SlotFns } from '../style/recipe.ts'
-import type { SlotClassValue, SlotStyleValue } from '../types.ts'
-import { cn } from '../utils.ts'
-
 import type { AccordionT } from '../../elements/accordion/index.ts'
 import type { AvatarGroupT, AvatarT } from '../../elements/avatar/index.ts'
 import type { BadgeT } from '../../elements/badge/index.ts'
@@ -41,6 +37,9 @@ import type { ModalT } from '../../overlays/modal/index.ts'
 import type { PopoverT } from '../../overlays/popover/index.ts'
 import type { SheetT } from '../../overlays/sheet/index.ts'
 import type { TooltipT } from '../../overlays/tooltip/index.ts'
+import type { SlotFn, SlotFns } from '../style/recipe.ts'
+import type { SlotClassValue, SlotStyleValue } from '../types.ts'
+import { cn } from '../utils.ts'
 
 export interface ComponentDefaultStyle<
   V = Record<string, unknown>,
@@ -51,7 +50,7 @@ export interface ComponentDefaultStyle<
   class?: SlotClassValue
   classes?: [C] extends [never] ? never : Partial<C>
   style?: JSX.CSSProperties
-  styles?: [S] extends [never] ? never : Partial<S>
+  styles?: [S] extends [never] ? never : Partial<{ [K in keyof S]: JSX.CSSProperties }>
 }
 
 export interface MoraineConfig {
@@ -146,8 +145,12 @@ export function mergeComponentStyle<
   parent?: ComponentDefaultStyle<V, C, S>,
   child?: ComponentDefaultStyle<V, C, S>,
 ): ComponentDefaultStyle<V, C, S> | undefined {
-  if (!parent) return child
-  if (!child) return parent
+  if (!parent) {
+    return child
+  }
+  if (!child) {
+    return parent
+  }
 
   const mergedClasses: Record<string, SlotClassValue> = { ...parent.classes }
   if (child.classes) {
@@ -161,11 +164,11 @@ export function mergeComponentStyle<
     for (const [slot, sty] of Object.entries(child.styles)) {
       const parentSlot = mergedStyles[slot]
       if (sty && typeof sty === 'object' && parentSlot && typeof parentSlot === 'object') {
-        mergedStyles[slot] = { ...parentSlot, ...sty } as JSX.CSSProperties
+        mergedStyles[slot] = { ...parentSlot, ...sty }
       } else if (sty && typeof sty === 'object') {
         mergedStyles[slot] = sty as JSX.CSSProperties
       } else if (parentSlot && typeof parentSlot === 'object') {
-        mergedStyles[slot] = parentSlot as JSX.CSSProperties
+        mergedStyles[slot] = parentSlot
       }
     }
   }
@@ -179,10 +182,10 @@ export function mergeComponentStyle<
 
   const mergedStyle =
     parent.style || child.style
-      ? ({
+      ? {
           ...(parent.style && typeof parent.style === 'object' ? parent.style : undefined),
           ...(child.style && typeof child.style === 'object' ? child.style : undefined),
-        } as JSX.CSSProperties)
+        }
       : undefined
 
   return {
@@ -191,15 +194,16 @@ export function mergeComponentStyle<
     ...(Object.keys(mergedClasses).length > 0 ? { classes: mergedClasses as any } : {}),
     ...(mergedStyle ? { style: mergedStyle } : {}),
     ...(Object.keys(mergedStyles).length > 0 ? { styles: mergedStyles as any } : {}),
-  } as ComponentDefaultStyle<V, C, S>
+  }
 }
 
-export function mergeMoraineConfig(
-  parent?: MoraineConfig,
-  child?: MoraineConfig,
-): MoraineConfig {
-  if (!parent) return child ?? {}
-  if (!child) return parent
+export function mergeMoraineConfig(parent?: MoraineConfig, child?: MoraineConfig): MoraineConfig {
+  if (!parent) {
+    return child ?? {}
+  }
+  if (!child) {
+    return parent
+  }
 
   const result: MoraineConfig = { ...parent }
   for (const [key, childStyle] of Object.entries(child)) {
@@ -209,31 +213,25 @@ export function mergeMoraineConfig(
   return result
 }
 
-export interface ComponentStyleInputs<S extends string, V extends Record<string, unknown>> {
+export interface ComponentStyleInputs<
+  S extends string,
+  V extends Record<string, unknown> = any,
+  C = any,
+  S_Style = any,
+> {
   /** Recipe slot functions for this instance. */
-  slots: SlotFns<S>
+  slots?: SlotFns<S>
   /** Provider overrides (already deep-merged outer → inner). */
-  provider?: ComponentDefaultStyle<
-    V,
-    Record<string, SlotClassValue>,
-    Record<string, SlotStyleValue>
-  >
+  provider?: ComponentDefaultStyle<V, C, S_Style>
   /** Composition context (e.g. ButtonGroup). Sits between provider and instance. */
-  group?: Partial<
-    ComponentDefaultStyle<
-      V,
-      Record<string, SlotClassValue>,
-      Record<string, SlotStyleValue>
-    >
-  >
+  group?: Partial<ComponentDefaultStyle<V, C, S_Style>>
   /** Instance props (class/classes/style/styles only). */
-  instance?: Partial<
-    ComponentDefaultStyle<
-      V,
-      Record<string, SlotClassValue>,
-      Record<string, SlotStyleValue>
-    >
-  >
+  instance?: {
+    class?: SlotClassValue
+    classes?: any
+    style?: JSX.CSSProperties
+    styles?: any
+  }
   /** Per-slot state classes (e.g. `{ leading: LOADING_SPINNER }`). */
   stateCls?: Partial<Record<S | 'root', SlotClassValue>>
   /** Component-generated CSS variables (e.g. `defineStyleVars` output). */
@@ -259,49 +257,66 @@ export interface ResolvedComponentStyle<S extends string> {
  *          → group.style → group.styles[slot] → instance.styles[slot]
  *          → instance.style (root only)
  */
-export function resolveComponentStyle<S extends string, V extends Record<string, unknown>>(
-  inputs: ComponentStyleInputs<S, V>,
-): ResolvedComponentStyle<S> {
+export function resolveComponentStyle<
+  S extends string,
+  V extends Record<string, unknown> = any,
+  C = any,
+  S_Style = any,
+>(inputs: ComponentStyleInputs<S, V, C, S_Style>): ResolvedComponentStyle<S> {
+  const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
+  const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
+  const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
+
+  const providerStyles = inputs.provider?.styles as Record<string, JSX.CSSProperties> | undefined
+  const groupStyles = inputs.group?.styles as Record<string, JSX.CSSProperties> | undefined
+  const instanceStyles = inputs.instance?.styles as Record<string, JSX.CSSProperties> | undefined
+
   return {
     rootClass: () =>
-      (inputs.slots as unknown as Record<string, SlotFn>).root?.(
+      (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.root?.(
         inputs.provider?.class,
-        inputs.provider?.classes?.root,
+        providerClasses?.root,
         inputs.group?.class,
-        inputs.group?.classes?.root,
+        groupClasses?.root,
         inputs.stateCls?.root,
-        inputs.instance?.classes?.root,
+        instanceClasses?.root,
         inputs.instance?.class,
       ) ??
       cn(
         inputs.provider?.class,
-        inputs.provider?.classes?.root,
+        providerClasses?.root,
         inputs.group?.class,
-        inputs.group?.classes?.root,
+        groupClasses?.root,
         inputs.stateCls?.root,
-        inputs.instance?.classes?.root,
+        instanceClasses?.root,
         inputs.instance?.class,
       ),
     rootStyle: () => ({
       ...inputs.baseStyle,
       ...inputs.provider?.style,
-      ...inputs.provider?.styles?.root,
+      ...providerStyles?.root,
       ...inputs.group?.style,
-      ...inputs.group?.styles?.root,
-      ...inputs.instance?.styles?.root,
+      ...groupStyles?.root,
+      ...instanceStyles?.root,
       ...inputs.instance?.style,
     }),
     slotClass: (slot) =>
-      inputs.slots[slot](
-        inputs.provider?.classes?.[slot],
-        inputs.group?.classes?.[slot],
+      (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.[slot]?.(
+        providerClasses?.[slot],
+        groupClasses?.[slot],
         inputs.stateCls?.[slot],
-        inputs.instance?.classes?.[slot],
+        instanceClasses?.[slot],
+      ) ??
+      cn(
+        providerClasses?.[slot],
+        groupClasses?.[slot],
+        inputs.stateCls?.[slot],
+        instanceClasses?.[slot],
       ),
     slotStyle: (slot) => ({
-      ...inputs.provider?.styles?.[slot],
-      ...inputs.group?.styles?.[slot],
-      ...inputs.instance?.styles?.[slot],
+      ...providerStyles?.[slot],
+      ...groupStyles?.[slot],
+      ...instanceStyles?.[slot],
     }),
   }
 }

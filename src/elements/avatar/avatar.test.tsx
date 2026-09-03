@@ -2,8 +2,10 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Avatar } from './avatar'
-import { AvatarGroup } from './avatar-group'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { AvatarGroup } from './avatar-group.tsx'
+import { Avatar } from './avatar.tsx'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
@@ -88,7 +90,7 @@ describe('Avatar', () => {
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
     expect(root?.getAttribute('data-status')).toBe('loading')
-    expect(image?.className).toContain('hidden-hitless')
+    expect(image?.className).toContain('opacity-0')
     expect(image?.getAttribute('aria-hidden')).toBe('true')
     expect(fallback?.textContent).toBe('MR')
   })
@@ -107,7 +109,7 @@ describe('Avatar', () => {
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
     expect(image?.getAttribute('src')).toContain('/loaded.png')
     expect(image?.className).toContain('opacity-100')
-    expect(fallback?.className).toContain('hidden-hitless')
+    expect(fallback?.className).toContain('opacity-0')
     expect(fallback?.getAttribute('aria-hidden')).toBe('true')
   })
 
@@ -536,5 +538,53 @@ describe('Avatar', () => {
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')
     expect(count?.style.width).toBe('200px')
+  })
+
+  describe('Provider Precedence', () => {
+    test('Avatar and AvatarGroup inherit provider configuration with instance overrides', () => {
+      const screen = render(() => (
+        <MoraineProvider
+          config={{
+            avatar: {
+              defaultProps: { size: 'lg' },
+              class: 'p-avatar-root',
+              classes: { root: 'p-slot-root', fallback: 'p-fallback' },
+              style: { margin: '2px', color: 'red' },
+              styles: { fallback: { color: 'blue' } },
+            },
+            avatarGroup: {
+              defaultProps: { size: 'sm' },
+              class: 'p-group-root',
+              classes: { count: 'p-count' },
+            },
+          }}
+        >
+          <Avatar data-testid="p-avatar" text="PA" />
+          <AvatarGroup items={[{ text: 'G1' }, { text: 'G2' }]} />
+          <Avatar
+            data-testid="i-avatar"
+            size="sm"
+            class="i-avatar-root"
+            style={{ color: 'green' }}
+            text="IA"
+          />
+        </MoraineProvider>
+      ))
+
+      const pAvatar = screen.getByTestId('p-avatar')
+      expect(pAvatar.className).toContain('size-10')
+      expect(pAvatar.className).toContain('p-avatar-root')
+      expect(pAvatar.className).toContain('p-slot-root')
+      expect(pAvatar.style.margin).toBe('2px')
+      expect(pAvatar.style.color).toBe('red')
+
+      const pGroup = screen.container.querySelector('[data-slot="root"].p-group-root')
+      expect(pGroup).not.toBeNull()
+
+      const iAvatar = screen.getByTestId('i-avatar')
+      expect(iAvatar.className).toContain('size-6')
+      expect(iAvatar.className).toContain('i-avatar-root')
+      expect(iAvatar.style.color).toBe('green')
+    })
   })
 })

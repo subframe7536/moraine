@@ -4,25 +4,19 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
   onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import type { IconT } from '../icon/index'
-import { Icon } from '../icon/index'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
+import type { IconT } from '../icon/index.ts'
+import { Icon } from '../icon/index.ts'
 
-import type { AvatarVariantProps } from './avatar.class'
-import {
-  AVATAR_IMAGE_CLASS,
-  avatarBadgeVariants,
-  avatarFallbackIconVariants,
-  avatarFallbackVariants,
-  avatarRootVariants,
-} from './avatar.class'
+import type { AvatarVariantProps } from './avatar.class.ts'
+import { AVATAR_IMAGE_CLASS, avatarRecipe } from './avatar.class.ts'
 
 export namespace AvatarT {
   export type Status = 'idle' | 'loading' | 'loaded' | 'error'
@@ -126,17 +120,22 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'size',
     'rootSlot',
   ])
-  const merged = mergeProps(
-    {
-      size: 'md' as const,
-    },
-    local,
-  )
-  const source = createMemo(() => merged.src?.trim() || undefined)
-  const alt = createMemo(() => merged.alt)
-  const text = createMemo(() => merged.text)
-  const fallback = createMemo(() => merged.fallback)
-  const badge = createMemo(() => merged.badge)
+
+  const config = useMoraineConfig()
+  const provider = () => config().avatar
+
+  const size = () =>
+    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<
+      AvatarVariantProps['size']
+    >
+  const badgePosition = () =>
+    local.badgePosition ?? provider()?.defaultProps?.badgePosition ?? 'bottom-right'
+
+  const source = createMemo(() => local.src?.trim() || undefined)
+  const alt = createMemo(() => local.alt)
+  const text = createMemo(() => local.text)
+  const fallback = createMemo(() => local.fallback)
+  const badge = createMemo(() => local.badge)
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
@@ -152,7 +151,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
     currentStatus = nextStatus
     setStatusSignal(nextStatus)
-    untrack(() => merged.onStatusChange)?.(nextStatus)
+    untrack(() => local.onStatusChange)?.(nextStatus)
   }
 
   createEffect(() => {
@@ -201,30 +200,50 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     }
   })
 
+  const slots = createMemo(() =>
+    avatarRecipe({
+      size: size(),
+      badgePosition: badgePosition(),
+      status: status(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.rootSlot === 'item' ? undefined : local.class,
+        classes: local.classes,
+        style: local.rootSlot === 'item' ? undefined : local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <span
-      data-slot={merged.rootSlot ?? 'root'}
+      data-slot={local.rootSlot ?? 'root'}
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      style={
-        merged.rootSlot === 'item' ? merged.style : { ...merged.styles?.root, ...merged.style }
-      }
-      class={avatarRootVariants(
-        { size: merged.size },
-        merged.rootSlot === 'item' ? merged.class : [merged.classes?.root, merged.class],
-      )}
+      style={local.rootSlot === 'item' ? local.style : resolved.rootStyle()}
+      class={cn(resolved.rootClass(), local.rootSlot === 'item' && local.class)}
     >
       <img
         data-slot="image"
-        style={merged.styles?.image}
+        style={resolved.slotStyle('image')}
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
         class={cn(
           AVATAR_IMAGE_CLASS,
-          status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
-          merged.classes?.image,
+          status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          resolved.slotClass('image'),
         )}
       />
 
@@ -241,25 +260,16 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        style={merged.styles?.fallback}
-        class={avatarFallbackVariants(
-          {
-            size: merged.size,
-            status: status(),
-          },
-          merged.classes?.fallback,
-        )}
+        style={resolved.slotStyle('fallback')}
+        class={resolved.slotClass('fallback')}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}
               slotName="fallbackIcon"
-              style={merged.styles?.fallbackIcon}
-              class={avatarFallbackIconVariants(
-                { size: merged.size },
-                merged.classes?.fallbackIcon,
-              )}
+              style={resolved.slotStyle('fallbackIcon')}
+              class={resolved.slotClass('fallbackIcon')}
             />
           )}
         </Show>
@@ -269,14 +279,8 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         {(badge) => (
           <span
             data-slot="badge"
-            style={merged.styles?.badge}
-            class={avatarBadgeVariants(
-              {
-                size: merged.size,
-                badgePosition: merged.badgePosition ?? 'bottom-right',
-              },
-              merged.classes?.badge,
-            )}
+            style={resolved.slotStyle('badge')}
+            class={resolved.slotClass('badge')}
           >
             <Icon name={badge()} class="text-[0.75em]" />
           </span>

@@ -2,8 +2,9 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { BaseProps } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
@@ -51,19 +52,35 @@ export interface IconProps extends IconT.Props {}
 
 /** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
 export function Icon(props: IconProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().icon
+
   const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])
   const name = createMemo(() => local.name)
+
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
+  })
+
   const componentProps = createMemo<{ component: ValidComponent; class: string | undefined }>(
     () => {
       const value = name()
 
       if (typeof value === 'string') {
-        return { component: 'div', class: cn(value, local.class) }
+        return { component: 'div', class: cn(value, resolved.rootClass()) }
       }
 
       return {
         component: typeof value === 'function' ? value : () => value,
-        class: cn(local.class),
+        class: resolved.rootClass(),
       }
     },
   )
@@ -76,7 +93,7 @@ export function Icon(props: IconProps): JSX.Element {
       {...componentProps()}
       style={{
         'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-        ...local.style,
+        ...resolved.rootStyle(),
       }}
     />
   )

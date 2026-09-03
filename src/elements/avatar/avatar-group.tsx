@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
-import { AvatarFace } from './avatar'
-import type { AvatarT } from './avatar'
-import type { AvatarGroupVariantProps } from './avatar.class'
-import { avatarGroupCountVariants, avatarGroupItemVariants } from './avatar.class'
+import type { AvatarGroupVariantProps } from './avatar.class.ts'
+import { avatarGroupRecipe } from './avatar.class.ts'
+import { AvatarFace } from './avatar.tsx'
+import type { AvatarT } from './avatar.tsx'
 
 export namespace AvatarGroupT {
   export interface Slot<T = unknown> {
@@ -77,6 +77,9 @@ function resolveMax(max: AvatarGroupProps['max']): number | undefined {
 
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().avatarGroup
+
   const [local, rest] = splitProps(props, [
     'items',
     'max',
@@ -86,23 +89,19 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      size: 'md' as const,
-      items: [] as AvatarGroupT.Item[],
-      max: undefined as number | string | undefined,
-    },
-    local,
-  )
 
-  const items = createMemo(() => merged.items)
+  const size = () =>
+    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<
+      AvatarGroupVariantProps['size']
+    >
+  const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
     if (allItems.length === 0) {
       return []
     }
 
-    const max = resolveMax(merged.max)
+    const max = resolveMax(local.max)
     if (!max) {
       return [...allItems].reverse()
     }
@@ -112,19 +111,33 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
+  const slots = createMemo(() => avatarGroupRecipe({ size: size() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <Show when={items().length > 0}>
-      <div
-        data-slot="root"
-        {...rest}
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
-      >
+      <div data-slot="root" {...rest} style={resolved.rootStyle()} class={resolved.rootClass()}>
         <Show when={hiddenCount() > 0}>
           <span
             data-slot="count"
-            style={merged.styles?.count}
-            class={avatarGroupCountVariants({ size: merged.size }, merged.classes?.count)}
+            style={resolved.slotStyle('count')}
+            class={resolved.slotClass('count')}
           >
             +{hiddenCount()}
           </span>
@@ -134,12 +147,12 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
           {(item) => (
             <AvatarFace
               {...item}
-              size={merged.size}
+              size={size()}
               rootSlot="item"
-              style={merged.styles?.item}
-              class={avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)}
-              classes={merged.classes}
-              styles={merged.styles}
+              style={resolved.slotStyle('item')}
+              class={resolved.slotClass('item')}
+              classes={local.classes}
+              styles={local.styles}
             />
           )}
         </For>

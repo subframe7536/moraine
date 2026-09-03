@@ -32,7 +32,7 @@ navigation, accessibility, or SSR behavior.
 ## Current state
 
 - Scoped class modules are `src/navigation/{breadcrumb,command-palette,
-  pagination,sidebar-frame,stepper,tabs}/*.class.ts` and
+pagination,sidebar-frame,stepper,tabs}/*.class.ts` and
   `src/overlays/{base/menu,dialog,modal,popover,sheet,tooltip}/*.class.ts`.
   `pagination`, `command-palette`, `dialog`, and `modal` class modules are
   currently static-only; keep them constants unless they acquire real variants.
@@ -57,13 +57,13 @@ while content gets its named slot chain.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Navigation/overlay tests | `nub run test src/navigation src/overlays` | exit 0 |
-| Provider/runtime tests | `nub run test src/shared/style src/shared/provider` | exit 0 |
-| Typecheck | `nub run typecheck` | exit 0 |
-| Type fixtures | `nub run test:types` | exit 0 |
-| Final quality gate | `nub run qa` | exit 0 |
+| Purpose                  | Command                                             | Expected on success |
+| ------------------------ | --------------------------------------------------- | ------------------- |
+| Navigation/overlay tests | `nub run test src/navigation src/overlays`          | exit 0              |
+| Provider/runtime tests   | `nub run test src/shared/style src/shared/provider` | exit 0              |
+| Typecheck                | `nub run typecheck`                                 | exit 0              |
+| Type fixtures            | `nub run test:types`                                | exit 0              |
+| Final quality gate       | `nub run qa`                                        | exit 0              |
 
 ## Scope
 
@@ -166,7 +166,7 @@ children/render props; preserve hydration ordering and portal behavior.
 - [ ] The scoped audit command from Step 2 emits no legacy styling tokens.
 - [ ] Provider keys and owner inheritance match the PRD inventory exactly.
 - [ ] Changed render-prop/children components pass the single-evaluation
-  SSR/hydration checks.
+      SSR/hydration checks.
 - [ ] `plans/README.md` marks plan 004 DONE.
 
 ## STOP conditions

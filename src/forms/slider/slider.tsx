@@ -1,27 +1,22 @@
 import type { JSX } from 'solid-js'
-import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
+import { createMemo, For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
-import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
+} from '../shared/form-options.ts'
 
-import { useSlider } from './hook/index'
-import type { SliderVariantProps } from './slider.class'
-import {
-  sliderDividerVariants,
-  sliderRangeVariants,
-  sliderRootVariants,
-  sliderThumbVariants,
-  sliderTrackVariants,
-} from './slider.class'
+import { useSlider } from './hook/index.ts'
+import type { SliderVariantProps } from './slider.class.ts'
+import { sliderRecipe, sliderStyleVars } from './slider.class.ts'
 
 export namespace SliderT {
   export type Value = number | number[]
@@ -148,6 +143,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().slider
+
   const merged = mergeProps(
     {
       min: 0,
@@ -156,7 +155,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
       inverted: false,
+      variant: 'default' as const,
     },
+    () => provider()?.defaultProps,
     local,
   )
 
@@ -165,7 +166,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: merged.size ?? undefined,
       disabled: merged.disabled,
       required: local.required,
       readOnly: Boolean(merged.readOnly),
@@ -175,7 +176,15 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       defaultSize: 'md',
     }),
   )
-  const slider = useSlider(merged, {
+
+  const styleVars = createMemo(() =>
+    sliderStyleVars({
+      size: field.size(),
+      variant: merged.variant,
+    }),
+  )
+
+  const slider = useSlider<TValue>(merged as any, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)
@@ -198,6 +207,36 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     },
   })
 
+  const slots = createMemo(() =>
+    sliderRecipe({
+      orientation: merged.orientation,
+      size: field.size(),
+      variant: merged.variant,
+      inverted: merged.inverted,
+      multiple: slider.currentValues().length > 1,
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get baseStyle() {
+      return styleVars()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   onMount(() => {
     if (field.value() === undefined) {
       field.setFormValue(slider.getPublicValue(slider.currentValues()))
@@ -215,13 +254,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={field.required() ? '' : undefined}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={sliderRootVariants(
-        { orientation: merged.orientation },
-        field.disabled() && 'effect-dis',
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       {...field.ariaAttrs()}
       {...rest}
     >
@@ -231,15 +265,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         }}
         data-slot="track"
         data-orientation={merged.orientation}
-        style={merged.styles?.track}
-        class={sliderTrackVariants(
-          {
-            size: field.size(),
-            orientation: merged.orientation,
-            variant: merged.variant,
-          },
-          merged.classes?.track,
-        )}
+        style={resolved.slotStyle('track')}
+        class={resolved.slotClass('track')}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
@@ -252,17 +279,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-dragging={slider.dragging() ? '' : undefined}
           style={{
             ...slider.rangeStyle(),
-            ...merged.styles?.range,
+            ...resolved.slotStyle('range'),
           }}
-          class={sliderRangeVariants(
-            {
-              orientation: merged.orientation,
-              variant: merged.variant,
-              inverted: merged.inverted,
-              multiple: slider.currentValues().length > 1,
-            },
-            merged.classes?.range,
-          )}
+          class={resolved.slotClass('range')}
         />
 
         <Show when={merged.divider}>
@@ -271,14 +290,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               <div
                 data-slot="divider"
                 data-orientation={merged.orientation}
-                style={{ ...slider.getDividerStyle(dividerIndex), ...merged.styles?.divider }}
-                class={sliderDividerVariants(
-                  {
-                    orientation: merged.orientation,
-                    variant: merged.variant,
-                  },
-                  merged.classes?.divider,
-                )}
+                style={{
+                  ...slider.getDividerStyle(dividerIndex),
+                  ...resolved.slotStyle('divider'),
+                }}
+                class={resolved.slotClass('divider')}
               />
             )}
           </For>
@@ -307,22 +323,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             tabIndex={field.disabled() ? undefined : 0}
             style={{
               ...slider.thumbStyles()[thumbIndex],
-              ...merged.styles?.thumb,
+              ...resolved.slotStyle('thumb'),
             }}
-            class={sliderThumbVariants(
-              {
-                inverted: merged.inverted,
-                orientation: merged.orientation,
-                size: field.size(),
-                variant: merged.variant,
-              },
-              merged.classes?.thumb,
-            )}
+            class={resolved.slotClass('thumb')}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
-            aria-orientation={merged.orientation}
+            aria-orientation={merged.orientation ?? undefined}
             aria-label={
               slider.currentValues().length <= 1
                 ? 'Thumb'
@@ -362,7 +370,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               readOnly={merged.readOnly}
               tabIndex={field.disabled() ? undefined : -1}
               aria-valuetext={slider.getThumbValueText(thumbIndex)}
-              aria-orientation={merged.orientation}
+              aria-orientation={merged.orientation ?? undefined}
               {...field.ariaAttrs()}
             />
           </div>

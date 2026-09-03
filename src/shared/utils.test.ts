@@ -63,7 +63,9 @@ describe('cn', () => {
   test('modifier chains remain isolated', () => {
     expect(cn('hover:px-3', 'px-5')).toBe('hover:px-3 px-5')
     expect(cn('hover:px-3', 'hover:px-5')).toBe('hover:px-5')
-    expect(cn('focus:text-red-500', 'hover:text-red-500')).toBe('focus:text-red-500 hover:text-red-500')
+    expect(cn('focus:text-red-500', 'hover:text-red-500')).toBe(
+      'focus:text-red-500 hover:text-red-500',
+    )
   })
 
   test('custom Moraine z-index and opacity classes conflict correctly', () => {

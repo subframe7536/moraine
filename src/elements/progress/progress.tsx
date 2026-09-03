@@ -1,19 +1,14 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import type { ProgressVariantProps } from './progress.class'
-import {
-  progressBaseVariants,
-  progressIndicatorVariants,
-  progressRootVariants,
-  progressStatusVariants,
-  progressStepVariants,
-  progressStepsVariants,
-} from './progress.class'
+import type { ProgressVariantProps } from './progress.class.ts'
+import { progressRecipe, progressStepVariants, progressStyleVars } from './progress.class.ts'
 
 export namespace ProgressT {
   export interface StatusRenderProps {
@@ -129,6 +124,9 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Determinate or indeterminate progress indicator with optional step labels. */
 export function Progress(props: ProgressProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().progress
+
   const [local, rest] = splitProps(props, [
     'value',
     'max',
@@ -144,21 +142,50 @@ export function Progress(props: ProgressProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      value: null,
-      max: 100,
-      status: false,
-      orientation: 'horizontal' as const,
-      animation: 'carousel' as const,
-      size: 'md' as const,
-    },
-    local,
+
+  const orientation = createMemo<NonNullable<ProgressVariantProps['orientation']>>(
+    () => local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal',
+  )
+  const size = createMemo<NonNullable<ProgressVariantProps['size']>>(
+    () => local.size ?? provider()?.defaultProps?.size ?? 'md',
+  )
+  const animation = createMemo<NonNullable<ProgressVariantProps['animation']>>(
+    () => local.animation ?? provider()?.defaultProps?.animation ?? 'carousel',
   )
 
-  const rawValue = createMemo(() => merged.value)
-  const rawMax = createMemo(() => merged.max)
-  const getValueLabel = createMemo(() => merged.getValueLabel)
+  const styleVars = createMemo(() => progressStyleVars({ size: size() }))
+
+  const slots = createMemo(() =>
+    progressRecipe({
+      orientation: orientation(),
+      size: size(),
+      animation: animation(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get baseStyle() {
+      return styleVars()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
+  const rawValue = createMemo(() => local.value ?? null)
+  const rawMax = createMemo(() => local.max ?? 100)
+  const getValueLabel = createMemo(() => local.getValueLabel)
   const steps = createMemo<string[]>(() => {
     const max = rawMax()
     return Array.isArray(max) ? max : []
@@ -224,7 +251,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   const statusStyle = createMemo<JSX.CSSProperties>(() => {
     const currentPercent = Math.max(percent() ?? 0, 0)
-    if (merged.orientation === 'vertical') {
+    if (orientation() === 'vertical') {
       return { height: `${100 - currentPercent}%` }
     }
 
@@ -238,7 +265,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     }
 
     const distance = 100 - currentPercent
-    if (merged.orientation === 'vertical') {
+    if (orientation() === 'vertical') {
       return {
         transform: `translateY(${distance}%)`,
       }
@@ -277,37 +304,25 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      data-orientation={merged.orientation}
+      style={resolved.rootStyle()}
+      data-orientation={orientation()}
       {...dataAttrs()}
       {...rest}
-      class={progressRootVariants(
-        {
-          orientation: merged.orientation,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      class={resolved.rootClass()}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
-          const statusRender = createMemo(() => merged.statusRender)
-          const shouldRenderStatus = createMemo(() => merged.status || statusRender() !== undefined)
+          const statusRender = createMemo(() => local.statusRender)
+          const shouldRenderStatus = createMemo(() => local.status || statusRender() !== undefined)
 
           return (
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                class={progressStatusVariants(
-                  {
-                    orientation: merged.orientation,
-                    size: merged.size,
-                  },
-                  merged.classes?.status,
-                )}
+                class={resolved.slotClass('status')}
                 style={{
                   ...statusStyle(),
-                  ...merged.styles?.status,
+                  ...resolved.slotStyle('status'),
                 }}
                 {...dataAttrs()}
               >
@@ -326,28 +341,16 @@ export function Progress(props: ProgressProps): JSX.Element {
 
       <div
         data-slot="track"
-        style={merged.styles?.track}
-        class={progressBaseVariants(
-          {
-            orientation: merged.orientation,
-            size: merged.size,
-          },
-          merged.classes?.track,
-        )}
+        style={resolved.slotStyle('track')}
+        class={resolved.slotClass('track')}
         {...dataAttrs()}
       >
         <div
           data-slot="indicator"
-          class={progressIndicatorVariants(
-            {
-              orientation: merged.orientation,
-              animation: merged.animation,
-            },
-            merged.classes?.indicator,
-          )}
+          class={resolved.slotClass('indicator')}
           style={{
             ...indicatorStyle(),
-            ...merged.styles?.indicator,
+            ...resolved.slotStyle('indicator'),
           }}
           {...dataAttrs()}
         />
@@ -355,32 +358,26 @@ export function Progress(props: ProgressProps): JSX.Element {
 
       <Show when={hasSteps()}>
         {(_hasSteps) => {
-          const stepRender = createMemo(() => merged.stepRender)
+          const stepRender = createMemo(() => local.stepRender)
 
           return (
             <div
               data-slot="steps"
-              style={merged.styles?.steps}
-              class={progressStepsVariants(
-                {
-                  orientation: merged.orientation,
-                  size: merged.size,
-                },
-                merged.classes?.steps,
-              )}
+              style={resolved.slotStyle('steps')}
+              class={resolved.slotClass('steps')}
               {...dataAttrs()}
             >
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
-                    style={merged.styles?.step}
-                    class={progressStepVariants(
-                      {
+                    style={resolved.slotStyle('step')}
+                    class={cn(
+                      progressStepVariants({
                         state: stepState(index()),
-                        size: merged.size,
-                      },
-                      merged.classes?.step,
+                        size: size(),
+                      }),
+                      resolved.slotClass('step'),
                     )}
                     {...dataAttrs()}
                   >

@@ -18,13 +18,15 @@ describe('Progress', () => {
     const horizontal = render(() => <Progress value={20} size="sm" />)
     const vertical = render(() => <Progress value={20} size="lg" orientation="vertical" />)
 
+    const horizontalRoot = horizontal.container.querySelector('[data-slot="root"]') as HTMLElement
+    const verticalRoot = vertical.container.querySelector('[data-slot="root"]') as HTMLElement
     const horizontalBase = horizontal.container.querySelector('[data-slot="track"]')
     const verticalBase = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalBase?.className).toContain('h-$p-size')
-    expect(horizontalBase?.className).toContain('var-progress-1')
-    expect(verticalBase?.className).toContain('w-$p-size')
-    expect(verticalBase?.className).toContain('var-progress-3')
+    expect(horizontalRoot.style.getPropertyValue('--p-size')).toBe('0.25rem')
+    expect(horizontalBase?.className).toContain('h-[var(--p-size)]')
+    expect(verticalRoot.style.getPropertyValue('--p-size')).toBe('0.75rem')
+    expect(verticalBase?.className).toContain('w-[var(--p-size)]')
   })
 
   test('renders determinate progress with default aria values', () => {

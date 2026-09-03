@@ -1,25 +1,26 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
-import { HiddenInput } from '../../shared/hidden-input'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, cn, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+} from '../shared/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { SwitchVariantProps } from './switch.class'
-import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
+import type { SwitchVariantProps } from './switch.class.ts'
+import { switchRecipe } from './switch.class.ts'
 
 export namespace SwitchT {
   export interface Slot<T = unknown> {
@@ -182,6 +183,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().switch
+
   const merged = mergeProps(
     {
       loading: false,
@@ -190,6 +195,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
+    () => provider()?.defaultProps,
     local,
   )
   const label = createMemo(() => merged.label)
@@ -206,7 +212,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: merged.size ?? undefined,
       disabled: merged.disabled || merged.loading,
       required: local.required,
       readOnly: readOnly(),
@@ -220,6 +226,26 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         ) ?? merged.falseValue,
     }),
   )
+
+  const slots = createMemo(() => switchRecipe({ size: field.size() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => `${field.id()}-description`)
 
@@ -374,8 +400,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     <div
       data-slot="root"
       {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('flex flex-row', merged.classes?.root, merged.class)}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -416,13 +442,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        style={merged.styles?.track}
-        class={switchTrackVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.track,
-          field.disabled() && 'effect-dis',
+        style={resolved.slotStyle('track')}
+        class={cn(
+          resolved.slotClass('track'),
+          field.disabled() && 'opacity-64 pointer-events-none',
         )}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
@@ -435,13 +458,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           data-checked={checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
-          style={merged.styles?.thumb}
-          class={switchThumbVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.thumb,
-          )}
+          style={resolved.slotStyle('thumb')}
+          class={resolved.slotClass('thumb')}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -451,8 +469,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
                 class={cn(
-                  'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
-                  merged.classes?.icon,
+                  'text-primary size-4/5 transition-opacity absolute data-unchecked:text-muted-foreground data-checked:opacity-100 data-unchecked:opacity-90 data-loading:animate-spin',
+                  resolved.slotClass('icon'),
                 )}
               />
             )}
@@ -463,24 +481,19 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       <Show when={showLabel() || showDescription()}>
         <span
           data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={switchWrapperVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.wrapper,
-          )}
+          style={resolved.slotStyle('wrapper')}
+          class={resolved.slotClass('wrapper')}
         >
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              style={merged.styles?.label}
+              style={resolved.slotStyle('label')}
               class={cn(
                 'text-foreground leading-tight font-medium block cursor-pointer select-none',
-                field.required() && "after:(text-destructive ms-0.5 content-['*'])",
-                merged.classes?.label,
+                field.required() && "after:text-destructive after:ms-0.5 after:content-['*']",
+                resolved.slotClass('label'),
               )}
             >
               {label()}
@@ -491,11 +504,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             <span
               id={descriptionId()}
               data-slot="description"
-              style={merged.styles?.description}
+              style={resolved.slotStyle('description')}
               class={cn(
                 TEXT_SIZE_VARIANT[field.size()],
                 'text-muted-foreground leading-normal',
-                merged.classes?.description,
+                resolved.slotClass('description'),
               )}
             >
               {description()}

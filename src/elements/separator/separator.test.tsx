@@ -14,7 +14,7 @@ describe('Separator', () => {
     expect(root?.getAttribute('data-orientation')).toBe('horizontal')
     expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
-    expect(root?.className).toContain('b-t')
+    expect(root?.className).toContain('border-t')
     expect(root?.className).toContain('w-full')
   })
 
@@ -24,13 +24,13 @@ describe('Separator', () => {
     const root = screen.getByRole('separator')
 
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(root.className).toContain('b-t')
+    expect(root.className).toContain('border-t')
 
     setOrientation('vertical')
 
     expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root.className).toContain('b-s')
+    expect(root.className).toContain('border-s')
     expect(root.className).toContain('h-full')
   })
 
@@ -76,9 +76,9 @@ describe('Separator', () => {
   })
 
   test.each([
-    ['sm', 'b-2'],
-    ['md', 'b-3'],
-    ['lg', 'b-4'],
+    ['sm', 'border-2'],
+    ['md', 'border-3'],
+    ['lg', 'border-4'],
   ] as const)('applies %s size variant to the root line', (size, expectedClass) => {
     const screen = render(() => <Separator size={size} />)
     expect(screen.getByRole('separator').className).toContain(expectedClass)
@@ -125,7 +125,7 @@ describe('Separator', () => {
     setOrientation('vertical')
 
     expect(screen.getByRole('separator')).toBe(root)
-    expect(root.className).toContain('b-s')
+    expect(root.className).toContain('border-s')
   })
 
   test('decorative mode uses presentational semantics', () => {

@@ -44,14 +44,14 @@ repeatable checks and prevents a partial migration from shipping.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Source audit | `nub run test test/acceptance/style-system.test.ts` | exit 0 |
-| Full test suite | `nub run test` | exit 0 |
-| Build artifacts | `nub run build` | exit 0 |
-| Type/quality gate | `nub run qa` | exit 0 |
-| Docs build | `nub run docs:build` | exit 0 |
-| Preview smoke | `nub run test test/acceptance/docs-preview.test.ts` | exit 0; process starts, responds, stops |
+| Purpose           | Command                                             | Expected on success                     |
+| ----------------- | --------------------------------------------------- | --------------------------------------- |
+| Source audit      | `nub run test test/acceptance/style-system.test.ts` | exit 0                                  |
+| Full test suite   | `nub run test`                                      | exit 0                                  |
+| Build artifacts   | `nub run build`                                     | exit 0                                  |
+| Type/quality gate | `nub run qa`                                        | exit 0                                  |
+| Docs build        | `nub run docs:build`                                | exit 0                                  |
+| Preview smoke     | `nub run test test/acceptance/docs-preview.test.ts` | exit 0; process starts, responds, stops |
 
 ## Scope
 

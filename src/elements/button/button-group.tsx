@@ -1,20 +1,14 @@
 import type { JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  children as resolveChildren,
-  mergeProps,
-  splitProps,
-  createMemo,
-} from 'solid-js'
+import { For, Show, children as resolveChildren, splitProps, createMemo } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { cn } from '../../shared/utils.ts'
 
-import { ButtonGroupContext } from './button-group-context'
-import type { ButtonGroupLayoutVariantProps } from './button-group.class'
-import { buttonGroupVariants } from './button-group.class'
-import type { ButtonVariantProps } from './button.class'
+import { ButtonGroupContext } from './button-group-context.ts'
+import type { ButtonGroupLayoutVariantProps } from './button-group.class.ts'
+import { buttonGroupRecipe } from './button-group.class.ts'
+import type { ButtonVariantProps } from './button.class.ts'
 
 export namespace ButtonGroupT {
   export interface Slot<T = unknown> {
@@ -49,17 +43,10 @@ export interface ButtonGroupProps extends ButtonGroupT.Props {}
 
 /** Joins related buttons and provides shared size and visual variant defaults. */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
-  const merged = mergeProps(
-    {
-      orientation: 'horizontal' as const,
-      role: 'group' as const,
-      size: 'md' as const,
-      variant: 'default' as const,
-      separator: false,
-    },
-    props,
-  )
-  const [local, rest] = splitProps(merged, [
+  const config = useMoraineConfig()
+  const provider = () => config().buttonGroup
+
+  const [local, rest] = splitProps(props, [
     'orientation',
     'role',
     'size',
@@ -71,6 +58,33 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'style',
     'children',
   ])
+
+  const orientation = () =>
+    (local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal') as NonNullable<
+      ButtonGroupLayoutVariantProps['orientation']
+    >
+  const size = () => local.size ?? provider()?.defaultProps?.size ?? 'md'
+  const variant = () => local.variant ?? provider()?.defaultProps?.variant ?? 'default'
+
+  const slots = createMemo(() => buttonGroupRecipe({ orientation: orientation() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   function renderContent(): JSX.Element {
     const resolvedChildren = resolveChildren(() => local.children)
     const childArray = createMemo(() =>
@@ -87,17 +101,13 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
 
     return (
       <div
-        role={local.role}
+        role={local.role ?? 'group'}
         data-slot="root"
-        data-orientation={local.orientation}
-        data-size={local.size}
-        data-variant={local.variant}
-        style={{ ...local.styles?.root, ...local.style }}
-        class={buttonGroupVariants(
-          { orientation: local.orientation },
-          local.classes?.root,
-          local.class,
-        )}
+        data-orientation={orientation()}
+        data-size={size()}
+        data-variant={variant()}
+        style={resolved.rootStyle()}
+        class={resolved.rootClass()}
         {...rest}
       >
         <Show when={local.separator} fallback={resolvedChildren()}>
@@ -107,16 +117,13 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
                 <Show when={index() > 0}>
                   <span
                     data-slot="separator"
-                    data-orientation={
-                      local.orientation === 'horizontal' ? 'vertical' : 'horizontal'
-                    }
+                    data-orientation={orientation() === 'horizontal' ? 'vertical' : 'horizontal'}
                     aria-hidden="true"
                     class={cn(
-                      'bg-input shrink-0 self-stretch',
-                      local.orientation === 'horizontal' ? 'h-full w-px' : 'h-px w-full',
-                      local.classes?.separator,
+                      orientation() === 'horizontal' ? 'h-full w-px' : 'h-px w-full',
+                      resolved.slotClass('separator'),
                     )}
-                    style={local.styles?.separator}
+                    style={resolved.slotStyle('separator')}
                   />
                 </Show>
                 {child}
@@ -132,10 +139,10 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     <ButtonGroupContext.Provider
       value={{
         get size() {
-          return local.size
+          return size()
         },
         get variant() {
-          return local.variant
+          return variant()
         },
       }}
     >

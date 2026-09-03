@@ -266,9 +266,9 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('data-focused:effect-fv-border')
-    expect(root?.className).not.toContain('focus-within:effect-fv-border')
-    expect(root?.className).toContain('effect-invalid')
+    expect(root?.className).toContain('data-focused:ring-ring/50')
+    expect(root?.className).not.toContain('focus-within:ring-ring/50')
+    expect(root?.className).toContain('data-invalid:border-destructive')
     expect(root?.className).toContain('root-override')
   })
 

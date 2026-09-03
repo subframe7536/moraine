@@ -121,4 +121,3 @@ defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
 
 // @ts-expect-error String styles values on MoraineProvider config are rejected
 ;<MoraineProvider config={{ button: { styles: { root: 'color: red' } } }} />
-

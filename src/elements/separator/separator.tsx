@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
-import { createMemo, mergeProps, splitProps } from 'solid-js'
+import { createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps } from '../../shared/types.ts'
 
-import type { SeparatorVariantProps } from './separator.class'
-import { separatorVariants } from './separator.class'
+import type { SeparatorVariantProps } from './separator.class.ts'
+import { separatorRecipe } from './separator.class.ts'
 
 export namespace SeparatorT {
   export interface Slot<_T = unknown> {}
@@ -43,6 +44,9 @@ export interface SeparatorProps extends SeparatorT.Props {}
 
 /** Visual divider with configurable orientation, style, and border type. */
 export function Separator(props: SeparatorProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().separator
+
   const [local, rest] = splitProps(props, [
     'decorative',
     'orientation',
@@ -52,16 +56,39 @@ export function Separator(props: SeparatorProps): JSX.Element {
     'style',
     'children',
   ])
-  const merged = mergeProps(
-    {
-      decorative: false,
-      orientation: 'horizontal' as const,
-      size: 'sm' as const,
-      type: 'solid' as const,
-    },
-    local,
+
+  const orientation = createMemo<NonNullable<SeparatorVariantProps['orientation']>>(
+    () => local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal',
   )
-  const orientation = createMemo(() => merged.orientation)
+  const size = createMemo<NonNullable<SeparatorVariantProps['size']>>(
+    () => local.size ?? provider()?.defaultProps?.size ?? 'sm',
+  )
+  const type = createMemo<NonNullable<SeparatorVariantProps['type']>>(
+    () => local.type ?? provider()?.defaultProps?.type ?? 'solid',
+  )
+
+  const slots = createMemo(() =>
+    separatorRecipe({
+      orientation: orientation(),
+      size: size(),
+      type: type(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
+  })
 
   return (
     <div
@@ -69,17 +96,10 @@ export function Separator(props: SeparatorProps): JSX.Element {
       data-slot="root"
       data-orientation={orientation()}
       aria-orientation={orientation()}
-      aria-hidden={merged.decorative ? true : undefined}
+      aria-hidden={local.decorative ? true : undefined}
       {...rest}
-      style={merged.style}
-      class={separatorVariants(
-        {
-          orientation: orientation(),
-          size: merged.size,
-          type: merged.type,
-        },
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
     />
   )
 }

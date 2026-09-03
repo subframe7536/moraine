@@ -13,26 +13,17 @@ import {
 import { Dynamic } from 'solid-js/web'
 import type { InferInput } from 'valibot'
 
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useId } from '../../shared/utils.ts'
 
-import type { FormFieldContextOptions } from './form-context'
-import { FormFieldProvider } from './form-context'
-import type { FormFieldVariantProps } from './form-field.class'
-import {
-  FORM_FIELD_DESCRIPTION_CLASS,
-  FORM_FIELD_ERROR_CLASS,
-  FORM_FIELD_HELP_CLASS,
-  FORM_FIELD_HINT_CLASS,
-  FORM_FIELD_LABEL_WRAPPER_CLASS,
-  FORM_FIELD_WRAPPER_CLASS,
-  formFieldContainerVariants,
-  formFieldLabelVariants,
-  formFieldSizeVariants,
-} from './form-field.class'
+import type { FormFieldContextOptions } from './form-context.ts'
+import { FormFieldProvider } from './form-context.ts'
+import type { FormFieldVariantProps } from './form-field.class.ts'
+import { formFieldRecipe } from './form-field.class.ts'
 
 export namespace FormFieldT {
   type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
@@ -213,6 +204,9 @@ export function FormField<
       style?: JSX.CSSProperties
     }
 
+  const config = useMoraineConfig()
+  const provider = () => config().formField
+
   const merged = mergeProps(
     {
       as: 'div' as T,
@@ -220,6 +214,7 @@ export function FormField<
       size: 'md' as const,
       required: false,
     },
+    () => provider()?.defaultProps,
     local,
   ) as MergedProps
 
@@ -378,6 +373,32 @@ export function FormField<
     registerControl,
   }
 
+  const slots = createMemo(() =>
+    formFieldRecipe({
+      size: merged.size,
+      orientation: merged.orientation,
+      required: Boolean(merged.required),
+      hasText: showLabel() || showDescription(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   function renderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
     const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
@@ -392,45 +413,26 @@ export function FormField<
         data-orientation={merged.orientation}
         {...rest}
         component={merged.as as any}
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={formFieldSizeVariants(
-          { size: merged.size },
-          merged.orientation === 'horizontal' && 'gap-x-2 grid grid-cols-4 items-baseline',
-          merged.classes?.root,
-          merged.class,
-        )}
+        style={resolved.rootStyle()}
+        class={resolved.rootClass()}
       >
         <div
           data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={cn(
-            FORM_FIELD_WRAPPER_CLASS,
-            merged.orientation === 'horizontal' && 'text-end col-span-1 items-end',
-            merged.classes?.wrapper,
-          )}
+          style={resolved.slotStyle('wrapper')}
+          class={resolved.slotClass('wrapper')}
         >
           <Show when={showLabel()}>
             <div
               data-slot="labelWrapper"
-              style={merged.styles?.labelWrapper}
-              class={cn(
-                FORM_FIELD_LABEL_WRAPPER_CLASS,
-                merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
-                merged.classes?.labelWrapper,
-              )}
+              style={resolved.slotStyle('labelWrapper')}
+              class={resolved.slotClass('labelWrapper')}
             >
               <label
                 id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
-                style={merged.styles?.label}
-                class={formFieldLabelVariants(
-                  {
-                    required: merged.required ? true : undefined,
-                    orientation: merged.orientation,
-                  },
-                  merged.classes?.label,
-                )}
+                style={resolved.slotStyle('label')}
+                class={resolved.slotClass('label')}
               >
                 {label()}
               </label>
@@ -439,12 +441,8 @@ export function FormField<
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
-                  style={merged.styles?.hint}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HINT_CLASS,
-                    merged.classes?.hint,
-                  )}
+                  style={resolved.slotStyle('hint')}
+                  class={resolved.slotClass('hint')}
                 >
                   {hint()}
                 </span>
@@ -456,12 +454,8 @@ export function FormField<
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              style={merged.styles?.description}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_DESCRIPTION_CLASS,
-                merged.classes?.description,
-              )}
+              style={resolved.slotStyle('description')}
+              class={resolved.slotClass('description')}
             >
               {description()}
             </p>
@@ -470,13 +464,8 @@ export function FormField<
 
         <div
           data-slot="container"
-          class={formFieldContainerVariants(
-            {
-              orientation: merged.orientation,
-              hasText: showLabel() || showDescription(),
-            },
-            merged.classes?.container,
-          )}
+          style={resolved.slotStyle('container')}
+          class={resolved.slotClass('container')}
         >
           {fieldChildren}
 
@@ -487,12 +476,8 @@ export function FormField<
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
-                  style={merged.styles?.help}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HELP_CLASS,
-                    merged.classes?.help,
-                  )}
+                  style={resolved.slotStyle('help')}
+                  class={resolved.slotClass('help')}
                 >
                   {help()}
                 </div>
@@ -502,12 +487,8 @@ export function FormField<
             <div
               id={`${ariaId()}-error`}
               data-slot="error"
-              style={merged.styles?.error}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_ERROR_CLASS,
-                merged.classes?.error,
-              )}
+              style={resolved.slotStyle('error')}
+              class={resolved.slotClass('error')}
             >
               {resolvedError()}
             </div>

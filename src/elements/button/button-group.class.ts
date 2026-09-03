@@ -1,22 +1,28 @@
-import type { VariantProps } from 'cls-variant'
+import type { VariantProps } from '../../shared/style/recipe.ts'
+import { recipe } from '../../shared/style/recipe.ts'
 
-import { cva } from '../../shared/utils'
-
-export const buttonGroupVariants = cva(
-  'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
-  {
-    defaultVariants: {
-      orientation: 'horizontal',
-    },
-    variants: {
-      orientation: {
-        horizontal:
-          'flex-row [&>[data-slot=separator]]:mx-px [&>*:not(:first-child)]:(border-s-0 rounded-s-none) [&>*:not(:last-child)]:rounded-e-none',
-        vertical:
-          'flex-col [&>[data-slot=separator]]:my-px [&>*:not(:first-child)]:(border-t-0 rounded-t-none) [&>*:not(:last-child)]:rounded-b-none',
+export const buttonGroupRecipe = recipe({
+  slots: ['root', 'separator'],
+  base: {
+    root: 'inline-flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-sticky',
+    separator: 'bg-input shrink-0 self-stretch',
+  },
+  defaultVariants: {
+    orientation: 'horizontal',
+  },
+  variants: {
+    orientation: {
+      horizontal: {
+        root: 'flex-row [&>[data-slot=separator]]:mx-px [&>*:not(:first-child)]:border-s-0 [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
+        separator: 'h-full w-px',
+      },
+      vertical: {
+        root: 'flex-col [&>[data-slot=separator]]:my-px [&>*:not(:first-child)]:border-t-0 [&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none',
+        separator: 'h-px w-full',
       },
     },
   },
-)
+})
 
-export type ButtonGroupLayoutVariantProps = VariantProps<typeof buttonGroupVariants>
+export const buttonGroupVariants = buttonGroupRecipe
+export type ButtonGroupLayoutVariantProps = VariantProps<typeof buttonGroupRecipe>

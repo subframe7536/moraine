@@ -173,19 +173,19 @@ describe('Input', () => {
     ) as HTMLElement | null
 
     expect(firstLeading?.className).toContain('icon-loading')
-    expect(firstLeading?.className).toContain('effect-loading')
+    expect(firstLeading?.className).toContain('animate-spin')
     expect(roots[0]?.querySelector('[data-slot="trailing"]')).toBeNull()
 
     expect(secondTrailing?.className).toContain('icon-loading')
-    expect(secondTrailing?.className).toContain('effect-loading')
+    expect(secondTrailing?.className).toContain('animate-spin')
     expect(secondTrailing?.className).not.toContain('i-lucide-at-sign')
     expect(roots[1]?.querySelector('[data-slot="leading"]')).toBeNull()
 
     expect(thirdLeading?.className).toContain('icon-loading')
-    expect(thirdLeading?.className).toContain('effect-loading')
+    expect(thirdLeading?.className).toContain('animate-spin')
     expect(thirdLeading?.className).not.toContain('i-lucide-user')
     expect(thirdTrailing?.className).toContain('i-lucide-mail')
-    expect(thirdTrailing?.className).not.toContain('effect-loading')
+    expect(thirdTrailing?.className).not.toContain('animate-spin')
 
     expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
@@ -638,9 +638,9 @@ describe('Input', () => {
     const screen = render(() => <Input classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('focus-within:effect-fv-border')
-    expect(root?.className).toContain('effect-invalid')
-    expect(root?.className).toContain('focus-within:data-invalid:effect-invalid')
+    expect(root?.className).toContain('focus-within:ring-ring/50')
+    expect(root?.className).toContain('data-invalid:border-destructive')
+    expect(root?.className).toContain('focus-within:data-invalid:border-destructive')
     expect(root?.className).toContain('root-override')
   })
 

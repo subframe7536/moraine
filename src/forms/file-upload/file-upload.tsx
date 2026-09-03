@@ -11,36 +11,23 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+} from '../shared/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { FileUploadVariantProps } from './file-upload.class'
-import {
-  fileUploadBaseVariants,
-  fileUploadDescriptionVariants,
-  fileUploadFileVariants,
-  fileUploadFilesVariants,
-  fileUploadIconVariants,
-  fileUploadLabelVariants,
-  fileUploadMetaVariants,
-  fileUploadNameVariants,
-  fileUploadPreviewVariants,
-  fileUploadRemoveVariants,
-  fileUploadRootVariants,
-  fileUploadSizeVariants,
-  fileUploadWrapperVariants,
-} from './file-upload.class'
+import type { FileUploadVariantProps } from './file-upload.class.ts'
+import { fileUploadRecipe } from './file-upload.class.ts'
 
 type FileError =
   | 'TOO_MANY_FILES'
@@ -497,6 +484,10 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     'class',
     'style',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().fileUpload
+
   const merged = mergeProps(
     {
       as: 'div' as T,
@@ -507,6 +498,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
+    () => provider()?.defaultProps,
     local,
   )
   const label = createMemo(() => merged.label)
@@ -531,6 +523,30 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       initialValue: merged.multiple ? [] : null,
     }),
   )
+
+  const slots = createMemo(() =>
+    fileUploadRecipe({
+      size: field.size(),
+      dropzone: dropzone(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   let hiddenInputEl: HTMLInputElement | undefined
 
@@ -667,13 +683,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         type="button"
         aria-label={`Remove ${props.file.name}`}
         data-slot="fileRemove"
-        style={merged.styles?.fileRemove}
-        class={fileUploadRemoveVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.fileRemove,
-        )}
+        style={resolved.slotStyle('fileRemove')}
+        class={resolved.slotClass('fileRemove')}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -747,37 +758,22 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     return (
       <div
         data-slot="wrapper"
-        style={merged.styles?.wrapper}
-        class={fileUploadWrapperVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.wrapper,
-        )}
+        style={resolved.slotStyle('wrapper')}
+        class={resolved.slotClass('wrapper')}
       >
         <Icon
           name={merged.icon}
           slotName="icon"
-          style={merged.styles?.icon}
-          class={fileUploadIconVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.icon,
-          )}
+          style={resolved.slotStyle('icon')}
+          class={resolved.slotClass('icon')}
         />
 
         <Show when={label()}>
           <span
             id={labelId()}
             data-slot="label"
-            style={merged.styles?.label}
-            class={fileUploadLabelVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.label,
-            )}
+            style={resolved.slotStyle('label')}
+            class={resolved.slotClass('label')}
           >
             {label()}
           </span>
@@ -787,13 +783,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <span
             id={descriptionId()}
             data-slot="description"
-            style={merged.styles?.description}
-            class={fileUploadDescriptionVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.description,
-            )}
+            style={resolved.slotStyle('description')}
+            class={resolved.slotClass('description')}
           >
             {description()}
           </span>
@@ -880,14 +871,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
       component={merged.as as any}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={fileUploadRootVariants(
-        {
-          size: field.size(),
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
     >
       <Show
         when={dropzone()}
@@ -895,16 +880,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <button
             type="button"
             data-slot="control"
-            style={merged.styles?.control}
+            style={resolved.slotStyle('control')}
             data-invalid={field.invalid() ? '' : undefined}
-            class={fileUploadBaseVariants(
-              {
-                size: field.size(),
-                dropzone: false,
-              },
-              field.disabled() && 'bg-muted/32',
-              merged.classes?.control,
-            )}
+            class={cn(resolved.slotClass('control'), field.disabled() && 'bg-muted/32')}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -920,17 +898,10 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="control"
-          style={merged.styles?.control}
+          style={resolved.slotStyle('control')}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
-          class={fileUploadBaseVariants(
-            {
-              size: field.size(),
-              dropzone: true,
-            },
-            field.disabled() && 'bg-muted/32',
-            merged.classes?.control,
-          )}
+          class={cn(resolved.slotClass('control'), field.disabled() && 'bg-muted/32')}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
@@ -963,46 +934,24 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       <Show when={preview() && selectedFiles().length > 0}>
         <ul
           data-slot="files"
-          style={merged.styles?.files}
-          class={fileUploadFilesVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.files,
-          )}
+          style={resolved.slotStyle('files')}
+          class={resolved.slotClass('files')}
         >
           <For each={selectedFiles()}>
             {(file, index) => (
               <li
                 data-slot="file"
-                style={merged.styles?.file}
-                class={fileUploadFileVariants(
-                  {
-                    size: field.size(),
-                  },
-                  merged.classes?.file,
-                )}
+                style={resolved.slotStyle('file')}
+                class={resolved.slotClass('file')}
               >
                 <span
                   data-slot="filePreview"
-                  style={merged.styles?.filePreview}
-                  class={fileUploadPreviewVariants(
-                    {
-                      size: field.size(),
-                    },
-                    merged.classes?.filePreview,
-                  )}
+                  style={resolved.slotStyle('filePreview')}
+                  class={resolved.slotClass('filePreview')}
                 >
                   <Show
                     when={previewUrls().get(file)}
-                    fallback={
-                      <Icon
-                        name={merged.fileIcon}
-                        class={fileUploadIconVariants({
-                          size: field.size(),
-                        })}
-                      />
-                    }
+                    fallback={<Icon name={merged.fileIcon} class={resolved.slotClass('icon')} />}
                   >
                     {(url) => <img src={url()} alt={file.name} class="size-full object-cover" />}
                   </Show>
@@ -1010,35 +959,20 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
                 <div
                   data-slot="fileMeta"
-                  style={merged.styles?.fileMeta}
-                  class={fileUploadMetaVariants(
-                    {
-                      size: field.size(),
-                    },
-                    merged.classes?.fileMeta,
-                  )}
+                  style={resolved.slotStyle('fileMeta')}
+                  class={resolved.slotClass('fileMeta')}
                 >
                   <span
                     data-slot="fileName"
-                    style={merged.styles?.fileName}
-                    class={fileUploadNameVariants(
-                      {
-                        size: field.size(),
-                      },
-                      merged.classes?.fileName,
-                    )}
+                    style={resolved.slotStyle('fileName')}
+                    class={resolved.slotClass('fileName')}
                   >
                     {file.name}
                   </span>
                   <span
                     data-slot="fileSize"
-                    style={merged.styles?.fileSize}
-                    class={fileUploadSizeVariants(
-                      {
-                        size: field.size(),
-                      },
-                      merged.classes?.fileSize,
-                    )}
+                    style={resolved.slotStyle('fileSize')}
+                    class={resolved.slotClass('fileSize')}
                   >
                     {formatFileSize(file.size)}
                   </span>

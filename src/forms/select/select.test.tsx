@@ -177,8 +177,8 @@ describe('Select - single mode', () => {
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
 
-    expect(control.className).toContain('focus-visible:effect-fv-border')
-    expect(control.className).not.toContain('focus-within:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
+    expect(control.className).not.toContain('focus-within:ring-ring/50')
   })
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {
@@ -204,15 +204,15 @@ describe('Select - single mode', () => {
     control.focus()
 
     expect(document.activeElement).toBe(control)
-    expect(control.className).toContain('focus-visible:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
   })
 
   test('searchable control keeps focus-within ring styling', () => {
     const screen = render(() => <Select options={FRUITS} search placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    expect(control.className).toContain('focus-within:effect-fv-border')
-    expect(control.className).not.toContain('focus:effect-fv-border')
+    expect(control.className).toContain('focus-within:ring-ring/50')
+    expect(control.className).not.toContain('focus:ring-ring/50')
   })
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
@@ -252,8 +252,8 @@ describe('Select - single mode', () => {
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
       expect(content).not.toBeNull()
-      expect(content?.className).toContain('w-$mo-popper-anchor-width')
-      expect(content?.className).toContain('min-w-$mo-popper-anchor-width')
+      expect(content?.className).toContain('w-[var(--mo-popper-anchor-width)]')
+      expect(content?.className).toContain('min-w-[var(--mo-popper-anchor-width)]')
     })
   })
 
@@ -430,7 +430,7 @@ describe('Select - single mode', () => {
     expect(trigger).not.toBeNull()
     expect(trigger?.getAttribute('data-loading')).toBe('')
     expect(trigger?.className).toContain('icon-loading')
-    expect(trigger?.className).toContain('effect-loading')
+    expect(trigger?.className).toContain('animate-spin')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 

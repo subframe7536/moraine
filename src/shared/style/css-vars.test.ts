@@ -18,9 +18,7 @@ describe('formatCssVars', () => {
   })
 
   test('preserves already-prefixed keys', () => {
-    expect(
-      formatCssVars({ '--custom-key': '100px', 'another-key': '200px' }, 's'),
-    ).toEqual({
+    expect(formatCssVars({ '--custom-key': '100px', 'another-key': '200px' }, 's')).toEqual({
       '--custom-key': '100px',
       '--s-another-key': '200px',
     })

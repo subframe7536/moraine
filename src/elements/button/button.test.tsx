@@ -4,7 +4,10 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from './button'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { ButtonGroup } from './button-group.tsx'
+import { Button } from './button.tsx'
 
 function createDeferred() {
   let resolve: (() => void) | undefined
@@ -309,7 +312,7 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('icon-loading')
-    expect(leading?.className).toContain('effect-loading')
+    expect(leading?.className).toContain('animate-spin')
   })
 
   test('supports component children with loading state', () => {
@@ -385,7 +388,7 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
-    expect(leading?.className).toContain('effect-loading')
+    expect(leading?.className).toContain('animate-spin')
   })
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {
@@ -406,7 +409,7 @@ describe('Button', () => {
     expect(leadingSlot).toBeNull()
     expect(trailingSlot).not.toBeNull()
     expect(trailingSlot?.className).toContain('icon-loading')
-    expect(trailingSlot?.className).toContain('effect-loading')
+    expect(trailingSlot?.className).toContain('animate-spin')
   })
 
   test('keeps trailing content when loading if leading and trailing are both provided', () => {
@@ -426,7 +429,7 @@ describe('Button', () => {
     expect(screen.queryByTestId('leading-icon')).toBeNull()
     expect(screen.queryByTestId('trailing-icon')).not.toBeNull()
     expect(leadingSlot?.className).toContain('icon-loading')
-    expect(leadingSlot?.className).toContain('effect-loading')
+    expect(leadingSlot?.className).toContain('animate-spin')
   })
 
   test('applies loading class override when trailing slot is replaced by loading icon', () => {
@@ -445,7 +448,7 @@ describe('Button', () => {
 
     expect(trailing).not.toBeNull()
     expect(trailing?.className).toContain('icon-loading')
-    expect(trailing?.className).toContain('effect-loading')
+    expect(trailing?.className).toContain('animate-spin')
     expect(trailing?.className).toContain('loading-override')
     expect(trailing?.className).toContain('trailing-override')
   })
@@ -942,6 +945,66 @@ describe('Button', () => {
       fireEvent.click(anchor)
 
       expect(onclick).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Provider Precedence', () => {
+    test('inherits provider defaults, classes, and styles, with group and instance overrides', () => {
+      const screen = render(() => (
+        <MoraineProvider
+          config={{
+            button: {
+              defaultProps: { variant: 'outline', size: 'lg' },
+              class: 'provider-root-class',
+              classes: { root: 'provider-slot-root', leading: 'provider-leading' },
+              style: { color: 'red', margin: '4px' },
+              styles: { root: { color: 'blue' } },
+            },
+            buttonGroup: {
+              defaultProps: { size: 'sm' },
+              class: 'provider-group-root',
+            },
+          }}
+        >
+          {/* Button alone reading provider */}
+          <Button data-testid="p-btn">Plain</Button>
+
+          {/* Button inside ButtonGroup */}
+          <ButtonGroup variant="secondary">
+            <Button data-testid="g-btn">Grouped</Button>
+          </ButtonGroup>
+
+          {/* Button with instance override */}
+          <Button
+            data-testid="i-btn"
+            variant="destructive"
+            class="instance-class"
+            style={{ color: 'green' }}
+          >
+            Instance
+          </Button>
+        </MoraineProvider>
+      ))
+
+      const pBtn = screen.getByTestId('p-btn')
+      expect(pBtn.getAttribute('data-variant')).toBe('outline')
+      expect(pBtn.getAttribute('data-size')).toBe('lg')
+      expect(pBtn.className).toContain('provider-root-class')
+      expect(pBtn.className).toContain('provider-slot-root')
+      expect(pBtn.style.margin).toBe('4px')
+      expect(pBtn.style.color).toBe('blue')
+
+      const gBtn = screen.getByTestId('g-btn')
+      // Group variant 'secondary' overrides provider 'outline'
+      expect(gBtn.getAttribute('data-variant')).toBe('secondary')
+      // Provider buttonGroup defaultProps 'sm' overrides provider button 'lg'
+      expect(gBtn.getAttribute('data-size')).toBe('sm')
+
+      const iBtn = screen.getByTestId('i-btn')
+      // Instance variant overrides all
+      expect(iBtn.getAttribute('data-variant')).toBe('destructive')
+      expect(iBtn.className).toContain('instance-class')
+      expect(iBtn.style.color).toBe('green')
     })
   })
 })

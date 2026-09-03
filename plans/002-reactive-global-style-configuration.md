@@ -49,8 +49,8 @@ inheritance rule during the migration.
 
 The required provider ownership inventory is:
 
-| Standalone keys | Owner-inherited public exports |
-|---|---|
+| Standalone keys                                                                                                                                                                                                                                                                                                                                                                                           | Owner-inherited public exports                                                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | accordion, avatar, avatarGroup, badge, button, buttonGroup, card, checkbox, checkboxGroup, collapsible, commandPalette, contextMenu, dialog, dropdownMenu, fileUpload, form, formField, icon, input, inputNumber, kbd, kbdGroup, list, modal, multiSelect, pagination, popover, progress, radioGroup, resizable, select, separator, sheet, sidebarFrame, slider, stepper, switch, tabs, textarea, tooltip | `CollapsibleTrigger`/`CollapsibleContent` → collapsible; `ModalTrigger`/`ModalTriggerRenderer` → modal; `AvatarFace` → avatar; `createForm()` bound Form/Field → form/formField; sidebar render strategies → sidebarFrame; non-root select/menu primitives → owning component |
 
 `BaseSelectT` is an internal namespace and must not receive an independent
@@ -59,12 +59,12 @@ barrels, rather than hard-coding a list that silently drifts.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Provider tests | `nub run test src/shared/provider/moraine-provider.test.tsx` | exit 0, all provider tests pass |
-| Typecheck | `nub run typecheck` | exit 0 |
-| Type fixtures | `nub run test:types` | exit 0 |
-| Final quality gate | `nub run qa` | exit 0 |
+| Purpose            | Command                                                      | Expected on success             |
+| ------------------ | ------------------------------------------------------------ | ------------------------------- |
+| Provider tests     | `nub run test src/shared/provider/moraine-provider.test.tsx` | exit 0, all provider tests pass |
+| Typecheck          | `nub run typecheck`                                          | exit 0                          |
+| Type fixtures      | `nub run test:types`                                         | exit 0                          |
+| Final quality gate | `nub run qa`                                                 | exit 0                          |
 
 ## Suggested executor toolkit
 

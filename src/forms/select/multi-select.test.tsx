@@ -641,8 +641,8 @@ describe('MultiSelect', () => {
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
 
-    expect(control.className).toContain('focus-visible:effect-fv-border')
-    expect(control.className).not.toContain('focus-within:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
+    expect(control.className).not.toContain('focus-within:ring-ring/50')
   })
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {
@@ -652,15 +652,15 @@ describe('MultiSelect', () => {
     control.focus()
 
     expect(document.activeElement).toBe(control)
-    expect(control.className).toContain('focus-visible:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
   })
 
   test('searchable control keeps focus-within ring styling', () => {
     const screen = render(() => <MultiSelect options={FRUITS} search placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    expect(control.className).toContain('focus-within:effect-fv-border')
-    expect(control.className).not.toContain('focus:effect-fv-border')
+    expect(control.className).toContain('focus-within:ring-ring/50')
+    expect(control.className).not.toContain('focus:ring-ring/50')
   })
 
   test('after trigger click, ArrowDown selects the first option', async () => {
@@ -1010,7 +1010,7 @@ describe('MultiSelect', () => {
     expect(trigger?.getAttribute('aria-busy')).toBe('true')
     expect(trigger?.hasAttribute('data-loading')).toBe(true)
     expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('icon-loading')
-    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('effect-loading')
+    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('animate-spin')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 

@@ -416,17 +416,15 @@ async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
 
     // 2. Try unocss (named export)
     try {
-      // @ts-expect-error - unocss will not installed in the repo
-      const { transformerCompileClass } = await import(/* @vite-ignore */ 'unocss')
+      const unocssPkg = 'unocss'
+      const { transformerCompileClass } = await import(/* @vite-ignore */ unocssPkg)
       return transformerCompileClass(transformerCompileClassOptions)
     } catch {}
 
     // 3. Try @unocss/transformer-compile-class (default export)
     try {
-      const { default: transformerCompileClass } = await import(
-        // @ts-expect-error - @unocss/transformer-compile-class will not installed in the repo
-        /* @vite-ignore */ '@unocss/transformer-compile-class'
-      )
+      const transformerPkg = '@unocss/transformer-compile-class'
+      const { default: transformerCompileClass } = await import(/* @vite-ignore */ transformerPkg)
       return transformerCompileClass(transformerCompileClassOptions)
     } catch {}
 

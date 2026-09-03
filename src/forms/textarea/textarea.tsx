@@ -11,29 +11,25 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { useFormReset } from '../shared/use-form-reset'
-import { useTextControlValue } from '../shared/use-text-control-value'
+} from '../shared/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import type { TextareaVariantProps } from './textarea.class'
-import {
-  textareaBaseVariants,
-  textareaFooterVariants,
-  textareaHeaderVariants,
-  textareaRootVariants,
-} from './textarea.class'
+import type { TextareaVariantProps } from './textarea.class.ts'
+import { textareaRecipe } from './textarea.class.ts'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
@@ -237,15 +233,20 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'style',
     'onPointerDown',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().textarea
+
   const merged = mergeProps(
     {
       rows: 3,
       maxRows: 0,
       autofocusDelay: 0,
       autoResizeDelay: 0,
-      variant: 'outlined' as TextareaVariantProps['variant'],
+      variant: 'outline' as const,
       autoResize: false,
     },
+    () => provider()?.defaultProps,
     local,
   )
   const header = createMemo(() => merged.header)
@@ -259,7 +260,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: merged.size ?? undefined,
       disabled: merged.disabled,
       required: local.required,
       readOnly: Boolean(merged.readOnly),
@@ -270,6 +271,31 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       initialValue: merged.defaultValue ?? '',
     }),
   )
+
+  const slots = createMemo(() =>
+    textareaRecipe({
+      size: field.size(),
+      variant: merged.variant,
+      autoresize: merged.autoResize,
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   let textareaEl: HTMLTextAreaElement | undefined
   const [isFocused, setIsFocused] = createSignal(false)
@@ -457,15 +483,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <div
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={textareaRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       onPointerDown={onRootPointerDown}
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
@@ -474,13 +493,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       <Show when={showHeader()}>
         <div
           data-slot="header"
-          style={merged.styles?.header}
-          class={textareaHeaderVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.header,
-          )}
+          style={resolved.slotStyle('header')}
+          class={resolved.slotClass('header')}
         >
           {header()}
         </div>
@@ -497,14 +511,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         readOnly={merged.readOnly}
         maxLength={merged.maxLength}
         data-slot="input"
-        style={merged.styles?.input}
-        class={textareaBaseVariants(
-          {
-            size: field.size(),
-            autoresize: merged.autoResize,
-          },
-          merged.classes?.input,
-        )}
+        style={resolved.slotStyle('input')}
+        class={resolved.slotClass('input')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
@@ -519,13 +527,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       <Show when={showFooter()}>
         <div
           data-slot="footer"
-          style={merged.styles?.footer}
-          class={textareaFooterVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.footer,
-          )}
+          style={resolved.slotStyle('footer')}
+          class={resolved.slotClass('footer')}
         >
           {footer()}
         </div>

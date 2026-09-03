@@ -21,7 +21,17 @@ export function formatCssVars(vars: StyleVarRecord, prefix?: string): JSX.CSSPro
       result[varName] = value
     }
   }
-  return result as JSX.CSSProperties
+  return result
+}
+
+function toVariantString(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return `${value}`
+  }
+  return typeof value === 'object' && value !== null ? JSON.stringify(value) : ''
 }
 
 export interface StyleVarsOptions<V extends VariantSchema> {
@@ -72,7 +82,9 @@ export function defineStyleVars<V extends VariantSchema>(
       for (const [variantName, variantMap] of Object.entries(options.variants)) {
         const selectedValue = activeVariants[variantName]
         if (selectedValue !== undefined && selectedValue !== null) {
-          const selectedVars = (variantMap as Record<string, StyleVarRecord>)[String(selectedValue)]
+          const selectedVars = (variantMap as Record<string, StyleVarRecord>)[
+            toVariantString(selectedValue)
+          ]
           if (selectedVars) {
             Object.assign(resolved, selectedVars)
           }
@@ -83,10 +95,12 @@ export function defineStyleVars<V extends VariantSchema>(
     for (const compoundVariant of options.compoundVariants ?? []) {
       const matches = Object.entries(compoundVariant.variants).every(([name, expected]) => {
         const actual = activeVariants[name]
-        if (actual === undefined || actual === null) return false
+        if (actual === undefined || actual === null) {
+          return false
+        }
         return Array.isArray(expected)
-          ? expected.some((value) => String(value) === String(actual))
-          : String(expected) === String(actual)
+          ? expected.some((value) => toVariantString(value) === toVariantString(actual))
+          : toVariantString(expected) === toVariantString(actual)
       })
       if (matches) {
         Object.assign(resolved, compoundVariant.vars)

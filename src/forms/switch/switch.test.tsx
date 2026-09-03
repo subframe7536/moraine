@@ -261,7 +261,7 @@ describe('Switch', () => {
     expect(root?.className).toContain('flex flex-row')
     expect(track?.className).toContain('cursor-pointer')
     expect(input?.className).toContain('peer')
-    expect(track?.className).toContain('focus-visible:effect-fv-border')
+    expect(track?.className).toContain('focus-visible:ring-ring/50')
     expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
     expect(track?.className).toContain('w-10')
     expect(wrapper?.className).toContain('ms-2.5')

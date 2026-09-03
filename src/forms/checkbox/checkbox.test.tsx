@@ -395,7 +395,7 @@ describe('Checkbox', () => {
     expect(root?.className).toContain('root-override')
     expect(input?.className).toContain('peer')
     expect(container?.className).toContain('h-6')
-    expect(base?.className).toContain('focus-visible:effect-fv-border')
+    expect(base?.className).toContain('focus-visible:ring-ring/50')
     expect(base?.className).toContain('size-4.5')
     expect(screen.getByText('Classes').className).toContain('select-none')
   })

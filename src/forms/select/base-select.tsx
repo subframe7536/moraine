@@ -12,42 +12,42 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index'
-import { List } from '../../elements/list/index'
-import type { ListProps, ListT } from '../../elements/list/index'
-import { useFloatingPosition } from '../../overlays/base/floating'
-import { useOverlayInteraction } from '../../overlays/base/interaction'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { createTypeahead } from '../../shared/typeahead'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, cn, useId } from '../../shared/utils'
-import type { UseFormFieldReturn } from '../form/form-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { List } from '../../elements/list/index.ts'
+import type { ListProps, ListT } from '../../elements/list/index.ts'
+import { useFloatingPosition } from '../../overlays/base/floating.ts'
+import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createTypeahead } from '../../shared/typeahead.ts'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import type { UseFormFieldReturn } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+} from '../shared/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { SelectControlVariantProps } from './select.class'
-import { selectContentVariants, selectItemVariants } from './select.class'
+import type { SelectControlVariantProps } from './select.class.ts'
+import { selectContentVariants, selectItemVariants } from './select.class.ts'
 import {
   flattenOptions,
   normalizeOptions,
   useSelectField,
   useSelectMenuControl,
-} from './shared/index'
+} from './shared/index.ts'
 import type {
   BaseSelectItems,
   NormalizedGroup,
   NormalizedOption,
   SelectFilterMode,
-} from './shared/index'
+} from './shared/index.ts'
 
 export namespace BaseSelectT {
   export type Value = string | number
@@ -611,7 +611,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const field = useSelectField(() => ({
     id: merged.id,
     name: merged.name,
-    size: merged.size,
+    size: merged.size ?? undefined,
     disabled: merged.disabled,
     required: local.required,
     initialValue: merged.initialValue,
@@ -1467,7 +1467,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               }}
               class={selectContentVariants(
                 { side: contentSide() },
-                'w-$mo-popper-anchor-width min-w-$mo-popper-anchor-width max-w-$mo-popper-content-available-width',
+                'w-[var(--mo-popper-anchor-width)] min-w-[var(--mo-popper-anchor-width)] max-w-[var(--mo-popper-content-available-width)]',
                 merged.classes?.content,
               )}
             >
@@ -1506,7 +1506,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     ...toStyleObject(merged.listboxProps?.style),
                   }}
                   class={cn(
-                    'm-0 p-1 outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
+                    'm-0 p-1 outline-none max-h-[var(--mo-popper-content-available-height)] overflow-y-auto',
                     merged.classes?.listbox,
                     merged.listboxProps?.class,
                   )}

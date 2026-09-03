@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps } from '../../shared/types.ts'
 
-import type { KbdVariantProps } from './kbd.class'
-import { kbdRootVariants } from './kbd.class'
+import type { KbdVariantProps } from './kbd.class.ts'
+import { kbdRecipe } from './kbd.class.ts'
 
 interface KbdKeyAlias {
   label: string
@@ -68,6 +69,9 @@ export interface KbdProps extends KbdT.Props {}
 
 /** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().kbd
+
   const [local, rest] = splitProps(props, [
     'value',
     'label',
@@ -78,6 +82,14 @@ export function Kbd(props: KbdProps): JSX.Element {
     'class',
     'style',
   ])
+
+  const size = () =>
+    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<KbdVariantProps['size']>
+  const variant = () =>
+    (local.variant ?? provider()?.defaultProps?.variant ?? 'default') as NonNullable<
+      KbdVariantProps['variant']
+    >
+
   const alias = createMemo(() =>
     local.symbol === false
       ? undefined
@@ -85,20 +97,31 @@ export function Kbd(props: KbdProps): JSX.Element {
   )
   const text = createMemo(() => alias()?.text ?? local.value)
 
+  const slots = createMemo(() => kbdRecipe({ size: size(), variant: variant() }))
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
+  })
+
   return (
     <Show when={text()}>
       <kbd
         data-slot={local.slotName ?? 'root'}
         aria-label={local.label ?? alias()?.label}
         {...rest}
-        class={kbdRootVariants(
-          {
-            size: local.size,
-            variant: local.variant,
-          },
-          local.class,
-        )}
-        style={local.style}
+        class={resolved.rootClass()}
+        style={resolved.rootStyle()}
       >
         {text()}
       </kbd>

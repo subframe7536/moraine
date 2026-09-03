@@ -12,14 +12,15 @@ import {
   reset as resetForm,
 } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { createComponent, mergeProps, splitProps } from 'solid-js'
+import { createComponent, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types'
-import { callHandler, cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps } from '../../shared/types.ts'
+import { callHandler } from '../../shared/utils.ts'
 
-import type { FormFieldProps } from './form-field'
-import { FormField } from './form-field'
-import { FORM_ROOT_CLASS } from './form.class'
+import type { FormFieldProps } from './form-field.tsx'
+import { FormField } from './form-field.tsx'
+import { formRecipe } from './form.class.ts'
 
 export namespace FormT {
   export interface Instance<TSchema extends FormSchema = FormSchema> extends FormStore<TSchema> {
@@ -64,6 +65,9 @@ interface InternalFormProps<TSchema extends FormSchema> extends FormT.Props<TSch
 }
 
 function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().form
+
   const [local, formProps] = splitProps(props, ['class', 'style', 'of', 'onSubmit', 'onReset'])
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
@@ -77,14 +81,31 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     }
   }
 
+  const slots = createMemo(() => formRecipe())
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
+  })
+
   return (
     <FormischForm
       {...formProps}
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
-      style={local.style}
-      class={cn(FORM_ROOT_CLASS, local.class)}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
     />

@@ -1,20 +1,20 @@
 import { Show, createSignal, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import { Icon } from '../../../elements/icon/index'
-import type { ComponentOrElement } from '../../../shared/render-prop'
-import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
-import { cn, useId } from '../../../shared/utils'
-import { useFormField } from '../../form/form-context'
-import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context'
+import { Icon } from '../../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../../shared/render-prop.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
+import { cn, useId } from '../../../shared/utils.ts'
+import { useFormField } from '../../form/form-context.ts'
+import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context.ts'
 
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types'
+import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types.ts'
 
 interface UseSelectFieldProps {
   id?: string
   name?: string
-  size?: FormFieldSize
+  size?: FormFieldSize | null
   disabled?: boolean
   required?: boolean
   initialValue: unknown

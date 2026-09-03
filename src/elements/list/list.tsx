@@ -2,14 +2,14 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps } from '../../shared/types'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps } from '../../shared/types.ts'
 import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
-} from '../../shared/use-list-virtualizer'
-import { cn } from '../../shared/utils'
+} from '../../shared/use-list-virtualizer.tsx'
 
 export namespace ListT {
   export interface Slot<_T = unknown> {}
@@ -70,6 +70,9 @@ export function List<
   T extends ValidComponent = 'ul',
   TItemElement extends HTMLElement = HTMLElement,
 >(props: ListProps<TItem, T, TItemElement>): JSX.Element {
+  const config = useMoraineConfig()
+  const provider = () => config().list
+
   type RuntimeListProps = ListProps<TItem, T, TItemElement> & {
     ref?: (element: TItemElement | undefined) => void
   }
@@ -84,6 +87,18 @@ export function List<
   ])
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
+  })
+
   return (
     <Dynamic
       role="list"
@@ -96,8 +111,8 @@ export function List<
           local.ref(element)
         }
       }}
-      class={cn(local.class)}
-      style={local.style}
+      class={resolved.rootClass()}
+      style={resolved.rootStyle()}
     >
       <Show
         when={local.virtualRender}

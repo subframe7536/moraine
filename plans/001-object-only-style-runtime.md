@@ -64,12 +64,12 @@ module (`src/shared/utils.test.ts` is the nearest structure example).
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Targeted runtime tests | `nub run test src/shared/utils.test.ts src/shared/style/recipe.test.ts src/shared/style/css-vars.test.ts` | exit 0, all selected tests pass |
-| Typecheck | `nub run typecheck` | exit 0 with no TypeScript errors |
-| Type fixtures | `nub run test:types` | exit 0 |
-| Final quality gate | `nub run qa` | exit 0 |
+| Purpose                | Command                                                                                                   | Expected on success              |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Targeted runtime tests | `nub run test src/shared/utils.test.ts src/shared/style/recipe.test.ts src/shared/style/css-vars.test.ts` | exit 0, all selected tests pass  |
+| Typecheck              | `nub run typecheck`                                                                                       | exit 0 with no TypeScript errors |
+| Type fixtures          | `nub run test:types`                                                                                      | exit 0                           |
+| Final quality gate     | `nub run qa`                                                                                              | exit 0                           |
 
 ## Scope
 
@@ -107,19 +107,12 @@ Add the PRD-selected `cn` dependency using the repository's `nub` workflow (`nub
 In `src/shared/utils.ts`, import `createCn` from `cn/config`, define the
 Moraine extension groups for `z-base` through `z-floating` and `opacity-64`,
 and export this function as `cn`:
+
 ```ts
 const _cn = createCn({
   extend: {
     classGroups: {
-      z: [
-        'z-base',
-        'z-raised',
-        'z-control',
-        'z-sticky',
-        'z-resize',
-        'z-overlay',
-        'z-floating',
-      ],
+      z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
       opacity: ['opacity-64'],
     },
   },
@@ -129,6 +122,7 @@ export function cn(...classes: ClassValue[]): string | undefined {
   return _cn(...classes) || undefined
 }
 ```
+
 Note: Standard Tailwind `ring-3` is a built-in utility and must NOT be added to `classGroups`.
 `ClassValue` is the union type from `./style/recipe` (string | number | bigint | boolean
 | undefined | null | `ClassValue[]` | `Record<string, unknown>`). Using it here instead of
@@ -137,6 +131,7 @@ hardened in plan 005 once `SlotClassValue` is switched to recipe's `ClassValue`.
 Preserve `useId` unchanged.
 
 **CRITICAL SAFEGUARD FOR INTERNAL BRIDGE (PROTOTYPE LESSONS)**:
+
 1. **Do NOT touch `src/shared/types.ts:SlotClassValue` in Plan 001**: Keep
    `import type { ClassValue } from 'cls-variant'` and `export type SlotClassValue = ClassValue`
    as-is during Plans 001 and 002. Because all 36 existing components still call
@@ -169,7 +164,7 @@ divergent shape — see the "canonical recipe type shape" note `PRD.md` adds aft
 
 - atomic mode uses `{ base, variants, compoundVariants, defaultVariants }`;
 - multi-slot mode uses `{ slots, base, variants, compoundVariants,
-  defaultVariants }` and returns per-slot functions plus pre-resolved
+defaultVariants }` and returns per-slot functions plus pre-resolved
   `classes`;
 - in `SlotRecipeOptions`, type variant definitions as `variants?: Partial<{ [K in keyof V]: Partial<{ [VK in keyof V[K]]: Partial<Record<S[number], ClassValue>> }> }>`
   (do NOT type `VK` as `keyof V[K] | boolean` as object keys in TS cannot be `boolean`);
@@ -228,6 +223,7 @@ enter/exit and side offsets, and semantic z-index values. Use flat standard
 Tailwind syntax only; for example replace `hover:(text-foreground bg-muted)`
 with separate `hover:text-foreground hover:bg-muted` tokens. Define explicit
 offsets for motion:
+
 - `MENU_SIDE_*` and `TOOLTIP_SIDE_*`: `0.25rem` offset (opposite direction, e.g. top has `[--mo-enter-translate-y:0.25rem]`);
 - `POPOVER_SIDE_*`: `0.5rem` offset (opposite direction, e.g. top has `[--mo-enter-translate-y:0.5rem]`);
 - `SHEET_SIDE_*`: `2.5rem` offset (edge direction, e.g. top has `[--mo-enter-translate-y:-2.5rem]`).

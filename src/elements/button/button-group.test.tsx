@@ -20,7 +20,8 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group', { name: 'History controls' })
     expect(group.getAttribute('data-slot')).toBe('root')
     expect(group.getAttribute('data-orientation')).toBe('horizontal')
-    expect(group.className).toContain('[&>*:not(:first-child)]:(border-s-0 rounded-s-none)')
+    expect(group.className).toContain('[&>*:not(:first-child)]:border-s-0')
+    expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
     expect(group.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
     expect(screen.getAllByRole('button')).toHaveLength(2)
@@ -163,7 +164,8 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('[&>*:not(:first-child)]:(border-s-0 rounded-s-none)')
+    expect(group.className).toContain('[&>*:not(:first-child)]:border-s-0')
+    expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
     expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
     expect(screen.getAllByRole('button')).toHaveLength(2)
@@ -212,7 +214,7 @@ describe('ButtonGroup', () => {
     ['default', 'bg-primary'],
     ['secondary', 'bg-secondary'],
     ['outline', 'border-border'],
-    ['ghost', 'hover:(text-foreground bg-muted-hover)'],
+    ['ghost', 'hover:text-foreground'],
     ['link', 'hover:underline'],
     ['destructive', 'bg-destructive'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
@@ -253,7 +255,8 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group')
     expect(group.getAttribute('data-orientation')).toBe('vertical')
     expect(group.className).toContain('flex-col')
-    expect(group.className).toContain('[&>*:not(:first-child)]:(border-t-0 rounded-t-none)')
+    expect(group.className).toContain('[&>*:not(:first-child)]:border-t-0')
+    expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
   })
 
@@ -285,7 +288,8 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('[&>*:not(:first-child)]:(border-t-0 rounded-t-none)')
+    expect(group.className).toContain('[&>*:not(:first-child)]:border-t-0')
+    expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
     expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
     expect(screen.getAllByRole('button')).toHaveLength(2)

@@ -17,7 +17,7 @@ export interface FormFieldContextOptions {
   name?: string
   path?: RequiredPath
   field?: FieldStore
-  size?: FormFieldSize
+  size?: FormFieldSize | null
   hint?: JSX.Element
   description?: JSX.Element
   help?: JSX.Element
@@ -32,7 +32,7 @@ export interface FormFieldContextOptions {
 export interface UseFormFieldProps {
   id?: string
   name?: string
-  size?: FormFieldSize
+  size?: FormFieldSize | null
   disabled?: boolean
   required?: boolean
   readOnly?: boolean
@@ -94,7 +94,10 @@ export function useFormField(
     () => fieldProps().name ?? formField?.field?.props.name ?? formField?.name,
   )
   const value = createMemo(() => formField?.field?.input)
-  const size = createMemo(() => fieldProps().size ?? formField?.size ?? options().defaultSize)
+  const size = createMemo(
+    () =>
+      (fieldProps().size || undefined) ?? (formField?.size || undefined) ?? options().defaultSize,
+  )
   const disabled = createMemo(() => Boolean(fieldProps().disabled))
   const required = createMemo(() => fieldProps().required ?? Boolean(formField?.required))
   const readOnly = createMemo(() => Boolean(fieldProps().readOnly))

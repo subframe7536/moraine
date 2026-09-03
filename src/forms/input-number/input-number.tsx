@@ -11,28 +11,27 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import { Icon } from '../../elements/icon/index.ts'
+import type { IconT } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+} from '../shared/form-options.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class'
+import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
 import {
-  inputNumberBaseVariants,
-  inputNumberControlButtonVariants,
   inputNumberControlColumnVariants,
-  inputNumberRootVariants,
+  inputNumberRecipe,
   resolveInputNumberAlign,
-} from './input-number.class'
+} from './input-number.class.ts'
 
 type ControlKind = 'increment' | 'decrement'
 type PointerType = 'mouse' | 'touch' | 'pen'
@@ -426,6 +425,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'class',
     'style',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().inputNumber
+
   const merged = mergeProps(
     {
       variant: 'outline' as const,
@@ -439,6 +442,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
+    () => provider()?.defaultProps,
     local,
   )
 
@@ -577,6 +581,32 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const isVertical = createMemo(() => resolvedOrientation() === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
+
+  const slots = createMemo(() =>
+    inputNumberRecipe({
+      size: field.size(),
+      variant: merged.variant,
+      align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
+      orientation: resolvedOrientation(),
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   function commitValue(nextValue: number): boolean {
     if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
@@ -943,7 +973,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         return pressedControls()[kind] ? '' : undefined
       },
       get style() {
-        return merged.styles?.[kind]
+        return resolved.slotStyle(kind)
       },
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
@@ -953,15 +983,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
       get class() {
-        return inputNumberControlButtonVariants(
-          {
-            control: kind,
-            orientation: resolvedOrientation(),
-            size: field.size(),
-          },
-          'select-none touch-none',
-          merged.classes?.[kind],
-        )
+        return cn('select-none touch-none', resolved.slotClass(kind))
       },
     }
   }
@@ -1071,16 +1093,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={inputNumberRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        'items-stretch',
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={cn('items-stretch', resolved.rootClass())}
       {...dataAttrs()}
       {...rest}
     >
@@ -1107,14 +1121,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
-        style={merged.styles?.input}
-        class={inputNumberBaseVariants(
-          {
-            size: field.size(),
-            align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
-          },
-          merged.classes?.input,
-        )}
+        style={resolved.slotStyle('input')}
+        class={resolved.slotClass('input')}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = inputText()

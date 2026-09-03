@@ -50,7 +50,7 @@ describe('RadioGroup', () => {
     expect(disabledControl?.getAttribute('data-required')).toBe('')
     expect(disabledControl?.getAttribute('data-disabled')).toBe('')
     expect(disabledItem?.getAttribute('data-disabled')).toBe('')
-    expect(disabledItem?.className).toContain('data-disabled:effect-dis')
+    expect(disabledItem?.className).toContain('data-disabled:opacity-64')
 
     disabledScreen.unmount()
 
@@ -376,10 +376,10 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('p-4')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
-    expect(firstItem?.className).toContain('not-first-of-type:-ms-px')
+    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-ms-px')
     expect(firstInput?.className).toContain('peer')
     expect(firstContainer?.className).toContain('h-6')
-    expect(firstBase?.className).toContain('peer-focus-visible:effect-fv-border')
+    expect(firstBase?.className).toContain('peer-focus-visible:ring-ring/50')
   })
 
   test('uses block labels for balanced list alignment', () => {
@@ -401,7 +401,7 @@ describe('RadioGroup', () => {
     expect(group.className).toContain('flex-col')
     expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-b-lg')
-    expect(firstItem?.className).toContain('not-first-of-type:-mt-px')
+    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-mt-px')
   })
 
   test.each(['card', 'table'] as const)(

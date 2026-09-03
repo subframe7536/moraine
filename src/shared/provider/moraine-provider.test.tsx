@@ -7,6 +7,7 @@ import * as forms from '../../forms/index.ts'
 import * as navigation from '../../navigation/index.ts'
 import * as overlays from '../../overlays/index.ts'
 import { recipe } from '../style/recipe.ts'
+
 import {
   MoraineProvider,
   mergeComponentStyle,
@@ -78,7 +79,9 @@ describe('Component Ownership Inventory', () => {
     const allBarrels = { ...elements, ...forms, ...navigation, ...overlays }
     const componentNames = Object.keys(allBarrels).filter((name) => {
       // Components are PascalCase and functions
-      if (!/^[A-Z]/.test(name)) return false
+      if (!/^[A-Z]/.test(name)) {
+        return false
+      }
       const exp = (allBarrels as Record<string, unknown>)[name]
       return typeof exp === 'function'
     })

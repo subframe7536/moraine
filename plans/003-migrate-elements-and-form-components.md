@@ -29,9 +29,9 @@ consistent while preserving interaction and accessibility semantics.
 ## Current state
 
 - The scoped class modules are: `src/elements/{avatar,badge,button,
-  button/button-group,kbd,progress,resizable,separator}/*.class.ts` and
+button/button-group,kbd,progress,resizable,separator}/*.class.ts` and
   `src/forms/{checkbox,checkbox-group,file-upload,form/form-field,input,
-  input-number,radio-group,select,slider,switch,textarea}/*.class.ts`.
+input-number,radio-group,select,slider,switch,textarea}/*.class.ts`.
   `accordion`, `card`, `collapsible`, and `form/form.class.ts` are static-only
   modules and must stay constants unless a real variant is introduced.
 - `src/forms/file-upload/file-upload.class.ts` has many independent `cva`
@@ -57,13 +57,13 @@ and hydration.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Elements/form tests | `nub run test src/elements src/forms` | exit 0 |
-| Shared runtime/provider tests | `nub run test src/shared/style src/shared/provider` | exit 0 |
-| Typecheck | `nub run typecheck` | exit 0 |
-| Type fixtures | `nub run test:types` | exit 0 |
-| Final quality gate | `nub run qa` | exit 0 |
+| Purpose                       | Command                                             | Expected on success |
+| ----------------------------- | --------------------------------------------------- | ------------------- |
+| Elements/form tests           | `nub run test src/elements src/forms`               | exit 0              |
+| Shared runtime/provider tests | `nub run test src/shared/style src/shared/provider` | exit 0              |
+| Typecheck                     | `nub run typecheck`                                 | exit 0              |
+| Type fixtures                 | `nub run test:types`                                | exit 0              |
+| Final quality gate            | `nub run qa`                                        | exit 0              |
 
 ## Scope
 
@@ -188,7 +188,7 @@ single-evaluation SSR/hydration tests according to `build-ssr-safe-component`.
 - [ ] `nub run typecheck` and `nub run test:types` exit 0.
 - [ ] The scoped `rg` legacy-token audit in Step 2 has no output.
 - [ ] Every scoped package-root component reads its assigned provider scope;
-  no one gets an unlisted key.
+      no one gets an unlisted key.
 - [ ] All runtime `style`/`styles` paths in scope accept objects only.
 - [ ] `plans/README.md` marks plan 003 DONE.
 

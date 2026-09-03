@@ -4,6 +4,7 @@ import type { CvaFunction } from 'cls-variant/cva'
 import { createCn } from 'cn/config'
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
+
 import type { ClassValue } from './style/recipe.ts'
 
 /**
@@ -58,15 +59,7 @@ export function extendCN(fn: extendCNFunction): void {
 const _cn = createCn({
   extend: {
     classGroups: {
-      z: [
-        'z-base',
-        'z-raised',
-        'z-control',
-        'z-sticky',
-        'z-resize',
-        'z-overlay',
-        'z-floating',
-      ],
+      z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
       opacity: ['opacity-64'],
     },
   },

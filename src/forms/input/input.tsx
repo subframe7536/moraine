@@ -1,31 +1,27 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { useFormReset } from '../shared/use-form-reset'
-import { useTextControlValue } from '../shared/use-text-control-value'
+} from '../shared/form-options.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import type { InputVariantProps } from './input.class'
-import {
-  inputInputVariants,
-  inputLeadingVariants,
-  inputRootVariants,
-  inputTrailingVariants,
-} from './input.class'
+import type { InputVariantProps } from './input.class.ts'
+import { inputRecipe } from './input.class.ts'
 
 export namespace InputT {
   export type Value = string | number | undefined
@@ -213,14 +209,19 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'style',
     'onPointerDown',
   ])
+
+  const config = useMoraineConfig()
+  const provider = () => config().input
+
   const merged = mergeProps(
     {
       type: 'text',
       autocomplete: 'off',
       autofocusDelay: 0,
-      variant: 'outlined' as InputVariantProps['variant'],
+      variant: 'outline' as const,
       loadingIcon: 'icon-loading' as const,
     },
+    () => provider()?.defaultProps,
     local,
   )
   const leading = createMemo(() => merged.leading)
@@ -245,6 +246,30 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       initialValue: merged.defaultValue ?? '',
     }),
   )
+
+  const slots = createMemo(() =>
+    inputRecipe({
+      size: field.size(),
+      variant: merged.variant,
+    }),
+  )
+
+  const resolved = resolveComponentStyle({
+    get slots() {
+      return slots()
+    },
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   let inputEl: HTMLInputElement | undefined
 
@@ -398,7 +423,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     return (
       <Show
         when={typeof props.value !== 'string'}
-        fallback={<Icon name={props.value} class={props.loading && 'effect-loading'} />}
+        fallback={<Icon name={props.value} class={props.loading && 'animate-spin'} />}
       >
         {renderComponentOrElement(props.value, {})}
       </Show>
@@ -408,15 +433,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <div
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={inputRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      style={resolved.rootStyle()}
+      class={resolved.rootClass()}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
       {...rest}
@@ -425,13 +443,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         {(adornment) => (
           <span
             data-slot="leading"
-            style={merged.styles?.leading}
-            class={inputLeadingVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.leading,
-            )}
+            style={resolved.slotStyle('leading')}
+            class={resolved.slotClass('leading')}
           >
             <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
           </span>
@@ -450,13 +463,11 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         autocomplete={merged.autocomplete}
         maxLength={merged.maxLength}
         data-slot="input"
-        style={merged.styles?.input}
-        class={inputInputVariants(
-          {
-            type: merged.type === 'file' ? 'file' : undefined,
-            size: field.size(),
-          },
-          merged.classes?.input,
+        style={resolved.slotStyle('input')}
+        class={cn(
+          resolved.slotClass('input'),
+          merged.type === 'file' &&
+            'text-muted-foreground file:font-medium file:me-1.5 file:outline-none',
         )}
         onInput={onInput}
         onChange={onChange}
@@ -473,13 +484,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         {(adornment) => (
           <span
             data-slot="trailing"
-            style={merged.styles?.trailing}
-            class={inputTrailingVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.trailing,
-            )}
+            style={resolved.slotStyle('trailing')}
+            class={resolved.slotClass('trailing')}
           >
             <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
           </span>

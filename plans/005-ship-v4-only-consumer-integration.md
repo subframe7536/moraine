@@ -36,7 +36,7 @@ metadata, consumer fixtures, and correct user-facing documentation.
   simplify extractor; it emits all three CSS files.
 - `src/unocss/theme.ts:15-70,463-525` exposes `wind3`,
   `enableComponentLayer`, prefix/hash injection. `src/unocss/{inject-prefix,
-  inject-compile-class,migrate-syntax}.*` and their tests implement the old
+inject-compile-class,migrate-syntax}.*` and their tests implement the old
   pipeline.
 - `src/tailwind/index.ts:1-99` registers tokens, animations/data/aria variants
   and currently icon stubs. `src/tailwind/tailwind.test.ts` is in-memory only,
@@ -49,8 +49,8 @@ metadata, consumer fixtures, and correct user-facing documentation.
 - PRD-required Tailwind stylesheet is:
 
 ```css
-@import "tailwindcss";
-@import "moraine/icon.css"; /* optional runtime asset */
+@import 'tailwindcss';
+@import 'moraine/icon.css'; /* optional runtime asset */
 @plugin "moraine/tailwind"; /* required */
 @source "../node_modules/moraine/dist"; /* path relative to this CSS file */
 ```
@@ -61,13 +61,13 @@ nor registers tokens/plugins/presets.
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-|---|---|---|
-| Build package | `nub run build` | exit 0; `dist/icon.css` exists and `dist/tw3.css`, `dist/tw4.css` do not |
-| Engine tests | `nub run test src/tailwind src/unocss` | exit 0 |
-| Consumer fixtures | `nub run test test/consumer-fixtures` | exit 0 |
-| Docs production build | `nub run docs:build` | exit 0 |
-| Final quality gate | `nub run qa` | exit 0 |
+| Purpose               | Command                                | Expected on success                                                      |
+| --------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| Build package         | `nub run build`                        | exit 0; `dist/icon.css` exists and `dist/tw3.css`, `dist/tw4.css` do not |
+| Engine tests          | `nub run test src/tailwind src/unocss` | exit 0                                                                   |
+| Consumer fixtures     | `nub run test test/consumer-fixtures`  | exit 0                                                                   |
+| Docs production build | `nub run docs:build`                   | exit 0                                                                   |
+| Final quality gate    | `nub run qa`                           | exit 0                                                                   |
 
 ## Scope
 

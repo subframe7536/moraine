@@ -29,10 +29,9 @@ export type VariantMatch<T extends VariantSchema> = {
 
 export type SlotClasses<S extends string> = Partial<Record<S, ClassValue>>
 
-export interface SlotCompoundVariant<S extends string, V extends VariantSchema> {
-  variants: VariantMatch<V>
-  class: SlotClasses<S>
-}
+export type SlotCompoundVariant<S extends string, V extends VariantSchema> =
+  | { variants: VariantMatch<V>; class: SlotClasses<S> }
+  | (VariantMatch<V> & { class: SlotClasses<S>; variants?: never })
 
 export interface SlotRecipeOptions<
   S extends string,
@@ -64,10 +63,9 @@ export interface SlotRecipeFn<S extends string, V extends VariantSchema> {
 // 2. Atomic Single-Element Recipe Schema
 // ---------------------------------------------------------------------------
 
-export interface AtomicCompoundVariant<V extends VariantSchema> {
-  variants: VariantMatch<V>
-  class: ClassValue
-}
+export type AtomicCompoundVariant<V extends VariantSchema> =
+  | { variants: VariantMatch<V>; class: ClassValue }
+  | (VariantMatch<V> & { class: ClassValue; variants?: never })
 
 export interface AtomicRecipeOptions<
   V extends Record<string, Record<string, ClassValue>> = Record<string, Record<string, ClassValue>>,
@@ -86,26 +84,57 @@ export interface AtomicRecipeFn<V extends VariantSchema> {
 // 3. VariantProps Extractor
 // ---------------------------------------------------------------------------
 
-export type VariantProps<T> = T extends SlotRecipeFn<infer _S, infer V>
-  ? VariantSelection<V>
-  : T extends AtomicRecipeFn<infer V>
+export type VariantProps<T> =
+  T extends SlotRecipeFn<infer _S, infer V>
     ? VariantSelection<V>
-    : never
+    : T extends AtomicRecipeFn<infer V>
+      ? VariantSelection<V>
+      : never
 
 // ---------------------------------------------------------------------------
 // 4. Shared Runtime Resolution
 // ---------------------------------------------------------------------------
 
+function getCompoundVariantsRecord(cv: any): Record<string, unknown> {
+  if (cv && typeof cv.variants === 'object' && cv.variants !== null) {
+    return cv.variants
+  }
+  if (cv && typeof cv === 'object') {
+    const { class: _, className: __, ...rest } = cv
+    return rest
+  }
+  return {}
+}
+
+function toVariantString(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return `${value}`
+  }
+  return typeof value === 'object' && value !== null ? JSON.stringify(value) : ''
+}
+
 function matchesVariants(
   activeVariants: Record<string, unknown>,
-  expectedVariants: Record<string, unknown>,
+  expectedVariants: Record<string, unknown> | undefined,
 ): boolean {
-  return Object.entries(expectedVariants).every(([name, expected]) => {
+  if (!expectedVariants) {
+    return false
+  }
+  const entries = Object.entries(expectedVariants)
+  if (entries.length === 0) {
+    return false
+  }
+  return entries.every(([name, expected]) => {
     const actual = activeVariants[name]
-    if (actual === undefined || actual === null) return false
+    if (actual === undefined || actual === null) {
+      return false
+    }
     return Array.isArray(expected)
-      ? expected.some((value) => String(value) === String(actual))
-      : String(expected) === String(actual)
+      ? expected.some((value) => toVariantString(value) === toVariantString(actual))
+      : toVariantString(expected) === toVariantString(actual)
   })
 }
 
@@ -133,11 +162,13 @@ export function createSlotRecipe<S extends string, V extends VariantSchema = Var
         const selectedValue = activeVariants[variantName]
         if (selectedValue !== undefined && selectedValue !== null) {
           const selectedSlots = (variantMap as Record<string, SlotClasses<S>>)[
-            String(selectedValue)
+            toVariantString(selectedValue)
           ]
           if (selectedSlots) {
             for (const [slot, classValue] of Object.entries(selectedSlots)) {
-              if (classValue) slotClassMap[slot as S]?.push(classValue as ClassValue)
+              if (classValue) {
+                slotClassMap[slot as S]?.push(classValue as ClassValue)
+              }
             }
           }
         }
@@ -145,9 +176,11 @@ export function createSlotRecipe<S extends string, V extends VariantSchema = Var
     }
 
     for (const compoundVariant of options.compoundVariants ?? []) {
-      if (matchesVariants(activeVariants, compoundVariant.variants)) {
+      if (matchesVariants(activeVariants, getCompoundVariantsRecord(compoundVariant))) {
         for (const [slot, classValue] of Object.entries(compoundVariant.class)) {
-          if (classValue) slotClassMap[slot as S]?.push(classValue as ClassValue)
+          if (classValue) {
+            slotClassMap[slot as S]?.push(classValue as ClassValue)
+          }
         }
       }
     }
@@ -158,7 +191,9 @@ export function createSlotRecipe<S extends string, V extends VariantSchema = Var
       const resolvedClass = cn(slotClassMap[slot]) || undefined
       resolvedClasses[slot] = resolvedClass
       result[slot] = (...extraClasses: ClassValue[]) => {
-        if (extraClasses.length === 0) return resolvedClass
+        if (extraClasses.length === 0) {
+          return resolvedClass
+        }
         return cn(resolvedClass, ...extraClasses) || undefined
       }
     }
@@ -189,15 +224,20 @@ export function createAtomicRecipe<V extends VariantSchema = VariantSchema>(
         const selectedValue = activeVariants[variantName]
         if (selectedValue !== undefined && selectedValue !== null) {
           const selectedClass = (variantMap as Record<string, ClassValue>)[
-            String(selectedValue)
+            toVariantString(selectedValue)
           ]
-          if (selectedClass) classes.push(selectedClass)
+          if (selectedClass) {
+            classes.push(selectedClass)
+          }
         }
       }
     }
 
     for (const compoundVariant of options.compoundVariants ?? []) {
-      if (matchesVariants(activeVariants, compoundVariant.variants) && compoundVariant.class) {
+      if (
+        matchesVariants(activeVariants, getCompoundVariantsRecord(compoundVariant)) &&
+        compoundVariant.class
+      ) {
         classes.push(compoundVariant.class)
       }
     }
@@ -206,10 +246,9 @@ export function createAtomicRecipe<V extends VariantSchema = VariantSchema>(
   }
 }
 
-export function recipe<
-  S extends string,
-  V extends Record<string, Record<string, SlotClasses<S>>>,
->(options: SlotRecipeOptions<S, V>): SlotRecipeFn<S, V>
+export function recipe<S extends string, V extends Record<string, Record<string, SlotClasses<S>>>>(
+  options: SlotRecipeOptions<S, V>,
+): SlotRecipeFn<S, V>
 export function recipe<V extends Record<string, Record<string, ClassValue>>>(
   options: AtomicRecipeOptions<V>,
 ): AtomicRecipeFn<V>
