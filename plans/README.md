@@ -12,7 +12,7 @@ and update its row after completion.
 | 001 | Add the object-only style runtime | P1 | L | — | TODO |
 | 002 | Add reactive global style configuration | P1 | L | 001 | TODO |
 | 003 | Migrate elements and form components | P1 | XL | 001, 002 | TODO |
-| 004 | Migrate navigation and overlay components | P1 | XL | 001, 002 | TODO |
+| 004 | Migrate navigation and overlay components | P1 | XL | 001, 002, 003 | TODO |
 | 005 | Ship the v4-only consumer integration | P1 | L | 003, 004 | TODO |
 | 006 | Prove acceptance and retire legacy styling | P1 | M | 005 | TODO |
 
@@ -26,8 +26,10 @@ REJECTED (with a one-line rationale).
   remains buildable during the two component-family migrations.
 - 002 creates the provider contract used by both family migrations. It does
   not itself change component rendering.
-- 003 and 004 may run in parallel only after 001 and 002 are complete; they
-  jointly remove every internal `cva` caller.
+- 003 and 004 jointly remove every internal `cva` caller. Sequential execution
+  (003 before 004) is strongly recommended because navigation and overlay
+  components (Pagination, Dialog, Sheet, Tabs, Stepper, Tooltip) directly import
+  and render elements (Button, Icon, List, Resizable, KbdGroup).
 - 005 is deliberately after both migrations because it deletes the legacy
   dependency, precompiled component CSS pipeline, and v3 support.
 - 006 is the final repository-wide audit and production-validation gate; it

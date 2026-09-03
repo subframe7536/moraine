@@ -116,13 +116,14 @@ slider, progress, and button families. Preserve exported component namespace
 variant types, but do not retain an exported cva-shaped API.
 
 Use `presets.ts` constants in recipe bases rather than shortcut strings and
-translate every source class to flat Tailwind v4 syntax. Static-only modules
-must remain `*_CLASS` constants, not `recipe` calls. Replace slider/progress
-regex class geometry with standard arbitrary variable reads in slots and
-`defineStyleVars` output in their root style. Merge generated variables before
-provider/context/instance styles, preserving property-level last-wins order.
+translate every source class to flat Tailwind v4 syntax (including `b-t` ->
+`border-t` in `separator.class.ts`). Static-only modules must remain `*_CLASS`
+constants, not `recipe` calls. Replace slider/progress regex class geometry with
+standard arbitrary variable reads in slots and `defineStyleVars` output in their
+root style. Merge generated variables before provider/context/instance styles,
+preserving property-level last-wins order.
 
-**Verify**: `rg -n "\bcva\(|VariantProps.*cls-variant|\beffect-|\bvar-(slider|progress)-|\w+:\(" src/elements src/forms` → no output.
+**Verify**: `rg -n "\bcva\(|VariantProps.*cls-variant|\beffect-|\bvar-(slider|progress)-|\w+:\(|\bb-t\b" src/elements src/forms` → no output.
 
 ### Step 3: Adopt provider precedence in every scoped public component
 
@@ -149,8 +150,10 @@ string.
 
 Keep and update existing assertions in button, checkbox, input, radio-group,
 select/multi-select, slider, switch, textarea, progress, avatar, badge, kbd,
-and resizable tests. Replace assertions against old shortcut literals with the
-expanded standard token/preset contract. Add provider tests for one atomic
+separator, and resizable tests. Replace assertions against old shortcut
+literals with the expanded standard token/preset contract (including `b-t` ->
+`border-t` in separator tests, and `not-first-of-type:` -> `[&:not(:first-of-type)]:`
+in checkbox-group and radio-group tests). Add provider tests for one atomic
 component, one multi-slot component, a group context (`ButtonGroup`), a bound
 form field, and an owner-inherited primitive. Include object-style override
 tests for root and named slots.

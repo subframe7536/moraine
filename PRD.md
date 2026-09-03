@@ -214,9 +214,13 @@ export function createSlotRecipe<S extends string, V extends VariantSchema>(
   const slots = options.slots
 
   const recipeFn = ((variants?: VariantSelection<V>): SlotFns<S> => {
-    const activeVariants: Record<string, unknown> = {
-      ...options.defaultVariants,
-      ...variants,
+    const activeVariants: Record<string, unknown> = { ...options.defaultVariants }
+    if (variants) {
+      for (const [key, value] of Object.entries(variants)) {
+        if (value !== undefined && value !== null) {
+          activeVariants[key] = value
+        }
+      }
     }
     const slotClassMap = {} as Record<S, ClassValue[]>
     for (const slot of slots) {
@@ -269,9 +273,13 @@ export function createAtomicRecipe<V extends VariantSchema>(
   options: AtomicRecipeOptions<V>,
 ): AtomicRecipeFn<V> {
   return (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]) => {
-    const activeVariants: Record<string, unknown> = {
-      ...options.defaultVariants,
-      ...variants,
+    const activeVariants: Record<string, unknown> = { ...options.defaultVariants }
+    if (variants) {
+      for (const [key, value] of Object.entries(variants)) {
+        if (value !== undefined && value !== null) {
+          activeVariants[key] = value
+        }
+      }
     }
     const classes: ClassValue[] = options.base ? [options.base] : []
 
@@ -439,6 +447,33 @@ export const MENU_SIDE_BOTTOM =
   '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
 export const MENU_SIDE_LEFT =
   '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
+
+export const POPOVER_SIDE_TOP =
+  '[--mo-enter-translate-y:0.5rem] [--mo-exit-translate-y:0.5rem]'
+export const POPOVER_SIDE_RIGHT =
+  '[--mo-enter-translate-x:-0.5rem] [--mo-exit-translate-x:-0.5rem]'
+export const POPOVER_SIDE_BOTTOM =
+  '[--mo-enter-translate-y:-0.5rem] [--mo-exit-translate-y:-0.5rem]'
+export const POPOVER_SIDE_LEFT =
+  '[--mo-enter-translate-x:0.5rem] [--mo-exit-translate-x:0.5rem]'
+
+export const TOOLTIP_SIDE_TOP =
+  '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
+export const TOOLTIP_SIDE_RIGHT =
+  '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
+export const TOOLTIP_SIDE_BOTTOM =
+  '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
+export const TOOLTIP_SIDE_LEFT =
+  '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
+
+export const SHEET_SIDE_TOP =
+  '[--mo-enter-translate-y:-2.5rem] [--mo-exit-translate-y:-2.5rem]'
+export const SHEET_SIDE_RIGHT =
+  '[--mo-enter-translate-x:2.5rem] [--mo-exit-translate-x:2.5rem]'
+export const SHEET_SIDE_BOTTOM =
+  '[--mo-enter-translate-y:2.5rem] [--mo-exit-translate-y:2.5rem]'
+export const SHEET_SIDE_LEFT =
+  '[--mo-enter-translate-x:-2.5rem] [--mo-exit-translate-x:-2.5rem]'
 ```
 
 The implementation defines the corresponding popover, tooltip, and sheet side constants using their existing offsets and directions. Every `animate-overlay-*`, `animate-popup-*`, `animate-menu-*`, `animate-popover-*`, `animate-tooltip-*`, and `animate-sheet-*` occurrence in `src/` is replaced by explicit `animate-mo-enter`/`animate-mo-exit` utilities plus CSS-variable constants. The semantic shortcut definitions are then removed from `presetMoraine`; they remain neither hidden engine behavior nor an undocumented compatibility layer.
@@ -452,10 +487,12 @@ All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS r
 | Non-Standard / UnoCSS Token | Standard Tailwind Replacement | Scope |
 | :--- | :--- | :--- |
 | `b-1`, `b` | `border` | `accordion`, `button`, `card`, `file-upload`, etc. |
+| `b-t`, `b-[trblxy]` | `border-t`, etc. | `separator.class.ts` |
 | `b-b-2`, `b-border`, `b-transparent` | `border-b-2`, `border-border`, `border-transparent` | `accordion`, `card`, `select` |
 | `content-empty` | `content-['']` | `avatar`, `resizable`, `slider` |
 | `not-dark:bg-clip-padding` | `[html:not(.dark)_&]:bg-clip-padding` | `card.class.ts`, `slider.class.ts` |
 | `not-last:border-(b b-border)` | `[&:not(:last-child)]:border-b [&:not(:last-child)]:border-border` | `accordion.class.ts` |
+| `not-first-of-type:-ms-px` | `[&:not(:first-of-type)]:-ms-px` | `cva-common.class.ts`, `checkbox-group`, `radio-group` |
 | `h-$mo-collapsible-content-height` | `h-[var(--mo-collapsible-content-height)]` | `accordion`, `collapsible` |
 | `origin-$mo-popper-...` | `origin-[var(--mo-popper-content-transform-origin)]` | `select`, `menu`, `popover`, `tooltip` |
 | `var-progress-{n}` | Root `style` injection via `progressStyleVars` (`--p-size`) | `progress.class.ts` & `progress.tsx` |
@@ -625,9 +662,11 @@ export function mergeComponentStyle<
   const mergedStyles: Record<string, SlotStyleValue> = { ...parent.styles }
   if (child.styles) {
     for (const [slot, sty] of Object.entries(child.styles)) {
-      mergedStyles[slot] = typeof sty === 'object' && typeof mergedStyles[slot] === 'object'
-        ? { ...mergedStyles[slot], ...sty }
-        : (sty ?? mergedStyles[slot])
+      const parentSlot = mergedStyles[slot]
+      mergedStyles[slot] =
+        sty && typeof sty === 'object' && parentSlot && typeof parentSlot === 'object'
+          ? { ...parentSlot, ...sty }
+          : (sty ?? parentSlot)
     }
   }
 
@@ -787,9 +826,13 @@ export function defineStyleVars<V extends VariantSchema>(
     variants?: VariantSelection<V>,
     ...extraStyles: Array<JSX.CSSProperties | undefined>
   ): JSX.CSSProperties => {
-    const activeVariants: Record<string, unknown> = {
-      ...options.defaultVariants,
-      ...variants,
+    const activeVariants: Record<string, unknown> = { ...options.defaultVariants }
+    if (variants) {
+      for (const [key, value] of Object.entries(variants)) {
+        if (value !== undefined && value !== null) {
+          activeVariants[key] = value
+        }
+      }
     }
 
     const resolved: StyleVarRecord = { ...options.base }
@@ -996,13 +1039,15 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 4. Update `src/utils.ts` to re-export `cn`, `recipe`, `defineStyleVars`, `formatCssVars`, `VariantProps`, and `ClassValue`. Remove `cva` from every public entry point.
 5. Update `tsdown.config.ts` to implement **Plan A**:
    - Completely remove `tw3.css` and `tw4.css` build configurations, along with `baseUnocssConfig`, `createMigrateSyntaxTransformer`, and the `simplify` shortcut extractor.
-    - Retain **only** `icon.css` generation via `unocss` plugin targeting `DEFAULT_ICON_SHORTCUTS` with `presetIcons` and Lucide icons.
-    - Remove `transformerVariantGroup` from library packaging (**while explicitly preserving `transformerVariantGroup` in `docs/unocss.config.ts`**).
-6. Remove component-facing semantic animation shortcuts from `presetMoraine` and update preset tests; `animate-mo-enter`, `animate-mo-exit`, keyframes, and theme registration remain engine capabilities.
-7. Update `package.json` exports:
+   - Retain **only** `icon.css` generation via `unocss` plugin targeting `DEFAULT_ICON_SHORTCUTS` with `presetIcons` and Lucide icons.
+   - Remove `transformerVariantGroup` from library packaging (**while explicitly preserving `transformerVariantGroup` in `docs/unocss.config.ts`**).
+6. Remove component-facing semantic animation shortcuts from `presetMoraine` and update preset tests; `animate-mo-enter`, `animate-mo-exit`, keyframes, and theme registration remain engine capabilities. Ensure `src/tailwind/index.ts` provides a default plugin export (`export default moraineTailwind()`) so `@plugin "moraine/tailwind"` loads cleanly in Tailwind v4.
+7. Update `package.json` exports and metadata:
    - Remove `./tw3.css` and `./tw4.css`.
    - Explicitly preserve `./icon.css`: `./dist/icon.css`.
+   - Set `"sideEffects": ["*.css", "./dist/*.css"]` to prevent bundler tree-shaking of CSS assets.
    - Update peerDependency for Tailwind to `^4.0.0`.
+   - Update `AGENTS.md` guidelines to replace all remaining references to `cva` with `recipe`.
 
 ### Phase 5: Verification & Quality Assurance
 1. Run static token audit gate strictly across `src/**/*.{ts,tsx}` (`docs/` is excluded as it intentionally uses UnoCSS with `transformerVariantGroup`).
@@ -1035,7 +1080,7 @@ The refactor is accepted only when all criteria below are satisfied:
 
 | Verification Check | Target / Tool | Pass Criteria |
 | :--- | :--- | :--- |
-| **Token Audit Gate** | Script strictly on `src/**/*.{ts,tsx}` | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`, `b-[trblxy]`, `content-empty`, `not-dark:`, `not-last:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, semantic `animate-(?:overlay\|popup\|menu\|popover\|tooltip\|sheet)-(?:in\|out\|side-)`, and variant groups `\w+:\([^)]+\)`. (`docs/` is excluded.) |
+| **Token Audit Gate** | Script strictly on `src/**/*.{ts,tsx}` | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`, `b-[trblxy]`, `content-empty`, `not-dark:`, `not-last:`, `not-first-of-type:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, semantic `animate-(?:overlay\|popup\|menu\|popover\|tooltip\|sheet)-(?:in\|out\|side-)`, and variant groups `\w+:\([^)]+\)`. (`docs/` is excluded.) |
 | **`recipe.test.ts`** | Vitest / Unit | Passes multi-slot anatomy, cross-slot compound variants and arrays, atomic mode, boolean/default/nullish variants, extra-class ordering, and `cn` merging; contains no cache-identity assertion. |
 | **`css-vars.test.ts`**| Vitest / Unit | Passes variable prefixing, variant and array compound matching, nullish filtering, and ordered object-style merging; type tests reject strings. |
 | **`moraine-provider.test.tsx`**| JSDOM / Unit | Passes outer/inner provider inheritance, reactive updates, composition-context precedence, slot overrides, and instance precedence over recipe defaults/providers. |

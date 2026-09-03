@@ -14,7 +14,7 @@
 - **Priority**: P1
 - **Effort**: XL
 - **Risk**: HIGH
-- **Depends on**: `plans/001-object-only-style-runtime.md`, `plans/002-reactive-global-style-configuration.md`
+- **Depends on**: `plans/001-object-only-style-runtime.md`, `plans/002-reactive-global-style-configuration.md`, `plans/003-migrate-elements-and-form-components.md`
 - **Category**: migration
 - **Planned at**: commit `7a0c7768`, 2026-09-03
 
@@ -22,9 +22,12 @@
 
 Navigation and overlay components contain the rest of the old styling model,
 including state-driven animation shortcuts and the most sensitive trigger /
-floating-content slot boundaries. This plan moves those classes to standard
-Tailwind v4 syntax and applies the same provider hierarchy without regressing
-dismissal, positioning, keyboard navigation, accessibility, or SSR behavior.
+floating-content slot boundaries. Because navigation and overlays directly render
+base elements (Button, Icon, List, Resizable, KbdGroup), executing this plan after
+Plan 003 ensures all element dependencies and test fixtures are fully migrated and
+stable. This plan moves those classes to standard Tailwind v4 syntax and applies
+the same provider hierarchy without regressing dismissal, positioning, keyboard
+navigation, accessibility, or SSR behavior.
 
 ## Current state
 

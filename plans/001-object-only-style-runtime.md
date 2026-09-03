@@ -103,26 +103,58 @@ module (`src/shared/utils.test.ts` is the nearest structure example).
 
 ### Step 1: Add the configured `cn` runtime without changing old callers
 
-Add the PRD-selected `cn` dependency using the repository's `nub` workflow.
+Add the PRD-selected `cn` dependency using the repository's `nub` workflow (`nub add cn`).
 In `src/shared/utils.ts`, import `createCn` from `cn/config`, define the
 Moraine extension groups exactly for `z-base` through `z-floating`,
-`opacity-64`, and `ring-3`, and export this function as `cn`. Preserve
-`useId` unchanged. Make the new class-value type originate in the new runtime
-and update `SlotClassValue` in `src/shared/types.ts` accordingly.
+`opacity-64`, and `ring-3`, and export this function as `cn`:
+```ts
+const _cn = createCn({
+  extend: {
+    classGroups: {
+      z: [
+        'z-base',
+        'z-raised',
+        'z-control',
+        'z-sticky',
+        'z-resize',
+        'z-overlay',
+        'z-floating',
+      ],
+      opacity: ['opacity-64'],
+      'ring-w': ['ring-3'],
+    },
+  },
+})
 
-Until plans 003 and 004 eliminate all callers, retain the existing
-`cls-variant` imports and `cva` implementation as an explicitly temporary,
-**internal migration bridge**. Do not add a new public alias, overload, or
-documentation for it. Keep `extendCN` only as long as its legacy `cva` bridge
-requires it; no newly written code may call it.
+export function cn(...classes: any[]): string | undefined {
+  return _cn(...classes) || undefined
+}
+```
+Preserve `useId` unchanged.
+
+**CRITICAL SAFEGUARD FOR INTERNAL BRIDGE**:
+1. **Do NOT touch `src/shared/types.ts:SlotClassValue` in Plan 001**: Keep
+   `import type { ClassValue } from 'cls-variant'` and `export type SlotClassValue = ClassValue`
+   as-is during Plans 001 and 002. Because all 36 existing components still call
+   legacy `*Variants(..., props.class)` where `props.class` is `SlotClassValue`,
+   prematurely changing `SlotClassValue` to include objects (`Record<string, unknown>`)
+   will cause TypeScript errors across the entire codebase. `SlotClassValue` will be
+   safely switched to `recipe.ts`'s `ClassValue` in Plan 005 once all components have
+   migrated to `recipe`.
+2. **Do NOT alter or wrap `cva: CvaFunction`**: In `src/shared/utils.ts`, keep
+   the existing `cva`, `cvaFactory`, `cls`, and `extendCN` imports and implementations
+   completely unchanged. `button.class.ts` and all other class files rely on
+   `VariantProps<typeof *Variants>` from `cls-variant`, which strictly requires
+   `(variant: Record<string, string>) => string`. Modifying `cva`'s signature breaks
+   variant prop inference library-wide.
 
 Add focused tests proving: clsx-compatible arrays/objects/nullish values work;
 conflicting utilities use last-wins; modifier chains remain isolated; custom
 Moraine z-index/opacity/ring classes conflict correctly; arbitrary and unknown
 tokens are preserved. Test the actual `cn`, not CSS output.
 
-**Verify**: `nub run test src/shared/utils.test.ts` → exit 0 and the new
-conflict tests pass.
+**Verify**: `nub run test src/shared/utils.test.ts && nub run typecheck` → both
+exit 0 with zero TypeScript errors.
 
 ### Step 2: Implement the incompatible `recipe(options)` API
 
@@ -137,6 +169,9 @@ Create `src/shared/style/recipe.ts` using the exact object-only shapes from
   scalar or readonly array;
 - booleans must select the string keys `true`/`false`; `undefined`/`null` must
   not select a variant value;
+- when merging `variants` into `defaultVariants`, filter out `undefined` and
+  `null` entries so passing `{ variant: undefined }` does not overwrite the
+  default variant;
 - every final class result goes through the new `cn`, including extra classes.
 
 Export `ClassValue`, `VariantProps`, `VariantSchema`, selection/matcher types,
@@ -145,7 +180,8 @@ and recipe function types that component namespaces can consume. Avoid any
 complexity claim. The runtime must directly recompute from its arguments.
 
 Add `recipe.test.ts` covering atomic and multi-slot recipes; defaults; boolean
-variants; nullish selections; extra-class ordering; cross-slot compound rules;
+variants; nullish selections (specifically asserting `{ variant: undefined }`
+preserves `defaultVariants`); extra-class ordering; cross-slot compound rules;
 array matchers; and `cn` conflict resolution. Include a test that invokes the
 same selection twice and compares values rather than object identity.
 
@@ -157,14 +193,16 @@ listed behavior covered.
 Create `src/shared/style/css-vars.ts` following `PRD.md:722-908`. `formatCssVars`
 must prefix keys with `--` or `--<prefix>-`, preserve already-prefixed keys,
 and omit only `null`/`undefined`. `defineStyleVars` must merge base variables,
-selected variant variables, matching scalar/array compound variables, then
-extra `JSX.CSSProperties` objects from left to right. It accepts style objects
-only and does not cache resolver results.
+selected variant variables (filtering out `undefined`/`null` so `defaultVariants`
+are not overwritten), matching scalar/array compound variables, then extra
+`JSX.CSSProperties` objects from left to right. It accepts style objects only and
+does not cache resolver results.
 
 Add tests for prefixing, already-prefixed keys, nullish filtering, default and
-explicit variants, array compounds, and property-level precedence across extra
-objects. Add negative type assertions to both type-test fixtures showing string
-root/slot style values and string `defineStyleVars` extras are rejected.
+explicit variants (including `{ variant: undefined }` preserving defaults),
+array compounds, and property-level precedence across extra objects. Add
+negative type assertions to both type-test fixtures showing string root/slot
+style values and string `defineStyleVars` extras are rejected.
 
 **Verify**: `nub run test src/shared/style/css-vars.test.ts && nub run test:types`
 → both commands exit 0.
@@ -176,20 +214,25 @@ returned by `presetMoraine` that is used by library source: focus, disabled,
 invalid, loading, surface/layout, placeholder/input/accordion, all semantic
 enter/exit and side offsets, and semantic z-index values. Use flat standard
 Tailwind syntax only; for example replace `hover:(text-foreground bg-muted)`
-with separate `hover:text-foreground hover:bg-muted` tokens. Preserve the
-existing target-specific offsets/directions when translating semantic motion.
+with separate `hover:text-foreground hover:bg-muted` tokens. Define explicit
+offsets for motion:
+- `MENU_SIDE_*` and `TOOLTIP_SIDE_*`: `0.25rem` offset (opposite direction, e.g. top has `[--mo-enter-translate-y:0.25rem]`);
+- `POPOVER_SIDE_*`: `0.5rem` offset (opposite direction, e.g. top has `[--mo-enter-translate-y:0.5rem]`);
+- `SHEET_SIDE_*`: `2.5rem` offset (edge direction, e.g. top has `[--mo-enter-translate-y:-2.5rem]`).
 
-Convert the parenthesized `REQUIRED_MARK_VARIANT` in
-`src/shared/cva-common.class.ts` to a flat standard string. Do not yet change
-component import sites; plans 003/004 will consume the constants and then
-remove shortcuts from `presetMoraine`.
+Convert parenthesized `REQUIRED_MARK_VARIANT` in `src/shared/cva-common.class.ts`
+to a flat standard string (`after:text-destructive after:ms-0.5 after:content-['*']`),
+and convert `TABLE_EDGE_ORIENTATION_VARIANT` from `not-first-of-type:` to
+`[&:not(:first-of-type)]:` standard syntax. Do not yet change component import
+sites; plans 003/004 will consume the constants and then remove shortcuts from
+`presetMoraine`.
 
 Export `cn`, `recipe`, `defineStyleVars`, `formatCssVars`, and their public
 types from both `src/index.ts` and `src/utils.ts`. During this staged plan,
 do not remove the legacy exports required by live component code; plan 005 is
 their coordinated removal.
 
-**Verify**: `nub run typecheck` → exit 0. `rg -n "after:\(" src/shared/cva-common.class.ts`
+**Verify**: `nub run typecheck` → exit 0. `rg -n "after:\(|not-first-of-type:" src/shared/cva-common.class.ts`
 → no output.
 
 ## Test plan
@@ -207,6 +250,7 @@ their coordinated removal.
 - [ ] `nub run test src/shared/utils.test.ts src/shared/style/recipe.test.ts src/shared/style/css-vars.test.ts` exits 0.
 - [ ] `nub run typecheck` and `nub run test:types` exit 0.
 - [ ] `recipe` has only object-form overloads; `rg -n "recipe\(['\"]" src` has no output.
+- [ ] `recipe` and `defineStyleVars` tests prove `defaultVariants` are preserved when passed `{ variant: undefined }`.
 - [ ] `rg -n "Map<|LRU|O\(1\)" src/shared/style/recipe.ts src/shared/style/css-vars.ts` has no output.
 - [ ] New source constants use no parenthesized variant groups: `rg -n "\w+:\(" src/shared/style/presets.ts src/shared/cva-common.class.ts` has no output.
 - [ ] No file outside the scope list is modified, except the package-manager lockfile required by dependency resolution.

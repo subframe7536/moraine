@@ -82,12 +82,12 @@ repeatable checks and prevents a partial migration from shipping.
 
 Create an acceptance test/script that scans `src/**/*.{ts,tsx}` (and only that
 tree for syntax exclusions) for the PRD matrix patterns: `effect-`,
-`surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`/
-legacy border abbreviations, `content-empty`, `not-dark:`, `not-last:`, `$`
-metric utilities, `var-(slider|stepper|progress)`, `ring-3px`, semantic
-`animate-(overlay|popup|menu|popover|tooltip|sheet)-*`, and parenthesized
-variant groups. It must name the matching file/token on failure and explicitly
-not scan `docs/`.
+`surface-overlay`, `hidden-hitless`, legacy `style-*`, `rm-side-b`, `b-1`,
+`b-[trblxy]` (such as `b-t`), `content-empty`, `not-dark:`, `not-last:`,
+`not-first-of-type:`, `$` metric utilities, `var-(slider|stepper|progress)`,
+`ring-3px`, semantic `animate-(overlay|popup|menu|popover|tooltip|sheet)-*`,
+and parenthesized variant groups. It must name the matching file/token on
+failure and explicitly not scan `docs/`.
 
 In the same suite, inspect public entry files/package exports/declarations to
 assert no `cva`, `extendCN`, `cls-variant`, Wind3 API, `tw3.css`, `tw4.css`,
@@ -130,12 +130,14 @@ asset or engine icon integration supplies icons independently.
 ### Step 4: Run production docs preview smoke test
 
 Build docs. Implement/execute a deterministic smoke test that starts
-`nub run docs:preview`, waits for an HTTP-success response with a bounded
-timeout, checks a representative rendered docs page has no reported runtime or
-hydration error, and always terminates the child process in cleanup. A manually
-running server is not a pass condition. Confirm docs describe the styling
-system refactor, `cn` boundary, required plugin/preset, optional icon runtime
-asset, migration from cva/string styles, and provider precedence.
+`nub run docs:preview` via `child_process.spawn` (with `detached: true` or process
+group handling), waits for an HTTP-success response with a bounded timeout,
+checks a representative rendered docs page has no reported runtime or hydration
+error, and guarantees process termination in `finally` / `afterAll` (using
+`tree-kill` or sending `SIGTERM`/`SIGKILL` to `-child.pid`). A manually running
+server is not a pass condition. Confirm docs describe the styling system
+refactor, `cn` boundary, required plugin/preset, optional icon runtime asset,
+migration from cva/string styles, and provider precedence.
 
 **Verify**: `nub run docs:build && nub run test test/acceptance/docs-preview.test.ts` → exit 0; no preview process remains.
 

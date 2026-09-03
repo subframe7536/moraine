@@ -106,20 +106,24 @@ return it to its owning plan rather than retaining public compatibility.
 
 ### Step 2: Remove the legacy library CSS pipeline and v3/component layers
 
-Delete the internal legacy bridge from `src/shared/utils.ts`, remove
-`cls-variant` from package metadata/lockfile, and remove public `cva` and
+Delete the internal legacy bridge from `src/shared/utils.ts`, update
+`src/shared/types.ts` to import `ClassValue` from `./style/recipe` for `SlotClassValue`,
+remove `cls-variant` from package metadata/lockfile, and remove public `cva` and
 `extendCN` exports. Delete `inject-prefix`, `inject-compile-class`, and
 `migrate-syntax` source/tests. Simplify `presetMoraine` to Wind4 only: remove
 `wind3`, `enableComponentLayer`, prefix/hash options, old transformers, all
 component-facing shortcuts and regex rules. Retain theme tokens, keyframes,
 `animate-mo-enter/exit`, global styles, colors, and documented icon exports.
+Update `src/tailwind/index.ts` to provide a default export (`export default moraineTailwind()`)
+so `@plugin "moraine/tailwind"` loads cleanly in Tailwind CSS v4.
 
 Rewrite `tsdown.config.ts` so normal JS entries build without component CSS
 generation; retain a separate UnoCSS invocation only for `icon.css` using
 `DEFAULT_ICON_SHORTCUTS` plus Lucide data. Remove `tw3.css`/`tw4.css` exports
-from both config and `package.json`, retain `./icon.css`, and set Tailwind peer
-dependency to `^4.0.0` (with appropriate optional metadata). Keep `sideEffects`
-correct for a CSS asset.
+from both config and `package.json`, retain `./icon.css`, set `"sideEffects": ["*.css", "./dist/*.css"]`
+in `package.json`, and set Tailwind peer dependency to `^4.0.0` (with appropriate
+optional metadata). Update `AGENTS.md` guidelines to replace all remaining references
+to `cva` with `recipe`.
 
 **Verify**: `nub run build` → exit 0; `Test-Path dist/icon.css` is `True` and
 `Test-Path dist/tw3.css`, `Test-Path dist/tw4.css` are both `False`.

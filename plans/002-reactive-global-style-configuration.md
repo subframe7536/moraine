@@ -134,7 +134,8 @@ Implement and export `mergeComponentStyle` and `mergeMoraineConfig`:
 - general `class`: merge parent then child through `cn`;
 - `classes`: merge per slot through `cn`, parent then child;
 - general `style`: shallow merge object properties, child wins;
-- `styles`: shallow-merge every slot object property, child wins;
+- `styles`: shallow-merge every slot object property, child wins (explicitly
+  guard against `typeof null === 'object'` so `null` values are not spread as objects);
 - missing parent/child values inherit rather than becoming empty override
   objects.
 
