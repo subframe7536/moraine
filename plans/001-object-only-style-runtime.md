@@ -105,8 +105,8 @@ module (`src/shared/utils.test.ts` is the nearest structure example).
 
 Add the PRD-selected `cn` dependency using the repository's `nub` workflow (`nub add cn`).
 In `src/shared/utils.ts`, import `createCn` from `cn/config`, define the
-Moraine extension groups exactly for `z-base` through `z-floating`,
-`opacity-64`, and `ring-3`, and export this function as `cn`:
+Moraine extension groups for `z-base` through `z-floating` and `opacity-64`,
+and export this function as `cn`:
 ```ts
 const _cn = createCn({
   extend: {
@@ -121,7 +121,6 @@ const _cn = createCn({
         'z-floating',
       ],
       opacity: ['opacity-64'],
-      'ring-w': ['ring-3'],
     },
   },
 })
@@ -130,15 +129,16 @@ export function cn(...classes: any[]): string | undefined {
   return _cn(...classes) || undefined
 }
 ```
+Note: Standard Tailwind `ring-3` is a built-in utility and must NOT be added to `classGroups`.
 Preserve `useId` unchanged.
 
-**CRITICAL SAFEGUARD FOR INTERNAL BRIDGE**:
+**CRITICAL SAFEGUARD FOR INTERNAL BRIDGE (PROTOTYPE LESSONS)**:
 1. **Do NOT touch `src/shared/types.ts:SlotClassValue` in Plan 001**: Keep
    `import type { ClassValue } from 'cls-variant'` and `export type SlotClassValue = ClassValue`
    as-is during Plans 001 and 002. Because all 36 existing components still call
    legacy `*Variants(..., props.class)` where `props.class` is `SlotClassValue`,
    prematurely changing `SlotClassValue` to include objects (`Record<string, unknown>`)
-   will cause TypeScript errors across the entire codebase. `SlotClassValue` will be
+   causes TypeScript assignment errors across the entire codebase. `SlotClassValue` will be
    safely switched to `recipe.ts`'s `ClassValue` in Plan 005 once all components have
    migrated to `recipe`.
 2. **Do NOT alter or wrap `cva: CvaFunction`**: In `src/shared/utils.ts`, keep
@@ -150,7 +150,7 @@ Preserve `useId` unchanged.
 
 Add focused tests proving: clsx-compatible arrays/objects/nullish values work;
 conflicting utilities use last-wins; modifier chains remain isolated; custom
-Moraine z-index/opacity/ring classes conflict correctly; arbitrary and unknown
+Moraine z-index/opacity classes conflict correctly; arbitrary and unknown
 tokens are preserved. Test the actual `cn`, not CSS output.
 
 **Verify**: `nub run test src/shared/utils.test.ts && nub run typecheck` → both
@@ -165,6 +165,9 @@ Create `src/shared/style/recipe.ts` using the exact object-only shapes from
 - multi-slot mode uses `{ slots, base, variants, compoundVariants,
   defaultVariants }` and returns per-slot functions plus pre-resolved
   `classes`;
+- in `SlotRecipeOptions`, type variant definitions as `variants?: Partial<{ [K in keyof V]: Partial<{ [VK in keyof V[K]]: Partial<Record<S[number], ClassValue>> }> }>`
+  (do NOT type `VK` as `keyof V[K] | boolean` as object keys in TS cannot be `boolean`);
+  boolean selections are supported at call-site via `VariantSelection<V>`;
 - compound entries are `{ variants: ..., class: ... }`, and matchers accept a
   scalar or readonly array;
 - booleans must select the string keys `true`/`false`; `undefined`/`null` must
@@ -172,7 +175,10 @@ Create `src/shared/style/recipe.ts` using the exact object-only shapes from
 - when merging `variants` into `defaultVariants`, filter out `undefined` and
   `null` entries so passing `{ variant: undefined }` does not overwrite the
   default variant;
-- every final class result goes through the new `cn`, including extra classes.
+- every final class result goes through the new `cn`, including extra classes;
+  note that `cn` performs real Tailwind utility merging (e.g. `border` and `border-2`
+  merge to `border-2`, and `border-transparent` and `border-red-500` merge to `border-red-500`),
+  so test assertions must assert the post-merged classes rather than unmerged strings.
 
 Export `ClassValue`, `VariantProps`, `VariantSchema`, selection/matcher types,
 and recipe function types that component namespaces can consume. Avoid any

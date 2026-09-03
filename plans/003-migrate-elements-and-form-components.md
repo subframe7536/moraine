@@ -151,7 +151,9 @@ string.
 Keep and update existing assertions in button, checkbox, input, radio-group,
 select/multi-select, slider, switch, textarea, progress, avatar, badge, kbd,
 separator, and resizable tests. Replace assertions against old shortcut
-literals with the expanded standard token/preset contract (including `b-t` ->
+literals with the expanded standard token/preset contract (including updating
+old UnoCSS parenthesized groups such as `hover:(text-foreground bg-muted-hover)` ->
+`hover:text-foreground hover:bg-muted-hover` in `button-group.test.tsx`, `b-t` ->
 `border-t` in separator tests, and `not-first-of-type:` -> `[&:not(:first-of-type)]:`
 in checkbox-group and radio-group tests). Add provider tests for one atomic
 component, one multi-slot component, a group context (`ButtonGroup`), a bound

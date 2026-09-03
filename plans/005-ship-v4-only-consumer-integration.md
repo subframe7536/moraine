@@ -111,9 +111,10 @@ Delete the internal legacy bridge from `src/shared/utils.ts`, update
 remove `cls-variant` from package metadata/lockfile, and remove public `cva` and
 `extendCN` exports. Delete `inject-prefix`, `inject-compile-class`, and
 `migrate-syntax` source/tests. Simplify `presetMoraine` to Wind4 only: remove
-`wind3`, `enableComponentLayer`, prefix/hash options, old transformers, all
-component-facing shortcuts and regex rules. Retain theme tokens, keyframes,
-`animate-mo-enter/exit`, global styles, colors, and documented icon exports.
+`wind3`, `enableComponentLayer` (including the legacy dynamic imports of `unocss`
+and `@unocss/transformer-compile-class` in `src/unocss/theme.ts`), prefix/hash options,
+old transformers, all component-facing shortcuts and regex rules. Retain theme tokens,
+keyframes, `animate-mo-enter/exit`, global styles, colors, and documented icon exports.
 Update `src/tailwind/index.ts` to provide a default export (`export default moraineTailwind()`)
 so `@plugin "moraine/tailwind"` loads cleanly in Tailwind CSS v4.
 

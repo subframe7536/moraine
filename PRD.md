@@ -84,7 +84,6 @@ export const cn = createCn({
         'z-floating',
       ],
       opacity: ['opacity-64'],
-      'ring-w': ['ring-3'],
     },
   },
 })
@@ -1012,7 +1011,7 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 
 ### Phase 1: Engine & Core Presets (Side-by-Side)
 1. Add `cn` package dependency to `package.json`.
-2. Implement custom `cn` instance in `src/shared/utils.ts` using `createCn` with custom `classGroups` (`z-base`..`z-floating`, `opacity-64`, `ring-3`).
+2. Implement custom `cn` instance in `src/shared/utils.ts` using `createCn` with custom `classGroups` (`z-base`..`z-floating`, `opacity-64`). Standard Tailwind `ring-3` is handled natively without custom extension.
 3. Implement the breaking, object-only in-house `recipe` API (multi-slot and atomic modes) and `VariantProps` in `src/shared/style/recipe.ts`. Do not expose a `cva` alias.
 4. Implement `defineStyleVars` and `formatCssVars` in `src/shared/style/css-vars.ts`.
 5. Create `src/shared/style/presets.ts` defining all selector-scoped atomic and expanded semantic-animation constants.
