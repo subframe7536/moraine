@@ -1,10 +1,10 @@
 # PRD: Moraine Style System Refactor & Unification
 
 - **Project:** Moraine (SolidJS Component Library)
-- **Status:** Implementation Specification (Revision 2)
+- **Status:** Implementation Specification (Revision 3)
 - **Target Stage:** Pre-Alpha (Breaking Changes Allowed)
 - **Supported Engines:** Tailwind CSS v4 and UnoCSS (**Tailwind CSS v3 is explicitly dropped**)
-- **Scope:** Complete overhaul of style resolution, class conflict merging via `cn`, in-house `cva`, selector-scoped runtime presets, `MoraineProvider` component-wide adoption, and prop bifurcation across all 36 `.class.ts` files, all component `.tsx` files, and `docs/`.
+- **Scope:** Complete overhaul of style resolution, class conflict merging via `cn`, in-house `recipe` (multi-slot anatomy-first & atomic CVA super-set), selector-scoped runtime presets, `MoraineProvider` component-wide adoption, and prop bifurcation across all 36 `.class.ts` files and all component `.tsx` files in `src/` (**preserving `transformerVariantGroup` and UnoCSS-specific syntax in `docs/`**).
 
 ---
 
@@ -14,9 +14,10 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
 
 1. **Class Name Collisions:** Moraine relies on `cls-variant` (`cls`), which performs simple string concatenation. Overriding `px-3` with `px-5` results in `px-3 px-5` on the element, creating stylesheet order dependencies and forcing `!important` overrides.
 2. **Brittle Build-time Shortcut Extractions:** UnoCSS shortcuts (`effect-fv`, `effect-dis`, `surface-overlay`, etc.) are opaque to Tailwind CSS and conflict resolution engines. To support Tailwind, Moraine ran build-time extractors producing separate `tw3.css` and `tw4.css` bundles.
-3. **Syntactic Drift & Non-Standard Utilities:** Specificity injectors (`transformerInjectPrefix`, `transformerInjectCompileClass`) and non-standard syntax (`migrate-syntax.ts`, UnoCSS variant groups `hover:(...)`, `b-1`, `font-500`, `h-$mo-...`, `var-progress-*`) broke standard Tailwind scanners and conflict engines.
+3. **Syntactic Drift & Non-Standard Utilities:** Specificity injectors (`transformerInjectPrefix`, `transformerInjectCompileClass`) and non-standard syntax (`migrate-syntax.ts`, UnoCSS variant groups `hover:(...)`, `b-1`, `h-$mo-...`, `var-progress-*`) broke standard Tailwind scanners and conflict engines.
 4. **Lack of Global Theme Overrides:** Applications could not configure global defaults (default sizes, variants, or slot classes/styles) across components via SolidJS context.
 5. **Conflated Style and State Props:** Low-frequency design variants (`variant`, `size`) and high-frequency interactive states (`loading`, `disabled`, `active`) were intermixed, causing unnecessary JavaScript CVA recomputations.
+6. **Single-Element CVA Mismatch with Multi-Slot Anatomy:** Moraine's components are fundamentally multi-slot (`ComponentT.Slot`), but classic `cva` only styles single elements, forcing 5~13 duplicate `cva` functions per component (e.g. `file-upload`, `stepper`, `progress`), duplicating variant schemas and defaults, fragmenting cross-slot compound variants, and leaking hardcoded static classes into `.tsx` templates.
 
 ---
 
@@ -26,7 +27,9 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
 - **Tailwind CSS v4:** First-class support via standard utility syntax.
 - **UnoCSS:** First-class support via `@subf/unocss` or standard UnoCSS presets.
 - **Tailwind CSS v3:** **Explicitly dropped**. All legacy v3 configurations, preflights, peer dependency ranges, and CSS bundles (`tw3.css`) are removed.
-- **`icon.css` Retained as Standalone Icon Asset:** `tw3.css` and `tw4.css` (component utility styles) are eliminated. `icon.css` remains as an optional, self-contained asset for consumers wanting bundled Lucide icon masks without `@iconify/tailwind`.
+- **CSS Generation & Build Architecture (Plan A):**
+  - **Component Utility Stylesheets (`tw3.css` & `tw4.css`) Eliminated:** Because all components in `src/` strictly use standard flat Tailwind utilities, external Tailwind v4 and UnoCSS consumers compile component classes on demand via `@source "moraine";` or content pipeline. Pre-compiled component CSS bundles (`tw3.css`, `tw4.css`) and their build-time extractor pipeline (`baseUnocssConfig`, `migrate-syntax`, `simplify` extractor) are completely deleted.
+  - **Standalone `icon.css` Retained (Plan A):** `tsdown.config.ts` will **only** generate a single, lightweight `icon.css` asset (~few KB) containing SVG mask utilities for internal `DEFAULT_ICON_SHORTCUTS` (Lucide icons). This provides a zero-setup, drop-in icon solution for Tailwind v4 consumers via `@import 'moraine/icon.css';` without requiring `@iconify/tailwind` or `presetIcons()`. Consumers who already configure `@iconify/tailwind` or UnoCSS `presetIcons()` can omit importing `icon.css`.
 
 ### 2.2. Override Architecture Decision: Runtime `cn` vs. CSS Cascade Layers
 - **Current Model:** `presetMoraine` with `enableComponentLayer` compiled component utilities into internal prefixed or hashed classes inside the `mo-component` layer with order `-1` vs consumer layer `1`.
@@ -37,15 +40,16 @@ Moraine is designed to provide comprehensive, headless-yet-styled SolidJS compon
   - Guarantees that consumer overrides (`class="px-5"`) always win over component defaults (`px-3`) via intelligent utility deduplication, without relying on CSS cascade layer browser support or configuration.
   - Custom Moraine tokens are explicitly registered into `cn` via `createCn` from `cn/config` to ensure accurate conflict resolution.
 
-### 2.3. AGENTS.md Alignment
+### 2.3. AGENTS.md Alignment & Syntax Scope
 - `AGENTS.md` previously mandated UnoCSS variant groups (`hover:(bg-red-500 text-white)`).
-- **Rule Updated:** `AGENTS.md` now explicitly mandates **standard flat Tailwind utility syntax** (`hover:bg-red-500 hover:text-white`) and strictly forbids parenthesized variant groups so all classes can be scanned natively by Tailwind v4 and resolved by `cn`.
+- **Rule Updated for Component Source (`src/`):** `AGENTS.md` now explicitly mandates **standard flat Tailwind utility syntax** (`hover:bg-red-500 hover:text-white`) and strictly forbids parenthesized variant groups in component code (`src/`) so all library classes can be scanned natively by Tailwind v4 and resolved by `cn`.
+- **Docs Preservation Scope (`docs/`):** The documentation application in `docs/` is built with UnoCSS and **preserves `transformerVariantGroup`** as well as UnoCSS-specific syntax (variant groups, markdown shortcuts, custom UnoCSS directives) in `docs/unocss.config.ts` and documentation pages.
 
 ---
 
 ## 3. Detailed Technical Architecture
 
-### 3.1. Engine & Class Deduplication (`cn` & In-House `cva`)
+### 3.1. Engine & Class Deduplication (`cn` & In-House `recipe` / `cva`)
 
 #### 1. Custom `cn` Instance via `cn/config` (`src/shared/utils.ts`)
 To ensure that Moraine's semantic tokens participate in runtime conflict resolution (e.g. `z-10` overriding `z-floating`, or `opacity-100` overriding `opacity-64`), `cn` is configured using `createCn`:
@@ -72,11 +76,11 @@ export const cn = createCn({
 })
 ```
 
-#### 2. In-House `cva` Implementation (`src/shared/cva.ts`)
-Moraine depends on `cn` (from the `cn` package). `cva` is implemented directly inside Moraine with zero additional dependencies, avoiding forbidden `any`, and returning `string | undefined` to match `cn` semantics:
+#### 2. In-House Multi-Slot & Atomic `recipe` (`cva` Super-Set) (`src/shared/style/recipe.ts`)
+Moraine depends on `cn` (from the `cn` package). To resolve the multi-slot anatomy mismatch while maintaining 100% backward compatibility with single-element `cva`, Moraine implements an in-house `recipe` engine with zero external dependencies, zero `any`, discrete variant caching (`O(1)` runtime resolution in SolidJS), and cross-slot compound variants:
 
 ```ts
-import { cn } from './utils'
+import { cn } from '../utils'
 
 export type ClassValue =
   | string
@@ -88,88 +92,244 @@ export type ClassValue =
   | ClassValue[]
   | Record<string, unknown>
 
-export type VariantSchema = Record<string, Record<string, ClassValue>>
-
 export type VariantValue<T> = T extends 'true' | 'false' ? boolean | 'true' | 'false' : T
+
+export type VariantSchema = Record<string, Record<string, unknown>>
 
 export type VariantSelection<T extends VariantSchema> = {
   [K in keyof T]?: VariantValue<keyof T[K]> | null | undefined
 }
 
-export type CompoundVariant<T extends VariantSchema> = {
-  [K in keyof T]?:
-    | VariantValue<keyof T[K]>
-    | Array<VariantValue<keyof T[K]>>
-    | null
-    | undefined
-} & {
+// ---------------------------------------------------------------------------
+// 1. Multi-Slot Recipe Schema
+// ---------------------------------------------------------------------------
+
+export type SlotClasses<S extends string> = Partial<Record<S, ClassValue>>
+
+export interface SlotCompoundVariant<S extends string, V extends VariantSchema> {
+  variants: VariantSelection<V>
+  class: SlotClasses<S>
+}
+
+export interface SlotRecipeOptions<S extends string, V extends VariantSchema> {
+  slots: readonly S[] | S[]
+  base?: SlotClasses<S>
+  variants?: {
+    [K in keyof V]?: {
+      [Val in keyof V[K]]?: SlotClasses<S>
+    }
+  }
+  compoundVariants?: Array<SlotCompoundVariant<S, V>>
+  defaultVariants?: VariantSelection<V>
+}
+
+export type SlotFn = (...extraClasses: ClassValue[]) => string | undefined
+
+export type SlotFns<S extends string> = Record<S, SlotFn> & {
+  /** Pre-resolved dictionary of slot classes for bulk consumption */
+  classes: Record<S, string | undefined>
+}
+
+export interface SlotRecipeFn<S extends string, V extends VariantSchema> {
+  (variants?: VariantSelection<V>): SlotFns<S>
+  slots: readonly S[]
+}
+
+// ---------------------------------------------------------------------------
+// 2. Atomic Single-Element Recipe Schema (100% CVA compatible)
+// ---------------------------------------------------------------------------
+
+export interface AtomicCompoundVariant<V extends VariantSchema> {
+  variants: VariantSelection<V>
   class: ClassValue
 }
 
-export interface CvaOptions<T extends VariantSchema> {
-  variants?: T
-  defaultVariants?: VariantSelection<T>
-  compoundVariants?: Array<CompoundVariant<T>>
+export interface AtomicRecipeOptions<V extends VariantSchema> {
+  base?: ClassValue
+  variants?: {
+    [K in keyof V]?: {
+      [Val in keyof V[K]]?: ClassValue
+    }
+  }
+  compoundVariants?: Array<AtomicCompoundVariant<V>>
+  defaultVariants?: VariantSelection<V>
 }
 
-// Inferred selection object without `any`, matching `VariantProps<typeof buttonVariants>` across all call sites:
-export type VariantProps<T extends (...args: unknown[]) => unknown> =
-  Parameters<T>[0] extends undefined ? Record<never, never> : NonNullable<Parameters<T>[0]>
-
-export interface CvaFn<T extends VariantSchema> {
-  (variants?: VariantSelection<T>, ...extraClasses: ClassValue[]): string | undefined
+export interface AtomicRecipeFn<V extends VariantSchema> {
+  (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]): string | undefined
 }
 
-export function cva<T extends VariantSchema>(
-  base?: ClassValue,
-  options?: CvaOptions<T>,
-): CvaFn<T> {
-  return (variants?: VariantSelection<T>, ...extraClasses: ClassValue[]): string | undefined => {
+// ---------------------------------------------------------------------------
+// 3. VariantProps Extractor
+// ---------------------------------------------------------------------------
+
+export type VariantProps<T> = T extends SlotRecipeFn<string, infer V>
+  ? VariantSelection<V>
+  : T extends AtomicRecipeFn<infer V>
+    ? VariantSelection<V>
+    : never
+
+// ---------------------------------------------------------------------------
+// 4. Runtime Implementation with Discrete Variant Cache
+// ---------------------------------------------------------------------------
+
+function serializeVariants(variants: Record<string, unknown>): string {
+  const keys = Object.keys(variants).sort()
+  let key = ''
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i]
+    const val = variants[k]
+    if (val !== undefined && val !== null) {
+      key += `${k}:${String(val)};`
+    }
+  }
+  return key
+}
+
+export function createSlotRecipe<S extends string, V extends VariantSchema>(
+  options: SlotRecipeOptions<S, V>,
+): SlotRecipeFn<S, V> {
+  const cache = new Map<string, Record<S, string | undefined>>()
+  const slots = options.slots
+
+  const recipeFn = ((variants?: VariantSelection<V>): SlotFns<S> => {
     const activeVariants: Record<string, unknown> = {
-      ...options?.defaultVariants,
+      ...options.defaultVariants,
       ...variants,
     }
+    const cacheKey = serializeVariants(activeVariants)
 
-    const classes: ClassValue[] = [base]
+    let resolvedClasses = cache.get(cacheKey)
+    if (!resolvedClasses) {
+      const slotClassMap = {} as Record<S, ClassValue[]>
+      for (const slot of slots) {
+        slotClassMap[slot] = options.base?.[slot] ? [options.base[slot]] : []
+      }
 
-    if (options?.variants) {
-      for (const [variantName, variantMap] of Object.entries(options.variants)) {
-        const selectedValue = activeVariants[variantName]
-        if (selectedValue !== undefined && selectedValue !== null) {
-          const key = String(selectedValue)
-          const matchedClass = variantMap[key]
-          if (matchedClass) {
-            classes.push(matchedClass)
+      if (options.variants) {
+        for (const [vName, vMap] of Object.entries(options.variants)) {
+          const selectedVal = activeVariants[vName]
+          if (selectedVal !== undefined && selectedVal !== null) {
+            const matchedSlotMap = (vMap as Record<string, SlotClasses<S>>)[String(selectedVal)]
+            if (matchedSlotMap) {
+              for (const [slot, cls] of Object.entries(matchedSlotMap)) {
+                if (cls) slotClassMap[slot as S]?.push(cls as ClassValue)
+              }
+            }
           }
         }
       }
+
+      if (options.compoundVariants) {
+        for (const cv of options.compoundVariants) {
+          const matches = Object.entries(cv.variants).every(([k, expected]) => {
+            const actual = activeVariants[k]
+            if (actual === undefined || actual === null) return false
+            if (Array.isArray(expected)) {
+              return expected.some((v) => String(v) === String(actual))
+            }
+            return String(expected) === String(actual)
+          })
+
+          if (matches) {
+            for (const [slot, cls] of Object.entries(cv.class)) {
+              if (cls) slotClassMap[slot as S]?.push(cls as ClassValue)
+            }
+          }
+        }
+      }
+
+      resolvedClasses = {} as Record<S, string | undefined>
+      for (const slot of slots) {
+        resolvedClasses[slot] = cn(slotClassMap[slot])
+      }
+      cache.set(cacheKey, resolvedClasses)
     }
 
-    if (options?.compoundVariants) {
-      for (const compound of options.compoundVariants) {
-        const { class: compoundClass, ...conditions } = compound
-        const conditionEntries = Object.entries(conditions)
-        if (conditionEntries.length === 0) continue
+    const result = {
+      classes: resolvedClasses,
+    } as SlotFns<S>
 
-        const matches = conditionEntries.every(([key, expectedValue]) => {
-          const actualValue = activeVariants[key]
-          if (actualValue === undefined || actualValue === null) return false
-
-          if (Array.isArray(expectedValue)) {
-            return expectedValue.some((v) => String(v) === String(actualValue))
-          }
-          return String(expectedValue) === String(actualValue)
-        })
-
-        if (matches && compoundClass) {
-          classes.push(compoundClass)
-        }
+    for (const slot of slots) {
+      const baseClass = resolvedClasses[slot]
+      result[slot] = (...extraClasses: ClassValue[]) => {
+        if (extraClasses.length === 0) return baseClass
+        return cn(baseClass, ...extraClasses)
       }
     }
 
-    return cn(classes, extraClasses)
+    return result
+  }) as SlotRecipeFn<S, V>
+
+  recipeFn.slots = slots
+  return recipeFn
+}
+
+export function createAtomicRecipe<V extends VariantSchema>(
+  options: AtomicRecipeOptions<V>,
+): AtomicRecipeFn<V> {
+  const cache = new Map<string, string | undefined>()
+
+  return (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]): string | undefined => {
+    const activeVariants: Record<string, unknown> = {
+      ...options.defaultVariants,
+      ...variants,
+    }
+    const cacheKey = serializeVariants(activeVariants)
+
+    let baseResolved = cache.get(cacheKey)
+    if (!baseResolved) {
+      const classes: ClassValue[] = options.base ? [options.base] : []
+
+      if (options.variants) {
+        for (const [vName, vMap] of Object.entries(options.variants)) {
+          const selectedVal = activeVariants[vName]
+          if (selectedVal !== undefined && selectedVal !== null) {
+            const matchedClass = (vMap as Record<string, ClassValue>)[String(selectedVal)]
+            if (matchedClass) classes.push(matchedClass)
+          }
+        }
+      }
+
+      if (options.compoundVariants) {
+        for (const cv of options.compoundVariants) {
+          const matches = Object.entries(cv.variants).every(([k, expected]) => {
+            const actual = activeVariants[k]
+            if (actual === undefined || actual === null) return false
+            if (Array.isArray(expected)) {
+              return expected.some((v) => String(v) === String(actual))
+            }
+            return String(expected) === String(actual)
+          })
+
+          if (matches && cv.class) classes.push(cv.class)
+        }
+      }
+
+      baseResolved = cn(classes)
+      cache.set(cacheKey, baseResolved)
+    }
+
+    if (extraClasses.length === 0) return baseResolved
+    return cn(baseResolved, ...extraClasses)
   }
 }
+
+export function recipe<S extends string, V extends VariantSchema>(
+  options: SlotRecipeOptions<S, V>,
+): SlotRecipeFn<S, V>
+export function recipe<V extends VariantSchema>(
+  options: AtomicRecipeOptions<V>,
+): AtomicRecipeFn<V>
+export function recipe(options: any): any {
+  if ('slots' in options && Array.isArray(options.slots)) {
+    return createSlotRecipe(options)
+  }
+  return createAtomicRecipe(options)
+}
+
+/** Backward-compatible alias */
+export const cva = recipe
 ```
 
 ---
@@ -281,25 +441,23 @@ export const TRANSITION_BG =
 
 ### 3.3. Token Inventory & Zero Non-Standard Tokens Gate
 
-All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS regex rules is mapped to standard Tailwind utility syntax across all 36 `.class.ts` files, all component `.tsx` files, and `docs/`:
+All non-standard syntax previously translated by `migrate-syntax.ts` or UnoCSS regex rules is mapped to standard Tailwind utility syntax across all 36 `.class.ts` files and all component `.tsx` files in `src/` (**`docs/` is excluded and preserves `transformerVariantGroup` and UnoCSS syntax**):
 
 | Non-Standard / UnoCSS Token | Standard Tailwind Replacement | Scope |
 | :--- | :--- | :--- |
 | `b-1`, `b` | `border` | `accordion`, `button`, `card`, `file-upload`, etc. |
 | `b-b-2`, `b-border`, `b-transparent` | `border-b-2`, `border-border`, `border-transparent` | `accordion`, `card`, `select` |
-| `font-500` | `font-medium` | `accordion`, `button`, `tabs`, etc. |
 | `content-empty` | `content-['']` | `avatar`, `resizable`, `slider` |
 | `not-dark:bg-clip-padding` | `[html:not(.dark)_&]:bg-clip-padding` | `card.class.ts`, `slider.class.ts` |
 | `not-last:border-(b b-border)` | `[&:not(:last-child)]:border-b [&:not(:last-child)]:border-border` | `accordion.class.ts` |
 | `h-$mo-collapsible-content-height` | `h-[var(--mo-collapsible-content-height)]` | `accordion`, `collapsible` |
 | `origin-$mo-popper-...` | `origin-[var(--mo-popper-content-transform-origin)]` | `select`, `menu`, `popover`, `tooltip` |
-| `mb-$mo-popper-...` | `mb-[var(--mo-popper-content-overflow-padding)]` | `select`, `menu`, `popover`, `tooltip` |
-| `var-progress-{n}` | `[--p-size:0.25rem]`, `[--p-size:0.5rem]`, `[--p-size:0.75rem]` | `progress.class.ts` |
-| `var-slider-{n}` | `[--s-size:4px] [--s-len:4px] [--s-offset:0px] [--s-pos:0px]` | `slider.class.ts` |
-| `var-slider-bold-{size}-{len}-{off}`| `[--s-size:{size}px] [--s-len:{len}px] [--s-offset:{off}px] [--s-pos:max({off}px,calc(100%-{off*2}px))]` | `slider.class.ts` |
-| `var-stepper-{s}-{x}-{g}-{p}` | `[--st-size:2rem] [--st-sep-x:1.5rem] [--st-sep-top:2.0625rem] [--st-gap:0.5rem] [--st-pt:0.125rem]` | `stepper.class.ts` |
-| `hover:(bg-red-500 text-white)` | `hover:bg-red-500 hover:text-white` | All 36 `.class.ts` files, all `.tsx` files, and `docs/` |
-| `after:(content-empty absolute ...)` | `after:content-[''] after:absolute ...` | `avatar`, `resizable`, `slider` |
+| `var-progress-{n}` | Root `style` injection via `progressStyleVars` (`--p-size`) | `progress.class.ts` & `progress.tsx` |
+| `var-slider-{n}` | Root `style` injection via `sliderStyleVars` (`--s-size`) | `slider.class.ts` & `slider.tsx` |
+| `var-slider-bold-{size}-{len}-{off}`| Root `style` injection via `sliderStyleVars` (`--s-size`, `--s-len`, `--s-offset`, `--s-pos`) | `slider.class.ts` & `slider.tsx` |
+| `var-stepper-{s}-{x}-{g}-{p}` | Root `style` injection via `stepperStyleVars` (`--st-size`, `--st-sep-x`, `--st-sep-top`, `--st-gap`, `--st-pt`) | `stepper.class.ts` & `stepper.tsx` |
+| `hover:(bg-red-500 text-white)` | `hover:bg-red-500 hover:text-white` | All 36 `.class.ts` files and `.tsx` files in `src/` |
+| `after:(content-empty absolute ...)` | `after:content-[''] after:absolute ...` | `avatar`, `resizable`, `slider` in `src/` |
 | `ring-3px` | `ring-3` | Focus presets |
 
 ---
@@ -432,7 +590,7 @@ export function mergeComponentStyle<
 ```
 
 #### 3. Component Adoption Pattern (All 4 Layers Preserved)
-Components must preserve their base slot classes/constants when merging with provider and props:
+Components preserve their base slot classes and variant definitions via `recipe`, seamlessly merging with provider and props:
 
 ```tsx
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>) {
@@ -440,14 +598,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const provider = () => config?.button
   const group = useContext(ButtonGroupContext)
 
-  // 1. Single source of truth: CVA defaults apply only when props, group, and provider are undefined:
+  // 1. Single source of truth: Recipe defaults apply only when props, group, and provider are undefined:
   const variant = () => props.variant ?? group?.variant ?? provider()?.defaultProps?.variant
   const size = () => props.size ?? group?.size ?? provider()?.defaultProps?.size
 
-  // 2. Deterministic Root Class Precedence:
+  // 2. Fast O(1) Cached Multi-Slot Recipe Resolution:
+  const slots = () => buttonRecipe({ variant: variant(), size: size() })
+
+  // 3. Deterministic Root Class Precedence:
   const rootClass = () =>
-    cn(
-      buttonVariants({ variant: variant(), size: size() }),
+    slots().root(
       provider()?.class,
       provider()?.classes?.root,
       group?.class,
@@ -455,17 +615,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       props.class,
     )
 
-  // 3. Deterministic Slot Class Precedence (Base Slot Constants NEVER Dropped):
+  // 4. Deterministic Slot Class Precedence (Base Slot Classes NEVER Dropped):
   const leadingClass = () =>
-    cn(
-      BUTTON_LEADING_CLASS,               // 1. Base slot constant
-      provider()?.classes?.leading,       // 2. Provider default slot
-      group?.classes?.leading,            // 3. Group context slot
-      props.classes?.leading,             // 4. Component prop slot
-      isLeadingLoading() && LOADING_SPINNER // 5. Dynamic state class
+    slots().leading(
+      provider()?.classes?.leading,
+      group?.classes?.leading,
+      props.classes?.leading,
+      isLeadingLoading() && LOADING_SPINNER, // Dynamic state class
     )
 
-  // 4. Deterministic Slot Style Precedence:
+  // 5. Deterministic Slot Style Precedence:
   const rootStyle = () => ({
     ...(typeof provider()?.style === 'object' ? provider()?.style : undefined),
     ...provider()?.styles?.root,
@@ -480,13 +639,236 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
 ---
 
+### 3.6. Dynamic Metric Variables & Root CSS Variable Engine (`src/shared/style/css-vars.ts`)
+
+#### 1. Architectural Problem: Non-Standard UnoCSS Regex vs. Compound Explosion
+In components with coupled physical geometry across multiple child slots (e.g. `slider`, `stepper`, `progress`):
+- `Slider`: `size` and `bold` variants dictate track thickness (`--s-size`), range indicator length (`--s-len`), indicator offset (`--s-offset`), and computed position (`--s-pos = max(off, calc(100% - off*2))`).
+- `Stepper`: `size` dictates indicator dimensions (`--st-size`), separator position (`--st-sep-x`, `--st-sep-top`), step gap (`--st-gap`), and label offset (`--st-pt`).
+
+To prevent child slots (`range`, `thumb`, `separator`) from duplicating `size × variant × orientation × inverted` compound conditions, CSS custom properties are used to decouple sub-element styles from top-level variants. However, Moraine previously relied on non-standard UnoCSS regex classes (`var-slider-bold-20-14-3`, `var-stepper-8-6-2-0.5`). 
+
+**Decision (Scheme B): Root Element CSS Variable Injection**.
+Rather than polluting HTML class strings with unwieldy arbitrary property classes (e.g. `[--s-size:20px] [--s-len:14px] [--s-offset:3px] [--s-pos:max(3px,calc(100%-6px))]`), dynamic metric variables are cleanly injected onto the Root element via `style`. Sub-elements (`track`, `range`, `thumb`) read these variables purely via standard utility classes (`h-[var(--s-size)]`, `after:w-[var(--s-offset)]`), completely eliminating compound variant explosion across child slots while keeping HTML `class` attributes 100% clean.
+
+#### 2. Generic Utilities: `defineStyleVars` & `formatCssVars` (`src/shared/style/css-vars.ts`)
+A dedicated, zero-dependency generic utility module is introduced to declare and resolve variant-driven CSS custom properties with automatic prefixing, `O(1)` LRU/Map caching, and seamless 4-layer style precedence:
+
+```ts
+import type { JSX } from 'solid-js'
+import type { VariantSchema, VariantSelection } from './recipe'
+
+export type StyleVarValue = string | number | undefined | null
+export type StyleVarRecord = Record<string, StyleVarValue>
+
+/**
+ * Converts a flat key-value dictionary into prefixed CSS custom properties.
+ * Automatically prepends '--' and filters out nullish values.
+ *
+ * @example
+ * formatCssVars({ size: '20px', len: '14px' }, 's')
+ * // => { '--s-size': '20px', '--s-len': '14px' }
+ */
+export function formatCssVars(
+  vars: StyleVarRecord,
+  prefix?: string,
+): JSX.CSSProperties {
+  const result: Record<string, string | number> = {}
+  for (const [key, value] of Object.entries(vars)) {
+    if (value !== undefined && value !== null) {
+      const varName = key.startsWith('--')
+        ? key
+        : prefix
+          ? `--${prefix}-${key}`
+          : `--${key}`
+      result[varName] = value
+    }
+  }
+  return result as JSX.CSSProperties
+}
+
+export interface StyleVarsOptions<V extends VariantSchema> {
+  prefix?: string
+  base?: StyleVarRecord
+  variants?: {
+    [K in keyof V]?: {
+      [Val in keyof V[K]]?: StyleVarRecord
+    }
+  }
+  compoundVariants?: Array<{
+    variants: VariantSelection<V>
+    vars: StyleVarRecord
+  }>
+  defaultVariants?: VariantSelection<V>
+}
+
+export type StyleVarsFn<V extends VariantSchema> = (
+  variants?: VariantSelection<V>,
+  ...extraStyles: Array<JSX.CSSProperties | string | undefined>
+) => JSX.CSSProperties
+
+/**
+ * Creates a variant-driven CSS custom properties resolver for component root elements.
+ * Eliminates compound variant explosion across child slots and keeps HTML classes pristine.
+ */
+export function defineStyleVars<V extends VariantSchema>(
+  options: StyleVarsOptions<V>,
+): StyleVarsFn<V> {
+  const cache = new Map<string, JSX.CSSProperties>()
+  const prefix = options.prefix
+
+  return (
+    variants?: VariantSelection<V>,
+    ...extraStyles: Array<JSX.CSSProperties | string | undefined>
+  ): JSX.CSSProperties => {
+    const activeVariants: Record<string, unknown> = {
+      ...options.defaultVariants,
+      ...variants,
+    }
+
+    // 1. O(1) Cache Lookup
+    const keys = Object.keys(activeVariants).sort()
+    let cacheKey = ''
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i]
+      const val = activeVariants[k]
+      if (val !== undefined && val !== null) {
+        cacheKey += `${k}:${String(val)};`
+      }
+    }
+
+    let baseVars = cache.get(cacheKey)
+    if (!baseVars) {
+      const resolved: StyleVarRecord = { ...options.base }
+
+      if (options.variants) {
+        for (const [vName, vMap] of Object.entries(options.variants)) {
+          const selectedVal = activeVariants[vName]
+          if (selectedVal !== undefined && selectedVal !== null) {
+            const matchedVars = (vMap as Record<string, StyleVarRecord>)[String(selectedVal)]
+            if (matchedVars) {
+              Object.assign(resolved, matchedVars)
+            }
+          }
+        }
+      }
+
+      if (options.compoundVariants) {
+        for (const cv of options.compoundVariants) {
+          const matches = Object.entries(cv.variants).every(([k, expected]) => {
+            const actual = activeVariants[k]
+            if (actual === undefined || actual === null) return false
+            if (Array.isArray(expected)) {
+              return expected.some((v) => String(v) === String(actual))
+            }
+            return String(expected) === String(actual)
+          })
+
+          if (matches) {
+            Object.assign(resolved, cv.vars)
+          }
+        }
+      }
+
+      baseVars = formatCssVars(resolved, prefix)
+      cache.set(cacheKey, baseVars)
+    }
+
+    // 2. Strict 4-Layer Precedence Merge
+    const finalStyle: Record<string, unknown> = { ...baseVars }
+    for (let i = 0; i < extraStyles.length; i++) {
+      const s = extraStyles[i]
+      if (s && typeof s === 'object') {
+        Object.assign(finalStyle, s)
+      }
+    }
+
+    return finalStyle as JSX.CSSProperties
+  }
+}
+```
+
+#### 3. Component Implementation Examples
+
+##### A. Slider (`src/forms/slider/slider.class.ts` & `slider.tsx`)
+```ts
+// 1. Definition in slider.class.ts
+export const sliderStyleVars = defineStyleVars({
+  prefix: 's',
+  variants: {
+    size: {
+      sm: { size: '4px', len: '4px', offset: '0px', pos: '0px' },
+      md: { size: '5px', len: '5px', offset: '0px', pos: '0px' },
+      lg: { size: '6px', len: '6px', offset: '0px', pos: '0px' },
+    },
+  },
+  compoundVariants: [
+    {
+      variants: { variant: 'bold', size: 'sm' },
+      vars: { size: '20px', len: '14px', offset: '3px', pos: 'max(3px, calc(100% - 6px))' },
+    },
+    {
+      variants: { variant: 'bold', size: 'md' },
+      vars: { size: '24px', len: '16px', offset: '4px', pos: 'max(4px, calc(100% - 8px))' },
+    },
+    {
+      variants: { variant: 'bold', size: 'lg' },
+      vars: { size: '28px', len: '18px', offset: '5px', pos: 'max(5px, calc(100% - 10px))' },
+    },
+  ],
+  defaultVariants: {
+    variant: 'default',
+    size: 'md',
+  },
+})
+
+// 2. Consumption in slider.tsx:
+const rootStyle = () =>
+  sliderStyleVars(
+    { variant: variant(), size: size() },
+    provider()?.style,
+    provider()?.styles?.root,
+    props.styles?.root,
+    props.style,
+  )
+
+return (
+  <div
+    data-slot="root"
+    style={rootStyle()}
+    class={slots().root(props.class, props.classes?.root)}
+  >
+    {/* Sub-elements cleanly inherit variables via CSS cascade */}
+    <div data-slot="track" class={slots().track(props.classes?.track)} />
+  </div>
+)
+```
+
+##### B. Stepper (`src/navigation/stepper/stepper.class.ts`)
+```ts
+export const stepperStyleVars = defineStyleVars({
+  prefix: 'st',
+  variants: {
+    size: {
+      sm: { size: '2rem', 'sep-x': '1.5rem', 'sep-top': '2.0625rem', gap: '0.5rem', pt: '0.125rem' },
+      md: { size: '2.25rem', 'sep-x': '1.75rem', 'sep-top': '2.3125rem', gap: '0.625rem', pt: '0.25rem' },
+      lg: { size: '2.5rem', 'sep-x': '2rem', 'sep-top': '2.5625rem', gap: '0.75rem', pt: '0.375rem' },
+    },
+  },
+  defaultVariants: { size: 'md' },
+})
+```
+
+---
+
 ## 4. Consumer Migration Guide
 
 Consumers upgrading from previous Moraine pre-alpha versions follow this migration guide:
 
 | Legacy Usage | New Standard Usage |
 | :--- | :--- |
-| `@import 'moraine/tw3.css';`<br/>`@import 'moraine/tw4.css';` | **Remove completely**. Add `@source "moraine";` (Tailwind v4) or add `./node_modules/moraine/**/*.mjs` to UnoCSS content. |
+| `@import 'moraine/tw3.css';`<br/>`@import 'moraine/tw4.css';` | **Remove completely**. Component utilities are no longer bundled. Use `@source "moraine";` (Tailwind v4) or add `./node_modules/moraine/**/*.mjs` to UnoCSS content. |
+| Built-in Lucide Icons (`icon-*`) | **Plan A (Drop-in):** Add `@import 'moraine/icon.css';` to your main CSS file (zero plugin setup required).<br/>**Plan B (Zero CSS import):** Configure `@iconify/tailwind` (Tailwind v4) or `presetIcons()` (UnoCSS) in consumer build config. |
 | `import { extendCN } from 'moraine'`<br/>`extendCN(twMerge)` | **Remove completely**. Conflict resolution is handled built-in by Moraine's `cn` engine. |
 | `presetMoraine({ enableComponentLayer: true })` | **Remove `enableComponentLayer`**. Component layering is deprecated; class deduplication happens at runtime via `cn`. |
 | `presetMoraine({ wind3: true })` | **Remove `wind3`**. Tailwind v3 support is dropped; use `presetWind4()`. |
@@ -501,9 +883,10 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 ### Phase 1: Engine & Core Presets (Side-by-Side)
 1. Add `cn` package dependency to `package.json`.
 2. Implement custom `cn` instance in `src/shared/utils.ts` using `createCn` with custom `classGroups` (`z-base`..`z-floating`, `opacity-64`, `ring-3`).
-3. Implement in-house `cva` and `VariantProps` in `src/shared/cva.ts`.
-4. Create `src/shared/style/presets.ts` defining all selector-scoped atomic constants.
-5. Add unit test suite `src/shared/cva.test.ts` verifying boolean variants, compound variant arrays, readonly configs, undefined handling, and `cn` deduplication.
+3. Implement in-house `recipe` (multi-slot anatomy & atomic `cva` super-set) and `VariantProps` in `src/shared/style/recipe.ts`.
+4. Implement `defineStyleVars` and `formatCssVars` in `src/shared/style/css-vars.ts`.
+5. Create `src/shared/style/presets.ts` defining all selector-scoped atomic constants.
+6. Add unit test suites `src/shared/style/recipe.test.ts` and `src/shared/style/css-vars.test.ts` verifying multi-slot resolution, cross-slot compound variants, discrete variant caching, atomic mode, variable prefixing, 4-layer style precedence, and `cn` deduplication.
 
 ### Phase 2: Global Configuration Infrastructure
 1. Implement `MoraineProvider`, `useMoraineConfig`, and `mergeComponentStyle` in `src/shared/provider/moraine-provider.tsx`.
@@ -511,23 +894,29 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 3. Add `src/shared/provider/moraine-provider.test.tsx` verifying deep nested merging and precedence.
 
 ### Phase 3: Class, Component TSX, Test & Docs Migration
-1. **Class Modules (36 files):** Migrate all 36 `.class.ts` files to standard flat Tailwind syntax, selector-scoped constants from `presets.ts`, and CSS variable utilities.
-2. **Component TSX Files:** Migrate all component `.tsx` files to replace inline shortcuts (`effect-loading`, `effect-dis`, `hidden-hitless`, `rm-side-b`, etc.) with constants from `presets.ts`.
+1. **Class Modules (36 files):** Migrate all 36 `.class.ts` files to standard flat Tailwind syntax, selector-scoped constants from `presets.ts`, and CSS variable utilities. Consolidate fragmented multi-slot `cva` definitions (e.g. `file-upload`, `stepper`, `tabs`, `progress`, `checkbox`) into unified `recipe` structures. Migrate dynamic dimensional tokens in `slider`, `stepper`, and `progress` to `defineStyleVars` on Root element.
+2. **Component TSX Files:** Migrate all component `.tsx` files to replace inline shortcuts (`effect-loading`, `effect-dis`, `hidden-hitless`, `rm-side-b`, etc.) with constants from `presets.ts`, and consume unified `recipe` slot functions and Root `styleVars`.
 3. **Component Provider Integration:** Wire all public components (`Button`, `Input`, `Select`, `Dialog`, `Modal`, `Tabs`, `Accordion`, etc.) to consume `useMoraineConfig()` for `defaultProps`, `classes`, and `styles`.
 4. **Test Assertions:** Update all test files asserting shortcut class names:
    - `button.test.tsx`, `checkbox.test.tsx`, `input.test.tsx`, `radio-group.test.tsx`, `select.test.tsx`, `slider.test.tsx`, `switch.test.tsx`, `textarea.test.tsx`, `tabs.test.tsx`, `progress.test.tsx`, `stepper.test.tsx`, `avatar.test.tsx`, `dialog.test.tsx`, `dropdown-menu.test.tsx`, `context-menu.test.tsx`, `breadcrumb.test.tsx`, `multi-select.test.tsx`.
-5. **Docs Migration:** Migrate `docs/build/markdown/shared.class.ts`, `docs/routes/components/markdown/*`, and all `docs/**/*.mdx` pages to standard flat Tailwind syntax.
+5. **Docs Verification & Shortcut Cleanup:** Verify `docs/` against updated library components. `docs/` explicitly preserves `transformerVariantGroup()` and UnoCSS-specific syntax (variant groups, markdown shortcuts) in `docs/unocss.config.ts` and documentation authoring. Only references to deleted library internal shortcuts (such as `effect-fv` in docs chrome) are updated to standard utilities or presets.
 
 ### Phase 4: Transformer & Build Artifact Deletion
 1. Delete `src/unocss/inject-compile-class.*`, `src/unocss/inject-prefix.*`, and `src/unocss/migrate-syntax.*`.
 2. Remove `extendCN` from `src/shared/utils.ts` and public exports.
 3. Remove `cls-variant` from `package.json`.
-4. Update `src/utils.ts` to re-export `cn`, `cva`, `VariantProps`, `ClassValue`.
-5. Update `tsdown.config.ts` to remove `tw3.css` and `tw4.css` generation and remove `transformerVariantGroup`.
-6. Update `package.json` exports: remove `./tw3.css` and `./tw4.css`. Update peerDependency for Tailwind to `^4.0.0`.
+4. Update `src/utils.ts` to re-export `cn`, `recipe`, `cva`, `defineStyleVars`, `formatCssVars`, `VariantProps`, `ClassValue`.
+5. Update `tsdown.config.ts` to implement **Plan A**:
+   - Completely remove `tw3.css` and `tw4.css` build configurations, along with `baseUnocssConfig`, `createMigrateSyntaxTransformer`, and the `simplify` shortcut extractor.
+   - Retain **only** `icon.css` generation via `unocss` plugin targeting `DEFAULT_ICON_SHORTCUTS` with `presetIcons` and Lucide icons.
+   - Remove `transformerVariantGroup` from library packaging (**while explicitly preserving `transformerVariantGroup` in `docs/unocss.config.ts`**).
+6. Update `package.json` exports:
+   - Remove `./tw3.css` and `./tw4.css`.
+   - Explicitly preserve `./icon.css`: `./dist/icon.css`.
+   - Update peerDependency for Tailwind to `^4.0.0`.
 
 ### Phase 5: Verification & Quality Assurance
-1. Run static token audit gate across `src/` and `docs/`.
+1. Run static token audit gate strictly across `src/**/*.{ts,tsx}` (`docs/` is excluded as it intentionally uses UnoCSS with `transformerVariantGroup`).
 2. Run single-evaluation tracking tests on JSX-capable props (`build-ssr-safe-component` protocol).
 3. Run `nub run docs:preview` and verify production SSG rendering without console warnings.
 4. Run full Vitest suite (`nub run test`) and typechecks (`nub run qa`).
@@ -538,10 +927,12 @@ The roadmap is strictly ordered to ensure docs and tests never break mid-migrati
 
 | Verification Check | Target / Tool | Pass Criteria |
 | :--- | :--- | :--- |
-| **Token Audit Gate** | Node script on `src/**/*.{ts,tsx}` and `docs/**/*.{tsx,mdx}` | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, `style-`, `rm-side-b`, `b-1`, `b-[trblxy]`, `font-500`, `content-empty`, `not-dark:`, `not-last:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, and variant groups `\w+:\([^)]+\)`. |
-| **`cva.test.ts`** | Vitest / Unit | 100% pass on boolean variants, compound variant arrays, default variants, readonly configs, undefined handling, `cn` merging. |
+| **Token Audit Gate** | Node script strictly on `src/**/*.{ts,tsx}` | Zero matches for: `effect-`, `surface-overlay`, `hidden-hitless`, `style-`, `rm-side-b`, `b-1`, `b-[trblxy]`, `content-empty`, `not-dark:`, `not-last:`, `\$(?:mo\|p\|st\|s)-`, `var-(?:slider\|stepper\|progress)`, `ring-3px`, and variant groups `\w+:\([^)]+\)`. (`docs/` is excluded as it intentionally preserves UnoCSS with `transformerVariantGroup`). |
+| **`recipe.test.ts`** | Vitest / Unit | 100% pass on multi-slot anatomy, cross-slot compound variants, discrete variant cache hit, atomic single-element fallback, boolean variants, default variants, undefined handling, `cn` merging. |
+| **`css-vars.test.ts`**| Vitest / Unit | 100% pass on variable prefixing, variant matching, compound variants, cache hit, 4-layer style merging. |
 | **`moraine-provider.test.tsx`**| JSDOM / Unit | 100% pass on global defaults, deep nested provider merge, slot overrides, precedence over CVA defaults. |
 | **Tailwind v4 Consumer Test** | Tailwind v4 Compiler | Published-fixture build test asserting clean compilation of all component classes with `@source "moraine"`. |
 | **UnoCSS Consumer Test** | UnoCSS Generator | Asserts clean CSS emission via `presetMoraine()` and `presetWind4()`. |
 | **SSR Single Evaluation** | Node SSR + JSDOM | Getter-backed JSX prop assertions verify props evaluate exactly once during SSR and hydration. |
+| **Build Artifact Gate (Plan A)** | Node script on `dist/` | Asserts `dist/icon.css` is generated (~KB range), while `dist/tw3.css` and `dist/tw4.css` are completely absent. |
 | **SSG Production Preview** | `nub run docs:preview` | Complete documentation preview build runs without CSS breakage, hydration warnings, or runtime errors. |
