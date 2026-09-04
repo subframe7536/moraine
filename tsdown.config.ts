@@ -16,6 +16,7 @@ export default defineConfig([
       tailwind: './src/tailwind/index.ts',
     },
     plugins: [solid()],
+    clean: false,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
       onlyBundle: ['valibot'],
@@ -28,6 +29,7 @@ export default defineConfig([
     entry: {
       index: './src/index.ts',
     },
+    clean: false,
     platform: 'neutral',
     plugins: [
       unocss({

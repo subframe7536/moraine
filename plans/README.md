@@ -7,15 +7,15 @@ and update its row after completion.
 
 ## Execution order & status
 
-| Plan  | Title                                               | Priority | Effort | Depends on    | Status      |
-| ----- | --------------------------------------------------- | -------: | -----: | ------------- | ----------- |
-| 001   | Add the object-only style runtime                   |       P1 |      L | —             | DONE        |
-| 002   | Add reactive global style configuration             |       P1 |      L | 001           | DONE        |
-| 003   | Migrate elements and form components                |       P1 |     XL | 001, 002      | DONE        |
-| 004   | Migrate navigation and overlay components           |       P1 |     XL | 001, 002, 003 | DONE        |
-| 005   | Ship the v4-only consumer integration               |       P1 |      L | 003, 004      | DONE        |
-| 005.5 | Fix post-migration style precedence and bookkeeping |       P1 |      M | 005           | DONE        |
-| 006   | Prove acceptance and retire legacy styling          |       P1 |      M | 005.5         | DONE        |
+| Plan  | Title                                               | Priority | Effort | Depends on    | Status |
+| ----- | --------------------------------------------------- | -------: | -----: | ------------- | ------ |
+| 001   | Add the object-only style runtime                   |       P1 |      L | —             | DONE   |
+| 002   | Add reactive global style configuration             |       P1 |      L | 001           | DONE   |
+| 003   | Migrate elements and form components                |       P1 |     XL | 001, 002      | DONE   |
+| 004   | Migrate navigation and overlay components           |       P1 |     XL | 001, 002, 003 | DONE   |
+| 005   | Ship the v4-only consumer integration               |       P1 |      L | 003, 004      | DONE   |
+| 005.5 | Fix post-migration style precedence and bookkeeping |       P1 |      M | 005           | DONE   |
+| 006   | Prove acceptance and retire legacy styling          |       P1 |      M | 005.5         | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with a one-line reason) |
 REJECTED (with a one-line rationale).

@@ -108,9 +108,7 @@ describe('presetMoraine', () => {
       expect(css).toContain(
         '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
       )
-      expect(css).toContain(
-        '--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)',
-      )
+      expect(css).toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
       expect(css).toContain(
         'transition-duration:var(--un-duration, var(--default-transition-duration))',
       )

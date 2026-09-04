@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import {
   cpSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -20,7 +21,11 @@ let built = false
 function ensureBuild(): void {
   if (!built) {
     // Fixture tests must not inherit an unpublished or stale distribution.
-    execFileSync('nub', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'pipe' })
+    const distMjs = join(PROJECT_ROOT, 'dist/index.mjs')
+    const distDts = join(PROJECT_ROOT, 'dist/index.d.mts')
+    if (!existsSync(distMjs) || !existsSync(distDts)) {
+      execFileSync('nub', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'pipe' })
+    }
     built = true
   }
 }
