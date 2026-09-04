@@ -34,4 +34,4 @@ export type {
   MoraineProviderProps,
 } from './shared/provider/index.ts'
 export type { MoraineTypeConfig } from './shared/types.ts'
-export { cn, cva, extendCN, useId } from './shared/utils.ts'
+export { cn, useId } from './shared/utils.ts'

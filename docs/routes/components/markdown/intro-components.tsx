@@ -78,7 +78,7 @@ function IntroSpecimen() {
               value={message()}
               placeholder="Write an update"
               onInput={(event) => setMessage(event.currentTarget.value)}
-              class="text-sm text-foreground px-3 border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground focus-visible:effect-fv"
+              class="text-sm text-foreground px-3 border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </div>
 

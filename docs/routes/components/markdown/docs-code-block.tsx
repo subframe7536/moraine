@@ -119,7 +119,7 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
               size="sm"
               aria-label="Expand code"
               onClick={() => setIsExpanded(true)}
-              class="border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:effect-fv !translate-x--1/2"
+              class="border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 !translate-x--1/2"
             >
               Expand code
             </Button>

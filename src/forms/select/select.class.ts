@@ -1,4 +1,13 @@
-import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
+import {
+  MENU_SIDE_BOTTOM,
+  MENU_SIDE_LEFT,
+  MENU_SIDE_RIGHT,
+  MENU_SIDE_TOP,
+  POPUP_ENTER,
+  POPUP_EXIT,
+  SURFACE_OVERLAY,
+} from '../../shared/style/presets.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -6,6 +15,15 @@ const SELECT_TEXT_SIZE = {
   sm: 'text-xs',
   md: 'text-sm',
   lg: 'text-base',
+} as const
+
+const SELECT_CONTENT_CLASS = `text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 origin-[var(--mo-popper-content-transform-origin)] z-floating motion-reduce:animate-none ${SURFACE_OVERLAY} ${POPUP_EXIT} ${POPUP_ENTER}`
+
+const SELECT_CONTENT_SIDE_CLASS = {
+  top: `mb-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_TOP}`,
+  right: `ml-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_RIGHT}`,
+  bottom: `mt-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_BOTTOM}`,
+  left: `mr-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_LEFT}`,
 } as const
 
 export const selectControlVariants = recipe({
@@ -99,16 +117,16 @@ export const selectItemVariants = recipe({
 })
 
 export const selectContentVariants = recipe({
-  base: 'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-[var(--mo-popper-content-transform-origin)] z-floating data-closed:animate-menu-out data-expanded:animate-menu-in',
+  base: SELECT_CONTENT_CLASS,
   defaultVariants: {
     side: 'right',
   },
   variants: {
     side: {
-      top: 'mb-[var(--mo-popper-content-overflow-padding)] animate-menu-side-top',
-      right: 'ml-[var(--mo-popper-content-overflow-padding)] animate-menu-side-right',
-      bottom: 'mt-[var(--mo-popper-content-overflow-padding)] animate-menu-side-bottom',
-      left: 'mr-[var(--mo-popper-content-overflow-padding)] animate-menu-side-left',
+      top: SELECT_CONTENT_SIDE_CLASS.top,
+      right: SELECT_CONTENT_SIDE_CLASS.right,
+      bottom: SELECT_CONTENT_SIDE_CLASS.bottom,
+      left: SELECT_CONTENT_SIDE_CLASS.left,
     },
   },
 })
@@ -133,8 +151,7 @@ export const selectRecipe = recipe({
   ],
   base: {
     root: '',
-    content:
-      'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-[var(--mo-popper-content-transform-origin)] z-floating data-closed:animate-menu-out data-expanded:animate-menu-in',
+    content: SELECT_CONTENT_CLASS,
     listbox: '',
     item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
     group: '',
@@ -202,12 +219,10 @@ export const selectRecipe = recipe({
       },
     },
     side: {
-      top: { content: 'mb-[var(--mo-popper-content-overflow-padding)] animate-menu-side-top' },
-      right: { content: 'ml-[var(--mo-popper-content-overflow-padding)] animate-menu-side-right' },
-      bottom: {
-        content: 'mt-[var(--mo-popper-content-overflow-padding)] animate-menu-side-bottom',
-      },
-      left: { content: 'mr-[var(--mo-popper-content-overflow-padding)] animate-menu-side-left' },
+      top: { content: SELECT_CONTENT_SIDE_CLASS.top },
+      right: { content: SELECT_CONTENT_SIDE_CLASS.right },
+      bottom: { content: SELECT_CONTENT_SIDE_CLASS.bottom },
+      left: { content: SELECT_CONTENT_SIDE_CLASS.left },
     },
   },
   compoundVariants: [
@@ -241,8 +256,7 @@ export const multiSelectRecipe = recipe({
   ],
   base: {
     root: '',
-    content:
-      'text-popover-foreground p-0 outline-none surface-overlay rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-[var(--mo-popper-content-transform-origin)] z-floating data-closed:animate-menu-out data-expanded:animate-menu-in',
+    content: SELECT_CONTENT_CLASS,
     listbox: '',
     item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
     group: '',
@@ -310,12 +324,10 @@ export const multiSelectRecipe = recipe({
       },
     },
     side: {
-      top: { content: 'mb-[var(--mo-popper-content-overflow-padding)] animate-menu-side-top' },
-      right: { content: 'ml-[var(--mo-popper-content-overflow-padding)] animate-menu-side-right' },
-      bottom: {
-        content: 'mt-[var(--mo-popper-content-overflow-padding)] animate-menu-side-bottom',
-      },
-      left: { content: 'mr-[var(--mo-popper-content-overflow-padding)] animate-menu-side-left' },
+      top: { content: SELECT_CONTENT_SIDE_CLASS.top },
+      right: { content: SELECT_CONTENT_SIDE_CLASS.right },
+      bottom: { content: SELECT_CONTENT_SIDE_CLASS.bottom },
+      left: { content: SELECT_CONTENT_SIDE_CLASS.left },
     },
   },
 })

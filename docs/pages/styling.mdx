@@ -7,34 +7,11 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
-## Interactive State Color Tokens
-
-Moraine uses semantic `hover` and `active` color tokens for interactive surfaces instead of applying translucent overlays. Defining opaque colors for each state keeps contrast predictable when controls appear on different backgrounds.
-
-State tokens are available for `background`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, and `destructive`. Use them through the same color utilities as the base token:
-
-```tsx
-<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
-  Continue
-</button>
-```
-
-Each state has a built-in fallback, so themes can adopt the tokens incrementally:
-
-| Utility             | CSS variable fallback                                         |
-| ------------------- | ------------------------------------------------------------- |
-| `bg-primary-hover`  | `var(--primary-hover, var(--primary))`                        |
-| `bg-primary-active` | `var(--primary-active, var(--primary-hover, var(--primary)))` |
-
-The same fallback applies to every supported color family: `hover` falls back to the base color, while `active` falls back to `hover` and then the base color. There is no separate `focus` color token; focused or keyboard-highlighted interactions reuse the hover color where applicable, while focus visibility remains controlled by ring and border styles.
-
-You can define the variables directly in CSS or generate them with UnoCSS's [`colorVariables`](#color-variables) option. Moraine's Tailwind plugin exposes the same utility names.
+Moraine's styling system architecture uses atomic utility classes in the published component code. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
 
 ## UnoCSS
 
-Use either `presetWind3` or `presetWind4`, then add `presetMoraine`. Built-in component animations are included in the preset, so no extra animation preset is needed.
-
-[`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS optimized for the SolidJS setup used by Moraine. The full `unocss` package can also be used.
+Use the Wind4 preset, add `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
 
 ```ts
 // unocss.config.ts
@@ -42,37 +19,18 @@ import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
-  presets: [
-    presetWind4(),
-    presetMoraine({
-      enableComponentLayer: true,
-    }),
-    // ...other presets
-  ],
+  presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
 })
 ```
 
-`presetWind3()` is also supported; use it in place of `presetWind4()` when your application targets the Wind3 preset.
-
-### Motion duration variables
-
-Moraine components use shared duration tokens for transitions and animations. `--mo-anim-duration` overrides every Moraine motion effect; use a semantic variable when only one category should change.
-
-```css
-:root {
-  --mo-anim-duration: 180ms;
-  --mo-anim-duration-enter: 150ms;
-  --mo-anim-duration-exit: 100ms;
-  --mo-anim-duration-loop: 2s;
-  --mo-anim-duration-spin: 1s;
-}
-```
-
-Standard UnoCSS and Tailwind transition utilities use the enter token. Enter animations use the enter token, exit animations use the exit token, indeterminate progress animations use the loop token, and loading indicators use the spin token.
+The preset registers Moraine's Wind4 theme tokens, shared animations, semantic z-index values, `opacity-64`, and `data-*`/`aria-*` variants. `globalStyles` defaults to `true`.
 
 ### Color variables
 
-The preset can generate light and dark semantic variables from the same grouped shape used by Moraine's color utilities. Nothing is generated unless `colorVariables` is configured. Light and dark selectors default to `:root` and `.dark`.
+The preset can generate light and dark semantic variables. Nothing is emitted unless `colorVariables` is configured; selectors default to `:root` and `.dark`.
 
 ```ts
 presetMoraine({
@@ -97,141 +55,106 @@ presetMoraine({
     },
     hoverAdjustment: 6,
     activeAdjustment: 12,
-    // lightSelector: ':root',
-    // darkSelector: '.dark',
   },
 })
 ```
 
-Exact state colors override the global adjustments. Numeric state values generate an opaque `color-mix()` against the group's foreground color; missing state variables continue to fall back through Moraine's existing utility tokens.
+## Tailwind CSS v4
 
-## Semantic z-index utilities
-
-Moraine provides the same semantic z-index utilities through UnoCSS and Tailwind. They keep stacking intent readable while preserving the framework's numeric z-index utilities:
-
-| Utility      | Value | Typical use                                   |
-| ------------ | ----: | --------------------------------------------- |
-| `z-base`     |   `1` | Base elevated content                         |
-| `z-raised`   |   `2` | Raised content and ranges                     |
-| `z-control`  |   `3` | Interactive controls above ranges             |
-| `z-sticky`   |  `10` | Sticky and locally elevated content           |
-| `z-resize`   |  `20` | Resize affordances                            |
-| `z-overlay`  |  `40` | Modal or menu overlays                        |
-| `z-floating` |  `50` | Floating content such as dialogs and popovers |
-
-## Tailwind CSS
-
-Moraine ships a Tailwind plugin that injects CSS variable tokens, theme extensions (colors, font families, radius, shadows, keyframes, animations, and animation metadata), and `icon-*` utility stubs. It also provides `data-*` and `aria-*` variants for attribute-based styling.
-
-### v4
+Register the plugin and scan the published distribution. The `@source` path is relative to the stylesheet containing it, so adjust the leading `..` for your project layout.
 
 ```css
 @import 'tailwindcss';
-
-/* Moraine plugin: tokens, theme, icon stubs */
 @plugin 'moraine/tailwind';
-
-/* Optional: on-demand icon utilities */
-@plugin '@iconify/tailwind' {
-  collections: lucide;
-}
-
-/* Scan Moraine dist for component utility classes */
-@source './node_modules/moraine/**/*';
+@source '../node_modules/moraine/dist';
 ```
 
-Or, for a zero-config icon setup with the full bundled icon set, import the pre-built icon CSS instead:
+`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, opacity token, and state variants as the UnoCSS preset.
+
+## Icons
+
+`moraine/icon.css` is an optional runtime mask asset. It is independent of component utility generation and does not replace the required Tailwind plugin or UnoCSS preset.
 
 ```css
 @import 'moraine/icon.css';
 ```
 
-### v3
+You may instead configure an engine icon integration such as `@iconify/tailwind`. In either case, keep the Moraine plugin or preset and the published-distribution scan.
 
-```js
-/** @type {import('tailwindcss').Config} */
-const { addIconSelectors } = require('@iconify/tailwind')
-module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}', './node_modules/moraine/dist/**/*'],
-  plugins: [
-    require('moraine/tailwind')(),
-    addIconSelectors(['lucide']), // optional, for on-demand icon utilities
-  ],
-}
-```
+## Motion duration variables
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-### Icon tiers
-
-| Tier                        | How                                                   | Size              |
-| --------------------------- | ----------------------------------------------------- | ----------------- |
-| **1 — `moraine/icon.css`**  | `@import 'moraine/icon.css'` — zero deps              | ≈ full lucide set |
-| **2 — `@iconify/tailwind`** | Install `@iconify/tailwind`, use per the config above | On-demand ✓       |
-
-### Plugin options
-
-```ts
-import { moraineTailwind } from 'moraine/tailwind'
-
-moraineTailwind({
-  icons: true, // emit icon-* utility stubs (default: true)
-})
-```
-
-## Override Component Styles
-
-Use top-level `class` and `style` for the component root in normal components. Use `classes` and `styles` for named slots when you need to target a specific inner slot or overlay content; keys match slot names.
-
-- Overlay components apply top-level `class` and `style` to their **trigger** slot, because the floating content is rendered separately.
-
-```tsx
-import { Button } from 'moraine'
-
-function MyButton() {
-  return (
-    <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'bg-green-500' }}>
-      Click me
-    </Button>
-  )
+:root {
+  --mo-anim-duration: 180ms;
+  --mo-anim-duration-enter: 150ms;
+  --mo-anim-duration-exit: 100ms;
+  --mo-anim-duration-loop: 2s;
+  --mo-anim-duration-spin: 1s;
 }
 ```
 
-## Class Concatenation
+The general variable overrides every Moraine motion effect. The semantic variables target entry, exit, looping, and spinner animations separately.
 
-Moraine provides `cn()` and `cva()` utilities that concatenate class strings and conditionals. They are used internally to merge user-provided classes with defaults.
+## Interactive color tokens
 
-```ts
-import { cn, cva } from 'moraine'
-
-cn('btn', 'btn-primary', isDisabled && 'btn-disabled') // => "btn btn-primary btn-disabled"
-
-const buttonClasses = cva('btn', {
-  variants: {
-    color: {
-      primary: 'btn-primary',
-      secondary: 'btn-secondary',
-    },
-    disabled: {
-      true: 'btn-disabled',
-    },
-  },
-})
-buttonClasses({ color: 'primary', disabled: isDisabled }, 'other', condition && 'another')
-// => "btn btn-primary btn-disabled other another"
-```
-
-## Patch Built-in `cn`
-
-Moraine exports `extendCN` so you can plug in class merge utilities like `tailwind-merge`.
+Interactive surfaces use semantic `hover` and `active` colors. Each hover token falls back to its base color; each active token falls back to hover and then base.
 
 ```tsx
-import { extendCN } from 'moraine'
-import { twMerge } from 'tailwind-merge'
-
-extendCN(twMerge)
+<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
+  Continue
+</button>
 ```
+
+## Semantic z-index utilities
+
+| Utility      | Value | Typical use                      |
+| ------------ | ----: | -------------------------------- |
+| `z-base`     |     1 | Base elevated content            |
+| `z-raised`   |     2 | Raised content and ranges        |
+| `z-control`  |     3 | Controls above local ranges      |
+| `z-sticky`   |    10 | Sticky content                   |
+| `z-resize`   |    20 | Resize affordances               |
+| `z-overlay`  |    40 | Overlay layers                   |
+| `z-floating` |    50 | Dialogs, menus, and other popups |
+
+## Override component styles
+
+Moraine resolves styles in this order:
+
+1. Component defaults.
+2. Provider defaults.
+3. Composition-group overrides.
+4. Component-instance overrides.
+
+Later values win when utility classes conflict. For a component root, the `class` and `style` props are applied after inherited root values. For named slots, `classes` and `styles` are applied after inherited values for the same slot. Overlay components apply top-level `class` and `style` to their trigger; use named `content` or `overlay` slots for floating elements.
+
+```tsx
+<Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
+  Continue
+</Button>
+```
+
+`style` and `styles` accept CSS property objects only.
+
+## `cn` and `recipe`
+
+`cn()` combines conditional class values and resolves supported utility conflicts. It does not generate CSS, scan component files, load the plugin or preset, or validate theme tokens.
+
+```ts
+import { cn, recipe } from 'moraine'
+
+cn('px-2 bg-primary', active && 'bg-primary-active')
+
+const button = recipe({
+  base: 'rounded-md px-3',
+  variants: {
+    tone: {
+      primary: 'bg-primary text-primary-foreground',
+      subtle: 'bg-muted text-foreground',
+    },
+  },
+  defaultVariants: { tone: 'primary' },
+})
+```
+
+`recipe()` accepts an options object and supports atomic and named-slot recipes. The previous positional variant-helper API and runtime merge-patching hook are removed.

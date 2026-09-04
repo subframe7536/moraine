@@ -14,9 +14,6 @@ importers:
       '@formisch/solid':
         specifier: 1.0.0
         version: 1.0.0(solid-js@1.9.15)(typescript@7.0.2)(valibot@1.4.2(typescript@7.0.2))
-      cls-variant:
-        specifier: ^1.2.0
-        version: 1.2.0
       cn:
         specifier: ^0.2.4
         version: 0.2.4
@@ -1303,9 +1300,6 @@ packages:
 
   character-entities-legacy@3.0.0:
     resolution: {integrity: sha512-RpPp0asT/6ufRm//AJVwpViZbGM/MkjQFxJccQRHmISF/22NBtsHqAWmL+/pmkPWoIUJdWyeVleTl1wydHATVQ==}
-
-  cls-variant@1.2.0:
-    resolution: {integrity: sha512-lqm6rqQfzXKvjqhU4BafCAZknHOGTiQx7ovem4w2TDqxFiJOWvUw6GKezUCsTLgNXeFPLPghvuYWCUsDeSaTHA==}
 
   cn@0.2.4:
     resolution: {integrity: sha512-SzQvoh5FwizWtQg9+JueKdjWhlfCZMdu5DqNHm9q1wUlRVmKb9WXlepR9bTTbPwzEOyX1ujJ6lcCppmn3bNUCg==}
@@ -3144,8 +3138,6 @@ snapshots:
   character-entities-html4@2.1.0: {}
 
   character-entities-legacy@3.0.0: {}
-
-  cls-variant@1.2.0: {}
 
   cn@0.2.4: {}
 

@@ -278,7 +278,7 @@ describe('Accordion', () => {
       <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue={['empty']} />
     ))
     const panel = panelScreen.getByRole('region', { name: 'Empty' })
-    expect(panel.querySelector('.style-accordion-content')).toBeNull()
+    expect(panel.childElementCount).toBe(0)
   })
 
   test('navigates triggers with ArrowDown, ArrowUp, Home, and End', async () => {

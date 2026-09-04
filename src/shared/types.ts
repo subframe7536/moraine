@@ -1,5 +1,8 @@
-import type { ClassValue } from 'cls-variant'
 import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
+
+import type { ClassValue } from './style/recipe.ts'
+
+export type { ClassValue } from './style/recipe.ts'
 
 export type SlotClassValue = ClassValue
 

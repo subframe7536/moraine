@@ -17,11 +17,9 @@ Full guide and examples: https://ui.subf.dev
 npm add moraine solid-js
 ```
 
-2. Setup Styles
+2. Configure a CSS engine. Moraine publishes atomic component classes rather than precompiled component CSS.
 
-UnoCSS as example here ([`@subf/unocss`](https://github.com/subframe7536/unocss) is a custom subset collection made by me).
-
-Also, Tailwind CSS is supported with the experimental Moraine plugin.
+For UnoCSS, load the Wind4 and Moraine presets and scan the published package:
 
 ```ts
 // unocss.config.ts
@@ -30,8 +28,21 @@ import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
 })
 ```
+
+For Tailwind CSS v4, add the plugin and a source path relative to your stylesheet:
+
+```css
+@import 'tailwindcss';
+@plugin 'moraine/tailwind';
+@source '../node_modules/moraine/dist';
+```
+
+Import `moraine/icon.css` only when you want the optional bundled icon masks. It does not replace the required preset/plugin configuration.
 
 3. Now you can import components directly from `moraine`.
 

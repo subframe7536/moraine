@@ -3,9 +3,9 @@ import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'

@@ -183,7 +183,11 @@ describe('MoraineProvider Solid Integration', () => {
         mountCount++
       })
       const cfg = useMoraineConfig()
-      return <div data-testid="consumer">{String(cfg().button?.class ?? '')}</div>
+      const className = () => {
+        const value = cfg().button?.class
+        return typeof value === 'string' ? value : ''
+      }
+      return <div data-testid="consumer">{className()}</div>
     }
 
     const { getByTestId } = render(() => (

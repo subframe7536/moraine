@@ -13,9 +13,9 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { callRef, cn, useId } from '../../shared/utils.ts'

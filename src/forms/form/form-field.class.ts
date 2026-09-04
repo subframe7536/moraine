@@ -1,4 +1,4 @@
-import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class.ts'
+import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 

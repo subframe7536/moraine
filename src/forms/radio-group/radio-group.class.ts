@@ -6,7 +6,7 @@ import {
   FLEX_ORIENTATION_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
   TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class.ts'
+} from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 

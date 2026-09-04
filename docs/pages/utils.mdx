@@ -1,15 +1,37 @@
 ---
 title: Utils
-description: Public helper hooks and low-level utilities for building custom Moraine-based primitives.
+description: Public helpers and hooks for building custom Moraine-based primitives.
 sidebar:
   order: 4
 search:
-  tags: [helpers, hooks, cn, cva]
+  tags: [helpers, hooks, cn, recipe]
 ---
 
-## Usage
+## Styling helpers
 
-Import shared helpers from the dedicated subpath:
+`cn` and `recipe` are exported from `moraine`.
+
+```tsx
+import { cn, recipe } from 'moraine'
+
+const badge = recipe({
+  base: 'rounded px-2',
+  variants: {
+    tone: {
+      neutral: 'bg-muted text-foreground',
+      primary: 'bg-primary text-primary-foreground',
+    },
+  },
+})
+
+const className = cn(badge({ tone: 'primary' }), disabled && 'opacity-64')
+```
+
+`cn` combines conditional class values and resolves supported conflicts. `recipe` accepts an options object and creates either an atomic or named-slot variant resolver.
+
+## Shared hooks
+
+Import low-level hooks from the dedicated subpath:
 
 ```tsx
 import {
@@ -27,9 +49,7 @@ import {
 } from 'moraine/utils'
 ```
 
-> Top-level styling helpers such as `cn`, `cva`, and `extendCN` continue to be exported from `moraine`.
-
-## `useControllableValue`
+### `useControllableValue`
 
 Bridge controlled and uncontrolled state with a single accessor/setter pair.
 
@@ -40,40 +60,19 @@ const [value, setValue] = useControllableValue({
 })
 ```
 
-## `useDisclosureState`
+### `useDisclosureState`
 
-Track open-state metadata for collapsible content, including `data-*` attrs and measured content height.
+Track open-state metadata for collapsible content, including `data-*` attributes and measured content height.
 
-```tsx
-const disclosure = useDisclosureState({
-  open: () => open(),
-  disabled: () => props.disabled ?? false,
-})
-```
-
-## `useTransitionPresence`
+### `useTransitionPresence`
 
 Keep an element mounted until its exit animation finishes.
 
-```tsx
-const presence = useTransitionPresence({
-  open: () => open(),
-})
-```
-
-## `useSelectableCollectionNavigation`
+### `useSelectableCollectionNavigation`
 
 Add keyboard navigation for tabs, radio groups, listboxes, and similar selectable collections.
 
-```tsx
-const { onNavigationKeyDown } = useSelectableCollectionNavigation({
-  items: () => items(),
-  getValue: (item) => item.value,
-  onSelect: (value) => setSelected(value),
-})
-```
-
-## `createMediaQuery`
+### `createMediaQuery`
 
 Create a reactive boolean accessor from a media query.
 
@@ -81,43 +80,26 @@ Create a reactive boolean accessor from a media query.
 const isMobile = createMediaQuery('(max-width: 768px)', false)
 ```
 
-## `useListVirtualizer`
+### `useListVirtualizer`
 
-Create a `virtualRender` adapter for `List`, `Select`, or `MultiSelect` based on `@tanstack/virtual-core`. Configure row measurement with `estimateSize`, pass `virtualRender` to the component, and forward `scrollToIndex` through Select or MultiSelect's `scrollToItem` prop when keyboard navigation needs to reveal an off-screen entry.
+Create a `virtualRender` adapter for `List`, `Select`, or `MultiSelect` based on `@tanstack/virtual-core`. Configure row measurement with `estimateSize` and forward `scrollToIndex` through Select or MultiSelect's `scrollToItem` prop when keyboard navigation must reveal an off-screen item.
 
-## `useId`
+### `useId`
 
-Create a stable accessor for explicit or generated element IDs.
+Create a stable accessor for an explicit or generated element ID.
 
 ```tsx
 const id = useId(() => props.id, 'dialog')
 ```
 
-## `useEventListener` and `useEventListenerMap`
+### `useEventListener` and `useEventListenerMap`
 
 Attach event listeners with automatic cleanup when the owner scope is disposed.
 
-```tsx
-useEventListener(window, 'keydown', (event) => {
-  if (event.key === 'Escape') close()
-})
-```
+### `useLoadingAutoClick`
 
-## `useLoadingAutoClick`
+Wrap asynchronous click handlers and derive a loading state while the returned promise is pending.
 
-Wrap async click handlers and derive a loading state automatically while the returned promise is pending.
-
-```tsx
-const { isLoading, onClick } = useLoadingAutoClick({
-  loadingAuto: () => true,
-  onClick: () => props.onSubmit,
-})
-```
-
-## `createContextProvider`
+### `createContextProvider`
 
 Create a typed Solid context provider and matching consumer hook with optional fallback support.
-
-```tsx
-const [DialogProvider, useDialogContext] = createContextProvider<DialogContextValue>('Dialog')
-```

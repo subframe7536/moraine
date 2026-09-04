@@ -1,4 +1,4 @@
-import { INPUT_VARIANT } from '../../shared/cva-common.class.ts'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 import { inputRootVariants } from '../input/input.class.ts'

@@ -8,8 +8,8 @@ import {
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
-} from '../shared/style/animations'
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../shared/style/animations.ts'
+import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -17,7 +17,7 @@ import {
   MORAINE_SHADOW,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../shared/style/theme'
+} from '../shared/style/theme.ts'
 
 export interface MorainePluginOptions {
   /**
@@ -56,22 +56,35 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
 
       // Attribute variants for data-* and aria-* selectors
       // Enables utilities like data-active:bg-primary -> [data-active]:bg-primary
-      matchVariant('data', (value) => `[data-${value}] &`, {
+      matchVariant('data', (value) => `&[data-${value}]`, {
         values: Object.fromEntries(
           [
             'active',
             'checked',
+            'clickable',
+            'closed',
+            'cross',
             'disabled',
+            'dragging',
             'expanded',
+            'focused',
+            'highlighted',
             'hidden',
+            'indeterminate',
+            'invalid',
+            'loading',
             'open',
+            'positioned',
             'selected',
             'pressed',
+            'submitting',
+            'transitioning',
+            'unchecked',
           ].map((v) => [v, v]),
         ),
       })
 
-      matchVariant('aria', (value) => `[aria-${value}] &`, {
+      matchVariant('aria', (value) => `&[aria-${value}]`, {
         values: Object.fromEntries(
           [
             'busy',
@@ -79,6 +92,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             'disabled',
             'expanded',
             'hidden',
+            'invalid',
             'modal',
             'pressed',
             'readonly',
@@ -108,7 +122,12 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             ...getMoraineAnimTimingFns(),
           },
           animationIterationCount: getMoraineAnimCounts(),
+          opacity: {
+            64: '0.64',
+          },
         },
       },
     },
   )
+
+export default moraineTailwind()

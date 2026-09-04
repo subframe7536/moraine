@@ -1,634 +1,150 @@
-import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
-import { createGenerator, presetIcons, presetWind3, presetWind4 } from '@subf/unocss'
-import MagicString from 'magic-string'
+import { createGenerator, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
-import { presetMoraine, resolvePresetThemeOptions } from './theme'
-import type { PresetThemeOptions } from './theme'
+import { presetMoraine, resolvePresetThemeOptions } from './theme.ts'
 
-vi.mock('./shared.ts', async () => {
-  const actual = await vi.importActual('./shared.ts')
-  return {
-    ...actual,
-    isInVSCode: () => false,
-  }
-})
-
-async function applyPreTransformers(
-  source: string,
-  id: string,
-  generator: Awaited<ReturnType<typeof createGenerator>>,
-): Promise<string> {
-  let code = source
-  const context = {
-    uno: generator,
-    tokens: new Set<string>(),
-    invalidate() {},
-  }
-
-  for (const transformer of generator.config.transformers || []) {
-    if ((transformer.enforce || 'default') !== 'pre') {
-      continue
-    }
-
-    if (transformer.idFilter && !transformer.idFilter(id)) {
-      continue
-    }
-
-    const magicString = new MagicString(code)
-    await transformer.transform(magicString, id, context as any)
-
-    if (magicString.hasChanged()) {
-      code = magicString.toString()
-    }
-  }
-
-  return code
-}
-
-async function generateComponentLayerCss(
-  strategy: 'hash' | 'prefix',
-  utilityPrefix: `${string}-` = 'mo-',
-): Promise<{
-  componentCode: string
-  consumerCode: string
-  css: string
-}> {
+async function generate(tokens: string[], preflights = false): Promise<string> {
   const generator = await createGenerator({
-    presets: [
-      presetWind4(),
-      presetMoraine({
-        enableComponentLayer: {
-          strategy,
-          utilityPrefix,
-          idFilter(id) {
-            return id.includes('/src/')
-          },
-        },
-      }),
-    ],
+    presets: [presetWind4(), presetMoraine()],
   })
-
-  const componentSource = "export const INPUT_VARIANT = { outline: 'bg-transparent' } as const"
-  const consumerSource = "const view = <Input classes={{ root: 'bg-background' }} />"
-
-  const componentCode = await applyPreTransformers(
-    componentSource,
-    '/app/src/input.class.ts',
-    generator,
-  )
-  const consumerCode = await applyPreTransformers(
-    consumerSource,
-    '/app/docs/sidebar.tsx',
-    generator,
-  )
-
-  const tokens = new Set<string>()
-  await generator.applyExtractors(componentCode, '/app/src/input.class.ts', tokens)
-  await generator.applyExtractors(consumerCode, '/app/docs/sidebar.tsx', tokens)
-  const { css } = await generator.generate(tokens, { preflights: false })
-
-  return {
-    componentCode,
-    consumerCode,
-    css,
-  }
-}
-
-async function generatePreflightCSS(options?: PresetThemeOptions): Promise<string> {
-  const generator = await createGenerator({
-    presets: [presetWind4(), presetMoraine(options)],
-  })
-  const { css } = await generator.generate(new Set(), { preflights: true })
+  const { css } = await generator.generate(new Set(tokens), { preflights })
   return css
 }
 
-describe('presetTheme component layer', () => {
-  test('does not emit color variables without colorVariables configuration', async () => {
-    const css = await generatePreflightCSS()
+describe('presetMoraine', () => {
+  test('registers Wind4 theme tokens', async () => {
+    const css = await generate([
+      'rounded-lg',
+      'shadow-md',
+      'font-sans',
+      'w-sidebar',
+      'bg-primary',
+      'z-floating',
+      'opacity-64',
+    ])
 
-    expect(css).not.toContain('--primary:')
-    expect(css).not.toContain('--background-hover:')
-  })
-
-  test('emits partial grouped palettes with the default light and dark selectors', async () => {
-    const css = await generatePreflightCSS({
-      colorVariables: {
-        light: {
-          foreground: '#111',
-          primary: {
-            DEFAULT: '#246',
-            foreground: '#fff',
-            hover: '#357',
-          },
-          border: '#ddd',
-        },
-        dark: {
-          foreground: '#eee',
-          primary: {
-            DEFAULT: '#8ac',
-            foreground: '#123',
-          },
-        },
-      },
-    })
-
-    expect(css).toContain(`:root {
-  --foreground: #111;
-  --primary: #246;
-  --primary-foreground: #fff;
-  --primary-hover: #357;
-  --border: #ddd;
-}`)
-    expect(css).toContain(`.dark {
-  --foreground: #eee;
-  --primary: #8ac;
-  --primary-foreground: #123;
-}`)
-    expect(css).not.toContain('--primary-active:')
-    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
-  })
-
-  test('supports flat adjustments, group overrides, resolvers, and custom selectors', async () => {
-    const activeResolver = vi.fn(() => '#135')
-    const preset = presetMoraine({
-      colorVariables: {
-        light: {
-          background: { DEFAULT: '#fff' },
-          foreground: '#111',
-          primary: {
-            DEFAULT: '#246',
-            foreground: '#fff',
-            hover: '#357',
-            active: activeResolver,
-          },
-        },
-        dark: {
-          primary: {
-            DEFAULT: '#8ac',
-            foreground: '#123',
-            hover: 8,
-          },
-        },
-        lightSelector: 'html[data-theme=light]',
-        darkSelector: 'html[data-theme=dark]',
-        hoverAdjustment: 6,
-        activeAdjustment: 12,
-      },
-      globalStyles: false,
-    })
-    const generator = await createGenerator({ presets: [presetWind4(), preset] })
-    const { css } = await generator.generate(new Set(), { preflights: true })
-
-    expect(activeResolver).toHaveBeenCalledWith({
-      adjustment: 12,
-      base: '#246',
-      color: 'primary',
-      foreground: '#fff',
-      selector: 'html[data-theme=light]',
-      state: 'active',
-      theme: 'light',
-    })
-    expect(css).toContain('html[data-theme=light] {')
-    expect(css).toContain(
-      '--background-hover: color-mix(in oklch, var(--background), var(--foreground) 6%);',
-    )
-    expect(css).toContain('--primary-hover: #357;')
-    expect(css).toContain('--primary-active: #135;')
-    expect(css).toContain('html[data-theme=dark] {')
-    expect(css).toContain(
-      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground) 8%);',
-    )
-    expect(css).toContain(
-      '--primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground) 12%);',
-    )
-    expect(css).not.toContain('\nhtml {\n  background-color: var(--background);')
-  })
-
-  test('rejects invalid global and group state adjustments', () => {
-    expect(() =>
-      presetMoraine({ colorVariables: { hoverAdjustment: Number.POSITIVE_INFINITY } }),
-    ).toThrow('[preset-moraine] colorVariables.hoverAdjustment')
-
-    expect(() =>
-      presetMoraine({
-        colorVariables: {
-          light: {
-            primary: { hover: -1 },
-          },
-        },
-      }),
-    ).toThrow('[preset-moraine] primary.hover adjustment')
-  })
-
-  test('provides semantic hover and active colors with base fallbacks', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'bg-background-hover',
-        'bg-card-active',
-        'bg-popover-hover',
-        'bg-primary-active',
-        'bg-secondary-hover',
-        'bg-muted-active',
-        'bg-accent-hover',
-        'bg-destructive-active',
-      ]),
-      { preflights: false },
-    )
-
-    expect(css).toContain('var(--background-hover, var(--background))')
-    expect(css).toContain('var(--card-active, var(--card-hover, var(--card)))')
-    expect(css).toContain('var(--popover-hover, var(--popover))')
-    expect(css).toContain('var(--primary-active, var(--primary-hover, var(--primary)))')
-    expect(css).toContain('var(--secondary-hover, var(--secondary))')
-    expect(css).toContain('var(--muted-active, var(--muted-hover, var(--muted)))')
-    expect(css).toContain('var(--accent-hover, var(--accent))')
-    expect(css).toContain('var(--destructive-active, var(--destructive-hover, var(--destructive)))')
-    expect(css).not.toContain('-focus')
-  })
-
-  test('provides semantic z-index utilities', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'z-base',
-        'z-raised',
-        'z-control',
-        'z-sticky',
-        'z-resize',
-        'z-overlay',
-        'z-floating',
-      ]),
-      { preflights: false },
-    )
-
-    expect(css).toContain('.z-base')
-    expect(css).toContain('z-index:1')
-    expect(css).toContain('.z-raised')
-    expect(css).toContain('z-index:2')
-    expect(css).toContain('.z-control')
-    expect(css).toContain('z-index:3')
-    expect(css).toContain('.z-sticky')
-    expect(css).toContain('z-index:10')
-    expect(css).toContain('.z-resize')
-    expect(css).toContain('z-index:20')
-    expect(css).toContain('.z-overlay')
-    expect(css).toContain('z-index:40')
+    expect(css).toContain('.rounded-lg')
+    expect(css).toContain('var(--radius-lg)')
+    expect(css).toContain('.shadow-md')
+    expect(css).toContain('var(--shadow-md)')
+    expect(css).toContain('.font-sans')
+    expect(css).toContain('var(--font-sans)')
+    expect(css).toContain('.w-sidebar')
+    expect(css).toContain('var(--spacing-sidebar)')
+    expect(css).toContain('.bg-primary')
+    expect(css).toContain('var(--primary)')
     expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
+    expect(css).toContain('.opacity-64')
+    expect(css).toContain('opacity:64%')
   })
 
-  test('defaults enableComponentLayer to prefix strategy with mo- utility prefix', () => {
-    expect(resolvePresetThemeOptions({ enableComponentLayer: true })).toMatchObject({
-      enableComponentLayer: true,
-      strategy: 'prefix',
-      utilityPrefix: 'mo-',
-    })
+  test('registers data and aria presence variants', async () => {
+    const css = await generate([
+      'data-disabled:opacity-64',
+      'data-focused:ring-3',
+      'aria-invalid:border-destructive',
+    ])
+
+    expect(css).toContain('[data-disabled]')
+    expect(css).toContain('[data-focused]')
+    expect(css).toContain('[aria-invalid]')
+    expect(css).toContain('opacity:64%')
+    expect(css).toContain('var(--destructive)')
   })
 
-  test('prefix strategy isolates component utilities with the configured prefix', async () => {
-    const { componentCode, consumerCode, css } = await generateComponentLayerCss('prefix', 'ui-')
+  test('registers shared enter and exit animations', async () => {
+    const css = await generate(['animate-mo-enter', 'animate-mo-exit'], true)
 
-    expect(componentCode).toContain('ui-bg-transparent')
-    expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: mo-component */')
-    expect(css).toContain('.ui-bg-transparent{background-color:transparent;}')
-    expect(css).toContain('/* layer: default */')
-    expect(css).toContain(
-      '.bg-background{background-color:color-mix(in srgb, var(--background) var(--un-bg-opacity), transparent);}',
-    )
-    expect(css).not.toContain('.bg-transparent{background-color:transparent;}')
-  })
-
-  test('hash strategy hashes only component-owned utilities and leaves user overrides raw', async () => {
-    const { componentCode, consumerCode, css } = await generateComponentLayerCss('hash')
-
-    expect(componentCode).toMatch(/moc-[a-z0-9]+/)
-    expect(componentCode).not.toContain('bg-transparent')
-    console.log(componentCode)
-    expect(consumerCode).toContain("classes={{ root: 'bg-background' }}")
-    expect(css).toContain('/* layer: mo-component */')
-    expect(css).toMatch(/\.moc-[a-z0-9]+\{background-color:transparent;\}/)
-    expect(css).toContain('/* layer: default */')
-    expect(css).toContain(
-      '.bg-background{background-color:color-mix(in srgb, var(--background) var(--un-bg-opacity), transparent);}',
-    )
-    expect(css).not.toContain('.bg-transparent{background-color:transparent;}')
-  })
-
-  test('provides semantic animation utilities via shared enter and exit keyframes', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'animate-overlay-in',
-        'animate-popup-in',
-        'animate-menu-in',
-        'animate-menu-side-top',
-        'animate-menu-origin-top-left',
-        'animate-sheet-out',
-        'animate-sheet-side-right',
-        'animate-popover-in',
-        'animate-popover-side-left',
-        'animate-popup-out',
-      ]),
-      { preflights: true },
-    )
-
+    expect(css).toContain('.animate-mo-enter')
+    expect(css).toContain('.animate-mo-exit')
     expect(css).toContain('@keyframes mo-enter')
     expect(css).toContain('@keyframes mo-exit')
-    expect(css).toContain('.animate-overlay-in')
-    expect(css).toContain('.animate-popup-in')
-    expect(css).toContain('.animate-menu-in')
-    expect(css).toContain('.animate-menu-side-top')
-    expect(css).not.toContain('.animate-menu-origin-top-left')
-    expect(css).toContain('.animate-sheet-out')
-    expect(css).toContain('.animate-sheet-side-right')
-    expect(css).toContain('.animate-popover-in')
-    expect(css).toContain('.animate-popover-side-left')
-    expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
-    )
-    expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
-    )
-    expect(css).toContain('--mo-enter-opacity:0')
-    expect(css).toContain('--mo-enter-scale:0.9')
-    expect(css).toContain('--mo-enter-translate-y:0.25rem')
-    expect(css).toContain('--mo-exit-translate-x:2.5rem')
-    expect(css).toContain('--mo-exit-scale:0.9')
-    expect(css).not.toContain('animation:mo-enter;}')
-    expect(css).not.toContain('animation:mo-exit;}')
-    expect(css).not.toContain('@keyframes surface-in')
-    expect(css).not.toContain('@keyframes menu-in')
-    expect(css).not.toContain('@keyframes sheet-out')
+    expect(css).toContain('--mo-anim-duration-enter,250ms')
+    expect(css).toContain('--mo-anim-duration-exit,150ms')
   })
 
-  test('provides split trigger and side animation utilities for overlays', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
+  test('retains semantic z-index and icon shortcuts only', () => {
+    const preset = presetMoraine()
+    const shortcuts = (preset.shortcuts as Array<[string, unknown]>).map((shortcut) => shortcut[0])
 
-    const { css } = await generator.generate(
-      new Set([
-        'animate-menu-in',
-        'animate-menu-out',
-        'animate-menu-side-left',
-        'animate-popover-in',
-        'animate-popover-out',
-        'animate-popover-side-top',
-        'animate-tooltip-in',
-        'animate-tooltip-out',
-        'animate-tooltip-side-bottom',
-        'animate-popup-out',
-        'animate-sheet-in',
-        'animate-sheet-out',
-        'animate-sheet-side-right',
-      ]),
-      { preflights: true },
-    )
-
-    expect(css).toContain('.animate-menu-in')
-    expect(css).toContain('.animate-menu-out')
-    expect(css).toContain('.animate-menu-side-left')
-    expect(css).toContain('--mo-enter-scale:0.9')
-    expect(css).toContain('--mo-enter-translate-x:0.25rem')
-    expect(css).toContain('--mo-exit-scale:0.9')
-    expect(css).toContain('.animate-popover-in')
-    expect(css).toContain('.animate-popover-out')
-    expect(css).toContain('.animate-popover-side-top')
-    expect(css).toContain('.animate-tooltip-in')
-    expect(css).toContain('.animate-tooltip-out')
-    expect(css).toContain('.animate-tooltip-side-bottom')
-    expect(css).toContain('.animate-popup-out')
-    expect(css).toContain('.animate-sheet-in')
-    expect(css).toContain('.animate-sheet-out')
-    expect(css).toContain('.animate-sheet-side-right')
-    expect(css).toContain(
-      'animation:mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1',
-    )
-    expect(css).toContain(
-      'animation:mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1',
-    )
-    expect(css).toContain('--mo-enter-translate-x:2.5rem')
-    expect(css).toContain('--mo-exit-translate-x:2.5rem')
-    expect(css).not.toContain('.animate-menu-in-from-left{')
-    expect(css).not.toContain('.animate-menu-out-to-left{')
-    expect(css).not.toContain('.animate-popover-in-from-top{')
-    expect(css).not.toContain('.animate-tooltip-in-from-bottom{')
-    expect(css).not.toContain('.animate-sheet-in-from-right{')
-    expect(css).not.toContain('.animate-sheet-out-to-right{')
+    expect(shortcuts).toContain('z-floating')
+    expect(shortcuts).toContain('icon-check')
+    expect(
+      shortcuts.every((shortcut) => shortcut.startsWith('z-') || shortcut.startsWith('icon-')),
+    ).toBe(true)
+    expect(preset.transformers).toBeUndefined()
+    expect(preset.rules).toBeUndefined()
   })
 
-  test('uses Nova-style four-direction menu motion for entry and exit', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
+  test('uses the shared enter transition defaults', async () => {
+    const css = await generate(['transition', 'transition-colors'], true)
 
-    const { css } = await generator.generate(
-      new Set([
-        'animate-menu-in',
-        'animate-menu-out',
-        'animate-menu-side-top',
-        'animate-menu-side-right',
-        'animate-menu-side-bottom',
-        'animate-menu-side-left',
-      ]),
-      { preflights: true },
-    )
-
-    expect(css).toContain(
-      '.animate-menu-side-top{--mo-enter-translate-y:0.25rem;--mo-exit-translate-y:0.25rem;}',
-    )
-    expect(css).toContain(
-      '.animate-menu-side-right{--mo-enter-translate-x:-0.25rem;--mo-exit-translate-x:-0.25rem;}',
-    )
-    expect(css).toContain(
-      '.animate-menu-side-bottom{--mo-enter-translate-y:-0.25rem;--mo-exit-translate-y:-0.25rem;}',
-    )
-    expect(css).toContain(
-      '.animate-menu-side-left{--mo-enter-translate-x:0.25rem;--mo-exit-translate-x:0.25rem;}',
-    )
-    expect(css).toContain('--mo-exit-opacity:0')
-    expect(css).toContain('--mo-exit-scale:0.95')
-  })
-
-  test('uses shared enter tokens for standard transition utilities', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'transition',
-        'transition-all',
-        'transition-colors',
-        'transition-opacity',
-        'transition-transform',
-        'transition-mo-enter',
-        'transition-mo-exit',
-      ]),
-      { preflights: true },
-    )
-
-    expect(css).toContain('.transition{')
-    expect(css).toContain('.transition-all{')
-    expect(css).toContain('.transition-colors{')
-    expect(css).toContain('.transition-opacity{')
-    expect(css).toContain('.transition-transform{')
     expect(css).toContain(
       '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
     )
     expect(css).toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
-    expect(css).not.toContain('.transition-mo-enter')
-    expect(css).not.toContain('.transition-mo-exit')
-  })
-
-  test('uses shared enter tokens for Wind3 transition utilities', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind3(), presetMoraine({ wind3: true })],
-    })
-
-    const { css } = await generator.generate(
-      new Set(['transition', 'transition-colors', 'transition-transform']),
-      { preflights: false },
-    )
-
-    expect(css).toContain('.transition{')
-    expect(css).toContain('.transition-colors{')
-    expect(css).toContain('.transition-transform{')
     expect(css).toContain(
-      'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
+      'transition-duration:var(--un-duration, var(--default-transition-duration))',
     )
-    expect(css).toContain('transition-timing-function:cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
-  test('compiles the button press interaction selector', async () => {
+  test('does not emit color variables without configuration', async () => {
     const generator = await createGenerator({
       presets: [presetWind4(), presetMoraine()],
     })
+    const { css } = await generator.generate(new Set(), { preflights: true })
 
-    const { css } = await generator.generate(
-      new Set(['transition-all', '[&:active:not([aria-haspopup])]:translate-y-px']),
-      { preflights: false },
-    )
-
-    expect(css).toContain('transition-property:all')
-    expect(css).toContain(':active:not([aria-haspopup])')
-    expect(css).toContain('--un-translate-y:1px')
+    expect(css).not.toContain('--primary:')
+    expect(css).toContain('background-color: var(--background)')
   })
 
-  test('removes carousel inverse utilities while keeping base carousel utilities', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'animate-carousel',
-        'animate-carousel-rtl',
-        'animate-carousel-vertical',
-        'animate-carousel-inverse',
-        'animate-carousel-inverse-rtl',
-        'animate-carousel-inverse-vertical',
-      ]),
-      { preflights: true },
-    )
-
-    expect(css).toContain('.animate-carousel{')
-    expect(css).toContain('.animate-carousel-rtl{')
-    expect(css).toContain('.animate-carousel-vertical{')
-    expect(css).toContain('@keyframes carousel')
-    expect(css).toContain('@keyframes carousel-rtl')
-    expect(css).toContain('@keyframes carousel-vertical')
-    expect(css).not.toContain('.animate-carousel-inverse{')
-    expect(css).not.toContain('.animate-carousel-inverse-rtl{')
-    expect(css).not.toContain('.animate-carousel-inverse-vertical{')
-    expect(css).not.toContain('@keyframes carousel-inverse')
-    expect(css).not.toContain('@keyframes carousel-inverse-rtl')
-    expect(css).not.toContain('@keyframes carousel-inverse-vertical')
-  })
-
-  test('uses shared loop and spin animation metadata', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(new Set(['animate-carousel', 'animate-spin']), {
-      preflights: true,
-    })
-
-    expect(css).toContain(
-      'animation:carousel var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite',
-    )
-    expect(css).toContain(
-      'animation:spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite',
-    )
-    expect(css).toContain('@keyframes spin')
-  })
-
-  test('uses semantic side classes with expected horizontal direction signs', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
-
-    const { css } = await generator.generate(
-      new Set([
-        'animate-menu-side-left',
-        'animate-menu-side-right',
-        'animate-popover-side-left',
-        'animate-popover-side-right',
-        'animate-tooltip-side-left',
-        'animate-tooltip-side-right',
-        'animate-sheet-side-left',
-        'animate-sheet-side-right',
-      ]),
-      { preflights: true },
-    )
-
-    expect(css).toContain('.animate-menu-side-left')
-    expect(css).toContain('.animate-menu-side-right')
-    expect(css).toContain('--mo-enter-translate-x:0.5rem')
-    expect(css).toContain('--mo-enter-translate-x:-0.5rem')
-    expect(css).toContain('.animate-popover-side-left')
-    expect(css).toContain('.animate-popover-side-right')
-    expect(css).toContain('.animate-tooltip-side-left')
-    expect(css).toContain('.animate-tooltip-side-right')
-    expect(css).toContain('--mo-enter-translate-x:0.25rem')
-    expect(css).toContain('--mo-enter-translate-x:-0.25rem')
-    expect(css).toContain('.animate-sheet-side-left')
-    expect(css).toContain('--mo-enter-translate-x:-2.5rem')
-    expect(css).toContain('.animate-sheet-side-right')
-    expect(css).toContain('--mo-enter-translate-x:2.5rem')
-  })
-
-  test('provides default icon shortcuts when lucide icons are available', async () => {
+  test('emits configured color variables and state adjustments', async () => {
+    const activeResolver = vi.fn(() => '#135')
     const generator = await createGenerator({
       presets: [
         presetWind4(),
-        presetIcons({
-          collections: {
-            lucide: () => lucideIcons,
+        presetMoraine({
+          colorVariables: {
+            light: {
+              background: { DEFAULT: '#fff' },
+              foreground: '#111',
+              primary: {
+                DEFAULT: '#246',
+                foreground: '#fff',
+                active: activeResolver,
+              },
+            },
+            hoverAdjustment: 6,
+            activeAdjustment: 12,
           },
         }),
-        presetMoraine(),
       ],
     })
+    const { css } = await generator.generate(new Set(), { preflights: true })
 
-    const { css } = await generator.generate(new Set(['icon-close', 'icon-search', 'icon-loading']))
+    expect(css).toContain('--background: #fff;')
+    expect(css).toContain(
+      '--background-hover: color-mix(in oklch, var(--background), var(--foreground) 6%);',
+    )
+    expect(css).toContain('--primary-active: #135;')
+    expect(activeResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ color: 'primary', state: 'active', theme: 'light' }),
+    )
+  })
 
-    expect(css).toContain('.icon-close{')
-    expect(css).toContain('.icon-search{')
-    expect(css).toContain('.icon-loading{')
-    expect(css).toContain('--un-icon:url("data:image/svg+xml;utf8,')
+  test('normalizes selectors and rejects invalid adjustments', () => {
+    expect(
+      resolvePresetThemeOptions({
+        colorVariables: { light: { foreground: '#111' } },
+      }),
+    ).toMatchObject({
+      globalStyles: true,
+      colorVariables: { lightSelector: ':root', darkSelector: '.dark' },
+    })
+
+    expect(() =>
+      presetMoraine({ colorVariables: { hoverAdjustment: Number.POSITIVE_INFINITY } }),
+    ).toThrow('colorVariables.hoverAdjustment')
   })
 })

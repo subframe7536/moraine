@@ -1,6 +1,3 @@
-import { cls } from 'cls-variant'
-import { cvaFactory } from 'cls-variant/cva'
-import type { CvaFunction } from 'cls-variant/cva'
 import { createCn } from 'cn/config'
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
@@ -49,13 +46,6 @@ export function useId(
   return resolvedId
 }
 
-type extendCNFunction = (clz: string) => string
-
-let __fn: extendCNFunction = (s) => s
-export function extendCN(fn: extendCNFunction): void {
-  __fn = fn
-}
-
 const _cn = createCn({
   extend: {
     classGroups: {
@@ -67,10 +57,6 @@ const _cn = createCn({
 
 export function cn(...classes: ClassValue[]): string | undefined {
   return _cn(...(classes as any[])) || undefined
-}
-
-export const cva: CvaFunction = (...args) => {
-  return cvaFactory((...classes) => __fn(cls(...classes)))(...args) || undefined
 }
 
 export interface HandlerCallResult<R = unknown> {

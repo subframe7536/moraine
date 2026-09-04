@@ -96,10 +96,10 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
-- Use `cva` from `src/shared/utils` to define variants.
+- Use `recipe` from `src/shared/style/recipe.ts` to define variants.
 - Use `cn` from `src/shared/utils` to combine classes.
 - No need to create memo for classes, just write them inplace
-- State-based class should use pure class instead of adding a new variant in cva
+- State-based class should use a pure class instead of adding a new variant in `recipe`.
 - Always use standard flat Tailwind CSS utility syntax (e.g. `hover:bg-red-500 hover:text-white`). NEVER use UnoCSS parenthesized variant groups (`hover:(...)`) in component code so classes are compatible with both Tailwind v4 and UnoCSS, and can be parsed by the `cn` conflict resolution engine.
 
 ## Code Style & Conventions
@@ -136,14 +136,14 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
-- **Consistency:** Use the `cn` (classnames) utility or `cva` to merge classes.
+- **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
 
 ### Error Handling
 
 - **Async:** Use `try/catch` block within async event handlers.
 - **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
 - **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
-- NEVER use `cva()` with static-only classes
+- Never use `recipe()` for static-only classes.
 
 ### Testing
 

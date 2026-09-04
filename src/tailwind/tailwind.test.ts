@@ -1266,7 +1266,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-active:bg-primary'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-active] .data-active\\:bg-primary {
+      .data-active\\:bg-primary[data-active] {
         background-color: var(--primary);
       }
       @layer base {
@@ -1283,7 +1283,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-checked:text-foreground'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-checked] .data-checked\\:text-foreground {
+      .data-checked\\:text-foreground[data-checked] {
         color: var(--foreground);
       }
       @layer base {
@@ -1300,7 +1300,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-disabled:opacity-50'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-disabled] .data-disabled\\:opacity-50 {
+      .data-disabled\\:opacity-50[data-disabled] {
         opacity: 50%;
       }
       @layer base {
@@ -1317,7 +1317,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-busy:opacity-80'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-busy] .aria-busy\\:opacity-80 {
+      .aria-busy\\:opacity-80[aria-busy] {
         opacity: 80%;
       }
       @layer base {
@@ -1334,7 +1334,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-checked:bg-accent'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-checked] .aria-checked\\:bg-accent {
+      .aria-checked\\:bg-accent[aria-checked] {
         background-color: var(--accent);
       }
       @layer base {
@@ -1351,7 +1351,7 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-disabled:pointer-events-none'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-disabled] .aria-disabled\\:pointer-events-none {
+      .aria-disabled\\:pointer-events-none[aria-disabled] {
         pointer-events: none;
       }
       @layer base {
@@ -1421,7 +1421,7 @@ describe('attribute variants', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       @media (hover: hover) {
-        [data-active] .hover\\:data-active\\:bg-primary:hover {
+        .hover\\:data-active\\:bg-primary:hover[data-active] {
           background-color: var(--primary);
         }
       }

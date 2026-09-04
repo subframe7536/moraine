@@ -13,7 +13,7 @@ import {
 import { Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class'
+import { OVERLAY_POSITIONER_CLASS } from '../../shared/recipe-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useControllableValue } from '../../shared/use-controllable-value'

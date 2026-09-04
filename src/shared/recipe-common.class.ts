@@ -53,4 +53,5 @@ export const CARD_PADDING_SIZE_VARIANT = {
   md: 'p-3.5',
   lg: 'p-4',
 } as const
+
 export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'

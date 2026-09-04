@@ -1,5 +1,4 @@
 import type { ReferenceElement } from '@floating-ui/dom'
-import type { ClassValueArray } from 'cls-variant'
 import type { Accessor, JSX } from 'solid-js'
 import {
   For,
@@ -21,10 +20,10 @@ import type { IconT } from '../../../elements/icon/index'
 import { KbdGroup } from '../../../elements/kbd/index'
 import { List } from '../../../elements/list/index'
 import type { ListProps } from '../../../elements/list/index'
-import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class'
+import { OVERLAY_POSITIONER_CLASS } from '../../../shared/recipe-common.class.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { ElementProps } from '../../../shared/types'
+import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
@@ -467,7 +466,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     })
   })
 
-  function getItemClass(item: TItem, ...cls: ClassValueArray): string | undefined {
+  function getItemClass(item: TItem, ...cls: ClassValue[]): string | undefined {
     return overlayMenuItemVariants(
       {
         size: props.size,
