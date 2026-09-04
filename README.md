@@ -75,19 +75,9 @@ function App() {
 ## Development
 
 ```bash
-# Install dependencies
 nub install
-
-# Start development build
 nub run dev
-
-# Run tests
 nub run test
-
-# Start docs development server
-nub run docs
-
-# Run format, lint and type check
 nub run qa
 ```
 

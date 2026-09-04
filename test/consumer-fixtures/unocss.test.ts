@@ -8,22 +8,22 @@ import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import {
-  createPackedConsumer,
+  createIsolatedConsumer,
   readPublishedModules,
-  removePackedConsumer,
+  removeIsolatedConsumer,
   verifyConsumerPackageExports,
 } from './helpers.ts'
-import type { PackedConsumer } from './helpers.ts'
+import type { IsolatedConsumer } from './helpers.ts'
 
-describe('packed UnoCSS consumer', () => {
-  let consumer: PackedConsumer
+describe('isolated built-dist UnoCSS consumer', () => {
+  let consumer: IsolatedConsumer
 
   beforeAll(() => {
-    consumer = createPackedConsumer()
+    consumer = createIsolatedConsumer()
   }, 30_000)
 
   afterAll(() => {
-    removePackedConsumer(consumer)
+    removeIsolatedConsumer(consumer)
   })
 
   test.each([

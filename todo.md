@@ -1,7 +1,7 @@
 ## Fix
 
 - [x] unify form spacing: title, description, hint, label, control, help, error, and field gap
-- [ ] add `presetWind3` support back to `presetMoraine`
+- [x] add `presetWind3` support back to `presetMoraine`
 - [ ] production barrel import optimize
 
 # V1

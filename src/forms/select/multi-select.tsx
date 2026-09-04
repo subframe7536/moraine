@@ -653,18 +653,42 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     handleMultipleChange(current.slice(0, -1), api)
   }
 
-  const mergedClass = () => cn(provider()?.classes?.root, local.class)
-  const mergedClasses = () => ({
-    ...provider()?.classes,
-    ...local.classes,
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
   })
-  const mergedStyle = () => ({
-    ...provider()?.styles?.root,
-    ...local.style,
+
+  const resolvedClasses = () => ({
+    content: resolved.slotClass('content'),
+    listbox: resolved.slotClass('listbox'),
+    item: resolved.slotClass('item'),
+    group: resolved.slotClass('group'),
+    label: resolved.slotClass('label'),
+    empty: resolved.slotClass('empty'),
+    itemLabel: resolved.slotClass('itemLabel'),
+    itemDescription: resolved.slotClass('itemDescription'),
+    itemTrailing: resolved.slotClass('itemTrailing'),
   })
-  const mergedStyles = () => ({
-    ...provider()?.styles,
-    ...local.styles,
+
+  const resolvedStyles = () => ({
+    content: resolved.slotStyle('content'),
+    listbox: resolved.slotStyle('listbox'),
+    item: resolved.slotStyle('item'),
+    group: resolved.slotStyle('group'),
+    label: resolved.slotStyle('label'),
+    empty: resolved.slotStyle('empty'),
+    itemLabel: resolved.slotStyle('itemLabel'),
+    itemDescription: resolved.slotStyle('itemDescription'),
+    itemTrailing: resolved.slotStyle('itemTrailing'),
   })
 
   function renderDefaultOption(
@@ -672,8 +696,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   ): JSX.Element {
     return renderDefaultSelectOption({
       option,
-      classes: mergedClasses(),
-      styles: mergedStyles(),
+      classes: resolvedClasses(),
+      styles: resolvedStyles(),
       labelRender: labelRender(),
     })
   }
@@ -681,10 +705,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   return (
     <BaseSelect<Item>
       {...rest}
-      class={mergedClass()}
-      classes={mergedClasses()}
-      style={mergedStyle()}
-      styles={mergedStyles()}
+      class={resolved.rootClass()}
+      classes={resolvedClasses()}
+      style={resolved.rootStyle()}
+      styles={resolvedStyles()}
       options={options()}
       initialValue={initialDefaultValues}
       _isValueControlled={merged.value !== undefined}

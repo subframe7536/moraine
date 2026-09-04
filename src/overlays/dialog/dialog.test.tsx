@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index'
 import { CommandPalette } from '../../navigation/command-palette/index'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import type { OverlayTriggerProps } from '../base/trigger'
@@ -505,6 +506,46 @@ describe('Modal', () => {
     ))
 
     expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+  })
+
+  test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
+    render(() => (
+      <Dialog open body="Body" classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }} />
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    expect(overlay.className).toContain('fixed')
+    expect(overlay.className).toContain('inset-0')
+    expect(overlay.className).toContain('z-floating')
+    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
+    expect(overlay.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay.className).toContain('motion-reduce:animate-none')
+    expect(overlay.className).toContain('bg-red-500')
+    expect(overlay.className).toContain('custom-dialog-overlay')
+    expect(overlay.className).not.toContain('bg-black/10')
+  })
+
+  test('preserves Modal overlay behavior for provider slot overrides', () => {
+    render(() => (
+      <MoraineProvider
+        config={{
+          dialog: { classes: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
+        }}
+      >
+        <Dialog open body="Body" />
+      </MoraineProvider>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    expect(overlay.className).toContain('fixed')
+    expect(overlay.className).toContain('inset-0')
+    expect(overlay.className).toContain('z-floating')
+    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
+    expect(overlay.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay.className).toContain('motion-reduce:animate-none')
+    expect(overlay.className).toContain('bg-blue-500')
+    expect(overlay.className).toContain('provider-dialog-overlay')
+    expect(overlay.className).not.toContain('bg-black/10')
   })
 
   test('keeps long dialog content scrolling inside the body', () => {

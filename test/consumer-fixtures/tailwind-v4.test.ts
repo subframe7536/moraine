@@ -7,21 +7,21 @@ import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import {
-  createPackedConsumer,
-  removePackedConsumer,
+  createIsolatedConsumer,
+  removeIsolatedConsumer,
   verifyConsumerPackageExports,
 } from './helpers.ts'
-import type { PackedConsumer } from './helpers.ts'
+import type { IsolatedConsumer } from './helpers.ts'
 
-describe('packed Tailwind v4 consumer', () => {
-  let consumer: PackedConsumer
+describe('isolated built-dist Tailwind v4 consumer', () => {
+  let consumer: IsolatedConsumer
 
   beforeAll(() => {
-    consumer = createPackedConsumer()
+    consumer = createIsolatedConsumer()
   }, 30_000)
 
   afterAll(() => {
-    removePackedConsumer(consumer)
+    removeIsolatedConsumer(consumer)
   })
 
   function compileConsumerCSS(includeIcons = false): string {

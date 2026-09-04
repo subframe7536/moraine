@@ -10,6 +10,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn, useId } from '../../shared/utils.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
+import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 import { Modal } from '../modal/modal.tsx'
 import type { ModalProps, ModalT } from '../modal/modal.tsx'
 
@@ -245,7 +246,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       <ModalTriggerRenderer {...triggerProps}>{triggerRender()}</ModalTriggerRenderer>
       <Modal.Content
         overlay={merged.overlay}
-        overlayClass={resolved.slotClass('overlay')}
+        overlayClass={cn(MODAL_OVERLAY_CLASS, resolved.slotClass('overlay'))}
         overlayStyle={resolved.slotStyle('overlay')}
         data-side={merged.side}
         ariaLabel={merged.ariaLabel}

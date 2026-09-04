@@ -25,12 +25,12 @@ function ensureBuild(): void {
   }
 }
 
-export interface PackedConsumer {
+export interface IsolatedConsumer {
   packageDir: string
   root: string
 }
 
-export function createPackedConsumer(): PackedConsumer {
+export function createIsolatedConsumer(): IsolatedConsumer {
   ensureBuild()
   const root = mkdtempSync(join(tmpdir(), 'moraine-consumer-'))
   const packageDir = join(root, 'node_modules', 'moraine')
@@ -63,6 +63,7 @@ export function createPackedConsumer(): PackedConsumer {
     'junction',
   )
 
+  // Keep the consumer isolated while exercising the built package output.
   cpSync(join(PROJECT_ROOT, 'dist'), join(packageDir, 'dist'), { recursive: true })
   writeFileSync(
     join(packageDir, 'package.json'),
@@ -88,7 +89,7 @@ export function createPackedConsumer(): PackedConsumer {
   return { packageDir, root }
 }
 
-export function removePackedConsumer(consumer: PackedConsumer): void {
+export function removeIsolatedConsumer(consumer: IsolatedConsumer): void {
   rmSync(consumer.root, { recursive: true, force: true })
 }
 
@@ -111,7 +112,7 @@ export function readPublishedModules(packageDir: string): Array<{ id: string; co
   return modules
 }
 
-export function verifyConsumerPackageExports(consumer: PackedConsumer): void {
+export function verifyConsumerPackageExports(consumer: IsolatedConsumer): void {
   const verificationPath = join(consumer.root, 'verify-exports.mjs')
   writeFileSync(
     verificationPath,

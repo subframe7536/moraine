@@ -7,14 +7,15 @@ and update its row after completion.
 
 ## Execution order & status
 
-| Plan | Title                                      | Priority | Effort | Depends on    | Status |
-| ---- | ------------------------------------------ | -------: | -----: | ------------- | ------ |
-| 001  | Add the object-only style runtime          |       P1 |      L | —             | DONE   |
-| 002  | Add reactive global style configuration    |       P1 |      L | 001           | DONE   |
-| 003  | Migrate elements and form components       |       P1 |     XL | 001, 002      | DONE   |
-| 004  | Migrate navigation and overlay components  |       P1 |     XL | 001, 002, 003 | DONE   |
-| 005  | Ship the v4-only consumer integration      |       P1 |      L | 003, 004      | DONE   |
-| 006  | Prove acceptance and retire legacy styling |       P1 |      M | 005           | TODO   |
+| Plan  | Title                                               | Priority | Effort | Depends on    | Status      |
+| ----- | --------------------------------------------------- | -------: | -----: | ------------- | ----------- |
+| 001   | Add the object-only style runtime                   |       P1 |      L | —             | DONE        |
+| 002   | Add reactive global style configuration             |       P1 |      L | 001           | DONE        |
+| 003   | Migrate elements and form components                |       P1 |     XL | 001, 002      | DONE        |
+| 004   | Migrate navigation and overlay components           |       P1 |     XL | 001, 002, 003 | DONE        |
+| 005   | Ship the v4-only consumer integration               |       P1 |      L | 003, 004      | DONE        |
+| 005.5 | Fix post-migration style precedence and bookkeeping |       P1 |      M | 005           | DONE        |
+| 006   | Prove acceptance and retire legacy styling          |       P1 |      M | 005.5         | TODO        |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with a one-line reason) |
 REJECTED (with a one-line rationale).
@@ -32,8 +33,14 @@ REJECTED (with a one-line rationale).
   and render elements (Button, Icon, List, Resizable, KbdGroup).
 - 005 is deliberately after both migrations because it deletes the legacy
   dependency, precompiled component CSS pipeline, and v3 support.
-- 006 is the final repository-wide audit and production-validation gate; it
-  must not be marked complete from unit tests alone.
+- 005.5 fixes the Select/MultiSelect resolver boundary, preserves Modal
+  primitive ownership, and composes Dialog/Sheet overlay slot overrides with
+  the canonical Modal overlay base. Its automated consumer fixtures remain
+  isolated built-dist integration tests; real npm tarball/package validation is
+  a manual release check owned by the user.
+- 006 depends on 005.5 as the final prerequisite and remains the repository-wide
+  audit and production-validation gate; it must not be marked complete from
+  unit tests alone.
 
 ## Scope and non-goals
 

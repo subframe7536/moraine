@@ -4,6 +4,7 @@ import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
@@ -135,6 +136,122 @@ describe('Select - single mode', () => {
 
     const root = screen.container.firstElementChild as HTMLElement | null
     expect(root?.style.width).toBe('200px')
+  })
+
+  test('uses the normative root class and style precedence', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        config={{
+          select: {
+            classes: { root: 'w-24 px-1 provider-root' },
+            styles: { root: { width: '100px', height: '10px', color: 'red' } },
+          },
+        }}
+      >
+        <Select
+          data-testid="select-root"
+          options={FRUITS}
+          placeholder="Pick a fruit"
+          classes={{ root: 'w-32 px-2 instance-root' }}
+          class="final-root w-48"
+          styles={{ root: { width: '200px', background: 'blue' } }}
+          style={{ width: '300px', color: 'green' }}
+        />
+      </MoraineProvider>
+    ))
+
+    const root = screen.getByTestId('select-root')
+    expect(root.className).toContain('w-48')
+    expect(root.className).not.toContain('w-24')
+    expect(root.className).not.toContain('w-32')
+    expect(root.className).toContain('px-2')
+    expect(root.className).not.toContain('px-1')
+    expect(root.className).toContain('provider-root')
+    expect(root.className).toContain('instance-root')
+    expect(root.className).toContain('final-root')
+
+    expect(root.style.width).toBe('300px')
+    expect(root.style.color).toBe('green')
+    expect(root.style.height).toBe('10px')
+    expect(root.style.background).toBe('blue')
+  })
+
+  test('merges named slot classes and styles through the resolver', () => {
+    render(() => (
+      <MoraineProvider
+        config={{
+          select: {
+            classes: { content: 'p-1 w-24 provider-content' },
+            styles: { content: { color: 'red', background: 'black' } },
+          },
+        }}
+      >
+        <Select
+          options={FRUITS}
+          defaultOpen
+          classes={{ content: 'p-4 w-48 instance-content' }}
+          styles={{ content: { color: 'blue' } }}
+        />
+      </MoraineProvider>
+    ))
+
+    const content = queryBody('[data-slot="content"]') as HTMLElement
+    expect(content.className).toContain('p-4')
+    expect(content.className).not.toContain('p-1')
+    expect(content.className).toContain('w-48')
+    expect(content.className).not.toContain('w-24')
+    expect(content.className).toContain('provider-content')
+    expect(content.className).toContain('instance-content')
+    expect(content.style.color).toBe('blue')
+    expect(content.style.background).toBe('black')
+  })
+
+  test('reacts to replaced provider and instance style objects without remounting', () => {
+    const [providerConfig, setProviderConfig] = createSignal({
+      select: {
+        classes: { root: 'provider-root-initial' },
+        styles: { root: { color: 'red' } },
+      },
+    })
+    const [instanceClasses, setInstanceClasses] = createSignal({ root: 'instance-root-initial' })
+    const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
+
+    const screen = render(() => (
+      <MoraineProvider config={providerConfig()}>
+        <Select
+          data-testid="reactive-select"
+          options={FRUITS}
+          classes={instanceClasses()}
+          styles={instanceStyles()}
+        />
+      </MoraineProvider>
+    ))
+
+    const root = screen.getByTestId('reactive-select')
+    expect(root.className).toContain('provider-root-initial')
+    expect(root.className).toContain('instance-root-initial')
+    expect(root.style.color).toBe('red')
+    expect(root.style.border).toBe('1px solid red')
+
+    setProviderConfig({
+      select: {
+        classes: { root: 'provider-root-updated' },
+        styles: { root: { color: 'blue' } },
+      },
+    })
+
+    expect(screen.getByTestId('reactive-select')).toBe(root)
+    expect(root.className).toContain('provider-root-updated')
+    expect(root.className).not.toContain('provider-root-initial')
+    expect(root.style.color).toBe('blue')
+
+    setInstanceClasses({ root: 'instance-root-updated' })
+    setInstanceStyles({ root: { border: '1px solid blue' } })
+
+    expect(screen.getByTestId('reactive-select')).toBe(root)
+    expect(root.className).toContain('instance-root-updated')
+    expect(root.className).not.toContain('instance-root-initial')
+    expect(root.style.border).toBe('1px solid blue')
   })
 
   test('renders with placeholder', () => {

@@ -14,8 +14,7 @@ If not installed, follows the instructions at https://nubjs.com/start.md to inst
 ### Build & Development
 
 - `nub run build` - Build the library using tsdown (outputs to dist/).
-- `nub run dev` - Build in watch mode for development.
-- `nub run docs` - Start the dev Vite server on port 3000.
+- `nub run dev` - Build the library and start the documentation/development Vite server.
 - `nub run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting

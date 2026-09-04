@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import type { OverlayTriggerProps } from '../base/trigger'
 
@@ -430,6 +431,46 @@ describe('Sheet', () => {
     ))
 
     expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+  })
+
+  test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
+    render(() => (
+      <Sheet open body="Body" classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }} />
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    expect(overlay.className).toContain('fixed')
+    expect(overlay.className).toContain('inset-0')
+    expect(overlay.className).toContain('z-floating')
+    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
+    expect(overlay.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay.className).toContain('motion-reduce:animate-none')
+    expect(overlay.className).toContain('bg-red-500')
+    expect(overlay.className).toContain('custom-sheet-overlay')
+    expect(overlay.className).not.toContain('bg-black/10')
+  })
+
+  test('preserves Modal overlay behavior for provider slot overrides', () => {
+    render(() => (
+      <MoraineProvider
+        config={{
+          sheet: { classes: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
+        }}
+      >
+        <Sheet open body="Body" />
+      </MoraineProvider>
+    ))
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    expect(overlay.className).toContain('fixed')
+    expect(overlay.className).toContain('inset-0')
+    expect(overlay.className).toContain('z-floating')
+    expect(overlay.className).toContain('data-expanded:animate-mo-enter')
+    expect(overlay.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay.className).toContain('motion-reduce:animate-none')
+    expect(overlay.className).toContain('bg-blue-500')
+    expect(overlay.className).toContain('provider-sheet-overlay')
+    expect(overlay.className).not.toContain('bg-black/10')
   })
 
   test('prevents close when dismissible=false and emits onClosePrevent', async () => {

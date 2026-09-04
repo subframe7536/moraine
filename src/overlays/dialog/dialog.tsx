@@ -11,6 +11,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { cn, useId } from '../../shared/utils.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
+import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 import { Modal } from '../modal/modal.tsx'
 import type { ModalProps } from '../modal/modal.tsx'
 
@@ -294,7 +295,7 @@ export function Dialog(props: DialogProps): JSX.Element {
       <Modal.Content
         overlay={merged.overlay}
         overlayScroll={overlayScroll()}
-        overlayClass={resolved.slotClass('overlay')}
+        overlayClass={cn(MODAL_OVERLAY_CLASS, resolved.slotClass('overlay'))}
         overlayStyle={resolved.slotStyle('overlay')}
         class={cn(
           merged.fullscreen

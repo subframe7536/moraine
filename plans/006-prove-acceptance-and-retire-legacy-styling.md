@@ -14,7 +14,7 @@
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: MED
-- **Depends on**: `plans/005-ship-v4-only-consumer-integration.md`
+- **Depends on**: `plans/005.5-fix-style-precedence-and-bookkeeping.md`
 - **Category**: tests
 - **Planned at**: commit `7a0c7768`, 2026-09-03
 
@@ -31,16 +31,21 @@ repeatable checks and prevents a partial migration from shipping.
 - `PRD.md §6` defines 12 acceptance criteria and the verification
   matrix. It requires zero legacy structural shortcuts only under `src/`; docs
   are deliberately excluded because their UnoCSS authoring syntax remains.
-- Current source contains legacy tokens in class modules and engine
-  transformers, and package builds still emit both `tw3.css`/`tw4.css`; plans
-  003–005 are responsible for removing them.
+- Plan 005 is complete: legacy transformers, precompiled component CSS, the
+  `tw3.css`/`tw4.css` artifacts, and the old component-layer pipeline are gone.
+- Plan 005.5 is the final prerequisite for this plan. It restores the single
+  resolver boundary for Select/MultiSelect, preserves Modal primitive
+  ownership while composing Dialog/Sheet overlays, and records the package
+  tarball validation as a user-owned manual release check.
+- UnoCSS Wind3 and Wind4 are intentionally supported through
+  `presetMoraine()`, while Tailwind CSS support is v4-only.
 - `package.json` provides `nub run test`, `nub run typecheck`, `nub run qa`,
   `nub run build`, `nub run docs:build`, and `nub run docs:preview`. `qa`
   includes formatting/lint fixes, so run it only after read-only gates are
   green and inspect its diff.
 - No existing final acceptance script aggregates source audit, package artifact
-  checks, consumer fixtures, SSR/hydration single-evaluation checks, docs
-  build, and preview health check.
+  checks, isolated built-dist consumer fixtures, SSR/hydration single-evaluation
+  checks, docs build, and preview health check.
 
 ## Commands you will need
 
@@ -95,11 +100,18 @@ a Wind3-specific transformer/build pipeline, Moraine-specific `opacity-64` regis
 modules are either a `recipe` user when variant-bearing or static `*_CLASS`
 constants when not.
 
-Add the Single Resolver Audit: scan `src/**/*.tsx` (excluding `resolveComponentStyle`
-itself) and fail with the file/line on any `slots().root(` or `slots().<slot>(`
-class/style ordering chain — every component must route precedence through
-`resolveComponentStyle` (§3.5.3). Also assert the shared test that compares
-`resolveComponentStyle` output to the §3.5.4 precedence table runs in this suite.
+Add the Single Resolver Audit: scan `src/**/*.tsx` (excluding
+`resolveComponentStyle` itself) and fail with the file/line on any
+`slots().root(` or `slots().<slot>(` class/style ordering chain — every
+component must route provider/group/instance precedence through
+`resolveComponentStyle` (§3.5.3). Also flag an obvious component-specific
+reconstruction that reads provider/group/instance `classes` or `styles` and
+combines those layers with local spreads or `cn()` calls (such as the former
+Select/MultiSelect chain), while allowing legitimate local composition of a
+base class with one already-resolved slot. Keep this audit narrow to chains
+that rebuild multiple precedence layers; do not prohibit normal `cn()` use.
+Also assert the shared test that compares `resolveComponentStyle` output to the
+§3.5.4 precedence table runs in this suite.
 
 **Verify**: `nub run test test/acceptance/style-system.test.ts` → exit 0 and
 the audit prints no prohibited match.
@@ -121,17 +133,24 @@ hydration behavior.
 **Verify**: `nub run test && nub run typecheck && nub run test:types` → all
 commands exit 0.
 
-### Step 3: Validate published artifacts and real consumer compilation
+### Step 3: Validate published artifacts and isolated consumer compilation
 
-Build the package, inspect the packed output, and run the Tailwind v4 and
-UnoCSS consumer fixtures from plan 005. Assert `icon.css` exists and contains
-expected Lucide mask selectors; `tw3.css`/`tw4.css` do not exist; the package
-exports agree. Confirm fixture CSS uses required plugin/preset and a relative
-published-dist scan, produces component classes/tokens/animations/state
-variants, and succeeds with no icon CSS import. Then verify either runtime mask
-asset or engine icon integration supplies icons independently.
+The acceptance sequence is:
 
-**Verify**: `nub run build && nub run test test/consumer-fixtures` → exit 0.
+1. Build the package.
+2. Inspect the generated `dist` and verify `icon.css` exists while
+   `tw3.css`/`tw4.css` do not.
+3. Verify package exports/configuration agree with the generated artifact.
+4. Run the Tailwind v4 and UnoCSS isolated built-dist consumer fixtures from
+   Plan 005. Confirm required plugin/preset setup, relative published-dist
+   scanning, component classes/tokens/animations/state variants, and styling
+   without an `icon.css` import; verify the optional icon asset independently.
+5. Record that the user owns the separate real packed-package
+   installation/release check as manual validation; it is not an automated
+   STOP condition.
+
+**Verify**: `nub run build && nub run test test/consumer-fixtures` → exit 0;
+the automated fixture remains isolated built-dist only.
 
 ### Step 4: Run production docs preview smoke test
 
@@ -162,14 +181,16 @@ diff check exit 0; status contains only intentional refactor/acceptance files.
 - Machine-readable source audit with `src`-only scope and clear failure output.
 - Runtime/provider/recipe/css-var/unit/type tests plus all interaction/a11y/SSR
   suites.
-- Packed Tailwind v4 and UnoCSS fixtures including icon independence.
+- Isolated built-dist Tailwind v4 and UnoCSS fixtures including icon
+  independence.
 - Artifact and docs build/preview lifecycle checks.
 
 ## Done criteria
 
 - [ ] All twelve `PRD.md` acceptance criteria are represented by a command or test and pass.
 - [ ] `nub run test`, `nub run qa`, `nub run build`, and `nub run docs:build` exit 0.
-- [ ] Consumer fixture and preview lifecycle tests exit 0; no child process remains.
+- [ ] Isolated consumer fixture and preview lifecycle tests exit 0; no child
+      process remains.
 - [ ] The source audit has no excluded token under `src/`; docs-only Uno syntax remains permitted.
 - [ ] No former cva API/cache/O(1) assertion or precompiled component CSS artifact is published.
 - [ ] `plans/README.md` marks plan 006 DONE.
@@ -180,9 +201,12 @@ diff check exit 0; status contains only intentional refactor/acceptance files.
   or incomplete; mark that plan BLOCKED and return to it instead of weakening
   the acceptance test.
 - The only way to pass a source audit is to exclude additional `src` paths.
-- The consumer fixture needs a source alias, unpublished file, precompiled
-  component CSS, or `icon.css` for normal component styling.
+- The isolated consumer fixture needs a source alias, unpublished file,
+  precompiled component CSS, or `icon.css` for normal component styling.
 - Preview smoke cannot cleanly terminate the process it starts.
+
+The absence of an automated real package tarball/install fixture is not a STOP
+condition; the user performs that release validation manually.
 
 ## Maintenance notes
 
