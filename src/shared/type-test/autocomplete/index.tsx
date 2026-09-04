@@ -12,9 +12,10 @@ import {
   Popover,
   Sheet,
   Tooltip,
-  defineStyleVars,
+  useId,
 } from 'moraine'
 import type { ModalT } from 'moraine'
+import { defineStyleVars, recipe } from 'moraine/recipe'
 import type { Component, JSX } from 'solid-js'
 
 declare module 'moraine' {
@@ -30,6 +31,10 @@ const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (pro
   </section>
 )
 const foo = () => undefined
+const classRecipe = recipe({ base: 'rounded-md' })
+const generatedId = useId()
+void classRecipe
+void generatedId
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const acceptAnchor = (element: HTMLAnchorElement) => element.focus()
 const modalContentContext: ModalT.ContentContext = { close: () => undefined }

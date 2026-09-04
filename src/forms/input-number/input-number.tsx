@@ -256,12 +256,6 @@ export namespace InputNumberT {
     onRawValueChange?: (value: number) => void
 
     /**
-     * The orientation of the control buttons.
-     * @default 'horizontal'
-     */
-    orientation?: InputNumberOrientation
-
-    /**
      * Placeholder text for the input.
      */
     placeholder?: string

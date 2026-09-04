@@ -49,7 +49,14 @@
     {
       "name": "body",
       "description": "Content body rendered inside the popover panel.",
-      "cssVariables": [],
+      "cssVariables": [
+        {
+          "name": "--mo-popper-content-available-height",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        }
+      ],
       "dataAttributes": [],
       "ariaAttributes": []
     }

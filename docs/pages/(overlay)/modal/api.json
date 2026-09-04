@@ -7,7 +7,15 @@
     "description": "Low-level modal primitives for composing custom dialog surfaces.",
     "sourcePath": "src/overlays/modal/modal.tsx"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "Interactive surface that opens the modal.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
   "props": {
     "own": [
       {

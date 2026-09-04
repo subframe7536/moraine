@@ -262,6 +262,11 @@
         "defaultValue": "0"
       },
       {
+        "name": "multiple",
+        "required": false,
+        "type": "boolean | undefined"
+      },
+      {
         "name": "name",
         "required": false,
         "type": "string | undefined",

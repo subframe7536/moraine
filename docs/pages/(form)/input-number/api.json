@@ -78,6 +78,11 @@
   "props": {
     "own": [
       {
+        "name": "align",
+        "required": false,
+        "type": "\"center\" | \"start\" | undefined"
+      },
+      {
         "name": "autofocus",
         "required": false,
         "type": "boolean | undefined",
@@ -238,9 +243,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "InputNumberOrientation | undefined",
-        "description": "The orientation of the control buttons.",
-        "defaultValue": "horizontal"
+        "type": "\"horizontal\" | \"vertical\" | undefined"
       },
       {
         "name": "placeholder",

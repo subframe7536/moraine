@@ -310,7 +310,6 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       font: MORAINE_FONT,
       spacing: MORAINE_WIDTH,
       zIndex: MORAINE_Z_INDEX,
-      opacity: { 64: '0.64' },
       default: {
         transition: {
           duration: MORAINE_ANIM_DUR_VAR_ENTER,

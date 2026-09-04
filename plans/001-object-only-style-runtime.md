@@ -105,7 +105,7 @@ module (`src/shared/utils.test.ts` is the nearest structure example).
 
 Add the PRD-selected `cn` dependency using the repository's `nub` workflow (`nub add cn`).
 In `src/shared/utils.ts`, import `createCn` from `cn/config`, define the
-Moraine extension groups for `z-base` through `z-floating` and `opacity-64`,
+Moraine extension groups for `z-base` through `z-floating` and engine-native `opacity-64`,
 and export this function as `cn`:
 
 ```ts

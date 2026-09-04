@@ -68,14 +68,10 @@ describe('cn', () => {
     )
   })
 
-  test('custom Moraine z-index and opacity classes conflict correctly', () => {
-    // custom z conflict
+  test('custom Moraine z-index classes conflict correctly', () => {
     expect(cn('z-base', 'z-raised')).toBe('z-raised')
     expect(cn('z-10', 'z-floating')).toBe('z-floating')
     expect(cn('z-overlay', 'z-20')).toBe('z-20')
-    // custom opacity conflict
-    expect(cn('opacity-64', 'opacity-100')).toBe('opacity-100')
-    expect(cn('opacity-50', 'opacity-64')).toBe('opacity-64')
   })
 
   test('preserves arbitrary and unknown tokens', () => {

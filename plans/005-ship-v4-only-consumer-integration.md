@@ -1,4 +1,4 @@
-# Plan 005: Ship the v4-only consumer integration
+# Plan 005: Ship consumer integration
 
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
@@ -55,7 +55,7 @@ inject-compile-class,migrate-syntax}.*` and their tests implement the old
 @source "../node_modules/moraine/dist"; /* path relative to this CSS file */
 ```
 
-UnoCSS must load `presetWind4()` and `presetMoraine()` and scan
+UnoCSS must load either `presetWind3()` or `presetWind4()` with `presetMoraine()` and scan
 `./node_modules/moraine/dist/**/*.{mjs,jsx}`. `icon.css` neither scans source
 nor registers tokens/plugins/presets.
 
@@ -110,8 +110,8 @@ Delete the internal legacy bridge from `src/shared/utils.ts`, update
 `src/shared/types.ts` to import `ClassValue` from `./style/recipe` for `SlotClassValue`,
 remove `cls-variant` from package metadata/lockfile, and remove public `cva` and
 `extendCN` exports. Delete `inject-prefix`, `inject-compile-class`, and
-`migrate-syntax` source/tests. Simplify `presetMoraine` to Wind4 only: remove
-`wind3`, `enableComponentLayer` (including the legacy dynamic imports of `unocss`
+`migrate-syntax` source/tests. Keep `presetMoraine` version-agnostic: remove its
+`wind3` option and `enableComponentLayer` (including the legacy dynamic imports of `unocss`
 and `@unocss/transformer-compile-class` in `src/unocss/theme.ts`), prefix/hash options,
 old transformers, all component-facing shortcuts and regex rules. Retain theme tokens,
 keyframes, `animate-mo-enter/exit`, global styles, colors, and documented icon exports.
@@ -134,7 +134,7 @@ across the project's POSIX shells/CI).
 ### Step 3: Test actual installed-consumer engine contracts
 
 Keep focused unit coverage for token/theme/variants in `src/tailwind` and
-`src/unocss`, updating tests away from Wind3, component layers, shortcut
+`src/unocss`, updating tests for both Wind3 and Wind4 while removing component layers, shortcut
 generation, and cva-oriented AST transformations. Add two fixture projects
 that consume a packed `moraine` tarball rather than source aliases:
 
@@ -145,8 +145,8 @@ that consume a packed `moraine` tarball rather than source aliases:
   stylesheet text actually contains**, not just that the compiler ran:
   a `data-disabled`/`data-focused`/`aria-invalid` variant rule,
   `animate-mo-enter`/`animate-mo-exit` rules plus their `@keyframes mo-enter`/`mo-exit`
-  blocks, and the `z-floating`/`opacity-64` tokens (PRD §4.1).
-- UnoCSS fixture loads `presetWind4()` and `presetMoraine()` plus filesystem
+  blocks, and the `z-floating`/the engine-native `opacity-64` utility tokens (PRD §4.1).
+- UnoCSS fixture matrix loads both `presetWind3()` and `presetWind4()` with `presetMoraine()` plus filesystem
   content matching installed `dist/**/*.{mjs,jsx}`; assert the same essentials
   generate. **Assert the same `data-*`/`aria-*` variant rules, `animate-mo-*`
   rules/keyframes, and custom tokens are present in the generated output**
@@ -175,7 +175,7 @@ provider/default/composition/instance inheritance and precedence, including
 root versus named-slot class/style ordering. Update preview import rewriting to
 recognize only `icon.css` and remove all v3/precompiled CSS prose.
 
-**Verify**: `nub run docs:build` → exit 0 and `rg -n "tw3\.css|tw4\.css|presetWind3|enableComponentLayer|\bcva\b|extendCN" README.md docs package.json src --glob '!docs/unocss.config.ts'` → no output.
+**Verify**: `nub run docs:build` → exit 0 and `rg -n "tw3\.css|tw4\.css|enableComponentLayer|\bcva\b|extendCN" README.md docs package.json src --glob '!docs/unocss.config.ts'` → no output; UnoCSS Wind3 documentation is expected.
 
 ## Test plan
 
@@ -189,7 +189,7 @@ recognize only `icon.css` and remove all v3/precompiled CSS prose.
 
 - [ ] Build emits `dist/icon.css` and no `dist/tw3.css`/`dist/tw4.css`.
 - [ ] Package exports contain `./icon.css`, not precompiled component CSS.
-- [ ] Tailwind peer range is v4-only; Wind3/component-layer APIs and tests are absent.
+- [ ] Tailwind peer range is v4-only; component-layer APIs are absent; UnoCSS Wind3 and Wind4 are both covered.
 - [ ] Both packed consumer fixtures pass and demonstrate required setup.
 - [ ] Documentation has correct relative-path examples and icon boundary.
 - [ ] `nub run build`, engine/fixture tests, `nub run docs:build`, and `nub run qa` exit 0.

@@ -9,10 +9,11 @@ search:
 
 ## Styling helpers
 
-`cn` and `recipe` are exported from `moraine`.
+`cn` is exported from `moraine`; recipe and CSS-variable helpers are exported from `moraine/recipe`.
 
 ```tsx
-import { cn, recipe } from 'moraine'
+import { cn } from 'moraine'
+import { recipe } from 'moraine/recipe'
 
 const badge = recipe({
   base: 'rounded px-2',
@@ -41,12 +42,13 @@ import {
   useDisclosureState,
   useEventListener,
   useEventListenerMap,
-  useId,
   useListVirtualizer,
   useLoadingAutoClick,
   useSelectableCollectionNavigation,
   useTransitionPresence,
 } from 'moraine/utils'
+
+import { useId } from 'moraine'
 ```
 
 ### `useControllableValue`

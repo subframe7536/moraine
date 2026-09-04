@@ -64,7 +64,7 @@
         "name": "action",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the action slot (usually a button in the header)."
+        "description": "Actions of the card."
       },
       {
         "name": "children",
@@ -100,13 +100,13 @@
         "name": "footer",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the footer slot."
+        "description": "Footer of the card."
       },
       {
         "name": "header",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the header slot, overrides title/description."
+        "description": "Header of the card."
       },
       {
         "name": "ref",

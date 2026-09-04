@@ -11,7 +11,7 @@ Moraine's styling system architecture uses atomic utility classes in the publish
 
 ## UnoCSS
 
-Use the Wind4 preset, add `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
+Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan. Wind3 support is limited to UnoCSS preset compatibility: Tailwind CSS remains v4-only, and Moraine does not ship precompiled component CSS.
 
 ```ts
 // unocss.config.ts
@@ -26,7 +26,20 @@ export default defineConfig({
 })
 ```
 
-The preset registers Moraine's Wind4 theme tokens, shared animations, semantic z-index values, `opacity-64`, and `data-*`/`aria-*` variants. `globalStyles` defaults to `true`.
+```ts
+// unocss.config.ts — Wind3
+import { defineConfig, presetWind3 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind3(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*`/`aria-*` variants. `opacity-64` is native to Wind3 and Wind4; Moraine does not register it. `globalStyles` defaults to `true`.
 
 ### Color variables
 
@@ -69,7 +82,7 @@ Register the plugin and scan the published distribution. The `@source` path is r
 @source '../node_modules/moraine/dist';
 ```
 
-`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, opacity token, and state variants as the UnoCSS preset.
+`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset. `opacity-64` is a native Tailwind utility, not a Moraine token.
 
 ## Icons
 
@@ -141,7 +154,8 @@ Later values win when utility classes conflict. For a component root, the `class
 `cn()` combines conditional class values and resolves supported utility conflicts. It does not generate CSS, scan component files, load the plugin or preset, or validate theme tokens.
 
 ```ts
-import { cn, recipe } from 'moraine'
+import { cn } from 'moraine'
+import { recipe } from 'moraine/recipe'
 
 cn('px-2 bg-primary', active && 'bg-primary-active')
 

@@ -90,8 +90,8 @@ and parenthesized variant groups. It must name the matching file/token on
 failure and explicitly not scan `docs/`.
 
 In the same suite, inspect public entry files/package exports/declarations to
-assert no `cva`, `extendCN`, `cls-variant`, Wind3 API, `tw3.css`, `tw4.css`,
-variant-result cache, LRU, or `O(1)` claim is exposed. Assert all 36 class
+assert no `cva`, `extendCN`, `cls-variant`, `tw3.css`, `tw4.css`,
+a Wind3-specific transformer/build pipeline, Moraine-specific `opacity-64` registration, variant-result cache, LRU, or `O(1)` claim is exposed. Assert all 36 class
 modules are either a `recipe` user when variant-bearing or static `*_CLASS`
 constants when not.
 

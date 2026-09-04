@@ -10,6 +10,7 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
+      recipe: './src/recipe.ts',
       utils: './src/utils.ts',
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
@@ -63,6 +64,7 @@ export default defineConfig([
         exports['./unocss'] = './dist/unocss.mjs'
         exports['./tailwind'] = './dist/tailwind.mjs'
         exports['./utils'] = './dist/utils.mjs'
+        exports['./recipe'] = './dist/recipe.mjs'
         return exports
       },
     },

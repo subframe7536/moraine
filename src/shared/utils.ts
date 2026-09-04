@@ -50,7 +50,6 @@ const _cn = createCn({
   extend: {
     classGroups: {
       z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
-      opacity: ['opacity-64'],
     },
   },
 })

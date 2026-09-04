@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import {
+  cpSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -7,11 +8,22 @@ import {
   rmSync,
   statSync,
   symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 
 export const PROJECT_ROOT = resolve(import.meta.dirname, '../..')
+
+let built = false
+
+function ensureBuild(): void {
+  if (!built) {
+    // Fixture tests must not inherit an unpublished or stale distribution.
+    execFileSync('nub', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'pipe' })
+    built = true
+  }
+}
 
 export interface PackedConsumer {
   packageDir: string
@@ -19,12 +31,12 @@ export interface PackedConsumer {
 }
 
 export function createPackedConsumer(): PackedConsumer {
+  ensureBuild()
   const root = mkdtempSync(join(tmpdir(), 'moraine-consumer-'))
-  const packDir = join(root, 'pack')
   const packageDir = join(root, 'node_modules', 'moraine')
-  mkdirSync(packDir, { recursive: true })
   mkdirSync(packageDir, { recursive: true })
   mkdirSync(join(root, 'node_modules', '@subf'), { recursive: true })
+  mkdirSync(join(root, 'node_modules', '@tanstack'), { recursive: true })
   symlinkSync(
     join(PROJECT_ROOT, 'node_modules', 'tailwindcss'),
     join(root, 'node_modules', 'tailwindcss'),
@@ -35,19 +47,43 @@ export function createPackedConsumer(): PackedConsumer {
     join(root, 'node_modules', '@subf', 'unocss'),
     'junction',
   )
+  symlinkSync(
+    join(PROJECT_ROOT, 'node_modules', 'solid-js'),
+    join(root, 'node_modules', 'solid-js'),
+    'junction',
+  )
+  symlinkSync(
+    join(PROJECT_ROOT, 'node_modules', 'cn'),
+    join(root, 'node_modules', 'cn'),
+    'junction',
+  )
+  symlinkSync(
+    join(PROJECT_ROOT, 'node_modules', '@tanstack', 'virtual-core'),
+    join(root, 'node_modules', '@tanstack', 'virtual-core'),
+    'junction',
+  )
 
-  execFileSync('pnpm', ['pack', '--pack-destination', packDir], {
-    cwd: PROJECT_ROOT,
-    stdio: 'pipe',
-  })
-  const tarball = readdirSync(packDir).find((file) => file.endsWith('.tgz'))
-  if (!tarball) {
-    throw new Error('pnpm pack did not produce a tarball')
-  }
-
-  execFileSync('tar', ['-xzf', join(packDir, tarball), '--strip-components=1', '-C', packageDir], {
-    stdio: 'pipe',
-  })
+  cpSync(join(PROJECT_ROOT, 'dist'), join(packageDir, 'dist'), { recursive: true })
+  writeFileSync(
+    join(packageDir, 'package.json'),
+    JSON.stringify({
+      name: 'moraine',
+      type: 'module',
+      exports: {
+        '.': {
+          solid: './dist/index.jsx',
+          default: './dist/index.mjs',
+          type: './dist/index.d.mts',
+        },
+        './package.json': './package.json',
+        './icon.css': './dist/icon.css',
+        './recipe': './dist/recipe.mjs',
+        './tailwind': './dist/tailwind.mjs',
+        './unocss': './dist/unocss.mjs',
+        './utils': './dist/utils.mjs',
+      },
+    }),
+  )
 
   return { packageDir, root }
 }
@@ -73,6 +109,28 @@ export function readPublishedModules(packageDir: string): Array<{ id: string; co
 
   visit(distDir)
   return modules
+}
+
+export function verifyConsumerPackageExports(consumer: PackedConsumer): void {
+  const verificationPath = join(consumer.root, 'verify-exports.mjs')
+  writeFileSync(
+    verificationPath,
+    `
+const specifiers = [
+  'moraine',
+  'moraine/icon.css',
+  'moraine/recipe',
+  'moraine/tailwind',
+  'moraine/unocss',
+  'moraine/utils',
+]
+
+for (const specifier of specifiers) {
+  import.meta.resolve(specifier)
+}
+`,
+  )
+  execFileSync('nub', [verificationPath], { cwd: consumer.root, stdio: 'pipe' })
 }
 
 export function resolveStylesheet(id: string, base: string, packageDir: string): string {

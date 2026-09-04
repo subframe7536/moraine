@@ -122,6 +122,12 @@
   "item": {
     "props": [
       {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Optional class applied to the item element."
+      },
+      {
         "name": "content",
         "required": false,
         "type": "JSX.Element",

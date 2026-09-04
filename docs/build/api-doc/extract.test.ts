@@ -36,6 +36,14 @@ afterEach(() => {
 })
 
 describe('generateApiDoc', () => {
+  test('extracts components from the bundled public declaration entry', async () => {
+    const projectRoot = path.resolve(import.meta.dirname, '../../..')
+    const result = await generateApiDoc(projectRoot)
+
+    expect(result?.componentDocs.size).toBeGreaterThan(0)
+    expect(result?.componentDocs.has('button')).toBe(true)
+  })
+
   test('returns null when dist/index.d.mts is missing', async () => {
     const projectRoot = await createTempProject()
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})

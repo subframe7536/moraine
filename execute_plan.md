@@ -1,11 +1,11 @@
-# Implementation Plan - Plan 005: Ship the v4-only consumer integration
+# Implementation Plan - Plan 005: Ship consumer integration
 
 ## Execution Context
 
 - Continue on the existing `style-refactor` branch and sync it with the latest remote state before editing.
 - Do not create the `codex/005-ship-v4-only-consumer-integration` branch mentioned in the original Plan 005 Git workflow section; this branch override is intentional for the existing PR #36 workflow.
 - Read `plans/005-ship-v4-only-consumer-integration.md` in full before making changes.
-- Treat this file as the execution entry point and current-context override, `plans/005-ship-v4-only-consumer-integration.md` as the normative detailed implementation plan, and `PRD.md` as the final authority if requirements conflict.
+- Treat this file as the execution entry point and current-context override, `plans/005-ship-v4-only-consumer-integration.md` as the detailed plan. `todo.md` overrides conflicting styling decisions; it restores UnoCSS Wind3 compatibility and removes only Moraine-specific opacity registration.
 - The original Plan 005 STOP conditions and Done criteria are normative. If a STOP condition is reached, stop and report instead of improvising around it.
 - Verify Plans 003 and 004 are complete in the current code before deleting their temporary compatibility layer.
 - Do not start or implement Plan 006 as part of this task.
@@ -31,7 +31,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 > - Removal of `cva` and `extendCN` exports from `moraine` (use `recipe` and `cn`).
 > - Removal of `cls-variant` from runtime dependencies.
 > - Tailwind CSS peer dependency bumped to `^4.0.0` (v3 dropped).
-> - Removal of `presetWind3` and `enableComponentLayer` options from `presetMoraine`.
+> - Removal of the `presetMoraine` Wind3 option and `enableComponentLayer`. UnoCSS `presetWind3() + presetMoraine()` remains supported; Tailwind v3 does not.
 
 ---
 
@@ -49,7 +49,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 #### [MODIFY] `tsdown.config.ts`
 
-- Remove `tw3.css` and `tw4.css` generation, `baseUnocssConfig`, `presetWind3`, `createMigrateSyntaxTransformer`, and `simplify` extractor.
+- Remove `tw3.css` and `tw4.css` generation, `baseUnocssConfig`, `createMigrateSyntaxTransformer`, and `simplify` extractor.
 - Retain normal JS/JSX build without component CSS generation.
 - Retain separate UnoCSS build only for `icon.css` using `DEFAULT_ICON_SHORTCUTS` + Lucide icons.
 - Remove `./tw3.css` and `./tw4.css` from custom exports.
@@ -92,14 +92,14 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
   - Remove `wind3`, `enableComponentLayer`, prefix/hash transformers and options, dynamic imports of `@unocss/transformer-compile-class`.
   - Remove deleted legacy shortcuts (`effect-fv`, `effect-dis`, `effect-invalid`, `surface-overlay`, `transition-bg`, etc.) and semantic animation shortcuts.
   - Remove old regex rules (`/var-progress-*/`, `/var-stepper-*/`, `/var-slider-*/`).
-  - Retain Wind4 theme tokens (`radius`, `shadow`, `font`, `spacing`, `zIndex`, `colors`), animation keyframes/durations/timing functions (`animate-mo-enter/exit`), `opacity-64` rule/token, `z-*` shortcuts, and `DEFAULT_ICON_SHORTCUTS`.
+  - Retain engine-agnostic theme tokens (`radius`, `shadow`, `font`, `spacing`, `zIndex`, `colors`), animation keyframes/durations/timing functions (`animate-mo-enter/exit`), no Moraine-specific opacity registration; `opacity-64` remains engine-native, `z-*` shortcuts, and `DEFAULT_ICON_SHORTCUTS`.
   - Retain `data-*` and `aria-*` attribute selector variants.
   - Retain `globalStyles` and `colorVariables` options.
 
 #### [MODIFY] `src/unocss/theme.test.ts`
 
 - Update unit tests to remove tests for deleted options (`wind3`, `enableComponentLayer`, prefix, hash, component shortcuts).
-- Test Wind4 theme registration, animation primitives, data/aria variants, and color variables.
+- Test Wind3 and Wind4 theme registration, animation primitives, data/aria variants, and color variables.
 
 #### [MODIFY] `src/tailwind/index.ts`
 
@@ -120,19 +120,19 @@ The fixture must exercise the package artifact exactly as an installed consumer 
   - Assert the generated CSS contains:
     - `data-disabled` / `data-focused` / `aria-invalid` variants.
     - `animate-mo-enter` / `animate-mo-exit` utility rules and `@keyframes mo-enter` / `mo-exit` blocks.
-    - `z-floating` and `opacity-64` tokens.
+    - `z-floating` and the engine-native `opacity-64` utility tokens.
   - Verify that compilation succeeds without importing `moraine/icon.css`.
   - Verify that icon CSS is present when `moraine/icon.css` is imported.
 
 #### [NEW] `test/consumer-fixtures/unocss.test.ts`
 
 - Test UnoCSS compiling against the packed `moraine` package tarball:
-  - Load `presetWind4()` and `presetMoraine()` from the unpacked package.
+  - Load `presetMoraine()` with `presetWind3()` and `presetWind4()` from the unpacked package.
   - Scan `dist/**/*.{mjs,jsx}` from the unpacked package.
   - Assert generated CSS contains:
     - `data-*` / `aria-*` attribute variants.
     - `animate-mo-enter` / `animate-mo-exit` and keyframes.
-    - Custom tokens (`z-floating`, `opacity-64`, theme colors).
+    - Custom tokens (`z-floating`, the engine-native `opacity-64` utility, theme colors).
   - Verify that compilation succeeds without `icon.css`.
   - Verify separate icon rendering via `DEFAULT_ICON_SHORTCUTS` or `icon.css`.
 
@@ -143,7 +143,7 @@ The fixture must exercise the package artifact exactly as an installed consumer 
 #### [MODIFY] `docs/pages/styling.mdx`
 
 - Frame as "Moraine styling system architecture refactor".
-- Document UnoCSS setup with `presetWind4()` and `presetMoraine()` (remove Wind3 and `enableComponentLayer`).
+- Document UnoCSS setup with both `presetWind3()` and `presetWind4()` plus `presetMoraine()`; do not restore `enableComponentLayer`.
 - Document Tailwind v4 setup with `@plugin "moraine/tailwind"` and relative `@source "../node_modules/moraine/dist"` (remove v3 section).
 - Document `icon.css` as optional runtime asset.
 - Replace `cva` and `extendCN` sections with `cn` and `recipe` documentation.
@@ -162,7 +162,7 @@ The fixture must exercise the package artifact exactly as an installed consumer 
 
 #### [MODIFY] `README.md`
 
-- Update styling quickstart to reflect Tailwind v4 and UnoCSS Wind4 usage without precompiled CSS.
+- Update styling quickstart to reflect Tailwind v4 and UnoCSS Wind3/Wind4 usage without precompiled CSS.
 
 ---
 

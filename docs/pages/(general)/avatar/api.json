@@ -152,6 +152,11 @@
         "description": "Source URL for the avatar image."
       },
       {
+        "name": "status",
+        "required": false,
+        "type": "\"idle\" | \"loading\" | \"loaded\" | \"error\" | undefined"
+      },
+      {
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"

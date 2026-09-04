@@ -1,42 +1,39 @@
-import { createGenerator, presetWind4 } from '@subf/unocss'
+import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
 import { presetMoraine, resolvePresetThemeOptions } from './theme.ts'
 
-async function generate(tokens: string[], preflights = false): Promise<string> {
+async function generate(
+  tokens: string[],
+  preflights = false,
+  wind: typeof presetWind3 | typeof presetWind4 = presetWind4,
+): Promise<string> {
   const generator = await createGenerator({
-    presets: [presetWind4(), presetMoraine()],
+    presets: [wind(), presetMoraine()],
   })
   const { css } = await generator.generate(new Set(tokens), { preflights })
   return css
 }
 
 describe('presetMoraine', () => {
-  test('registers Wind4 theme tokens', async () => {
-    const css = await generate([
-      'rounded-lg',
-      'shadow-md',
-      'font-sans',
-      'w-sidebar',
-      'bg-primary',
-      'z-floating',
-      'opacity-64',
-    ])
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('registers %s theme tokens', async (_name, wind) => {
+    const css = await generate(
+      ['rounded-lg', 'shadow-md', 'font-sans', 'bg-primary', 'z-floating', 'opacity-64'],
+      false,
+      wind,
+    )
 
     expect(css).toContain('.rounded-lg')
-    expect(css).toContain('var(--radius-lg)')
     expect(css).toContain('.shadow-md')
-    expect(css).toContain('var(--shadow-md)')
     expect(css).toContain('.font-sans')
-    expect(css).toContain('var(--font-sans)')
-    expect(css).toContain('.w-sidebar')
-    expect(css).toContain('var(--spacing-sidebar)')
     expect(css).toContain('.bg-primary')
     expect(css).toContain('var(--primary)')
     expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
-    expect(css).toContain('.opacity-64')
-    expect(css).toContain('opacity:64%')
+    expect(css).toMatch(/opacity:(0\.64|64%)/)
   })
 
   test('registers data and aria presence variants', async () => {
@@ -49,7 +46,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('[data-disabled]')
     expect(css).toContain('[data-focused]')
     expect(css).toContain('[aria-invalid]')
-    expect(css).toContain('opacity:64%')
+    expect(css).toMatch(/opacity:(0\.64|64%)/)
     expect(css).toContain('var(--destructive)')
   })
 

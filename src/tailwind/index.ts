@@ -122,9 +122,6 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             ...getMoraineAnimTimingFns(),
           },
           animationIterationCount: getMoraineAnimCounts(),
-          opacity: {
-            64: '0.64',
-          },
         },
       },
     },

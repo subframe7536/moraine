@@ -39,6 +39,18 @@
       "description": "Popup panel that contains search input, options, groups, and empty state.",
       "cssVariables": [
         {
+          "name": "--mo-popper-anchor-width",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        },
+        {
+          "name": "--mo-popper-content-available-width",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        },
+        {
           "name": "--mo-popper-content-transform-origin",
           "required": false,
           "type": "string",
@@ -51,7 +63,14 @@
     {
       "name": "listbox",
       "description": "ARIA listbox that contains selectable options.",
-      "cssVariables": [],
+      "cssVariables": [
+        {
+          "name": "--mo-popper-content-available-height",
+          "required": false,
+          "type": "string",
+          "description": "CSS custom property exposed by this slot."
+        }
+      ],
       "dataAttributes": [],
       "ariaAttributes": [
         {

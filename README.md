@@ -19,7 +19,7 @@ npm add moraine solid-js
 
 2. Configure a CSS engine. Moraine publishes atomic component classes rather than precompiled component CSS.
 
-For UnoCSS, load the Wind4 and Moraine presets and scan the published package:
+For UnoCSS, load either Wind4 or Wind3 with the Moraine preset and scan the published package. Wind3 support is limited to UnoCSS preset compatibility; Tailwind CSS remains v4-only and Moraine does not ship precompiled component CSS.
 
 ```ts
 // unocss.config.ts
@@ -28,6 +28,19 @@ import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+```ts
+// unocss.config.ts — Wind3
+import { defineConfig, presetWind3 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind3(), presetMoraine()],
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
   },
