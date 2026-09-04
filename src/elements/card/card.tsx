@@ -112,7 +112,7 @@ export function Card(props: CardProps): JSX.Element {
     'class',
     'style',
   ])
-  const compact = () => local.compact ?? provider()?.defaultProps?.compact ?? false
+  const compact = () => local.compact ?? provider()?.variants?.compact ?? false
 
   const header = createMemo(() => local.header)
   const title = createMemo(() => local.title)

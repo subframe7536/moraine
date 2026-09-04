@@ -149,7 +149,7 @@ per-slot dynamic state classes (e.g. leading loading spinner) and `baseStyle` fo
 inherit `collapsible`; bound `createForm()` Form/Field use `form`/`formField`;
 Icon, AvatarGroup, KbdGroup, and Form have standalone keys. Maintain owner
 contexts such as `ButtonGroupContext` between provider and instance. Do not
-promote loading/disabled/invalid/dragging state to `defaultProps`.
+promote loading/disabled/invalid/dragging state to `variants`.
 
 **Verify**: `nub run typecheck` → exit 0 and no public style type accepts a
 string.

@@ -125,11 +125,9 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const provider = () => config().avatar
 
   const size = () =>
-    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<
-      AvatarVariantProps['size']
-    >
+    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<AvatarVariantProps['size']>
   const badgePosition = () =>
-    local.badgePosition ?? provider()?.defaultProps?.badgePosition ?? 'bottom-right'
+    local.badgePosition ?? provider()?.variants?.badgePosition ?? 'bottom-right'
 
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)

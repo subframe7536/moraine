@@ -6,7 +6,6 @@ import type { AvatarGroupT, AvatarT } from '../../elements/avatar/index.ts'
 import type { BadgeT } from '../../elements/badge/index.ts'
 import type { ButtonGroupT, ButtonT } from '../../elements/button/index.ts'
 import type { CardT } from '../../elements/card/index.ts'
-import type { CollapsibleT } from '../../elements/collapsible/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { KbdGroupT, KbdT } from '../../elements/kbd/index.ts'
 import type { ListT } from '../../elements/list/index.ts'
@@ -33,7 +32,6 @@ import type { TabsT } from '../../navigation/tabs/index.ts'
 import type { ContextMenuT } from '../../overlays/context-menu/index.ts'
 import type { DialogT } from '../../overlays/dialog/index.ts'
 import type { DropdownMenuT } from '../../overlays/dropdown-menu/index.ts'
-import type { ModalT } from '../../overlays/modal/index.ts'
 import type { PopoverT } from '../../overlays/popover/index.ts'
 import type { SheetT } from '../../overlays/sheet/index.ts'
 import type { TooltipT } from '../../overlays/tooltip/index.ts'
@@ -46,10 +44,8 @@ export interface ComponentDefaultStyle<
   C = Record<string, SlotClassValue>,
   S = Record<string, SlotStyleValue>,
 > {
-  defaultProps?: [V] extends [never] ? never : Partial<V>
-  class?: SlotClassValue
+  variants?: [V] extends [never] ? never : Partial<V>
   classes?: [C] extends [never] ? never : Partial<C>
-  style?: JSX.CSSProperties
   styles?: [S] extends [never] ? never : Partial<{ [K in keyof S]: JSX.CSSProperties }>
 }
 
@@ -75,11 +71,6 @@ export interface MoraineConfig {
     CheckboxGroupT.Variant,
     CheckboxGroupT.Classes,
     CheckboxGroupT.Styles
-  >
-  collapsible?: ComponentDefaultStyle<
-    CollapsibleT.Variant,
-    CollapsibleT.Classes,
-    CollapsibleT.Styles
   >
   commandPalette?: ComponentDefaultStyle<
     CommandPaletteT.Variant,
@@ -110,7 +101,6 @@ export interface MoraineConfig {
   kbd?: ComponentDefaultStyle<KbdT.Variant, KbdT.Classes, KbdT.Styles>
   kbdGroup?: ComponentDefaultStyle<KbdGroupT.Variant, KbdGroupT.Classes, KbdGroupT.Styles>
   list?: ComponentDefaultStyle<ListT.Variant, ListT.Classes, ListT.Styles>
-  modal?: ComponentDefaultStyle<ModalT.Variant, ModalT.Classes, ModalT.Styles>
   multiSelect?: ComponentDefaultStyle<
     MultiSelectT.Variant,
     MultiSelectT.Classes,
@@ -173,26 +163,12 @@ export function mergeComponentStyle<
     }
   }
 
-  const mergedDefaultProps =
-    parent.defaultProps || child.defaultProps
-      ? { ...parent.defaultProps, ...child.defaultProps }
-      : undefined
-
-  const mergedClass = cn(parent.class, child.class)
-
-  const mergedStyle =
-    parent.style || child.style
-      ? {
-          ...(parent.style && typeof parent.style === 'object' ? parent.style : undefined),
-          ...(child.style && typeof child.style === 'object' ? child.style : undefined),
-        }
-      : undefined
+  const mergedVariants =
+    parent.variants || child.variants ? { ...parent.variants, ...child.variants } : undefined
 
   return {
-    ...(mergedDefaultProps ? { defaultProps: mergedDefaultProps as any } : {}),
-    ...(mergedClass ? { class: mergedClass } : {}),
+    ...(mergedVariants ? { variants: mergedVariants as any } : {}),
     ...(Object.keys(mergedClasses).length > 0 ? { classes: mergedClasses as any } : {}),
-    ...(mergedStyle ? { style: mergedStyle } : {}),
     ...(Object.keys(mergedStyles).length > 0 ? { styles: mergedStyles as any } : {}),
   }
 }
@@ -252,12 +228,10 @@ export interface ResolvedComponentStyle<S extends string> {
  *
  * Ordering (weakest → strongest) matches the Inheritance and Override
  * Precedence table exactly:
- *   class: recipe slots → provider.class → provider.classes[slot]
- *          → group.class → group.classes[slot] → stateCls[slot]
- *          → instance.classes[slot] → instance.class (root only)
- *   style: baseStyle → provider.style → provider.styles[slot]
- *          → group.style → group.styles[slot] → instance.styles[slot]
- *          → instance.style (root only)
+ *   class: recipe slots → provider.classes[slot] → group.classes[slot]
+ *          → stateCls[slot] → instance.classes[slot] → instance.class (root only)
+ *   style: baseStyle → provider.styles[slot] → group.styles[slot]
+ *          → instance.styles[slot] → instance.style (root only)
  */
 export function resolveComponentStyle<
   S extends string,
@@ -275,18 +249,14 @@ export function resolveComponentStyle<
 
       return (
         slot?.(
-          inputs.provider?.class,
           providerClasses?.[rootSlot],
-          inputs.group?.class,
           groupClasses?.[rootSlot],
           inputs.stateCls?.[rootSlot],
           instanceClasses?.[rootSlot],
           inputs.instance?.class,
         ) ??
         cn(
-          inputs.provider?.class,
           providerClasses?.[rootSlot],
-          inputs.group?.class,
           groupClasses?.[rootSlot],
           inputs.stateCls?.[rootSlot],
           instanceClasses?.[rootSlot],
@@ -306,9 +276,7 @@ export function resolveComponentStyle<
 
       return {
         ...inputs.baseStyle,
-        ...inputs.provider?.style,
         ...providerStyles?.[rootSlot],
-        ...inputs.group?.style,
         ...groupStyles?.[rootSlot],
         ...instanceStyles?.[rootSlot],
         ...inputs.instance?.style,

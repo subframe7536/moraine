@@ -171,7 +171,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       variant: 'list' as const,
       indicator: 'start' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
 

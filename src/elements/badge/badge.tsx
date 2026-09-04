@@ -80,9 +80,9 @@ export function Badge(props: BadgeProps): JSX.Element {
     'children',
   ])
   const size = () =>
-    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<BadgeVariantProps['size']>
+    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<BadgeVariantProps['size']>
   const variant = () =>
-    (local.variant ?? provider()?.defaultProps?.variant ?? 'default') as NonNullable<
+    (local.variant ?? provider()?.variants?.variant ?? 'default') as NonNullable<
       BadgeVariantProps['variant']
     >
 

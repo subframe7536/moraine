@@ -206,7 +206,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
   const label = createMemo(() => merged.label)

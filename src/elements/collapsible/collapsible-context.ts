@@ -3,8 +3,6 @@ import type { Accessor } from 'solid-js'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
-import type { CollapsibleT } from './collapsible'
-
 export interface CollapsibleContext {
   rootId: Accessor<string>
   triggerId: Accessor<string>
@@ -25,8 +23,6 @@ export interface CollapsibleContext {
   contentPresence: ReturnType<typeof useTransitionPresence>
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
-  classes?: CollapsibleT.Classes
-  styles?: CollapsibleT.Styles
 }
 
 export const [CollapsibleProvider, useCollapsibleContext] =

@@ -184,13 +184,13 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const size = () =>
-    (local.size ?? group?.size ?? providerButton()?.defaultProps?.size ?? 'md') as NonNullable<
+    (local.size ?? group?.size ?? providerButton()?.variants?.size ?? 'md') as NonNullable<
       ButtonVariantProps['size']
     >
   const variant = () =>
     (local.variant ??
       group?.variant ??
-      providerButton()?.defaultProps?.variant ??
+      providerButton()?.variants?.variant ??
       'default') as NonNullable<ButtonVariantProps['variant']>
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)

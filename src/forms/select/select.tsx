@@ -196,7 +196,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     {
       variant: 'outline' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
 
@@ -284,13 +284,13 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     return value === null || value === undefined ? merged.placeholder : String(value)
   }
 
-  const mergedClass = () => cn(provider()?.class, local.class)
+  const mergedClass = () => cn(provider()?.classes?.root, local.class)
   const mergedClasses = () => ({
     ...provider()?.classes,
     ...local.classes,
   })
   const mergedStyle = () => ({
-    ...provider()?.style,
+    ...provider()?.styles?.root,
     ...local.style,
   })
   const mergedStyles = () => ({

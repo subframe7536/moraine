@@ -436,7 +436,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
 

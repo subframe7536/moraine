@@ -183,7 +183,7 @@ export function Sheet(props: SheetProps): JSX.Element {
       close: true,
       dismissible: true,
     },
-    () => providerSheet()?.defaultProps,
+    () => providerSheet()?.variants,
     local,
   )
 

@@ -78,70 +78,35 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('applies modal provider class/style and trigger slot overrides', () => {
+  test('applies direct trigger class and style', () => {
     const screen = render(() => (
-      <MoraineProvider
-        config={{
-          modal: {
-            class: 'modal-provider-class',
-            classes: { trigger: 'modal-provider-trigger' },
-            style: { color: 'red' },
-            styles: { trigger: { background: 'red' } },
-          },
-        }}
-      >
-        <Modal>
-          <Modal.Trigger
-            data-testid="provider-trigger"
-            class="modal-instance-class"
-            classes={{ trigger: 'modal-instance-trigger' }}
-            style={{ color: 'green' }}
-            styles={{ trigger: { border: '1px solid green' } }}
-          >
-            Open modal
-          </Modal.Trigger>
-          <Modal.Content>
-            <span>Content</span>
-          </Modal.Content>
-        </Modal>
-      </MoraineProvider>
+      <Modal>
+        <Modal.Trigger
+          data-testid="direct-trigger"
+          class="modal-instance-class"
+          style={{ color: 'green', border: '1px solid green' }}
+        >
+          Open modal
+        </Modal.Trigger>
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
+      </Modal>
     ))
 
-    const trigger = screen.getByTestId('provider-trigger')
-    expect(trigger.className).toContain('modal-provider-class')
-    expect(trigger.className).toContain('modal-provider-trigger')
+    const trigger = screen.getByTestId('direct-trigger')
     expect(trigger.className).toContain('modal-instance-class')
-    expect(trigger.className).toContain('modal-instance-trigger')
     expect(trigger.style.color).toBe('green')
-    expect(trigger.style.background).toBe('red')
     expect(trigger.style.border).toBe('1px solid green')
     screen.unmount()
   })
 
-  test('applies modal provider trigger styling to Dialog and Sheet renderers only', () => {
+  test('does not inherit removed Modal provider styling into Dialog and Sheet triggers', () => {
     const screen = render(() => (
       <MoraineProvider
         config={{
-          modal: {
-            class: 'modal-provider-class',
-            classes: { trigger: 'modal-provider-trigger' },
-            style: { color: 'red' },
-            styles: { trigger: { background: 'red' } },
-          },
-          dialog: {
-            class: 'dialog-provider-class',
-            style: { color: 'blue' },
-            styles: {
-              content: { border: '2px solid blue' },
-            },
-          },
-          sheet: {
-            class: 'sheet-provider-class',
-            style: { color: 'green' },
-            styles: {
-              content: { border: '2px solid green' },
-            },
-          },
+          dialog: { styles: { content: { border: '2px solid blue' } } },
+          sheet: { styles: { content: { border: '2px solid green' } } },
         }}
       >
         <Dialog open body="Dialog body">
@@ -163,16 +128,8 @@ describe('Modal primitives', () => {
 
     const triggers = screen.container.querySelectorAll('[data-slot="trigger"]')
     expect(triggers).toHaveLength(2)
-    expect(triggers[0]?.className).toContain('modal-provider-class')
-    expect(triggers[0]?.className).toContain('modal-provider-trigger')
-    expect(triggers[0]?.className).toContain('dialog-provider-class')
-    expect((triggers[0] as HTMLElement).style.color).toBe('blue')
-    expect((triggers[0] as HTMLElement).style.background).toBe('red')
-    expect(triggers[1]?.className).toContain('modal-provider-class')
-    expect(triggers[1]?.className).toContain('modal-provider-trigger')
-    expect(triggers[1]?.className).toContain('sheet-provider-class')
-    expect((triggers[1] as HTMLElement).style.color).toBe('green')
-    expect((triggers[1] as HTMLElement).style.background).toBe('red')
+    expect(triggers[0]?.className).not.toContain('modal-provider')
+    expect(triggers[1]?.className).not.toContain('modal-provider')
 
     const contents = document.body.querySelectorAll('[data-slot="content"]')
     expect(contents).toHaveLength(2)

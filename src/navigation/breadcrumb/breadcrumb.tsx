@@ -180,10 +180,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
   type BreadcrumbSize = NonNullable<BreadcrumbT.Base['size']>
   const size = createMemo<BreadcrumbSize>(
-    () => local.size ?? providerBreadcrumb()?.defaultProps?.size ?? 'md',
+    () => local.size ?? providerBreadcrumb()?.variants?.size ?? 'md',
   )
   const wrap = createMemo<boolean>(() =>
-    Boolean(local.wrap ?? providerBreadcrumb()?.defaultProps?.wrap ?? true),
+    Boolean(local.wrap ?? providerBreadcrumb()?.variants?.wrap ?? true),
   )
   const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
 

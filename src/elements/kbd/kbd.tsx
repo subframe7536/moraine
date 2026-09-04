@@ -84,9 +84,9 @@ export function Kbd(props: KbdProps): JSX.Element {
   ])
 
   const size = () =>
-    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<KbdVariantProps['size']>
+    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<KbdVariantProps['size']>
   const variant = () =>
-    (local.variant ?? provider()?.defaultProps?.variant ?? 'default') as NonNullable<
+    (local.variant ?? provider()?.variants?.variant ?? 'default') as NonNullable<
       KbdVariantProps['variant']
     >
 

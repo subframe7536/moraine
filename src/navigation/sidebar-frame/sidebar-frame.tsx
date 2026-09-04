@@ -306,7 +306,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },
-    () => providerSidebarFrame()?.defaultProps,
+    () => providerSidebarFrame()?.variants,
     local,
   )
 

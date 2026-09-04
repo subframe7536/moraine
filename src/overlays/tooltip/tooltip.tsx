@@ -205,7 +205,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       closeDelay: 200,
       instantOpenDelay: 300,
     },
-    () => providerTooltip()?.defaultProps,
+    () => providerTooltip()?.variants,
     local,
   )
 

@@ -2,7 +2,6 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import { callRef, cn } from '../../shared/utils'
 
 import type { CollapsibleT } from './collapsible'
@@ -36,26 +35,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'wrapperRef',
   ])
   const context = useCollapsibleContext()
-  const config = useMoraineConfig()
-  const provider = () => config().collapsible
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    get provider() {
-      return provider()
-    },
-    get group() {
-      return {
-        classes: context.classes,
-        styles: context.styles,
-      }
-    },
-    get instance() {
-      return {
-        class: local.class,
-        style: local.style,
-      }
-    },
-  })
   const customAs = createMemo(() => local.as)
   const unmount = createMemo(() => local.unmountOnHide ?? context.unmountOnHide())
   const forceMount = createMemo(() => Boolean(local.forceMount))
@@ -117,8 +96,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               fallback={
                 <div
                   data-slot="content"
-                  style={resolved.rootStyle()}
-                  class={resolved.rootClass()}
+                  style={local.style}
+                  class={local.class}
                   ref={(el) => handleInnerRef(el)}
                   {...rest}
                 >
@@ -131,8 +110,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   data-slot="content"
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
-                  style={resolved.rootStyle()}
-                  class={resolved.rootClass()}
+                  style={local.style}
+                  class={local.class}
                   ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
                 >
                   {children()}

@@ -138,7 +138,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
       gutter: 0,
       shift: 4,
     },
-    () => providerContextMenu()?.defaultProps,
+    () => providerContextMenu()?.variants,
     local,
   )
 

@@ -246,7 +246,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       variant: 'outline' as const,
       autoResize: false,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
   const header = createMemo(() => merged.header)

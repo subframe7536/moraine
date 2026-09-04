@@ -531,10 +531,8 @@ export interface ComponentDefaultStyle<
   C = Record<string, SlotClassValue>,
   S = Record<string, SlotStyleValue>,
 > {
-  defaultProps?: Partial<V>
-  class?: SlotClassValue
+  variants?: Partial<V>
   classes?: Partial<C>
-  style?: JSX.CSSProperties
   styles?: Partial<S>
 }
 
@@ -559,11 +557,6 @@ export interface MoraineConfig {
     CheckboxGroupT.Variant,
     CheckboxGroupT.Classes,
     CheckboxGroupT.Styles
-  >
-  collapsible?: ComponentDefaultStyle<
-    CollapsibleT.Variant,
-    CollapsibleT.Classes,
-    CollapsibleT.Styles
   >
   commandPalette?: ComponentDefaultStyle<
     CommandPaletteT.Variant,
@@ -594,7 +587,6 @@ export interface MoraineConfig {
   kbd?: ComponentDefaultStyle<KbdT.Variant, KbdT.Classes, KbdT.Styles>
   kbdGroup?: ComponentDefaultStyle<KbdGroupT.Variant, KbdGroupT.Classes, KbdGroupT.Styles>
   list?: ComponentDefaultStyle<ListT.Variant, ListT.Classes, ListT.Styles>
-  modal?: ComponentDefaultStyle<ModalT.Variant, ModalT.Classes, ModalT.Styles>
   multiSelect?: ComponentDefaultStyle<
     MultiSelectT.Variant,
     MultiSelectT.Classes,
@@ -622,24 +614,24 @@ export interface MoraineConfig {
 }
 ```
 
-All runtime style APIs are object-only. `SlotStyleValue`, component `style`, slot `styles`, provider `style`, provider `styles`, group/context styles, and `defineStyleVars` inputs use `JSX.CSSProperties`; string CSS declarations are not accepted. Existing string-style usage is a compile-time breaking change and must be migrated to an object.
+All runtime style APIs are object-only. `SlotStyleValue`, component `style`, slot `styles`, provider `styles`, group/context styles, and `defineStyleVars` inputs use `JSX.CSSProperties`; string CSS declarations are not accepted. Existing string-style usage is a compile-time breaking change and must be migrated to an object.
 
 Every public styled component must be covered. A standalone public component with its own `ComponentT` namespace receives its own provider key, including `AvatarGroup`, `KbdGroup`, `Form`, and `Icon`. Public composition primitives without independent style schemas inherit their owner's block:
 
-| Public component                                                   | Provider ownership                                                                             |
-| :----------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| `CollapsibleTrigger`, `CollapsibleContent`                         | `collapsible`; their slots are represented in `CollapsibleT.Classes` and `CollapsibleT.Styles` |
-| `ModalTrigger`, `ModalTriggerRenderer`                             | `modal`; trigger slots are represented in `ModalT.Classes` and `ModalT.Styles`                 |
-| `AvatarFace`                                                       | `avatar`                                                                                       |
-| `createForm()` bound `Form` and `Field` components                 | `form` and `formField`, respectively                                                           |
-| `SidebarFrameSheetOnlyRender`, `SidebarFrameSheetResizableRender`  | `sidebarFrame`; these are render strategies, not independent provider scopes                   |
-| Select/menu internal primitives not exported from the package root | Their public owning component (`select`, `multiSelect`, `dropdownMenu`, or `contextMenu`)      |
+| Public component                                                   | Provider ownership                                                                        |
+| :----------------------------------------------------------------- | :---------------------------------------------------------------------------------------- |
+| `CollapsibleTrigger`, `CollapsibleContent`                         | No provider scope; each primitive accepts direct `class` and `style` props                |
+| `ModalTrigger`, `ModalTriggerRenderer`                             | No provider scope; each primitive accepts direct `class` and `style` props                |
+| `AvatarFace`                                                       | `avatar`                                                                                  |
+| `createForm()` bound `Form` and `Field` components                 | `form` and `formField`, respectively                                                      |
+| `SidebarFrameSheetOnlyRender`, `SidebarFrameSheetResizableRender`  | `sidebarFrame`; these are render strategies, not independent provider scopes              |
+| Select/menu internal primitives not exported from the package root | Their public owning component (`select`, `multiSelect`, `dropdownMenu`, or `contextMenu`) |
 
 The implementation must maintain a checked inventory from every package-root component export to exactly one provider key. Components that intentionally expose no variant or slot overrides use `never` for those generic parameters but still support root `class` and object `style` when their public API already exposes them.
 
 #### 2. Deep Per-Key Merging for Nested Providers
 
-Nested providers do not overwrite whole component blocks; they reactively deep-merge `defaultProps`, `classes`, and `styles`. The closest provider wins per property; unspecified child keys inherit from the parent. Class values are combined through `cn`, while object styles are shallow-merged per slot and CSS property.
+Nested providers do not overwrite whole component blocks; they reactively deep-merge `variants`, `classes`, and `styles`. The closest provider wins per property; unspecified child keys inherit from the parent. Class values are combined through `cn`, while object styles are shallow-merged per slot and CSS property.
 
 The context value is an accessor so replacing a provider config or changing reactive values inside it propagates without remounting descendants:
 
@@ -692,10 +684,8 @@ export function mergeComponentStyle<
   }
 
   return {
-    defaultProps: { ...parent.defaultProps, ...child.defaultProps },
-    class: cn(parent.class, child.class),
+    variants: { ...parent.variants, ...child.variants },
     classes: mergedClasses as Partial<C>,
-    style: { ...parent.style, ...child.style },
     styles: mergedStyles as Partial<S>,
   }
 }
@@ -750,11 +740,11 @@ export interface ResolvedComponentStyle<S extends string> {
  *
  * Ordering (weakest → strongest) matches the Inheritance and Override
  * Precedence table exactly:
- *   class: recipe slots → provider.class → provider.classes[slot]
- *          → group.class → group.classes[slot] → stateCls[slot]
+ *   class: recipe slots → provider.classes[slot]
+ *          → group.classes[slot] → stateCls[slot]
  *          → instance.classes[slot] → instance.class (root only)
- *   style: baseStyle → provider.style → provider.styles[slot]
- *          → group.style → group.styles[slot] → instance.styles[slot]
+ *   style: baseStyle → provider.styles[slot]
+ *          → group.styles[slot] → instance.styles[slot]
  *          → instance.style (root only)
  */
 export function resolveComponentStyle<S extends string, V extends Record<string, unknown>>(
@@ -763,9 +753,7 @@ export function resolveComponentStyle<S extends string, V extends Record<string,
   return {
     rootClass: () =>
       inputs.slots.root(
-        inputs.provider?.class,
         inputs.provider?.classes?.root,
-        inputs.group?.class,
         inputs.group?.classes?.root,
         inputs.stateCls?.root,
         inputs.instance?.classes?.root,
@@ -773,10 +761,8 @@ export function resolveComponentStyle<S extends string, V extends Record<string,
       ),
     rootStyle: () => ({
       ...inputs.baseStyle,
-      ...inputs.provider?.style,
-      ...inputs.provider?.styles?.root,
-      ...inputs.group?.style,
-      ...inputs.group?.styles?.root,
+       ...inputs.provider?.styles?.root,
+       ...inputs.group?.styles?.root,
       ...inputs.instance?.styles?.root,
       ...inputs.instance?.style,
     }),
@@ -805,15 +791,15 @@ export function resolveComponentStyle<S extends string, V extends Record<string,
 
 Resolution is defined independently for design props, classes, and object styles. In every sequence below, the rightmost defined value wins:
 
-| Surface                                   | Precedence, weakest → strongest                                                                                                                                                                                           |
-| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Design props such as `variant` and `size` | recipe `defaultVariants` → provider `defaultProps` chain (outer → inner) → composition context such as `ButtonGroup` → component instance prop                                                                            |
-| Root class                                | recipe base/selected/compound classes → provider general `class` chain (outer → inner) → provider `classes.root` chain (outer → inner) → composition context → instance `classes.root` → instance `class`                 |
-| Non-root slot class                       | recipe base/selected/compound classes → provider slot chain (outer → inner) → composition context slot → instance slot                                                                                                    |
-| Root style                                | generated component CSS variables/default runtime style → provider general `style` chain (outer → inner) → provider `styles.root` chain (outer → inner) → composition context → instance `styles.root` → instance `style` |
-| Non-root slot style                       | component default runtime style → provider slot chain (outer → inner) → composition context slot → instance slot                                                                                                          |
+| Surface                                   | Precedence, weakest → strongest                                                                                                                                          |
+| :---------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Design props such as `variant` and `size` | recipe `defaultVariants` → provider `variants` chain (outer → inner) → composition context such as `ButtonGroup` → component instance prop                               |
+| Root class                                | recipe base/selected/compound classes → provider `classes.root` chain (outer → inner) → composition context → instance `classes.root` → instance `class`                 |
+| Non-root slot class                       | recipe base/selected/compound classes → provider slot chain (outer → inner) → composition context slot → instance slot                                                   |
+| Root style                                | generated component CSS variables/default runtime style → provider `styles.root` chain (outer → inner) → composition context → instance `styles.root` → instance `style` |
+| Non-root slot style                       | component default runtime style → provider slot chain (outer → inner) → composition context slot → instance slot                                                         |
 
-Provider values are defaults and global overrides, not locks. An instance always remains able to override a provider value. A composition context sits between provider and instance so a `ButtonGroup` can establish local defaults while an individual `Button` can opt out. State styling is expressed through `data-*`, `aria-*`, and native pseudo-class selectors in the recipe/presets; it does not become a provider `defaultProp`. If an instance deliberately supplies a conflicting class with the same modifier chain, normal last-wins `cn` semantics apply.
+Provider values are defaults and global overrides, not locks. An instance always remains able to override a provider value. A composition context sits between provider and instance so a `ButtonGroup` can establish local defaults while an individual `Button` can opt out. State styling is expressed through `data-*`, `aria-*`, and native pseudo-class selectors in the recipe/presets; it does not become a provider variant. If an instance deliberately supplies a conflicting class with the same modifier chain, normal last-wins `cn` semantics apply.
 
 The table above is implemented by `resolveComponentStyle` (§3.5.3), which is the only place components read this ordering.
 
@@ -828,8 +814,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const group = useContext(ButtonGroupContext)
 
   // 1. Single source of truth: Recipe defaults apply only when props, group, and provider are undefined:
-  const variant = () => props.variant ?? group?.variant ?? provider()?.defaultProps?.variant
-  const size = () => props.size ?? group?.size ?? provider()?.defaultProps?.size
+  const variant = () => props.variant ?? group?.variant ?? provider()?.variants?.variant
+  const size = () => props.size ?? group?.size ?? provider()?.variants?.size
 
   // 2. Runtime multi-slot recipe resolution:
   const slots = () => buttonRecipe({ variant: variant(), size: size() })

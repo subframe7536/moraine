@@ -195,7 +195,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       variant: 'pill' as const,
       size: 'md' as const,
     },
-    () => providerTabs()?.defaultProps,
+    () => providerTabs()?.variants,
     local,
   )
 

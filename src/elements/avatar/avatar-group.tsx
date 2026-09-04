@@ -91,7 +91,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   ])
 
   const size = () =>
-    (local.size ?? provider()?.defaultProps?.size ?? 'md') as NonNullable<
+    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<
       AvatarGroupVariantProps['size']
     >
   const items = createMemo(() => local.items ?? [])

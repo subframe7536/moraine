@@ -106,7 +106,7 @@ component namespace types as type-only imports and implement
 list above and `PRD.md §3.5.1`. Preserve component namespaces as the public
 type source; do not introduce duplicate top-level component type exports.
 
-`ComponentDefaultStyle` must expose `defaultProps`, general root `class` and
+`ComponentDefaultStyle` must expose `variants`, slot `classes` and
 object `style`, slot `classes`, and object `styles`. Generic constraints must
 accept `never` for components with no variants/slots while retaining root
 class/style where their component API supports them.
@@ -130,7 +130,7 @@ reactive configuration.
 
 Implement and export `mergeComponentStyle` and `mergeMoraineConfig`:
 
-- `defaultProps`: shallow merge, child wins per property;
+- `variants`: shallow merge, child wins per property;
 - general `class`: merge parent then child through `cn`;
 - `classes`: merge per slot through `cn`, parent then child;
 - general `style`: shallow merge object properties, child wins;

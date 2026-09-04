@@ -212,7 +212,7 @@ export function Stepper(props: StepperProps): JSX.Element {
       linear: true,
       clickable: false,
     },
-    () => providerStepper()?.defaultProps,
+    () => providerStepper()?.variants,
     local,
   )
 

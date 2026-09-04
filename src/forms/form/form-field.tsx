@@ -214,7 +214,7 @@ export function FormField<
       size: 'md' as const,
       required: false,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   ) as MergedProps
 

@@ -144,13 +144,13 @@ export function Progress(props: ProgressProps): JSX.Element {
   ])
 
   const orientation = createMemo<NonNullable<ProgressVariantProps['orientation']>>(
-    () => local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal',
+    () => local.orientation ?? provider()?.variants?.orientation ?? 'horizontal',
   )
   const size = createMemo<NonNullable<ProgressVariantProps['size']>>(
-    () => local.size ?? provider()?.defaultProps?.size ?? 'md',
+    () => local.size ?? provider()?.variants?.size ?? 'md',
   )
   const animation = createMemo<NonNullable<ProgressVariantProps['animation']>>(
-    () => local.animation ?? provider()?.defaultProps?.animation ?? 'carousel',
+    () => local.animation ?? provider()?.variants?.animation ?? 'carousel',
   )
 
   const styleVars = createMemo(() => progressStyleVars({ size: size() }))

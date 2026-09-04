@@ -290,7 +290,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     {
       variant: 'outline' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
 
@@ -653,13 +653,13 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     handleMultipleChange(current.slice(0, -1), api)
   }
 
-  const mergedClass = () => cn(provider()?.class, local.class)
+  const mergedClass = () => cn(provider()?.classes?.root, local.class)
   const mergedClasses = () => ({
     ...provider()?.classes,
     ...local.classes,
   })
   const mergedStyle = () => ({
-    ...provider()?.style,
+    ...provider()?.styles?.root,
     ...local.style,
   })
   const mergedStyles = () => ({

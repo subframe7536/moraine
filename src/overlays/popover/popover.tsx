@@ -130,7 +130,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       closeDelay: 100,
       dismissible: true,
     },
-    () => providerPopover()?.defaultProps,
+    () => providerPopover()?.variants,
     local,
   )
 

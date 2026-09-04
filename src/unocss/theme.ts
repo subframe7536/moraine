@@ -305,16 +305,34 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
   return {
     name: 'preset-theme-moraine',
     theme: {
+      // Wind4 theme keys
       radius: MORAINE_RADIUS,
       shadow: MORAINE_SHADOW,
       font: MORAINE_FONT,
       spacing: MORAINE_WIDTH,
+
+      // Wind3 uses the legacy key names below. Keep both sets so the same
+      // preset works regardless of which Wind preset the consumer selects.
+      borderRadius: MORAINE_RADIUS,
+      boxShadow: MORAINE_SHADOW,
+      fontFamily: MORAINE_FONT,
+      width: MORAINE_WIDTH,
       zIndex: MORAINE_Z_INDEX,
+
+      // Wind4 transition defaults
       default: {
         transition: {
           duration: MORAINE_ANIM_DUR_VAR_ENTER,
           timingFunction: MORAINE_EASE_OUT,
         },
+      },
+
+      // Wind3 transition defaults
+      duration: {
+        DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER,
+      },
+      easing: {
+        DEFAULT: MORAINE_EASE_OUT,
       },
       colors: MORAINE_COLORS,
       animation: {

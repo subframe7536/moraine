@@ -1,8 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -73,21 +72,10 @@ export namespace CollapsibleT {
     never
   >
 
-  export interface Slot<T = unknown> {
-    /**
-     * Container that owns the trigger and expandable content state.
-     */
-    root?: T
-
-    /** Button users activate to toggle the content visibility. */
-    trigger?: T
-
-    /** Region that is mounted for the expanded collapsible content. */
-    content?: T
-  }
+  export interface Slot<_T = unknown> {}
   export type Variant = never
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
 
   export interface Item {}
   /**
@@ -142,7 +130,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, never, never, never>
 }
 
 /**
@@ -161,26 +149,9 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'transition',
     'unmountOnHide',
     'children',
-    'classes',
-    'styles',
     'class',
     'style',
   ])
-  const config = useMoraineConfig()
-  const provider = () => config().collapsible
-  const resolved = resolveComponentStyle({
-    get provider() {
-      return provider()
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
   const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -231,12 +202,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     contentPresence,
     triggerElement,
     setTriggerElement,
-    get classes() {
-      return local.classes
-    },
-    get styles() {
-      return local.styles
-    },
   }
 
   return (
@@ -246,8 +211,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         data-slot="root"
         {...dataAttrs()}
         {...rest}
-        style={resolved.rootStyle()}
-        class={cn(COLLAPSIBLE_ROOT_CLASS, resolved.rootClass())}
+        style={local.style}
+        class={cn(COLLAPSIBLE_ROOT_CLASS, local.class)}
       >
         {local.children}
       </div>

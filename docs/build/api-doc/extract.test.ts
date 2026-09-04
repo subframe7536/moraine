@@ -519,6 +519,36 @@ declare function AliasButton(props: AliasButtonT.Props): JSX.Element
     await rm(projectRoot, { recursive: true, force: true })
   })
 
+  test('omits slot override props when their BaseProps parameters are never', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type BaseProps<Base, Classes, Styles> = Base & ([Classes] extends [never] ? {} : {
+  classes?: Classes
+}) & ([Styles] extends [never] ? {} : {
+  styles?: Styles
+})
+
+declare namespace EmptySlotsT {
+  interface Slot<_T = unknown> {}
+  interface Base {
+    open?: boolean
+  }
+  type Props = BaseProps<Base, never, never>
+}
+
+declare function EmptySlots(props: EmptySlotsT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(await generateApiDoc(projectRoot), 'empty-slots')
+
+    expect(props.map((prop) => prop.name)).toEqual(['open'])
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
   test('keeps shared slot override aliases before component aliases', async () => {
     const projectRoot = await createTempProject()
     await writeProjectDts(

@@ -250,7 +250,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       variant: 'list' as const,
       defaultValue: [] as string[],
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
   const legend = createMemo(() => merged.legend)

@@ -109,7 +109,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       placement: 'bottom-start' as const,
       gutter: 0,
     },
-    () => providerDropdownMenu()?.defaultProps,
+    () => providerDropdownMenu()?.variants,
     local,
   )
 

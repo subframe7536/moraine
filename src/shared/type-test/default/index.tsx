@@ -139,6 +139,24 @@ void generatedId
 // @ts-expect-error String slot style is rejected
 ;<Modal defaultOpen styles={{ content: 'color: red' }} />
 
+// @ts-expect-error Modal root no longer owns named slots.
+;<Modal classes={{ trigger: 'trigger' }} />
+
+// @ts-expect-error Provider variant defaults use variants, not defaultProps.
+;<MoraineProvider config={{ button: { defaultProps: { size: 'sm' } } }} />
+
+// @ts-expect-error Provider root styles use classes.root instead of class.
+;<MoraineProvider config={{ button: { class: 'root' } }} />
+
+// @ts-expect-error Provider root styles use styles.root instead of style.
+;<MoraineProvider config={{ button: { style: { color: 'red' } } }} />
+
+// @ts-expect-error Modal has no Provider configuration.
+;<MoraineProvider config={{ modal: {} }} />
+
+// @ts-expect-error Collapsible has no Provider configuration.
+;<MoraineProvider config={{ collapsible: {} }} />
+
 // @ts-expect-error String defineStyleVars extra styles are rejected
 defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
 

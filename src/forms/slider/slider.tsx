@@ -157,7 +157,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       inverted: false,
       variant: 'default' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
 

@@ -954,15 +954,13 @@ describe('Button', () => {
         <MoraineProvider
           config={{
             button: {
-              defaultProps: { variant: 'outline', size: 'lg' },
-              class: 'provider-root-class',
+              variants: { variant: 'outline', size: 'lg' },
               classes: { root: 'provider-slot-root', leading: 'provider-leading' },
-              style: { color: 'red', margin: '4px' },
-              styles: { root: { color: 'blue' } },
+              styles: { root: { color: 'blue', margin: '4px' } },
             },
             buttonGroup: {
-              defaultProps: { size: 'sm' },
-              class: 'provider-group-root',
+              variants: { size: 'sm' },
+              classes: { root: 'provider-group-root' },
             },
           }}
         >
@@ -989,7 +987,6 @@ describe('Button', () => {
       const pBtn = screen.getByTestId('p-btn')
       expect(pBtn.getAttribute('data-variant')).toBe('outline')
       expect(pBtn.getAttribute('data-size')).toBe('lg')
-      expect(pBtn.className).toContain('provider-root-class')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.style.margin).toBe('4px')
       expect(pBtn.style.color).toBe('blue')
@@ -997,7 +994,7 @@ describe('Button', () => {
       const gBtn = screen.getByTestId('g-btn')
       // Group variant 'secondary' overrides provider 'outline'
       expect(gBtn.getAttribute('data-variant')).toBe('secondary')
-      // Provider buttonGroup defaultProps 'sm' overrides provider button 'lg'
+      // Provider buttonGroup variants 'sm' overrides provider button 'lg'
       expect(gBtn.getAttribute('data-size')).toBe('sm')
 
       const iBtn = screen.getByTestId('i-btn')

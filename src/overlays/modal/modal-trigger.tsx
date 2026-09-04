@@ -10,7 +10,6 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { SlotClassValue } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -53,39 +52,13 @@ function useModalTriggerBinding(
 export function ModalTriggerRenderer(
   props: Omit<Partial<OverlayTriggerProps>, 'class' | 'style'> & {
     class?: SlotClassValue
-    classes?: ModalT.Classes
     style?: JSX.CSSProperties
-    styles?: ModalT.Styles
     children?: (props: OverlayTriggerProps) => JSX.Element
   },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'children',
-    'onClick',
-    'ref',
-    'class',
-    'classes',
-    'style',
-    'styles',
-  ])
+  const [local, rest] = splitProps(props, ['children', 'onClick', 'ref', 'class', 'style'])
   const triggerRender = createMemo(() => local.children)
   const binding = useModalTriggerBinding(() => local.ref)
-  const config = useMoraineConfig()
-  const provider = () => config().modal
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    get provider() {
-      return provider()
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
   const triggerProps = mergeProps(
     {
       get 'aria-controls'() {
@@ -99,10 +72,10 @@ export function ModalTriggerRenderer(
     rest,
     {
       get class() {
-        return resolved.rootClass()
+        return local.class
       },
       get style() {
-        return resolved.rootStyle()
+        return local.style
       },
       ref: binding.ref,
       onClick: (event: MouseEvent) => {
@@ -133,9 +106,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   type RuntimeProps = ModalT.TriggerBase<T> & {
     class?: SlotClassValue
-    classes?: ModalT.Classes
     style?: JSX.CSSProperties
-    styles?: ModalT.Styles
     ref?: (element: ModalTriggerElementFor<T> | undefined) => void
   } & Record<string, unknown>
 
@@ -145,9 +116,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     'disabled',
     'children',
     'class',
-    'classes',
     'style',
-    'styles',
     'ref',
   ])
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
@@ -167,22 +136,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const children = resolveChildren(() => local.children)
-  const config = useMoraineConfig()
-  const provider = () => config().modal
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    get provider() {
-      return provider()
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   onMount(() => {
     validateOverlayTrigger(binding.context.triggerElement(), 'Modal')
@@ -193,8 +146,8 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
       data-slot="trigger"
       {...interactionProps}
       component={tag()}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      style={local.style}
+      class={local.class}
       aria-controls={binding.context.contentPresent() ? binding.context.contentId() : undefined}
       aria-expanded={binding.context.contentPresent() ? 'true' : 'false'}
       data-disabled={disabled() ? '' : undefined}

@@ -60,11 +60,11 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
   ])
 
   const orientation = () =>
-    (local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal') as NonNullable<
+    (local.orientation ?? provider()?.variants?.orientation ?? 'horizontal') as NonNullable<
       ButtonGroupLayoutVariantProps['orientation']
     >
-  const size = () => local.size ?? provider()?.defaultProps?.size ?? 'md'
-  const variant = () => local.variant ?? provider()?.defaultProps?.variant ?? 'default'
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const variant = () => local.variant ?? provider()?.variants?.variant ?? 'default'
 
   const slots = createMemo(() => buttonGroupRecipe({ orientation: orientation() }))
 

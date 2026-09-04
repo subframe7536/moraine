@@ -7,29 +7,7 @@
     "description": "Expandable content section with optional height transitions.",
     "sourcePath": "src/elements/collapsible/collapsible.tsx"
   },
-  "slots": [
-    {
-      "name": "root",
-      "description": "Container that owns the trigger and expandable content state.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "trigger",
-      "description": "Button users activate to toggle the content visibility.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Region that is mounted for the expanded collapsible content.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    }
-  ],
+  "slots": [],
   "props": {
     "own": [
       {
@@ -43,11 +21,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "CollapsibleT.Classes | undefined"
       },
       {
         "name": "defaultOpen",
@@ -90,11 +63,6 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "CollapsibleT.Styles | undefined"
       },
       {
         "name": "transition",

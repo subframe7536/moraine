@@ -221,7 +221,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       variant: 'outline' as const,
       loadingIcon: 'icon-loading' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
   const leading = createMemo(() => merged.leading)

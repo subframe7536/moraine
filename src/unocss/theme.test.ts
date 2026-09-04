@@ -19,9 +19,17 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('registers %s theme tokens', async (_name, wind) => {
+  ])('registers %s theme tokens', async (name, wind) => {
     const css = await generate(
-      ['rounded-lg', 'shadow-md', 'font-sans', 'bg-primary', 'z-floating', 'opacity-64'],
+      [
+        'rounded-lg',
+        'shadow-md',
+        'font-sans',
+        'w-sidebar',
+        'bg-primary',
+        'z-floating',
+        'opacity-64',
+      ],
       false,
       wind,
     )
@@ -29,6 +37,17 @@ describe('presetMoraine', () => {
     expect(css).toContain('.rounded-lg')
     expect(css).toContain('.shadow-md')
     expect(css).toContain('.font-sans')
+    expect(css).toContain('--un-shadow:var(--shadow-md)')
+    expect(css).toContain('font-family:var(--font-sans)')
+    expect(css).toContain('.w-sidebar')
+    expect(css).toContain(
+      name === 'Wind3'
+        ? 'width:var(--sidebar-width,clamp(14rem,25%,20rem))'
+        : 'width:var(--spacing-sidebar)',
+    )
+    expect(css).toContain(
+      name === 'Wind3' ? 'border-radius:var(--radius)' : 'border-radius:var(--radius-lg)',
+    )
     expect(css).toContain('.bg-primary')
     expect(css).toContain('var(--primary)')
     expect(css).toContain('.z-floating')
@@ -74,16 +93,28 @@ describe('presetMoraine', () => {
     expect(preset.rules).toBeUndefined()
   })
 
-  test('uses the shared enter transition defaults', async () => {
-    const css = await generate(['transition', 'transition-colors'], true)
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('uses the shared enter transition defaults with %s', async (_name, wind) => {
+    const css = await generate(['transition', 'transition-colors'], true, wind)
 
-    expect(css).toContain(
-      '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
-    )
-    expect(css).toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
-    expect(css).toContain(
-      'transition-duration:var(--un-duration, var(--default-transition-duration))',
-    )
+    if (wind === presetWind3) {
+      expect(css).toContain(
+        'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
+      )
+      expect(css).toContain('transition-timing-function:cubic-bezier(0.16, 1, 0.3, 1)')
+    } else {
+      expect(css).toContain(
+        '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
+      )
+      expect(css).toContain(
+        '--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)',
+      )
+      expect(css).toContain(
+        'transition-duration:var(--un-duration, var(--default-transition-duration))',
+      )
+    }
   })
 
   test('does not emit color variables without configuration', async () => {

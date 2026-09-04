@@ -2,7 +2,6 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef, cn } from '../../shared/utils'
 
@@ -34,8 +33,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     'ref',
   ])
   const context = useCollapsibleContext()
-  const config = useMoraineConfig()
-  const provider = () => config().collapsible
   const customAs = createMemo(() => local.as)
   const tag = createMemo(() => customAs() ?? 'button')
   const disabled = () => Boolean(context.disabled() || local.disabled)
@@ -66,24 +63,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const children = resolveChildren(() => local.children)
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    get provider() {
-      return provider()
-    },
-    get group() {
-      return {
-        classes: context.classes,
-        styles: context.styles,
-      }
-    },
-    get instance() {
-      return {
-        class: local.class,
-        style: local.style,
-      }
-    },
-  })
 
   return (
     <Show
@@ -93,8 +72,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           id={context.triggerId()}
           data-slot="trigger"
           {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
-          style={resolved.rootStyle()}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, resolved.rootClass())}
+          style={local.style}
+          class={cn(COLLAPSIBLE_TRIGGER_CLASS, local.class)}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}
@@ -111,8 +90,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           data-slot="trigger"
           {...(interactionProps as Record<string, unknown>)}
           component={as() as ValidComponent}
-          style={resolved.rootStyle()}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, resolved.rootClass())}
+          style={local.style}
+          class={cn(COLLAPSIBLE_TRIGGER_CLASS, local.class)}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}

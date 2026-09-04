@@ -424,7 +424,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
-    () => providerCommandPalette()?.defaultProps,
+    () => providerCommandPalette()?.variants,
     local,
   )
 

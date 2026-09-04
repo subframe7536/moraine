@@ -52,12 +52,14 @@ type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
     style?: SlotStyleValue
   } & ([Classes] extends [never]
     ? {}
-    : {
-        /** Classes applied to the component slots. */
-        classes?: Classes
-        /** Styles applied to the component slots. */
-        styles?: Styles
-      })
+    : [Styles] extends [never]
+      ? {}
+      : {
+          /** Classes applied to the component slots. */
+          classes?: Classes
+          /** Styles applied to the component slots. */
+          styles?: Styles
+        })
 
 type RootProps<T extends ValidComponent> = T extends Tags
   ? MoraineTypeConfig extends { enableRootAutocomplete: true }

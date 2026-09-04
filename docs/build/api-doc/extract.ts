@@ -286,6 +286,41 @@ function literalKeys(node: ESTree.TSType): Set<string> {
   return new Set()
 }
 
+function isNeverType(node: ESTree.TSType, environment: TypeEnvironment): boolean {
+  if (node.type === 'TSNeverKeyword') {
+    return true
+  }
+  if (node.type === 'TSParenthesizedType') {
+    return isNeverType(node.typeAnnotation, environment)
+  }
+  if (node.type !== 'TSTypeReference' || node.typeArguments) {
+    return false
+  }
+  const name = entityNameToText(node.typeName)
+  const substitution = name ? environment.get(name) : undefined
+  return substitution ? isNeverType(substitution.node, substitution.env) : false
+}
+
+function isNeverTuple(node: ESTree.TSType, environment: TypeEnvironment): boolean {
+  if (node.type !== 'TSTupleType') {
+    return false
+  }
+  return node.elementTypes.every((element) => isNeverType(element as ESTree.TSType, environment))
+}
+
+function resolveConditionalBranch(
+  node: ESTree.TSConditionalType,
+  environment: TypeEnvironment,
+): ESTree.TSType | undefined {
+  if (isNeverType(node.checkType, environment) && isNeverType(node.extendsType, environment)) {
+    return node.trueType
+  }
+  if (isNeverTuple(node.checkType, environment) && isNeverTuple(node.extendsType, environment)) {
+    return node.trueType
+  }
+  return undefined
+}
+
 function applyTextEdits(text: string, edits: TextEdit[]): string {
   let output = text
   for (const edit of edits.sort((left, right) => right.start - left.start)) {
@@ -879,6 +914,10 @@ class DeclarationAnalyzer {
       return this.resolveProperties(contextValue(node.typeAnnotation, context), visited)
     }
     if (node.type === 'TSConditionalType') {
+      const resolvedBranch = resolveConditionalBranch(node, context.env)
+      if (resolvedBranch) {
+        return this.resolveProperties(contextValue(resolvedBranch, context), visited)
+      }
       const [trueProperties, falseProperties] = await Promise.all([
         this.resolveProperties(contextValue(node.trueType, context), visited),
         this.resolveProperties(contextValue(node.falseType, context), visited),

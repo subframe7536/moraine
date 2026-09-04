@@ -2,8 +2,6 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-
 import { Collapsible } from './collapsible'
 
 function renderCollapsible(props?: {
@@ -12,16 +10,6 @@ function renderCollapsible(props?: {
   disabled?: boolean
   transition?: boolean
   onOpenChange?: (open: boolean) => void
-  classes?: {
-    root?: string
-    trigger?: string
-    content?: string
-  }
-  styles?: {
-    root?: any
-    trigger?: any
-    content?: any
-  }
 }) {
   return render(() => (
     <Collapsible
@@ -30,8 +18,6 @@ function renderCollapsible(props?: {
       disabled={props?.disabled}
       transition={props?.transition}
       onOpenChange={props?.onOpenChange}
-      classes={props?.classes}
-      styles={props?.styles}
     >
       <Collapsible.Trigger data-testid="trigger-control">Toggle</Collapsible.Trigger>
       <Collapsible.Content>
@@ -310,84 +296,31 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
-  test('applies classes.root/classes.trigger/classes.content overrides', () => {
-    const screen = renderCollapsible({
-      open: true,
-      classes: {
-        root: 'root-override',
-        trigger: 'trigger-override',
-        content: 'content-override',
-      },
-    })
-
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    const content = screen.container.querySelector('[data-slot="content"]')
-
-    expect(root?.className).toContain('root-override')
-    expect(trigger?.className).toContain('trigger-override')
-    expect(content?.className).toContain('content-override')
-  })
-
-  test('applies styles.root/styles.trigger/styles.content overrides', () => {
-    const screen = renderCollapsible({
-      open: true,
-      styles: {
-        root: { width: '200px' },
-        trigger: { width: '200px' },
-        content: { width: '200px' },
-      },
-    })
-
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
-    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
-
-    expect(root?.style.width).toBe('200px')
-    expect(trigger?.style.width).toBe('200px')
-    expect(content?.style.width).toBe('200px')
-  })
-
-  test('applies collapsible provider styles to the root, trigger, and content owners', () => {
+  test('applies direct root, trigger, and content styles independently', () => {
     const screen = render(() => (
-      <MoraineProvider
-        config={{
-          collapsible: {
-            class: 'provider-root-class',
-            classes: {
-              root: 'provider-root-slot',
-              trigger: 'provider-trigger-slot',
-              content: 'provider-content-slot',
-            },
-            style: { color: 'red' },
-            styles: {
-              root: { width: '100px' },
-              trigger: { width: '200px' },
-              content: { width: '300px' },
-            },
-          },
-        }}
-      >
-        <Collapsible open>
-          <Collapsible.Trigger data-testid="provider-trigger">Trigger</Collapsible.Trigger>
-          <Collapsible.Content>
-            <span data-testid="provider-content">Content</span>
-          </Collapsible.Content>
-        </Collapsible>
-      </MoraineProvider>
+      <Collapsible open class="root-override" style={{ width: '100px' }}>
+        <Collapsible.Trigger
+          data-testid="direct-trigger"
+          class="trigger-override"
+          style={{ width: '200px' }}
+        >
+          Trigger
+        </Collapsible.Trigger>
+        <Collapsible.Content class="content-override" style={{ width: '300px' }}>
+          <span data-testid="direct-content">Content</span>
+        </Collapsible.Content>
+      </Collapsible>
     ))
 
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
-    const trigger = screen.getByTestId('provider-trigger')
-    const content = screen.getByTestId('provider-content').parentElement!
+    const trigger = screen.getByTestId('direct-trigger')
+    const content = screen.getByTestId('direct-content').parentElement!
 
-    expect(root.className).toContain('provider-root-class')
-    expect(root.className).toContain('provider-root-slot')
+    expect(root.className).toContain('root-override')
     expect(root.style.width).toBe('100px')
-    expect(root.style.color).toBe('red')
-    expect(trigger.className).toContain('provider-trigger-slot')
+    expect(trigger.className).toContain('trigger-override')
     expect(trigger.style.width).toBe('200px')
-    expect(content.className).toContain('provider-content-slot')
+    expect(content.className).toContain('content-override')
     expect(content.style.width).toBe('300px')
   })
 

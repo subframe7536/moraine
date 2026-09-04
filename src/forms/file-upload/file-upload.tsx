@@ -498,7 +498,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
-    () => provider()?.defaultProps,
+    () => provider()?.variants,
     local,
   )
   const label = createMemo(() => merged.label)

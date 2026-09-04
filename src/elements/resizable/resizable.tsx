@@ -213,7 +213,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
   const orientation = () =>
-    localProps.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal'
+    localProps.orientation ?? provider()?.variants?.orientation ?? 'horizontal'
 
   const slots = createMemo(() => resizableRecipe({ orientation: orientation() }))
 

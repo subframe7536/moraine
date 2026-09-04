@@ -546,16 +546,13 @@ describe('Avatar', () => {
         <MoraineProvider
           config={{
             avatar: {
-              defaultProps: { size: 'lg' },
-              class: 'p-avatar-root',
+              variants: { size: 'lg' },
               classes: { root: 'p-slot-root', fallback: 'p-fallback' },
-              style: { margin: '2px', color: 'red' },
-              styles: { fallback: { color: 'blue' } },
+              styles: { root: { margin: '2px', color: 'red' }, fallback: { color: 'blue' } },
             },
             avatarGroup: {
-              defaultProps: { size: 'sm' },
-              class: 'p-group-root',
-              classes: { count: 'p-count' },
+              variants: { size: 'sm' },
+              classes: { root: 'p-group-root', count: 'p-count' },
             },
           }}
         >
@@ -573,7 +570,6 @@ describe('Avatar', () => {
 
       const pAvatar = screen.getByTestId('p-avatar')
       expect(pAvatar.className).toContain('size-10')
-      expect(pAvatar.className).toContain('p-avatar-root')
       expect(pAvatar.className).toContain('p-slot-root')
       expect(pAvatar.style.margin).toBe('2px')
       expect(pAvatar.style.color).toBe('red')

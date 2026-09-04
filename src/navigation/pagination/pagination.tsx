@@ -256,7 +256,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       ellipsisIcon: 'icon-ellipsis' as const,
       defaultPage: 1,
     },
-    () => providerPagination()?.defaultProps,
+    () => providerPagination()?.variants,
     local,
   )
 

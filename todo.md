@@ -1,7 +1,6 @@
 ## Fix
 
 - [x] unify form spacing: title, description, hint, label, control, help, error, and field gap
-- [ ] remove `opacity-64` shortcut from `presetMoraine`
 - [ ] add `presetWind3` support back to `presetMoraine`
 - [ ] production barrel import optimize
 

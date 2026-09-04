@@ -58,13 +58,13 @@ export function Separator(props: SeparatorProps): JSX.Element {
   ])
 
   const orientation = createMemo<NonNullable<SeparatorVariantProps['orientation']>>(
-    () => local.orientation ?? provider()?.defaultProps?.orientation ?? 'horizontal',
+    () => local.orientation ?? provider()?.variants?.orientation ?? 'horizontal',
   )
   const size = createMemo<NonNullable<SeparatorVariantProps['size']>>(
-    () => local.size ?? provider()?.defaultProps?.size ?? 'sm',
+    () => local.size ?? provider()?.variants?.size ?? 'sm',
   )
   const type = createMemo<NonNullable<SeparatorVariantProps['type']>>(
-    () => local.type ?? provider()?.defaultProps?.type ?? 'solid',
+    () => local.type ?? provider()?.variants?.type ?? 'solid',
   )
 
   const slots = createMemo(() =>

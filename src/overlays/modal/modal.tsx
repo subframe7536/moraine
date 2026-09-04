@@ -14,7 +14,7 @@ import { Portal } from 'solid-js/web'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
@@ -84,13 +84,10 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export interface Slot<T = unknown> {
-    /** Interactive surface that opens the modal. */
-    trigger?: T
-  }
+  export interface Slot<_T = unknown> {}
   export type Variant = never
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
+  export type Classes = never
+  export type Styles = never
   export interface Item {}
 
   export type Props = Base
@@ -119,9 +116,9 @@ export namespace ModalT {
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
-    Variant,
-    Classes,
-    Styles
+    never,
+    never,
+    never
   >
 
   export interface ContentBase {
