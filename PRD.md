@@ -421,42 +421,17 @@ export const STYLE_ACCORDION_CONTENT =
 export const TRANSITION_BG = '[transition-property:background-color]'
 
 /**
- * 7. Semantic Animation Presets
+ * 7. Semantic Animation Utilities
  * Replaces UnoCSS-only animate-{target}-{phase/side} shortcuts in src/.
- * These constants expand to utilities registered by the required engine integration.
+ * First-class atomic animation utilities registered by both UnoCSS and Tailwind engine integrations:
+ * - enter-opacity-*, exit-opacity-*
+ * - enter-scale-*, exit-scale-*
+ * - enter-translate-(x|y)-*, -enter-translate-(x|y)-*, exit-translate-(x|y)-*, -exit-translate-(x|y)-*
+ * - enter-rotate-*, -enter-rotate-*, exit-rotate-*, -exit-rotate-*
  */
-export const OVERLAY_ENTER = 'data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0]'
-export const OVERLAY_EXIT = 'data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0]'
-export const POPUP_ENTER =
-  'data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0] data-expanded:[--mo-enter-scale:0.95]'
-export const POPUP_EXIT =
-  'data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0] data-closed:[--mo-exit-scale:0.95]'
-
-export const MENU_SIDE_TOP = '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
-export const MENU_SIDE_RIGHT = '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
-export const MENU_SIDE_BOTTOM = '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
-export const MENU_SIDE_LEFT = '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
-
-export const POPOVER_SIDE_TOP = '[--mo-enter-translate-y:0.5rem] [--mo-exit-translate-y:0.5rem]'
-export const POPOVER_SIDE_RIGHT = '[--mo-enter-translate-x:-0.5rem] [--mo-exit-translate-x:-0.5rem]'
-export const POPOVER_SIDE_BOTTOM =
-  '[--mo-enter-translate-y:-0.5rem] [--mo-exit-translate-y:-0.5rem]'
-export const POPOVER_SIDE_LEFT = '[--mo-enter-translate-x:0.5rem] [--mo-exit-translate-x:0.5rem]'
-
-export const TOOLTIP_SIDE_TOP = '[--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]'
-export const TOOLTIP_SIDE_RIGHT =
-  '[--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]'
-export const TOOLTIP_SIDE_BOTTOM =
-  '[--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]'
-export const TOOLTIP_SIDE_LEFT = '[--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]'
-
-export const SHEET_SIDE_TOP = '[--mo-enter-translate-y:-2.5rem] [--mo-exit-translate-y:-2.5rem]'
-export const SHEET_SIDE_RIGHT = '[--mo-enter-translate-x:2.5rem] [--mo-exit-translate-x:2.5rem]'
-export const SHEET_SIDE_BOTTOM = '[--mo-enter-translate-y:2.5rem] [--mo-exit-translate-y:2.5rem]'
-export const SHEET_SIDE_LEFT = '[--mo-enter-translate-x:-2.5rem] [--mo-exit-translate-x:-2.5rem]'
 ```
 
-The implementation defines the corresponding popover, tooltip, and sheet side constants using their existing offsets and directions. Every `animate-overlay-*`, `animate-popup-*`, `animate-menu-*`, `animate-popover-*`, `animate-tooltip-*`, and `animate-sheet-*` occurrence in `src/` is replaced by explicit `animate-mo-enter`/`animate-mo-exit` utilities plus CSS-variable constants. The semantic shortcut definitions are then removed from `presetMoraine`; they remain neither hidden engine behavior nor an undocumented compatibility layer.
+Every overlay and menu component uses these atomic utilities directly in `.class.ts` files alongside `data-expanded:animate-mo-enter` and `data-closed:animate-mo-exit`. Intermediate preset constants are inlined in-place.
 
 ---
 

@@ -20,10 +20,10 @@ function expectAriaReferencesToResolve(content: Element): void {
 
 describe('Sheet', () => {
   test.each([
-    ['left', 'left-0', '[--mo-enter-translate-x:-2.5rem]'],
-    ['right', 'right-0', '[--mo-enter-translate-x:2.5rem]'],
-    ['top', 'top-0', '[--mo-enter-translate-y:-2.5rem]'],
-    ['bottom', 'bottom-0', '[--mo-enter-translate-y:2.5rem]'],
+    ['left', 'left-0', '-enter-translate-x-10'],
+    ['right', 'right-0', 'enter-translate-x-10'],
+    ['top', 'top-0', '-enter-translate-y-10'],
+    ['bottom', 'bottom-0', 'enter-translate-y-10'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
     render(() => (
       <Sheet open side={side} body="Sheet body">

@@ -1,13 +1,4 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import {
-  MENU_SIDE_BOTTOM,
-  MENU_SIDE_LEFT,
-  MENU_SIDE_RIGHT,
-  MENU_SIDE_TOP,
-  POPUP_ENTER,
-  POPUP_EXIT,
-  SURFACE_OVERLAY,
-} from '../../shared/style/presets.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -17,13 +8,14 @@ const SELECT_TEXT_SIZE = {
   lg: 'text-base',
 } as const
 
-const SELECT_CONTENT_CLASS = `text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 origin-[var(--mo-popper-content-transform-origin)] z-floating motion-reduce:animate-none ${SURFACE_OVERLAY} ${POPUP_EXIT} ${POPUP_ENTER}`
+const SELECT_CONTENT_CLASS =
+  'text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 origin-[var(--mo-popper-content-transform-origin)] z-floating motion-reduce:animate-none border border-border shadow-md data-closed:animate-mo-exit data-closed:exit-opacity-0 data-closed:exit-scale-95 data-expanded:animate-mo-enter data-expanded:enter-opacity-0 data-expanded:enter-scale-95'
 
 const SELECT_CONTENT_SIDE_CLASS = {
-  top: `mb-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_TOP}`,
-  right: `ml-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_RIGHT}`,
-  bottom: `mt-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_BOTTOM}`,
-  left: `mr-[var(--mo-popper-content-overflow-padding)] ${MENU_SIDE_LEFT}`,
+  top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
+  right: 'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
+  bottom: 'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
+  left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
 } as const
 
 export const selectControlVariants = recipe({

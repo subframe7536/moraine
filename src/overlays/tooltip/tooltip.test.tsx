@@ -224,8 +224,8 @@ describe('Tooltip', () => {
     const initialContent = document.body.querySelector('[data-slot="content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(initialContent?.className).toContain('[--mo-enter-translate-y:0.25rem]')
-    expect(initialContent?.className).not.toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(initialContent?.classList.contains('enter-translate-y-1')).toBe(true)
+    expect(initialContent?.classList.contains('-enter-translate-y-1')).toBe(false)
 
     setMockPlacement('bottom')
     setVersion(1)
@@ -233,8 +233,8 @@ describe('Tooltip', () => {
     const updatedContent = document.body.querySelector('[data-slot="content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(updatedContent?.className).toContain('[--mo-enter-translate-y:-0.25rem]')
-    expect(updatedContent?.className).not.toContain('[--mo-enter-translate-y:0.25rem]')
+    expect(updatedContent?.classList.contains('-enter-translate-y-1')).toBe(true)
+    expect(updatedContent?.classList.contains('enter-translate-y-1')).toBe(false)
   })
 
   test('opens first hover after delay', async () => {

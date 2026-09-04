@@ -1,11 +1,13 @@
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
+export const BUTTON_LOADING_SPINNER_CLASS = 'cursor-wait opacity-80 animate-spin'
+
 export const buttonRecipe = recipe({
   slots: ['root', 'loading', 'leading', 'label', 'trailing'],
   base: {
     root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-disabled:opacity-64 aria-disabled:pointer-events-none disabled:opacity-64 disabled:pointer-events-none [&:active:not([aria-haspopup])]:translate-y-px',
-    loading: 'cursor-wait opacity-80 animate-spin',
+    loading: BUTTON_LOADING_SPINNER_CLASS,
     leading: '',
     label: 'min-w-0 truncate',
     trailing: '',

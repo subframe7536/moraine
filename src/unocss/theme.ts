@@ -286,6 +286,71 @@ export function resolvePresetThemeOptions(
   }
 }
 
+function resolveTranslateValue(value: string, theme: Record<string, any>): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  if (value === 'full') {
+    return '100%'
+  }
+  if (value === 'px') {
+    return '1px'
+  }
+  if (value === '0') {
+    return '0px'
+  }
+  if (value.includes('/')) {
+    const [numerator, denominator] = value.split('/')
+    const n = Number(numerator)
+    const d = Number(denominator)
+    if (!Number.isNaN(n) && !Number.isNaN(d) && d !== 0) {
+      return `${(n / d) * 100}%`
+    }
+  }
+  const themeVal = theme.spacing?.[value] ?? theme.width?.[value]
+  if (themeVal) {
+    return themeVal
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num * 0.25}rem`
+  }
+  return undefined
+}
+
+function resolveScaleValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num / 100}`
+  }
+  return undefined
+}
+
+function resolveOpacityValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return num === 0 ? '0' : `${num / 100}`
+  }
+  return undefined
+}
+
+function resolveRotateValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num}deg`
+  }
+  return undefined
+}
+
 export function presetMoraine(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
   const colorVariablesCSS = createColorVariablesCSS(normalized.colorVariables)
@@ -304,6 +369,60 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
 
   return {
     name: 'preset-theme-moraine',
+    rules: [
+      [
+        /^(enter|exit)-opacity-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveOpacityValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-opacity`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-opacity-<percent>'] },
+      ],
+      [
+        /^(enter|exit)-scale-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveScaleValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-scale`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-scale-<percent>'] },
+      ],
+      [
+        /^(enter|exit)-translate-([xy])-(.+)$/,
+        ([, type, axis, value], { theme }) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveTranslateValue(value, theme as Record<string, any>)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-translate-${axis}`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-translate-(x|y)-<num>'] },
+      ],
+      [
+        /^(enter|exit)-rotate-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveRotateValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-rotate`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-rotate-<percent>'] },
+      ],
+    ],
     theme: {
       // Wind4 theme keys
       radius: MORAINE_RADIUS,

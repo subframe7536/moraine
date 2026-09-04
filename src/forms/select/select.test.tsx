@@ -1737,8 +1737,8 @@ describe('Select - popup behavior', () => {
     const content = queryBody('[data-slot="content"]') as HTMLElement
     expect(content.className).toContain('data-expanded:animate-mo-enter')
     expect(content.className).toContain('data-closed:animate-mo-exit')
-    expect(content.className).toContain('[--mo-enter-translate-y:-0.25rem]')
-    expect(content.className).toContain('[--mo-exit-translate-y:-0.25rem]')
+    expect(content.className).toContain('-enter-translate-y-1')
+    expect(content.className).toContain('-exit-translate-y-1')
 
     await waitFor(() => {
       expect(content.style.getPropertyValue('--mo-popper-content-overflow-padding')).toBe('12px')

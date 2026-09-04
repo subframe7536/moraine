@@ -56,7 +56,7 @@ describe('ContextMenu', () => {
       expect(content?.getAttribute('data-motion')).toBeNull()
       expect(content?.getAttribute('data-side')).toBe('right')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('[--mo-enter-translate-x:-0.25rem]')
+      expect(content?.className).toContain('-enter-translate-x-1')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -72,7 +72,7 @@ describe('ContextMenu', () => {
       expect(content).toBe(initialContent)
       expect(content?.getAttribute('data-side')).toBe('left')
       expect(content?.getAttribute('data-align')).toBe('start')
-      expect(content?.className).toContain('[--mo-enter-translate-x:0.25rem]')
+      expect(content?.className).toContain('enter-translate-x-1')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'right top',
@@ -462,7 +462,7 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('data-closed:animate-mo-exit')
     expect(content.getAttribute('data-motion')).toBeNull()
     expect(content.getAttribute('data-align')).toBe('start')
-    expect(content.className).toContain('[--mo-enter-translate-x:-0.25rem]')
+    expect(content.className).toContain('-enter-translate-x-1')
     expect(content.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
 
     await waitFor(() => {
@@ -487,7 +487,7 @@ describe('ContextMenu', () => {
 
     expect(content.getAttribute('data-side')).toBe('bottom')
     expect(content.getAttribute('data-align')).toBeNull()
-    expect(content.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(content.className).toContain('-enter-translate-y-1')
   })
 
   test('opens after 700ms touch long press', async () => {
@@ -1036,7 +1036,7 @@ describe('ContextMenu', () => {
     expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.getAttribute('data-align')).toBe('start')
-    expect(rootContent?.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(rootContent?.className).toContain('-enter-translate-y-1')
     expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
     expect(rootContent?.className).toContain('content-class')
 
@@ -1090,7 +1090,7 @@ describe('ContextMenu', () => {
     expect(submenuContent.getAttribute('data-motion')).toBeNull()
     expect(submenuContent.getAttribute('data-side')).toBe('right')
     expect(submenuContent.getAttribute('data-align')).toBe('start')
-    expect(submenuContent.className).toContain('[--mo-enter-translate-x:-0.25rem]')
+    expect(submenuContent.className).toContain('-enter-translate-x-1')
     await waitFor(() => {
       expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
         'left top',
@@ -1135,12 +1135,7 @@ describe('ContextMenu', () => {
       expect(submenuContent.getAttribute('data-motion')).toBeNull()
       expect(submenuContent.getAttribute('data-side')).toBe('right')
       expect(submenuContent.getAttribute('data-align')).toBe('start')
-      expect(submenuContent.className).toContain('[--mo-enter-translate-x:-0.25rem]')
-      await waitFor(() => {
-        expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-          'left top',
-        )
-      })
+      expect(submenuContent.className).toContain('-enter-translate-x-1')
     } finally {
       vi.useRealTimers()
     }

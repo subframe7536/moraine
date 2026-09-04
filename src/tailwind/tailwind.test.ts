@@ -1139,6 +1139,81 @@ describe('animations', () => {
   })
 })
 
+describe('enter and exit animation utilities', () => {
+  test('enter-opacity and exit-opacity set CSS variables', async () => {
+    const css = await compileCSS(['enter-opacity-0', 'exit-opacity-0', 'enter-opacity-50'])
+    expect(css).toContain('.enter-opacity-0')
+    expect(css).toContain('--mo-enter-opacity: 0;')
+    expect(css).toContain('.exit-opacity-0')
+    expect(css).toContain('--mo-exit-opacity: 0;')
+    expect(css).toContain('.enter-opacity-50')
+    expect(css).toContain('--mo-enter-opacity: 0.5;')
+  })
+
+  test('enter-scale and exit-scale set CSS variables', async () => {
+    const css = await compileCSS(['enter-scale-95', 'exit-scale-95', 'enter-scale-[0.95]'])
+    expect(css).toContain('.enter-scale-95')
+    expect(css).toContain('--mo-enter-scale: .95;')
+    expect(css).toContain('.exit-scale-95')
+    expect(css).toContain('--mo-exit-scale: .95;')
+    expect(css).toContain('--mo-enter-scale: 0.95;')
+  })
+
+  test('enter-translate and exit-translate set positive and negative variables', async () => {
+    const css = await compileCSS([
+      'enter-translate-x-1',
+      '-enter-translate-x-1',
+      'exit-translate-x-1',
+      '-exit-translate-x-1',
+      'enter-translate-y-1',
+      '-enter-translate-y-1',
+      'enter-translate-y-10',
+      '-enter-translate-y-10',
+      'enter-translate-y-full',
+      '-enter-translate-y-full',
+    ])
+    expect(css).toContain('.enter-translate-x-1')
+    expect(css).toContain('--mo-enter-translate-x: 0.25rem;')
+    expect(css).toContain('.-enter-translate-x-1')
+    expect(css).toContain('--mo-enter-translate-x: calc(0.25rem * -1);')
+    expect(css).toContain('.exit-translate-x-1')
+    expect(css).toContain('--mo-exit-translate-x: 0.25rem;')
+    expect(css).toContain('.-exit-translate-x-1')
+    expect(css).toContain('--mo-exit-translate-x: calc(0.25rem * -1);')
+    expect(css).toContain('.enter-translate-y-10')
+    expect(css).toContain('--mo-enter-translate-y: 2.5rem;')
+    expect(css).toContain('.-enter-translate-y-10')
+    expect(css).toContain('--mo-enter-translate-y: calc(2.5rem * -1);')
+    expect(css).toContain('.enter-translate-y-full')
+    expect(css).toContain('--mo-enter-translate-y: 100%;')
+    expect(css).toContain('.-enter-translate-y-full')
+    expect(css).toContain('--mo-enter-translate-y: calc(100% * -1);')
+  })
+
+  test('enter-rotate and exit-rotate set angle variables', async () => {
+    const css = await compileCSS(['enter-rotate-45', '-enter-rotate-45', 'exit-rotate-45'])
+    expect(css).toContain('.enter-rotate-45')
+    expect(css).toContain('--mo-enter-rotate: 45deg;')
+    expect(css).toContain('.-enter-rotate-45')
+    expect(css).toContain('--mo-enter-rotate: calc(45deg * -1);')
+    expect(css).toContain('.exit-rotate-45')
+    expect(css).toContain('--mo-exit-rotate: 45deg;')
+  })
+
+  test('animation utilities work with data variants', async () => {
+    const css = await compileCSS([
+      'data-expanded:enter-opacity-0',
+      'data-closed:exit-opacity-0',
+      'data-expanded:enter-scale-95',
+      'data-closed:exit-scale-95',
+    ])
+    expect(css).toContain('.data-expanded\\:enter-opacity-0[data-expanded]')
+    expect(css).toContain('.data-closed\\:exit-opacity-0[data-closed]')
+    expect(css).toContain('.data-expanded\\:enter-scale-95[data-expanded]')
+    expect(css).toContain('.data-closed\\:exit-scale-95[data-closed]')
+  })
+})
+
 // ─── Icon Utilities ──────────────────────────────────────────────────
 
 describe('icon utilities', () => {

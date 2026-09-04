@@ -23,18 +23,18 @@ export const overlayMenuItemVariants = recipe({
 export type OverlayMenuItemVariantProps = VariantProps<typeof overlayMenuItemVariants>
 
 export const overlayMenuContentVariants = recipe({
-  base: 'text-popover-foreground p-1 outline-none border border-border rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-[var(--mo-popper-content-transform-origin)] z-floating data-closed:animate-mo-exit data-closed:[--mo-exit-opacity:0] data-closed:[--mo-exit-scale:0.95] data-expanded:animate-mo-enter data-expanded:[--mo-enter-opacity:0] data-expanded:[--mo-enter-scale:0.95] motion-reduce:animate-none',
+  base: 'text-popover-foreground p-1 outline-none border border-border rounded-md bg-popover flex flex-col min-w-36 shadow-md origin-[var(--mo-popper-content-transform-origin)] z-floating data-closed:animate-mo-exit data-closed:exit-opacity-0 data-closed:exit-scale-95 data-expanded:animate-mo-enter data-expanded:enter-opacity-0 data-expanded:enter-scale-95 motion-reduce:animate-none',
   defaultVariants: {
     side: 'bottom',
   },
   variants: {
     side: {
-      top: 'mb-[var(--mo-popper-content-overflow-padding)] [--mo-enter-translate-y:0.25rem] [--mo-exit-translate-y:0.25rem]',
+      top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
       right:
-        'ml-[var(--mo-popper-content-overflow-padding)] [--mo-enter-translate-x:-0.25rem] [--mo-exit-translate-x:-0.25rem]',
+        'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
       bottom:
-        'mt-[var(--mo-popper-content-overflow-padding)] [--mo-enter-translate-y:-0.25rem] [--mo-exit-translate-y:-0.25rem]',
-      left: 'mr-[var(--mo-popper-content-overflow-padding)] [--mo-enter-translate-x:0.25rem] [--mo-exit-translate-x:0.25rem]',
+        'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
+      left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
     },
   },
 })

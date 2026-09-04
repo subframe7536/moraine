@@ -409,7 +409,7 @@ describe('DropdownMenu', () => {
     expect(rootContent.getAttribute('data-align')).toBe('start')
     expect(rootContent.getAttribute('data-placement')).toBeNull()
     expect(rootContent.getAttribute('data-motion')).toBeNull()
-    expect(rootContent.className).toContain('[--mo-enter-translate-y:-0.25rem]')
+    expect(rootContent.className).toContain('-enter-translate-y-1')
     expect(rootContent.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
   })
 
@@ -494,7 +494,7 @@ describe('DropdownMenu', () => {
     expect(rootContent?.getAttribute('data-align')).toBe('start')
     expect(rootContent?.getAttribute('data-placement')).toBeNull()
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
-    expect(rootContent?.className).toContain('[--mo-enter-translate-x:0.25rem]')
+    expect(rootContent?.className).toContain('enter-translate-x-1')
     expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
     expect(rootContent?.className).toContain('content-class')
 

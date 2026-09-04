@@ -40,7 +40,7 @@ type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plug
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
-    ({ addBase, addUtilities, matchVariant }) => {
+    ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
       addBase({
         ':root, :host': {
           '--default-transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
@@ -51,6 +51,46 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
       }
+
+      matchUtilities(
+        {
+          'enter-opacity': (value) => ({ '--mo-enter-opacity': value }),
+          'exit-opacity': (value) => ({ '--mo-exit-opacity': value }),
+        },
+        { values: theme('opacity') },
+      )
+
+      matchUtilities(
+        {
+          'enter-scale': (value) => ({ '--mo-enter-scale': value }),
+          'exit-scale': (value) => ({ '--mo-exit-scale': value }),
+        },
+        { values: theme('scale') },
+      )
+
+      matchUtilities(
+        {
+          'enter-translate-x': (value) => ({ '--mo-enter-translate-x': value }),
+          'exit-translate-x': (value) => ({ '--mo-exit-translate-x': value }),
+          'enter-translate-y': (value) => ({ '--mo-enter-translate-y': value }),
+          'exit-translate-y': (value) => ({ '--mo-exit-translate-y': value }),
+        },
+        {
+          values: { ...theme('spacing'), ...theme('translate') },
+          supportsNegativeValues: true,
+        },
+      )
+
+      matchUtilities(
+        {
+          'enter-rotate': (value) => ({ '--mo-enter-rotate': value }),
+          'exit-rotate': (value) => ({ '--mo-exit-rotate': value }),
+        },
+        {
+          values: theme('rotate'),
+          supportsNegativeValues: true,
+        },
+      )
 
       // Attribute variants for data-* and aria-* selectors
       // Enables utilities like data-active:bg-primary -> [data-active]:bg-primary

@@ -5,7 +5,6 @@ import { Dynamic } from 'solid-js/web'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import { LOADING_SPINNER } from '../../shared/style/presets.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
@@ -15,7 +14,7 @@ import type { IconT } from '../icon/index.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonVariantProps } from './button.class.ts'
-import { buttonRecipe } from './button.class.ts'
+import { BUTTON_LOADING_SPINNER_CLASS, buttonRecipe } from './button.class.ts'
 
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 
@@ -269,8 +268,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     },
     get stateCls() {
       return {
-        leading: isLeadingLoading() ? cn(LOADING_SPINNER, local.classes?.loading) : undefined,
-        trailing: isTrailingLoading() ? cn(LOADING_SPINNER, local.classes?.loading) : undefined,
+        leading: isLeadingLoading()
+          ? cn(BUTTON_LOADING_SPINNER_CLASS, local.classes?.loading)
+          : undefined,
+        trailing: isTrailingLoading()
+          ? cn(BUTTON_LOADING_SPINNER_CLASS, local.classes?.loading)
+          : undefined,
       }
     },
   })

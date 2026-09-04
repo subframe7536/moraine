@@ -90,7 +90,62 @@ describe('presetMoraine', () => {
       shortcuts.every((shortcut) => shortcut.startsWith('z-') || shortcut.startsWith('icon-')),
     ).toBe(true)
     expect(preset.transformers).toBeUndefined()
-    expect(preset.rules).toBeUndefined()
+    expect(preset.rules).toBeDefined()
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('registers enter and exit animation utilities with %s', async (_name, wind) => {
+    const css = await generate(
+      [
+        'enter-opacity-0',
+        'exit-opacity-0',
+        'enter-opacity-50',
+        'enter-scale-95',
+        'exit-scale-95',
+        'enter-translate-x-1',
+        '-enter-translate-x-1',
+        'exit-translate-x-1',
+        '-exit-translate-x-1',
+        'enter-translate-y-1',
+        '-enter-translate-y-1',
+        'exit-translate-y-1',
+        '-exit-translate-y-1',
+        'enter-translate-y-10',
+        '-enter-translate-y-10',
+        'enter-translate-y-full',
+        '-enter-translate-y-full',
+        'enter-rotate-45',
+        '-enter-rotate-45',
+        'data-expanded:enter-opacity-0',
+        'data-closed:exit-scale-95',
+      ],
+      false,
+      wind,
+    )
+
+    expect(css).toContain('.enter-opacity-0{--mo-enter-opacity:0;}')
+    expect(css).toContain('.exit-opacity-0{--mo-exit-opacity:0;}')
+    expect(css).toContain('.enter-opacity-50{--mo-enter-opacity:0.5;}')
+    expect(css).toContain('.enter-scale-95{--mo-enter-scale:0.95;}')
+    expect(css).toContain('.exit-scale-95{--mo-exit-scale:0.95;}')
+    expect(css).toContain('.enter-translate-x-1{--mo-enter-translate-x:0.25rem;}')
+    expect(css).toContain('.-enter-translate-x-1{--mo-enter-translate-x:-0.25rem;}')
+    expect(css).toContain('.exit-translate-x-1{--mo-exit-translate-x:0.25rem;}')
+    expect(css).toContain('.-exit-translate-x-1{--mo-exit-translate-x:-0.25rem;}')
+    expect(css).toContain('.enter-translate-y-1{--mo-enter-translate-y:0.25rem;}')
+    expect(css).toContain('.-enter-translate-y-1{--mo-enter-translate-y:-0.25rem;}')
+    expect(css).toContain('.exit-translate-y-1{--mo-exit-translate-y:0.25rem;}')
+    expect(css).toContain('.-exit-translate-y-1{--mo-exit-translate-y:-0.25rem;}')
+    expect(css).toContain('.enter-translate-y-10{--mo-enter-translate-y:2.5rem;}')
+    expect(css).toContain('.-enter-translate-y-10{--mo-enter-translate-y:-2.5rem;}')
+    expect(css).toContain('.enter-translate-y-full{--mo-enter-translate-y:100%;}')
+    expect(css).toContain('.-enter-translate-y-full{--mo-enter-translate-y:-100%;}')
+    expect(css).toContain('.enter-rotate-45{--mo-enter-rotate:45deg;}')
+    expect(css).toContain('.-enter-rotate-45{--mo-enter-rotate:-45deg;}')
+    expect(css).toContain('[data-expanded]')
+    expect(css).toContain('[data-closed]')
   })
 
   test.each([
