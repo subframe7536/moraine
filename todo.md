@@ -1,7 +1,8 @@
 ## Fix
 
 - [x] unify form spacing: title, description, hint, label, control, help, error, and field gap
-- [ ] for boolean state of classes, do not setup new variant in cva(), use `? 'XXX' : 'XXX'` instead
+- [ ] remove `opacity-64` shortcut from `presetMoraine`
+- [ ] add `presetWind3` support back to `presetMoraine`
 - [ ] production barrel import optimize
 
 # V1
