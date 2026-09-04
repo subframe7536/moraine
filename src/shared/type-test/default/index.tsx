@@ -17,22 +17,24 @@ import {
   useId,
 } from 'moraine'
 import type { AvatarGroupT, AvatarT, ModalT } from 'moraine'
-import { defineStyleVars, recipe } from 'moraine/recipe'
 import { createContextProvider, renderComponentOrElement } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 
-// @ts-expect-error Recipe APIs are only public from moraine/recipe.
+// @ts-expect-error Recipe entry is internal and not exported.
+type RecipeEntry = typeof import('moraine/recipe')
+// @ts-expect-error Recipe APIs are not public from root.
 type RootRecipe = typeof import('moraine').recipe
 // @ts-expect-error Provider APIs are only public from the root entry.
 type UtilsProvider = typeof import('moraine/utils').MoraineProvider
 // @ts-expect-error Root helpers are not part of the low-level utils entry.
 type UtilsCn = typeof import('moraine/utils').cn
-// @ts-expect-error CSS-variable types are only public from moraine/recipe.
+// @ts-expect-error CSS-variable types are not public from utils.
 type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 // @ts-expect-error Provider types are only public from the root entry.
 type UtilsMoraineConfig = import('moraine/utils').MoraineConfig
 
 export type PublicEntryIsolation = [
+  RecipeEntry,
   RootRecipe,
   UtilsProvider,
   UtilsCn,
@@ -123,14 +125,12 @@ const divRef = (element: HTMLDivElement) => element.focus()
 const avatarItem: AvatarT.Item = {}
 const avatarBase: AvatarT.Base = { text: 'MR' }
 const avatarGroupItem: AvatarGroupT.Item = { text: 'MR' }
-const classRecipe = recipe({ base: 'rounded-md' })
 const generatedId = useId()
 void createContextProvider
 void renderComponentOrElement
 void avatarItem
 void avatarBase
 void avatarGroupItem
-void classRecipe
 void generatedId
 
 // @ts-expect-error String root style is rejected

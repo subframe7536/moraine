@@ -13,8 +13,7 @@ Moraine's styling system architecture uses atomic utility classes in the publish
 
 Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
 
-```ts
-// unocss.config.ts
+```ts title="unocss.config.ts" {5}
 import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
@@ -26,8 +25,7 @@ export default defineConfig({
 })
 ```
 
-```ts
-// unocss.config.ts — Wind3
+```ts title="unocss.config.ts (Wind3)" {5}
 import { defineConfig, presetWind3 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
@@ -39,7 +37,7 @@ export default defineConfig({
 })
 ```
 
-The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*`/`aria-*` variants. `globalStyles` defaults to `true`.
+The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`.
 
 ### Color variables
 
@@ -147,28 +145,48 @@ Later values win when utility classes conflict. For a component root, the `class
 </Button>
 ```
 
-Define component variants using `recipe({ ... })` and pass CSS property objects to `style` and `styles` props.
+Pass CSS property objects to `style` and `styles` props.
 
-## `cn` and `recipe`
+## MoraineProvider
+
+Use `MoraineProvider` to establish library-wide default variants, slot classes, and inline styles across any component family. It implements layer 2 ("Provider defaults") in the resolution order:
+
+```tsx
+import { MoraineProvider } from 'moraine'
+
+export function App(props) {
+  return (
+    <MoraineProvider
+      config={{
+        button: {
+          variants: { size: 'sm' },
+          classes: { root: 'rounded-xl shadow-xs' },
+        },
+        badge: {
+          variants: { variant: 'outline' },
+        },
+      }}
+    >
+      {props.children}
+    </MoraineProvider>
+  )
+}
+```
+
+Nested providers inherit and deep-merge configuration from parent providers:
+
+- `variants` are shallow-merged (inner values override outer values).
+- `classes` are combined per slot using `cn()`.
+- `styles` are merged per slot with CSS property inheritance.
+
+Changes to `config` signals update descendant styling reactively without remounting DOM elements.
+
+## `cn`
 
 `cn()` combines conditional class values and resolves supported utility conflicts. It does not generate CSS, scan component files, load the plugin or preset, or validate theme tokens.
 
 ```ts
 import { cn } from 'moraine'
-import { recipe } from 'moraine/recipe'
 
 cn('px-2 bg-primary', active && 'bg-primary-active')
-
-const button = recipe({
-  base: 'rounded-md px-3',
-  variants: {
-    tone: {
-      primary: 'bg-primary text-primary-foreground',
-      subtle: 'bg-muted text-foreground',
-    },
-  },
-  defaultVariants: { tone: 'primary' },
-})
 ```
-
-`recipe()` accepts an options object and supports atomic and named-slot recipes.

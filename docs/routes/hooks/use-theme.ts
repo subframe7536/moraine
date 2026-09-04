@@ -11,19 +11,6 @@ function getSystemTheme(): ThemeMode {
   }
 }
 
-function getStoredTheme(): ThemeMode | undefined {
-  try {
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
-    return storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : undefined
-  } catch {
-    return undefined
-  }
-}
-
-function getPreferredTheme(): ThemeMode {
-  return getStoredTheme() ?? getSystemTheme()
-}
-
 function applyTheme(theme: ThemeMode): void {
   if (typeof document === 'undefined') {
     return
@@ -40,7 +27,7 @@ export function useTheme() {
   const [theme, setTheme] = createSignal<ThemeMode>('light')
 
   onMount(() => {
-    const preferredTheme = getPreferredTheme()
+    const preferredTheme = getSystemTheme()
     setTheme(preferredTheme)
     applyTheme(preferredTheme)
   })

@@ -83,7 +83,6 @@ export function createIsolatedConsumer(): IsolatedConsumer {
         },
         './package.json': './package.json',
         './icon.css': './dist/icon.css',
-        './recipe': './dist/recipe.mjs',
         './tailwind': './dist/tailwind.mjs',
         './unocss': './dist/unocss.mjs',
         './utils': './dist/utils.mjs',
@@ -125,7 +124,6 @@ export function verifyConsumerPackageExports(consumer: IsolatedConsumer): void {
 const specifiers = [
   'moraine',
   'moraine/icon.css',
-  'moraine/recipe',
   'moraine/tailwind',
   'moraine/unocss',
   'moraine/utils',

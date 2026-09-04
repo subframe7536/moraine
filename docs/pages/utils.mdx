@@ -4,31 +4,21 @@ description: Public helpers and hooks for building custom Moraine-based primitiv
 sidebar:
   order: 4
 search:
-  tags: [helpers, hooks, cn, recipe]
+  tags: [helpers, hooks, cn]
 ---
 
 ## Styling helpers
 
-`cn` is exported from `moraine`; recipe and CSS-variable helpers are exported from `moraine/recipe`.
+`cn` is exported from `moraine` to combine conditional class values and resolve supported utility conflicts.
 
 ```tsx
 import { cn } from 'moraine'
-import { recipe } from 'moraine/recipe'
 
-const badge = recipe({
-  base: 'rounded px-2',
-  variants: {
-    tone: {
-      neutral: 'bg-muted text-foreground',
-      primary: 'bg-primary text-primary-foreground',
-    },
-  },
-})
-
-const className = cn(badge({ tone: 'primary' }), disabled && 'opacity-64')
+const className = cn(
+  'px-2.5 py-1 bg-primary text-primary-foreground',
+  disabled && 'opacity-60 pointer-events-none',
+)
 ```
-
-`cn` combines conditional class values and resolves supported conflicts. `recipe` accepts an options object and creates either an atomic or named-slot variant resolver.
 
 ## Shared hooks
 

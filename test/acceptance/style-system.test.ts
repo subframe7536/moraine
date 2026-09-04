@@ -141,7 +141,6 @@ const ownedCompositionComponents: Record<string, string> = {
 
 const publicSurfaceFiles = [
   'src/index.ts',
-  'src/recipe.ts',
   'src/utils.ts',
   'src/unocss/index.ts',
   'src/unocss/theme.ts',
@@ -194,7 +193,7 @@ describe('Plan 006 style-system acceptance audit', () => {
 
     expect(violations, violations.join('\n')).toEqual([])
     expect(Object.keys(packageJson.exports).sort()).toEqual(
-      ['.', './icon.css', './package.json', './recipe', './tailwind', './unocss', './utils'].sort(),
+      ['.', './icon.css', './package.json', './tailwind', './unocss', './utils'].sort(),
     )
     expect(packageJson.exports['./icon.css']).toBe('./dist/icon.css')
     expect(packageJson.files).toEqual(['dist'])
