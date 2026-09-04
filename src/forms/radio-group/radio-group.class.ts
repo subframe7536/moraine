@@ -1,9 +1,5 @@
 import {
-  CHECKABLE_BASE_SIZE_VARIANT,
-  CHECKABLE_CONTAINER_SIZE_VARIANT,
   CHECKABLE_INDICATOR_VARIANT,
-  CHECKABLE_WRAPPER_ALIGN_VARIANT,
-  FLEX_ORIENTATION_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
   TEXT_SIZE_VARIANT,
 } from '../../shared/recipe-common.class.ts'
@@ -60,6 +56,7 @@ export const radioGroupRecipe = recipe({
       table: {
         item: 'border border-muted relative data-checked:border-primary/50 data-checked:bg-primary/10 data-checked:z-base',
       },
+      list: {},
     },
     indicator: {
       start: { item: 'flex-row', wrapper: 'ms-2' },
@@ -101,26 +98,6 @@ export const radioGroupRecipe = recipe({
       class: { item: 'p-4' },
     },
   ],
-})
-
-export const radioGroupRootVariants = recipe({
-  base: 'flex relative',
-  defaultVariants: {
-    orientation: 'vertical',
-  },
-  variants: {
-    orientation: FLEX_ORIENTATION_VARIANT,
-  },
-})
-
-export const radioGroupContainerVariants = recipe({
-  base: 'flex items-center',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
-  },
 })
 
 export const radioGroupItemVariants = recipe({
@@ -167,40 +144,6 @@ export const radioGroupItemVariants = recipe({
   ],
 })
 
-export const radioGroupBaseVariants = recipe({
-  base: 'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:text-primary-foreground data-checked:border-primary data-checked:bg-primary peer-focus-visible:outline-none peer-focus-visible:border-ring peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_BASE_SIZE_VARIANT,
-  },
-})
-
-export const radioGroupWrapperVariants = recipe({
-  base: 'flex flex-col gap-0.5 w-full',
-  defaultVariants: {
-    indicator: 'start',
-  },
-  variants: {
-    indicator: CHECKABLE_WRAPPER_ALIGN_VARIANT,
-  },
-})
-
-export const radioGroupIndicatorVariants = recipe({
-  base: 'rounded-full bg-primary-foreground',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'size-1.5',
-      md: 'size-2',
-      lg: 'size-2.5',
-    },
-  },
-})
-
 type RadioGroupItemVariant = 'list' | 'card' | 'table'
 type RadioGroupItemIndicator = 'start' | 'end' | 'hidden'
 type RadioGroupItemVariantProps = Omit<
@@ -208,7 +151,10 @@ type RadioGroupItemVariantProps = Omit<
   'variant' | 'indicator' | 'tableOrientation'
 >
 
-export type RadioGroupVariantProps = VariantProps<typeof radioGroupRootVariants> &
+export type RadioGroupVariantProps = Omit<
+  VariantProps<typeof radioGroupRecipe>,
+  'variant' | 'indicator' | 'tableOrientation'
+> &
   RadioGroupItemVariantProps & {
     variant?: RadioGroupItemVariant
     indicator?: RadioGroupItemIndicator

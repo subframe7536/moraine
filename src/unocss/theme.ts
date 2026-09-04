@@ -311,8 +311,7 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
       font: MORAINE_FONT,
       spacing: MORAINE_WIDTH,
 
-      // Wind3 uses the legacy key names below. Keep both sets so the same
-      // preset works regardless of which Wind preset the consumer selects.
+      // Wind3 theme keys
       borderRadius: MORAINE_RADIUS,
       boxShadow: MORAINE_SHADOW,
       fontFamily: MORAINE_FONT,

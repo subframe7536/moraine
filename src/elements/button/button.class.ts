@@ -50,5 +50,4 @@ export const buttonRecipe = recipe({
   },
 })
 
-export const buttonVariants = buttonRecipe
 export type ButtonVariantProps = VariantProps<typeof buttonRecipe>

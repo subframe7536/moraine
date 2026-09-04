@@ -1,4 +1,3 @@
-import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -100,59 +99,6 @@ export const formFieldRecipe = recipe({
       class: {
         container: 'mt-1.5',
       },
-    },
-  ],
-})
-
-export const formFieldSizeVariants = recipe({
-  base: '',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: TEXT_SIZE_VARIANT,
-  },
-})
-
-export const formFieldLabelVariants = recipe({
-  base: 'text-foreground font-medium block',
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
-    orientation: {
-      vertical: '',
-      horizontal: '',
-    },
-  },
-  compoundVariants: [
-    {
-      variants: {
-        orientation: 'horizontal',
-        required: true,
-      },
-      class: "before:text-destructive before:me-0.5 before:content-['*'] after:content-none",
-    },
-  ],
-})
-
-export const formFieldContainerVariants = recipe({
-  base: 'flex flex-col gap-1.5 relative',
-  variants: {
-    orientation: {
-      vertical: '',
-      horizontal: 'col-span-3 min-w-0',
-    },
-    hasText: {
-      true: '',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      variants: {
-        orientation: 'vertical',
-        hasText: true,
-      },
-      class: 'mt-1.5',
     },
   ],
 })

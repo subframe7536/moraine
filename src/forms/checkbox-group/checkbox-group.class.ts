@@ -1,9 +1,6 @@
 import {
   CARD_PADDING_SIZE_VARIANT,
-  FLEX_ORIENTATION_VARIANT,
-  REQUIRED_MARK_VARIANT,
   TABLE_EDGE_ORIENTATION_VARIANT,
-  TEXT_SIZE_VARIANT,
 } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
@@ -35,27 +32,6 @@ export const checkboxGroupRecipe = recipe({
         legend: "after:text-destructive after:ms-0.5 after:content-['*']",
       },
     },
-  },
-})
-
-export const checkboxGroupFieldsetVariants = recipe({
-  base: 'flex',
-  defaultVariants: {
-    orientation: 'vertical',
-  },
-  variants: {
-    orientation: FLEX_ORIENTATION_VARIANT,
-  },
-})
-
-export const checkboxGroupLegendVariants = recipe({
-  base: 'text-foreground font-medium mb-1.5 block',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: TEXT_SIZE_VARIANT,
-    required: REQUIRED_MARK_VARIANT,
   },
 })
 

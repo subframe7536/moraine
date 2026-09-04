@@ -30,9 +30,7 @@ export interface MorainePluginOptions {
 
 /**
  * Generate empty CSS stubs for each `icon-*` shortcut so Tailwind's scanner
- * keeps them when they appear in moraine component files.
- * Actual icon rendering comes from `@iconify/tailwind` (Tier 2) or
- * `moraine/icon.css` (Tier 1).
+ * Actual icon rendering comes from `@iconify/tailwind` or `moraine/icon.css`.
  */
 function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))

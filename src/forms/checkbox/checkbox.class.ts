@@ -1,11 +1,3 @@
-import {
-  CHECKABLE_BASE_SIZE_VARIANT,
-  CHECKABLE_CONTAINER_SIZE_VARIANT,
-  CHECKABLE_INDICATOR_VARIANT,
-  CHECKABLE_WRAPPER_ALIGN_VARIANT,
-  REQUIRED_MARK_VARIANT,
-  TEXT_SIZE_VARIANT,
-} from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -61,20 +53,6 @@ export const checkboxRecipe = recipe({
   },
 })
 
-export const checkboxRootVariants = recipe({
-  base: 'flex items-start relative',
-  defaultVariants: {
-    indicator: 'start',
-  },
-  variants: {
-    variant: {
-      card: 'border border-border rounded-md',
-      list: '',
-    },
-    indicator: CHECKABLE_INDICATOR_VARIANT,
-  },
-})
-
 export const checkboxCardPaddingVariants = recipe({
   base: 'p-3',
   defaultVariants: {
@@ -89,52 +67,4 @@ export const checkboxCardPaddingVariants = recipe({
   },
 })
 
-export const checkboxBaseVariants = recipe({
-  base: 'outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-checked:border-primary data-checked:bg-primary data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_BASE_SIZE_VARIANT,
-  },
-})
-
-export const checkboxContainerVariants = recipe({
-  base: 'flex items-center',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
-  },
-})
-
-export const checkboxWrapperVariants = recipe({
-  base: 'flex flex-col gap-0.5 w-full',
-  defaultVariants: {
-    indicator: 'start',
-    size: 'md',
-  },
-  variants: {
-    indicator: CHECKABLE_WRAPPER_ALIGN_VARIANT,
-    size: TEXT_SIZE_VARIANT,
-  },
-})
-
-export const checkboxLabelVariants = recipe({
-  base: 'text-foreground font-medium block select-none',
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
-  },
-})
-
-type CheckboxRootVariantProps = Omit<
-  VariantProps<typeof checkboxRootVariants>,
-  'variant' | 'indicator'
->
-
-export type CheckboxVariantProps = CheckboxRootVariantProps &
-  VariantProps<typeof checkboxBaseVariants> & {
-    variant?: 'list' | 'card'
-    indicator?: 'start' | 'end' | 'hidden'
-  }
+export type CheckboxVariantProps = VariantProps<typeof checkboxRecipe>

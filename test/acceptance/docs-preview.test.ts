@@ -163,7 +163,7 @@ describe('production documentation preview', () => {
     expect(page).toContain('moraine/icon.css')
     expect(page).toContain('Provider defaults.')
     expect(page).toContain('cn()')
-    expect(page).toContain('cva')
+    expect(page).toContain('recipe')
     expect(page).toContain('CSS property objects')
     expect(page).not.toMatch(/(?:runtime|hydration)\s+(?:error|mismatch)/i)
     expect(previewOutput).not.toMatch(/(?:runtime|hydration)\s+(?:error|mismatch)/i)

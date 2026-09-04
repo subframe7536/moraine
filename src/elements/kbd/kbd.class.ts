@@ -45,9 +45,6 @@ export const kbdGroupRecipe = recipe({
   },
 })
 
-export const kbdRootVariants = kbdRecipe
-export const kbdGroupVariants = kbdGroupRecipe
-
 export type KbdVariantProps = VariantProps<typeof kbdRecipe>
 export type KbdGroupVariantProps = VariantProps<typeof kbdGroupRecipe> &
   VariantProps<typeof kbdRecipe>

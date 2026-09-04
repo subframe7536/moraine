@@ -52,49 +52,6 @@ export const selectControlVariants = recipe({
   ],
 })
 
-export const selectInputVariants = recipe({
-  base: 'outline-none bg-transparent flex-1 min-w-0 w-full disabled:opacity-64 disabled:pointer-events-none',
-  defaultVariants: {
-    mode: 'single',
-    size: 'md',
-  },
-  variants: {
-    mode: {
-      single: 'py-1.5',
-      multi: 'leading-tight px-0.5 py-0.5 min-w-12',
-    },
-    size: SELECT_TEXT_SIZE,
-  },
-})
-
-export const multiSelectTagVariants = recipe({
-  base: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'text-xs leading-tight',
-      md: 'text-sm leading-tight',
-      lg: 'text-base leading-tight',
-    },
-  },
-})
-
-export const multiSelectTagOverflowVariants = recipe({
-  base: 'text-muted-foreground leading-tight px-1 flex items-center',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'text-xs leading-tight',
-      md: 'text-sm leading-tight',
-      lg: 'text-base leading-tight',
-    },
-  },
-})
-
 export const SELECT_TRIGGER_ICON_CLASS =
   'text-muted-foreground outline-none opacity-80 shrink-0 pointer-events-none'
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'

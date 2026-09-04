@@ -50,31 +50,4 @@ export const breadcrumbRecipe = recipe({
   },
 })
 
-export const breadcrumbListVariants = recipe({
-  base: 'text-sm text-muted-foreground flex gap-1.5 break-words items-center',
-  defaultVariants: {
-    wrap: true,
-  },
-  variants: {
-    wrap: {
-      true: 'flex-wrap',
-      false: 'flex-nowrap overflow-hidden',
-    },
-  },
-})
-
-export const breadcrumbSizeVariants = recipe({
-  base: '',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-base',
-    },
-  },
-})
-
 export type BreadcrumbVariantProps = VariantProps<typeof breadcrumbRecipe>

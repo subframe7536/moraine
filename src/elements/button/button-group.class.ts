@@ -24,5 +24,4 @@ export const buttonGroupRecipe = recipe({
   },
 })
 
-export const buttonGroupVariants = buttonGroupRecipe
 export type ButtonGroupLayoutVariantProps = VariantProps<typeof buttonGroupRecipe>

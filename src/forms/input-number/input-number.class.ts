@@ -1,9 +1,6 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
-import { inputRootVariants } from '../input/input.class.ts'
-
-export const inputNumberRootVariants = inputRootVariants
 
 export const inputNumberRecipe = recipe({
   slots: ['root', 'input', 'increment', 'decrement'],
@@ -80,28 +77,6 @@ export const inputNumberRecipe = recipe({
   ],
 })
 
-export const inputNumberBaseVariants = recipe({
-  base: 'placeholder:text-muted-foreground text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
-  defaultVariants: {
-    size: 'md',
-    align: 'center',
-  },
-  variants: {
-    size: {
-      sm: 'text-xs leading-4 px-2.5',
-      md: 'text-sm leading-5 px-2.5',
-      lg: 'text-sm leading-5 px-3',
-    },
-    align: {
-      center: 'text-center',
-      start: 'text-start',
-    },
-  },
-})
-
-const INPUT_NUMBER_CONTROL_BUTTON_CLASS =
-  'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:text-primary/75 active:text-primary/75 data-active:text-primary/75'
-
 export type InputNumberOrientation = 'horizontal' | 'vertical'
 
 export function resolveInputNumberAlign(
@@ -110,52 +85,6 @@ export function resolveInputNumberAlign(
 ): 'center' | 'start' {
   return orientation === 'horizontal' && !decrement ? 'start' : 'center'
 }
-
-export const inputNumberControlButtonVariants = recipe({
-  base: INPUT_NUMBER_CONTROL_BUTTON_CLASS,
-  defaultVariants: {
-    control: 'increment',
-    orientation: 'horizontal',
-    size: 'md',
-  },
-  variants: {
-    control: {
-      increment: '',
-      decrement: '',
-    },
-    orientation: {
-      horizontal: 'rounded-none self-stretch',
-      vertical: 'px-0 rounded-none flex-1 min-h-0 w-full scale-80',
-    },
-    size: {
-      sm: 'text-xs',
-      md: 'text-sm',
-      lg: 'text-base',
-    },
-  },
-  compoundVariants: [
-    {
-      variants: { control: 'increment', orientation: 'horizontal' },
-      class: 'rounded-e-none',
-    },
-    {
-      variants: { control: 'decrement', orientation: 'horizontal' },
-      class: 'rounded-s-none',
-    },
-    {
-      variants: { orientation: 'horizontal', size: 'sm' },
-      class: 'w-7',
-    },
-    {
-      variants: { orientation: 'horizontal', size: 'md' },
-      class: 'w-8',
-    },
-    {
-      variants: { orientation: 'horizontal', size: 'lg' },
-      class: 'w-9',
-    },
-  ],
-})
 
 export const inputNumberControlColumnVariants = recipe({
   base: 'pe-1 flex shrink-0 flex-col h-full',

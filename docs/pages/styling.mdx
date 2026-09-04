@@ -11,7 +11,7 @@ Moraine's styling system architecture uses atomic utility classes in the publish
 
 ## UnoCSS
 
-Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan. Wind3 support is limited to UnoCSS preset compatibility: Tailwind CSS remains v4-only, and Moraine does not ship precompiled component CSS.
+Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
 
 ```ts
 // unocss.config.ts
@@ -39,7 +39,7 @@ export default defineConfig({
 })
 ```
 
-The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*`/`aria-*` variants. `opacity-64` is native to Wind3 and Wind4; Moraine does not register it. `globalStyles` defaults to `true`.
+The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*`/`aria-*` variants. `globalStyles` defaults to `true`.
 
 ### Color variables
 
@@ -82,7 +82,7 @@ Register the plugin and scan the published distribution. The `@source` path is r
 @source '../node_modules/moraine/dist';
 ```
 
-`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset. `opacity-64` is a native Tailwind utility, not a Moraine token.
+`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset.
 
 ## Icons
 
@@ -147,11 +147,7 @@ Later values win when utility classes conflict. For a component root, the `class
 </Button>
 ```
 
-`style` and `styles` accept CSS property objects only.
-
-When migrating legacy components from `cva` or other variant helpers, replace
-variant helpers with `recipe({ ... })`
-and convert string `style` values to CSS property objects.
+Define component variants using `recipe({ ... })` and pass CSS property objects to `style` and `styles` props.
 
 ## `cn` and `recipe`
 
@@ -175,4 +171,4 @@ const button = recipe({
 })
 ```
 
-`recipe()` accepts an options object and supports atomic and named-slot recipes. The previous positional variant-helper API and runtime merge-patching hook are removed.
+`recipe()` accepts an options object and supports atomic and named-slot recipes.

@@ -39,5 +39,4 @@ export const badgeRecipe = recipe({
   },
 })
 
-export const badgeVariants = badgeRecipe
 export type BadgeVariantProps = VariantProps<typeof badgeRecipe>

@@ -29,5 +29,4 @@ export const separatorRecipe = recipe({
   },
 })
 
-export const separatorVariants = separatorRecipe
 export type SeparatorVariantProps = VariantProps<typeof separatorRecipe>

@@ -162,7 +162,7 @@ export namespace CommandPaletteT {
     group: Group<TItem>
     focused: boolean
     active: boolean
-    /** Compatibility alias for the currently active item state. */
+    /** Whether the item is currently active. */
     selected: boolean
     disabled: boolean
   }

@@ -313,7 +313,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"card\" | undefined"
+        "type": "\"card\" | \"list\" | undefined"
       }
     ],
     "inherited": []
