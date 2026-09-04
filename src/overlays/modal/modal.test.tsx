@@ -2,9 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index'
+import { Button } from '../../elements/button/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { pushOverlayLayer } from '../base/overlay-stack'
 import { getFocusableElements } from '../base/utils'
+import { Dialog } from '../dialog/dialog.tsx'
+import { Sheet } from '../sheet/sheet.tsx'
 
 import { Modal } from './modal'
 import { ModalTriggerRenderer } from './modal-trigger'
@@ -72,6 +75,113 @@ describe('Modal primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    screen.unmount()
+  })
+
+  test('applies modal provider class/style and trigger slot overrides', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        config={{
+          modal: {
+            class: 'modal-provider-class',
+            classes: { trigger: 'modal-provider-trigger' },
+            style: { color: 'red' },
+            styles: { trigger: { background: 'red' } },
+          },
+        }}
+      >
+        <Modal>
+          <Modal.Trigger
+            data-testid="provider-trigger"
+            class="modal-instance-class"
+            classes={{ trigger: 'modal-instance-trigger' }}
+            style={{ color: 'green' }}
+            styles={{ trigger: { border: '1px solid green' } }}
+          >
+            Open modal
+          </Modal.Trigger>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal>
+      </MoraineProvider>
+    ))
+
+    const trigger = screen.getByTestId('provider-trigger')
+    expect(trigger.className).toContain('modal-provider-class')
+    expect(trigger.className).toContain('modal-provider-trigger')
+    expect(trigger.className).toContain('modal-instance-class')
+    expect(trigger.className).toContain('modal-instance-trigger')
+    expect(trigger.style.color).toBe('green')
+    expect(trigger.style.background).toBe('red')
+    expect(trigger.style.border).toBe('1px solid green')
+    screen.unmount()
+  })
+
+  test('applies modal provider trigger styling to Dialog and Sheet renderers only', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        config={{
+          modal: {
+            class: 'modal-provider-class',
+            classes: { trigger: 'modal-provider-trigger' },
+            style: { color: 'red' },
+            styles: { trigger: { background: 'red' } },
+          },
+          dialog: {
+            class: 'dialog-provider-class',
+            style: { color: 'blue' },
+            styles: {
+              content: { border: '2px solid blue' },
+            },
+          },
+          sheet: {
+            class: 'sheet-provider-class',
+            style: { color: 'green' },
+            styles: {
+              content: { border: '2px solid green' },
+            },
+          },
+        }}
+      >
+        <Dialog open body="Dialog body">
+          {(props) => (
+            <button {...props} type="button">
+              Dialog trigger
+            </button>
+          )}
+        </Dialog>
+        <Sheet open body="Sheet body">
+          {(props) => (
+            <button {...props} type="button">
+              Sheet trigger
+            </button>
+          )}
+        </Sheet>
+      </MoraineProvider>
+    ))
+
+    const triggers = screen.container.querySelectorAll('[data-slot="trigger"]')
+    expect(triggers).toHaveLength(2)
+    expect(triggers[0]?.className).toContain('modal-provider-class')
+    expect(triggers[0]?.className).toContain('modal-provider-trigger')
+    expect(triggers[0]?.className).toContain('dialog-provider-class')
+    expect((triggers[0] as HTMLElement).style.color).toBe('blue')
+    expect((triggers[0] as HTMLElement).style.background).toBe('red')
+    expect(triggers[1]?.className).toContain('modal-provider-class')
+    expect(triggers[1]?.className).toContain('modal-provider-trigger')
+    expect(triggers[1]?.className).toContain('sheet-provider-class')
+    expect((triggers[1] as HTMLElement).style.color).toBe('green')
+    expect((triggers[1] as HTMLElement).style.background).toBe('red')
+
+    const contents = document.body.querySelectorAll('[data-slot="content"]')
+    expect(contents).toHaveLength(2)
+    expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-class')
+    expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-trigger')
+    expect((contents[0] as HTMLElement).style.border).toBe('2px solid blue')
+    expect((contents[1] as HTMLElement).className).not.toContain('modal-provider-class')
+    expect((contents[1] as HTMLElement).className).not.toContain('modal-provider-trigger')
+    expect((contents[1] as HTMLElement).style.border).toBe('2px solid green')
     screen.unmount()
   })
 

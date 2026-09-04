@@ -221,6 +221,8 @@ export interface ComponentStyleInputs<
 > {
   /** Recipe slot functions for this instance. */
   slots?: SlotFns<S>
+  /** Named slot rendered as the component root surface, when different from `root`. */
+  rootSlot?: S
   /** Provider overrides (already deep-merged outer → inner). */
   provider?: ComponentDefaultStyle<V, C, S_Style>
   /** Composition context (e.g. ButtonGroup). Sits between provider and instance. */
@@ -263,61 +265,91 @@ export function resolveComponentStyle<
   C = any,
   S_Style = any,
 >(inputs: ComponentStyleInputs<S, V, C, S_Style>): ResolvedComponentStyle<S> {
-  const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
-  const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
-  const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
-
-  const providerStyles = inputs.provider?.styles as Record<string, JSX.CSSProperties> | undefined
-  const groupStyles = inputs.group?.styles as Record<string, JSX.CSSProperties> | undefined
-  const instanceStyles = inputs.instance?.styles as Record<string, JSX.CSSProperties> | undefined
-
   return {
-    rootClass: () =>
-      (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.root?.(
-        inputs.provider?.class,
-        providerClasses?.root,
-        inputs.group?.class,
-        groupClasses?.root,
-        inputs.stateCls?.root,
-        instanceClasses?.root,
-        inputs.instance?.class,
-      ) ??
-      cn(
-        inputs.provider?.class,
-        providerClasses?.root,
-        inputs.group?.class,
-        groupClasses?.root,
-        inputs.stateCls?.root,
-        instanceClasses?.root,
-        inputs.instance?.class,
-      ),
-    rootStyle: () => ({
-      ...inputs.baseStyle,
-      ...inputs.provider?.style,
-      ...providerStyles?.root,
-      ...inputs.group?.style,
-      ...groupStyles?.root,
-      ...instanceStyles?.root,
-      ...inputs.instance?.style,
-    }),
-    slotClass: (slot) =>
-      (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.[slot]?.(
-        providerClasses?.[slot],
-        groupClasses?.[slot],
-        inputs.stateCls?.[slot],
-        instanceClasses?.[slot],
-      ) ??
-      cn(
-        providerClasses?.[slot],
-        groupClasses?.[slot],
-        inputs.stateCls?.[slot],
-        instanceClasses?.[slot],
-      ),
-    slotStyle: (slot) => ({
-      ...providerStyles?.[slot],
-      ...groupStyles?.[slot],
-      ...instanceStyles?.[slot],
-    }),
+    rootClass: () => {
+      const rootSlot = inputs.rootSlot ?? ('root' as S)
+      const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
+      const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
+      const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
+      const slot = (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.[rootSlot]
+
+      return (
+        slot?.(
+          inputs.provider?.class,
+          providerClasses?.[rootSlot],
+          inputs.group?.class,
+          groupClasses?.[rootSlot],
+          inputs.stateCls?.[rootSlot],
+          instanceClasses?.[rootSlot],
+          inputs.instance?.class,
+        ) ??
+        cn(
+          inputs.provider?.class,
+          providerClasses?.[rootSlot],
+          inputs.group?.class,
+          groupClasses?.[rootSlot],
+          inputs.stateCls?.[rootSlot],
+          instanceClasses?.[rootSlot],
+          inputs.instance?.class,
+        )
+      )
+    },
+    rootStyle: () => {
+      const rootSlot = inputs.rootSlot ?? ('root' as S)
+      const providerStyles = inputs.provider?.styles as
+        | Record<string, JSX.CSSProperties>
+        | undefined
+      const groupStyles = inputs.group?.styles as Record<string, JSX.CSSProperties> | undefined
+      const instanceStyles = inputs.instance?.styles as
+        | Record<string, JSX.CSSProperties>
+        | undefined
+
+      return {
+        ...inputs.baseStyle,
+        ...inputs.provider?.style,
+        ...providerStyles?.[rootSlot],
+        ...inputs.group?.style,
+        ...groupStyles?.[rootSlot],
+        ...instanceStyles?.[rootSlot],
+        ...inputs.instance?.style,
+      }
+    },
+    slotClass: (slot) => {
+      const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
+      const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
+      const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
+      const slotFn = (inputs.slots as unknown as Record<string, SlotFn> | undefined)?.[slot]
+
+      return (
+        slotFn?.(
+          providerClasses?.[slot],
+          groupClasses?.[slot],
+          inputs.stateCls?.[slot],
+          instanceClasses?.[slot],
+        ) ??
+        cn(
+          providerClasses?.[slot],
+          groupClasses?.[slot],
+          inputs.stateCls?.[slot],
+          instanceClasses?.[slot],
+        )
+      )
+    },
+    slotStyle: (slot) => {
+      const providerStyles = inputs.provider?.styles as
+        | Record<string, JSX.CSSProperties>
+        | undefined
+      const groupStyles = inputs.group?.styles as Record<string, JSX.CSSProperties> | undefined
+      const instanceStyles = inputs.instance?.styles as
+        | Record<string, JSX.CSSProperties>
+        | undefined
+
+      return {
+        ...providerStyles?.[slot],
+        ...groupStyles?.[slot],
+        ...instanceStyles?.[slot],
+      }
+    },
   }
 }
 

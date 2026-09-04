@@ -2,6 +2,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef, cn } from '../../shared/utils'
 
@@ -19,7 +20,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   type RuntimeProps = CollapsibleT.TriggerBase<T> & {
     class?: string
-    style?: JSX.CSSProperties | string
+    style?: JSX.CSSProperties
     ref?: (element: CollapsibleTriggerElementFor<T> | undefined) => void
   } & Record<string, unknown>
 
@@ -33,6 +34,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     'ref',
   ])
   const context = useCollapsibleContext()
+  const config = useMoraineConfig()
+  const provider = () => config().collapsible
   const customAs = createMemo(() => local.as)
   const tag = createMemo(() => customAs() ?? 'button')
   const disabled = () => Boolean(context.disabled() || local.disabled)
@@ -63,14 +66,23 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const children = resolveChildren(() => local.children)
-  const style = createMemo(() => {
-    if (typeof context.styles?.trigger === 'object' || typeof local.style === 'object') {
+  const resolved = resolveComponentStyle({
+    rootSlot: 'trigger',
+    get provider() {
+      return provider()
+    },
+    get group() {
       return {
-        ...(typeof context.styles?.trigger === 'object' ? context.styles?.trigger : undefined),
-        ...(typeof local.style === 'object' ? local.style : undefined),
+        classes: context.classes,
+        styles: context.styles,
       }
-    }
-    return local.style ?? context.styles?.trigger
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+      }
+    },
   })
 
   return (
@@ -81,8 +93,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           id={context.triggerId()}
           data-slot="trigger"
           {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
-          style={style()}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, context.classes?.trigger, local.class)}
+          style={resolved.rootStyle()}
+          class={cn(COLLAPSIBLE_TRIGGER_CLASS, resolved.rootClass())}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}
@@ -99,8 +111,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           data-slot="trigger"
           {...(interactionProps as Record<string, unknown>)}
           component={as() as ValidComponent}
-          style={style()}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, context.classes?.trigger, local.class)}
+          style={resolved.rootStyle()}
+          class={cn(COLLAPSIBLE_TRIGGER_CLASS, resolved.rootClass())}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}

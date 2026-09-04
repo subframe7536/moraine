@@ -1,6 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
+import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
@@ -165,6 +166,21 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'class',
     'style',
   ])
+  const config = useMoraineConfig()
+  const provider = () => config().collapsible
+  const resolved = resolveComponentStyle({
+    get provider() {
+      return provider()
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
   const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -230,8 +246,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         data-slot="root"
         {...dataAttrs()}
         {...rest}
-        style={{ ...local.styles?.root, ...local.style }}
-        class={cn(COLLAPSIBLE_ROOT_CLASS, local.classes?.root, local.class)}
+        style={resolved.rootStyle()}
+        class={cn(COLLAPSIBLE_ROOT_CLASS, resolved.rootClass())}
       >
         {local.children}
       </div>

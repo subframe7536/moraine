@@ -2,6 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Collapsible } from './collapsible'
 
 function renderCollapsible(props?: {
@@ -344,6 +346,49 @@ describe('Collapsible', () => {
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')
     expect(content?.style.width).toBe('200px')
+  })
+
+  test('applies collapsible provider styles to the root, trigger, and content owners', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        config={{
+          collapsible: {
+            class: 'provider-root-class',
+            classes: {
+              root: 'provider-root-slot',
+              trigger: 'provider-trigger-slot',
+              content: 'provider-content-slot',
+            },
+            style: { color: 'red' },
+            styles: {
+              root: { width: '100px' },
+              trigger: { width: '200px' },
+              content: { width: '300px' },
+            },
+          },
+        }}
+      >
+        <Collapsible open>
+          <Collapsible.Trigger data-testid="provider-trigger">Trigger</Collapsible.Trigger>
+          <Collapsible.Content>
+            <span data-testid="provider-content">Content</span>
+          </Collapsible.Content>
+        </Collapsible>
+      </MoraineProvider>
+    ))
+
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const trigger = screen.getByTestId('provider-trigger')
+    const content = screen.getByTestId('provider-content').parentElement!
+
+    expect(root.className).toContain('provider-root-class')
+    expect(root.className).toContain('provider-root-slot')
+    expect(root.style.width).toBe('100px')
+    expect(root.style.color).toBe('red')
+    expect(trigger.className).toContain('provider-trigger-slot')
+    expect(trigger.style.width).toBe('200px')
+    expect(content.className).toContain('provider-content-slot')
+    expect(content.style.width).toBe('300px')
   })
 
   test('forwards id to root', async () => {

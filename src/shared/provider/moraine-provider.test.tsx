@@ -2,6 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createSignal, onMount } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import { Button } from '../../elements/button/index.ts'
 import * as elements from '../../elements/index.ts'
 import * as forms from '../../forms/index.ts'
 import * as navigation from '../../navigation/index.ts'
@@ -198,6 +199,99 @@ describe('MoraineProvider Solid Integration', () => {
     setConfig({ button: { class: 'updated-btn' } })
     expect(getByTestId('consumer').textContent).toBe('updated-btn')
     expect(mountCount).toBe(1) // must NOT remount!
+  })
+
+  test('updates provider and instance classes/styles without remounting the component', () => {
+    const [config, setConfig] = createSignal<MoraineConfig>({
+      button: {
+        class: 'provider-root-initial',
+        classes: {
+          root: 'provider-slot-root-initial',
+          leading: 'provider-leading-initial',
+        },
+        style: { color: 'red' },
+        styles: {
+          root: { background: 'red' },
+          leading: { color: 'red' },
+        },
+      },
+    })
+    const [instanceClasses, setInstanceClasses] = createSignal({
+      root: 'instance-root-initial',
+      leading: 'instance-leading-initial',
+    })
+    const [instanceStyles, setInstanceStyles] = createSignal({
+      root: { border: '1px solid red' },
+      leading: { background: 'red' },
+    })
+
+    const screen = render(() => (
+      <MoraineProvider config={config()}>
+        <Button
+          data-testid="button"
+          leading="icon-star"
+          classes={instanceClasses()}
+          styles={instanceStyles()}
+        >
+          Reactive button
+        </Button>
+      </MoraineProvider>
+    ))
+
+    const button = screen.getByTestId('button')
+    const leading = button.querySelector('[data-slot="leading"]')!
+
+    expect(button.className).toContain('provider-root-initial')
+    expect(button.className).toContain('provider-slot-root-initial')
+    expect(button.className).toContain('instance-root-initial')
+    expect(leading.className).toContain('provider-leading-initial')
+    expect(leading.className).toContain('instance-leading-initial')
+    expect(button.style.color).toBe('red')
+    expect(button.style.background).toBe('red')
+    expect(button.style.border).toBe('1px solid red')
+    expect(leading.getAttribute('style')).toContain('color: red')
+    expect(leading.getAttribute('style')).toContain('background: red')
+
+    setConfig({
+      button: {
+        class: 'provider-root-updated',
+        classes: {
+          root: 'provider-slot-root-updated',
+          leading: 'provider-leading-updated',
+        },
+        style: { color: 'blue' },
+        styles: {
+          root: { background: 'blue' },
+          leading: { color: 'blue' },
+        },
+      },
+    })
+
+    expect(screen.getByTestId('button')).toBe(button)
+    expect(button.className).toContain('provider-root-updated')
+    expect(button.className).toContain('provider-slot-root-updated')
+    expect(button.className).not.toContain('provider-root-initial')
+    expect(leading.className).toContain('provider-leading-updated')
+    expect(leading.className).not.toContain('provider-leading-initial')
+    expect(button.style.color).toBe('blue')
+    expect(button.style.background).toBe('blue')
+    expect(leading.getAttribute('style')).toContain('color: blue')
+
+    setInstanceClasses({
+      root: 'instance-root-updated',
+      leading: 'instance-leading-updated',
+    })
+    setInstanceStyles({
+      root: { border: '1px solid blue' },
+      leading: { background: 'blue' },
+    })
+
+    expect(button.className).toContain('instance-root-updated')
+    expect(button.className).not.toContain('instance-root-initial')
+    expect(leading.className).toContain('instance-leading-updated')
+    expect(leading.className).not.toContain('instance-leading-initial')
+    expect(button.style.border).toBe('1px solid blue')
+    expect(leading.getAttribute('style')).toContain('background: blue')
   })
 
   test('nested MoraineProvider deep-merges with parent provider', () => {
